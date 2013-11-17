@@ -92,6 +92,16 @@ public:
 		m_str(WideCharToMultiByte(s))
 	{
 	}
+	
+	std::string str() const
+	{
+		return m_str;
+	}
+
+	const char* c_str() const
+	{
+		return m_str.c_str();
+	}
 
 	operator std::string() const
 	{
@@ -118,6 +128,16 @@ public:
 	explicit WStr(const std::wstring& s) :
 		m_str(s)
 	{
+	}
+
+	std::wstring str() const
+	{
+		return m_str;
+	}
+
+	const wchar_t* c_str() const
+	{
+		return m_str.c_str();
 	}
 
 	operator std::wstring() const

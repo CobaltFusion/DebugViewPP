@@ -255,6 +255,39 @@ void CLogView::Copy()
 	}
 }
 
+bool CLogView::Find(const std::string& text, int direction)
+{
+	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
+	int line = begin + direction;
+	while (line != begin)
+	{
+		if (line < 0)
+			line += m_logLines.size();
+		if (line == m_logLines.size())
+			line = 0;
+
+		if (m_logFile[m_logLines[line]].text.find(text) != std::string::npos)
+		{
+			EnsureVisible(line, true);
+			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);
+			SelectItem(line);
+			return true;
+		}
+		line += direction;
+	}
+	return false;
+}
+
+bool CLogView::FindNext(const std::wstring& text)
+{
+	return Find(Str(text).str(), +1);
+}
+
+bool CLogView::FindPrevious(const std::wstring& text)
+{
+	return Find(Str(text).str(), -1);
+}
+
 void CLogView::LoadSettings(CRegKey& reg)
 {
 	std::array<wchar_t, 100> buf;

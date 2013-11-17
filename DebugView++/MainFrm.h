@@ -16,6 +16,7 @@ namespace WTL { using ATL::CString; };
 
 #include "Utilities.h"
 #include "GuiThread.h"
+#include "FindDlg.h"
 #include "LogFile.h"
 #include "DBWinReader.h"
 
@@ -43,6 +44,8 @@ public:
 	END_UPDATE_UI_MAP()
 
 	void SetLineRange(const SelectionInfo& selection);
+	void FindNext(const std::wstring& text);
+	void FindPrevious(const std::wstring& text);
 
 private:
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
@@ -71,6 +74,7 @@ private:
 	void OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLogFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
@@ -82,6 +86,7 @@ private:
 	int m_filterNr;
 	std::vector<std::unique_ptr<CLogView>> m_views;
 	CFontDialog m_fontDlg;
+	CFindDlg m_findDlg;
 	bool m_paused;
 	Timer m_timer;
 	DBWinReader m_localReader;

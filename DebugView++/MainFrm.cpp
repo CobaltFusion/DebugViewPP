@@ -29,6 +29,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_FILTER, OnLogFilter)
 	COMMAND_ID_HANDLER_EX(ID_LOG_COPY, OnLogCopy)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
+	COMMAND_ID_HANDLER_EX(ID_LOG_FIND, OnLogFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FONT, OnViewFont)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
 	NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClickTab)
@@ -49,6 +50,7 @@ LOGFONT& GetDefaultLogFont()
 CMainFrame::CMainFrame() :
 	m_filterNr(0),
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
+	m_findDlg(*this),
 	m_paused(false),
 	m_localReader(false),
 //	m_globalReader(true),
@@ -84,6 +86,8 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	SetWindowText(WStr(LoadString(IDR_APPNAME)));
 
+	m_findDlg.Create(*this, 0);
+
 	CreateSimpleToolBar();
 	UIAddToolBar(m_hWndToolBar);
 
@@ -96,6 +100,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	AddTab(*m_views.front(), L"Log", 0);
 	GetTabCtrl().InsertItem(1, L"+");
 	HideTabControl();
+
 	SetLogFont();
 	LoadSettings();
 
@@ -225,6 +230,18 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	}
 }
 
+void CMainFrame::FindNext(const std::wstring& text)
+{
+	if (!GetView().FindNext(text))
+		MessageBeep(MB_ICONASTERISK);
+}
+
+void CMainFrame::FindPrevious(const std::wstring& text)
+{
+	if (!GetView().FindPrevious(text))
+		MessageBeep(MB_ICONASTERISK);
+}
+
 void CMainFrame::AddFilterView()
 {
 	++m_filterNr;
@@ -320,6 +337,11 @@ void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 {
 	m_paused = !m_paused;
 	UpdateUI();
+}
+
+void CMainFrame::OnLogFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_findDlg.ShowWindow(SW_SHOW);
 }
 
 void CMainFrame::OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

@@ -8,7 +8,6 @@
 #pragma once
 
 #include <vector>
-#include "dbgstream.h"
 #include "PropertyGrid.h"
 #include "ColorCombo.h"
 #include "Resource.h"
