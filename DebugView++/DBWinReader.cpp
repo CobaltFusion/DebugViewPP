@@ -34,8 +34,8 @@ CHandle GetDBWinMutex(bool global)
 }
 
 DBWinReader::DBWinReader(bool global) :
-	m_end(false),
-	bufferMutex(GetDBWinMutex(global))
+	m_end(false)
+	//bufferMutex(GetDBWinMutex(global))
 {
 //	MutexLock bufferLock(bufferMutex);
 
