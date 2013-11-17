@@ -130,6 +130,7 @@
     <ClCompile Include="DBWinReader.cpp" />
     <ClCompile Include="DebugView++.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
+    <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="DBWinReader.h" />
     <ClInclude Include="FilterDlg.h" />
+    <ClInclude Include="FindDlg.h" />
     <ClInclude Include="GuiThread.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="MainFrm.h" />

@@ -57,6 +57,9 @@ public:
 	void SelectAll();
 	void Copy();
 
+	bool FindNext(const std::wstring& text);
+	bool FindPrevious(const std::wstring& text);
+
 	std::vector<std::string> GetFilters() const;
 	void SetFilters(const std::vector<std::string>& filters);
 
@@ -66,7 +69,7 @@ public:
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
 
-	SelectionInfo CLogView::GetSelectedRange() const;
+	SelectionInfo GetSelectedRange() const;
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
@@ -74,6 +77,7 @@ private:
 	LRESULT OnCustomDraw(LPNMHDR pnmh);
 	LRESULT OnOdStateChanged(LPNMHDR pnmh);
 
+	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
 	bool IsIncluded(const std::string& text) const;
 
