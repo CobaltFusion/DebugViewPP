@@ -25,67 +25,62 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 	return global ? L"Global\\" + name : name;
 }
 
-CHandle GetDBWinMutex(bool global)
-{
-	CHandle hMutex(OpenMutex(SYNCHRONIZE, FALSE, GetDBWinName(global, L"DBWinMutex").c_str()));
-	if (!hMutex)
-		hMutex = CreateMutex(nullptr, false, GetDBWinName(global, L"DBWinMutex").c_str());
-	return hMutex;
-}
-
 DBWinReader::DBWinReader(bool global) :
 	m_end(false)
-	//bufferMutex(GetDBWinMutex(global))
 {
-//	MutexLock bufferLock(bufferMutex);
-
-	hBuffer = CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str());
+	m_hBuffer = CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str());
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		throw std::runtime_error("Another DebugView is running");
 
-	dbWinBufferReady = CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str());
-	dbWinDataReady = CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str());
+	m_dbWinBufferReady = CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str());
+	m_dbWinDataReady = CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str());
 
+	m_lines = new std::vector<Line>();
 	m_thread = boost::thread(&DBWinReader::Run, this);
 }
 
 DBWinReader::~DBWinReader()
 {
 	Abort();
-
-//	MutexLock bufferLock(bufferMutex);
-
-	dbWinDataReady.Close();
-	dbWinBufferReady.Close();
-	hBuffer.Close();
-}
-
-boost::signals2::connection DBWinReader::ConnectOnMessage(OnMessage::slot_type slot)
-{
-	return m_onMessage.connect(slot);
+	m_dbWinDataReady.Close();
+	m_dbWinBufferReady.Close();
+	m_hBuffer.Close();
 }
 
 void DBWinReader::Abort()
 {
 	m_end = true;
-	SetEvent(dbWinDataReady);
+	SetEvent(m_dbWinDataReady);	// will this not interfere with other DBWIN listers?
 	m_thread.join();
 }
 
 void DBWinReader::Run()
 {
-	MappedViewOfFile dbWinView(hBuffer, PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
+	MappedViewOfFile dbWinView(m_hBuffer, PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
 	auto pData = static_cast<const DbWinBuffer*>(dbWinView.Ptr());
 	for (;;)
 	{
-		WaitForSingleObject(dbWinDataReady);
-
 		if (m_end)
 			break;
-		m_onMessage(pData->processId, pData->data);
-		SetEvent(dbWinBufferReady);
+		SetEvent(m_dbWinBufferReady);
+		WaitForSingleObject(m_dbWinDataReady);
+
+		Line line;
+		line.ticks = m_timer.Get();		//todo: store time as raw-ticks to save memory.
+		line.pid = pData->processId;
+		line.message = pData->data;
+
+		boost::unique_lock<boost::mutex> lock(m_linesMutex);
+		m_lines->push_back(line);
 	}
-	SetEvent(dbWinBufferReady);
+}
+
+LinesList * DBWinReader::GetLines()
+{
+	boost::unique_lock<boost::mutex> lock(m_linesMutex);
+	auto lines = m_lines;
+	m_lines = new LinesList();
+	return lines;
 }
 
 } // namespace gj

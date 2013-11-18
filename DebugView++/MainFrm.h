@@ -15,7 +15,7 @@ namespace WTL { using ATL::CString; };
 #include "TabbedFrame.h"
 
 #include "Utilities.h"
-#include "GuiThread.h"
+//#include "GuiThread.h"
 #include "FindDlg.h"
 #include "LogFile.h"
 #include "DBWinReader.h"
@@ -56,6 +56,8 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 
+	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
+
 	void UpdateUI();
 	bool LoadSettings();
 	void SaveSettings();
@@ -81,14 +83,14 @@ private:
 	CLogView& GetView();
 	void SetLogFont();
 
-	GuiThread m_guiThread;
+	//GuiThread m_guiThread;
+	UINT_PTR m_timer;
 	LogFile m_logFile;
 	int m_filterNr;
 	std::vector<std::unique_ptr<CLogView>> m_views;
 	CFontDialog m_fontDlg;
 	CFindDlg m_findDlg;
 	bool m_paused;
-	Timer m_timer;
 	DBWinReader m_localReader;
 //	DBWinReader m_globalReader;
 	boost::signals2::connection m_localConnection;

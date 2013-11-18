@@ -20,9 +20,33 @@
 
 namespace gj {
 
+const unsigned int msOnTimerPeriod = 100;
+
+std::wstring GetProcessName(DWORD processId)
+{
+	CHandle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
+	if (!hProcess)
+		return L"";
+
+	std::array<wchar_t, MAX_PATH> buf;
+	DWORD rc = GetProcessImageFileName(hProcess, buf.data(), buf.size());
+	if (rc == 0)
+		return L"";
+
+	const wchar_t* name = buf.data();
+	for (auto it = buf.data(); *it; ++it)
+	{
+		if (*it == '\\')
+			name = it + 1;
+	}
+	return name;
+}
+
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
+	MESSAGE_HANDLER(WM_TIMER, OnTimer)
+
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_TIME, OnLogTime)
@@ -52,16 +76,24 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_paused(false),
-	m_localReader(false),
+	m_localReader(false)
 //	m_globalReader(true),
-	m_localConnection(m_localReader.ConnectOnMessage([this](DWORD processId, const char* msg) { OnDebugMessage(processId, msg); }))
+	//m_localConnection(m_localReader.ConnectOnMessage([this](DWORD processId, const char* msg) { OnDebugMessage(processId, msg); }))		// jcw: see SetTimer / OnTimer
 //	m_globalConnection(m_globalReader.ConnectOnMessage([this](DWORD processId, const char* msg) { OnDebugMessage(processId, msg); }))
 {
+
+//#define CONSOLE_DEBUG
+#ifdef CONSOLE_DEBUG
+	AllocConsole();
+	freopen("CONOUT$", "wb", stdout);
+#endif
+
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
 }
 
 CMainFrame::~CMainFrame()
 {
+
 }
 
 void CMainFrame::ExceptionHandler()
@@ -111,14 +143,26 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddIdleHandler(this);
 
 	UpdateUI();
- 
+	m_timer = SetTimer(1, msOnTimerPeriod, NULL);
 	return 0;
 }
 
 void CMainFrame::OnClose()
 {
+	if (m_timer)
+	{
+		KillTimer(m_timer); 
+	}
+
 	SaveSettings();
 	DestroyWindow();
+
+
+#ifdef CONSOLE_DEBUG
+	fclose(stdout);
+	FreeConsole();
+#endif
+
 }
 
 void CMainFrame::UpdateUI()
@@ -127,6 +171,23 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_LOG_TIME, GetView().GetClockTime());
 	UISetCheck(ID_LOG_PAUSE, m_paused);
 }
+
+LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
+{
+	std::unique_ptr<LinesList> lines(m_localReader.GetLines());
+
+	//printf("lines: %d", lines.size());
+	for (auto i = lines->begin(); i != lines->end(); i++)
+	{
+		const Line& line = *i;
+		// todo: dont use GetLocalTime! 1) its not accurate, 2) it costs memory, derive from line.ticks instead
+		// todo: dont store the processname in class Message (too expensive, cache a list of processes instead)
+		Message msg(GetLocalTime(), line.ticks, line.pid, GetProcessName(line.pid), line.message);		
+		AddMessage(msg);
+	}
+	return 0;
+}
+
 
 const wchar_t* RegistryPath = L"Software\\DjeeDjay\\DebugView++";
 
@@ -373,30 +434,10 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
-std::wstring GetProcessName(DWORD processId)
-{
-	CHandle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
-	if (!hProcess)
-		return L"";
-
-	std::array<wchar_t, MAX_PATH> buf;
-	DWORD rc = GetProcessImageFileName(hProcess, buf.data(), buf.size());
-	if (rc == 0)
-		return L"";
-
-	const wchar_t* name = buf.data();
-	for (auto it = buf.data(); *it; ++it)
-	{
-		if (*it == '\\')
-			name = it + 1;
-	}
-	return name;
-}
-
 void CMainFrame::OnDebugMessage(DWORD processId, const char* text)
 {
-	Message msg(GetLocalTime(), m_timer.Get(), processId, GetProcessName(processId), text);
-	m_guiThread([this, msg]() { AddMessage(msg); });
+	//Message msg(GetLocalTime(), m_timer.Get(), processId, GetProcessName(processId), text);
+	//m_guiThread([this, msg]() { AddMessage(msg); });
 }
 
 void CMainFrame::AddMessage(const Message& msg)

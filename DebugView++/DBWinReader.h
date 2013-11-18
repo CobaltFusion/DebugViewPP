@@ -9,8 +9,18 @@
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread.hpp>
+#include "Utilities.h"
 
 namespace gj {
+
+struct Line
+{
+	double ticks;
+	int pid;
+	std::string message;
+};
+
+typedef std::vector<Line> LinesList;
 
 class DBWinReader : boost::noncopyable
 {
@@ -20,19 +30,22 @@ public:
 	explicit DBWinReader(bool global);
 	~DBWinReader();
 
-	boost::signals2::connection ConnectOnMessage(OnMessage::slot_type slot);
 	void Abort();
+
+	LinesList * GetLines();
 
 private:
 	void Run();
 
 	bool m_end;
-	CHandle bufferMutex;
-	CHandle hBuffer;
-	CHandle dbWinBufferReady;
-	CHandle dbWinDataReady;
-	OnMessage m_onMessage;
+	CHandle m_hBuffer;
+	CHandle m_dbWinBufferReady;
+	CHandle m_dbWinDataReady;
 	boost::thread m_thread;
+
+	LinesList * m_lines;
+	boost::mutex m_linesMutex;
+	Timer m_timer;
 };
 
 } // namespace gj
