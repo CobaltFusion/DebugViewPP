@@ -176,7 +176,12 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 {
 	std::unique_ptr<LinesList> lines(m_localReader.GetLines());
 
-	//printf("lines: %d", lines.size());
+#ifdef CONSOLE_DEBUG
+	if (lines->size() > 0)
+	{
+		printf("incoming lines: %d\n", lines->size());
+	}
+#endif
 	for (auto i = lines->begin(); i != lines->end(); i++)
 	{
 		const Line& line = *i;
@@ -185,6 +190,9 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 		Message msg(GetLocalTime(), line.ticks, line.pid, GetProcessName(line.pid), line.message);		
 		AddMessage(msg);
 	}
+
+	for (auto it = m_views.begin(); it != m_views.end(); ++it)
+		(*it)->UpdateItemCount();
 	return 0;
 }
 

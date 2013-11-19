@@ -194,13 +194,17 @@ void CLogView::Add(int line, const Message& msg)
 
 	int item = m_logLines.size();
 	m_logLines.push_back(line);
-	SetItemCount(m_logLines.size());
 
 	if (selectLast)
 	{
 		EnsureVisible(item, true);
 		SetItemState(item, LVIS_FOCUSED, LVIS_FOCUSED);
 	}
+}
+
+void CLogView::UpdateItemCount()
+{
+	SetItemCount(m_logLines.size());
 }
 
 bool CLogView::GetClockTime() const

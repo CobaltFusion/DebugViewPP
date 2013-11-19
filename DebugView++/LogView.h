@@ -52,6 +52,8 @@ public:
 
 	void Clear();
 	void Add(int line, const Message& msg);
+	void UpdateItemCount();
+
 	bool GetClockTime() const;
 	void SetClockTime(bool clockTime);
 	void SelectAll();
