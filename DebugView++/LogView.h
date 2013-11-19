@@ -53,6 +53,9 @@ public:
 	void Clear();
 	void Add(int line, const Message& msg);
 	void UpdateItemCount();
+	void ScrollToIndex(int index, bool center);
+	void ScrollDown();
+	bool IsLastLineSelected();
 
 	bool GetClockTime() const;
 	void SetClockTime(bool clockTime);
@@ -72,6 +75,7 @@ public:
 	void SaveSettings(CRegKey& reg);
 
 	SelectionInfo GetSelectedRange() const;
+	void UpdateAutoScrollDown();
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
@@ -92,6 +96,7 @@ private:
 	std::vector<LogFilter> m_excludefilters;
 	std::vector<int> m_logLines;
 	bool m_clockTime;
+	bool m_autoScrollDown;
 };
 
 } // namespace gj

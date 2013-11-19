@@ -189,22 +189,47 @@ void CLogView::Add(int line, const Message& msg)
 	if (!IsIncluded(msg.text))
 		return;
 
-	int focus = GetNextItem(0, LVNI_FOCUSED);
-	bool selectLast = focus < 0 || focus == GetItemCount() - 1;
-
-	int item = m_logLines.size();
 	m_logLines.push_back(line);
+}
 
-	if (selectLast)
-	{
-		EnsureVisible(item, true);
-		SetItemState(item, LVIS_FOCUSED, LVIS_FOCUSED);
-	}
+void CLogView::UpdateAutoScrollDown()
+{
+	int focus = GetNextItem(0, LVNI_FOCUSED);
+	m_autoScrollDown = focus < 0 || focus == GetItemCount() - 1;
 }
 
 void CLogView::UpdateItemCount()
 {
 	SetItemCount(m_logLines.size());
+	if (m_autoScrollDown)
+	{
+		ScrollDown();
+	}
+}
+
+void CLogView::ScrollToIndex(int index, bool center)
+{
+	if (index < 0) return;
+	if (size_t(index) >= m_logLines.size()) return;
+	
+	//todo: deselect any seletected items.
+	
+	EnsureVisible(index, false);
+	SetItemState(index, LVIS_FOCUSED, LVIS_FOCUSED);
+
+	if (center)
+	{
+		int maxExtraItems = GetCountPerPage() / 2;
+		int maxBottomIndex = std::min<int>(m_logLines.size() - 1, index + maxExtraItems);
+		EnsureVisible(maxBottomIndex, false);
+	}
+	//todo: make sure the listview control has focus
+}
+
+void CLogView::ScrollDown()
+{
+	int lastIndex = m_logLines.size()-1;
+	ScrollToIndex(lastIndex, false);
 }
 
 bool CLogView::GetClockTime() const

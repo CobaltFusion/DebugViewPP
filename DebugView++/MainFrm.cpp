@@ -182,6 +182,12 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 		printf("incoming lines: %d\n", lines->size());
 	}
 #endif
+
+	for (auto it = m_views.begin(); it != m_views.end(); ++it)
+	{
+		(*it)->UpdateAutoScrollDown();
+	}
+
 	for (auto i = lines->begin(); i != lines->end(); i++)
 	{
 		const Line& line = *i;
@@ -192,7 +198,9 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 	}
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
+	{
 		(*it)->UpdateItemCount();
+	}
 	return 0;
 }
 
