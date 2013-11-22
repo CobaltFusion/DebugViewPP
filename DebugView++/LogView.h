@@ -10,6 +10,8 @@
 #include "OffscreenPaint.h"
 #include "MainFrm.h"
 #include "LogFile.h"
+#include "DisplayInfo.h"
+#include "ProcessInfo.h"
 
 namespace gj {
 
@@ -52,7 +54,9 @@ public:
 
 	void Clear();
 	void Add(int line, const Message& msg);
-	void UpdateItemCount();
+	void BeginUpdate();
+	void EndUpdate();
+
 	void ScrollToIndex(int index, bool center);
 	void ScrollDown();
 	bool IsLastLineSelected();
@@ -75,7 +79,6 @@ public:
 	void SaveSettings(CRegKey& reg);
 
 	SelectionInfo GetSelectedRange() const;
-	void UpdateAutoScrollDown();
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
@@ -97,6 +100,9 @@ private:
 	std::vector<int> m_logLines;
 	bool m_clockTime;
 	bool m_autoScrollDown;
+	DisplayInfo m_displayInfo;
+	ProcessInfo m_processInfo;
+	bool m_dirty;
 };
 
 } // namespace gj

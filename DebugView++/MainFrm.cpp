@@ -22,26 +22,6 @@ namespace gj {
 
 const unsigned int msOnTimerPeriod = 100;
 
-std::wstring GetProcessName(DWORD processId)
-{
-	CHandle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
-	if (!hProcess)
-		return L"";
-
-	std::array<wchar_t, MAX_PATH> buf;
-	DWORD rc = GetProcessImageFileName(hProcess, buf.data(), buf.size());
-	if (rc == 0)
-		return L"";
-
-	const wchar_t* name = buf.data();
-	for (auto it = buf.data(); *it; ++it)
-	{
-		if (*it == '\\')
-			name = it + 1;
-	}
-	return name;
-}
-
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
@@ -185,7 +165,7 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 	{
-		(*it)->UpdateAutoScrollDown();
+		(*it)->BeginUpdate();
 	}
 
 	for (auto i = lines.begin(); i != lines.end(); i++)
@@ -193,13 +173,13 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 		const Line& line = *i;
 		// todo: dont use GetLocalTime! 1) its not accurate, 2) it costs memory, derive from line.ticks instead
 		// todo: dont store the processname in class Message (too expensive, cache a list of processes instead)
-		Message msg(GetLocalTime(), line.ticks, line.pid, GetProcessName(line.pid), line.message);		
+		Message msg(GetLocalTime(), line.ticks, line.pid, line.message);		
 		AddMessage(msg);
 	}
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 	{
-		(*it)->UpdateItemCount();
+		(*it)->EndUpdate();
 	}
 	return 0;
 }

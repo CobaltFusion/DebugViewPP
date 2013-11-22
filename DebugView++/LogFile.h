@@ -12,15 +12,14 @@ namespace gj {
 
 struct Message
 {
-	Message(const SYSTEMTIME& localTime, double time, DWORD processId, const std::wstring& processName, const std::string& text) :
-		localTime(localTime), time(time), processId(processId), processName(processName), text(text)
+	Message(const SYSTEMTIME& localTime, double time, DWORD processId, const std::string& text) :
+		localTime(localTime), time(time), processId(processId), text(text)
 	{
 	}
 
 	double time;
 	SYSTEMTIME localTime;
 	DWORD processId;
-	std::wstring processName;
 	std::string text;
 };
 

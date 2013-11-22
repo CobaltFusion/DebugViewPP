@@ -41,7 +41,8 @@ END_MSG_MAP_CATCH(ExceptionHandler)
 CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile) :
 	m_mainFrame(mainFrame),
 	m_logFile(logFile),
-	m_clockTime(false)
+	m_clockTime(false),
+	m_dirty(false)
 {
 }
 
@@ -138,7 +139,7 @@ LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 	case 0: CopyItemText(std::to_string(line + 1ULL), item.pszText, item.cchTextMax); break;
 	case 1: CopyItemText(GetTimeText(msg), item.pszText, item.cchTextMax); break;
 	case 2: CopyItemText(std::to_string(msg.processId + 0ULL), item.pszText, item.cchTextMax); break;
-	case 3: CopyItemText(msg.processName, item.pszText, item.cchTextMax); break;
+	case 3: CopyItemText(m_displayInfo.GetProcessName(msg.processId), item.pszText, item.cchTextMax); break;
 	case 4: CopyItemText(msg.text, item.pszText, item.cchTextMax); break;
 	}
 
@@ -180,8 +181,9 @@ void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 
 void CLogView::Clear()
 {
-	m_logLines.clear();
 	SetItemCount(0);
+	m_dirty = false;
+	m_logLines.clear();
 }
 
 void CLogView::Add(int line, const Message& msg)
@@ -189,21 +191,26 @@ void CLogView::Add(int line, const Message& msg)
 	if (!IsIncluded(msg.text))
 		return;
 
+	m_dirty = true;
 	m_logLines.push_back(line);
 }
 
-void CLogView::UpdateAutoScrollDown()
+void CLogView::BeginUpdate()
 {
 	int focus = GetNextItem(0, LVNI_FOCUSED);
 	m_autoScrollDown = focus < 0 || focus == GetItemCount() - 1;
 }
 
-void CLogView::UpdateItemCount()
+void CLogView::EndUpdate()
 {
-	SetItemCount(m_logLines.size());
-	if (m_autoScrollDown)
+	if (m_dirty)
 	{
-		ScrollDown();
+		SetItemCount(m_logLines.size());
+		if (m_autoScrollDown)
+		{
+			ScrollDown();
+		}
+		m_dirty = false;
 	}
 }
 

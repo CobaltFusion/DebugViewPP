@@ -129,11 +129,13 @@
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="DBWinReader.cpp" />
     <ClCompile Include="DebugView++.cpp" />
+    <ClCompile Include="DisplayInfo.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
     <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -144,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="DBWinReader.h" />
+    <ClInclude Include="DisplayInfo.h" />
     <ClInclude Include="FilterDlg.h" />
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="GuiThread.h" />
@@ -151,6 +154,7 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="OffscreenPaint.h" />
+    <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Utilities.h" />
