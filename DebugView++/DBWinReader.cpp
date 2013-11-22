@@ -34,8 +34,6 @@ DBWinReader::DBWinReader(bool global) :
 
 	m_dbWinBufferReady = CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str());
 	m_dbWinDataReady = CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str());
-
-	m_lines = new std::vector<Line>();
 	m_thread = boost::thread(&DBWinReader::Run, this);
 }
 
@@ -71,16 +69,16 @@ void DBWinReader::Run()
 		line.message = pData->data;
 
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
-		m_lines->push_back(line);
+		m_lines.push_back(line);
 	}
 }
 
-LinesList * DBWinReader::GetLines()
+LinesList DBWinReader::GetLines()
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	auto lines = m_lines;
-	m_lines = new LinesList();
-	return lines;
+	LinesList temp;
+	temp.swap(m_lines);
+	return std::move(temp);
 }
 
 } // namespace gj

@@ -174,7 +174,7 @@ void CMainFrame::UpdateUI()
 
 LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 {
-	std::unique_ptr<LinesList> lines(m_localReader.GetLines());
+	auto lines = m_localReader.GetLines();
 
 #ifdef CONSOLE_DEBUG
 	if (lines->size() > 0)
@@ -188,7 +188,7 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 		(*it)->UpdateAutoScrollDown();
 	}
 
-	for (auto i = lines->begin(); i != lines->end(); i++)
+	for (auto i = lines.begin(); i != lines.end(); i++)
 	{
 		const Line& line = *i;
 		// todo: dont use GetLocalTime! 1) its not accurate, 2) it costs memory, derive from line.ticks instead
@@ -383,6 +383,7 @@ void CMainFrame::OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	GetView().Clear();
+	m_logFile.Clear();	// todo: deal with multiple views, but for now release all memory to verify implemention
 }
 
 void CMainFrame::OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

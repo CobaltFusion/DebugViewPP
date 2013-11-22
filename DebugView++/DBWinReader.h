@@ -32,7 +32,7 @@ public:
 
 	void Abort();
 
-	LinesList * GetLines();
+	LinesList GetLines();
 
 private:
 	void Run();
@@ -43,7 +43,7 @@ private:
 	CHandle m_dbWinDataReady;
 	boost::thread m_thread;
 
-	LinesList * m_lines;
+	LinesList m_lines;
 	boost::mutex m_linesMutex;
 	Timer m_timer;
 };
