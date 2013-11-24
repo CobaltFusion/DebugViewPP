@@ -15,8 +15,8 @@ namespace gj {
 
 struct Line
 {
-	double ticks;
-	int pid;
+	TickType ustime;
+	DWORD pid;
 	std::string message;
 };
 
@@ -45,7 +45,7 @@ private:
 
 	LinesList m_lines;
 	boost::mutex m_linesMutex;
-	Timer m_timer;
+	AccurateTime m_accurateTime;
 };
 
 } // namespace gj

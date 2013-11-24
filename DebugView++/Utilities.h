@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <cmath>
+#include <boost/date_time/local_time/local_time.hpp> 
 
 // Alternative to ATL standard BEGIN_MSG_MAP() with try block:
 #define BEGIN_MSG_MAP_TRY(theClass) \
@@ -177,6 +178,25 @@ private:
 
 	double m_timerUnit;
 	long long m_offset;
+};
+
+typedef long long TickType;	// microseconds
+
+class AccurateTime
+{
+public:
+	AccurateTime();
+	void SyncToLocalTime();
+	long long PerformanceCounterTicks() const;
+	TickType GetTicks() const;
+	static std::string GetLocalTimeString(TickType ticks);
+
+private:
+	static boost::posix_time::ptime Zero();
+
+	TickType m_localtimeoffset;
+	TickType m_offset;
+	double m_usfactor;
 };
 
 template <typename T>

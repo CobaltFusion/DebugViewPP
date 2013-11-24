@@ -63,8 +63,6 @@ private:
 	void SaveSettings();
 
 	void AddFilterView();
-
-	void OnDebugMessage(DWORD processId, const char* text);
 	void AddMessage(const Message& msg);
 
 	LRESULT OnClickTab(NMHDR* pnmh);

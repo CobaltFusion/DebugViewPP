@@ -64,7 +64,7 @@ void DBWinReader::Run()
 		WaitForSingleObject(m_dbWinDataReady);
 
 		Line line;
-		line.ticks = m_timer.Get();		//todo: store time as raw-ticks to save memory.
+		line.ustime = m_accurateTime.GetTicks();
 		line.pid = pData->processId;
 		line.message = pData->data;
 

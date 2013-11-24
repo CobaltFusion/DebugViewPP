@@ -58,8 +58,6 @@ CMainFrame::CMainFrame() :
 	m_paused(false),
 	m_localReader(false)
 //	m_globalReader(true),
-	//m_localConnection(m_localReader.ConnectOnMessage([this](DWORD processId, const char* msg) { OnDebugMessage(processId, msg); }))		// jcw: see SetTimer / OnTimer
-//	m_globalConnection(m_globalReader.ConnectOnMessage([this](DWORD processId, const char* msg) { OnDebugMessage(processId, msg); }))
 {
 
 //#define CONSOLE_DEBUG
@@ -157,9 +155,9 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 	auto lines = m_localReader.GetLines();
 
 #ifdef CONSOLE_DEBUG
-	if (lines->size() > 0)
+	if (lines.size() > 0)
 	{
-		printf("incoming lines: %d\n", lines->size());
+		printf("incoming lines: %d\n", lines.size());
 	}
 #endif
 
@@ -171,9 +169,7 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 	for (auto i = lines.begin(); i != lines.end(); i++)
 	{
 		const Line& line = *i;
-		// todo: dont use GetLocalTime! 1) its not accurate, 2) it costs memory, derive from line.ticks instead
-		// todo: dont store the processname in class Message (too expensive, cache a list of processes instead)
-		Message msg(GetLocalTime(), line.ticks, line.pid, line.message);		
+		Message msg(line.ustime, line.pid, line.message);
 		AddMessage(msg);
 	}
 
@@ -275,6 +271,8 @@ std::wstring FormatDuration(double seconds)
 
 void CMainFrame::SetLineRange(const SelectionInfo& selection)
 {
+	/*
+	//todo: fix 
 	if (selection.count > 0)
 	{
 		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
@@ -284,7 +282,9 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	else
 	{
 		UISetText(ID_DEFAULT_PANE, L"Ready");
-	}
+	}*/
+
+	UISetText(ID_DEFAULT_PANE, L"Ready");
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
@@ -431,18 +431,13 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
-void CMainFrame::OnDebugMessage(DWORD processId, const char* text)
-{
-	//Message msg(GetLocalTime(), m_timer.Get(), processId, GetProcessName(processId), text);
-	//m_guiThread([this, msg]() { AddMessage(msg); });
-}
-
 void CMainFrame::AddMessage(const Message& msg)
 {
 	if (m_paused)
 		return;
 
 	int index = m_logFile.Count();
+
 	m_logFile.Add(msg);
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->Add(index, msg);
