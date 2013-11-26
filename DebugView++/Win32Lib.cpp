@@ -6,11 +6,8 @@
 //  See http://boosttestui.wordpress.com/ for the boosttestui home page.
 
 #include "stdafx.h"
-#include <vector>
-#include <boost/utility.hpp>
-#include <boost/system/system_error.hpp>
-#include <windows.h>
 #include "Win32Lib.h"
+#include <vector>
 
 namespace gj {
 
@@ -189,5 +186,13 @@ SYSTEMTIME GetLocalTime()
 	GetLocalTime(&localTime);
 	return localTime;
 }
+
+SYSTEMTIME GetRTCTime()
+{
+	SYSTEMTIME localTime;
+	GetLocalTime(&localTime);
+	return localTime;
+}
+
 
 } // namespace gj

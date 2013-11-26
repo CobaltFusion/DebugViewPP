@@ -190,6 +190,7 @@ public:
 	long long PerformanceCounterTicks() const;
 	TickType GetTicks() const;
 	static std::string GetLocalTimeString(TickType ticks);
+	TickType GetRTCTime();
 
 private:
 	static boost::posix_time::ptime Zero();

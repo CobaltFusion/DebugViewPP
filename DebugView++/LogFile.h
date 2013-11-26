@@ -18,6 +18,7 @@ struct Message
 	}
 
 	long long ustime;
+	long long time;
 	DWORD processId;
 	std::string text;
 };

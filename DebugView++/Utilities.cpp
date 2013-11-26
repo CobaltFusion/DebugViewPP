@@ -107,6 +107,15 @@ std::string AccurateTime::GetLocalTimeString(TickType ticks)
 	return ss.str();
 }
 
+TickType AccurateTime::GetRTCTime()
+{
+	SYSTEMTIME localTime;
+	GetLocalTime(&localTime);
+	using namespace boost::posix_time;
+	auto now = ptime(second_clock::date_type(localTime.wYear, localTime.wMonth, localTime.wDay), hours(localTime.wHour) + minutes(localTime.wMinute) + seconds(localTime.wSecond) + milliseconds(localTime.wMilliseconds));
+	return (now - Zero()).total_microseconds();
+}
+
 std::wstring GetDlgItemText(const CWindow& wnd, int idc)
 {
 	CString text;

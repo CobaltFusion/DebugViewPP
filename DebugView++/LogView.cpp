@@ -122,7 +122,7 @@ std::string CLogView::GetTimeText(const SYSTEMTIME& t) const
 
 std::string CLogView::GetTimeText(const Message& msg) const
 {
-	return ""; // m_clockTime ? GetTimeText(msg.localTime) : GetTimeText(msg.time); //todo: fix delta-time
+	return AccurateTime::GetLocalTimeString(msg.ustime); //m_clockTime ? AccurateTime::GetLocalTimeString(msg.time) : AccurateTime::GetLocalTimeString(msg.ustime); //todo: fix delta-time
 }
 
 LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
@@ -137,7 +137,7 @@ LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 	switch (item.iSubItem)
 	{
 	case 0: CopyItemText(std::to_string(line + 1ULL), item.pszText, item.cchTextMax); break;
-	case 1: CopyItemText(AccurateTime::GetLocalTimeString(msg.ustime), item.pszText, item.cchTextMax); break;
+	case 1: CopyItemText(GetTimeText(msg), item.pszText, item.cchTextMax); break;
 	case 2: CopyItemText(std::to_string(msg.processId + 0ULL), item.pszText, item.cchTextMax); break;
 	case 3: CopyItemText(m_displayInfo.GetProcessName(msg.processId), item.pszText, item.cchTextMax); break;
 	case 4: CopyItemText(msg.text, item.pszText, item.cchTextMax); break;
