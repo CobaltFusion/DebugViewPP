@@ -67,8 +67,8 @@ void DBWinReader::Run()
 		Line line;
 		line.pid = pData->processId;
 		line.message = pData->data;
-		line.ustime = m_accurateTime.GetTicks();
-		line.time = m_accurateTime.GetRTCTime();
+		line.qpctime = m_accurateTime.GetQPCTime();
+		line.rtctime = m_accurateTime.GetRTCTime();
 
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
 		m_lines.push_back(line);

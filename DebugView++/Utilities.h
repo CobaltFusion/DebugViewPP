@@ -188,12 +188,13 @@ public:
 	AccurateTime();
 	void SyncToLocalTime();
 	long long PerformanceCounterTicks() const;
-	TickType GetTicks() const;
+	TickType GetQPCTime() const;
 	static std::string GetLocalTimeString(TickType ticks);
 	TickType GetRTCTime();
 
 private:
 	static boost::posix_time::ptime Zero();
+	static TickType AccurateTime::GetSystemTimeInUs(SYSTEMTIME& systemtime);
 
 	TickType m_localtimeoffset;
 	TickType m_offset;

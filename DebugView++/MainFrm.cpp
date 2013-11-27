@@ -169,7 +169,7 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 	for (auto i = lines.begin(); i != lines.end(); i++)
 	{
 		const Line& line = *i;
-		Message msg(line.ustime, line.pid, line.message);
+		Message msg(line.qpctime, line.rtctime, line.pid, line.message);
 		AddMessage(msg);
 	}
 

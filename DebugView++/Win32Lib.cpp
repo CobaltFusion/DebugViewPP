@@ -187,12 +187,4 @@ SYSTEMTIME GetLocalTime()
 	return localTime;
 }
 
-SYSTEMTIME GetRTCTime()
-{
-	SYSTEMTIME localTime;
-	GetLocalTime(&localTime);
-	return localTime;
-}
-
-
 } // namespace gj

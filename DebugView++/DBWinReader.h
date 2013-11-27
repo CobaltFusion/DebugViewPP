@@ -15,8 +15,8 @@ namespace gj {
 
 struct Line
 {
-	TickType ustime;
-	TickType time;
+	TickType qpctime;
+	TickType rtctime;
 	DWORD pid;
 	std::string message;
 };

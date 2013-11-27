@@ -122,7 +122,7 @@ std::string CLogView::GetTimeText(const SYSTEMTIME& t) const
 
 std::string CLogView::GetTimeText(const Message& msg) const
 {
-	return AccurateTime::GetLocalTimeString(msg.ustime); //m_clockTime ? AccurateTime::GetLocalTimeString(msg.time) : AccurateTime::GetLocalTimeString(msg.ustime); //todo: fix delta-time
+	return m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime) : AccurateTime::GetLocalTimeString(msg.qpctime); //todo: fix delta-time
 }
 
 LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
