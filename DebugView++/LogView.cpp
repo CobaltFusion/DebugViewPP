@@ -206,7 +206,7 @@ void CLogView::EndUpdate()
 {
 	if (m_dirty)
 	{
-		SetItemCount(m_logLines.size());
+		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
 		if (m_autoScrollDown)
 		{
 			ScrollDown();
