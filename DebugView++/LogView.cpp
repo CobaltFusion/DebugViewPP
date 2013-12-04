@@ -113,18 +113,6 @@ std::string CLogView::GetTimeText(double t) const
 	return stringbuilder() << std::fixed << std::setprecision(6) << t;
 }
 
-std::string CLogView::GetTimeText(const SYSTEMTIME& t) const
-{
-	char buf[32];
-	sprintf(buf, "%d:%02d:%02d.%03d", t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
-	return buf;
-}
-
-std::string CLogView::GetTimeText(const Message& msg) const
-{
-	return m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f") : "0.0"; //GetTimeText(msg.offset);
-}
-
 LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 {
 	auto pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pnmh);
@@ -134,14 +122,23 @@ LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 
 	int line = m_logLines[item.iItem];
 	const Message& msg = m_logFile[line];
-
-	double delta = 0.0;
-	if (line > 0)
+	
+	std::string timeString;
+	if (m_clockTime)
 	{
-		delta = AccurateTime::GetDeltaFromUs(m_logFile[0].qpctime, msg.qpctime);
+		timeString = AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f");
+		timeString.erase(timeString.end()-3, timeString.end());
+	}
+	else
+	{
+		double delta = 0.0;
+		if (line > 0)
+		{
+			delta = AccurateTime::GetDeltaFromUs(m_logFile[m_logLines[0]].qpctime, msg.qpctime);
+		}
+		timeString = GetTimeText(delta);
 	}
 
-	std::string timeString = m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f") : GetTimeText(delta);
 	switch (item.iSubItem)
 	{
 	case 0: CopyItemText(std::to_string(line + 1ULL), item.pszText, item.cchTextMax); break;

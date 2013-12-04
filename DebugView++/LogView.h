@@ -91,8 +91,6 @@ private:
 	bool IsIncluded(const std::string& text) const;
 
 	std::string GetTimeText(double t) const;
-	std::string GetTimeText(const SYSTEMTIME& t) const;
-	std::string GetTimeText(const Message& msg) const;
 
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
