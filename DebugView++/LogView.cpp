@@ -108,9 +108,21 @@ void CopyItemText(const std::wstring& s, wchar_t* buf, size_t maxLen)
 	*buf = '\0';
 }
 
-std::string CLogView::GetTimeText(double t) const
+std::string CLogView::GetTimeText(int line, TickType start, TickType end) const
 {
-	return stringbuilder() << std::fixed << std::setprecision(6) << t;
+	double delta = 0.0;
+	if (line > 0)
+	{
+		delta = AccurateTime::GetDeltaFromUs(start, end);
+	}
+	return stringbuilder() << std::fixed << std::setprecision(6) << delta;
+}
+
+std::string CLogView::GetTimeText(TickType abstime) const
+{
+	std::string timeString = AccurateTime::GetLocalTimeString(abstime, "%H:%M:%S.%f");
+	timeString.erase(timeString.end()-3, timeString.end());
+	return timeString;
 }
 
 LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
@@ -122,22 +134,7 @@ LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 
 	int line = m_logLines[item.iItem];
 	const Message& msg = m_logFile[line];
-	
-	std::string timeString;
-	if (m_clockTime)
-	{
-		timeString = AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f");
-		timeString.erase(timeString.end()-3, timeString.end());
-	}
-	else
-	{
-		double delta = 0.0;
-		if (line > 0)
-		{
-			delta = AccurateTime::GetDeltaFromUs(m_logFile[m_logLines[0]].qpctime, msg.qpctime);
-		}
-		timeString = GetTimeText(delta);
-	}
+	std::string timeString = m_clockTime ? GetTimeText(msg.rtctime) : GetTimeText(line, m_logFile[m_logLines[0]].qpctime, msg.qpctime);
 
 	switch (item.iSubItem)
 	{

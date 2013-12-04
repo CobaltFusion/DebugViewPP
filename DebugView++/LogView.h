@@ -90,7 +90,8 @@ private:
 	void ApplyFilters();
 	bool IsIncluded(const std::string& text) const;
 
-	std::string GetTimeText(double t) const;
+	std::string GetTimeText(int line, TickType start, TickType end) const;
+	std::string GetTimeText(TickType abstime) const;
 
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
