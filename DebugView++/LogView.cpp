@@ -109,21 +109,21 @@ void CopyItemText(const std::wstring& s, wchar_t* buf, size_t maxLen)
 	*buf = '\0';
 }
 
-std::string CLogView::GetTimeText(double t) const
+std::string CLogView::GetTimeText(int line, TickType start, TickType end) const
 {
-	return stringbuilder() << std::fixed << std::setprecision(6) << t;
+	double delta = 0.0;
+	if (line > 0)
+	{
+		delta = AccurateTime::GetDeltaFromUs(start, end);
+	}
+	return stringbuilder() << std::fixed << std::setprecision(6) << delta;
 }
 
-std::string CLogView::GetTimeText(const SYSTEMTIME& t) const
+std::string CLogView::GetTimeText(TickType abstime) const
 {
-	char buf[32];
-	sprintf(buf, "%d:%02d:%02d.%03d", t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
-	return buf;
-}
-
-std::string CLogView::GetTimeText(const Message& msg) const
-{
-	return m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f") : "0.0"; //GetTimeText(msg.offset);
+	std::string timeString = AccurateTime::GetLocalTimeString(abstime, "%H:%M:%S.%f");
+	timeString.erase(timeString.end()-3, timeString.end());
+	return timeString;
 }
 
 LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
@@ -135,14 +135,8 @@ LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 
 	int line = m_logLines[item.iItem];
 	const Message& msg = m_logFile[line];
+	std::string timeString = m_clockTime ? GetTimeText(msg.rtctime) : GetTimeText(line, m_logFile[m_logLines[0]].qpctime, msg.qpctime);
 
-	double delta = 0.0;
-	if (line > 0)
-	{
-		delta = AccurateTime::GetDeltaFromUs(m_logFile[0].qpctime, msg.qpctime);
-	}
-
-	std::string timeString = m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f") : GetTimeText(delta);
 	switch (item.iSubItem)
 	{
 	case 0: CopyItemText(std::to_string(line + 1ULL), item.pszText, item.cchTextMax); break;
@@ -213,7 +207,7 @@ void CLogView::EndUpdate()
 {
 	if (m_dirty)
 	{
-		SetItemCount(m_logLines.size());
+		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
 		if (m_autoScrollDown)
 		{
 			ScrollDown();

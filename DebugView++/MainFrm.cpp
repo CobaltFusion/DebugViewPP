@@ -60,7 +60,7 @@ CMainFrame::CMainFrame() :
 //	m_globalReader(true),
 {
 
-//#define CONSOLE_DEBUG
+#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
