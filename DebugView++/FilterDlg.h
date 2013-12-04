@@ -8,11 +8,32 @@
 #pragma once
 
 #include <vector>
+#include <regex>
 #include "PropertyGrid.h"
 #include "ColorCombo.h"
 #include "Resource.h"
 
 namespace gj {
+
+struct FilterType
+{
+	enum type
+	{
+		Include,
+		Exclude,
+		Highlight
+	};
+};
+
+struct LogFilter
+{
+	LogFilter();
+	LogFilter(const std::string& text, FilterType::type type);
+
+	std::string text;
+	std::regex re;
+	FilterType::type type;
+};
 
 class CFilterDlg :
 	public CDialogImpl<CFilterDlg>,
@@ -20,10 +41,10 @@ class CFilterDlg :
 {
 public:
 	explicit CFilterDlg(const std::wstring& name);
-	CFilterDlg(const std::wstring& name, const std::vector<std::string>& filters);
+	CFilterDlg(const std::wstring& name, const std::vector<LogFilter>& filters);
 
 	std::wstring GetName() const;
-	std::vector<std::string> GetFilters() const;
+	std::vector<LogFilter> GetFilters() const;
 
 	enum { IDD = IDD_FILTER };
 
@@ -48,13 +69,13 @@ public:
 
 private:
 	std::unique_ptr<CColorPickerListCtrl> CreateColorCtrl();
-	void AddFilter(const std::wstring& filter);
+	void AddFilter(const LogFilter& filter);
 	void RemoveFilter(int index);
 
 	CPropertyGridCtrl m_grid;
 	std::vector<std::unique_ptr<CColorPickerListCtrl>> m_colorCtrls;
 	std::wstring m_name;
-	std::vector<std::string> m_filters;
+	std::vector<LogFilter> m_filters;
 };
 
 } // namespace gj

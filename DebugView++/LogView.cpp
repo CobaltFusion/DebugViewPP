@@ -14,11 +14,6 @@
 
 namespace gj {
 
-LogFilter::LogFilter(const std::string& text) :
-	text(text), re(text)
-{
-}
-
 SelectionInfo::SelectionInfo() :
 	beginLine(0), endLine(0), count(0)
 {
@@ -363,7 +358,7 @@ void CLogView::SetFilters(const std::vector<std::string>& filters)
 {
 	std::vector<LogFilter> logFilters;
 	for (auto it = filters.begin(); it != filters.end(); ++it)
-		logFilters.push_back(LogFilter(*it));
+		logFilters.push_back(*it);
 	m_excludefilters.swap(logFilters);
 	ApplyFilters();
 }

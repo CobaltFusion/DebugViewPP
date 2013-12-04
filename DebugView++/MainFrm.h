@@ -55,8 +55,7 @@ private:
 
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
-
-	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
+	void OnTimer(UINT_PTR nIDEvent);
 
 	void UpdateUI();
 	bool LoadSettings();

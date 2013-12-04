@@ -6,10 +6,10 @@
 #pragma once
 
 #include <vector>
-#include <regex>
 #include "OffscreenPaint.h"
 #include "MainFrm.h"
 #include "LogFile.h"
+#include "FilterDlg.h"
 #include "DisplayInfo.h"
 #include "ProcessInfo.h"
 
@@ -18,14 +18,6 @@ namespace gj {
 typedef CWinTraitsOR<LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS> CListViewTraits;
 
 class CMainFrame;
-
-struct LogFilter
-{
-	explicit LogFilter(const std::string& text);
-
-	std::string text;
-	std::regex re;
-};
 
 struct SelectionInfo
 {

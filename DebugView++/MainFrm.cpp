@@ -25,7 +25,7 @@ const unsigned int msOnTimerPeriod = 100;
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
-	MESSAGE_HANDLER(WM_TIMER, OnTimer)
+	MSG_WM_TIMER(OnTimer)
 
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
@@ -128,13 +128,10 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 void CMainFrame::OnClose()
 {
 	if (m_timer)
-	{
 		KillTimer(m_timer); 
-	}
 
 	SaveSettings();
 	DestroyWindow();
-
 
 #ifdef CONSOLE_DEBUG
 	fclose(stdout);
@@ -150,36 +147,24 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_LOG_PAUSE, m_paused);
 }
 
-LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
+void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	auto lines = m_localReader.GetLines();
 
 #ifdef CONSOLE_DEBUG
 	if (lines.size() > 0)
-	{
 		printf("incoming lines: %d\n", lines.size());
-	}
 #endif
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
-	{
 		(*it)->BeginUpdate();
-	}
 
-	for (auto i = lines.begin(); i != lines.end(); i++)
-	{
-		const Line& line = *i;
-		Message msg(line.qpctime, line.rtctime, line.pid, line.message);
-		AddMessage(msg);
-	}
+	for (auto it = lines.begin(); it != lines.end(); ++it)
+		AddMessage(Message(it->qpctime, it->rtctime, it->pid, it->message));
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
-	{
 		(*it)->EndUpdate();
-	}
-	return 0;
 }
-
 
 const wchar_t* RegistryPath = L"Software\\DjeeDjay\\DebugView++";
 
@@ -271,9 +256,7 @@ std::wstring FormatDuration(double seconds)
 
 void CMainFrame::SetLineRange(const SelectionInfo& selection)
 {
-	/*
-	//todo: fix 
-	if (selection.count > 0)
+/*	if (selection.count > 0)
 	{
 		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
 		std::wstring text = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
@@ -282,9 +265,8 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	else
 	{
 		UISetText(ID_DEFAULT_PANE, L"Ready");
-	}*/
-
-	UISetText(ID_DEFAULT_PANE, L"Ready");
+	}
+*/
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
@@ -362,7 +344,8 @@ void CMainFrame::OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	GetView().Clear();
+	for (auto it = m_views.begin(); it != m_views.end(); ++it)
+		(*it)->Clear();
 	m_logFile.Clear();	// todo: deal with multiple views, but for now release all memory to verify implemention
 }
 

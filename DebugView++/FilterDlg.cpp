@@ -13,6 +13,16 @@
 
 namespace gj {
 
+LogFilter::LogFilter() :
+	type(FilterType::Include)
+{
+}
+
+LogFilter::LogFilter(const std::string& text, FilterType::type type) :
+	text(text), re(text), type(type)
+{
+}
+
 BEGIN_MSG_MAP_TRY(CFilterDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
@@ -29,7 +39,7 @@ CFilterDlg::CFilterDlg(const std::wstring& name) :
 {
 }
 
-CFilterDlg::CFilterDlg(const std::wstring& name, const std::vector<std::string>& filters) :
+CFilterDlg::CFilterDlg(const std::wstring& name, const std::vector<LogFilter>& filters) :
 	m_name(name),
 	m_filters(filters)
 {
@@ -40,7 +50,7 @@ std::wstring CFilterDlg::GetName() const
 	return m_name;
 }
 
-std::vector<std::string> CFilterDlg::GetFilters() const
+std::vector<LogFilter> CFilterDlg::GetFilters() const
 {
 	return m_filters;
 }
@@ -62,10 +72,10 @@ std::unique_ptr<CColorPickerListCtrl> CFilterDlg::CreateColorCtrl()
 	return pCtrl;
 }
 
-void CFilterDlg::AddFilter(const std::wstring& filter)
+void CFilterDlg::AddFilter(const LogFilter& filter)
 {
 	int item = m_grid.GetItemCount();
-	m_grid.InsertItem(item, PropCreateSimple(L"", filter.c_str()));
+	m_grid.InsertItem(item, PropCreateSimple(L"", filter.text.c_str()));
 	const wchar_t* types[] = { L"Exclude", L"Include", L"Highlight" , nullptr };
 	m_grid.SetSubItem(item, 1, PropCreateList(L"", types));
 	m_colorCtrls.push_back(CreateColorCtrl());
@@ -96,7 +106,7 @@ BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT | PGS_EX_ADDITEMATEND);
 
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
-		AddFilter(WStr(*it));
+		AddFilter(*it);
 
 	CenterWindow(GetParent());
 	DlgResize_Init();
@@ -111,7 +121,7 @@ void CFilterDlg::OnDestroy()
 
 LRESULT CFilterDlg::OnAddItem(NMHDR* pnmh)
 {
-	AddFilter(L"");
+	AddFilter(LogFilter());
 	return 0;
 }
 
@@ -150,7 +160,7 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 	int n = m_grid.GetItemCount();
 	for (int i = 0; i < n; ++i)
-		m_filters.push_back(Str(GetGridItemText(m_grid, i, 0)));
+		m_filters.push_back(LogFilter(Str(GetGridItemText(m_grid, i, 0)), FilterType::Exclude));
 
 	EndDialog(nID);
 }

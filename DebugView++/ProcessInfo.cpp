@@ -14,16 +14,16 @@
 
 namespace gj {
 
-ProcessInfo::ProcessInfo()
+ProcessInfo::ProcessInfo() :
+	m_pid(GetCurrentProcessId()),
+	m_handle(GetCurrentProcess())
 {
-	m_pid = GetCurrentProcessId();
-	m_handle = GetCurrentProcess();
 	Refresh();
 }
 
 void ProcessInfo::Refresh()
 {
-	GetProcessMemoryInfo(m_handle, reinterpret_cast<PPROCESS_MEMORY_COUNTERS>(&m_memoryCounters), sizeof(m_memoryCounters));
+	GetProcessMemoryInfo(m_handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&m_memoryCounters), sizeof(m_memoryCounters));
 }
 
 SIZE_T ProcessInfo::GetPrivateBytes()

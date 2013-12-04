@@ -9,7 +9,6 @@ namespace gj {
 
 DisplayInfo::DisplayInfo()
 {
-
 }
 
 void DisplayInfo::Clear()
