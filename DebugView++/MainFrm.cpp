@@ -282,8 +282,6 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	{
 		UISetText(ID_DEFAULT_PANE, L"Ready");
 	}
-
-	UISetText(ID_DEFAULT_PANE, L"Ready");
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
