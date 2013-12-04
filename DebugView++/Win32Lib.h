@@ -71,6 +71,4 @@ public:
 	~ComInitialization();
 };
 
-SYSTEMTIME GetLocalTime();
-
 } // namespace gj

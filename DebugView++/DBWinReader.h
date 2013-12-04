@@ -15,8 +15,8 @@ namespace gj {
 
 struct Line
 {
-	TickType qpctime;
-	TickType rtctime;
+	LARGE_INTEGER qpctime;
+	SYSTEMTIME systemtime;
 	DWORD pid;
 	std::string message;
 };
@@ -34,6 +34,11 @@ public:
 	void Abort();
 
 	LinesList GetLines();
+
+	TickType GetQPCOffsetInUs(const LARGE_INTEGER& offset)
+	{
+		return m_accurateTime.GetQPCOffsetInUs(offset);
+	}
 
 private:
 	void Run();

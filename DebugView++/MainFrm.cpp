@@ -20,7 +20,7 @@
 
 namespace gj {
 
-const unsigned int msOnTimerPeriod = 100;
+const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
@@ -169,7 +169,8 @@ LRESULT CMainFrame::OnTimer(UINT, WPARAM, LPARAM, BOOL&)
 	for (auto i = lines.begin(); i != lines.end(); i++)
 	{
 		const Line& line = *i;
-		Message msg(line.qpctime, line.rtctime, line.pid, line.message);
+
+		Message msg(m_localReader.GetQPCOffsetInUs(line.qpctime), AccurateTime::GetSystemTimeInUs(line.systemtime), line.pid, line.message);
 		AddMessage(msg);
 	}
 
@@ -271,18 +272,16 @@ std::wstring FormatDuration(double seconds)
 
 void CMainFrame::SetLineRange(const SelectionInfo& selection)
 {
-	/*
-	//todo: fix 
 	if (selection.count > 0)
 	{
-		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
+		double dt = AccurateTime::GetDeltaFromUs(m_logFile[selection.beginLine].qpctime, m_logFile[selection.endLine - 1].qpctime);
 		std::wstring text = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
 		UISetText(ID_DEFAULT_PANE, text.c_str());
 	}
 	else
 	{
 		UISetText(ID_DEFAULT_PANE, L"Ready");
-	}*/
+	}
 
 	UISetText(ID_DEFAULT_PANE, L"Ready");
 }
