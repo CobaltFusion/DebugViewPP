@@ -180,11 +180,4 @@ ComInitialization::~ComInitialization()
 	CoUninitialize();
 }
 
-SYSTEMTIME GetLocalTime()
-{
-	SYSTEMTIME localTime;
-	GetLocalTime(&localTime);
-	return localTime;
-}
-
 } // namespace gj

@@ -26,6 +26,7 @@ SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
 
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
@@ -65,6 +66,11 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	InsertColumn(4, L"Log", LVCFMT_LEFT, 600, 0);
 
 	ApplyFilters();
+	return 0;
+}
+
+LRESULT CLogView::OnClick(LPNMHDR pnmh)
+{
 	return 0;
 }
 
@@ -117,7 +123,7 @@ std::string CLogView::GetTimeText(const SYSTEMTIME& t) const
 
 std::string CLogView::GetTimeText(const Message& msg) const
 {
-	return m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime) : AccurateTime::GetLocalTimeString(msg.qpctime); //todo: fix delta-time
+	return m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f") : "0.0"; //GetTimeText(msg.offset);
 }
 
 LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
@@ -129,15 +135,22 @@ LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
 
 	int line = m_logLines[item.iItem];
 	const Message& msg = m_logFile[line];
+
+	double delta = 0.0;
+	if (line > 0)
+	{
+		delta = AccurateTime::GetDeltaFromUs(m_logFile[0].qpctime, msg.qpctime);
+	}
+
+	std::string timeString = m_clockTime ? AccurateTime::GetLocalTimeString(msg.rtctime, "%H:%M:%S.%f") : GetTimeText(delta);
 	switch (item.iSubItem)
 	{
 	case 0: CopyItemText(std::to_string(line + 1ULL), item.pszText, item.cchTextMax); break;
-	case 1: CopyItemText(GetTimeText(msg), item.pszText, item.cchTextMax); break;
+	case 1: CopyItemText(timeString, item.pszText, item.cchTextMax); break;
 	case 2: CopyItemText(std::to_string(msg.processId + 0ULL), item.pszText, item.cchTextMax); break;
 	case 3: CopyItemText(m_displayInfo.GetProcessName(msg.processId), item.pszText, item.cchTextMax); break;
 	case 4: CopyItemText(msg.text, item.pszText, item.cchTextMax); break;
 	}
-
 	return 0;
 }
 
@@ -344,21 +357,13 @@ void CLogView::SaveSettings(CRegKey& reg)
 	reg.SetStringValue(L"ColWidths", ss.str().c_str());
 }
 
-std::vector<std::string> CLogView::GetFilters() const
+std::vector<LogFilter> CLogView::GetFilters() const
 {
-	std::vector<std::string> filters;
-	for (auto it = m_excludefilters.begin(); it != m_excludefilters.end(); ++it)
-	{
-		filters.push_back(it->text);
-	}
-	return filters;
+	return m_excludefilters;
 }
 
-void CLogView::SetFilters(const std::vector<std::string>& filters)
+void CLogView::SetFilters(std::vector<LogFilter> logFilters)
 {
-	std::vector<LogFilter> logFilters;
-	for (auto it = filters.begin(); it != filters.end(); ++it)
-		logFilters.push_back(*it);
 	m_excludefilters.swap(logFilters);
 	ApplyFilters();
 }

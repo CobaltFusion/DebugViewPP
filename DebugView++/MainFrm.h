@@ -68,6 +68,7 @@ private:
 	LRESULT OnChangeTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLogSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -80,7 +81,7 @@ private:
 	CLogView& GetView();
 	void SetLogFont();
 
-	//GuiThread m_guiThread;
+//	GuiThread m_guiThread;
 	UINT_PTR m_timer;
 	LogFile m_logFile;
 	int m_filterNr;

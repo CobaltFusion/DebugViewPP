@@ -56,22 +56,21 @@ void DBWinReader::Run()
 {
 	MappedViewOfFile dbWinView(m_hBuffer, PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
 	auto pData = static_cast<const DbWinBuffer*>(dbWinView.Ptr());
-	for (;;)
+
+	while (!m_end)
 	{
-		if (m_end)
-			break;
-		
 		SetEvent(m_dbWinBufferReady);
-		WaitForSingleObject(m_dbWinDataReady);
+		if (WaitForSingleObject(m_dbWinDataReady, 100))
+		{
+			Line line;
+			QueryPerformanceCounter(&line.qpctime);
+			GetLocalTime(&line.systemtime);
+			line.pid = pData->processId;
+			line.message = pData->data;
 
-		Line line;
-		line.pid = pData->processId;
-		line.message = pData->data;
-		line.qpctime = m_accurateTime.GetQPCTime();
-		line.rtctime = m_accurateTime.GetRTCTime();
-
-		boost::unique_lock<boost::mutex> lock(m_linesMutex);
-		m_lines.push_back(line);
+			boost::unique_lock<boost::mutex> lock(m_linesMutex);
+			m_lines.push_back(line);
+		}
 	}
 }
 
@@ -80,25 +79,12 @@ LinesList DBWinReader::GetLines()
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	LinesList temp;
 	temp.swap(m_lines);
-
-	//auto now = boost::posix_time::second_clock::local_time();
-	//auto offset = now.time_of_day().total_microseconds();
-	//
-	//auto t = GetLocalTime(); auto s = m_accurateTime.GetTicks() - offset;
-	//
-	//long long s_ms = s / 1000;
-	//
-	//long long  t_ms = t.wHour * 60 * 60 * 1000;
-	//t_ms += t.wMinute * 60 * 1000;
-	//t_ms += t.wSecond * 1000;
-	//t_ms += t.wMilliseconds;
-
-	//printf("time:       %d:%d:%d.%d\n", t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
-	//printf("s_ms:       %lld\n", s_ms);
-	//printf("t_ms:       %lld\n", t_ms);
-	//printf("diff:       %lld\n", t_ms-s_ms);
-
 	return std::move(temp);
+}
+
+TickType DBWinReader::GetQPCOffsetInUs(const LARGE_INTEGER& offset) const
+{
+	return m_accurateTime.GetQPCOffsetInUs(offset);
 }
 
 } // namespace gj

@@ -187,14 +187,15 @@ class AccurateTime
 public:
 	AccurateTime();
 	void SyncToLocalTime();
-	long long PerformanceCounterTicks() const;
-	TickType GetQPCTime() const;
-	static std::string GetLocalTimeString(TickType ticks);
-	TickType GetRTCTime();
+	TickType GetQPCOffsetInUs(const LARGE_INTEGER& largeInt) const;
+	TickType GetRTCTime() const;
+
+	static std::string GetLocalTimeString(TickType ticks, const char* format);
+	static TickType GetSystemTimeInUs(const SYSTEMTIME& systemtime);
+	static double GetDeltaFromUs(TickType start, TickType end);
 
 private:
 	static boost::posix_time::ptime Zero();
-	static TickType AccurateTime::GetSystemTimeInUs(SYSTEMTIME& systemtime);
 
 	TickType m_localtimeoffset;
 	TickType m_offset;

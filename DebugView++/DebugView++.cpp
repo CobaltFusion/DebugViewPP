@@ -10,6 +10,8 @@
 #include "Win32Lib.h"
 #include "MainFrm.h"
 
+#include "Utilities.h"
+
 CAppModule _Module;
 
 class MessageLoop

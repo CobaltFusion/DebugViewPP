@@ -61,8 +61,8 @@ public:
 	bool FindNext(const std::wstring& text);
 	bool FindPrevious(const std::wstring& text);
 
-	std::vector<std::string> GetFilters() const;
-	void SetFilters(const std::vector<std::string>& filters);
+	std::vector<LogFilter> GetFilters() const;
+	void SetFilters(std::vector<LogFilter> filters);
 
 	using CListViewCtrl::GetItemText;
 	std::string GetItemText(int item, int subItem) const;
@@ -75,6 +75,7 @@ public:
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	LRESULT OnGetDispInfo(LPNMHDR pnmh);
+	LRESULT OnClick(LPNMHDR pnmh);
 	LRESULT OnCustomDraw(LPNMHDR pnmh);
 	LRESULT OnOdStateChanged(LPNMHDR pnmh);
 

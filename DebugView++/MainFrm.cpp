@@ -20,14 +20,14 @@
 
 namespace gj {
 
-const unsigned int msOnTimerPeriod = 100;
+const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
-
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
+	COMMAND_ID_HANDLER_EX(ID_LOG_SELECTALL, OnLogSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_TIME, OnLogTime)
 	COMMAND_ID_HANDLER_EX(ID_LOG_FILTER, OnLogFilter)
@@ -160,7 +160,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		(*it)->BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->qpctime, it->rtctime, it->pid, it->message));
+		AddMessage(Message(m_localReader.GetQPCOffsetInUs(it->qpctime), AccurateTime::GetSystemTimeInUs(it->systemtime), it->pid, it->message));
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->EndUpdate();
@@ -256,9 +256,9 @@ std::wstring FormatDuration(double seconds)
 
 void CMainFrame::SetLineRange(const SelectionInfo& selection)
 {
-/*	if (selection.count > 0)
+	if (selection.count > 0)
 	{
-		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
+		double dt = AccurateTime::GetDeltaFromUs(m_logFile[selection.beginLine].qpctime, m_logFile[selection.endLine - 1].qpctime);
 		std::wstring text = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
 		UISetText(ID_DEFAULT_PANE, text.c_str());
 	}
@@ -266,7 +266,6 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	{
 		UISetText(ID_DEFAULT_PANE, L"Ready");
 	}
-*/
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
@@ -304,6 +303,9 @@ void CMainFrame::AddFilterView()
 LRESULT CMainFrame::OnClickTab(NMHDR* pnmh)
 {
 	NMCTCITEM* pNmCtcItem = reinterpret_cast<NMCTCITEM*>(pnmh);
+	if (pNmCtcItem->hdr.hwndFrom != GetTabCtrl())
+		return FALSE;
+
 	int plusIndex = GetTabCtrl().GetItemCount() - 1;
 	if (pNmCtcItem->iItem == plusIndex)
 	{
@@ -340,6 +342,11 @@ LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 
 void CMainFrame::OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+}
+
+void CMainFrame::OnLogSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	GetView().SelectAll();
 }
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
