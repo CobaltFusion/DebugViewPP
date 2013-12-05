@@ -24,6 +24,11 @@ SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
 {
 }
 
+LogLine::LogLine(int line, COLORREF color) :
+	line(line), color(color)
+{
+}
+
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
@@ -69,12 +74,12 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	return 0;
 }
 
-LRESULT CLogView::OnClick(LPNMHDR pnmh)
+LRESULT CLogView::OnClick(NMHDR* pnmh)
 {
 	return 0;
 }
 
-LRESULT CLogView::OnCustomDraw(LPNMHDR pnmh)
+LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
 	auto pCustomDraw = reinterpret_cast<NMLVCUSTOMDRAW*>(pnmh);
 
@@ -88,7 +93,7 @@ LRESULT CLogView::OnCustomDraw(LPNMHDR pnmh)
 		return CDRF_NOTIFYSUBITEMDRAW;
 
 	case CDDS_ITEMPREPAINT | CDDS_SUBITEM:
-		pCustomDraw->clrTextBk = RGB(255, 255, 255);
+		pCustomDraw->clrTextBk = m_logLines[item].color;
 		return CDRF_DODEFAULT;
 	}
 
@@ -109,33 +114,28 @@ void CopyItemText(const std::wstring& s, wchar_t* buf, size_t maxLen)
 	*buf = '\0';
 }
 
-std::string CLogView::GetTimeText(int line, TickType start, TickType end) const
+std::string GetTimeText(double time)
 {
-	double delta = 0.0;
-	if (line > 0)
-	{
-		delta = AccurateTime::GetDeltaFromUs(start, end);
-	}
-	return stringbuilder() << std::fixed << std::setprecision(6) << delta;
+	return stringbuilder() << std::fixed << std::setprecision(6) << time;
 }
 
-std::string CLogView::GetTimeText(TickType abstime) const
+std::string GetTimeText(TickType abstime)
 {
 	std::string timeString = AccurateTime::GetLocalTimeString(abstime, "%H:%M:%S.%f");
-	timeString.erase(timeString.end()-3, timeString.end());
+	timeString.erase(timeString.end() - 3, timeString.end());
 	return timeString;
 }
 
-LRESULT CLogView::OnGetDispInfo(LPNMHDR pnmh)
+LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 {
 	auto pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pnmh);
 	LVITEM& item = pDispInfo->item;
 	if ((item.mask & LVIF_TEXT) == 0 || item.iItem >= static_cast<int>(m_logLines.size()))
 		return 0;
 
-	int line = m_logLines[item.iItem];
+	int line = m_logLines[item.iItem].line;
 	const Message& msg = m_logFile[line];
-	std::string timeString = m_clockTime ? GetTimeText(msg.rtctime) : GetTimeText(line, m_logFile[m_logLines[0]].qpctime, msg.qpctime);
+	std::string timeString = m_clockTime ? GetTimeText(msg.rtctime) : GetTimeText(msg.time);
 
 	switch (item.iSubItem)
 	{
@@ -162,10 +162,10 @@ SelectionInfo CLogView::GetSelectedRange() const
 		item = GetNextItem(item, LVNI_SELECTED);
 	} while (item >= 0);
 
-	return SelectionInfo(m_logLines[first], m_logLines[last], last - first);
+	return SelectionInfo(m_logLines[first].line, m_logLines[last].line, last - first);
 }
 
-LRESULT CLogView::OnOdStateChanged(LPNMHDR pnmh)
+LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
 {
 	auto pStateChange = reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
 
@@ -194,7 +194,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 
 	m_dirty = true;
-	m_logLines.push_back(line);
+	m_logLines.push_back(LogLine(line, GetColor(msg.text)));
 }
 
 void CLogView::BeginUpdate()
@@ -218,8 +218,8 @@ void CLogView::EndUpdate()
 
 void CLogView::ScrollToIndex(int index, bool center)
 {
-	if (index < 0) return;
-	if (size_t(index) >= m_logLines.size()) return;
+	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
+		return;
 	
 	//todo: deselect any seletected items.
 	
@@ -237,8 +237,7 @@ void CLogView::ScrollToIndex(int index, bool center)
 
 void CLogView::ScrollDown()
 {
-	int lastIndex = m_logLines.size()-1;
-	ScrollToIndex(lastIndex, false);
+	ScrollToIndex(m_logLines.size() - 1, false);
 }
 
 bool CLogView::GetClockTime() const
@@ -266,6 +265,43 @@ std::string CLogView::GetItemText(int item, int subItem) const
 	return std::string(bstr.m_str, bstr.m_str + bstr.Length());
 }
 
+struct GlobalAllocDeleter
+{
+	typedef HGLOBAL pointer;
+
+	void operator()(pointer p) const
+	{
+		GlobalFree(p);
+	}
+};
+
+typedef std::unique_ptr<void, GlobalAllocDeleter> HGlobal;
+
+template <typename T>
+class GlobalLock
+{
+public:
+	explicit GlobalLock(const HGlobal& hg) :
+		m_hg(hg.get()),
+		m_ptr(::GlobalLock(m_hg))
+	{
+	}
+
+	~GlobalLock()
+	{
+		::GlobalUnlock(m_hg);
+	}
+
+	T* Ptr() const
+	{
+		return static_cast<T*>(m_ptr);
+	}
+
+private:
+	HGLOBAL m_hg;
+	void* m_ptr;
+};
+
 void CLogView::Copy()
 {
 	std::ostringstream ss;
@@ -277,18 +313,17 @@ void CLogView::Copy()
 			GetItemText(item, 1) << "\t" <<
 			GetItemText(item, 2) << "\t" <<
 			GetItemText(item, 3) << "\t" <<
-			GetItemText(item, 4) << "\r\n";
+			GetItemText(item, 4) << "\n";
 	const std::string& str = ss.str();
 
-	HGLOBAL hdst = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1);
-	char* dst = static_cast<char*>(GlobalLock(hdst));
-	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<char*>(dst, str.size()));
-	dst[str.size()] = '\0';
-	GlobalUnlock(hdst);
+	HGlobal hdst(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
+	GlobalLock<char> lock(hdst);
+	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<char*>(lock.Ptr(), str.size()));
+	lock.Ptr()[str.size()] = '\0';
 	if (OpenClipboard())
 	{
 		EmptyClipboard();
-		SetClipboardData(CF_TEXT, hdst);
+		SetClipboardData(CF_TEXT, hdst.release());
 		CloseClipboard();
 	}
 }
@@ -304,7 +339,7 @@ bool CLogView::Find(const std::string& text, int direction)
 		if (line == m_logLines.size())
 			line = 0;
 
-		if (m_logFile[m_logLines[line]].text.find(text) != std::string::npos)
+		if (m_logFile[m_logLines[line].line].text.find(text) != std::string::npos)
 		{
 			EnsureVisible(line, true);
 			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);
@@ -353,12 +388,12 @@ void CLogView::SaveSettings(CRegKey& reg)
 
 std::vector<LogFilter> CLogView::GetFilters() const
 {
-	return m_excludefilters;
+	return m_filters;
 }
 
 void CLogView::SetFilters(std::vector<LogFilter> logFilters)
 {
-	m_excludefilters.swap(logFilters);
+	m_filters.swap(logFilters);
 	ApplyFilters();
 }
 
@@ -368,17 +403,39 @@ void CLogView::ApplyFilters()
 
 	int count = m_logFile.Count();
 	for (int i = 0; i < count; ++i)
+	{
 		if (IsIncluded(m_logFile[i].text))
-			m_logLines.push_back(i);
+			m_logLines.push_back(LogLine(i, GetColor(m_logFile[i].text)));
+	}
 	SetItemCount(m_logLines.size());
+}
+
+COLORREF CLogView::GetColor(const std::string& text) const
+{
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	{
+		if (it->type == FilterType::Highlight && std::regex_search(text, it->re))
+			return it->color;
+	}
+
+	return RGB(255, 255, 255);
 }
 
 bool CLogView::IsIncluded(const std::string& text) const
 {
-	for (auto it = m_excludefilters.begin(); it != m_excludefilters.end(); ++it)
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 	{
-		if (std::regex_search(text, it->re))
-			return false;
+		switch (it->type)
+		{
+		case FilterType::Include:
+		case FilterType::Exclude:
+			if (std::regex_search(text, it->re))
+				return it->type == FilterType::Include;
+			break;
+
+		default:
+			break;
+		}
 	}
 	return true;
 }

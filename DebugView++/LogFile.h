@@ -12,12 +12,12 @@ namespace gj {
 
 struct Message
 {
-	Message(long long qpctime, long long rtctime, DWORD pid, const std::string& msg) :
-		qpctime(qpctime), rtctime(rtctime), processId(pid), text(msg)
+	Message(double time, long long rtctime, DWORD pid, const std::string& msg) :
+		time(time), rtctime(rtctime), processId(pid), text(msg)
 	{
 	}
 
-	long long qpctime;
+	double time;
 	long long rtctime;
 	DWORD processId;
 	std::string text;

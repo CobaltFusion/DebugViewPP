@@ -165,6 +165,9 @@ std::wstring LoadString(int id);
 
 std::wstring GetExceptionMessage();
 
+SYSTEMTIME GetSystemTime();
+SYSTEMTIME GetLocalTime();
+
 class Timer
 {
 public:

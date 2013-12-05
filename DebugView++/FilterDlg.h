@@ -28,11 +28,12 @@ struct FilterType
 struct LogFilter
 {
 	LogFilter();
-	LogFilter(const std::string& text, FilterType::type type);
+	LogFilter(const std::string& text, FilterType::type type, COLORREF color);
 
 	std::string text;
 	std::regex re;
 	FilterType::type type;
+	COLORREF color;
 };
 
 class CFilterDlg :

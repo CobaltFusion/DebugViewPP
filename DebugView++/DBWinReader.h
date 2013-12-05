@@ -15,8 +15,8 @@ namespace gj {
 
 struct Line
 {
-	LARGE_INTEGER qpctime;
-	SYSTEMTIME systemtime;
+	double time;
+	SYSTEMTIME systemTime;
 	DWORD pid;
 	std::string message;
 };
@@ -35,20 +35,18 @@ public:
 
 	LinesList GetLines();
 
-	TickType GetQPCOffsetInUs(const LARGE_INTEGER& offset) const;
-
 private:
 	void Run();
+
+	LinesList m_lines;
+	mutable boost::mutex m_linesMutex;
+	Timer m_timer;
 
 	bool m_end;
 	CHandle m_hBuffer;
 	CHandle m_dbWinBufferReady;
 	CHandle m_dbWinDataReady;
 	boost::thread m_thread;
-
-	LinesList m_lines;
-	mutable boost::mutex m_linesMutex;
-	AccurateTime m_accurateTime;
 };
 
 } // namespace gj

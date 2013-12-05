@@ -48,7 +48,7 @@ DBWinReader::~DBWinReader()
 void DBWinReader::Abort()
 {
 	m_end = true;
-	SetEvent(m_dbWinDataReady);	// will this not interfere with other DBWIN listers?
+	SetEvent(m_dbWinDataReady);	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
 	m_thread.join();
 }
 
@@ -57,20 +57,21 @@ void DBWinReader::Run()
 	MappedViewOfFile dbWinView(m_hBuffer, PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
 	auto pData = static_cast<const DbWinBuffer*>(dbWinView.Ptr());
 
-	while (!m_end)
+	for (;;)
 	{
 		SetEvent(m_dbWinBufferReady);
-		if (WaitForSingleObject(m_dbWinDataReady, 100))
-		{
-			Line line;
-			QueryPerformanceCounter(&line.qpctime);
-			GetLocalTime(&line.systemtime);
-			line.pid = pData->processId;
-			line.message = pData->data;
+		WaitForSingleObject(m_dbWinDataReady);
+		if (m_end)
+			break;
 
-			boost::unique_lock<boost::mutex> lock(m_linesMutex);
-			m_lines.push_back(line);
-		}
+		Line line;
+		line.time = m_timer.Get();
+		GetLocalTime(&line.systemTime);
+		line.pid = pData->processId;
+		line.message = pData->data;
+
+		boost::unique_lock<boost::mutex> lock(m_linesMutex);
+		m_lines.push_back(line);
 	}
 }
 
@@ -80,11 +81,6 @@ LinesList DBWinReader::GetLines()
 	LinesList temp;
 	temp.swap(m_lines);
 	return std::move(temp);
-}
-
-TickType DBWinReader::GetQPCOffsetInUs(const LARGE_INTEGER& offset) const
-{
-	return m_accurateTime.GetQPCOffsetInUs(offset);
 }
 
 } // namespace gj

@@ -34,6 +34,20 @@ std::wstring GetExceptionMessage()
 	}
 }
 
+SYSTEMTIME GetSystemTime()
+{
+	SYSTEMTIME st;
+	::GetSystemTime(&st);
+	return st;
+}
+
+SYSTEMTIME GetLocalTime()
+{
+	SYSTEMTIME st;
+	::GetLocalTime(&st);
+	return st;
+}
+
 Timer::Timer()
 {
 	LARGE_INTEGER li;

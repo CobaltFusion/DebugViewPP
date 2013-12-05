@@ -59,8 +59,6 @@ CMainFrame::CMainFrame() :
 	m_localReader(false)
 //	m_globalReader(true),
 {
-
-#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
@@ -160,7 +158,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		(*it)->BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(m_localReader.GetQPCOffsetInUs(it->qpctime), AccurateTime::GetSystemTimeInUs(it->systemtime), it->pid, it->message));
+		AddMessage(Message(it->time, AccurateTime::GetSystemTimeInUs(it->systemTime), it->pid, it->message));
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->EndUpdate();
@@ -258,7 +256,7 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 {
 	if (selection.count > 0)
 	{
-		double dt = AccurateTime::GetDeltaFromUs(m_logFile[selection.beginLine].qpctime, m_logFile[selection.endLine - 1].qpctime);
+		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
 		std::wstring text = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
 		UISetText(ID_DEFAULT_PANE, text.c_str());
 	}

@@ -18,8 +18,8 @@ LogFilter::LogFilter() :
 {
 }
 
-LogFilter::LogFilter(const std::string& text, FilterType::type type) :
-	text(text), re(text), type(type)
+LogFilter::LogFilter(const std::string& text, FilterType::type type, COLORREF color) :
+	text(text), re(text), type(type), color(color)
 {
 }
 
@@ -60,26 +60,40 @@ void CFilterDlg::ExceptionHandler()
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
+static const COLORREF HighlightColors[] =
+{
+	RGB( 27, 161, 226), // blue
+	RGB(160,  80,   0), // brown
+	RGB( 51, 153,  51), // green
+	RGB(162, 193,  57), // lime
+	RGB(216,   0, 115), // magenta
+	RGB(240, 150,   9), // mango (orange)
+	RGB(230, 113, 184), // pink
+	RGB(162,   0, 255), // purple
+	RGB(229,  20,   0), // red
+	RGB(  0, 171, 169), // teal (viridian)
+};
+
 std::unique_ptr<CColorPickerListCtrl> CFilterDlg::CreateColorCtrl()
 {
 	auto pCtrl = make_unique<CColorPickerListCtrl>();
 	pCtrl->Create(*this, rcDefault, nullptr, WS_CHILD | WS_BORDER);
-	pCtrl->SetParent(NULL);
-	pCtrl->AddColor(0, RGB(255,255,255));
-	pCtrl->AddColor(1, RGB(255,0,0));
-	pCtrl->AddColor(2, RGB(0,255,0));
-	pCtrl->AddColor(3, RGB(0,0,255));
+	pCtrl->SetParent(nullptr);
+	int index = 0;
+	for (auto it = std::begin(HighlightColors); it != std::end(HighlightColors); ++it, ++index)
+		pCtrl->AddColor(index, *it);
 	return pCtrl;
 }
 
 void CFilterDlg::AddFilter(const LogFilter& filter)
 {
 	int item = m_grid.GetItemCount();
-	m_grid.InsertItem(item, PropCreateSimple(L"", filter.text.c_str()));
-	const wchar_t* types[] = { L"Exclude", L"Include", L"Highlight" , nullptr };
+	m_grid.InsertItem(item, PropCreateSimple(L"", WStr(filter.text)));
+	static const wchar_t* types[] = { L"Exclude", L"Include", L"Highlight" , nullptr };
 	m_grid.SetSubItem(item, 1, PropCreateList(L"", types));
 	m_colorCtrls.push_back(CreateColorCtrl());
-	m_grid.SetSubItem(item, 2, PropCreateComboControl(L"", *m_colorCtrls.back(), RGB(0,255,0)));
+	m_grid.SetSubItem(item, 2, PropCreateComboControl(L"", *m_colorCtrls.back(), 0));
+	m_colorCtrls.back()->SelectColor(filter.color);
 	m_grid.SetSubItem(item, 3, PropCreateCheckButton(L"", true));
 	m_grid.SetSubItem(item, 4, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
@@ -160,7 +174,7 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 	int n = m_grid.GetItemCount();
 	for (int i = 0; i < n; ++i)
-		m_filters.push_back(LogFilter(Str(GetGridItemText(m_grid, i, 0)), FilterType::Exclude));
+		m_filters.push_back(LogFilter(Str(GetGridItemText(m_grid, i, 0)), FilterType::Exclude, m_colorCtrls[i]->GetSelectedColor()));
 
 	EndDialog(nID);
 }

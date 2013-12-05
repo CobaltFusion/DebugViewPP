@@ -29,6 +29,14 @@ struct SelectionInfo
 	int count;
 };
 
+struct LogLine
+{
+	LogLine(int line, COLORREF color);
+
+	int line;
+	COLORREF color;
+};
+
 class CLogView :
 	public CWindowImpl<CLogView, CListViewCtrl, CListViewTraits>,
 	public COffscreenPaint<CLogView>
@@ -82,14 +90,12 @@ private:
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
 	bool IsIncluded(const std::string& text) const;
-
-	std::string GetTimeText(int line, TickType start, TickType end) const;
-	std::string GetTimeText(TickType abstime) const;
+	COLORREF GetColor(const std::string& text) const;
 
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
-	std::vector<LogFilter> m_excludefilters;
-	std::vector<int> m_logLines;
+	std::vector<LogFilter> m_filters;
+	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_autoScrollDown;
 	DisplayInfo m_displayInfo;
