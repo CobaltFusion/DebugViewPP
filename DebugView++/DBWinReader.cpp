@@ -66,7 +66,7 @@ void DBWinReader::Run()
 
 		Line line;
 		line.time = m_timer.Get();
-		GetLocalTime(&line.systemTime);
+		line.systemTime = GetSystemTimeAsFileTime();
 		line.pid = pData->processId;
 		line.message = pData->data;
 

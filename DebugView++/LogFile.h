@@ -12,13 +12,13 @@ namespace gj {
 
 struct Message
 {
-	Message(double time, long long rtctime, DWORD pid, const std::string& msg) :
-		time(time), rtctime(rtctime), processId(pid), text(msg)
+	Message(double time, FILETIME systemTime, DWORD pid, const std::string& msg) :
+		time(time), systemTime(systemTime), processId(pid), text(msg)
 	{
 	}
 
 	double time;
-	long long rtctime;
+	FILETIME systemTime;
 	DWORD processId;
 	std::string text;
 };
@@ -26,6 +26,7 @@ struct Message
 class LogFile
 {
 public:
+	bool Empty() const;
 	void Clear();
 	void Add(const Message& msg);
 	int Count() const;

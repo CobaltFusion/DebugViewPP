@@ -14,12 +14,14 @@
 namespace gj {
 
 LogFilter::LogFilter() :
-	type(FilterType::Include)
+	type(FilterType::Include),
+	color(RGB(255, 255, 255)),
+	enable(true)
 {
 }
 
-LogFilter::LogFilter(const std::string& text, FilterType::type type, COLORREF color) :
-	text(text), re(text), type(type), color(color)
+LogFilter::LogFilter(const std::string& text, FilterType::type type, COLORREF color, bool enable) :
+	text(text), re(text), type(type), color(color), enable(enable)
 {
 }
 
@@ -62,6 +64,7 @@ void CFilterDlg::ExceptionHandler()
 
 static const COLORREF HighlightColors[] =
 {
+	RGB(255, 255, 255), // white
 	RGB( 27, 161, 226), // blue
 	RGB(160,  80,   0), // brown
 	RGB( 51, 153,  51), // green
@@ -89,12 +92,17 @@ void CFilterDlg::AddFilter(const LogFilter& filter)
 {
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateSimple(L"", WStr(filter.text)));
-	static const wchar_t* types[] = { L"Exclude", L"Include", L"Highlight" , nullptr };
-	m_grid.SetSubItem(item, 1, PropCreateList(L"", types));
-	m_colorCtrls.push_back(CreateColorCtrl());
-	m_grid.SetSubItem(item, 2, PropCreateComboControl(L"", *m_colorCtrls.back(), 0));
-	m_colorCtrls.back()->SelectColor(filter.color);
-	m_grid.SetSubItem(item, 3, PropCreateCheckButton(L"", true));
+
+	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight" , nullptr };
+	auto pTypeList = PropCreateList(L"", types);
+	pTypeList->SetValue(CComVariant(filter.type));
+	m_grid.SetSubItem(item, 1, pTypeList);
+
+	auto pColorCombo = CreateColorCtrl();
+	m_grid.SetSubItem(item, 2, PropCreateComboControl(L"", *pColorCombo, filter.color));
+	m_colorCtrls.push_back(std::move(pColorCombo));
+
+	m_grid.SetSubItem(item, 3, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 4, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
 }
@@ -168,14 +176,56 @@ std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubI
 	return L"";
 }
 
+template <typename ItemType>
+ItemType& GetGridItem(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
+{
+	return dynamic_cast<ItemType&>(*grid.GetProperty(iItem, iSubItem));
+}
+
+std::wstring CFilterDlg::GetFilterText(int iItem) const
+{
+	return GetGridItemText(m_grid, iItem, 0);
+}
+
+FilterType::type CFilterDlg::GetFilterType(int iItem) const
+{
+	CComVariant val;
+	GetGridItem<CPropertyListItem>(m_grid, iItem, 1).GetValue(&val);
+	switch (val.lVal)
+	{
+	case FilterType::Include: return FilterType::Include;
+	case FilterType::Exclude: return FilterType::Exclude;
+	case FilterType::Highlight: return FilterType::Highlight;
+	}
+	throw std::runtime_error("Unknown FilterType");
+}
+
+COLORREF CFilterDlg::GetFilterColor(int iItem) const
+{
+	CComVariant val;
+	GetGridItem<CPropertyComboItem>(m_grid, iItem, 2).GetValue(&val);
+	return val.lVal;
+}
+
+bool CFilterDlg::GetFilterEnable(int iItem) const
+{
+	CComVariant val;
+	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 3).GetValue(&val);
+	return val.boolVal != VARIANT_FALSE;
+}
+
 void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	m_name = gj::GetDlgItemText(*this, IDC_NAME);
 
+	std::vector<LogFilter> filters;
 	int n = m_grid.GetItemCount();
-	for (int i = 0; i < n; ++i)
-		m_filters.push_back(LogFilter(Str(GetGridItemText(m_grid, i, 0)), FilterType::Exclude, m_colorCtrls[i]->GetSelectedColor()));
+	filters.reserve(n);
 
+	for (int i = 0; i < n; ++i)
+		filters.push_back(LogFilter(Str(GetFilterText(i)), GetFilterType(i), GetFilterColor(i), GetFilterEnable(i)));
+
+	m_filters.swap(filters);
 	EndDialog(nID);
 }
 

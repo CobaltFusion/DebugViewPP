@@ -59,7 +59,6 @@ extern CAppModule _Module;
 #include <sstream>
 #include <cmath>
 
-#include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/utility.hpp>
 #include <boost/system/system_error.hpp>
 

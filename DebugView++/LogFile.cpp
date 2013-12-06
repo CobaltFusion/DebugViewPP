@@ -9,6 +9,11 @@
 
 namespace gj {
 
+bool LogFile::Empty() const
+{
+	return m_messages.empty();
+}
+
 void LogFile::Clear()
 {
 	m_messages.clear();

@@ -16,7 +16,7 @@ namespace gj {
 struct Line
 {
 	double time;
-	SYSTEMTIME systemTime;
+	FILETIME systemTime;
 	DWORD pid;
 	std::string message;
 };

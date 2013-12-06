@@ -11,6 +11,11 @@
 
 namespace gj {
 
+void GlobalAllocDeleter::operator()(pointer p) const
+{
+	GlobalFree(p);
+}
+
 std::wstring MultiByteToWideChar(const char* str, int len)
 {
 	int buf_size = len + 2;
@@ -69,6 +74,43 @@ void ThrowLastError(const std::string& what)
 void ThrowLastError(const std::wstring& what)
 {
 	ThrowLastError(WideCharToMultiByte(what));
+}
+
+SYSTEMTIME GetSystemTime()
+{
+	SYSTEMTIME st;
+	::GetSystemTime(&st);
+	return st;
+}
+
+SYSTEMTIME GetLocalTime()
+{
+	SYSTEMTIME st;
+	::GetLocalTime(&st);
+	return st;
+}
+
+FILETIME GetSystemTimeAsFileTime()
+{
+	FILETIME ft;
+	GetSystemTimeAsFileTime(&ft);
+	return ft;
+}
+
+FILETIME FileTimeToLocalFileTime(const FILETIME& ft)
+{
+	FILETIME ftLocal;
+	if (!::FileTimeToLocalFileTime(&ft, &ftLocal))
+		ThrowLastError("FileTimeToLocalFileTime");
+	return ftLocal;
+}
+
+SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft)
+{
+	SYSTEMTIME st;
+	if (!::FileTimeToSystemTime(&ft, &st))
+		ThrowLastError("FileTimeToSystemTime");
+	return st;
 }
 
 CHandle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName)

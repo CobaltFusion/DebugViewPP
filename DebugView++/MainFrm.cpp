@@ -52,6 +52,7 @@ LOGFONT& GetDefaultLogFont()
 }
 
 CMainFrame::CMainFrame() :
+	m_timeOffset(0),
 	m_filterNr(0),
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
@@ -119,7 +120,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddIdleHandler(this);
 
 	UpdateUI();
-	m_timer = SetTimer(1, msOnTimerPeriod, NULL);
+	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
 	return 0;
 }
 
@@ -154,11 +155,14 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		printf("incoming lines: %d\n", lines.size());
 #endif
 
+	if (m_logFile.Empty() && !lines.empty())
+		m_timeOffset = lines[0].time;
+
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->time, AccurateTime::GetSystemTimeInUs(it->systemTime), it->pid, it->message));
+		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->message));
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->EndUpdate();

@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <array>
 #include <regex>
+#include "Win32Lib.h"
 #include "dbgstream.h"
 #include "Utilities.h"
 #include "Resource.h"
@@ -119,11 +120,16 @@ std::string GetTimeText(double time)
 	return stringbuilder() << std::fixed << std::setprecision(6) << time;
 }
 
-std::string GetTimeText(TickType abstime)
+std::string GetTimeText(const SYSTEMTIME& st)
 {
-	std::string timeString = AccurateTime::GetLocalTimeString(abstime, "%H:%M:%S.%f");
-	timeString.erase(timeString.end() - 3, timeString.end());
-	return timeString;
+	char buf[32];
+	sprintf(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	return buf;
+}
+
+std::string GetTimeText(const FILETIME& ft)
+{
+	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
 LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
@@ -135,7 +141,7 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 
 	int line = m_logLines[item.iItem].line;
 	const Message& msg = m_logFile[line];
-	std::string timeString = m_clockTime ? GetTimeText(msg.rtctime) : GetTimeText(msg.time);
+	std::string timeString = m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
 
 	switch (item.iSubItem)
 	{
@@ -265,43 +271,6 @@ std::string CLogView::GetItemText(int item, int subItem) const
 	return std::string(bstr.m_str, bstr.m_str + bstr.Length());
 }
 
-struct GlobalAllocDeleter
-{
-	typedef HGLOBAL pointer;
-
-	void operator()(pointer p) const
-	{
-		GlobalFree(p);
-	}
-};
-
-typedef std::unique_ptr<void, GlobalAllocDeleter> HGlobal;
-
-template <typename T>
-class GlobalLock
-{
-public:
-	explicit GlobalLock(const HGlobal& hg) :
-		m_hg(hg.get()),
-		m_ptr(::GlobalLock(m_hg))
-	{
-	}
-
-	~GlobalLock()
-	{
-		::GlobalUnlock(m_hg);
-	}
-
-	T* Ptr() const
-	{
-		return static_cast<T*>(m_ptr);
-	}
-
-private:
-	HGLOBAL m_hg;
-	void* m_ptr;
-};
-
 void CLogView::Copy()
 {
 	std::ostringstream ss;
@@ -414,7 +383,7 @@ COLORREF CLogView::GetColor(const std::string& text) const
 {
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 	{
-		if (it->type == FilterType::Highlight && std::regex_search(text, it->re))
+		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
 			return it->color;
 	}
 
@@ -425,6 +394,9 @@ bool CLogView::IsIncluded(const std::string& text) const
 {
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 	{
+		if (!it->enable)
+			continue;
+
 		switch (it->type)
 		{
 		case FilterType::Include:

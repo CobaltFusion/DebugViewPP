@@ -28,12 +28,13 @@ struct FilterType
 struct LogFilter
 {
 	LogFilter();
-	LogFilter(const std::string& text, FilterType::type type, COLORREF color);
+	LogFilter(const std::string& text, FilterType::type type, COLORREF color, bool enable);
 
 	std::string text;
 	std::regex re;
 	FilterType::type type;
 	COLORREF color;
+	bool enable;
 };
 
 class CFilterDlg :
@@ -72,6 +73,10 @@ private:
 	std::unique_ptr<CColorPickerListCtrl> CreateColorCtrl();
 	void AddFilter(const LogFilter& filter);
 	void RemoveFilter(int index);
+	std::wstring GetFilterText(int iItem) const;
+	FilterType::type GetFilterType(int iItem) const;
+	COLORREF GetFilterColor(int iItem) const;
+	bool GetFilterEnable(int iItem) const;
 
 	CPropertyGridCtrl m_grid;
 	std::vector<std::unique_ptr<CColorPickerListCtrl>> m_colorCtrls;

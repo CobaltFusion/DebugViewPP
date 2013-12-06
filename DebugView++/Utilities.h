@@ -165,9 +165,6 @@ std::wstring LoadString(int id);
 
 std::wstring GetExceptionMessage();
 
-SYSTEMTIME GetSystemTime();
-SYSTEMTIME GetLocalTime();
-
 class Timer
 {
 public:
@@ -181,28 +178,6 @@ private:
 
 	double m_timerUnit;
 	long long m_offset;
-};
-
-typedef long long TickType;	// microseconds
-
-class AccurateTime
-{
-public:
-	AccurateTime();
-	void SyncToLocalTime();
-	TickType GetQPCOffsetInUs(const LARGE_INTEGER& largeInt) const;
-	TickType GetRTCTime() const;
-
-	static std::string GetLocalTimeString(TickType ticks, const char* format);
-	static TickType GetSystemTimeInUs(const SYSTEMTIME& systemtime);
-	static double GetDeltaFromUs(TickType start, TickType end);
-
-private:
-	static boost::posix_time::ptime Zero();
-
-	TickType m_localtimeoffset;
-	TickType m_offset;
-	double m_usfactor;
 };
 
 template <typename T>

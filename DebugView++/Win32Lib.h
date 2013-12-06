@@ -14,6 +14,40 @@
 
 namespace gj {
 
+struct GlobalAllocDeleter
+{
+	typedef HGLOBAL pointer;
+
+	void operator()(pointer p) const;
+};
+
+typedef std::unique_ptr<void, GlobalAllocDeleter> HGlobal;
+
+template <typename T>
+class GlobalLock
+{
+public:
+	explicit GlobalLock(const HGlobal& hg) :
+		m_hg(hg.get()),
+		m_ptr(::GlobalLock(m_hg))
+	{
+	}
+
+	~GlobalLock()
+	{
+		::GlobalUnlock(m_hg);
+	}
+
+	T* Ptr() const
+	{
+		return static_cast<T*>(m_ptr);
+	}
+
+private:
+	HGLOBAL m_hg;
+	void* m_ptr;
+};
+
 std::wstring MultiByteToWideChar(const char* str, int len);
 std::wstring MultiByteToWideChar(const char* str);
 std::wstring MultiByteToWideChar(const std::string& str);
@@ -25,6 +59,12 @@ std::string WideCharToMultiByte(const std::wstring& str);
 void ThrowWin32Error(DWORD error, const std::string& what);
 void ThrowLastError(const std::string& what);
 void ThrowLastError(const std::wstring& what);
+
+SYSTEMTIME GetSystemTime();
+SYSTEMTIME GetLocalTime();
+FILETIME GetSystemTimeAsFileTime();
+FILETIME FileTimeToLocalFileTime(const FILETIME& ft);
+SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft);
 
 CHandle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName);
 CHandle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName);

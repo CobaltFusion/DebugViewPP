@@ -83,6 +83,7 @@ private:
 
 //	GuiThread m_guiThread;
 	UINT_PTR m_timer;
+	double m_timeOffset;
 	LogFile m_logFile;
 	int m_filterNr;
 	std::vector<std::unique_ptr<CLogView>> m_views;
