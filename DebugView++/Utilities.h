@@ -43,6 +43,16 @@
 
 namespace gj {
 
+class ScopedCursor : boost::noncopyable
+{
+public:
+	explicit ScopedCursor(HCURSOR cursor);
+	~ScopedCursor();
+
+private:
+	HCURSOR m_cursor;
+};
+
 template <class CharType, class Traits = std::char_traits<CharType>, class Allocator = std::allocator<CharType>>
 class basic_stringbuilder
 {
@@ -196,6 +206,12 @@ template <typename T, typename A1, typename A2>
 std::unique_ptr<T> make_unique(A1&& a1, A2&& a2)
 {
 	return std::unique_ptr<T>(new T(std::forward<A1>(a1), std::forward<A2>(a2)));
+}
+
+template <typename T, typename A1, typename A2, typename A3>
+std::unique_ptr<T> make_unique(A1&& a1, A2&& a2, A3&& a3)
+{
+	return std::unique_ptr<T>(new T(std::forward<A1>(a1), std::forward<A2>(a2), std::forward<A3>(a3)));
 }
 
 template <typename T>

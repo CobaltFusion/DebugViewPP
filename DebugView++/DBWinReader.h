@@ -37,6 +37,7 @@ public:
 
 private:
 	void Run();
+	void Add(DWORD pid, const char* text);
 
 	LinesList m_lines;
 	mutable boost::mutex m_linesMutex;

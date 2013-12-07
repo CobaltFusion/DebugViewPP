@@ -10,6 +10,15 @@
 
 namespace gj {
 
+ScopedCursor::ScopedCursor(HCURSOR cursor) : m_cursor(SetCursor(cursor))
+{
+}
+
+ScopedCursor::~ScopedCursor()
+{
+	SetCursor(m_cursor);
+}
+
 std::wstring LoadString(int id)
 {
 	CString cs;

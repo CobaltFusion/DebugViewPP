@@ -7,7 +7,6 @@
 
 #include <vector>
 #include "OffscreenPaint.h"
-#include "MainFrm.h"
 #include "LogFile.h"
 #include "FilterDlg.h"
 #include "DisplayInfo.h"
@@ -42,7 +41,7 @@ class CLogView :
 	public COffscreenPaint<CLogView>
 {
 public:
-	CLogView(CMainFrame& mainFrame, LogFile& logFile);
+	CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<LogFilter> filters = std::vector<LogFilter>());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
@@ -52,6 +51,8 @@ public:
 
 	void DoPaint(CDCHandle dc, const RECT& rcClip);
 
+	bool GetScroll() const;
+	void SetScroll(bool enable);
 	void Clear();
 	void Add(int line, const Message& msg);
 	void BeginUpdate();
@@ -74,18 +75,22 @@ public:
 
 	using CListViewCtrl::GetItemText;
 	std::string GetItemText(int item, int subItem) const;
+	std::string GetItemText(int item) const;
 
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
+
+	void Save(const std::wstring& fileName) const;
 
 	SelectionInfo GetSelectedRange() const;
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
-	LRESULT OnGetDispInfo(LPNMHDR pnmh);
-	LRESULT OnClick(LPNMHDR pnmh);
-	LRESULT OnCustomDraw(LPNMHDR pnmh);
-	LRESULT OnOdStateChanged(LPNMHDR pnmh);
+	LRESULT OnGetDispInfo(NMHDR* pnmh);
+	LRESULT OnClick(NMHDR* pnmh);
+	LRESULT OnItemChanged(NMHDR* pnmh);
+	LRESULT OnCustomDraw(NMHDR* pnmh);
+	LRESULT OnOdStateChanged(NMHDR* pnmh);
 
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();

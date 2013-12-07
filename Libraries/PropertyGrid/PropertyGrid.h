@@ -543,13 +543,14 @@ public:
          BYTE bKind = prop->GetKind();
          // Remember who the inplace was before we proceed
          HWND hwndInplace = m_hwndInplace;
+         if( ::GetFocus() != m_hWnd && IsChild(::GetFocus()) ) SetFocus(); // G-J: Property update on focus change
          m_hwndInplace = NULL;
          m_iInplaceRow = -1;
          m_iInplaceCol = -1;
          // Set focus back to our control
          // This could cause a new call to this method, so this is
          // why we cached stuff above.
-         if( ::GetFocus() != m_hWnd && IsChild(::GetFocus()) ) SetFocus();
+         // if( ::GetFocus() != m_hWnd && IsChild(::GetFocus()) ) SetFocus(); // G-J: Moved up
          // Destroy control
          switch( bKind ) {
          case PROPKIND_CONTROL:

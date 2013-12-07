@@ -76,6 +76,15 @@ void ThrowLastError(const std::wstring& what)
 	ThrowLastError(WideCharToMultiByte(what));
 }
 
+WINDOWPLACEMENT GetWindowPlacement(HWND hwnd)
+{
+	WINDOWPLACEMENT placement;
+	placement.length = sizeof(placement);
+	if (!::GetWindowPlacement(hwnd, &placement))
+		ThrowLastError("GetWindowPlacement");
+	return placement;
+}
+
 SYSTEMTIME GetSystemTime()
 {
 	SYSTEMTIME st;
@@ -220,6 +229,34 @@ ComInitialization::ComInitialization(CoInit init)
 ComInitialization::~ComInitialization()
 {
 	CoUninitialize();
+}
+
+std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName)
+{
+	long length = 0;
+	long rc = ::RegQueryValue(hKey, valueName, nullptr, &length);
+	if (rc != ERROR_SUCCESS)
+		ThrowWin32Error(rc, "RegQueryValue");
+
+	std::vector<wchar_t> data(length);
+	rc = ::RegQueryValue(hKey, valueName, data.data(), &length);
+	if (rc != ERROR_SUCCESS)
+		ThrowWin32Error(rc, "RegQueryValue");
+	return data.data();
+}
+
+DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName)
+{
+	DWORD type;
+	DWORD value;
+	DWORD count = sizeof(value);
+	long rc = RegQueryValueEx(hKey, valueName, nullptr, &type, reinterpret_cast<BYTE*>(&value), &count);
+	if (rc != ERROR_SUCCESS)
+		ThrowWin32Error(rc, "RegQueryValueEx");
+	if (type != REG_DWORD)
+		throw std::runtime_error("Invalid registry key");
+
+	return value;
 }
 
 } // namespace gj

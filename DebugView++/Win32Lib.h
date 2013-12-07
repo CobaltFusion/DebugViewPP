@@ -60,6 +60,8 @@ void ThrowWin32Error(DWORD error, const std::string& what);
 void ThrowLastError(const std::string& what);
 void ThrowLastError(const std::wstring& what);
 
+WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
+
 SYSTEMTIME GetSystemTime();
 SYSTEMTIME GetLocalTime();
 FILETIME GetSystemTimeAsFileTime();
@@ -110,5 +112,8 @@ public:
 	explicit ComInitialization(CoInit init);
 	~ComInitialization();
 };
+
+std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName = nullptr);
+DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName = nullptr);
 
 } // namespace gj

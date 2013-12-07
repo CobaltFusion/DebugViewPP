@@ -18,12 +18,12 @@ namespace WTL { using ATL::CString; };
 //#include "GuiThread.h"
 #include "FindDlg.h"
 #include "LogFile.h"
+#include "LogView.h"
 #include "DBWinReader.h"
 
 namespace gj {
 
 struct SelectionInfo;
-class CLogView;
 
 class CMainFrame :
 	public CTabbedFrameImpl<CMainFrame>,
@@ -38,6 +38,7 @@ public:
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
+		UPDATE_ELEMENT(ID_LOG_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_LOG_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
@@ -46,6 +47,7 @@ public:
 	void SetLineRange(const SelectionInfo& selection);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
+	void UpdateUI();
 
 private:
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
@@ -57,19 +59,25 @@ private:
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
 
-	void UpdateUI();
+	void UpdateStatusBar();
 	bool LoadSettings();
 	void SaveSettings();
 
 	void AddFilterView();
+	void AddFilterView(const std::wstring& name, std::vector<LogFilter> filters = std::vector<LogFilter>());
 	void AddMessage(const Message& msg);
+
+	std::wstring GetLogFileName() const;
+	void SaveLogFile(const std::wstring& fileName);
 
 	LRESULT OnClickTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLogScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -94,6 +102,7 @@ private:
 //	DBWinReader m_globalReader;
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
+	std::wstring m_logFileName;
 };
 
 } // namespace gj

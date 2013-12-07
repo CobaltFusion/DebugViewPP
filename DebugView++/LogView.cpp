@@ -11,6 +11,7 @@
 #include "dbgstream.h"
 #include "Utilities.h"
 #include "Resource.h"
+#include "MainFrm.h"
 #include "LogView.h"
 
 namespace gj {
@@ -33,6 +34,7 @@ LogLine::LogLine(int line, COLORREF color) :
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
@@ -40,10 +42,12 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile) :
+CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<LogFilter> filters) :
 	m_mainFrame(mainFrame),
 	m_logFile(logFile),
+	m_filters(std::move(filters)),
 	m_clockTime(false),
+	m_autoScrollDown(true),
 	m_dirty(false)
 {
 }
@@ -77,6 +81,20 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 LRESULT CLogView::OnClick(NMHDR* pnmh)
 {
+	return 0;
+}
+
+LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
+{
+	auto pListView = reinterpret_cast<NMLISTVIEW*>(pnmh);
+
+	if ((pListView->uNewState & LVIS_FOCUSED) == 0 ||
+		pListView->iItem < 0  ||
+		static_cast<size_t>(pListView->iItem) >= m_logLines.size())
+		return 0;
+
+	m_autoScrollDown = pListView->iItem == GetItemCount() - 1;
+	m_mainFrame.UpdateUI();
 	return 0;
 }
 
@@ -187,6 +205,16 @@ void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 }
 
+bool CLogView::GetScroll() const
+{
+	return m_autoScrollDown;
+}
+
+void CLogView::SetScroll(bool enable)
+{
+	m_autoScrollDown = enable;
+}
+
 void CLogView::Clear()
 {
 	SetItemCount(0);
@@ -205,8 +233,6 @@ void CLogView::Add(int line, const Message& msg)
 
 void CLogView::BeginUpdate()
 {
-	int focus = GetNextItem(0, LVNI_FOCUSED);
-	m_autoScrollDown = focus < 0 || focus == GetItemCount() - 1;
 }
 
 void CLogView::EndUpdate()
@@ -215,9 +241,8 @@ void CLogView::EndUpdate()
 	{
 		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
 		if (m_autoScrollDown)
-		{
 			ScrollDown();
-		}
+
 		m_dirty = false;
 	}
 }
@@ -271,18 +296,23 @@ std::string CLogView::GetItemText(int item, int subItem) const
 	return std::string(bstr.m_str, bstr.m_str + bstr.Length());
 }
 
+std::string CLogView::GetItemText(int item) const
+{
+	return stringbuilder() <<
+		GetItemText(item, 0) << "\t" <<
+		GetItemText(item, 1) << "\t" <<
+		GetItemText(item, 2) << "\t" <<
+		GetItemText(item, 3) << "\t" <<
+		GetItemText(item, 4);
+}
+
 void CLogView::Copy()
 {
 	std::ostringstream ss;
 
 	int item = -1;
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-		ss <<
-			GetItemText(item, 0) << "\t" <<
-			GetItemText(item, 1) << "\t" <<
-			GetItemText(item, 2) << "\t" <<
-			GetItemText(item, 3) << "\t" <<
-			GetItemText(item, 4) << "\n";
+		ss << GetItemText(item) << "\n";
 	const std::string& str = ss.str();
 
 	HGlobal hdst(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
@@ -330,6 +360,23 @@ bool CLogView::FindPrevious(const std::wstring& text)
 	return Find(Str(text).str(), -1);
 }
 
+int FilterTypeToInt(FilterType::type value)
+{
+	return value;
+}
+
+FilterType::type IntToFilterType(int value)
+{
+	switch (value)
+	{
+	case FilterType::Include: return FilterType::Include;
+	case FilterType::Exclude: return FilterType::Exclude;
+	case FilterType::Highlight: return FilterType::Highlight;
+	default: assert(!"Unexpected FilterType"); break;
+	}
+	throw std::invalid_argument("bad FilterType!");
+}
+
 void CLogView::LoadSettings(CRegKey& reg)
 {
 	std::array<wchar_t, 100> buf;
@@ -345,6 +392,20 @@ void CLogView::LoadSettings(CRegKey& reg)
 			++col;
 		}
 	}
+
+	for (size_t i = 0; ; ++i)
+	{
+		CRegKey regFilter;
+		if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i)) != ERROR_SUCCESS)
+			break;
+
+		m_filters.push_back(LogFilter(
+			Str(RegGetStringValue(regFilter)),
+			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
+			RegGetDWORDValue(regFilter, L"Color"),
+			RegGetDWORDValue(regFilter, L"Enable") != 0));
+	}
+	ApplyFilters();
 }
 
 void CLogView::SaveSettings(CRegKey& reg)
@@ -352,7 +413,30 @@ void CLogView::SaveSettings(CRegKey& reg)
 	std::wostringstream ss;
 	for (int i = 0; i < 5; ++i)
 		ss << GetColumnWidth(i) << " ";
-	reg.SetStringValue(L"ColWidths", ss.str().c_str());
+	reg.SetStringValue(L"ColWidths", ss.str().c_str());;
+
+	for (size_t i = 0; i < m_filters.size(); ++i)
+	{
+		CRegKey regFilter;
+		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
+		regFilter.SetValue(WStr(m_filters[i].text.c_str()));
+		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(m_filters[i].type));
+		regFilter.SetDWORDValue(L"Color", m_filters[i].color);
+		regFilter.SetDWORDValue(L"Enable", m_filters[i].enable);
+	}
+}
+
+void CLogView::Save(const std::wstring& fileName) const
+{
+	std::ofstream file(fileName);
+
+	int lines = GetItemCount();
+	for (int i = 0; i < lines; ++i)
+		file << GetItemText(i) << "\n";
+
+	file.close();
+	if (!file)
+		ThrowLastError(fileName);
 }
 
 std::vector<LogFilter> CLogView::GetFilters() const

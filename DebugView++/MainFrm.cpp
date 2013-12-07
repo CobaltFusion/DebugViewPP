@@ -27,8 +27,10 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
 	COMMAND_ID_HANDLER_EX(ID_LOG_SELECTALL, OnLogSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
+	COMMAND_ID_HANDLER_EX(ID_LOG_SCROLL, OnLogScroll)
 	COMMAND_ID_HANDLER_EX(ID_LOG_TIME, OnLogTime)
 	COMMAND_ID_HANDLER_EX(ID_LOG_FILTER, OnLogFilter)
 	COMMAND_ID_HANDLER_EX(ID_LOG_COPY, OnLogCopy)
@@ -58,7 +60,7 @@ CMainFrame::CMainFrame() :
 	m_findDlg(*this),
 	m_paused(false),
 	m_localReader(false)
-//	m_globalReader(true),
+//	m_globalReader(true)
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
@@ -70,7 +72,6 @@ CMainFrame::CMainFrame() :
 
 CMainFrame::~CMainFrame()
 {
-
 }
 
 void CMainFrame::ExceptionHandler()
@@ -141,9 +142,15 @@ void CMainFrame::OnClose()
 
 void CMainFrame::UpdateUI()
 {
-	UISetText(0, L"Ready");
+	UpdateStatusBar();
 	UISetCheck(ID_LOG_TIME, GetView().GetClockTime());
+	UISetCheck(ID_LOG_SCROLL, GetView().GetScroll());
 	UISetCheck(ID_LOG_PAUSE, m_paused);
+}
+
+void CMainFrame::UpdateStatusBar()
+{
+	UISetText(0, L"Ready");
 }
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
@@ -181,21 +188,27 @@ bool CMainFrame::LoadSettings()
 	reg.QueryDWORDValue(L"width", cx);
 	reg.QueryDWORDValue(L"height", cy);
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
-
-	m_views[0]->LoadSettings(reg);
-
 	DWORD options;
 	if (reg.QueryDWORDValue(L"ClockTime", options) == ERROR_SUCCESS)
 		m_views[0]->SetClockTime(options != 0);
+
+	for (size_t i = 0; ; ++i)
+	{
+		CRegKey regView;
+		if (regView.Open(reg, WStr(wstringbuilder() << L"Views\\View" << i)) != ERROR_SUCCESS)
+			break;
+
+		if (i > 0)
+			AddFilterView(RegGetStringValue(regView));
+		GetView().LoadSettings(regView);
+	}
 
 	return true;
 }
 
 void CMainFrame::SaveSettings()
 {
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(placement);
-	GetWindowPlacement(&placement);
+	auto placement = gj::GetWindowPlacement(*this);
 
 	CRegKey reg;
 	reg.Create(HKEY_CURRENT_USER, RegistryPath);
@@ -203,7 +216,14 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"y", placement.rcNormalPosition.top);
 	reg.SetDWORDValue(L"width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
 	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
-	m_views[0]->SaveSettings(reg);
+	reg.DeleteSubKey(L"Views");
+	for (size_t i = 0; i < m_views.size(); ++i)
+	{
+		CRegKey regView;
+		regView.Create(reg, WStr(wstringbuilder() << L"Views\\View" << i));
+		regView.SetValue(GetTabCtrl().GetItem(i)->GetTextRef());
+		m_views[i]->SaveSettings(regView);
+	}
 	reg.SetDWORDValue(L"ClockTime", m_views[0]->GetClockTime());
 }
 
@@ -285,18 +305,20 @@ void CMainFrame::FindPrevious(const std::wstring& text)
 void CMainFrame::AddFilterView()
 {
 	++m_filterNr;
-	std::wstring name = wstringbuilder() << L"Filter " << m_filterNr;
-
-	CFilterDlg dlg(name);
+	CFilterDlg dlg(wstringbuilder() << L"Filter " << m_filterNr);
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
+	AddFilterView(dlg.GetName(), dlg.GetFilters());
+}
+
+void CMainFrame::AddFilterView(const std::wstring& name, std::vector<LogFilter> filters)
+{
+	m_views.push_back(make_unique<CLogView>(*this, m_logFile, filters));
 	m_views.back()->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
-	m_views.back()->SetFilters(dlg.GetFilters());
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
-	GetTabCtrl().InsertItem(newIndex, dlg.GetName().c_str());
+	GetTabCtrl().InsertItem(newIndex, name.c_str());
 	GetTabCtrl().GetItem(newIndex)->SetTabView(*m_views.back());
 	GetTabCtrl().SetCurSel(newIndex);
 	ShowTabControl();
@@ -342,8 +364,36 @@ LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 	return 0;
 }
 
+std::wstring CMainFrame::GetLogFileName() const
+{
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.txt";
+	CFileDialog dlg(false, L".txt", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Save DebugView log";
+	return dlg.DoModal() == IDOK ? dlg.m_szFileName : L"";
+}
+
+void CMainFrame::SaveLogFile(const std::wstring& fileName)
+{
+	UISetText(0, WStr(wstringbuilder() << "Saving " << fileName));
+	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	GetView().Save(fileName);
+	m_logFileName = fileName;
+	UpdateStatusBar();
+}
+
 void CMainFrame::OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	auto fileName = !m_logFileName.empty() ? m_logFileName : GetLogFileName();
+	if (!fileName.empty())
+		SaveLogFile(fileName);
+}
+
+void CMainFrame::OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	auto fileName = GetLogFileName();
+	if (!fileName.empty())
+		SaveLogFile(fileName);
 }
 
 void CMainFrame::OnLogSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -355,7 +405,13 @@ void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 {
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->Clear();
-	m_logFile.Clear();	// todo: deal with multiple views, but for now release all memory to verify implemention
+	m_logFile.Clear();
+}
+
+void CMainFrame::OnLogScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	GetView().SetScroll(!GetView().GetScroll());
+	UpdateUI();
 }
 
 void CMainFrame::OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

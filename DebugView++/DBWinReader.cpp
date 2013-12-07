@@ -52,6 +52,29 @@ void DBWinReader::Abort()
 	m_thread.join();
 }
 
+void DBWinReader::Add(DWORD pid, const char* text)
+{
+	Line line;
+	line.time = m_timer.Get();
+	line.systemTime = GetSystemTimeAsFileTime();
+	line.pid = pid;
+
+	const char* p = text;
+	const char* end = text;
+	while (*p)
+	{
+		if (*p == '\r' || *p == '\n')
+			end = p;
+		else
+			end = p + 1;
+		++p;
+	}
+	line.message = std::string(text, end);
+
+	boost::unique_lock<boost::mutex> lock(m_linesMutex);
+	m_lines.push_back(line);
+}
+
 void DBWinReader::Run()
 {
 	MappedViewOfFile dbWinView(m_hBuffer, PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
@@ -64,14 +87,7 @@ void DBWinReader::Run()
 		if (m_end)
 			break;
 
-		Line line;
-		line.time = m_timer.Get();
-		line.systemTime = GetSystemTimeAsFileTime();
-		line.pid = pData->processId;
-		line.message = pData->data;
-
-		boost::unique_lock<boost::mutex> lock(m_linesMutex);
-		m_lines.push_back(line);
+		Add(pData->processId, pData->data);
 	}
 }
 
