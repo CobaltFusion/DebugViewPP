@@ -66,6 +66,7 @@ private:
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, std::vector<LogFilter> filters = std::vector<LogFilter>());
 	void AddMessage(const Message& msg);
+	void AddPreppedMessage(const Message& msg);
 
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);

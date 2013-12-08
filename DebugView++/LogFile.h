@@ -12,6 +12,11 @@ namespace gj {
 
 struct Message
 {
+	Message(const Message& msg) : 
+		time(msg.time), systemTime(msg.systemTime), processId(msg.processId), text(msg.text)
+	{
+	}
+
 	Message(double time, FILETIME systemTime, DWORD pid, const std::string& msg) :
 		time(time), systemTime(systemTime), processId(pid), text(msg)
 	{

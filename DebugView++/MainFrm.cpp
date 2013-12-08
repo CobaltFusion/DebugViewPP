@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/utility.hpp>
+#include <boost/tokenizer.hpp>
 #include <psapi.h>
 #include "Utilities.h"
 #include "Resource.h"
@@ -21,6 +22,9 @@
 namespace gj {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
+
+typedef boost::tokenizer<boost::char_separator<char>,
+                std::string::const_iterator, std::string> NewLineTokenizer;
 
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
@@ -150,7 +154,7 @@ void CMainFrame::UpdateUI()
 
 void CMainFrame::UpdateStatusBar()
 {
-	UISetText(0, L"Ready");
+	//UISetText(0, L"Ready");
 }
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
@@ -479,16 +483,47 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
-void CMainFrame::AddMessage(const Message& msg)
+
+void CMainFrame::AddMessage(const Message& message)
 {
 	if (m_paused)
 		return;
 
+	Message msg(message);
+
+	bool autoNewLine = false;
+	std::string text;
+	boost::char_separator<char> seporators("\r\n");
+	NewLineTokenizer tok(msg.text, seporators);
+	for (auto it = tok.begin(); it != tok.end(); ++it)
+	{
+		if (autoNewLine)
+		{
+			msg.text = *it;
+			AddPreppedMessage(msg);
+		}
+		else
+		{
+			text += *it;
+		}
+	}
+
+	if (!autoNewLine)
+	{
+		msg.text = text;
+		AddPreppedMessage(msg);
+	}
+
+}
+
+void CMainFrame::AddPreppedMessage(const Message& msg)
+{
 	int index = m_logFile.Count();
 
 	m_logFile.Add(msg);
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->Add(index, msg);
 }
+
 
 } // namespace gj
