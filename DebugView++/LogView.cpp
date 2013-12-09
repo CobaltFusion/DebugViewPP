@@ -98,22 +98,118 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 	return 0;
 }
 
+RECT CLogView::GetItemRect(int iItem, unsigned code) const
+{
+	RECT rect;
+	CListViewCtrl::GetItemRect(iItem, &rect, code);
+	return rect;
+}
+
+RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
+{
+	int subitemCount = GetHeader().GetItemCount();
+
+	RECT rect;
+	CListViewCtrl::GetSubItemRect(iItem, iSubItem, code, &rect);
+	if (iSubItem == 0 && subitemCount > 1)
+		rect.right = GetSubItemRect(iItem, 1, code).left;
+	return rect;
+}
+
+unsigned GetTextAlign(const HDITEM& item)
+{
+	switch (item.fmt & HDF_JUSTIFYMASK)
+	{
+	case HDF_LEFT: return DT_LEFT;
+	case HDF_CENTER: return DT_CENTER;
+	case HDF_RIGHT: return DT_RIGHT;
+	}
+	return HDF_LEFT;
+}
+
+class ScopedBkColor
+{
+public:
+	ScopedBkColor(HDC hdc, COLORREF col) :
+		m_hdc(hdc),
+		m_col(SetBkColor(hdc, col))
+	{
+	}
+
+	~ScopedBkColor()
+	{
+		SetBkColor(m_hdc, m_col);
+	}
+
+private:
+	HDC m_hdc;
+	COLORREF m_col;
+};
+
+class ScopedTextColor
+{
+public:
+	ScopedTextColor(HDC hdc, COLORREF col) :
+		m_hdc(hdc),
+		m_col(SetTextColor(hdc, col))
+	{
+	}
+
+	~ScopedTextColor()
+	{
+		SetTextColor(m_hdc, m_col);
+	}
+
+private:
+	HDC m_hdc;
+	COLORREF m_col;
+};
+
+void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
+{
+	auto text = GetItemWText(iItem, iSubItem);
+//	dc.GetTextExtent(LPCTSTR lpszString, int nCount, LPSIZE lpSize);
+	RECT rect = GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS);
+	int margin = GetHeader().GetBitmapMargin();
+	rect.left += margin;
+	rect.right -= margin;
+
+	HDITEM item;
+	GetHeader().GetItem(iSubItem, &item);
+	dc.DrawText(text.c_str(), text.size(), &rect, GetTextAlign(item) | DT_NOCLIP | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+}
+
+void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const
+{
+	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
+
+	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
+	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
+	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : m_logLines[iItem].color;
+	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : GetSysColor(COLOR_WINDOWTEXT);
+	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
+	ScopedBkColor bcol(dc, bkColor);
+	ScopedTextColor tcol(dc, txColor);
+
+	int subitemCount = GetHeader().GetItemCount();
+	for (int i = 0; i < subitemCount; ++i)
+		DrawSubItem(dc, iItem, i);
+	if (focused)
+		dc.DrawFocusRect(&rect);
+}
+
 LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
 	auto pCustomDraw = reinterpret_cast<NMLVCUSTOMDRAW*>(pnmh);
 
-	int item = pCustomDraw->nmcd.dwItemSpec;
 	switch (pCustomDraw->nmcd.dwDrawStage)
 	{
 	case CDDS_PREPAINT:
 		return CDRF_NOTIFYITEMDRAW;
 
 	case CDDS_ITEMPREPAINT:
-		return CDRF_NOTIFYSUBITEMDRAW;
-
-	case CDDS_ITEMPREPAINT | CDDS_SUBITEM:
-		pCustomDraw->clrTextBk = m_logLines[item].color;
-		return CDRF_DODEFAULT;
+		DrawItem(pCustomDraw->nmcd.hdc, pCustomDraw->nmcd.dwItemSpec, pCustomDraw->nmcd.uItemState);
+		return CDRF_SKIPDEFAULT;
 	}
 
 	return CDRF_DODEFAULT;
@@ -294,6 +390,13 @@ std::string CLogView::GetItemText(int item, int subItem) const
 	CComBSTR bstr;
 	GetItemText(item, subItem, bstr.m_str);
 	return std::string(bstr.m_str, bstr.m_str + bstr.Length());
+}
+
+std::wstring CLogView::GetItemWText(int item, int subItem) const
+{
+	CComBSTR bstr;
+	GetItemText(item, subItem, bstr.m_str);
+	return std::wstring(bstr.m_str, bstr.m_str + bstr.Length());
 }
 
 std::string CLogView::GetItemText(int item) const

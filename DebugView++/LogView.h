@@ -76,6 +76,7 @@ public:
 	using CListViewCtrl::GetItemText;
 	std::string GetItemText(int item, int subItem) const;
 	std::string GetItemText(int item) const;
+	std::wstring GetItemWText(int item, int subItem) const;
 
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
@@ -91,6 +92,11 @@ private:
 	LRESULT OnItemChanged(NMHDR* pnmh);
 	LRESULT OnCustomDraw(NMHDR* pnmh);
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
+
+	RECT GetItemRect(int iItem, unsigned code) const;
+	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
+	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
+	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const;
 
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
