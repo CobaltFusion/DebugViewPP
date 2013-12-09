@@ -1,9 +1,9 @@
-//  (C) Copyright Gert-Jan de Vos 2012.
-//  Distributed under the Boost Software License, Version 1.0.
-//  (See accompanying file LICENSE_1_0.txt or copy at 
-//  http://www.boost.org/LICENSE_1_0.txt)
+// (C) Copyright Gert-Jan de Vos 2012.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
 
-//  See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// See http://boosttestui.wordpress.com/ for the boosttestui home page.
 
 #include "stdafx.h"
 #include <boost/utility.hpp>
@@ -24,7 +24,7 @@ namespace gj {
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
 typedef boost::tokenizer<boost::char_separator<char>,
-                std::string::const_iterator, std::string> NewLineTokenizer;
+				std::string::const_iterator, std::string> NewLineTokenizer;
 
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)

@@ -1,11 +1,9 @@
-//
-//BOOL WINAPI GetProcessMemoryInfo(
-//  __in   HANDLE Process,
-//  __out  PPROCESS_MEMORY_COUNTERS ppsmemCounters,
-//  __in   DWORD cb
-//);
-//
-//// PROCESS_MEMORY_COUNTERS_EX
+// (C) Copyright Gert-Jan de Vos 2012.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// See http://boosttestui.wordpress.com/ for the boosttestui home page.
 
 #include "stdafx.h"
 #include "ProcessInfo.h"
@@ -26,7 +24,7 @@ void ProcessInfo::Refresh()
 	GetProcessMemoryInfo(m_handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&m_memoryCounters), sizeof(m_memoryCounters));
 }
 
-SIZE_T ProcessInfo::GetPrivateBytes()
+size_t ProcessInfo::GetPrivateBytes() const
 {
 	return m_memoryCounters.PrivateUsage;
 }
