@@ -9,6 +9,7 @@
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread.hpp>
+#include "Win32Lib.h"
 #include "Utilities.h"
 
 namespace gj {
@@ -44,9 +45,9 @@ private:
 	Timer m_timer;
 
 	bool m_end;
-	CHandle m_hBuffer;
-	CHandle m_dbWinBufferReady;
-	CHandle m_dbWinDataReady;
+	Handle m_hBuffer;
+	Handle m_dbWinBufferReady;
+	Handle m_dbWinDataReady;
 	boost::thread m_thread;
 };
 

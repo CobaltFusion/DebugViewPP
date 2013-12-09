@@ -23,6 +23,15 @@ struct GlobalAllocDeleter
 
 typedef std::unique_ptr<void, GlobalAllocDeleter> HGlobal;
 
+struct HandleDeleter
+{
+	typedef HANDLE pointer;
+
+	void operator()(pointer p) const;
+};
+
+typedef std::unique_ptr<void, HandleDeleter> Handle;
+
 template <typename T>
 class GlobalLock
 {
@@ -68,9 +77,9 @@ FILETIME GetSystemTimeAsFileTime();
 FILETIME FileTimeToLocalFileTime(const FILETIME& ft);
 SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft);
 
-CHandle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName);
-CHandle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName);
-CHandle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
+Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName);
+Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName);
+Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
 
 void WaitForSingleObject(HANDLE hObject);
 bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds);

@@ -16,6 +16,11 @@ void GlobalAllocDeleter::operator()(pointer p) const
 	GlobalFree(p);
 }
 
+void HandleDeleter::operator()(pointer p) const
+{
+	CloseHandle(p);
+}
+
 std::wstring MultiByteToWideChar(const char* str, int len)
 {
 	int buf_size = len + 2;
@@ -122,27 +127,27 @@ SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft)
 	return st;
 }
 
-CHandle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName)
+Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName)
 {
-	CHandle hMap(::CreateFileMappingW(hFile, const_cast<SECURITY_ATTRIBUTES*>(pAttributes), protect, maximumSizeHigh, maximumSizeLow, pName));
+	Handle hMap(::CreateFileMappingW(hFile, const_cast<SECURITY_ATTRIBUTES*>(pAttributes), protect, maximumSizeHigh, maximumSizeLow, pName));
 	if (!hMap)
 		ThrowLastError("CreateFileMapping");
 
 	return hMap;
 }
 
-CHandle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName)
+Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName)
 {
-	CHandle hEvent(::CreateEventW(const_cast<SECURITY_ATTRIBUTES*>(pEventAttributes), manualReset, initialState, pName));
+	Handle hEvent(::CreateEventW(const_cast<SECURITY_ATTRIBUTES*>(pEventAttributes), manualReset, initialState, pName));
 	if (!hEvent)
 		ThrowLastError("CreateEvent");
 
 	return hEvent;
 }
 
-CHandle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName)
+Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName)
 {
-	CHandle hMutex(::CreateMutexW(const_cast<SECURITY_ATTRIBUTES*>(pMutexAttributes), initialOwner, pName));
+	Handle hMutex(::CreateMutexW(const_cast<SECURITY_ATTRIBUTES*>(pMutexAttributes), initialOwner, pName));
 	if (!hMutex)
 		ThrowLastError("CreateMutex");
 

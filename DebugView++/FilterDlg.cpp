@@ -21,7 +21,7 @@ LogFilter::LogFilter() :
 }
 
 LogFilter::LogFilter(const std::string& text, FilterType::type type, COLORREF color, bool enable) :
-	text(text), re(text), type(type), color(color), enable(enable)
+	text(text), re(text, std::regex_constants::icase), type(type), color(color), enable(enable)
 {
 }
 

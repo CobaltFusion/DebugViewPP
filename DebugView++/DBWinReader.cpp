@@ -25,9 +25,9 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 	return global ? L"Global\\" + name : name;
 }
 
-CHandle CreateDBWinBufferMapping(bool global)
+Handle CreateDBWinBufferMapping(bool global)
 {
-	CHandle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
+	Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		throw std::runtime_error("Another DebugView is running");
 	return hMap;
@@ -45,15 +45,12 @@ DBWinReader::DBWinReader(bool global) :
 DBWinReader::~DBWinReader()
 {
 	Abort();
-	m_dbWinDataReady.Close();
-	m_dbWinBufferReady.Close();
-	m_hBuffer.Close();
 }
 
 void DBWinReader::Abort()
 {
 	m_end = true;
-	SetEvent(m_dbWinDataReady);	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
+	SetEvent(m_dbWinDataReady.get());	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
 	m_thread.join();
 }
 
@@ -71,13 +68,13 @@ void DBWinReader::Add(DWORD pid, const char* text)
 
 void DBWinReader::Run()
 {
-	MappedViewOfFile dbWinView(m_hBuffer, PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
+	MappedViewOfFile dbWinView(m_hBuffer.get(), PAGE_READONLY, 0, 0, sizeof(DbWinBuffer));
 	auto pData = static_cast<const DbWinBuffer*>(dbWinView.Ptr());
 
 	for (;;)
 	{
-		SetEvent(m_dbWinBufferReady);
-		WaitForSingleObject(m_dbWinDataReady);
+		SetEvent(m_dbWinBufferReady.get());
+		WaitForSingleObject(m_dbWinDataReady.get());
 		if (m_end)
 			break;
 
