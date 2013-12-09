@@ -100,7 +100,7 @@ private:
 	CFindDlg m_findDlg;
 	bool m_paused;
 	DBWinReader m_localReader;
-//	DBWinReader m_globalReader;
+	DBWinReader m_globalReader;
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;

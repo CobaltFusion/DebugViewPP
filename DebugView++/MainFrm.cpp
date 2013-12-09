@@ -63,14 +63,16 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_paused(false),
-	m_localReader(false)
-//	m_globalReader(true)
+	m_localReader(false),
+	m_globalReader(true)
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
 #endif
 
+	m_localReader.Start();
+	//m_globalReader.Start();
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
 }
 
