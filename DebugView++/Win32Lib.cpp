@@ -131,7 +131,7 @@ Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, D
 {
 	Handle hMap(::CreateFileMappingW(hFile, const_cast<SECURITY_ATTRIBUTES*>(pAttributes), protect, maximumSizeHigh, maximumSizeLow, pName));
 	if (!hMap)
-		ThrowLastError("CreateFileMapping");
+		ThrowLastError(std::wstring(L"CreateFileMapping(") + pName + L")");
 
 	return hMap;
 }
@@ -140,7 +140,7 @@ Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset
 {
 	Handle hEvent(::CreateEventW(const_cast<SECURITY_ATTRIBUTES*>(pEventAttributes), manualReset, initialState, pName));
 	if (!hEvent)
-		ThrowLastError("CreateEvent");
+		ThrowLastError(std::wstring(L"CreateEvent(") + pName + L")");
 
 	return hEvent;
 }
@@ -149,7 +149,7 @@ Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwne
 {
 	Handle hMutex(::CreateMutexW(const_cast<SECURITY_ATTRIBUTES*>(pMutexAttributes), initialOwner, pName));
 	if (!hMutex)
-		ThrowLastError("CreateMutex");
+		ThrowLastError(std::wstring(L"CreateMutex(") + pName + L")");
 
 	return hMutex;
 }

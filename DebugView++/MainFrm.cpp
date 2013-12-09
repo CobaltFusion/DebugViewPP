@@ -63,14 +63,16 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_paused(false),
-	m_localReader(false)
-//	m_globalReader(true)
+	m_localReader(false),
+	m_globalReader(true)
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
 #endif
 
+	m_localReader.Start();
+	//m_globalReader.Start();
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
 }
 
@@ -446,6 +448,18 @@ void CMainFrame::OnLogCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_paused = !m_paused;
+
+	// gj: enable to test re-enable, Stop() does not seen to release one of the (or maybe any) handles?
+	//if (m_paused)
+	//{
+	//	m_localReader.Stop();
+	//	m_globalReader.Stop();
+	//}
+	//else
+	//{
+	//	m_localReader.Start();
+	//	m_globalReader.Start();
+	//}
 	UpdateUI();
 }
 

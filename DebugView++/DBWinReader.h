@@ -32,8 +32,8 @@ public:
 	explicit DBWinReader(bool global);
 	~DBWinReader();
 
-	void Abort();
-
+	void Start();
+	void Stop();
 	LinesList GetLines();
 
 private:
@@ -44,6 +44,7 @@ private:
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 
+	bool m_global;
 	bool m_end;
 	Handle m_hBuffer;
 	Handle m_dbWinBufferReady;
