@@ -46,6 +46,7 @@ DBWinReader::~DBWinReader()
 
 void DBWinReader::Start()
 {
+	m_end = false;
 	m_hBuffer = CreateDBWinBufferMapping(m_global);
 	m_dbWinBufferReady = CreateEvent(nullptr, false, true, GetDBWinName(m_global, L"DBWIN_BUFFER_READY").c_str());
 	m_dbWinDataReady = CreateEvent(nullptr, false, false, GetDBWinName(m_global, L"DBWIN_DATA_READY").c_str());
@@ -57,6 +58,7 @@ void DBWinReader::Stop()
 	m_end = true;
 	SetEvent(m_dbWinDataReady.get());	// There can be only one DBWIN client so this should be ok
 	m_thread.join();
+
 	m_dbWinDataReady.reset();
 	m_dbWinBufferReady.reset();
 	m_hBuffer.reset();
