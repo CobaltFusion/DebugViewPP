@@ -10,7 +10,6 @@
 #include <vector>
 #include <regex>
 #include "PropertyGrid.h"
-#include "ColorCombo.h"
 #include "Resource.h"
 
 namespace gj {
@@ -28,12 +27,13 @@ struct FilterType
 struct LogFilter
 {
 	LogFilter();
-	LogFilter(const std::string& text, FilterType::type type, COLORREF color, bool enable);
+	LogFilter(const std::string& text, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable);
 
 	std::string text;
 	std::regex re;
 	FilterType::type type;
-	COLORREF color;
+	COLORREF bgColor;
+	COLORREF fgColor;
 	bool enable;
 };
 
@@ -70,16 +70,14 @@ public:
 	void ExceptionHandler();
 
 private:
-	std::unique_ptr<CColorPickerListCtrl> CreateColorCtrl();
 	void AddFilter(const LogFilter& filter);
-	void RemoveFilter(int index);
 	std::wstring GetFilterText(int iItem) const;
 	FilterType::type GetFilterType(int iItem) const;
-	COLORREF GetFilterColor(int iItem) const;
+	COLORREF GetFilterBgColor(int iItem) const;
+	COLORREF GetFilterFgColor(int iItem) const;
 	bool GetFilterEnable(int iItem) const;
 
 	CPropertyGridCtrl m_grid;
-	std::vector<std::unique_ptr<CColorPickerListCtrl>> m_colorCtrls;
 	std::wstring m_name;
 	std::vector<LogFilter> m_filters;
 };

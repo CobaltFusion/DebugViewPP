@@ -104,6 +104,9 @@
     <ClInclude Include="DisplayInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PropertyColorItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DebugView++.rc">

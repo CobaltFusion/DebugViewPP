@@ -157,6 +157,7 @@
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="ProcessInfo.h" />
+    <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Utilities.h" />

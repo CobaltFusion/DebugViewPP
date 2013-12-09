@@ -26,7 +26,7 @@ SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
 {
 }
 
-LogLine::LogLine(int line, COLORREF color) :
+LogLine::LogLine(int line, TextColor color) :
 	line(line), color(color)
 {
 }
@@ -185,8 +185,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const
 
 	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
 	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
-	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : m_logLines[iItem].color;
-	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : GetSysColor(COLOR_WINDOWTEXT);
+	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : m_logLines[iItem].color.back;
+	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : m_logLines[iItem].color.fore;
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
@@ -324,7 +324,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 
 	m_dirty = true;
-	m_logLines.push_back(LogLine(line, GetColor(msg.text)));
+	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
 }
 
 void CLogView::BeginUpdate()
@@ -505,7 +505,8 @@ void CLogView::LoadSettings(CRegKey& reg)
 		m_filters.push_back(LogFilter(
 			Str(RegGetStringValue(regFilter)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
-			RegGetDWORDValue(regFilter, L"Color"),
+			RegGetDWORDValue(regFilter, L"BgColor"),
+			RegGetDWORDValue(regFilter, L"FgColor"),
 			RegGetDWORDValue(regFilter, L"Enable") != 0));
 	}
 	ApplyFilters();
@@ -524,7 +525,8 @@ void CLogView::SaveSettings(CRegKey& reg)
 		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
 		regFilter.SetValue(WStr(m_filters[i].text.c_str()));
 		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(m_filters[i].type));
-		regFilter.SetDWORDValue(L"Color", m_filters[i].color);
+		regFilter.SetDWORDValue(L"BgColor", m_filters[i].bgColor);
+		regFilter.SetDWORDValue(L"FgColor", m_filters[i].fgColor);
 		regFilter.SetDWORDValue(L"Enable", m_filters[i].enable);
 	}
 }
@@ -561,20 +563,20 @@ void CLogView::ApplyFilters()
 	for (int i = 0; i < count; ++i)
 	{
 		if (IsIncluded(m_logFile[i].text))
-			m_logLines.push_back(LogLine(i, GetColor(m_logFile[i].text)));
+			m_logLines.push_back(LogLine(i, GetTextColor(m_logFile[i].text)));
 	}
 	SetItemCount(m_logLines.size());
 }
 
-COLORREF CLogView::GetColor(const std::string& text) const
+TextColor CLogView::GetTextColor(const std::string& text) const
 {
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 	{
 		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
-			return it->color;
+			return TextColor(it->bgColor, it->fgColor);
 	}
 
-	return RGB(255, 255, 255);
+	return TextColor(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT));
 }
 
 bool CLogView::IsIncluded(const std::string& text) const

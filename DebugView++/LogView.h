@@ -28,12 +28,23 @@ struct SelectionInfo
 	int count;
 };
 
+struct TextColor
+{
+	TextColor(COLORREF back, COLORREF fore) :
+		back(back), fore(fore)
+	{
+	}
+
+	COLORREF back;
+	COLORREF fore;
+};
+
 struct LogLine
 {
-	LogLine(int line, COLORREF color);
+	LogLine(int line, TextColor color);
 
 	int line;
-	COLORREF color;
+	TextColor color;
 };
 
 class CLogView :
@@ -101,7 +112,7 @@ private:
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
 	bool IsIncluded(const std::string& text) const;
-	COLORREF GetColor(const std::string& text) const;
+	TextColor GetTextColor(const std::string& text) const;
 
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
