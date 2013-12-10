@@ -39,6 +39,7 @@ public:
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
 		UPDATE_ELEMENT(ID_LOG_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+		UPDATE_ELEMENT(ID_LOG_AUTONEWLINE, UPDUI_MENUPOPUP)
 	    UPDATE_ELEMENT(ID_LOG_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
@@ -81,6 +82,7 @@ private:
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -99,6 +101,7 @@ private:
 	std::vector<std::unique_ptr<CLogView>> m_views;
 	CFontDialog m_fontDlg;
 	CFindDlg m_findDlg;
+	bool m_autoNewLine;
 	bool m_paused;
 	std::unique_ptr<DBWinReader> m_localReader;
 	std::unique_ptr<DBWinReader> m_globalReader;

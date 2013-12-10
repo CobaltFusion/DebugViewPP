@@ -36,6 +36,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_SCROLL, OnLogScroll)
 	COMMAND_ID_HANDLER_EX(ID_LOG_TIME, OnLogTime)
+	COMMAND_ID_HANDLER_EX(ID_LOG_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_LOG_FILTER, OnLogFilter)
 	COMMAND_ID_HANDLER_EX(ID_LOG_COPY, OnLogCopy)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
@@ -62,6 +63,7 @@ CMainFrame::CMainFrame() :
 	m_filterNr(0),
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
+	m_autoNewLine(false),
 	m_paused(false)
 {
 #ifdef CONSOLE_DEBUG
@@ -164,6 +166,7 @@ void CMainFrame::UpdateUI()
 	UpdateStatusBar();
 	UISetCheck(ID_LOG_TIME, GetView().GetClockTime());
 	UISetCheck(ID_LOG_SCROLL, GetView().GetScroll());
+	UISetCheck(ID_LOG_AUTONEWLINE, m_autoNewLine);
 	UISetCheck(ID_LOG_PAUSE, m_paused);
 }
 
@@ -450,6 +453,12 @@ void CMainFrame::OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	UpdateUI();
 }
 
+void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_autoNewLine = !m_autoNewLine;
+	UpdateUI();
+}
+
 void CMainFrame::OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	int tabIdx = GetTabCtrl().GetCurSel();
@@ -517,13 +526,12 @@ void CMainFrame::AddMessage(const Message& message)
 
 	Message msg(message);
 
-	bool autoNewLine = false;
 	std::string text;
 	boost::char_separator<char> seporators("\r\n");
 	NewLineTokenizer tok(msg.text, seporators);
 	for (auto it = tok.begin(); it != tok.end(); ++it)
 	{
-		if (autoNewLine)
+		if (m_autoNewLine)
 		{
 			msg.text = *it;
 			AddPreppedMessage(msg);
@@ -534,12 +542,11 @@ void CMainFrame::AddMessage(const Message& message)
 		}
 	}
 
-	if (!autoNewLine)
+	if (!m_autoNewLine)
 	{
 		msg.text = text;
 		AddPreppedMessage(msg);
 	}
-
 }
 
 void CMainFrame::AddPreppedMessage(const Message& msg)
