@@ -62,17 +62,23 @@ CMainFrame::CMainFrame() :
 	m_filterNr(0),
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
-	m_paused(false),
-	m_localReader(false),
-	m_globalReader(true)
+	m_paused(false)
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
 #endif
 
-	m_localReader.Start();
-	//m_globalReader.Start();
+	m_localReader = make_unique<DBWinReader>(false);
+	try
+	{
+		m_globalReader = make_unique<DBWinReader>(true);
+	}
+	catch (std::exception e)
+	{
+		// todo: indicate in the UI that global messages are not available due to access rights restrictions
+	}
+
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
 }
 
@@ -118,7 +124,14 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	HideTabControl();
 
 	SetLogFont();
-	LoadSettings();
+	try 
+	{
+		LoadSettings();
+	}
+	catch (std::exception e)
+	{
+		// handle bad registry entries?
+	}
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -159,10 +172,8 @@ void CMainFrame::UpdateStatusBar()
 	//UISetText(0, L"Ready");
 }
 
-void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+void CMainFrame::ProcessLines(const LinesList& lines)
 {
-	auto lines = m_localReader.GetLines();
-
 #ifdef CONSOLE_DEBUG
 	if (lines.size() > 0)
 		printf("incoming lines: %d\n", lines.size());
@@ -179,6 +190,19 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->EndUpdate();
+
+}
+
+void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+{
+	if (m_localReader)
+	{
+		ProcessLines(m_localReader->GetLines());
+	}
+	if (m_globalReader)
+	{
+		ProcessLines(m_globalReader->GetLines());
+	}
 }
 
 const wchar_t* RegistryPath = L"Software\\DjeeDjay\\DebugView++";

@@ -34,34 +34,24 @@ Handle CreateDBWinBufferMapping(bool global)
 }
 
 DBWinReader::DBWinReader(bool global) :
-	m_global(global),
-	m_end(false)
+	m_end(false),
+	m_hBuffer(CreateDBWinBufferMapping(global)),
+	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
+	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
+	m_thread(boost::thread(&DBWinReader::Run, this))
 {
 }
 
 DBWinReader::~DBWinReader()
 {
-	Stop();
+	Abort();
 }
 
-void DBWinReader::Start()
-{
-	m_end = false;
-	m_hBuffer = CreateDBWinBufferMapping(m_global);
-	m_dbWinBufferReady = CreateEvent(nullptr, false, true, GetDBWinName(m_global, L"DBWIN_BUFFER_READY").c_str());
-	m_dbWinDataReady = CreateEvent(nullptr, false, false, GetDBWinName(m_global, L"DBWIN_DATA_READY").c_str());
-	m_thread = boost::thread(&DBWinReader::Run, this);
-}
-
-void DBWinReader::Stop()
+void DBWinReader::Abort()
 {
 	m_end = true;
-	SetEvent(m_dbWinDataReady.get());	// There can be only one DBWIN client so this should be ok
+	SetEvent(m_dbWinDataReady.get());	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
 	m_thread.join();
-
-	m_dbWinDataReady.reset();
-	m_dbWinBufferReady.reset();
-	m_hBuffer.reset();
 }
 
 void DBWinReader::Add(DWORD pid, const char* text)
