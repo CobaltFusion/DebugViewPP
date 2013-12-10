@@ -32,8 +32,7 @@ public:
 	explicit DBWinReader(bool global);
 	~DBWinReader();
 
-	void Start();
-	void Stop();
+	void Abort();
 	LinesList GetLines();
 
 private:

@@ -58,6 +58,7 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
+	void ProcessLines(const LinesList& lines);
 
 	void UpdateStatusBar();
 	bool LoadSettings();
@@ -99,8 +100,8 @@ private:
 	CFontDialog m_fontDlg;
 	CFindDlg m_findDlg;
 	bool m_paused;
-	DBWinReader m_localReader;
-	DBWinReader m_globalReader;
+	std::unique_ptr<DBWinReader> m_localReader;
+	std::unique_ptr<DBWinReader> m_globalReader;
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
