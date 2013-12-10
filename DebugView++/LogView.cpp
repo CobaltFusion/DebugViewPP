@@ -175,8 +175,9 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 	rect.right -= margin;
 
 	HDITEM item;
-	GetHeader().GetItem(iSubItem, &item);
-	dc.DrawText(text.c_str(), text.size(), &rect, GetTextAlign(item) | DT_NOCLIP | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+	item.mask = HDI_FORMAT;
+	unsigned align = (GetHeader().GetItem(iSubItem, &item)) ? GetTextAlign(item) : HDF_LEFT;
+	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_NOCLIP | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const
