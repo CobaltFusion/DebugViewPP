@@ -48,7 +48,8 @@ CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<LogFilte
 	m_filters(std::move(filters)),
 	m_clockTime(false),
 	m_autoScrollDown(true),
-	m_dirty(false)
+	m_dirty(false),
+	m_insidePaint(false)
 {
 }
 
@@ -201,6 +202,10 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const
 
 LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
+	// See: http://stackoverflow.com/questions/938896/flickering-in-listview-with-ownerdraw-and-virtualmode
+	if (!m_insidePaint)
+		return CDRF_SKIPDEFAULT;
+
 	auto pCustomDraw = reinterpret_cast<NMLVCUSTOMDRAW*>(pnmh);
 
 	switch (pCustomDraw->nmcd.dwDrawStage)
@@ -297,9 +302,12 @@ LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
 
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 {
+	m_insidePaint = true;
+
 	dc.FillSolidRect(&rcClip, GetSysColor(COLOR_WINDOW));
  
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
+	m_insidePaint = false;
 }
 
 bool CLogView::GetScroll() const

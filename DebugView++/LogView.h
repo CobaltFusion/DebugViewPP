@@ -123,6 +123,7 @@ private:
 	DisplayInfo m_displayInfo;
 	ProcessInfo m_processInfo;
 	bool m_dirty;
+	bool m_insidePaint;
 };
 
 } // namespace gj
