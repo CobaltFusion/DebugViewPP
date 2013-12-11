@@ -167,9 +167,14 @@ class CPropertyItem : public CProperty
 {
 protected:
    CComVariant m_val;
+   COLORREF m_clrBack;
+   COLORREF m_clrText;
 
 public:
-   CPropertyItem(LPCTSTR pstrName, LPARAM lParam) : CProperty(pstrName, lParam)
+   CPropertyItem(LPCTSTR pstrName, LPARAM lParam) :
+	  CProperty(pstrName, lParam),
+      m_clrBack(CLR_INVALID),
+      m_clrText(CLR_INVALID)
    {
    }
 
@@ -185,9 +190,14 @@ public:
       ATLASSERT(pszText);
       if( !GetDisplayValue(pszText, cchMax) ) return;
       CDCHandle dc(di.hDC);
-      dc.SetBkMode(TRANSPARENT);
-      dc.SetTextColor((di.state & ODS_DISABLED) != 0 ? di.clrDisabled : di.clrText);
-      dc.SetBkColor(di.clrBack);
+      COLORREF clrText = di.clrText;
+      if( m_clrText != CLR_INVALID ) clrText = m_clrText;
+      dc.SetTextColor((di.state & ODS_DISABLED) != 0 ? di.clrDisabled : clrText);
+      COLORREF clrBack = di.clrBack;
+      if( m_clrBack != CLR_INVALID ) clrBack = m_clrBack;
+      dc.SetBkColor(clrBack);
+      dc.SetBkMode(OPAQUE);
+	  dc.FillSolidRect(&di.rcItem, clrBack);
       RECT rcText = di.rcItem;
       rcText.left += PROP_TEXT_INDENT;
       dc.DrawText(pszText, -1, &rcText, DT_LEFT | DT_SINGLELINE | DT_EDITCONTROL | DT_NOPREFIX | DT_END_ELLIPSIS | DT_VCENTER);
@@ -224,6 +234,26 @@ public:
    {
       m_val = value;
       return TRUE;
+   }
+
+   COLORREF GetBkColor() const
+   {
+      return m_clrBack;
+   }
+
+   void SetBkColor(COLORREF clrBack)
+   {
+      m_clrBack = clrBack;
+   }
+
+   COLORREF GetTextColor() const
+   {
+      return m_clrText;
+   }
+
+   void SetTextColor(COLORREF clrText)
+   {
+      m_clrText = clrText;
    }
 };
 
@@ -915,52 +945,52 @@ public:
 // CProperty creators
 //
 
-inline HPROPERTY PropCreateVariant(LPCTSTR pstrName, const VARIANT& vValue, LPARAM lParam = 0)
+inline CPropertyEditItem* PropCreateVariant(LPCTSTR pstrName, const VARIANT& vValue, LPARAM lParam = 0)
 {
    return new CPropertyEditItem(pstrName, vValue, lParam);
 }
 
-inline HPROPERTY PropCreateSimple(LPCTSTR pstrName, LPCTSTR pstrValue, LPARAM lParam = 0)
+inline CPropertyEditItem* PropCreateSimple(LPCTSTR pstrName, LPCTSTR pstrValue, LPARAM lParam = 0)
 {
    return new CPropertyEditItem(pstrName, CComVariant(pstrValue), lParam);
 }
 
-inline HPROPERTY PropCreateSimple(LPCTSTR pstrName, int iValue, LPARAM lParam = 0)
+inline CPropertyEditItem* PropCreateSimple(LPCTSTR pstrName, int iValue, LPARAM lParam = 0)
 {
    return new CPropertyEditItem(pstrName, CComVariant(iValue), lParam);
 }
 
-inline HPROPERTY PropCreateSimple(LPCTSTR pstrName, bool bValue, LPARAM lParam = 0)
+inline CPropertyBooleanItem* PropCreateSimple(LPCTSTR pstrName, bool bValue, LPARAM lParam = 0)
 {
    return new CPropertyBooleanItem(pstrName, bValue, lParam);
 }
 
-inline HPROPERTY PropCreateFileName(LPCTSTR pstrName, LPCTSTR pstrFileName, LPARAM lParam = 0)
+inline CPropertyFileNameItem* PropCreateFileName(LPCTSTR pstrName, LPCTSTR pstrFileName, LPARAM lParam = 0)
 {
    return new CPropertyFileNameItem(pstrName, pstrFileName, lParam);
 }
 
-inline HPROPERTY PropCreateDate(LPCTSTR pstrName, const SYSTEMTIME stValue, LPARAM lParam = 0)
+inline CPropertyDateItem* PropCreateDate(LPCTSTR pstrName, const SYSTEMTIME stValue, LPARAM lParam = 0)
 {
    return new CPropertyDateItem(pstrName, stValue, lParam);
 }
 
-inline HPROPERTY PropCreateList(LPCTSTR pstrName, LPCTSTR* ppList, int iValue = 0, LPARAM lParam = 0)
+inline CPropertyListItem* PropCreateList(LPCTSTR pstrName, LPCTSTR* ppList, int iValue = 0, LPARAM lParam = 0)
 {
    return new CPropertyListItem(pstrName, ppList, iValue, lParam);
 }
 
-inline HPROPERTY PropCreateComboControl(LPCTSTR pstrName, HWND hWndList, int iValue, LPARAM lParam = 0)
+inline CPropertyComboItem* PropCreateComboControl(LPCTSTR pstrName, HWND hWndList, int iValue, LPARAM lParam = 0)
 {
    return new CPropertyComboItem(pstrName, hWndList, iValue, lParam);
 }
 
-inline HPROPERTY PropCreateCheckButton(LPCTSTR pstrName, bool bValue, LPARAM lParam = 0)
+inline CPropertyCheckButtonItem* PropCreateCheckButton(LPCTSTR pstrName, bool bValue, LPARAM lParam = 0)
 {
    return new CPropertyCheckButtonItem(pstrName, bValue, lParam);
 }
 
-inline HPROPERTY PropCreateReadOnlyItem(LPCTSTR pstrName, LPCTSTR pstrValue = _T(""), LPARAM lParam = 0)
+inline CPropertyReadOnlyItem* PropCreateReadOnlyItem(LPCTSTR pstrName, LPCTSTR pstrValue = _T(""), LPARAM lParam = 0)
 {
    return new CPropertyReadOnlyItem(pstrName, pstrValue, lParam);
 }

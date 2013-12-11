@@ -65,6 +65,7 @@ public:
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
 	LRESULT OnAddItem(NMHDR* pnmh);
 	LRESULT OnClickItem(NMHDR* pnmh);
+	LRESULT OnItemChanged(NMHDR* pnmh);
 
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();

@@ -250,6 +250,21 @@ std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName)
 	return data.data();
 }
 
+std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName, const wchar_t* defaultValue)
+{
+	long length = 0;
+	long rc = ::RegQueryValue(hKey, valueName, nullptr, &length);
+	if (rc != ERROR_SUCCESS)
+		return defaultValue;
+
+	std::vector<wchar_t> data(length);
+	rc = ::RegQueryValue(hKey, valueName, data.data(), &length);
+	if (rc != ERROR_SUCCESS)
+		return defaultValue;
+
+	return data.data();
+}
+
 DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName)
 {
 	DWORD type;
@@ -262,6 +277,17 @@ DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName)
 		throw std::runtime_error("Invalid registry key");
 
 	return value;
+}
+
+DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue)
+{
+	DWORD type;
+	DWORD value;
+	DWORD count = sizeof(value);
+	long rc = RegQueryValueEx(hKey, valueName, nullptr, &type, reinterpret_cast<BYTE*>(&value), &count);
+	if (rc == ERROR_SUCCESS && type == REG_DWORD)
+		return value;
+	return defaultValue;
 }
 
 } // namespace gj

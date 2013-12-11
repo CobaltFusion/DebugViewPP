@@ -100,6 +100,7 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnClick(NMHDR* pnmh);
+	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
 	LRESULT OnCustomDraw(NMHDR* pnmh);
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
@@ -124,6 +125,7 @@ private:
 	ProcessInfo m_processInfo;
 	bool m_dirty;
 	bool m_insidePaint;
+	std::wstring m_highLightText;
 };
 
 } // namespace gj

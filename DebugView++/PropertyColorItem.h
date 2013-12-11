@@ -35,7 +35,12 @@ public:
 		case PACT_SPACE:
 		case PACT_CLICK:
 		case PACT_DBLCLICK:
-			m_dlg.DoModal(m_hWndOwner);
+			if (m_dlg.DoModal(m_hWndOwner) == IDOK)
+			{
+				// Let control owner know
+				NMPROPERTYITEM nmh = { m_hWndOwner, ::GetDlgCtrlID(m_hWndOwner), PIN_ITEMCHANGED, this };
+				::SendMessage(::GetParent(m_hWndOwner), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
+			}
 			break;
 		}
 		return TRUE;

@@ -34,6 +34,7 @@ LogLine::LogLine(int line, TextColor color) :
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
@@ -85,16 +86,70 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 	return 0;
 }
 
-LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
+class ScopedObject
 {
-	auto pListView = reinterpret_cast<NMLISTVIEW*>(pnmh);
+public:
+	ScopedObject(HDC hdc, HGDIOBJ hObject) :
+		m_hdc(hdc), m_hObject(SelectObject(hdc, hObject))
+	{
+	}
 
-	if ((pListView->uNewState & LVIS_FOCUSED) == 0 ||
-		pListView->iItem < 0  ||
-		static_cast<size_t>(pListView->iItem) >= m_logLines.size())
+	~ScopedObject()
+	{
+		SelectObject(m_hdc, m_hObject);
+	}
+
+private:
+	HDC m_hdc;
+	HGDIOBJ m_hObject;
+};
+
+LRESULT CLogView::OnDblClick(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
+
+	if (nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
-	m_autoScrollDown = pListView->iItem == GetItemCount() - 1;
+	auto msg = m_logFile[m_logLines[nmhdr.iItem].line];
+
+	auto rect = GetSubItemRect(0, 4, LVIR_BOUNDS);
+	CDCHandle dc(GetDC());
+	ScopedObject font(dc, GetFont());
+	int nFit;
+	SIZE size;
+	if (!GetTextExtentExPointA(dc, msg.text.c_str(), msg.text.size(), nmhdr.ptAction.x - rect.left, &nFit, nullptr, &size) || nFit < 0 || nFit >= msg.text.size())
+		return 0;
+
+	int begin = nFit;
+	while (begin > 0)
+	{
+		if (isspace(msg.text[begin - 1]))
+			break;
+		--begin;
+	}
+	int end = nFit;
+	while (end < msg.text.size())
+	{
+		if (isspace(msg.text[end]))
+			break;
+		++end;
+	}
+	m_highLightText = std::wstring(msg.text.begin() + begin, msg.text.begin() + end);
+	Invalidate(FALSE);
+	return 0;
+}
+
+LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMLISTVIEW*>(pnmh);
+
+	if ((nmhdr.uNewState & LVIS_FOCUSED) == 0 ||
+		nmhdr.iItem < 0  ||
+		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
+		return 0;
+
+	m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
 	m_mainFrame.UpdateUI();
 	return 0;
 }
@@ -174,6 +229,22 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 	int margin = GetHeader().GetBitmapMargin();
 	rect.left += margin;
 	rect.right -= margin;
+
+	RECT rcHighlight = rect;
+
+	int pos = -1;
+	while (!m_highLightText.empty())
+	{
+		pos = text.find(m_highLightText, pos + 1);
+		if (pos == std::wstring::npos)
+			break;
+		SIZE size;
+		dc.GetTextExtent(text.c_str(), pos, &size);
+		rcHighlight.left = std::min(rect.left + size.cx, rect.right);
+		dc.GetTextExtent(text.c_str(), pos + m_highLightText.size(), &size);
+		rcHighlight.right = std::min(rect.left + size.cx, rect.right);
+		dc.FillSolidRect(&rcHighlight, RGB(255, 255, 55));
+	}
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;
@@ -325,6 +396,7 @@ void CLogView::Clear()
 	SetItemCount(0);
 	m_dirty = false;
 	m_logLines.clear();
+	m_highLightText.clear();
 }
 
 void CLogView::Add(int line, const Message& msg)
@@ -455,6 +527,7 @@ bool CLogView::Find(const std::string& text, int direction)
 			EnsureVisible(line, true);
 			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);
 			SelectItem(line);
+			m_highLightText = WStr(text).str();
 			return true;
 		}
 		line += direction;
@@ -514,9 +587,9 @@ void CLogView::LoadSettings(CRegKey& reg)
 		m_filters.push_back(LogFilter(
 			Str(RegGetStringValue(regFilter)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
-			RegGetDWORDValue(regFilter, L"BgColor"),
-			RegGetDWORDValue(regFilter, L"FgColor"),
-			RegGetDWORDValue(regFilter, L"Enable") != 0));
+			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
+			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
+			RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
 	}
 	ApplyFilters();
 }

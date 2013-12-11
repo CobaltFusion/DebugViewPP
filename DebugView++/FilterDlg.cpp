@@ -32,8 +32,9 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	MSG_WM_DESTROY(OnDestroy)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
-	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem);
-	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem);
+	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
+	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
+	NOTIFY_CODE_HANDLER_EX(PIN_ITEMCHANGED, OnItemChanged)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CFilterDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -72,7 +73,10 @@ void CFilterDlg::AddFilter(const LogFilter& filter)
 	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight" , nullptr };
 	auto pTypeList = PropCreateList(L"", types);
 	pTypeList->SetValue(CComVariant(filter.type));
-	m_grid.SetSubItem(item, 1, PropCreateSimple(L"", WStr(filter.text)));
+	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
+	pFilterProp->SetBkColor(filter.bgColor);
+	pFilterProp->SetTextColor(filter.fgColor);
+	m_grid.SetSubItem(item, 1, pFilterProp);
 	m_grid.SetSubItem(item, 2, pTypeList);
 	m_grid.SetSubItem(item, 3, PropCreateColorItem(filter.bgColor));
 	m_grid.SetSubItem(item, 4, PropCreateColorItem(filter.fgColor));
@@ -124,6 +128,34 @@ LRESULT CFilterDlg::OnClickItem(NMHDR* pnmh)
 	}
 
 	return FALSE;
+}
+
+LRESULT CFilterDlg::OnItemChanged(NMHDR* pnmh)
+{
+	auto pItemChanged = reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+
+	int iItem;
+	int iSubItem;
+	if (!m_grid.FindProperty(pItemChanged->prop, iItem, iSubItem))
+		return FALSE;
+	
+	if (iSubItem == 3)
+	{
+		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		CPropertyEditItem& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
+		edit.SetBkColor(item.GetColor());
+		return TRUE;
+	}
+
+	if (iSubItem == 4)
+	{
+		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		CPropertyEditItem& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
+		edit.SetTextColor(item.GetColor());
+		return TRUE;
+	}
+
+	return 0;
 }
 
 void CFilterDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
