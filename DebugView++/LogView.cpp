@@ -104,6 +104,11 @@ private:
 	HGDIOBJ m_hObject;
 };
 
+bool CLogView::IsSeparator(int c)
+{
+	return isspace(c) || (!(isalpha(c) || isdigit(c)));
+}
+
 LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
@@ -124,14 +129,14 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 	int begin = nFit;
 	while (begin > 0)
 	{
-		if (isspace(msg.text[begin - 1]))
+		if (IsSeparator(msg.text[begin - 1]))
 			break;
 		--begin;
 	}
 	int end = nFit;
 	while (end < msg.text.size())
 	{
-		if (isspace(msg.text[end]))
+		if (IsSeparator(msg.text[end]))
 			break;
 		++end;
 	}
