@@ -9,12 +9,35 @@
 #include "PropertyItemEditors.h"
 #include "PropertyItemImpl.h"
 
+class ColorDialog : public CColorDialogImpl<ColorDialog>
+{
+public:
+	ColorDialog(const wchar_t* title, COLORREF clrInit = 0, DWORD dwFlags = 0, HWND hWndParent = nullptr) :
+		CColorDialogImpl<ColorDialog>(clrInit, dwFlags, hWndParent),
+		m_title(title)
+	{
+	}
+
+	BEGIN_MSG_MAP(ColorDialog)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+	END_MSG_MAP()
+
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SetWindowText(m_title.c_str());
+		return 0;
+	}
+
+private:
+	std::wstring m_title;
+};
+
 class CPropertyColorItem : public CPropertyItem
 {
 public:
-	explicit CPropertyColorItem(COLORREF color) :
-		CPropertyItem(L"", 0),
-		m_dlg(color, CC_ANYCOLOR)
+	CPropertyColorItem(const wchar_t* name, COLORREF color) :
+		CPropertyItem(name, 0),
+		m_dlg(name, color, CC_ANYCOLOR)
 	{
 	}
 
@@ -73,10 +96,10 @@ public:
 	}
 
 private:
-	CColorDialog m_dlg;
+	ColorDialog m_dlg;
 };
 
-inline HPROPERTY PropCreateColorItem(COLORREF color)
+inline CPropertyColorItem* PropCreateColorItem(const wchar_t* name, COLORREF color)
 {
-	return new CPropertyColorItem(color);
+	return new CPropertyColorItem(name, color);
 }

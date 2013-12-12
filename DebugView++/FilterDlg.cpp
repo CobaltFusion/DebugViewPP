@@ -14,6 +14,35 @@
 
 namespace gj {
 
+static COLORREF HighlightColors[16] = 
+{
+	RGB(255, 255, 255), // white
+	RGB(192, 192, 192), // light-grey
+	RGB(128, 128, 128), // mid-grey
+	RGB( 64,  64,  64), // dark-grey
+	RGB(  0,   0,   0), // black
+	RGB( 27, 161, 226), // blue
+	RGB(160,  80,   0), // brown
+	RGB( 51, 153,  51), // green
+	RGB(162, 193,  57), // lime
+	RGB(216,   0, 115), // magenta
+	RGB(240, 150,   9), // mango (orange)
+	RGB(230, 113, 184), // pink
+	RGB(162,   0, 255), // purple
+	RGB(229,  20,   0), // red
+	RGB(  0, 171, 169), // teal (viridian)
+	RGB(255, 255, 255), // white
+};
+
+void InitializeCustomColors()
+{
+	auto colors = ColorDialog::GetCustomColors();
+	for (int i = 0; i < 16; ++i)
+		colors[i] = HighlightColors[i];
+}
+
+bool CustomColorsInitialized = (InitializeCustomColors(), true);
+
 LogFilter::LogFilter() :
 	type(FilterType::Include),
 	bgColor(RGB(255, 255, 255)),
@@ -78,8 +107,8 @@ void CFilterDlg::AddFilter(const LogFilter& filter)
 	pFilterProp->SetTextColor(filter.fgColor);
 	m_grid.SetSubItem(item, 1, pFilterProp);
 	m_grid.SetSubItem(item, 2, pTypeList);
-	m_grid.SetSubItem(item, 3, PropCreateColorItem(filter.bgColor));
-	m_grid.SetSubItem(item, 4, PropCreateColorItem(filter.fgColor));
+	m_grid.SetSubItem(item, 3, PropCreateColorItem(L"Background Color", filter.bgColor));
+	m_grid.SetSubItem(item, 4, PropCreateColorItem(L"Text Color", filter.fgColor));
 	m_grid.SetSubItem(item, 5, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
 }
