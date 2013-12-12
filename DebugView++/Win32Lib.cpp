@@ -21,6 +21,16 @@ void HandleDeleter::operator()(pointer p) const
 	CloseHandle(p);
 }
 
+GdiObjectSelection::GdiObjectSelection(HDC hdc, HGDIOBJ hObject) :
+	m_hdc(hdc), m_hObject(SelectObject(hdc, hObject))
+{
+}
+
+GdiObjectSelection::~GdiObjectSelection()
+{
+	SelectObject(m_hdc, m_hObject);
+}
+
 std::wstring MultiByteToWideChar(const char* str, int len)
 {
 	int buf_size = len + 2;

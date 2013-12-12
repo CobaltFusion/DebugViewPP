@@ -97,8 +97,6 @@ public:
 	SelectionInfo GetSelectedRange() const;
 
 private:
-	bool IsSeparator(int c);
-
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnClick(NMHDR* pnmh);

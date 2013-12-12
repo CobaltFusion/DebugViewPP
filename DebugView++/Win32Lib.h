@@ -57,6 +57,17 @@ private:
 	void* m_ptr;
 };
 
+class GdiObjectSelection
+{
+public:
+	GdiObjectSelection(HDC hdc, HGDIOBJ hObject);
+	~GdiObjectSelection();
+
+private:
+	HDC m_hdc;
+	HGDIOBJ m_hObject;
+};
+
 std::wstring MultiByteToWideChar(const char* str, int len);
 std::wstring MultiByteToWideChar(const char* str);
 std::wstring MultiByteToWideChar(const std::string& str);
