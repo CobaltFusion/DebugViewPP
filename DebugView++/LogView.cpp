@@ -100,6 +100,11 @@ int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 	return nFit;
 }
 
+bool iswordchar(int c)
+{
+	return isalnum(c) || c == '_';
+}
+
 LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
@@ -119,14 +124,14 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 	int begin = nFit;
 	while (begin > 0)
 	{
-		if (!isalnum(msg.text[begin - 1]))
+		if (!iswordchar(msg.text[begin - 1]))
 			break;
 		--begin;
 	}
 	int end = nFit;
 	while (end < msg.text.size())
 	{
-		if (!isalnum(msg.text[end]))
+		if (!iswordchar(msg.text[end]))
 			break;
 		++end;
 	}
