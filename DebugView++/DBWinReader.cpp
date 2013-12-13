@@ -40,6 +40,8 @@ DBWinReader::DBWinReader(bool global) :
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
 	m_thread(boost::thread(&DBWinReader::Run, this))
 {
+	m_lines.reserve(4000);
+	m_linesBackingBuffer.reserve(4000);
 }
 
 DBWinReader::~DBWinReader()
@@ -52,18 +54,6 @@ void DBWinReader::Abort()
 	m_end = true;
 	SetEvent(m_dbWinDataReady.get());	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
 	m_thread.join();
-}
-
-void DBWinReader::Add(DWORD pid, const char* text)
-{
-	Line line;
-	line.time = m_timer.Get();
-	line.systemTime = GetSystemTimeAsFileTime();
-	line.pid = pid;
-	line.message = std::string(text);
-
-	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_lines.push_back(line);
 }
 
 void DBWinReader::Run()
@@ -82,12 +72,26 @@ void DBWinReader::Run()
 	}
 }
 
-LinesList DBWinReader::GetLines()
+void DBWinReader::Add(DWORD pid, const char* text)
 {
+	Line line;
+	line.time = m_timer.Get();
+	line.systemTime = GetSystemTimeAsFileTime();
+	line.pid = pid;
+	line.message = std::string(text);
+
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	LinesList temp;
-	temp.swap(m_lines);
-	return std::move(temp);
+	m_lines.push_back(line);
+}
+
+const LinesList& DBWinReader::GetLines()
+{
+	m_linesBackingBuffer.clear();
+	{
+		boost::unique_lock<boost::mutex> lock(m_linesMutex);
+		m_lines.swap(m_linesBackingBuffer);
+	}
+	return m_linesBackingBuffer;
 }
 
 } // namespace gj
