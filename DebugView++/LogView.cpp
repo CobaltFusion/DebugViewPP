@@ -83,30 +83,26 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 LRESULT CLogView::OnClick(NMHDR* pnmh)
 {
+	if (!m_highLightText.empty())
+	{
+		m_highLightText.clear();
+		Invalidate();
+	}
 	return 0;
 }
 
-class ScopedObject
+int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 {
-public:
-	ScopedObject(HDC hdc, HGDIOBJ hObject) :
-		m_hdc(hdc), m_hObject(SelectObject(hdc, hObject))
-	{
-	}
+	int nFit;
+	SIZE size;
+	if (!GetTextExtentExPointA(hdc, s.c_str(), s.size(), xPos, &nFit, nullptr, &size) || nFit < 0 || nFit >= s.size())
+		return -1;
+	return nFit;
+}
 
-	~ScopedObject()
-	{
-		SelectObject(m_hdc, m_hObject);
-	}
-
-private:
-	HDC m_hdc;
-	HGDIOBJ m_hObject;
-};
-
-bool CLogView::IsSeparator(int c)
+bool iswordchar(int c)
 {
-	return isspace(c) || (!(isalpha(c) || isdigit(c)));
+	return isalnum(c) || c == '_';
 }
 
 LRESULT CLogView::OnDblClick(NMHDR* pnmh)
@@ -120,23 +116,22 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 
 	auto rect = GetSubItemRect(0, 4, LVIR_BOUNDS);
 	CDCHandle dc(GetDC());
-	ScopedObject font(dc, GetFont());
-	int nFit;
-	SIZE size;
-	if (!GetTextExtentExPointA(dc, msg.text.c_str(), msg.text.size(), nmhdr.ptAction.x - rect.left, &nFit, nullptr, &size) || nFit < 0 || nFit >= msg.text.size())
+	GdiObjectSelection font(dc, GetFont());
+	int nFit = GetTextOffset(dc, msg.text, nmhdr.ptAction.x - rect.left);
+	if (nFit < 0)
 		return 0;
 
 	int begin = nFit;
 	while (begin > 0)
 	{
-		if (IsSeparator(msg.text[begin - 1]))
+		if (!iswordchar(msg.text[begin - 1]))
 			break;
 		--begin;
 	}
 	int end = nFit;
 	while (end < msg.text.size())
 	{
-		if (IsSeparator(msg.text[end]))
+		if (!iswordchar(msg.text[end]))
 			break;
 		++end;
 	}

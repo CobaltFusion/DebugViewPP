@@ -30,6 +30,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
+	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
 	COMMAND_ID_HANDLER_EX(ID_LOG_SELECTALL, OnLogSelectAll)
@@ -298,7 +299,7 @@ std::wstring FormatDuration(double seconds)
 	if (seconds < 1)
 	{
 		seconds *= 1e3;
-		unit = L"us";
+		unit = L"µs";
 	}
 	if (seconds < 1)
 	{
@@ -359,12 +360,12 @@ void CMainFrame::AddFilterView(const std::wstring& name, std::vector<LogFilter> 
 
 LRESULT CMainFrame::OnClickTab(NMHDR* pnmh)
 {
-	NMCTCITEM* pNmCtcItem = reinterpret_cast<NMCTCITEM*>(pnmh);
-	if (pNmCtcItem->hdr.hwndFrom != GetTabCtrl())
+	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
+	if (nmhdr.hdr.hwndFrom != GetTabCtrl())
 		return FALSE;
 
 	int plusIndex = GetTabCtrl().GetItemCount() - 1;
-	if (pNmCtcItem->iItem == plusIndex)
+	if (nmhdr.iItem == plusIndex)
 	{
 		AddFilterView();
 		return TRUE;
@@ -381,8 +382,8 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 
 LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 {
-	auto pNmCtcItem = reinterpret_cast<NMCTCITEM*>(pnmh);
-	int filterIndex = pNmCtcItem->iItem;
+	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
+	int filterIndex = nmhdr.iItem;
 	if (filterIndex > 0 && filterIndex < static_cast<int>(m_views.size()))
 	{
 		GetTabCtrl().DeleteItem(filterIndex);
@@ -395,6 +396,11 @@ LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 			HideTabControl();
 	}
 	return 0;
+}
+
+void CMainFrame::OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddFilterView();
 }
 
 std::wstring CMainFrame::GetLogFileName() const
@@ -462,8 +468,6 @@ void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 void CMainFrame::OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	int tabIdx = GetTabCtrl().GetCurSel();
-	if (tabIdx == 0)
-		return AddFilterView();
 
 	CFilterDlg dlg(GetTabCtrl().GetItem(tabIdx)->GetTextRef(), GetView().GetFilters());
 	if (dlg.DoModal() != IDOK)

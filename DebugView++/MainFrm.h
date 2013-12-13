@@ -76,6 +76,7 @@ private:
 	LRESULT OnClickTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
+	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
