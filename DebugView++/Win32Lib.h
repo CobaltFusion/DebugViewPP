@@ -71,12 +71,8 @@ private:
 class Win32Error : public boost::system::system_error
 {
 public:
-	Win32Error(DWORD error, const std::string& what) :
-		boost::system::system_error(error, boost::system::get_system_category(), what)
-	{
-	}
+	Win32Error(DWORD error, const std::string& what);
 };
-
 
 std::wstring MultiByteToWideChar(const char* str, int len);
 std::wstring MultiByteToWideChar(const char* str);

@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <array>
 #include <regex>
+#include <boost/algorithm/string.hpp>
 #include "Win32Lib.h"
 #include "dbgstream.h"
 #include "Utilities.h"
@@ -258,12 +259,16 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 
 	RECT rcHighlight = rect;
 
-	int pos = -1;
+	auto line = boost::make_iterator_range(text);
 	while (!m_highLightText.empty() && iSubItem == 4)
 	{
-		pos = text.find(m_highLightText, pos + 1);
-		if (pos == std::wstring::npos)
+		auto match = boost::algorithm::ifind_first(line, m_highLightText);
+		if (match.empty())
 			break;
+
+		auto pos = match.begin() - text.begin();
+		line = boost::make_iterator_range(match.end(), line.end());
+
 		SIZE size;
 		dc.GetTextExtent(text.c_str(), pos, &size);
 		rcHighlight.left = std::min(rect.left + size.cx, rect.right);
@@ -406,7 +411,7 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	while (line != m_logLines.size())
 	{
-		if (m_logFile[m_logLines[line].line].text.find(text) != std::string::npos)
+		if (!boost::algorithm::ifind_first(m_logFile[m_logLines[line].line].text, text).empty())
 		{
 			m_highLightText = nmhdr.lvfi.psz;
 			nmhdr.lvfi.lParam = line;
@@ -571,7 +576,7 @@ bool CLogView::Find(const std::string& text, int direction)
 		if (line == m_logLines.size())
 			line = 0;
 
-		if (m_logFile[m_logLines[line].line].text.find(text) != std::string::npos)
+		if (!boost::algorithm::ifind_first(m_logFile[m_logLines[line].line].text, text).empty())
 		{
 			EnsureVisible(line, true);
 			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);

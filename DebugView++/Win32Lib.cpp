@@ -67,6 +67,11 @@ std::string WideCharToMultiByte(const std::wstring& str)
 	return WideCharToMultiByte(str.c_str(), str.size());
 }
 
+Win32Error::Win32Error(DWORD error, const std::string& what) :
+	boost::system::system_error(error, boost::system::get_system_category(), what)
+{
+}
+
 void ThrowWin32Error(DWORD error, const std::string& what)
 {
 	throw Win32Error(error, what);
