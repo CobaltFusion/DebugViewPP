@@ -252,7 +252,7 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"y", placement.rcNormalPosition.top);
 	reg.SetDWORDValue(L"width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
 	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
-	reg.DeleteSubKey(L"Views");
+	reg.RecurseDeleteKey(L"Views");
 	for (size_t i = 0; i < m_views.size(); ++i)
 	{
 		CRegKey regView;
