@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 #include "ProcessInfo.h"
+#include "Win32Lib.h"
+#include "Utilities.h"
 #include <array>
 #pragma comment(lib, "psapi.lib")
 
@@ -31,22 +33,25 @@ size_t ProcessInfo::GetPrivateBytes() const
 
 std::wstring ProcessInfo::GetProcessName(DWORD processId)
 {
-	CHandle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
-	if (!hProcess)
-		return L"<terminated>";
-
 	std::array<wchar_t, MAX_PATH> buf;
-	DWORD rc = GetProcessImageFileName(hProcess, buf.data(), buf.size());
-	if (rc == 0)
-		return L"";
+	try {
+		Handle hProcess(OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
+		DWORD rc = GetProcessImageFileName(hProcess.get(), buf.data(), buf.size());
+		if (rc == 0)
+			return L"";
 
-	const wchar_t* name = buf.data();
-	for (auto it = buf.data(); *it; ++it)
-	{
-		if (*it == '\\')
-			name = it + 1;
+		const wchar_t* name = buf.data();
+		for (auto it = buf.data(); *it; ++it)
+		{
+			if (*it == '\\')
+				name = it + 1;
+		}
+		return name;
 	}
-	return name;
+	catch (Win32Error& e)
+	{
+		return wstringbuilder() << e.what();
+	}
 }
 
 } // namespace gj

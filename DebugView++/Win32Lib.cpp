@@ -67,15 +67,6 @@ std::string WideCharToMultiByte(const std::wstring& str)
 	return WideCharToMultiByte(str.c_str(), str.size());
 }
 
-class Win32Error : public boost::system::system_error
-{
-public:
-	Win32Error(DWORD error, const std::string& what) :
-		boost::system::system_error(error, boost::system::get_system_category(), what)
-	{
-	}
-};
-
 void ThrowWin32Error(DWORD error, const std::string& what)
 {
 	throw Win32Error(error, what);
@@ -144,6 +135,15 @@ Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, D
 		ThrowLastError(std::wstring(L"CreateFileMapping(\"") + pName + L"\")");
 
 	return hMap;
+}
+
+Handle OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId)
+{
+	Handle hProcessHandle(::OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId));
+	if (!hProcessHandle)
+		ThrowLastError(L"OpenProcess");
+
+	return hProcessHandle;
 }
 
 Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName)
