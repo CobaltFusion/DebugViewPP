@@ -43,12 +43,12 @@ std::wstring GetExceptionMessage()
 	}
 }
 
-Timer::Timer()
+Timer::Timer() :
+	m_offset(0)
 {
 	LARGE_INTEGER li;
 	QueryPerformanceFrequency(&li);
 	m_timerUnit = 1./li.QuadPart;	//todo: QuadPart can be zero!
-	Reset();
 }
 
 void Timer::Reset()

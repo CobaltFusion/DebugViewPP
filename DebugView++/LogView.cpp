@@ -33,12 +33,14 @@ LogLine::LogLine(int line, TextColor color) :
 
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
+	MSG_WM_CONTEXTMENU(OnContextMenu);
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -81,6 +83,30 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	return 0;
 }
 
+void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
+{
+	if (pt == CPoint(-1, -1))
+	{
+		RECT rect = GetItemRect(GetNextItem(-1, LVNI_ALL | LVNI_FOCUSED), LVIR_LABEL);
+		pt = CPoint(rect.left, rect.bottom - 1);
+	}
+	else
+	{
+		ScreenToClient(&pt);
+	}
+
+	UINT flags = 0;
+	HitTest(pt, &flags);
+	if ((flags & LVHT_ONITEM) == 0)
+		return;
+
+	CMenu menuContext;
+	menuContext.LoadMenu(IDR_VIEW_CONTEXTMENU);
+	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
+	ClientToScreen(&pt);
+	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);
+}
+
 LRESULT CLogView::OnClick(NMHDR* pnmh)
 {
 	if (!m_highLightText.empty())
@@ -95,7 +121,7 @@ int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 {
 	int nFit;
 	SIZE size;
-	if (!GetTextExtentExPointA(hdc, s.c_str(), s.size(), xPos, &nFit, nullptr, &size) || nFit < 0 || nFit >= s.size())
+	if (!GetTextExtentExPointA(hdc, s.c_str(), s.size(), xPos, &nFit, nullptr, &size) || nFit < 0 || nFit >= static_cast<int>(s.size()))
 		return -1;
 	return nFit;
 }
@@ -129,7 +155,7 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		--begin;
 	}
 	int end = nFit;
-	while (end < msg.text.size())
+	while (end < static_cast<int>(msg.text.size()))
 	{
 		if (!iswordchar(msg.text[end]))
 			break;
@@ -233,7 +259,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 	RECT rcHighlight = rect;
 
 	int pos = -1;
-	while (!m_highLightText.empty())
+	while (!m_highLightText.empty() && iSubItem == 4)
 	{
 		pos = text.find(m_highLightText, pos + 1);
 		if (pos == std::wstring::npos)
@@ -364,10 +390,33 @@ SelectionInfo CLogView::GetSelectedRange() const
 
 LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
 {
-	auto pStateChange = reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
+	auto& nmhdr = *reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
 
 	m_mainFrame.SetLineRange(GetSelectedRange());
 
+	return 0;
+}
+
+LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
+
+	std::string text(Str(nmhdr.lvfi.psz).str());
+//	int line = nmhdr.iStart;
+	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
+	while (line != m_logLines.size())
+	{
+		if (m_logFile[m_logLines[line].line].text.find(text) != std::string::npos)
+		{
+			m_highLightText = nmhdr.lvfi.psz;
+			nmhdr.lvfi.lParam = line;
+			Invalidate();
+			return 0;
+		}
+		++line;
+	}
+
+	nmhdr.lvfi.lParam = LVNSCH_ERROR;
 	return 0;
 }
 

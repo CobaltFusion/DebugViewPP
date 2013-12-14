@@ -33,16 +33,18 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
-	COMMAND_ID_HANDLER_EX(ID_LOG_SELECTALL, OnLogSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
-	COMMAND_ID_HANDLER_EX(ID_LOG_SCROLL, OnLogScroll)
-	COMMAND_ID_HANDLER_EX(ID_LOG_TIME, OnLogTime)
 	COMMAND_ID_HANDLER_EX(ID_LOG_AUTONEWLINE, OnAutoNewline)
-	COMMAND_ID_HANDLER_EX(ID_LOG_FILTER, OnLogFilter)
-	COMMAND_ID_HANDLER_EX(ID_LOG_COPY, OnLogCopy)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
-	COMMAND_ID_HANDLER_EX(ID_LOG_FIND, OnLogFind)
+	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FONT, OnViewFont)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
 	NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClickTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
@@ -65,17 +67,16 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_autoNewLine(false),
-	m_paused(false)
+	m_pLocalReader(make_unique<DBWinReader>(false))
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "wb", stdout);
 #endif
 
-	m_localReader = make_unique<DBWinReader>(false);
 	try
 	{
-		m_globalReader = make_unique<DBWinReader>(true);
+		m_pGlobalReader = make_unique<DBWinReader>(true);
 	}
 	catch (std::exception e)
 	{
@@ -165,10 +166,11 @@ void CMainFrame::OnClose()
 void CMainFrame::UpdateUI()
 {
 	UpdateStatusBar();
-	UISetCheck(ID_LOG_TIME, GetView().GetClockTime());
-	UISetCheck(ID_LOG_SCROLL, GetView().GetScroll());
+	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
+	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
 	UISetCheck(ID_LOG_AUTONEWLINE, m_autoNewLine);
-	UISetCheck(ID_LOG_PAUSE, m_paused);
+	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
+	UISetCheck(ID_LOG_GLOBAL, m_pGlobalReader);
 }
 
 void CMainFrame::UpdateStatusBar()
@@ -199,13 +201,13 @@ void CMainFrame::ProcessLines(const LinesList& lines)
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
-	if (m_localReader)
+	if (m_pLocalReader)
 	{
-		ProcessLines(m_localReader->GetLines());
+		ProcessLines(m_pLocalReader->GetLines());
 	}
-	if (m_globalReader)
+	if (m_pGlobalReader)
 	{
-		ProcessLines(m_globalReader->GetLines());
+		ProcessLines(m_pGlobalReader->GetLines());
 	}
 }
 
@@ -435,7 +437,12 @@ void CMainFrame::OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		SaveLogFile(fileName);
 }
 
-void CMainFrame::OnLogSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	GetView().Clear();
+}
+
+void CMainFrame::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	GetView().SelectAll();
 }
@@ -447,13 +454,13 @@ void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	m_logFile.Clear();
 }
 
-void CMainFrame::OnLogScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	GetView().SetScroll(!GetView().GetScroll());
 	UpdateUI();
 }
 
-void CMainFrame::OnLogTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	GetView().SetClockTime(!GetView().GetClockTime());
 	UpdateUI();
@@ -465,7 +472,26 @@ void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 	UpdateUI();
 }
 
-void CMainFrame::OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	if (m_pLocalReader)
+		m_pLocalReader.reset();
+	else
+		m_pLocalReader = make_unique<DBWinReader>(false);
+
+	UpdateUI();
+}
+
+void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	if (m_pGlobalReader)
+		m_pGlobalReader.reset();
+	else
+		m_pGlobalReader = make_unique<DBWinReader>(true);
+	UpdateUI();
+}
+
+void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	int tabIdx = GetTabCtrl().GetCurSel();
 
@@ -477,18 +503,12 @@ void CMainFrame::OnLogFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	GetView().SetFilters(dlg.GetFilters());
 }
 
-void CMainFrame::OnLogCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	GetView().Copy();
 }
 
-void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	m_paused = !m_paused;
-	UpdateUI();
-}
-
-void CMainFrame::OnLogFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_findDlg.ShowWindow(SW_SHOW);
 }
@@ -525,9 +545,6 @@ CLogView& CMainFrame::GetView()
 
 void CMainFrame::AddMessage(const Message& message)
 {
-	if (m_paused)
-		return;
-
 	Message msg(message);
 
 	std::string text;

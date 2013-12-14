@@ -98,12 +98,14 @@ public:
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
+	void OnContextMenu(HWND /*hWnd*/, CPoint pt);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
 	LRESULT OnCustomDraw(NMHDR* pnmh);
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
+	LRESULT OnIncrementalSearch(NMHDR* pnmh);
 
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;

@@ -165,7 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\DebugView++.ico" />
-    <None Include="res\EditListBox.bmp" />
     <None Include="res\toolbar.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

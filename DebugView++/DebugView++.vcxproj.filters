@@ -120,8 +120,5 @@
     <None Include="res\toolbar.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\EditListBox.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

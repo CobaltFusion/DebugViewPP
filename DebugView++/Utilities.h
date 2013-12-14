@@ -95,11 +95,21 @@ class Str
 {
 public:
 	explicit Str(const std::string& s) :
-		m_str()
+		m_str(s)
+	{
+	}
+
+	explicit Str(const char* s) :
+		m_str(s)
 	{
 	}
 
 	explicit Str(const std::wstring& s) :
+		m_str(WideCharToMultiByte(s))
+	{
+	}
+
+	explicit Str(const wchar_t* s) :
 		m_str(WideCharToMultiByte(s))
 	{
 	}
