@@ -68,6 +68,16 @@ private:
 	HGDIOBJ m_hObject;
 };
 
+class Win32Error : public boost::system::system_error
+{
+public:
+	Win32Error(DWORD error, const std::string& what) :
+		boost::system::system_error(error, boost::system::get_system_category(), what)
+	{
+	}
+};
+
+
 std::wstring MultiByteToWideChar(const char* str, int len);
 std::wstring MultiByteToWideChar(const char* str);
 std::wstring MultiByteToWideChar(const std::string& str);
@@ -89,6 +99,7 @@ FILETIME FileTimeToLocalFileTime(const FILETIME& ft);
 SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft);
 
 Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName);
+Handle OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId);
 Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName);
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
 
