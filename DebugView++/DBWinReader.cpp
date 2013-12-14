@@ -78,7 +78,7 @@ void DBWinReader::Add(DWORD pid, const char* text)
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = pid;
-	line.message = std::string(text);
+	line.message = text;
 
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_lines.push_back(line);
