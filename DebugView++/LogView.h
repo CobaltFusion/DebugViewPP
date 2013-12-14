@@ -78,6 +78,7 @@ public:
 	void SelectAll();
 	void Copy();
 
+	void SetHighlightText(const std::wstring& text = std::wstring());
 	bool FindNext(const std::wstring& text);
 	bool FindPrevious(const std::wstring& text);
 
@@ -100,7 +101,6 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnContextMenu(HWND /*hWnd*/, CPoint pt);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
-	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
 	LRESULT OnCustomDraw(NMHDR* pnmh);
@@ -127,7 +127,7 @@ private:
 	ProcessInfo m_processInfo;
 	bool m_dirty;
 	bool m_insidePaint;
-	std::wstring m_highLightText;
+	std::wstring m_highlightText;
 };
 
 } // namespace gj
