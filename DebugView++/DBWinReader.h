@@ -9,6 +9,7 @@
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread.hpp>
+
 #include "Win32Lib.h"
 #include "Utilities.h"
 
@@ -33,13 +34,14 @@ public:
 	~DBWinReader();
 
 	void Abort();
-	LinesList GetLines();
+	const LinesList& GetLines();
 
 private:
 	void Run();
 	void Add(DWORD pid, const char* text);
 
 	LinesList m_lines;
+	LinesList m_linesBackingBuffer;
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 
