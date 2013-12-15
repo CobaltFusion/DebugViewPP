@@ -1,15 +1,15 @@
-// (C) Copyright Gert-Jan de Vos 2012.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #pragma once
 
 #include "Resource.h"
 
-namespace gj {
+namespace fusion {
 
 class CMainFrame;
 
@@ -55,4 +55,4 @@ private:
 	CMainFrame& m_mainFrame;
 };
 
-} // namespace gj
+} // namespace fusion

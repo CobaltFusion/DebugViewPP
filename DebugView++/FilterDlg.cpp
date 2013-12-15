@@ -1,9 +1,9 @@
-// (C) Copyright Gert-Jan de Vos 2012.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 #include "atlstr.h"
@@ -12,7 +12,7 @@
 #include "PropertyColorItem.h"
 #include "FilterDlg.h"
 
-namespace gj {
+namespace fusion {
 
 static COLORREF HighlightColors[16] = 
 {
@@ -249,7 +249,7 @@ COLORREF CFilterDlg::GetFilterFgColor(int iItem) const
 
 void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	m_name = gj::GetDlgItemText(*this, IDC_NAME);
+	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
 
 	std::vector<LogFilter> filters;
 	int n = m_grid.GetItemCount();
@@ -262,4 +262,4 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
-} // namespace gj
+} // namespace fusion

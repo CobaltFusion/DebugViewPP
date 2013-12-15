@@ -1,9 +1,9 @@
-// (C) Copyright Gert-Jan de Vos 2012.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 #include <boost/utility.hpp>
@@ -19,7 +19,7 @@
 
 #pragma comment(lib, "psapi.lib")
 
-namespace gj {
+namespace fusion {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
@@ -244,7 +244,7 @@ bool CMainFrame::LoadSettings()
 
 void CMainFrame::SaveSettings()
 {
-	auto placement = gj::GetWindowPlacement(*this);
+	auto placement = fusion::GetWindowPlacement(*this);
 
 	CRegKey reg;
 	reg.Create(HKEY_CURRENT_USER, RegistryPath);
@@ -580,4 +580,4 @@ void CMainFrame::AddPreppedMessage(const Message& msg)
 }
 
 
-} // namespace gj
+} // namespace fusion

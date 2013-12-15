@@ -1,9 +1,9 @@
-//  (C) Copyright Gert-Jan de Vos 2012.
-//  Distributed under the Boost Software License, Version 1.0.
-//  (See accompanying file LICENSE_1_0.txt or copy at 
-//  http://www.boost.org/LICENSE_1_0.txt)
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
 
-//  See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #pragma once
 
@@ -61,5 +61,9 @@ extern CAppModule _Module;
 
 #include <boost/utility.hpp>
 #include <boost/system/system_error.hpp>
+#include <boost/date_time/local_time/local_time.hpp> 
+#include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 
 #include <windows.h>
+
