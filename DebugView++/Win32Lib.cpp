@@ -9,6 +9,8 @@
 #include "Win32Lib.h"
 #include <vector>
 
+#pragma comment(lib, "advapi32.lib")	// SetPrivilege
+
 namespace fusion {
 
 void GlobalAllocDeleter::operator()(pointer p) const
@@ -303,6 +305,50 @@ DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue)
 	if (rc == ERROR_SUCCESS && type == REG_DWORD)
 		return value;
 	return defaultValue;
+}
+
+void SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+{
+    TOKEN_PRIVILEGES tp;
+    LUID luid;
+    if ( !LookupPrivilegeValue( 
+            NULL,            // lookup privilege on local system
+            lpszPrivilege,   // privilege to lookup 
+            &luid ) )        // receives LUID of privilege
+    {
+		ThrowLastError("LookupPrivilegeValue");
+    }
+
+    tp.PrivilegeCount = 1;
+    tp.Privileges[0].Luid = luid;
+    if (bEnablePrivilege)
+        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+    else
+        tp.Privileges[0].Attributes = 0;
+
+    // Enable the privilege or disable all privileges.
+
+    if ( !AdjustTokenPrivileges(
+           hToken, 
+           FALSE, 
+           &tp, 
+           sizeof(TOKEN_PRIVILEGES), 
+           (PTOKEN_PRIVILEGES) NULL, 
+           (PDWORD) NULL) )
+    { 
+          ThrowLastError("AdjustTokenPrivileges");
+    } 
+}
+
+void SetPrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+{
+	HANDLE handle; 
+	if (!::OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle))
+	{
+		ThrowLastError("OpenProcessToken");
+	}
+	SetPrivilege(handle, lpszPrivilege, bEnablePrivilege);
+	CloseHandle (handle);
 }
 
 } // namespace fusion
