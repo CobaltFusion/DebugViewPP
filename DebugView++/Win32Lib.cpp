@@ -307,48 +307,29 @@ DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue)
 	return defaultValue;
 }
 
-void SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
 {
-    TOKEN_PRIVILEGES tp;
-    LUID luid;
-    if ( !LookupPrivilegeValue( 
-            NULL,            // lookup privilege on local system
-            lpszPrivilege,   // privilege to lookup 
-            &luid ) )        // receives LUID of privilege
-    {
+	TOKEN_PRIVILEGES tp;
+	LUID luid;
+	if (!LookupPrivilegeValue(nullptr, privilege, &luid))
 		ThrowLastError("LookupPrivilegeValue");
-    }
 
-    tp.PrivilegeCount = 1;
-    tp.Privileges[0].Luid = luid;
-    if (bEnablePrivilege)
-        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-    else
-        tp.Privileges[0].Attributes = 0;
+	tp.PrivilegeCount = 1;
+	tp.Privileges[0].Luid = luid;
+	tp.Privileges[0].Attributes = enablePrivilege ? SE_PRIVILEGE_ENABLED : 0;
 
-    // Enable the privilege or disable all privileges.
-
-    if ( !AdjustTokenPrivileges(
-           hToken, 
-           FALSE, 
-           &tp, 
-           sizeof(TOKEN_PRIVILEGES), 
-           (PTOKEN_PRIVILEGES) NULL, 
-           (PDWORD) NULL) )
-    { 
-          ThrowLastError("AdjustTokenPrivileges");
-    } 
+	if (!AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), nullptr, nullptr))
+		ThrowLastError("AdjustTokenPrivileges");
 }
 
-void SetPrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 {
 	HANDLE handle; 
 	if (!::OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle))
-	{
 		ThrowLastError("OpenProcessToken");
-	}
-	SetPrivilege(handle, lpszPrivilege, bEnablePrivilege);
-	CloseHandle (handle);
+
+	Handle hToken(handle);
+	SetPrivilege(hToken.get(), privilege, enablePrivilege);
 }
 
 } // namespace fusion

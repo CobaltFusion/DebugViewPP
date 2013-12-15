@@ -170,9 +170,6 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLISTVIEW*>(pnmh);
 
-	if (!m_highlightText.empty() && (nmhdr.uNewState & LVIS_SELECTED))
-		SetHighlightText();
-
 	if ((nmhdr.uNewState & LVIS_FOCUSED) == 0 ||
 		nmhdr.iItem < 0  ||
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
