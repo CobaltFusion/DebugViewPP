@@ -98,6 +98,8 @@ Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, D
 Handle OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId);
 Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName);
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
+void SetPrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
+void SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
 
 void WaitForSingleObject(HANDLE hObject);
 bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds);
