@@ -27,8 +27,6 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 
 Handle CreateDBWinBufferMapping(bool global)
 {
-	SetPrivilege(SE_DEBUG_NAME, true);
-
 	Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		throw std::runtime_error("Another DebugView is running");
