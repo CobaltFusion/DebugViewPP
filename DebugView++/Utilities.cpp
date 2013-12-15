@@ -1,14 +1,16 @@
-//  (C) Copyright Gert-Jan de Vos 2012.
-//  Distributed under the Boost Software License, Version 1.0.
-//  (See accompanying file LICENSE_1_0.txt or copy at 
-//  http://www.boost.org/LICENSE_1_0.txt)
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 #include <string>
 #include <atlstr.h>
 #include "Utilities.h"
 
-namespace gj {
+namespace fusion {
 
 ScopedCursor::ScopedCursor(HCURSOR cursor) : m_cursor(SetCursor(cursor))
 {
@@ -75,4 +77,4 @@ std::wstring GetDlgItemText(const CWindow& wnd, int idc)
 	return std::wstring(text, text.GetLength());
 }
 
-} // namespace gj
+} // namespace fusion

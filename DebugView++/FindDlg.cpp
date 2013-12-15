@@ -1,9 +1,9 @@
-// (C) Copyright Gert-Jan de Vos 2012.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 #include "resource.h"
@@ -11,7 +11,7 @@
 #include "MainFrm.h"
 #include "FindDlg.h"
 
-namespace gj {
+namespace fusion {
 
 CFindDlg::CFindDlg(CMainFrame& mainFrame) :
 	m_mainFrame(mainFrame)
@@ -35,12 +35,12 @@ void CFindDlg::OnGetMinMaxInfo(MINMAXINFO* pInfo)
 
 void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
 {
-	m_mainFrame.FindNext(gj::GetDlgItemText(*this, IDC_TEXT));
+	m_mainFrame.FindNext(fusion::GetDlgItemText(*this, IDC_TEXT));
 }
 
 void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
 {
-	m_mainFrame.FindPrevious(gj::GetDlgItemText(*this, IDC_TEXT));
+	m_mainFrame.FindPrevious(fusion::GetDlgItemText(*this, IDC_TEXT));
 }
 
 void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
@@ -48,4 +48,4 @@ void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
 	ShowWindow(SW_HIDE);
 }
 
-} // namespace gj
+} // namespace fusion

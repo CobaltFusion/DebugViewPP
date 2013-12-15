@@ -1,10 +1,17 @@
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Repository at: https://github.com/djeedjay/DebugViewPP/
+
 #pragma once
 
 #include <queue>
 #include <functional>
 #include <boost/thread.hpp>
 
-namespace gj {
+namespace fusion {
 
 namespace detail {
 
@@ -90,4 +97,4 @@ private:
 	std::queue<std::function<void ()>> m_q;
 };
 
-} // namespace gj
+} // namespace fusion

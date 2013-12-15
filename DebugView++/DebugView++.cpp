@@ -1,9 +1,9 @@
-// (C) Copyright Gert-Jan de Vos 2012.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// See http://boosttestui.wordpress.com/ for the boosttestui home page.
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 #include "resource.h"
@@ -42,7 +42,7 @@ int Run(LPTSTR lpstrCmdLine, int nCmdShow)
 {
 	MessageLoop theLoop(_Module);
 
-	gj::CMainFrame wndMain;
+	fusion::CMainFrame wndMain;
 	if (wndMain.CreateEx() == nullptr)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
@@ -57,7 +57,7 @@ int Run(LPTSTR lpstrCmdLine, int nCmdShow)
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 try
 {
-	gj::ComInitialization com(gj::ComInitialization::ApartmentThreaded);
+	fusion::ComInitialization com(fusion::ComInitialization::ApartmentThreaded);
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(nullptr, 0, 0, 0L);
