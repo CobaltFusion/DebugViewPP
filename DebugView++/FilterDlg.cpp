@@ -99,7 +99,7 @@ void CFilterDlg::AddFilter(const LogFilter& filter)
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 
-	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight" , nullptr };
+	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , nullptr };
 	auto pTypeList = PropCreateList(L"", types);
 	pTypeList->SetValue(CComVariant(filter.type));
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
@@ -228,6 +228,7 @@ FilterType::type CFilterDlg::GetFilterType(int iItem) const
 	case FilterType::Include: return FilterType::Include;
 	case FilterType::Exclude: return FilterType::Exclude;
 	case FilterType::Highlight: return FilterType::Highlight;
+	case FilterType::Token: return FilterType::Token;
 	}
 	throw std::runtime_error("Unknown FilterType");
 }

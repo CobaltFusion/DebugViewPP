@@ -670,6 +670,7 @@ FilterType::type IntToFilterType(int value)
 	case FilterType::Include: return FilterType::Include;
 	case FilterType::Exclude: return FilterType::Exclude;
 	case FilterType::Highlight: return FilterType::Highlight;
+	case FilterType::Token: return FilterType::Token;
 	default: assert(!"Unexpected FilterType"); break;
 	}
 	throw std::invalid_argument("bad FilterType!");

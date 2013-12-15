@@ -20,7 +20,8 @@ struct FilterType
 	{
 		Include,
 		Exclude,
-		Highlight
+		Highlight,
+		Token
 	};
 };
 
