@@ -63,7 +63,9 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_autoNewLine(false),
-	m_pLocalReader(make_unique<DBWinReader>(false))
+	m_pLocalReader(make_unique<DBWinReader>(false)),
+	m_localReaderPaused(false),
+	m_globalReaderPaused(false)
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
@@ -486,13 +488,30 @@ void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	if (m_pLocalReader)
+	if (m_localReaderPaused)
 	{
-		m_pLocalReader.reset();
-	}
-	else
-	{
+		printf("start m_pLocalReader\n");
 		m_pLocalReader = make_unique<DBWinReader>(false);
+		m_localReaderPaused = false;
+	}
+	else if (m_pLocalReader)
+	{
+		printf("stop m_pLocalReader\n");
+		m_pLocalReader.reset();
+		m_localReaderPaused = true;
+	}
+
+	if (m_globalReaderPaused)
+	{
+		printf("start m_pGlobalReader\n");
+		m_pGlobalReader = make_unique<DBWinReader>(false);
+		m_globalReaderPaused = false;
+	}
+	else if (m_pGlobalReader)
+	{
+		printf("stop m_pGlobalReader\n");
+		m_pGlobalReader.reset();
+		m_globalReaderPaused = true;
 	}
 
 	SetAutoNewLine(GetAutoNewLine());

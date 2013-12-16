@@ -110,6 +110,8 @@ private:
 	CFontDialog m_fontDlg;
 	CFindDlg m_findDlg;
 	bool m_autoNewLine;
+	bool m_localReaderPaused;
+	bool m_globalReaderPaused;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
 	boost::signals2::connection m_localConnection;
