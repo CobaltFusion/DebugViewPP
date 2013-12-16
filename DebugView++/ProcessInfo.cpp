@@ -34,7 +34,8 @@ size_t ProcessInfo::GetPrivateBytes() const
 std::wstring ProcessInfo::GetProcessName(DWORD processId)
 {
 	std::array<wchar_t, MAX_PATH> buf;
-	try {
+	try
+	{
 		Handle hProcess(OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
 		DWORD rc = GetProcessImageFileName(hProcess.get(), buf.data(), buf.size());
 		if (rc == 0)
