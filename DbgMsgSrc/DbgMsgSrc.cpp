@@ -21,10 +21,20 @@ void DbgMsgSrc(double freq)
 	}
 }
 
+void DbgMsgTest()
+{
+	OutputDebugStringA("Message 1 without newline");
+	OutputDebugStringA("Message 2 without newline");
+	OutputDebugStringA("Message 3 with newline\n");
+	OutputDebugStringA("Message with\nembedded newline\n");
+}
+
 int main(int argc, char* argv[])
 {
 	int n = 0;
-	if (argc == 2 && (n = atoi(argv[1])) > 0)
+	if (argc == 1)
+		DbgMsgTest();
+	else if (argc == 2 && (n = atoi(argv[1])) > 0)
 		DbgMsgSrc(n);
 
 	std::cout << "Syntax: DbgMsgSrc <frequency>\n";

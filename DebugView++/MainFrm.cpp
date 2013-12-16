@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include <boost/utility.hpp>
-#include <boost/tokenizer.hpp>
 #include <psapi.h>
 #include "Utilities.h"
 #include "Resource.h"
@@ -22,9 +21,6 @@
 namespace fusion {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
-
-typedef boost::tokenizer<boost::char_separator<char>,
-				std::string::const_iterator, std::string> NewLineTokenizer;
 
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
@@ -84,6 +80,7 @@ CMainFrame::CMainFrame() :
 	}
 
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
+	SetAutoNewLine(m_autoNewLine);
 }
 
 CMainFrame::~CMainFrame()
@@ -178,7 +175,7 @@ void CMainFrame::UpdateStatusBar()
 	//UISetText(0, L"Ready");
 }
 
-void CMainFrame::ProcessLines(const LinesList& lines)
+void CMainFrame::ProcessLines(const Lines& lines)
 {
 #ifdef CONSOLE_DEBUG
 	if (lines.size() > 0)
@@ -225,7 +222,7 @@ bool CMainFrame::LoadSettings()
 	reg.QueryDWORDValue(L"height", cy);
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
-	m_autoNewLine = RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0;
+	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
 
 	for (size_t i = 0; ; ++i)
 	{
@@ -262,6 +259,20 @@ void CMainFrame::SaveSettings()
 		regView.SetValue(GetTabCtrl().GetItem(i)->GetTextRef());
 		m_views[i]->SaveSettings(regView);
 	}
+}
+
+bool CMainFrame::GetAutoNewLine() const
+{
+	return m_autoNewLine;
+}
+
+void CMainFrame::SetAutoNewLine(bool value)
+{
+	if (m_pLocalReader)
+		m_pLocalReader->AutoNewLine(value);
+	if (m_pGlobalReader)
+		m_pGlobalReader->AutoNewLine(value);
+	m_autoNewLine = value;
 }
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
@@ -469,26 +480,37 @@ void CMainFrame::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_autoNewLine = !m_autoNewLine;
+	SetAutoNewLine(!GetAutoNewLine());
 	UpdateUI();
 }
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (m_pLocalReader)
+	{
 		m_pLocalReader.reset();
+	}
 	else
+	{
 		m_pLocalReader = make_unique<DBWinReader>(false);
+	}
 
+	SetAutoNewLine(GetAutoNewLine());
 	UpdateUI();
 }
 
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (m_pGlobalReader)
+	{
 		m_pGlobalReader.reset();
+	}
 	else
+	{
 		m_pGlobalReader = make_unique<DBWinReader>(true);
+	}
+
+	SetAutoNewLine(GetAutoNewLine());
 	UpdateUI();
 }
 
@@ -543,42 +565,13 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
-
 void CMainFrame::AddMessage(const Message& message)
-{
-	Message msg(message);
-
-	std::string text;
-	boost::char_separator<char> seporators("\r\n");
-	NewLineTokenizer tok(msg.text, seporators);
-	for (auto it = tok.begin(); it != tok.end(); ++it)
-	{
-		if (m_autoNewLine)
-		{
-			msg.text = *it;
-			AddPreppedMessage(msg);
-		}
-		else
-		{
-			text += *it;
-		}
-	}
-
-	if (!m_autoNewLine)
-	{
-		msg.text = text;
-		AddPreppedMessage(msg);
-	}
-}
-
-void CMainFrame::AddPreppedMessage(const Message& msg)
 {
 	int index = m_logFile.Count();
 
-	m_logFile.Add(msg);
+	m_logFile.Add(message);
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
-		(*it)->Add(index, msg);
+		(*it)->Add(index, message);
 }
-
 
 } // namespace fusion

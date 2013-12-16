@@ -62,16 +62,18 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
-	void ProcessLines(const LinesList& lines);
+	void ProcessLines(const Lines& lines);
 
 	void UpdateStatusBar();
 	bool LoadSettings();
 	void SaveSettings();
 
+	bool GetAutoNewLine() const;
+	void SetAutoNewLine(bool value);
+
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, std::vector<LogFilter> filters = std::vector<LogFilter>());
-	void AddMessage(const Message& msg);
-	void AddPreppedMessage(const Message& msg);
+	void AddMessage(const Message& message);
 
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);

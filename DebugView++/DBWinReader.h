@@ -24,7 +24,7 @@ struct Line
 	std::string message;
 };
 
-typedef std::vector<Line> LinesList;
+typedef std::vector<Line> Lines;
 
 class DBWinReader : boost::noncopyable
 {
@@ -34,19 +34,24 @@ public:
 	explicit DBWinReader(bool global);
 	~DBWinReader();
 
+	bool AutoNewLine() const;
+	void AutoNewLine(bool value);
+
 	void Abort();
-	const LinesList& GetLines();
+	const Lines& GetLines();
 
 private:
 	void Run();
 	void Add(DWORD pid, const char* text);
+	void AddLine(const Line& line);
 
-	LinesList m_lines;
-	LinesList m_linesBackingBuffer;
+	Lines m_lines;
+	Lines m_linesBackingBuffer;
+	Line m_lineBuffer;
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 
-	bool m_global;
+	bool m_autoNewLine;
 	bool m_end;
 	Handle m_hBuffer;
 	Handle m_dbWinBufferReady;
