@@ -208,7 +208,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	}
 }
 
-const wchar_t* RegistryPath = L"Software\\DjeeDjay\\DebugView++";
+const wchar_t* RegistryPath = L"Software\\Fusion\\DebugView++";
 
 bool CMainFrame::LoadSettings()
 {

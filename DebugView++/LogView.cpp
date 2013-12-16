@@ -459,11 +459,13 @@ SelectionInfo CLogView::GetSelectedRange() const
 
 	int item = first;
 	int last = item;
-	do
+	for (;;)
 	{
-		last = item + 1;
-		item = GetNextItem(item, LVNI_SELECTED);
-	} while (item >= 0);
+		item = GetNextItem(item+1, LVNI_SELECTED);
+		if (item < 0)
+			break;
+		last = ++item;
+	}
 
 	return SelectionInfo(m_logLines[first].line, m_logLines[last].line, last - first);
 }
