@@ -376,18 +376,40 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	return CDRF_DODEFAULT;
 }
 
+template <typename CharT>
+void CopyItemText(const CharT* s, wchar_t* buf, size_t maxLen)
+{
+	assert(maxLen > 0);
+
+	for (int len = 0; len + 1U < maxLen && *s; ++s)
+	{
+		if (*s == '\t')
+		{
+			do
+			{
+				*buf++ = ' ';
+				++len;
+			}
+			while (len + 1U < maxLen && len % 4 != 0);
+		}
+		else
+		{
+			*buf++ = *s;
+			++len;
+		}
+	}
+
+	*buf = '\0';
+}
+
 void CopyItemText(const std::string& s, wchar_t* buf, size_t maxLen)
 {
-	for (auto it = s.begin(); maxLen > 1 && it != s.end(); ++it, ++buf, --maxLen)
-		*buf = *it;
-	*buf = '\0';
+	CopyItemText(s.c_str(), buf, maxLen);
 }
 
 void CopyItemText(const std::wstring& s, wchar_t* buf, size_t maxLen)
 {
-	for (auto it = s.begin(); maxLen > 1 && it != s.end(); ++it, ++buf, --maxLen)
-		*buf = *it;
-	*buf = '\0';
+	CopyItemText(s.c_str(), buf, maxLen);
 }
 
 std::string GetTimeText(double time)
@@ -677,6 +699,8 @@ FilterType::type IntToFilterType(int value)
 
 void CLogView::LoadSettings(CRegKey& reg)
 {
+	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
+
 	std::array<wchar_t, 100> buf;
 	DWORD len = buf.size();
 	if (reg.QueryStringValue(L"ColWidths", buf.data(), &len) == ERROR_SUCCESS)
@@ -710,9 +734,10 @@ void CLogView::LoadSettings(CRegKey& reg)
 void CLogView::SaveSettings(CRegKey& reg)
 {
 	std::wostringstream ss;
+	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 	for (int i = 0; i < 5; ++i)
 		ss << GetColumnWidth(i) << " ";
-	reg.SetStringValue(L"ColWidths", ss.str().c_str());;
+	reg.SetStringValue(L"ColWidths", ss.str().c_str());
 
 	for (size_t i = 0; i < m_filters.size(); ++i)
 	{

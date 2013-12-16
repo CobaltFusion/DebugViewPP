@@ -224,9 +224,8 @@ bool CMainFrame::LoadSettings()
 	reg.QueryDWORDValue(L"width", cx);
 	reg.QueryDWORDValue(L"height", cy);
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
-	DWORD options;
-	if (reg.QueryDWORDValue(L"ClockTime", options) == ERROR_SUCCESS)
-		m_views[0]->SetClockTime(options != 0);
+
+	m_autoNewLine = RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0;
 
 	for (size_t i = 0; ; ++i)
 	{
@@ -252,6 +251,9 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"y", placement.rcNormalPosition.top);
 	reg.SetDWORDValue(L"width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
 	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
+
+	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+
 	reg.RecurseDeleteKey(L"Views");
 	for (size_t i = 0; i < m_views.size(); ++i)
 	{
@@ -260,7 +262,6 @@ void CMainFrame::SaveSettings()
 		regView.SetValue(GetTabCtrl().GetItem(i)->GetTextRef());
 		m_views[i]->SaveSettings(regView);
 	}
-	reg.SetDWORDValue(L"ClockTime", m_views[0]->GetClockTime());
 }
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
