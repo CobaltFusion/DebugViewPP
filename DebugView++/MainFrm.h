@@ -116,6 +116,8 @@ private:
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
+	std::wstring m_lineSelectionText;
+	std::wstring m_saitText;
 };
 
 } // namespace fusion

@@ -110,6 +110,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		if (pMsg->wParam == VK_ESCAPE)
 		{
 			GetView().SetHighlightText();
+			m_saitText = L"";
 		}
 	}
 
@@ -201,7 +202,28 @@ void CMainFrame::UpdateUI()
 
 void CMainFrame::UpdateStatusBar()
 {
-	//UISetText(0, L"Ready");
+	std::wostringstream ss;
+	if (!m_lineSelectionText.empty())
+	{
+		ss << m_lineSelectionText;
+	}
+
+	if (!m_saitText.empty())
+	{
+		ss << " (search for: '";
+		ss << m_saitText;
+		ss << "')";
+	}
+
+	std::wstring text = ss.str();
+	if (text.empty())
+	{
+		UISetText(0, L"Ready");
+	}
+	else
+	{
+		UISetText(ID_DEFAULT_PANE, text.c_str());
+	}
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
@@ -376,13 +398,13 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	if (selection.count > 0)
 	{
 		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
-		std::wstring text = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
-		UISetText(ID_DEFAULT_PANE, text.c_str());
+		m_lineSelectionText = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
 	}
 	else
 	{
-		UISetText(ID_DEFAULT_PANE, L"Ready");
+		m_lineSelectionText = L"";
 	}
+	UpdateStatusBar();
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
