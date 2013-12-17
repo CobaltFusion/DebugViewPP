@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DbgMsgSrc", "DbgMsgSrc\DbgMsgSrc.vcxproj", "{722E0592-E026-4D51-87EC-6ACA85B385F4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BugGazerTester", "BugGazerTester\BugGazerTester.vcxproj", "{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Debug|Win32.Build.0 = Debug|Win32
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|Win32.ActiveCfg = Release|Win32
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|Win32.Build.0 = Release|Win32
+		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Debug|Win32.Build.0 = Debug|Win32
+		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Release|Win32.ActiveCfg = Release|Win32
+		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -49,6 +49,19 @@ struct LogLine
 	TextColor color;
 };
 
+struct Highlight
+{
+	Highlight(int begin, int end, COLORREF bkColor, COLORREF fgColor) :
+		begin(begin), end(end), bkColor(bkColor), fgColor(fgColor)
+	{
+	}
+
+	int begin;
+	int end;
+	COLORREF bkColor;
+	COLORREF fgColor;
+};
+
 class CLogView :
 	public CWindowImpl<CLogView, CListViewCtrl, CListViewTraits>,
 	public COffscreenPaint<CLogView>
@@ -112,6 +125,7 @@ private:
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
+	std::vector<Highlight> GetHighlights(const std::wstring& text) const;
 	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const;
 
 	bool Find(const std::string& text, int direction);
