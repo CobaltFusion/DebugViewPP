@@ -33,9 +33,6 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
@@ -449,16 +446,6 @@ void CMainFrame::OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		SaveLogFile(fileName);
 }
 
-void CMainFrame::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().Clear();
-}
-
-void CMainFrame::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().SelectAll();
-}
-
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
@@ -526,11 +513,6 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	GetView().SetFilters(dlg.GetFilters());
 }
 
-void CMainFrame::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().Copy();
-}
-
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_findDlg.ShowWindow(SW_SHOW);
@@ -546,9 +528,13 @@ void CMainFrame::SetLogFont()
 {
 	LOGFONT lf;
 	m_fontDlg.GetCurrentFont(&lf);
-	HFONT hFont = CreateFontIndirect(&lf);
-	if (hFont)
-		GetView().SetFont(hFont);
+	HFont hFont(CreateFontIndirect(&lf));
+	if (!hFont)
+		return;
+
+	for (auto it = m_views.begin(); it != m_views.end(); ++it)
+		(*it)->SetFont(hFont.get());
+	m_hFont = std::move(hFont);
 }
 
 void CMainFrame::OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

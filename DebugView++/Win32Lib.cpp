@@ -15,12 +15,14 @@ namespace fusion {
 
 void GlobalAllocDeleter::operator()(pointer p) const
 {
-	GlobalFree(p);
+	if (p != nullptr)
+		GlobalFree(p);
 }
 
 void HandleDeleter::operator()(pointer p) const
 {
-	CloseHandle(p);
+	if (p != nullptr && p != INVALID_HANDLE_VALUE)
+		CloseHandle(p);
 }
 
 GdiObjectSelection::GdiObjectSelection(HDC hdc, HGDIOBJ hObject) :

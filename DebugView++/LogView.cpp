@@ -43,6 +43,9 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -501,6 +504,21 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	return 0;
 }
 
+void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	Clear();
+}
+
+void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SelectAll();
+}
+
+void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	Copy();
+}
+
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 {
 	m_insidePaint = true;
@@ -519,6 +537,8 @@ bool CLogView::GetScroll() const
 void CLogView::SetScroll(bool enable)
 {
 	m_autoScrollDown = enable;
+	if (enable)
+		ScrollDown();
 }
 
 void CLogView::Clear()
