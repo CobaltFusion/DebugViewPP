@@ -223,6 +223,19 @@ bool CMainFrame::LoadSettings()
 
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
 
+	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
+	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
+	if (!fontName.empty())
+	{
+		LOGFONT lf;
+		m_fontDlg.GetCurrentFont(&lf);
+		std::copy(fontName.begin(), fontName.end(), lf.lfFaceName);
+		lf.lfFaceName[fontName.size()] = '\0';
+		lf.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
+		m_fontDlg.SetLogFont(&lf);
+		SetLogFont();
+	}
+
 	for (size_t i = 0; ; ++i)
 	{
 		CRegKey regView;
@@ -249,6 +262,11 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
 	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+
+	LOGFONT lf;
+	m_fontDlg.GetCurrentFont(&lf);
+	reg.SetValue(lf.lfFaceName, L"FontName");
+	reg.SetDWORDValue(L"FontSize", -MulDiv(lf.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
 
 	reg.RecurseDeleteKey(L"Views");
 	for (size_t i = 0; i < m_views.size(); ++i)
