@@ -708,9 +708,16 @@ void CLogView::Copy()
 {
 	std::ostringstream ss;
 
-	int item = -1;
-	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-		ss << GetItemText(item) << "\n";
+	if (!m_highlightText.empty())
+	{
+		ss << Str(m_highlightText);
+	}
+	else
+	{
+		int item = -1;
+		while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+			ss << GetItemText(item) << "\n";
+	}
 	const std::string& str = ss.str();
 
 	HGlobal hdst(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));

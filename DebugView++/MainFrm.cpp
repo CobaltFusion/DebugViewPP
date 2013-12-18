@@ -26,6 +26,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
+	MSG_WM_CHAR(OnChar)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
@@ -92,8 +93,38 @@ void CMainFrame::ExceptionHandler()
 	UpdateUI();
 }
 
+void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	printf("nChar: %d\n", nChar);
+}
+
+bool IsKeyDown(SHORT keystate)
+{
+	return (keystate & 0x80) != 0;
+}
+
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		if (pMsg->wParam == VK_ESCAPE)
+		{
+			GetView().SetHighlightText();
+			m_saitText = L"";
+		}
+	}
+
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		if (pMsg->wParam == VK_F3)
+		{
+			printf("VK_F3!\n");
+			if (IsKeyDown(GetKeyState(VK_CONTROL)))
+			{
+				printf("with CTRL!\n");
+			}
+		}
+	}
 	return CTabbedFrameImpl<CMainFrame>::PreTranslateMessage(pMsg);
 }
 
@@ -171,7 +202,28 @@ void CMainFrame::UpdateUI()
 
 void CMainFrame::UpdateStatusBar()
 {
-	//UISetText(0, L"Ready");
+	std::wostringstream ss;
+	if (!m_lineSelectionText.empty())
+	{
+		ss << m_lineSelectionText;
+	}
+
+	if (!m_saitText.empty())
+	{
+		ss << " (search for: '";
+		ss << m_saitText;
+		ss << "')";
+	}
+
+	std::wstring text = ss.str();
+	if (text.empty())
+	{
+		UISetText(0, L"Ready");
+	}
+	else
+	{
+		UISetText(ID_DEFAULT_PANE, text.c_str());
+	}
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
@@ -346,13 +398,13 @@ void CMainFrame::SetLineRange(const SelectionInfo& selection)
 	if (selection.count > 0)
 	{
 		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
-		std::wstring text = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
-		UISetText(ID_DEFAULT_PANE, text.c_str());
+		m_lineSelectionText = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
 	}
 	else
 	{
-		UISetText(ID_DEFAULT_PANE, L"Ready");
+		m_lineSelectionText = L"";
 	}
+	UpdateStatusBar();
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
@@ -547,6 +599,8 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		return;
 
 	GetTabCtrl().GetItem(tabIdx)->SetText(dlg.GetName().c_str());
+	GetTabCtrl().UpdateLayout();
+	GetTabCtrl().Invalidate();
 	GetView().SetFilters(dlg.GetFilters());
 }
 

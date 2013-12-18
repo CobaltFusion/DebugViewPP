@@ -62,6 +62,7 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
+	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void ProcessLines(const Lines& lines);
 
 	void UpdateStatusBar();
@@ -115,6 +116,8 @@ private:
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
+	std::wstring m_lineSelectionText;
+	std::wstring m_saitText;
 };
 
 } // namespace fusion

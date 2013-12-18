@@ -114,7 +114,7 @@ void DBWinReader::Add(DWORD pid, const char* text)
 		++text;
 	}
 
-	if (!m_lineBuffer.message.empty() && m_autoNewLine)
+	if (!m_lineBuffer.message.empty() && (m_autoNewLine || m_lineBuffer.message.size() > 8192))	// 8k line limit prevents stack overflows in handling code 
 	{
 		AddLine(m_lineBuffer);
 		m_lineBuffer.message.clear();
