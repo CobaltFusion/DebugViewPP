@@ -128,6 +128,7 @@ private:
 	void OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnViewClearSait(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;

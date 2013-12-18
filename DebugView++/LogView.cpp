@@ -45,6 +45,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_HL, OnViewClearSait)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
@@ -576,6 +577,12 @@ void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SelectAll();
+}
+
+void CLogView::OnViewClearSait(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SetHighlightText(L"");
+	m_OnSaitUpdate(L"");
 }
 
 void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

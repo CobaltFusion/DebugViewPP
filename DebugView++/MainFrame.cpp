@@ -80,7 +80,7 @@ CMainFrame::CMainFrame() :
 	}
 
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
-	m_views.back()->ConnectSaitUpdate([this] (const std::wstring& text) { OnSaitUpdate(text); });
+	m_views.back()->ConnectSaitUpdate([this] (const std::wstring& text) { SaitUpdate(text); });
 	SetAutoNewLine(m_autoNewLine);
 }
 
@@ -104,7 +104,7 @@ bool IsKeyDown(SHORT keystate)
 	return (keystate & 0x80) != 0;
 }
 
-void CMainFrame::OnSaitUpdate(const std::wstring& text)
+void CMainFrame::SaitUpdate(const std::wstring& text)
 {
 	m_saitText = text;
 	UpdateStatusBar();
@@ -117,7 +117,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		if (pMsg->wParam == VK_ESCAPE)
 		{
 			GetView().SetHighlightText();
-			m_saitText = L"";
+			SaitUpdate(L"");
 		}
 	}
 
@@ -443,7 +443,7 @@ void CMainFrame::AddFilterView()
 void CMainFrame::AddFilterView(const std::wstring& name, std::vector<LogFilter> filters)
 {
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile, filters));
-	m_views.back()->ConnectSaitUpdate([this] (const std::wstring& text) { OnSaitUpdate(text); });
+	m_views.back()->ConnectSaitUpdate([this] (const std::wstring& text) { SaitUpdate(text); });
 	m_views.back()->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
