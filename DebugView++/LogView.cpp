@@ -250,19 +250,6 @@ private:
 	COLORREF m_col;
 };
 
-struct Highlight
-{
-	Highlight(int begin, int end, COLORREF bkColor, COLORREF fgColor) :
-		begin(begin), end(end), bkColor(bkColor), fgColor(fgColor)
-	{
-	}
-
-	int begin;
-	int end;
-	COLORREF bkColor;
-	COLORREF fgColor;
-};
-
 SIZE GetTextSize(CDCHandle dc, const std::wstring& text, std::wstring::const_iterator it)
 {
 	SIZE size;
@@ -283,9 +270,62 @@ void AddEllipsis(HDC hdc, std::wstring& text, int width)
 		text = text.substr(0, pos) + ellipsis;
 }
 
-void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, const std::wstring& highlightText)
+void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highlight)
+{
+	std::vector<Highlight> newHighlights;
+	newHighlights.reserve(highlights.size() + 2);
+
+	auto it = highlights.begin();
+	while (it != highlights.end() && it->begin < highlight.begin)
+	{
+		newHighlights.push_back(*it);
+		++it;
+	}
+
+	while (it != highlights.end() && it->end <= highlight.end)
+		++it;
+
+	newHighlights.push_back(highlight);
+
+	while (it != highlights.end())
+	{
+		newHighlights.push_back(*it);
+		++it;
+	}
+
+	highlights.swap(newHighlights);
+}
+
+std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 {
 	std::vector<Highlight> highlights;
+
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	{
+		if (it->type != FilterType::Token)
+			continue;
+
+		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
+		for (auto tok = begin; tok != end; ++tok)
+			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), it->bgColor, it->fgColor));
+	}
+
+//	auto line = boost::make_iterator_range(text);
+//	for (;;)
+//	{
+//		auto match = boost::algorithm::ifind_first(line, m_highlightText);
+//		if (match.empty())
+//			break;
+//
+//		highlights.push_back(Highlight(match.begin() - text.begin(), match.end() - text.begin(), RGB(255, 255, 55), RGB(0, 0, 0)));
+//		line = boost::make_iterator_range(match.end(), line.end());
+//	}
+
+	return highlights;
+}
+
+void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const std::wstring& highlightText)
+{
 	auto line = boost::make_iterator_range(text);
 	for (;;)
 	{
@@ -293,9 +333,10 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, const std
 		if (match.empty())
 			break;
 
-		int begin = std::min(rect.left + GetTextSize(hdc, text, match.begin()).cx, rect.right);
-		int end = std::min(rect.left + GetTextSize(hdc, text, match.end()).cx, rect.right);
-		highlights.push_back(Highlight(begin, end, RGB(255, 255, 55), RGB(0, 0, 0)));
+//		int begin = std::min(rect.left + GetTextSize(hdc, text, match.begin()).cx, rect.right);
+//		int end = std::min(rect.left + GetTextSize(hdc, text, match.end()).cx, rect.right);
+//		highlights.push_back(Highlight(begin, end, RGB(255, 255, 55), RGB(0, 0, 0)));
+		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), RGB(255, 255, 55), RGB(0, 0, 0)));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
 
@@ -306,17 +347,17 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, const std
 	RECT rcHighlight = rect;
 	for (auto it = highlights.begin(); it != highlights.end(); ++it)
 	{
-		rcHighlight.right = it->begin;
+		rcHighlight.right = rect.left + GetTextSize(hdc, text, text.begin() + it->begin).cx;
 		ExtTextOut(hdc, pos, rcHighlight, text);
 
-		rcHighlight.left = it->begin;
-		rcHighlight.right = it->end;
+		rcHighlight.left = rcHighlight.right;
+		rcHighlight.right = rect.left + GetTextSize(hdc, text, text.begin() + it->end).cx;
 		{
 			ScopedTextColor txtcol(hdc, it->fgColor);
 			ScopedBkColor bkcol(hdc, it->bkColor);
 			ExtTextOut(hdc, pos, rcHighlight, text);
 		}
-		rcHighlight.left = it->end;
+		rcHighlight.left = rcHighlight.right;
 	}
 	rcHighlight.right = rect.right;
 	ExtTextOut(hdc, pos, rcHighlight, text);
@@ -329,8 +370,8 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 	int margin = GetHeader().GetBitmapMargin();
 	rect.left += margin;
 	rect.right -= margin;
-	if (!m_highlightText.empty() && iSubItem == 4)
-		return DrawHighlightedText(dc, rect, text, m_highlightText);
+	if (iSubItem == 4)
+		return DrawHighlightedText(dc, rect, text, m_logLines[iItem].highlights, m_highlightText);
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;
@@ -377,6 +418,28 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	}
 
 	return CDRF_DODEFAULT;
+}
+
+std::string TabsToSpaces(const std::string& s, int tabsize = 4)
+{
+	std::string result;
+	result.reserve(s.size() + 12);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == '\t')
+		{
+			do
+			{
+				result.push_back(' ');
+			}
+			while (result.size() % 4 != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
 }
 
 template <typename CharT>
@@ -464,7 +527,7 @@ SelectionInfo CLogView::GetSelectedRange() const
 	int last = item;
 	for (;;)
 	{
-		item = GetNextItem(item+1, LVNI_SELECTED);
+		item = GetNextItem(item + 1, LVNI_SELECTED);
 		if (item < 0)
 			break;
 		last = ++item;
@@ -557,6 +620,7 @@ void CLogView::Add(int line, const Message& msg)
 
 	m_dirty = true;
 	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
+	m_logLines.back().highlights = GetHighlights(msg.text);
 }
 
 void CLogView::BeginUpdate()
@@ -815,11 +879,9 @@ void CLogView::ApplyFilters()
 
 	int count = m_logFile.Count();
 	for (int i = 0; i < count; ++i)
-	{
-		if (IsIncluded(m_logFile[i].text))
-			m_logLines.push_back(LogLine(i, GetTextColor(m_logFile[i].text)));
-	}
-	SetItemCount(m_logLines.size());
+		Add(i, m_logFile[i]);
+
+	EndUpdate();
 }
 
 TextColor CLogView::GetTextColor(const std::string& text) const

@@ -41,12 +41,26 @@ struct TextColor
 	COLORREF fore;
 };
 
+struct Highlight
+{
+	Highlight(int begin, int end, COLORREF bkColor, COLORREF fgColor) :
+		begin(begin), end(end), bkColor(bkColor), fgColor(fgColor)
+	{
+	}
+
+	int begin;
+	int end;
+	COLORREF bkColor;
+	COLORREF fgColor;
+};
+
 struct LogLine
 {
 	LogLine(int line, TextColor color);
 
 	int line;
 	TextColor color;
+	std::vector<Highlight> highlights;
 };
 
 class CLogView :
@@ -118,6 +132,7 @@ private:
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
+	std::vector<Highlight> GetHighlights(const std::string& text) const;
 	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const;
 
 	bool Find(const std::string& text, int direction);
