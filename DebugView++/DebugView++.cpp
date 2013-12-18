@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "Win32Lib.h"
-#include "MainFrm.h"
+#include "MainFrame.h"
 
 #include "Utilities.h"
 

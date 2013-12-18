@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "Utilities.h"
-#include "MainFrm.h"
+#include "MainFrame.h"
 #include "FindDlg.h"
 
 namespace fusion {

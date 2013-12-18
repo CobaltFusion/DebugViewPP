@@ -95,6 +95,7 @@ private:
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void SaitUpdate(const std::wstring&);
 
 	CLogView& GetView();
 	void SetLogFont();

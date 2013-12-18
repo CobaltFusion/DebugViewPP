@@ -29,8 +29,6 @@ typedef std::vector<Line> Lines;
 class DBWinReader : boost::noncopyable
 {
 public:
-	typedef boost::signals2::signal<void (DWORD, const char*)> OnMessage;
-
 	explicit DBWinReader(bool global);
 	~DBWinReader();
 
