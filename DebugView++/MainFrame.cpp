@@ -205,22 +205,21 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->EndUpdate();
-
 }
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
-	Lines lines;
+	Lines localLines;
 	if (m_pLocalReader)
-	{
-		lines = m_pLocalReader->GetLines();
-	}
+		localLines = m_pLocalReader->GetLines();
+
+	Lines globalLines;
 	if (m_pGlobalReader)
-	{
-		auto& globalLines = m_pGlobalReader->GetLines();
-		lines.insert(lines.end(), globalLines.begin(), globalLines.end());
-	}
-	std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) { return a.time < b.time; });
+		globalLines = m_pGlobalReader->GetLines();
+
+	Lines lines;
+	lines.reserve(localLines.size() + globalLines.size());
+	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), [](const Line& a, const Line& b) { return a.time < b.time; });
 	ProcessLines(lines);
 }
 
