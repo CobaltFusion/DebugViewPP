@@ -26,7 +26,6 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
-	MSG_WM_CHAR(OnChar)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
@@ -94,16 +93,6 @@ void CMainFrame::ExceptionHandler()
 	UpdateUI();
 }
 
-void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	printf("nChar: %d\n", nChar);
-}
-
-bool IsKeyDown(SHORT keystate)
-{
-	return (keystate & 0x80) != 0;
-}
-
 void CMainFrame::SaitUpdate(const std::wstring& text)
 {
 	m_saitText = text;
@@ -112,26 +101,6 @@ void CMainFrame::SaitUpdate(const std::wstring& text)
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		if (pMsg->wParam == VK_ESCAPE)
-		{
-			GetView().SetHighlightText();
-			SaitUpdate(L"");
-		}
-	}
-
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		if (pMsg->wParam == VK_F3)
-		{
-			printf("VK_F3!\n");
-			if (IsKeyDown(GetKeyState(VK_CONTROL)))
-			{
-				printf("with CTRL!\n");
-			}
-		}
-	}
 	return CTabbedFrameImpl<CMainFrame>::PreTranslateMessage(pMsg);
 }
 
@@ -209,28 +178,13 @@ void CMainFrame::UpdateUI()
 
 void CMainFrame::UpdateStatusBar()
 {
-	std::wostringstream ss;
-	if (!m_lineSelectionText.empty())
-	{
-		ss << m_lineSelectionText;
-	}
-
 	if (!m_saitText.empty())
-	{
-		ss << " [search for: '";
-		ss << m_saitText;
-		ss << "']";
-	}
-
-	std::wstring text = ss.str();
-	if (text.empty())
-	{
-		UISetText(0, L"Ready");
-	}
+		UISetText(ID_DEFAULT_PANE, (wstringbuilder() << L"Search for: \"" << m_saitText << L"\"").c_str());
 	else
-	{
-		UISetText(ID_DEFAULT_PANE, text.c_str());
-	}
+	if (!m_lineSelectionText.empty())
+		UISetText(ID_DEFAULT_PANE, m_lineSelectionText.c_str());
+	else
+		UISetText(ID_DEFAULT_PANE, L"Ready");
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
@@ -406,14 +360,14 @@ std::wstring FormatDuration(double seconds)
 
 void CMainFrame::SetLineRange(const SelectionInfo& selection)
 {
-	if (selection.count > 0)
+	if (selection.count > 1)
 	{
-		double dt = m_logFile[selection.endLine - 1].time - m_logFile[selection.beginLine].time;
+		double dt = m_logFile[selection.endLine].time - m_logFile[selection.beginLine].time;
 		m_lineSelectionText = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
 	}
 	else
 	{
-		m_lineSelectionText = L"";
+		m_lineSelectionText.clear();
 	}
 	UpdateStatusBar();
 }

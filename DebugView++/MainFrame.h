@@ -62,7 +62,6 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
-	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void ProcessLines(const Lines& lines);
 
 	void UpdateStatusBar();
