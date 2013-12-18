@@ -15,12 +15,14 @@ namespace fusion {
 
 void GlobalAllocDeleter::operator()(pointer p) const
 {
-	GlobalFree(p);
+	if (p != nullptr)
+		GlobalFree(p);
 }
 
 void HandleDeleter::operator()(pointer p) const
 {
-	CloseHandle(p);
+	if (p != nullptr && p != INVALID_HANDLE_VALUE)
+		CloseHandle(p);
 }
 
 GdiObjectSelection::GdiObjectSelection(HDC hdc, HGDIOBJ hObject) :
@@ -269,13 +271,14 @@ std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName)
 
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName, const wchar_t* defaultValue)
 {
-	long length = 0;
-	long rc = ::RegQueryValue(hKey, valueName, nullptr, &length);
-	if (rc != ERROR_SUCCESS)
+	DWORD type;
+	DWORD length = 0;
+	long rc = ::RegQueryValueEx(hKey, valueName, nullptr, &type, nullptr, &length);
+	if (rc != ERROR_SUCCESS || type != REG_SZ)
 		return defaultValue;
 
 	std::vector<wchar_t> data(length);
-	rc = ::RegQueryValue(hKey, valueName, data.data(), &length);
+	rc = ::RegQueryValueEx(hKey, valueName, nullptr, &type, reinterpret_cast<BYTE*>(data.data()), &length);
 	if (rc != ERROR_SUCCESS)
 		return defaultValue;
 

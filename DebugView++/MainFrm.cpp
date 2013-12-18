@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include <boost/utility.hpp>
-#include <boost/tokenizer.hpp>
 #include <psapi.h>
 #include "Utilities.h"
 #include "Resource.h"
@@ -23,9 +22,6 @@ namespace fusion {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
-typedef boost::tokenizer<boost::char_separator<char>,
-				std::string::const_iterator, std::string> NewLineTokenizer;
-
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
@@ -37,9 +33,6 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
@@ -67,7 +60,9 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_autoNewLine(false),
-	m_pLocalReader(make_unique<DBWinReader>(false))
+	m_pLocalReader(make_unique<DBWinReader>(false)),
+	m_localReaderPaused(false),
+	m_globalReaderPaused(false)
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
@@ -84,6 +79,7 @@ CMainFrame::CMainFrame() :
 	}
 
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
+	SetAutoNewLine(m_autoNewLine);
 }
 
 CMainFrame::~CMainFrame()
@@ -178,7 +174,7 @@ void CMainFrame::UpdateStatusBar()
 	//UISetText(0, L"Ready");
 }
 
-void CMainFrame::ProcessLines(const LinesList& lines)
+void CMainFrame::ProcessLines(const Lines& lines)
 {
 #ifdef CONSOLE_DEBUG
 	if (lines.size() > 0)
@@ -211,7 +207,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	}
 }
 
-const wchar_t* RegistryPath = L"Software\\DjeeDjay\\DebugView++";
+const wchar_t* RegistryPath = L"Software\\Fusion\\DebugView++";
 
 bool CMainFrame::LoadSettings()
 {
@@ -224,9 +220,21 @@ bool CMainFrame::LoadSettings()
 	reg.QueryDWORDValue(L"width", cx);
 	reg.QueryDWORDValue(L"height", cy);
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
-	DWORD options;
-	if (reg.QueryDWORDValue(L"ClockTime", options) == ERROR_SUCCESS)
-		m_views[0]->SetClockTime(options != 0);
+
+	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
+
+	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
+	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
+	if (!fontName.empty())
+	{
+		LOGFONT lf;
+		m_fontDlg.GetCurrentFont(&lf);
+		std::copy(fontName.begin(), fontName.end(), lf.lfFaceName);
+		lf.lfFaceName[fontName.size()] = '\0';
+		lf.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
+		m_fontDlg.SetLogFont(&lf);
+		SetLogFont();
+	}
 
 	for (size_t i = 0; ; ++i)
 	{
@@ -252,6 +260,14 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"y", placement.rcNormalPosition.top);
 	reg.SetDWORDValue(L"width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
 	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
+
+	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+
+	LOGFONT lf;
+	m_fontDlg.GetCurrentFont(&lf);
+	reg.SetValue(lf.lfFaceName, L"FontName");
+	reg.SetDWORDValue(L"FontSize", -MulDiv(lf.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
+
 	reg.RecurseDeleteKey(L"Views");
 	for (size_t i = 0; i < m_views.size(); ++i)
 	{
@@ -260,7 +276,20 @@ void CMainFrame::SaveSettings()
 		regView.SetValue(GetTabCtrl().GetItem(i)->GetTextRef());
 		m_views[i]->SaveSettings(regView);
 	}
-	reg.SetDWORDValue(L"ClockTime", m_views[0]->GetClockTime());
+}
+
+bool CMainFrame::GetAutoNewLine() const
+{
+	return m_autoNewLine;
+}
+
+void CMainFrame::SetAutoNewLine(bool value)
+{
+	if (m_pLocalReader)
+		m_pLocalReader->AutoNewLine(value);
+	if (m_pGlobalReader)
+		m_pGlobalReader->AutoNewLine(value);
+	m_autoNewLine = value;
 }
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
@@ -437,16 +466,6 @@ void CMainFrame::OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		SaveLogFile(fileName);
 }
 
-void CMainFrame::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().Clear();
-}
-
-void CMainFrame::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().SelectAll();
-}
-
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
@@ -468,26 +487,54 @@ void CMainFrame::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_autoNewLine = !m_autoNewLine;
+	SetAutoNewLine(!GetAutoNewLine());
 	UpdateUI();
 }
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	if (m_pLocalReader)
-		m_pLocalReader.reset();
-	else
+	if (m_localReaderPaused)
+	{
+		printf("start m_pLocalReader\n");
 		m_pLocalReader = make_unique<DBWinReader>(false);
+		m_localReaderPaused = false;
+	}
+	else if (m_pLocalReader)
+	{
+		printf("stop m_pLocalReader\n");
+		m_pLocalReader.reset();
+		m_localReaderPaused = true;
+	}
 
+	if (m_globalReaderPaused)
+	{
+		printf("start m_pGlobalReader\n");
+		m_pGlobalReader = make_unique<DBWinReader>(false);
+		m_globalReaderPaused = false;
+	}
+	else if (m_pGlobalReader)
+	{
+		printf("stop m_pGlobalReader\n");
+		m_pGlobalReader.reset();
+		m_globalReaderPaused = true;
+	}
+
+	SetAutoNewLine(GetAutoNewLine());
 	UpdateUI();
 }
 
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (m_pGlobalReader)
+	{
 		m_pGlobalReader.reset();
+	}
 	else
+	{
 		m_pGlobalReader = make_unique<DBWinReader>(true);
+	}
+
+	SetAutoNewLine(GetAutoNewLine());
 	UpdateUI();
 }
 
@@ -501,11 +548,6 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 	GetTabCtrl().GetItem(tabIdx)->SetText(dlg.GetName().c_str());
 	GetView().SetFilters(dlg.GetFilters());
-}
-
-void CMainFrame::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().Copy();
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -523,9 +565,13 @@ void CMainFrame::SetLogFont()
 {
 	LOGFONT lf;
 	m_fontDlg.GetCurrentFont(&lf);
-	HFONT hFont = CreateFontIndirect(&lf);
-	if (hFont)
-		GetView().SetFont(hFont);
+	HFont hFont(CreateFontIndirect(&lf));
+	if (!hFont)
+		return;
+
+	for (auto it = m_views.begin(); it != m_views.end(); ++it)
+		(*it)->SetFont(hFont.get());
+	m_hFont = std::move(hFont);
 }
 
 void CMainFrame::OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -542,42 +588,13 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
-
 void CMainFrame::AddMessage(const Message& message)
-{
-	Message msg(message);
-
-	std::string text;
-	boost::char_separator<char> seporators("\r\n");
-	NewLineTokenizer tok(msg.text, seporators);
-	for (auto it = tok.begin(); it != tok.end(); ++it)
-	{
-		if (m_autoNewLine)
-		{
-			msg.text = *it;
-			AddPreppedMessage(msg);
-		}
-		else
-		{
-			text += *it;
-		}
-	}
-
-	if (!m_autoNewLine)
-	{
-		msg.text = text;
-		AddPreppedMessage(msg);
-	}
-}
-
-void CMainFrame::AddPreppedMessage(const Message& msg)
 {
 	int index = m_logFile.Count();
 
-	m_logFile.Add(msg);
+	m_logFile.Add(message);
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
-		(*it)->Add(index, msg);
+		(*it)->Add(index, message);
 }
-
 
 } // namespace fusion

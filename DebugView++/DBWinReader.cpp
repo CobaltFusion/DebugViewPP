@@ -27,8 +27,6 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 
 Handle CreateDBWinBufferMapping(bool global)
 {
-	SetPrivilege(SE_DEBUG_NAME, true);
-
 	Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		throw std::runtime_error("Another DebugView is running");
@@ -36,6 +34,7 @@ Handle CreateDBWinBufferMapping(bool global)
 }
 
 DBWinReader::DBWinReader(bool global) :
+	m_autoNewLine(true),
 	m_end(false),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
@@ -49,6 +48,16 @@ DBWinReader::DBWinReader(bool global) :
 DBWinReader::~DBWinReader()
 {
 	Abort();
+}
+
+bool DBWinReader::AutoNewLine() const
+{
+	return m_autoNewLine;
+}
+
+void DBWinReader::AutoNewLine(bool value)
+{
+	m_autoNewLine = value;
 }
 
 void DBWinReader::Abort()
@@ -74,19 +83,45 @@ void DBWinReader::Run()
 	}
 }
 
+void DBWinReader::AddLine(const Line& line)
+{
+	boost::unique_lock<boost::mutex> lock(m_linesMutex);
+	m_lines.push_back(line);
+}
+
 void DBWinReader::Add(DWORD pid, const char* text)
 {
 	Line line;
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = pid;
-	line.message = text;
+	line.message.reserve(4000);
 
-	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_lines.push_back(line);
+	if (m_lineBuffer.message.empty())
+		m_lineBuffer = line;
+
+	while (*text)
+	{
+		if (*text == '\n')
+		{
+			AddLine(m_lineBuffer);
+			m_lineBuffer = line;
+		}
+		else
+		{
+			m_lineBuffer.message.push_back(*text);
+		}
+		++text;
+	}
+
+	if (!m_lineBuffer.message.empty() && m_autoNewLine)
+	{
+		AddLine(m_lineBuffer);
+		m_lineBuffer.message.clear();
+	}
 }
 
-const LinesList& DBWinReader::GetLines()
+const Lines& DBWinReader::GetLines()
 {
 	m_linesBackingBuffer.clear();
 	{

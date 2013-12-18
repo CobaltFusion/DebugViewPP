@@ -33,6 +33,26 @@ struct HandleDeleter
 typedef std::unique_ptr<void, HandleDeleter> Handle;
 
 template <typename T>
+struct GdiObjectDeleter
+{
+	typedef T pointer;
+
+	void operator()(pointer p) const
+	{
+		if (p != nullptr)
+			DeleteObject(p);
+	}
+};
+
+typedef std::unique_ptr<std::remove_pointer<HGDIOBJ>::type, GdiObjectDeleter<HGDIOBJ>> GdiObject;
+typedef std::unique_ptr<std::remove_pointer<HPEN>::type, GdiObjectDeleter<HPEN>> HPen;
+typedef std::unique_ptr<std::remove_pointer<HBRUSH>::type, GdiObjectDeleter<HBRUSH>> HBrush;
+typedef std::unique_ptr<std::remove_pointer<HFONT>::type, GdiObjectDeleter<HFONT>> HFont;
+typedef std::unique_ptr<std::remove_pointer<HBITMAP>::type, GdiObjectDeleter<HBITMAP>> HBitmap;
+typedef std::unique_ptr<std::remove_pointer<HRGN>::type, GdiObjectDeleter<HRGN>> HRegion;
+typedef std::unique_ptr<std::remove_pointer<HPALETTE>::type, GdiObjectDeleter<HPALETTE>> HPalette;
+
+template <typename T>
 class GlobalLock
 {
 public:

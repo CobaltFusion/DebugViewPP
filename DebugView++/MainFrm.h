@@ -62,16 +62,18 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
-	void ProcessLines(const LinesList& lines);
+	void ProcessLines(const Lines& lines);
 
 	void UpdateStatusBar();
 	bool LoadSettings();
 	void SaveSettings();
 
+	bool GetAutoNewLine() const;
+	void SetAutoNewLine(bool value);
+
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, std::vector<LogFilter> filters = std::vector<LogFilter>());
-	void AddMessage(const Message& msg);
-	void AddPreppedMessage(const Message& msg);
+	void AddMessage(const Message& message);
 
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);
@@ -86,11 +88,8 @@ private:
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -106,8 +105,11 @@ private:
 	int m_filterNr;
 	std::vector<std::unique_ptr<CLogView>> m_views;
 	CFontDialog m_fontDlg;
+	HFont m_hFont;
 	CFindDlg m_findDlg;
 	bool m_autoNewLine;
+	bool m_localReaderPaused;
+	bool m_globalReaderPaused;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
 	boost::signals2::connection m_localConnection;
