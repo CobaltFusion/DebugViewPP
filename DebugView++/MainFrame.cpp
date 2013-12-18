@@ -256,14 +256,18 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
+	Lines lines;
 	if (m_pLocalReader)
 	{
-		ProcessLines(m_pLocalReader->GetLines());
+		lines = m_pLocalReader->GetLines();
 	}
 	if (m_pGlobalReader)
 	{
-		ProcessLines(m_pGlobalReader->GetLines());
+		auto& globalLines = m_pGlobalReader->GetLines();
+		lines.insert(lines.end(), globalLines.begin(), globalLines.end());
 	}
+	std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) { return a.time < b.time; });
+	ProcessLines(lines);
 }
 
 const wchar_t* RegistryPath = L"Software\\Fusion\\DebugView++";
