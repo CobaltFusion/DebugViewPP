@@ -46,6 +46,9 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnViewHideHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_NEXT, OnViewFindNext)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_PREVIOUS, OnViewFindPrevious)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -173,6 +176,9 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLISTVIEW*>(pnmh);
 
+	if ((nmhdr.uOldState & LVIS_SELECTED) || (nmhdr.uNewState & LVIS_SELECTED))
+		m_mainFrame.SetLineRange(GetSelectedRange());
+
 	if ((nmhdr.uNewState & LVIS_FOCUSED) == 0 ||
 		nmhdr.iItem < 0  ||
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
@@ -250,10 +256,10 @@ private:
 	COLORREF m_col;
 };
 
-SIZE GetTextSize(CDCHandle dc, const std::wstring& text, std::wstring::const_iterator it)
+SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
 {
 	SIZE size;
-	dc.GetTextExtent(text.c_str(), it - text.begin(), &size);
+	dc.GetTextExtent(text.c_str(), length, &size);
 	return size;
 }
 
@@ -265,7 +271,7 @@ void ExtTextOut(HDC hdc, const POINT& pt, const RECT& rect, const std::wstring& 
 void AddEllipsis(HDC hdc, std::wstring& text, int width)
 {
 	static const std::wstring ellipsis(L"...");
-	int pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.end()).cx);
+	int pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.size()).cx);
 	if (pos >= 0 && pos < static_cast<int>(text.size()))
 		text = text.substr(0, pos) + ellipsis;
 }
@@ -310,17 +316,6 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), it->bgColor, it->fgColor));
 	}
 
-//	auto line = boost::make_iterator_range(text);
-//	for (;;)
-//	{
-//		auto match = boost::algorithm::ifind_first(line, m_highlightText);
-//		if (match.empty())
-//			break;
-//
-//		highlights.push_back(Highlight(match.begin() - text.begin(), match.end() - text.begin(), RGB(255, 255, 55), RGB(0, 0, 0)));
-//		line = boost::make_iterator_range(match.end(), line.end());
-//	}
-
 	return highlights;
 }
 
@@ -333,25 +328,22 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		if (match.empty())
 			break;
 
-//		int begin = std::min(rect.left + GetTextSize(hdc, text, match.begin()).cx, rect.right);
-//		int end = std::min(rect.left + GetTextSize(hdc, text, match.end()).cx, rect.right);
-//		highlights.push_back(Highlight(begin, end, RGB(255, 255, 55), RGB(0, 0, 0)));
 		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), RGB(255, 255, 55), RGB(0, 0, 0)));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
 
 	AddEllipsis(hdc, text, rect.right - rect.left);
 
-	int height = GetTextSize(hdc, text, text.end()).cy;
+	int height = GetTextSize(hdc, text, text.size()).cy;
 	POINT pos = { rect.left, rect.top + (rect.bottom - rect.top - height)/2 };
 	RECT rcHighlight = rect;
 	for (auto it = highlights.begin(); it != highlights.end(); ++it)
 	{
-		rcHighlight.right = rect.left + GetTextSize(hdc, text, text.begin() + it->begin).cx;
+		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->begin).cx;
 		ExtTextOut(hdc, pos, rcHighlight, text);
 
 		rcHighlight.left = rcHighlight.right;
-		rcHighlight.right = rect.left + GetTextSize(hdc, text, text.begin() + it->end).cx;
+		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->end).cx;
 		{
 			ScopedTextColor txtcol(hdc, it->fgColor);
 			ScopedBkColor bkcol(hdc, it->bkColor);
@@ -524,16 +516,15 @@ SelectionInfo CLogView::GetSelectedRange() const
 		return SelectionInfo();
 
 	int item = first;
-	int last = item;
-	for (;;)
+	int last = first;
+	do
 	{
-		item = GetNextItem(item + 1, LVNI_SELECTED);
-		if (item < 0)
-			break;
-		last = ++item;
+		last = item;
+		item = GetNextItem(item, LVNI_SELECTED);
 	}
+	while (item > 0);
 
-	return SelectionInfo(m_logLines[first].line, m_logLines[last].line, last - first);
+	return SelectionInfo(m_logLines[first].line, m_logLines[last].line, last - first + 1);
 }
 
 LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
@@ -580,6 +571,23 @@ void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	Copy();
+}
+
+void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SetHighlightText();
+}
+
+void CLogView::OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	if (!m_highlightText.empty())
+		FindNext(m_highlightText);
+}
+
+void CLogView::OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	if (!m_highlightText.empty())
+		FindPrevious(m_highlightText);
 }
 
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
