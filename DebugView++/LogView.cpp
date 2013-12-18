@@ -14,7 +14,7 @@
 #include "dbgstream.h"
 #include "Utilities.h"
 #include "Resource.h"
-#include "MainFrm.h"
+#include "MainFrame.h"
 #include "LogView.h"
 
 namespace fusion {
@@ -487,6 +487,7 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
+	m_OnSaitUpdate(WStr(text));
 //	int line = nmhdr.iStart;
 	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	while (line != m_logLines.size())
@@ -666,6 +667,10 @@ void CLogView::Copy()
 		SetClipboardData(CF_TEXT, hdst.release());
 		CloseClipboard();
 	}
+}
+boost::signals2::connection CLogView::ConnectSaitUpdate(SaitUpdateSignal::slot_type slot)
+{
+	return m_OnSaitUpdate.connect(slot);
 }
 
 void CLogView::SetHighlightText(const std::wstring& text)

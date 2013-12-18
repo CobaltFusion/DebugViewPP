@@ -54,6 +54,8 @@ class CLogView :
 	public COffscreenPaint<CLogView>
 {
 public:
+	typedef boost::signals2::signal<void (const std::wstring&)> SaitUpdateSignal;
+
 	CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<LogFilter> filters = std::vector<LogFilter>());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
@@ -98,6 +100,7 @@ public:
 	void Save(const std::wstring& fileName) const;
 
 	SelectionInfo GetSelectedRange() const;
+	boost::signals2::connection ConnectSaitUpdate(SaitUpdateSignal::slot_type signal);
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
@@ -133,6 +136,7 @@ private:
 	bool m_dirty;
 	bool m_insidePaint;
 	std::wstring m_highlightText;
+	SaitUpdateSignal m_OnSaitUpdate;
 };
 
 } // namespace fusion

@@ -137,7 +137,7 @@
     <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogView.cpp" />
-    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -154,8 +154,8 @@
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="GuiThread.h" />
     <ClInclude Include="LogView.h" />
-    <ClInclude Include="MainFrm.h" />
     <ClInclude Include="LogFile.h" />
+    <ClInclude Include="MainFrame.h" />
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="PropertyColorItem.h" />
