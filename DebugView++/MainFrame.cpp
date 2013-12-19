@@ -178,15 +178,19 @@ void CMainFrame::UpdateUI()
 
 void CMainFrame::UpdateStatusBar()
 {
+	std::wstring text;
+	if (!m_lineSelectionText.empty())
+	{
+		text = m_lineSelectionText;
+	}
 	if (!m_saitText.empty())
 	{
-		UISetText(ID_DEFAULT_PANE, std::wstring((wstringbuilder() << L"Search for: \"" << m_saitText.c_str() << L"\"")).c_str());
+		text += std::wstring((wstringbuilder() << L"  Search for: \"" << m_saitText.c_str() << L"\""));
 	}
-	else
-	if (!m_lineSelectionText.empty())
-		UISetText(ID_DEFAULT_PANE, m_lineSelectionText.c_str());
-	else
-		UISetText(ID_DEFAULT_PANE, L"Ready");
+
+	if (text.empty())
+		 text = L"Ready";
+	UISetText(ID_DEFAULT_PANE, text.c_str());
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
