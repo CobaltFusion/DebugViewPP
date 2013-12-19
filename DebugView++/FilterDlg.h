@@ -12,9 +12,9 @@
 
 #pragma warning(push, 3)
 #include "PropertyGrid.h"
-#include "PropertyColorItem.h"
 #pragma warning(pop)
 
+#include "PropertyColorItem.h"
 #include "Resource.h"
 #include "Types.h"
 
