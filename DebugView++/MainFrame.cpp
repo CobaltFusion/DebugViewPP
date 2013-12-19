@@ -103,6 +103,12 @@ void CMainFrame::SaitUpdate(const std::wstring& text)
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
+	if (GetActiveWindow() == m_findDlg)
+	{
+		if (m_findDlg.IsDialogMessage(pMsg))
+			return TRUE;
+	}
+
 	return CTabbedFrameImpl<CMainFrame>::PreTranslateMessage(pMsg);
 }
 
