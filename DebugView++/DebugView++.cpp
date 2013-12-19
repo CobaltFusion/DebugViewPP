@@ -38,7 +38,7 @@ private:
 	CMessageLoop m_loop;
 };
 
-int Run(LPTSTR lpstrCmdLine, int nCmdShow)
+int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 {
 	MessageLoop theLoop(_Module);
 
@@ -49,7 +49,7 @@ int Run(LPTSTR lpstrCmdLine, int nCmdShow)
 		return 0;
 	}
 
-	wndMain.ShowWindow(nCmdShow);
+	wndMain.ShowWindow(cmdShow);
 
 	return theLoop.Run();
 }
