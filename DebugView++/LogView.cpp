@@ -689,8 +689,8 @@ void CLogView::ScrollToIndex(int index, bool center)
 	
 	//todo: deselect any seletected items.
 	
+	SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
 	EnsureVisible(index, false);
-	SetItemState(index, LVIS_FOCUSED, LVIS_FOCUSED);
 
 	if (center)
 	{
@@ -795,9 +795,7 @@ bool CLogView::Find(const std::string& text, int direction)
 
 		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
-			EnsureVisible(line, true);
-			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);
-			SelectItem(line);
+			ScrollToIndex(line, TRUE);
 			SetHighlightText(WStr(text));
 			return true;
 		}
