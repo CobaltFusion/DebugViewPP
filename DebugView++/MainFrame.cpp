@@ -179,7 +179,9 @@ void CMainFrame::UpdateUI()
 void CMainFrame::UpdateStatusBar()
 {
 	if (!m_saitText.empty())
-		UISetText(ID_DEFAULT_PANE, (wstringbuilder() << L"Search for: \"" << m_saitText << L"\"").c_str());
+	{
+		UISetText(ID_DEFAULT_PANE, std::wstring((wstringbuilder() << L"Search for: \"" << m_saitText.c_str() << L"\"")).c_str());
+	}
 	else
 	if (!m_lineSelectionText.empty())
 		UISetText(ID_DEFAULT_PANE, m_lineSelectionText.c_str());
