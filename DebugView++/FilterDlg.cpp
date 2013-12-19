@@ -140,7 +140,7 @@ void CFilterDlg::OnDestroy()
 {
 }
 
-LRESULT CFilterDlg::OnAddItem(NMHDR* pnmh)
+LRESULT CFilterDlg::OnAddItem(NMHDR* /*pnmh*/)
 {
 	AddFilter(LogFilter());
 	return 0;

@@ -371,7 +371,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_NOCLIP | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
-void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const
+void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 {
 	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
 
@@ -415,7 +415,7 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 std::string TabsToSpaces(const std::string& s, int tabsize = 4)
 {
 	std::string result;
-	result.reserve(s.size() + 12);
+	result.reserve(s.size() + 3*tabsize);
 	for (auto it = s.begin(); it != s.end(); ++it)
 	{
 		if (*it == '\t')
@@ -424,7 +424,7 @@ std::string TabsToSpaces(const std::string& s, int tabsize = 4)
 			{
 				result.push_back(' ');
 			}
-			while (result.size() % 4 != 0);
+			while (result.size() % tabsize != 0);
 		}
 		else
 		{
@@ -478,7 +478,7 @@ std::string GetTimeText(double time)
 std::string GetTimeText(const SYSTEMTIME& st)
 {
 	char buf[32];
-	sprintf(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	sprintf_s(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 	return buf;
 }
 
@@ -530,10 +530,16 @@ SelectionInfo CLogView::GetSelectedRange() const
 LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
+	nmhdr;
 
 	m_mainFrame.SetLineRange(GetSelectedRange());
 
 	return 0;
+}
+
+bool Contains(const std::string& text, const std::string& substring)
+{
+	return !boost::algorithm::ifind_first(text, substring).empty();
 }
 
 LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
@@ -542,11 +548,11 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
 	m_mainFrame.SaitUpdate(WStr(text));
-//	int line = nmhdr.iStart;
+//	int line = nmhdr.iStart; // Does not work as specified...
 	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
-	while (line != m_logLines.size())
+	while (line != static_cast<int>(m_logLines.size()))
 	{
-		if (!boost::algorithm::ifind_first(m_logFile[m_logLines[line].line].text, text).empty())
+		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
 			SetHighlightText(nmhdr.lvfi.psz);
 			nmhdr.lvfi.lParam = line;
@@ -784,10 +790,10 @@ bool CLogView::Find(const std::string& text, int direction)
 	{
 		if (line < 0)
 			line += m_logLines.size();
-		if (line == m_logLines.size())
+		if (line == static_cast<int>(m_logLines.size()))
 			line = 0;
 
-		if (!boost::algorithm::ifind_first(m_logFile[m_logLines[line].line].text, text).empty())
+		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
 			EnsureVisible(line, true);
 			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);
@@ -856,7 +862,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 	{
 		CRegKey regFilter;
 		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
-		regFilter.SetValue(WStr(m_filters[i].text.c_str()));
+		regFilter.SetStringValue(L"", WStr(m_filters[i].text.c_str()));
 		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(m_filters[i].type));
 		regFilter.SetDWORDValue(L"BgColor", m_filters[i].bgColor);
 		regFilter.SetDWORDValue(L"FgColor", m_filters[i].fgColor);

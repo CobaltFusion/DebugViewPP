@@ -18,7 +18,7 @@ CFindDlg::CFindDlg(CMainFrame& mainFrame) :
 {
 }
 
-BOOL CFindDlg::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+BOOL CFindDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	CenterWindow(GetParent());
 	DlgResize_Init();
@@ -33,17 +33,17 @@ void CFindDlg::OnGetMinMaxInfo(MINMAXINFO* pInfo)
 	pInfo->ptMinTrackSize.y = pInfo->ptMaxTrackSize.y = rect.bottom - rect.top;
 }
 
-void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
+void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
 	m_mainFrame.FindNext(fusion::GetDlgItemText(*this, IDC_TEXT));
 }
 
-void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
+void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
 	m_mainFrame.FindPrevious(fusion::GetDlgItemText(*this, IDC_TEXT));
 }
 
-void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/)
+void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
 	ShowWindow(SW_HIDE);
 }

@@ -8,7 +8,7 @@
 #pragma once
 
 namespace fusion {
-
+ 
 struct FilterType
 {
 	enum type
@@ -17,8 +17,8 @@ struct FilterType
 		Exclude,
 		Highlight,
 		Token,
+		Track,
 		Stop,
-		Track
 	};
 };
 

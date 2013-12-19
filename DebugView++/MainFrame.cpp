@@ -215,7 +215,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 		(*it)->EndUpdate();
 }
 
-void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 {
 	Lines localLines;
 	if (m_pLocalReader)
@@ -289,7 +289,7 @@ void CMainFrame::SaveSettings()
 
 	LOGFONT lf;
 	m_fontDlg.GetCurrentFont(&lf);
-	reg.SetValue(lf.lfFaceName, L"FontName");
+	reg.SetStringValue(L"FontName", lf.lfFaceName);
 	reg.SetDWORDValue(L"FontSize", -MulDiv(lf.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
 
 	reg.RecurseDeleteKey(L"Views");
@@ -297,7 +297,7 @@ void CMainFrame::SaveSettings()
 	{
 		CRegKey regView;
 		regView.Create(reg, WStr(wstringbuilder() << L"Views\\View" << i));
-		regView.SetValue(GetTabCtrl().GetItem(i)->GetTextRef());
+		regView.SetStringValue(L"", GetTabCtrl().GetItem(i)->GetTextRef());
 		m_views[i]->SaveSettings(regView);
 	}
 }
@@ -428,7 +428,7 @@ LRESULT CMainFrame::OnClickTab(NMHDR* pnmh)
 	return FALSE;
 }
 
-LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
+LRESULT CMainFrame::OnChangeTab(NMHDR* /*pnmh*/)
 {
 	SetLineRange(GetView().GetSelectedRange());
 	SetMsgHandled(FALSE);
@@ -445,7 +445,7 @@ LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 		auto it = m_views.begin() + filterIndex;
 		(*it)->DestroyWindow();
 		m_views.erase(it);
-		if (filterIndex == m_views.size())
+		if (filterIndex == static_cast<int>(m_views.size()))
 			GetTabCtrl().SetCurSel(filterIndex - 1);
 		if (m_views.size() == 1)
 			HideTabControl();

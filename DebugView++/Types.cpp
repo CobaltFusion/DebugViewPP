@@ -6,11 +6,12 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <stdexcept>
 #include "Types.h"
 
 namespace fusion {
 
-int FilterTypeToInt(FilterType::type value) 
+int FilterTypeToInt(FilterType::type value)
 {
 	return value;
 }
@@ -23,8 +24,8 @@ FilterType::type IntToFilterType(int value)
 	case FilterType::Exclude: return FilterType::Exclude;
 	case FilterType::Highlight: return FilterType::Highlight;
 	case FilterType::Token: return FilterType::Token;
-	case FilterType::Stop: return FilterType::Stop;
 	case FilterType::Track: return FilterType::Track;
+	case FilterType::Stop: return FilterType::Stop;
 	default: assert(!"Unexpected FilterType"); break;
 	}
 	throw std::invalid_argument("bad FilterType!");
