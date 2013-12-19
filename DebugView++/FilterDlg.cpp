@@ -9,7 +9,6 @@
 #include "atlstr.h"
 #include "resource.h"
 #include "Utilities.h"
-#include "PropertyColorItem.h"
 #include "FilterDlg.h"
 
 namespace fusion {
@@ -59,7 +58,9 @@ LogFilter::LogFilter(const std::string& text, FilterType::type type, COLORREF bg
 BEGIN_MSG_MAP_TRY(CFilterDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
+	COMMAND_ID_HANDLER_EX(ID_FILTER_DLG_CLOSE, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
+	COMMAND_ID_HANDLER_EX(ID_FILTER_DLG_OK, OnOk)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
@@ -99,7 +100,8 @@ void CFilterDlg::AddFilter(const LogFilter& filter)
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 
-	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , nullptr };
+	//static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , L"Stop", L"Track", nullptr };
+	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token", nullptr };
 	auto pTypeList = PropCreateList(L"", types);
 	pTypeList->SetValue(CComVariant(filter.type));
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
@@ -223,14 +225,7 @@ FilterType::type CFilterDlg::GetFilterType(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyListItem>(m_grid, iItem, 2).GetValue(&val);
-	switch (val.lVal)
-	{
-	case FilterType::Include: return FilterType::Include;
-	case FilterType::Exclude: return FilterType::Exclude;
-	case FilterType::Highlight: return FilterType::Highlight;
-	case FilterType::Token: return FilterType::Token;
-	}
-	throw std::runtime_error("Unknown FilterType");
+	return IntToFilterType(val.lVal);
 }
 
 COLORREF CFilterDlg::GetFilterBgColor(int iItem) const

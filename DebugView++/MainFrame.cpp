@@ -66,7 +66,7 @@ CMainFrame::CMainFrame() :
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
-	freopen("CONOUT$", "wb", stdout);
+	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
 #endif
 
 	try
@@ -79,12 +79,14 @@ CMainFrame::CMainFrame() :
 	}
 
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
-	m_views.back()->ConnectSaitUpdate([this] (const std::wstring& text) { SaitUpdate(text); });
 	SetAutoNewLine(m_autoNewLine);
 }
 
 CMainFrame::~CMainFrame()
 {
+#ifdef CONSOLE_DEBUG
+	fclose(m_stdout);
+#endif
 }
 
 void CMainFrame::ExceptionHandler()
@@ -402,7 +404,6 @@ void CMainFrame::AddFilterView()
 void CMainFrame::AddFilterView(const std::wstring& name, std::vector<LogFilter> filters)
 {
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile, filters));
-	m_views.back()->ConnectSaitUpdate([this] (const std::wstring& text) { SaitUpdate(text); });
 	m_views.back()->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
@@ -518,26 +519,22 @@ void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 {
 	if (m_localReaderPaused)
 	{
-		printf("start m_pLocalReader\n");
 		m_pLocalReader = make_unique<DBWinReader>(false);
 		m_localReaderPaused = false;
 	}
 	else if (m_pLocalReader)
 	{
-		printf("stop m_pLocalReader\n");
 		m_pLocalReader.reset();
 		m_localReaderPaused = true;
 	}
 
 	if (m_globalReaderPaused)
 	{
-		printf("start m_pGlobalReader\n");
 		m_pGlobalReader = make_unique<DBWinReader>(false);
 		m_globalReaderPaused = false;
 	}
 	else if (m_pGlobalReader)
 	{
-		printf("stop m_pGlobalReader\n");
 		m_pGlobalReader.reset();
 		m_globalReaderPaused = true;
 	}

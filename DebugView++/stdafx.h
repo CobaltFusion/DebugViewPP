@@ -7,7 +7,6 @@
 
 #pragma once
 
-#define _SCL_SECURE_NO_WARNINGS
 #define NOMINMAX
 
 #include <algorithm>
@@ -22,10 +21,13 @@ using std::max;
 
 #define _WTL_NO_CSTRING
 
+#include <atlbase.h>
+
 #pragma warning(push, 3)
 #pragma warning(disable: 4996)
-#include <atlbase.h>
 #include <atlapp.h>
+#pragma warning(pop)
+
 #include <atlwin.h>
 #include <atlcrack.h>
 #include <atlframe.h>
@@ -36,7 +38,6 @@ using std::max;
 #include <atldlgs.h>
 #include <atlmisc.h>
 #include <atlstr.h>
-#pragma warning(pop)
 
 extern CAppModule _Module;
 

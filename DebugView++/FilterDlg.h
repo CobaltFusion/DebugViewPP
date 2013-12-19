@@ -9,21 +9,16 @@
 
 #include <vector>
 #include <regex>
+
+#pragma warning(push, 3)
 #include "PropertyGrid.h"
+#include "PropertyColorItem.h"
+#pragma warning(pop)
+
 #include "Resource.h"
+#include "Types.h"
 
 namespace fusion {
-
-struct FilterType
-{
-	enum type
-	{
-		Include,
-		Exclude,
-		Highlight,
-		Token
-	};
-};
 
 struct LogFilter
 {

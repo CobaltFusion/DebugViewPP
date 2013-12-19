@@ -541,7 +541,7 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
-	m_OnSaitUpdate(WStr(text));
+	m_mainFrame.SaitUpdate(WStr(text));
 //	int line = nmhdr.iStart;
 	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	while (line != m_logLines.size())
@@ -577,7 +577,7 @@ void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetHighlightText();
-	m_OnSaitUpdate(L"");
+	m_mainFrame.SaitUpdate(L"");
 }
 
 void CLogView::OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -630,6 +630,16 @@ void CLogView::Add(int line, const Message& msg)
 	m_dirty = true;
 	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
 	m_logLines.back().highlights = GetHighlights(msg.text);
+
+	if (IsStop(msg.text))
+	{
+		return;
+	}
+
+	if (IsTrack(msg.text))
+	{
+		ScrollToIndex(line, true);
+	}
 }
 
 void CLogView::BeginUpdate()
@@ -648,10 +658,28 @@ void CLogView::EndUpdate()
 	}
 }
 
+void CLogView::StopScrolling()
+{
+	m_autoScrollDown = false;
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	{
+		switch (it->type)
+		{
+		case FilterType::Track:
+			it->enable = false;
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void CLogView::ScrollToIndex(int index, bool center)
 {
 	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
 		return;
+
+	printf("ScrollToIndex: %d, center: %s\n", index, center ? "yes" : "no" );
 	
 	//todo: deselect any seletected items.
 	
@@ -741,10 +769,6 @@ void CLogView::Copy()
 		CloseClipboard();
 	}
 }
-boost::signals2::connection CLogView::ConnectSaitUpdate(SaitUpdateSignal::slot_type slot)
-{
-	return m_OnSaitUpdate.connect(slot);
-}
 
 void CLogView::SetHighlightText(const std::wstring& text)
 {
@@ -784,24 +808,6 @@ bool CLogView::FindNext(const std::wstring& text)
 bool CLogView::FindPrevious(const std::wstring& text)
 {
 	return Find(Str(text).str(), -1);
-}
-
-int FilterTypeToInt(FilterType::type value)
-{
-	return value;
-}
-
-FilterType::type IntToFilterType(int value)
-{
-	switch (value)
-	{
-	case FilterType::Include: return FilterType::Include;
-	case FilterType::Exclude: return FilterType::Exclude;
-	case FilterType::Highlight: return FilterType::Highlight;
-	case FilterType::Token: return FilterType::Token;
-	default: assert(!"Unexpected FilterType"); break;
-	}
-	throw std::invalid_argument("bad FilterType!");
 }
 
 void CLogView::LoadSettings(CRegKey& reg)
@@ -924,6 +930,44 @@ bool CLogView::IsIncluded(const std::string& text) const
 		}
 	}
 	return true;
+}
+
+bool CLogView::IsStop(const std::string& text) const
+{
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+
+		switch (it->type)
+		{
+		case FilterType::Stop:
+			return std::regex_search(text, it->re);
+
+		default:
+			break;
+		}
+	}
+	return false;
+}
+
+bool CLogView::IsTrack(const std::string& text) const
+{
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+
+		switch (it->type)
+		{
+		case FilterType::Track:
+			return std::regex_search(text, it->re);
+
+		default:
+			break;
+		}
+	}
+	return false;
 }
 
 } // namespace fusion

@@ -87,6 +87,7 @@ public:
 	void BeginUpdate();
 	void EndUpdate();
 
+	void StopScrolling();
 	void ScrollToIndex(int index, bool center);
 	void ScrollDown();
 	bool IsLastLineSelected();
@@ -110,11 +111,8 @@ public:
 
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
-
 	void Save(const std::wstring& fileName) const;
-
 	SelectionInfo GetSelectedRange() const;
-	boost::signals2::connection ConnectSaitUpdate(SaitUpdateSignal::slot_type signal);
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
@@ -141,6 +139,8 @@ private:
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
 	bool IsIncluded(const std::string& text) const;
+	bool IsStop(const std::string& text) const;
+	bool IsTrack(const std::string& text) const;
 	TextColor GetTextColor(const std::string& text) const;
 
 	CMainFrame& m_mainFrame;
@@ -154,7 +154,6 @@ private:
 	bool m_dirty;
 	bool m_insidePaint;
 	std::wstring m_highlightText;
-	SaitUpdateSignal m_OnSaitUpdate;
 };
 
 } // namespace fusion

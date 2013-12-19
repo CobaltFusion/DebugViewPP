@@ -143,6 +143,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Types.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="Win32Lib.cpp" />
   </ItemGroup>
@@ -161,6 +162,7 @@
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="Win32Lib.h" />

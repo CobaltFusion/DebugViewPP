@@ -52,6 +52,7 @@ public:
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 	void UpdateUI();
+	void SaitUpdate(const std::wstring&);
 
 private:
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
@@ -94,12 +95,11 @@ private:
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void SaitUpdate(const std::wstring&);
 
 	CLogView& GetView();
 	void SetLogFont();
 
-//	GuiThread m_guiThread;
+	FILE*	m_stdout;
 	UINT_PTR m_timer;
 	double m_timeOffset;
 	LogFile m_logFile;
