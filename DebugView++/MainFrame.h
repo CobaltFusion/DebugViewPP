@@ -46,6 +46,8 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_TOTAL_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
 	void SetLineRange(const SelectionInfo& selection);
@@ -99,7 +101,8 @@ private:
 	CLogView& GetView();
 	void SetLogFont();
 
-	FILE*	m_stdout;
+	FILE* m_stdout;
+	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
 	double m_timeOffset;
 	LogFile m_logFile;

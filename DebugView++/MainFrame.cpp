@@ -128,8 +128,11 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	CreateSimpleToolBar();
 	UIAddToolBar(m_hWndToolBar);
 
-	CreateSimpleStatusBar();
+//	CreateSimpleStatusBar();
+	m_hWndStatusBar = m_statusBar.Create(*this);
 	UIAddStatusBar(m_hWndStatusBar);
+	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_TOTAL_PANE };
+	m_statusBar.SetPanes(paneIds, 3, false);
 
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
@@ -186,19 +189,11 @@ void CMainFrame::UpdateUI()
 
 void CMainFrame::UpdateStatusBar()
 {
-	std::wstring text;
-	if (!m_lineSelectionText.empty())
-	{
-		text = m_lineSelectionText;
-	}
-	if (!m_saitText.empty())
-	{
-		text += std::wstring((wstringbuilder() << L"  Search for: \"" << m_saitText.c_str() << L"\""));
-	}
-
-	if (text.empty())
-		 text = L"Ready";
-	UISetText(ID_DEFAULT_PANE, text.c_str());
+	std::wstring search = wstringbuilder() << L"Searching: \"" << m_saitText << L"\"";
+	UISetText(ID_DEFAULT_PANE,
+		m_saitText.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
+	UISetText(ID_SELECTION_PANE, m_lineSelectionText.c_str());
+	UISetText(ID_TOTAL_PANE, L"Total log size here");
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
