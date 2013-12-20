@@ -121,6 +121,8 @@ private:
 	std::wstring m_logFileName;
 	std::wstring m_lineSelectionText;
 	std::wstring m_saitText;
+	ProcessInfo m_processInfo;
+	size_t m_initialPrivateBytes;
 };
 
 } // namespace fusion
