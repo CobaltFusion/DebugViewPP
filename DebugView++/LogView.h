@@ -86,6 +86,7 @@ public:
 	void Add(int line, const Message& msg);
 	void BeginUpdate();
 	void EndUpdate();
+	void ClearSelection();
 
 	void StopScrolling();
 	void ScrollToIndex(int index, bool center);
@@ -112,6 +113,8 @@ public:
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
 	void Save(const std::wstring& fileName) const;
+	
+	std::vector<int> GetSelectedIndices() const;
 	SelectionInfo GetSelectedRange() const;
 
 private:

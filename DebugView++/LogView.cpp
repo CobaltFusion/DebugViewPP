@@ -509,6 +509,20 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 	return 0;
 }
 
+std::vector<int> CLogView::GetSelectedIndices() const
+{
+	std::vector<int> result;
+	int item = -1;
+	for (;;)
+	{
+		item = GetNextItem(item, LVNI_SELECTED);
+		if (item < 0) 
+			break;
+		result.push_back(item);
+	}
+	return result;
+}
+
 SelectionInfo CLogView::GetSelectedRange() const
 {
 	int first = GetNextItem(-1, LVNI_SELECTED);
@@ -680,6 +694,15 @@ void CLogView::StopScrolling()
 	}
 }
 
+void CLogView::ClearSelection()
+{
+	auto lines = GetSelectedIndices();
+	for (auto i=lines.begin(); i != lines.end(); i++)
+	{
+		SetItemState(*i, static_cast<UINT>(~(LVIS_FOCUSED | LVIS_SELECTED)), LVIS_FOCUSED | LVIS_SELECTED);
+	}
+}
+
 void CLogView::ScrollToIndex(int index, bool center)
 {
 	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
@@ -687,7 +710,7 @@ void CLogView::ScrollToIndex(int index, bool center)
 
 	printf("ScrollToIndex: %d, center: %s\n", index, center ? "yes" : "no" );
 	
-	//todo: deselect any seletected items.
+	ClearSelection();
 	
 	SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
 	EnsureVisible(index, false);
