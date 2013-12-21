@@ -19,7 +19,7 @@ namespace fusion {
 struct ProcessFilter
 {
 	ProcessFilter();
-	ProcessFilter(const std::string& text, DWORD pid, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable);
+	ProcessFilter(const std::string& text, DWORD pid, FilterType::type type, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true);
 
 	std::string text;
 	std::regex re;

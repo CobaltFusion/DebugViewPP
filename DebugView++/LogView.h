@@ -133,6 +133,9 @@ private:
 	void OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnViewNextProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
 	std::string GetSubItemText(int iItem, int iSubItem) const;
 	RECT GetItemRect(int iItem, unsigned code) const;

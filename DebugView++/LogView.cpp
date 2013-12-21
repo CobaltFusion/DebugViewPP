@@ -49,6 +49,9 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnViewHideHighlight)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_NEXT, OnViewFindNext)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_PREVIOUS, OnViewFindPrevious)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_PROCESS, OnViewExclude)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -624,6 +627,25 @@ void CLogView::OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*w
 {
 	if (!m_highlightText.empty())
 		FindPrevious(m_highlightText);
+}
+
+void CLogView::OnViewNextProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+}
+
+void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+}
+
+void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	int item = GetNextItem(-1, LVIS_FOCUSED);
+	if (item < 0)
+		return;
+
+	const auto& name = m_processInfo.GetProcessName(m_logFile[m_logLines[item].line].processId);
+	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, FilterType::Exclude));
+	ApplyFilters();
 }
 
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
