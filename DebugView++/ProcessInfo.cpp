@@ -14,30 +14,23 @@
 
 namespace fusion {
 
-ProcessInfo::ProcessInfo() :
-	m_pid(GetCurrentProcessId()),
-	m_handle(GetCurrentProcess())
+ProcessInfo::ProcessInfo()
 {
-	Refresh();
 }
 
-void ProcessInfo::Refresh()
+size_t ProcessInfo::GetPrivateBytes()
 {
-	GetProcessMemoryInfo(m_handle, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&m_memoryCounters), sizeof(m_memoryCounters));
+	PROCESS_MEMORY_COUNTERS_EX memoryCounters;
+	GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&memoryCounters), sizeof(memoryCounters));
+	return memoryCounters.PrivateUsage;
 }
 
-size_t ProcessInfo::GetPrivateBytes() const
-{
-	return m_memoryCounters.PrivateUsage;
-}
-
-std::wstring ProcessInfo::GetProcessName(DWORD processId)
+std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 {
 	std::array<wchar_t, MAX_PATH> buf;
 	try
 	{
-		Handle hProcess(OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
-		DWORD rc = GetProcessImageFileName(hProcess.get(), buf.data(), buf.size());
+		DWORD rc = GetProcessImageFileName(handle, buf.data(), buf.size());
 		if (rc == 0)
 			return L"";
 
@@ -53,6 +46,24 @@ std::wstring ProcessInfo::GetProcessName(DWORD processId)
 	{
 		return wstringbuilder() << e.what();
 	}
+}
+
+std::wstring ProcessInfo::GetProcessName(DWORD processId)
+{
+	Handle hProcess(OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
+	return GetProcessName(hProcess.get());
+}
+
+ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, HANDLE handle)
+{
+	static DWORD static_uid = 0;
+	static_uid++;
+
+	ProcessProperties props;
+	props.uid = static_uid;
+	props.pid = processId;
+	props.name = GetProcessName(handle);
+	return props;
 }
 
 } // namespace fusion

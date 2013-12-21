@@ -22,6 +22,7 @@ struct Line
 	FILETIME systemTime;
 	DWORD pid;
 	std::string message;
+	HANDLE handle;
 };
 
 typedef std::vector<Line> Lines;
@@ -40,7 +41,7 @@ public:
 
 private:
 	void Run();
-	void Add(DWORD pid, const char* text);
+	void Add(DWORD pid, const char* text, HANDLE handle);
 	void AddLine(const Line& line);
 
 	Lines m_lines;

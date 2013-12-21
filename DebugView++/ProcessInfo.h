@@ -12,18 +12,30 @@
 
 namespace fusion {
 
+struct ProcessProperties
+{
+	DWORD uid;			// unique id
+	DWORD pid;			// system processId
+	std::wstring name;
+};
+
 class ProcessInfo
 {
+	struct InternalProcessProperties
+	{
+		DWORD pid;			// system processId
+		std::wstring name;
+	};
+
 public:
 	ProcessInfo();
-	void Refresh();
-	size_t GetPrivateBytes() const;
+	static size_t GetPrivateBytes();
+	static std::wstring GetProcessName(HANDLE handle);
 	static std::wstring GetProcessName(DWORD processId);
+	ProcessProperties GetProcessProperties(DWORD processId, HANDLE handle);
 
 private:
-	DWORD m_pid;
-	HANDLE m_handle;
-	PROCESS_MEMORY_COUNTERS_EX m_memoryCounters;
+	std::map<int, InternalProcessProperties> m_processProperties;
 };
 
 } // namespace fusion
