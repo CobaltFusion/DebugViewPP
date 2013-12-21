@@ -119,7 +119,7 @@ public:
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
-	void OnContextMenu(HWND /*hWnd*/, CPoint pt);
+	void OnContextMenu(HWND hWnd, CPoint pt);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
@@ -127,15 +127,17 @@ private:
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
 	LRESULT OnIncrementalSearch(NMHDR* pnmh);
 	LRESULT OnOdCacheHint(NMHDR* pnmh);
-	void OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewNextProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnViewClear(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewHideHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFindNext(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFindPrevious(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	std::string GetSubItemText(int iItem, int iSubItem) const;
 	RECT GetItemRect(int iItem, unsigned code) const;

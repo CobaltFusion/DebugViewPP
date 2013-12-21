@@ -34,8 +34,6 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FONT, OnViewFont)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
@@ -94,7 +92,6 @@ CMainFrame::~CMainFrame()
 void CMainFrame::ExceptionHandler()
 {
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
-	UpdateUI();
 }
 
 void CMainFrame::SaitUpdate(const std::wstring& text)
@@ -116,6 +113,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL CMainFrame::OnIdle()
 {
+	UpdateUI();
 	UIUpdateToolBar();
 	UIUpdateStatusBar();
 	return FALSE;
@@ -130,11 +128,10 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	CreateSimpleToolBar();
 	UIAddToolBar(m_hWndToolBar);
 
-//	CreateSimpleStatusBar();
 	m_hWndStatusBar = m_statusBar.Create(*this);
-	UIAddStatusBar(m_hWndStatusBar);
 	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE };
 	m_statusBar.SetPanes(paneIds, 5, false);
+	UIAddStatusBar(m_hWndStatusBar);
 
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
@@ -159,7 +156,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	UpdateUI();
 	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
 	return 0;
 }
@@ -176,7 +172,6 @@ void CMainFrame::OnClose()
 	fclose(stdout);
 	FreeConsole();
 #endif
-
 }
 
 void CMainFrame::UpdateUI()
@@ -425,6 +420,7 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 {
 	m_views.push_back(make_unique<CLogView>(*this, m_logFile, filter));
 	m_views.back()->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+	m_views.back()->SetFont(m_hFont.get());
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
 	GetTabCtrl().InsertItem(newIndex, name.c_str());
@@ -450,7 +446,6 @@ LRESULT CMainFrame::OnClickTab(NMHDR* pnmh)
 
 LRESULT CMainFrame::OnChangeTab(NMHDR* /*pnmh*/)
 {
-	UpdateUI();
 	SetMsgHandled(FALSE);
 	return 0;
 }
@@ -517,22 +512,9 @@ void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	m_logFile.Clear();
 }
 
-void CMainFrame::OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().SetScroll(!GetView().GetScroll());
-	UpdateUI();
-}
-
-void CMainFrame::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	GetView().SetClockTime(!GetView().GetClockTime());
-	UpdateUI();
-}
-
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetAutoNewLine(!GetAutoNewLine());
-	UpdateUI();
 }
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -560,7 +542,6 @@ void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	}
 
 	SetAutoNewLine(GetAutoNewLine());
-	UpdateUI();
 }
 
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -585,7 +566,6 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	}
 
 	SetAutoNewLine(GetAutoNewLine());
-	UpdateUI();
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
