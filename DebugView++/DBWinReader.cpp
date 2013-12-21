@@ -79,7 +79,8 @@ void DBWinReader::Run()
 		if (m_end)
 			break;
 
-		Add(pData->processId, pData->data);
+		HANDLE handle = 0; //::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pData->processId);	// disabled, todo: close handles
+		Add(pData->processId, pData->data, handle);
 	}
 }
 
@@ -89,13 +90,14 @@ void DBWinReader::AddLine(const Line& line)
 	m_lines.push_back(line);
 }
 
-void DBWinReader::Add(DWORD pid, const char* text)
+void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 {
 	Line line;
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = pid;
 	line.message.reserve(4000);
+	line.handle = handle;
 
 	if (m_lineBuffer.message.empty())
 		m_lineBuffer = line;

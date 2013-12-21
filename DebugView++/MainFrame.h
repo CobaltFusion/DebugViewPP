@@ -122,7 +122,6 @@ private:
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
 	std::wstring m_saitText;
-	ProcessInfo m_processInfo;
 	size_t m_initialPrivateBytes;
 };
 

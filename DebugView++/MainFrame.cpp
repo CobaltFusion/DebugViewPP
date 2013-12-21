@@ -62,7 +62,7 @@ CMainFrame::CMainFrame() :
 	m_pLocalReader(make_unique<DBWinReader>(false)),
 	m_localReaderPaused(false),
 	m_globalReaderPaused(false),
-	m_initialPrivateBytes(m_processInfo.GetPrivateBytes())
+	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes())
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
@@ -264,8 +264,7 @@ void CMainFrame::UpdateStatusBar()
 	UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
 	UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());
 
-	m_processInfo.Refresh();
-	size_t memoryUsage = m_processInfo.GetPrivateBytes() - m_initialPrivateBytes;
+	size_t memoryUsage = ProcessInfo::GetPrivateBytes() - m_initialPrivateBytes;
 	if (memoryUsage < 0)
 		memoryUsage = 0;
 	UISetText(ID_MEMORY_PANE, FormatBytes(memoryUsage).c_str());
