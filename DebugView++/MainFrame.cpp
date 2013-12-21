@@ -648,10 +648,20 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
+bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
+{
+	return text.find("DBGVIEWCLEAR") != std::string::npos;
+}
+
 void CMainFrame::AddMessage(const Message& message)
 {
-	int index = m_logFile.Count();
+	if (IsDbgViewClearMessage(message.text))
+	{
+		OnLogClear(0, 0, 0);
+		return;
+	}
 
+	int index = m_logFile.Count();
 	m_logFile.Add(message);
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->Add(index, message);

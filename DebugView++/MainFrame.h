@@ -76,6 +76,7 @@ private:
 
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, std::vector<LogFilter> filters = std::vector<LogFilter>());
+	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 
 	std::wstring GetLogFileName() const;
