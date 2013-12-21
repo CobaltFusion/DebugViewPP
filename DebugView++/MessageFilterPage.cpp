@@ -6,10 +6,6 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "dbgstream.h"
-#pragma warning(push, 3)
-#include "PropertyColorItem.h"
-#pragma warning(pop)
 #include "Resource.h"
 #include "MessageFilterPage.h"
 
@@ -25,10 +21,6 @@ MessageFilter::MessageFilter() :
 
 MessageFilter::MessageFilter(const std::string& text, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable) :
 	text(text), re(text, std::regex_constants::icase), type(type), bgColor(bgColor), fgColor(fgColor), enable(enable)
-{
-}
-
-CMessageFilterPage::CMessageFilterPage()
 {
 }
 
@@ -141,21 +133,6 @@ LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
 	}
 
 	return 0;
-}
-
-std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
-{
-	const int BufSize = 1024;
-	wchar_t buf[BufSize];
-	if (grid.GetItemText(iItem, iSubItem, buf, BufSize))
-		return buf;
-	return L"";
-}
-
-template <typename ItemType>
-ItemType& GetGridItem(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
-{
-	return dynamic_cast<ItemType&>(*grid.GetProperty(iItem, iSubItem));
 }
 
 bool CMessageFilterPage::GetFilterEnable(int iItem) const

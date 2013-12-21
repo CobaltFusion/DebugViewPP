@@ -19,6 +19,9 @@ struct FilterType
 		Token,
 		Stop,
 		Track,
+		ProcessInclude,
+		ProcessExclude,
+		ProcessHighlight,
 	};
 };
 

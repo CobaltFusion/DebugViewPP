@@ -54,13 +54,9 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	CHAIN_MSG_MAP(CDialogResize<CFilterDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CFilterDlg::CFilterDlg(const std::wstring& name) :
-	m_name(name)
-{
-}
-
 CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :
 	m_messagePage(filters.messageFilters),
+	m_processPage(filters.processFilters),
 	m_name(name),
 	m_filter(filters)
 {

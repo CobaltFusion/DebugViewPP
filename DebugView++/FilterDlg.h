@@ -28,8 +28,7 @@ class CFilterDlg :
 	public CDialogResize<CFilterDlg>
 {
 public:
-	explicit CFilterDlg(const std::wstring& name);
-	CFilterDlg(const std::wstring& name, const LogFilter& filter);
+	CFilterDlg(const std::wstring& name, const LogFilter& filter = LogFilter());
 
 	std::wstring GetName() const;
 	LogFilter GetFilters() const;
@@ -37,7 +36,7 @@ public:
 	enum { IDD = IDD_FILTER };
 
 	BEGIN_DLGRESIZE_MAP(CFilterDlg)
-		DLGRESIZE_CONTROL(IDC_TAB, DLSZ_SIZE_X | DLSZ_SIZE_Y | DLSZ_REPAINT)
+		DLGRESIZE_CONTROL(IDC_TAB, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 	END_DLGRESIZE_MAP()

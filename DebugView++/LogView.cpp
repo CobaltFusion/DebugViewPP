@@ -103,13 +103,15 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 		ScreenToClient(&pt);
 	}
 
-	UINT flags = 0;
-	HitTest(pt, &flags);
-	if ((flags & LVHT_ONITEM) == 0)
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = pt;
+	SubItemHitTest(&info);
+	if ((info.flags & LVHT_ONITEM) == 0)
 		return;
 
 	CMenu menuContext;
-	menuContext.LoadMenu(IDR_VIEW_CONTEXTMENU);
+	menuContext.LoadMenu(info.iSubItem == 3 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU);
 	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
 	ClientToScreen(&pt);
 	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);

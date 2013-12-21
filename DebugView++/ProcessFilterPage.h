@@ -7,10 +7,10 @@
 
 #pragma once
 
-#pragma warning(push, 3)
-#include "PropertyGrid.h"
-#pragma warning(pop)
+#include <regex>
 
+#include "Grid.h"
+#include "Types.h"
 #include "Resource.h"
 #include "Utilities.h"
 
@@ -18,6 +18,16 @@ namespace fusion {
 
 struct ProcessFilter
 {
+	ProcessFilter();
+	ProcessFilter(const std::string& text, DWORD pid, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable);
+
+	std::string text;
+	std::regex re;
+	DWORD pid;
+	FilterType::type type;
+	COLORREF bgColor;
+	COLORREF fgColor;
+	bool enable;
 };
 
 class CProcessFilterPage :
@@ -25,6 +35,10 @@ class CProcessFilterPage :
 	public CDialogResize<CProcessFilterPage>
 {
 public:
+	explicit CProcessFilterPage(const std::vector<ProcessFilter>& filters);
+
+	std::vector<ProcessFilter> GetFilters() const;
+
 	enum { IDD = IDD_FILTER_PAGE };
 
 	BEGIN_DLGRESIZE_MAP(CProcessFilterPage)
@@ -38,7 +52,19 @@ public:
 	void ExceptionHandler();
 
 private:
+	void AddFilter(const ProcessFilter& filter);
+	std::wstring GetFilterText(int iItem) const;
+	FilterType::type GetFilterType(int iItem) const;
+	COLORREF GetFilterBgColor(int iItem) const;
+	COLORREF GetFilterFgColor(int iItem) const;
+	bool GetFilterEnable(int iItem) const;
+
+	LRESULT OnAddItem(NMHDR* pnmh);
+	LRESULT OnClickItem(NMHDR* pnmh);
+	LRESULT OnItemChanged(NMHDR* pnmh);
+
 	CPropertyGridCtrl m_grid;
+	std::vector<ProcessFilter> m_filters;
 };
 
 } // namespace fusion

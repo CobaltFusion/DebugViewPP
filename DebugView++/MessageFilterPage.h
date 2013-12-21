@@ -10,10 +10,7 @@
 #include <regex>
 #include <vector>
 
-#pragma warning(push, 3)
-#include "PropertyGrid.h"
-#pragma warning(pop)
-
+#include "Grid.h"
 #include "Resource.h"
 #include "Utilities.h"
 #include "Types.h"
@@ -38,10 +35,8 @@ class CMessageFilterPage :
 	public CDialogResize<CMessageFilterPage>
 {
 public:
-	CMessageFilterPage();
 	explicit CMessageFilterPage(const std::vector<MessageFilter>& filters);
 
-	std::wstring GetName() const;
 	std::vector<MessageFilter> GetFilters() const;
 
 	enum { IDD = IDD_FILTER_PAGE };
@@ -56,14 +51,6 @@ public:
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
 
-	void OnAdd(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnDelete(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
-	LRESULT OnAddItem(NMHDR* pnmh);
-	LRESULT OnClickItem(NMHDR* pnmh);
-	LRESULT OnItemChanged(NMHDR* pnmh);
-
 private:
 	void AddFilter(const MessageFilter& filter);
 	std::wstring GetFilterText(int iItem) const;
@@ -72,8 +59,11 @@ private:
 	COLORREF GetFilterFgColor(int iItem) const;
 	bool GetFilterEnable(int iItem) const;
 
-	CPropertyGridCtrl m_grid;
+	LRESULT OnAddItem(NMHDR* pnmh);
+	LRESULT OnClickItem(NMHDR* pnmh);
+	LRESULT OnItemChanged(NMHDR* pnmh);
 
+	CPropertyGridCtrl m_grid;
 	std::vector<MessageFilter> m_filters;
 };
 
