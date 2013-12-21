@@ -7,7 +7,9 @@
 
 #include "stdafx.h"
 #include "dbgstream.h"
+#pragma warning(push, 3)
 #include "PropertyColorItem.h"
+#pragma warning(pop)
 #include "Resource.h"
 #include "MessageFilterPage.h"
 
