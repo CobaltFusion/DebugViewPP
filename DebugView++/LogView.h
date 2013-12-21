@@ -70,7 +70,7 @@ class CLogView :
 public:
 	typedef boost::signals2::signal<void (const std::wstring&)> SaitUpdateSignal;
 
-	CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<MessageFilter> filters = std::vector<MessageFilter>());
+	CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
@@ -102,8 +102,8 @@ public:
 	bool FindNext(const std::wstring& text);
 	bool FindPrevious(const std::wstring& text);
 
-	std::vector<MessageFilter> GetFilters() const;
-	void SetFilters(std::vector<MessageFilter> filters);
+	LogFilter GetFilters() const;
+	void SetFilters(const LogFilter& filter);
 
 	using CListViewCtrl::GetItemText;
 	std::string GetItemText(int item, int subItem) const;
@@ -149,7 +149,7 @@ private:
 
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
-	std::vector<MessageFilter> m_filters;
+	LogFilter m_filter;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_autoScrollDown;

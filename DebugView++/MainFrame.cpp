@@ -431,12 +431,12 @@ void CMainFrame::AddFilterView()
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	AddFilterView(dlg.GetName(), dlg.GetFilters().messageFilters);
+	AddFilterView(dlg.GetName(), dlg.GetFilters());
 }
 
-void CMainFrame::AddFilterView(const std::wstring& name, std::vector<MessageFilter> filters)
+void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
-	m_views.push_back(make_unique<CLogView>(*this, m_logFile, filters));
+	m_views.push_back(make_unique<CLogView>(*this, m_logFile, filter));
 	m_views.back()->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
@@ -605,16 +605,14 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 {
 	int tabIdx = GetTabCtrl().GetCurSel();
 
-	LogFilter filter;
-	filter.messageFilters = GetView().GetFilters();
-	CFilterDlg dlg(GetTabCtrl().GetItem(tabIdx)->GetTextRef(), filter);
+	CFilterDlg dlg(GetTabCtrl().GetItem(tabIdx)->GetTextRef(), GetView().GetFilters());
 	if (dlg.DoModal() != IDOK)
 		return;
 
 	GetTabCtrl().GetItem(tabIdx)->SetText(dlg.GetName().c_str());
 	GetTabCtrl().UpdateLayout();
 	GetTabCtrl().Invalidate();
-	GetView().SetFilters(dlg.GetFilters().messageFilters);
+	GetView().SetFilters(dlg.GetFilters());
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

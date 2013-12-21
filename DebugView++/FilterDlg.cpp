@@ -102,9 +102,9 @@ BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_messagePage.MoveWindow(&tabRect);
 	m_messagePage.ShowWindow(SW_SHOW);
 
-	m_taskPage.Create(m_tabCtrl, tabRect);
-	m_taskPage.MoveWindow(&tabRect);
-	m_taskPage.ShowWindow(SW_HIDE);
+	m_processPage.Create(m_tabCtrl, tabRect);
+	m_processPage.MoveWindow(&tabRect);
+	m_processPage.ShowWindow(SW_HIDE);
 
 	CenterWindow(GetParent());
 	DlgResize_Init();
@@ -126,7 +126,7 @@ void CFilterDlg::OnSize(UINT /*nType*/, CSize size)
 	rect.bottom = rect.top + size.cy - m_border.cy;
 
 	m_messagePage.MoveWindow(&rect);
-	m_taskPage.MoveWindow(&rect);
+	m_processPage.MoveWindow(&rect);
 	SetMsgHandled(FALSE);
 }
 
@@ -134,7 +134,7 @@ LRESULT CFilterDlg::OnTabSelChange(NMHDR* /*pnmh*/)
 {
 	int tab = m_tabCtrl.GetCurSel();
 	m_messagePage.ShowWindow(tab == 0 ? SW_SHOW : SW_HIDE);
-	m_taskPage.ShowWindow(tab == 1 ? SW_SHOW : SW_HIDE);
+	m_processPage.ShowWindow(tab == 1 ? SW_SHOW : SW_HIDE);
 	return 0;
 }
 

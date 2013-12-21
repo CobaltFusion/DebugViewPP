@@ -53,10 +53,10 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<MessageFilter> filters) :
+CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_mainFrame(mainFrame),
 	m_logFile(logFile),
-	m_filters(std::move(filters)),
+	m_filter(std::move(filter)),
 	m_clockTime(false),
 	m_autoScrollDown(true),
 	m_dirty(false),
@@ -306,7 +306,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 {
 	std::vector<Highlight> highlights;
 
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (it->type != FilterType::Token)
 			continue;
@@ -705,7 +705,7 @@ void CLogView::EndUpdate()
 void CLogView::StopScrolling()
 {
 	m_autoScrollDown = false;
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		switch (it->type)
 		{
@@ -722,7 +722,7 @@ void CLogView::StopScrolling()
 void CLogView::ClearSelection()
 {
 	auto lines = GetSelectedIndices();
-	for (auto i=lines.begin(); i != lines.end(); i++)
+	for (auto i = lines.begin(); i != lines.end(); ++i)
 	{
 		SetItemState(*i, static_cast<UINT>(~(LVIS_FOCUSED | LVIS_SELECTED)), LVIS_FOCUSED | LVIS_SELECTED);
 	}
@@ -882,7 +882,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 		if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i)) != ERROR_SUCCESS)
 			break;
 
-		m_filters.push_back(MessageFilter(
+		m_filter.messageFilters.push_back(MessageFilter(
 			Str(RegGetStringValue(regFilter)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
 			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
@@ -900,15 +900,15 @@ void CLogView::SaveSettings(CRegKey& reg)
 		ss << GetColumnWidth(i) << " ";
 	reg.SetStringValue(L"ColWidths", ss.str().c_str());
 
-	for (size_t i = 0; i < m_filters.size(); ++i)
+	for (size_t i = 0; i < m_filter.messageFilters.size(); ++i)
 	{
 		CRegKey regFilter;
 		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
-		regFilter.SetStringValue(L"", WStr(m_filters[i].text.c_str()));
-		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(m_filters[i].type));
-		regFilter.SetDWORDValue(L"BgColor", m_filters[i].bgColor);
-		regFilter.SetDWORDValue(L"FgColor", m_filters[i].fgColor);
-		regFilter.SetDWORDValue(L"Enable", m_filters[i].enable);
+		regFilter.SetStringValue(L"", WStr(m_filter.messageFilters[i].text.c_str()));
+		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(m_filter.messageFilters[i].type));
+		regFilter.SetDWORDValue(L"BgColor", m_filter.messageFilters[i].bgColor);
+		regFilter.SetDWORDValue(L"FgColor", m_filter.messageFilters[i].fgColor);
+		regFilter.SetDWORDValue(L"Enable", m_filter.messageFilters[i].enable);
 	}
 }
 
@@ -925,15 +925,15 @@ void CLogView::Save(const std::wstring& fileName) const
 		ThrowLastError(fileName);
 }
 
-std::vector<MessageFilter> CLogView::GetFilters() const
+LogFilter CLogView::GetFilters() const
 {
-	return m_filters;
+	return m_filter;
 }
 
-void CLogView::SetFilters(std::vector<MessageFilter> logFilters)
+void CLogView::SetFilters(const LogFilter& filter)
 {
 	m_track = 0;
-	m_filters.swap(logFilters);
+	m_filter = filter;
 	ApplyFilters();
 }
 
@@ -950,7 +950,7 @@ void CLogView::ApplyFilters()
 
 TextColor CLogView::GetTextColor(const std::string& text) const
 {
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
@@ -961,7 +961,7 @@ TextColor CLogView::GetTextColor(const std::string& text) const
 
 bool CLogView::IsIncluded(const std::string& text) const
 {
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
@@ -983,7 +983,7 @@ bool CLogView::IsIncluded(const std::string& text) const
 
 bool CLogView::IsStop(const std::string& text) const
 {
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
@@ -1002,7 +1002,7 @@ bool CLogView::IsStop(const std::string& text) const
 
 bool CLogView::IsTrack(const std::string& text) const
 {
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;

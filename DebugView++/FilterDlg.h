@@ -8,14 +8,9 @@
 #pragma once
 
 #include <vector>
-#include <regex>
-
-#pragma warning(push, 3)
-#include "PropertyGrid.h"
-#pragma warning(pop)
 
 #include "MessageFilterPage.h"
-#include "TaskFilterPage.h"
+#include "ProcessFilterPage.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
 #include "Types.h"
@@ -25,7 +20,7 @@ namespace fusion {
 struct LogFilter
 {
 	std::vector<MessageFilter> messageFilters;
-	std::vector<TaskFilter> taskFilters;
+	std::vector<ProcessFilter> processFilters;
 };
 
 class CFilterDlg :
@@ -61,7 +56,7 @@ public:
 private:
 	CTabCtrl m_tabCtrl;
 	CMessageFilterPage m_messagePage;
-	CTaskFilterPage m_taskPage;
+	CProcessFilterPage m_processPage;
 	SIZE m_border;
 
 	std::wstring m_name;

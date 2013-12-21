@@ -75,7 +75,7 @@ private:
 	void SetAutoNewLine(bool value);
 
 	void AddFilterView();
-	void AddFilterView(const std::wstring& name, std::vector<MessageFilter> filters = std::vector<MessageFilter>());
+	void AddFilterView(const std::wstring& name, const LogFilter& filter = LogFilter());
 	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 

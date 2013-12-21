@@ -6,25 +6,25 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "TaskFilterPage.h"
+#include "ProcessFilterPage.h"
 #include "resource.h"
 
 namespace fusion {
 
-BEGIN_MSG_MAP_TRY(CTaskFilterPage)
+BEGIN_MSG_MAP_TRY(CProcessFilterPage)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
 	REFLECT_NOTIFICATIONS()
-	CHAIN_MSG_MAP(CDialogResize<CTaskFilterPage>)
+	CHAIN_MSG_MAP(CDialogResize<CProcessFilterPage>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-void CTaskFilterPage::ExceptionHandler()
+void CProcessFilterPage::ExceptionHandler()
 {
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 
-BOOL CTaskFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
+BOOL CProcessFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_GRID));
 	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
@@ -40,7 +40,7 @@ BOOL CTaskFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	return TRUE;
 }
 
-void CTaskFilterPage::OnDestroy()
+void CProcessFilterPage::OnDestroy()
 {
 }
 

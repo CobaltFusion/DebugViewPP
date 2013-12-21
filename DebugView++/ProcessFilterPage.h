@@ -16,18 +16,18 @@
 
 namespace fusion {
 
-struct TaskFilter
+struct ProcessFilter
 {
 };
 
-class CTaskFilterPage :
-	public CDialogImpl<CTaskFilterPage>,
-	public CDialogResize<CTaskFilterPage>
+class CProcessFilterPage :
+	public CDialogImpl<CProcessFilterPage>,
+	public CDialogResize<CProcessFilterPage>
 {
 public:
 	enum { IDD = IDD_FILTER_PAGE };
 
-	BEGIN_DLGRESIZE_MAP(CTaskFilterPage)
+	BEGIN_DLGRESIZE_MAP(CProcessFilterPage)
 		DLGRESIZE_CONTROL(IDC_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
