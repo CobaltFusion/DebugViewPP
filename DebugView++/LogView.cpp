@@ -53,7 +53,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<LogFilter> filters) :
+CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<MessageFilter> filters) :
 	m_mainFrame(mainFrame),
 	m_logFile(logFile),
 	m_filters(std::move(filters)),
@@ -487,6 +487,22 @@ std::string GetTimeText(const FILETIME& ft)
 	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
+std::string CLogView::GetSubItemText(int iItem, int iSubItem) const
+{
+	int line = m_logLines[iItem].line;
+	const Message& msg = m_logFile[line];
+
+	switch (iSubItem)
+	{
+	case 0: return std::to_string(line + 1ULL);
+	case 1: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
+	case 2: return std::to_string(msg.processId + 0ULL);
+	case 3: return Str(m_displayInfo.GetProcessName(msg.processId)).str();
+	case 4: return msg.text;
+	}
+	return std::string();
+}
+
 LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 {
 	auto pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pnmh);
@@ -494,18 +510,7 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 	if ((item.mask & LVIF_TEXT) == 0 || item.iItem >= static_cast<int>(m_logLines.size()))
 		return 0;
 
-	int line = m_logLines[item.iItem].line;
-	const Message& msg = m_logFile[line];
-	std::string timeString = m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
-
-	switch (item.iSubItem)
-	{
-	case 0: CopyItemText(std::to_string(line + 1ULL), item.pszText, item.cchTextMax); break;
-	case 1: CopyItemText(timeString, item.pszText, item.cchTextMax); break;
-	case 2: CopyItemText(std::to_string(msg.processId + 0ULL), item.pszText, item.cchTextMax); break;
-	case 3: CopyItemText(m_displayInfo.GetProcessName(msg.processId), item.pszText, item.cchTextMax); break;
-	case 4: CopyItemText(msg.text, item.pszText, item.cchTextMax); break;
-	}
+	CopyItemText(GetSubItemText(item.iItem, item.iSubItem), item.pszText, item.cchTextMax);
 	return 0;
 }
 
@@ -840,7 +845,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 		if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i)) != ERROR_SUCCESS)
 			break;
 
-		m_filters.push_back(LogFilter(
+		m_filters.push_back(MessageFilter(
 			Str(RegGetStringValue(regFilter)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
 			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
@@ -883,12 +888,12 @@ void CLogView::Save(const std::wstring& fileName) const
 		ThrowLastError(fileName);
 }
 
-std::vector<LogFilter> CLogView::GetFilters() const
+std::vector<MessageFilter> CLogView::GetFilters() const
 {
 	return m_filters;
 }
 
-void CLogView::SetFilters(std::vector<LogFilter> logFilters)
+void CLogView::SetFilters(std::vector<MessageFilter> logFilters)
 {
 	m_filters.swap(logFilters);
 	ApplyFilters();

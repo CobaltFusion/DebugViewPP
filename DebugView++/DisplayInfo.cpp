@@ -12,16 +12,12 @@
 
 namespace fusion {
 
-DisplayInfo::DisplayInfo()
-{
-}
-
 void DisplayInfo::Clear()
 {
 	m_processNames.clear();
 }
 
-std::wstring DisplayInfo::GetProcessName(DWORD pid /* , timestamp */)
+std::wstring DisplayInfo::GetProcessName(DWORD pid /* , timestamp */) const
 {
 	// todo: record processid->name relationship by last-seen timestamp and refresh it after 1 minute?
 	auto entry = m_processNames.find(pid);

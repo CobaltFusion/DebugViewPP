@@ -73,7 +73,7 @@ private:
 	void SetAutoNewLine(bool value);
 
 	void AddFilterView();
-	void AddFilterView(const std::wstring& name, std::vector<LogFilter> filters = std::vector<LogFilter>());
+	void AddFilterView(const std::wstring& name, std::vector<MessageFilter> filters = std::vector<MessageFilter>());
 	void AddMessage(const Message& message);
 
 	std::wstring GetLogFileName() const;

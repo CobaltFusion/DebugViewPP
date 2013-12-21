@@ -70,7 +70,7 @@ class CLogView :
 public:
 	typedef boost::signals2::signal<void (const std::wstring&)> SaitUpdateSignal;
 
-	CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<LogFilter> filters = std::vector<LogFilter>());
+	CLogView(CMainFrame& mainFrame, LogFile& logFile, std::vector<MessageFilter> filters = std::vector<MessageFilter>());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
@@ -101,8 +101,8 @@ public:
 	bool FindNext(const std::wstring& text);
 	bool FindPrevious(const std::wstring& text);
 
-	std::vector<LogFilter> GetFilters() const;
-	void SetFilters(std::vector<LogFilter> filters);
+	std::vector<MessageFilter> GetFilters() const;
+	void SetFilters(std::vector<MessageFilter> filters);
 
 	using CListViewCtrl::GetItemText;
 	std::string GetItemText(int item, int subItem) const;
@@ -130,6 +130,7 @@ private:
 	void OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
+	std::string GetSubItemText(int iItem, int iSubItem) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
@@ -145,7 +146,7 @@ private:
 
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
-	std::vector<LogFilter> m_filters;
+	std::vector<MessageFilter> m_filters;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_autoScrollDown;

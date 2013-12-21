@@ -14,13 +14,12 @@ namespace fusion {
 class DisplayInfo 
 {
 public:
-	DisplayInfo();
 	void Clear();
 
-	std::wstring GetProcessName(DWORD pid);
+	std::wstring GetProcessName(DWORD pid) const;
 
 private:
-	std::map<DWORD, std::wstring> m_processNames;
+	mutable std::map<DWORD, std::wstring> m_processNames;
 };
 
 } // namespace fusion

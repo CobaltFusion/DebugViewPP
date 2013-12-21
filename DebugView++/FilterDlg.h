@@ -14,6 +14,8 @@
 #include "PropertyGrid.h"
 #pragma warning(pop)
 
+#include "MessageFilterPage.h"
+#include "TaskFilterPage.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
 #include "Types.h"
@@ -22,15 +24,8 @@ namespace fusion {
 
 struct LogFilter
 {
-	LogFilter();
-	LogFilter(const std::string& text, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable);
-
-	std::string text;
-	std::regex re;
-	FilterType::type type;
-	COLORREF bgColor;
-	COLORREF fgColor;
-	bool enable;
+	std::vector<MessageFilter> messageFilters;
+	std::vector<TaskFilter> taskFilters;
 };
 
 class CFilterDlg :
@@ -39,44 +34,38 @@ class CFilterDlg :
 {
 public:
 	explicit CFilterDlg(const std::wstring& name);
-	CFilterDlg(const std::wstring& name, const std::vector<LogFilter>& filters);
+	CFilterDlg(const std::wstring& name, const LogFilter& filter);
 
 	std::wstring GetName() const;
-	std::vector<LogFilter> GetFilters() const;
+	LogFilter GetFilters() const;
 
 	enum { IDD = IDD_FILTER };
 
 	BEGIN_DLGRESIZE_MAP(CFilterDlg)
-		DLGRESIZE_CONTROL(IDC_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
+		DLGRESIZE_CONTROL(IDC_TAB, DLSZ_SIZE_X | DLSZ_SIZE_Y | DLSZ_REPAINT)
 		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 	END_DLGRESIZE_MAP()
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
+	void OnSize(UINT nType, CSize size);
 
-	void OnAdd(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnDelete(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
-	LRESULT OnAddItem(NMHDR* pnmh);
-	LRESULT OnClickItem(NMHDR* pnmh);
-	LRESULT OnItemChanged(NMHDR* pnmh);
+	LRESULT OnTabSelChange(NMHDR* pnmh);
 
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
 
 private:
-	void AddFilter(const LogFilter& filter);
-	std::wstring GetFilterText(int iItem) const;
-	FilterType::type GetFilterType(int iItem) const;
-	COLORREF GetFilterBgColor(int iItem) const;
-	COLORREF GetFilterFgColor(int iItem) const;
-	bool GetFilterEnable(int iItem) const;
+	CTabCtrl m_tabCtrl;
+	CMessageFilterPage m_messagePage;
+	CTaskFilterPage m_taskPage;
+	SIZE m_border;
 
-	CPropertyGridCtrl m_grid;
 	std::wstring m_name;
-	std::vector<LogFilter> m_filters;
+	LogFilter m_filter;
 };
 
 } // namespace fusion
