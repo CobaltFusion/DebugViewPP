@@ -98,8 +98,7 @@ void CFilterDlg::AddFilter(const LogFilter& filter)
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 
-	//static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , L"Stop", L"Track", nullptr };
-	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token", nullptr };
+	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , L"Stop", L"Track", nullptr };
 	auto pTypeList = PropCreateList(L"", types);
 	pTypeList->SetValue(CComVariant(filter.type));
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));

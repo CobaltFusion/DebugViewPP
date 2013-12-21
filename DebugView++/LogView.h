@@ -155,6 +155,8 @@ private:
 	DisplayInfo m_displayInfo;
 	ProcessInfo m_processInfo;
 	bool m_dirty;
+	std::function<void ()> m_stop;
+	std::function<void ()> m_track;
 	bool m_insidePaint;
 	std::wstring m_highlightText;
 };
