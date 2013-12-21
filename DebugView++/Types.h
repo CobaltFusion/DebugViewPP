@@ -17,8 +17,8 @@ struct FilterType
 		Exclude,
 		Highlight,
 		Token,
-		Track,
 		Stop,
+		Track,
 	};
 };
 

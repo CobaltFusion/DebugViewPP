@@ -68,6 +68,7 @@ try
 
 	HRESULT hRes = _Module.Init(nullptr, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
+	hRes;
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 

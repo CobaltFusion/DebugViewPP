@@ -514,6 +514,20 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 	return 0;
 }
 
+std::vector<int> CLogView::GetSelectedIndices() const
+{
+	std::vector<int> result;
+	int item = -1;
+	for (;;)
+	{
+		item = GetNextItem(item, LVNI_SELECTED);
+		if (item < 0) 
+			break;
+		result.push_back(item);
+	}
+	return result;
+}
+
 SelectionInfo CLogView::GetSelectedRange() const
 {
 	int first = GetNextItem(-1, LVNI_SELECTED);
@@ -589,6 +603,7 @@ void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 {
 	SetHighlightText();
 	m_mainFrame.SaitUpdate(L"");
+	StopScrolling();
 }
 
 void CLogView::OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -642,14 +657,22 @@ void CLogView::Add(int line, const Message& msg)
 	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
 	m_logLines.back().highlights = GetHighlights(msg.text);
 
-	if (IsStop(msg.text))
+	if (m_autoScrollDown && IsStop(msg.text))
 	{
+		m_stop = [this, line] () 
+		{ 
+			StopScrolling();
+			ScrollToIndex(line, true);
+		};
 		return;
 	}
 
 	if (IsTrack(msg.text))
 	{
-		ScrollToIndex(line, true);
+		m_track = [this, line] () 
+		{ 
+			ScrollToIndex(line, true);
+		};
 	}
 }
 
@@ -667,6 +690,16 @@ void CLogView::EndUpdate()
 
 		m_dirty = false;
 	}
+
+	if (m_stop) 
+	{
+		m_stop();
+		m_stop = 0;
+	}
+	if (m_track) 
+	{
+		m_track();
+	}
 }
 
 void CLogView::StopScrolling()
@@ -683,6 +716,16 @@ void CLogView::StopScrolling()
 			break;
 		}
 	}
+	m_track = 0;
+}
+
+void CLogView::ClearSelection()
+{
+	auto lines = GetSelectedIndices();
+	for (auto i=lines.begin(); i != lines.end(); i++)
+	{
+		SetItemState(*i, static_cast<UINT>(~(LVIS_FOCUSED | LVIS_SELECTED)), LVIS_FOCUSED | LVIS_SELECTED);
+	}
 }
 
 void CLogView::ScrollToIndex(int index, bool center)
@@ -690,12 +733,9 @@ void CLogView::ScrollToIndex(int index, bool center)
 	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
 		return;
 
-	printf("ScrollToIndex: %d, center: %s\n", index, center ? "yes" : "no" );
-	
-	//todo: deselect any seletected items.
-	
+	ClearSelection();
+	SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
 	EnsureVisible(index, false);
-	SetItemState(index, LVIS_FOCUSED, LVIS_FOCUSED);
 
 	if (center)
 	{
@@ -703,7 +743,6 @@ void CLogView::ScrollToIndex(int index, bool center)
 		int maxBottomIndex = std::min<int>(m_logLines.size() - 1, index + maxExtraItems);
 		EnsureVisible(maxBottomIndex, false);
 	}
-	//todo: make sure the listview control has focus
 }
 
 void CLogView::ScrollDown()
@@ -800,9 +839,7 @@ bool CLogView::Find(const std::string& text, int direction)
 
 		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
-			EnsureVisible(line, true);
-			SetItemState(line, LVIS_FOCUSED, LVIS_FOCUSED);
-			SelectItem(line);
+			ScrollToIndex(line, TRUE);
 			SetHighlightText(WStr(text));
 			return true;
 		}
@@ -895,6 +932,7 @@ std::vector<MessageFilter> CLogView::GetFilters() const
 
 void CLogView::SetFilters(std::vector<MessageFilter> logFilters)
 {
+	m_track = 0;
 	m_filters.swap(logFilters);
 	ApplyFilters();
 }

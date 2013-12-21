@@ -86,6 +86,7 @@ public:
 	void Add(int line, const Message& msg);
 	void BeginUpdate();
 	void EndUpdate();
+	void ClearSelection();
 
 	void StopScrolling();
 	void ScrollToIndex(int index, bool center);
@@ -112,6 +113,8 @@ public:
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
 	void Save(const std::wstring& fileName) const;
+	
+	std::vector<int> GetSelectedIndices() const;
 	SelectionInfo GetSelectedRange() const;
 
 private:
@@ -153,6 +156,8 @@ private:
 	DisplayInfo m_displayInfo;
 	ProcessInfo m_processInfo;
 	bool m_dirty;
+	std::function<void ()> m_stop;
+	std::function<void ()> m_track;
 	bool m_insidePaint;
 	std::wstring m_highlightText;
 };

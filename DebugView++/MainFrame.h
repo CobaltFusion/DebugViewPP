@@ -46,6 +46,8 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_TOTAL_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
 	void SetLineRange(const SelectionInfo& selection);
@@ -74,6 +76,7 @@ private:
 
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, std::vector<MessageFilter> filters = std::vector<MessageFilter>());
+	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 
 	std::wstring GetLogFileName() const;
@@ -99,7 +102,8 @@ private:
 	CLogView& GetView();
 	void SetLogFont();
 
-	FILE*	m_stdout;
+	FILE* m_stdout;
+	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
 	double m_timeOffset;
 	LogFile m_logFile;
@@ -118,6 +122,8 @@ private:
 	std::wstring m_logFileName;
 	std::wstring m_lineSelectionText;
 	std::wstring m_saitText;
+	ProcessInfo m_processInfo;
+	size_t m_initialPrivateBytes;
 };
 
 } // namespace fusion

@@ -15,6 +15,7 @@
 #include "LogView.h"
 #include "MainFrame.h"
 #include "Win32Lib.h"
+#include "ProcessInfo.h"
 
 #pragma comment(lib, "psapi.lib")
 
@@ -62,7 +63,8 @@ CMainFrame::CMainFrame() :
 	m_autoNewLine(false),
 	m_pLocalReader(make_unique<DBWinReader>(false)),
 	m_localReaderPaused(false),
-	m_globalReaderPaused(false)
+	m_globalReaderPaused(false),
+	m_initialPrivateBytes(m_processInfo.GetPrivateBytes())
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
@@ -128,8 +130,11 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	CreateSimpleToolBar();
 	UIAddToolBar(m_hWndToolBar);
 
-	CreateSimpleStatusBar();
+//	CreateSimpleStatusBar();
+	m_hWndStatusBar = m_statusBar.Create(*this);
 	UIAddStatusBar(m_hWndStatusBar);
+	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_TOTAL_PANE };
+	m_statusBar.SetPanes(paneIds, 3, false);
 
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
@@ -184,21 +189,38 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_LOG_GLOBAL, m_pGlobalReader);
 }
 
+std::wstring FormatBytes(size_t bytes)
+{
+	if (bytes < 1024)
+	{
+		return wstringbuilder() << bytes << " bytes"; 
+	}
+	bytes /= 1024;
+	if (bytes < 1024)
+	{
+		return wstringbuilder() << bytes << " kB"; 
+	}
+	bytes /= 1024;
+	if (bytes < 1024)
+	{
+		return wstringbuilder() << bytes << " MB"; 
+	}
+	bytes /= 1024;
+	return wstringbuilder() << bytes << " GB"; 
+}
+
 void CMainFrame::UpdateStatusBar()
 {
-	std::wstring text;
-	if (!m_lineSelectionText.empty())
-	{
-		text = m_lineSelectionText;
-	}
-	if (!m_saitText.empty())
-	{
-		text += std::wstring((wstringbuilder() << L"  Search for: \"" << m_saitText.c_str() << L"\""));
-	}
+	std::wstring search = wstringbuilder() << L"Searching: \"" << m_saitText << L"\"";
+	UISetText(ID_DEFAULT_PANE,
+		m_saitText.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
+	UISetText(ID_SELECTION_PANE, m_lineSelectionText.c_str());
 
-	if (text.empty())
-		 text = L"Ready";
-	UISetText(ID_DEFAULT_PANE, text.c_str());
+	m_processInfo.Refresh();
+	size_t memoryUsage = m_processInfo.GetPrivateBytes() - m_initialPrivateBytes;
+	if (memoryUsage < 0)
+		memoryUsage = 0;
+	UISetText(ID_TOTAL_PANE, FormatBytes(memoryUsage).c_str());
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
@@ -557,7 +579,17 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	}
 	else
 	{
-		m_pGlobalReader = make_unique<DBWinReader>(true);
+		try {
+			m_pGlobalReader = make_unique<DBWinReader>(true);
+		}
+		catch (std::exception)
+		{
+			MessageBox(L"Unable to capture Global Win32 Messages.\n\nMake sure you have appropriate permissions.\n\n" \
+                        L"You may need to start this application by right-clicking it and selecting\n" \
+						L"'Run As Administator' even if you have administrator rights.",
+						LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+			return;
+		}
 	}
 
 	SetAutoNewLine(GetAutoNewLine());
@@ -618,10 +650,20 @@ CLogView& CMainFrame::GetView()
 	return i >= 0 && i < static_cast<int>(m_views.size()) ? *m_views[i] : *m_views[0];
 }
 
+bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
+{
+	return text.find("DBGVIEWCLEAR") != std::string::npos;
+}
+
 void CMainFrame::AddMessage(const Message& message)
 {
-	int index = m_logFile.Count();
+	if (IsDbgViewClearMessage(message.text))
+	{
+		OnLogClear(0, 0, 0);
+		return;
+	}
 
+	int index = m_logFile.Count();
 	m_logFile.Add(message);
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->Add(index, message);
