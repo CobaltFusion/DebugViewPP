@@ -598,6 +598,7 @@ void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 {
 	SetHighlightText();
 	m_mainFrame.SaitUpdate(L"");
+	StopScrolling();
 }
 
 void CLogView::OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -926,6 +927,7 @@ std::vector<LogFilter> CLogView::GetFilters() const
 
 void CLogView::SetFilters(std::vector<LogFilter> logFilters)
 {
+	m_track = 0;
 	m_filters.swap(logFilters);
 	ApplyFilters();
 }
