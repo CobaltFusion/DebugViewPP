@@ -218,10 +218,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(floor_to<int>(seconds), L"second");
 
-	static const wchar_t* units[] =
-	{
-		L"s", L"ms", L"µs", L"ns", nullptr
-	};
+	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -229,16 +226,12 @@ std::wstring FormatDuration(double seconds)
 		++unit;
 	}
 
-	return wstringbuilder() << std::setprecision(6) << seconds << L" " << *unit;
+	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 
 std::wstring FormatBytes(size_t size)
 {
-	static const wchar_t* units[] =
-	{
-		L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr
-	};
-
+	static const wchar_t* units[] = { L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr };
 	const wchar_t** unit = units;
 	const int kb = 1024;
 	while (size / kb > 0 && unit[1] != nullptr)

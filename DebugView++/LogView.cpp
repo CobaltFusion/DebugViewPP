@@ -11,7 +11,6 @@
 #include <regex>
 #include <boost/algorithm/string.hpp>
 #include "Win32Lib.h"
-#include "dbgstream.h"
 #include "Utilities.h"
 #include "Resource.h"
 #include "MainFrame.h"
@@ -43,6 +42,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
@@ -67,12 +67,6 @@ CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 void CLogView::ExceptionHandler()
 {
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
-}
-
-BOOL CLogView::PreTranslateMessage(MSG* pMsg)
-{
-	pMsg;
-	return FALSE;
 }
 
 LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
@@ -591,6 +585,13 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	return 0;
 }
 
+LRESULT CLogView::OnOdCacheHint(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
+	nmhdr;
+	return 0;
+}
+
 void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	Clear();
@@ -657,7 +658,7 @@ void CLogView::Clear()
 
 void CLogView::Add(int line, const Message& msg)
 {
-	if (!IsIncluded(msg.text))
+	if (!IsIncluded(msg))
 		return;
 
 	m_dirty = true;
@@ -896,6 +897,22 @@ void CLogView::LoadSettings(CRegKey& reg)
 			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
 			RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
 	}
+
+	for (size_t i = 0; ; ++i)
+	{
+		CRegKey regFilter;
+		if (regFilter.Open(reg, WStr(wstringbuilder() << L"ProcessFilters\\Filter" << i)) != ERROR_SUCCESS)
+			break;
+
+		m_filter.processFilters.push_back(ProcessFilter(
+			Str(RegGetStringValue(regFilter)),
+			0,
+			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
+			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
+			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
+			RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
+	}
+
 	ApplyFilters();
 }
 
@@ -907,15 +924,28 @@ void CLogView::SaveSettings(CRegKey& reg)
 		ss << GetColumnWidth(i) << " ";
 	reg.SetStringValue(L"ColWidths", ss.str().c_str());
 
-	for (size_t i = 0; i < m_filter.messageFilters.size(); ++i)
+	int i = 0;
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it, ++i)
 	{
 		CRegKey regFilter;
 		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
-		regFilter.SetStringValue(L"", WStr(m_filter.messageFilters[i].text.c_str()));
-		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(m_filter.messageFilters[i].type));
-		regFilter.SetDWORDValue(L"BgColor", m_filter.messageFilters[i].bgColor);
-		regFilter.SetDWORDValue(L"FgColor", m_filter.messageFilters[i].fgColor);
-		regFilter.SetDWORDValue(L"Enable", m_filter.messageFilters[i].enable);
+		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
+		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->type));
+		regFilter.SetDWORDValue(L"BgColor", it->bgColor);
+		regFilter.SetDWORDValue(L"FgColor", it->fgColor);
+		regFilter.SetDWORDValue(L"Enable", it->enable);
+	}
+
+	i = 0;
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it, ++i)
+	{
+		CRegKey regFilter;
+		regFilter.Create(reg, WStr(wstringbuilder() << L"ProcessFilters\\Filter" << i));
+		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
+		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->type));
+		regFilter.SetDWORDValue(L"BgColor", it->bgColor);
+		regFilter.SetDWORDValue(L"FgColor", it->fgColor);
+		regFilter.SetDWORDValue(L"Enable", it->enable);
 	}
 }
 
@@ -946,6 +976,7 @@ void CLogView::SetFilters(const LogFilter& filter)
 
 void CLogView::ApplyFilters()
 {
+	SetItemCount(0);
 	m_logLines.clear();
 
 	int count = m_logFile.Count();
@@ -963,10 +994,40 @@ TextColor CLogView::GetTextColor(const std::string& text) const
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
+			return TextColor(it->bgColor, it->fgColor);
+	}
+
 	return TextColor(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT));
 }
 
-bool CLogView::IsIncluded(const std::string& text) const
+bool CLogView::IsProcessIncluded(const std::wstring& process) const
+{
+	std::string text = Str(process).str();
+
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+
+		switch (it->type)
+		{
+		case FilterType::Include:
+		case FilterType::Exclude:
+			if (std::regex_search(text, it->re))
+				return it->type == FilterType::Include;
+			break;
+
+		default:
+			break;
+		}
+	}
+	return true;
+}
+
+bool CLogView::IsMessageIncluded(const std::string& text) const
 {
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
@@ -986,6 +1047,11 @@ bool CLogView::IsIncluded(const std::string& text) const
 		}
 	}
 	return true;
+}
+
+bool CLogView::IsIncluded(const Message& msg) const
+{
+	return IsProcessIncluded(m_processInfo.GetProcessName(msg.processId)) && IsMessageIncluded(msg.text);
 }
 
 bool CLogView::IsStop(const std::string& text) const

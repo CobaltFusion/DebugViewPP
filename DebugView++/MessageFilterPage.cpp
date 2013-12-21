@@ -46,19 +46,25 @@ void CMessageFilterPage::ExceptionHandler()
 
 void CMessageFilterPage::AddFilter(const MessageFilter& filter)
 {
-	int item = m_grid.GetItemCount();
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
+	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
+	pFilterProp->SetBkColor(filter.bgColor);
+	pFilterProp->SetTextColor(filter.fgColor);
 
 	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , L"Stop", L"Track", nullptr };
 	auto pTypeList = PropCreateList(L"", types);
 	pTypeList->SetValue(CComVariant(filter.type));
-	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
-	pFilterProp->SetBkColor(filter.bgColor);
-	pFilterProp->SetTextColor(filter.fgColor);
+
+	auto pBkColor = PropCreateColorItem(L"Background Color", filter.bgColor);
+	pBkColor->SetEnabled(filter.type != FilterType::Exclude);
+	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
+	pTxColor->SetEnabled(filter.type != FilterType::Exclude);
+
+	int item = m_grid.GetItemCount();
+	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 1, pFilterProp);
 	m_grid.SetSubItem(item, 2, pTypeList);
-	m_grid.SetSubItem(item, 3, PropCreateColorItem(L"Background Color", filter.bgColor));
-	m_grid.SetSubItem(item, 4, PropCreateColorItem(L"Text Color", filter.fgColor));
+	m_grid.SetSubItem(item, 3, pBkColor);
+	m_grid.SetSubItem(item, 4, pTxColor);
 	m_grid.SetSubItem(item, 5, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
 }
@@ -116,19 +122,27 @@ LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
 	if (!m_grid.FindProperty(pItemChanged->prop, iItem, iSubItem))
 		return FALSE;
 	
+	if (iSubItem == 2)
+	{
+		auto& bkColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, 3));
+		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, 4));
+		bkColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
+		txColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
+	}
+
 	if (iSubItem == 3)
 	{
-		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
-		CPropertyEditItem& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
-		edit.SetBkColor(item.GetColor());
+		auto& color = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
+		edit.SetBkColor(color.GetColor());
 		return TRUE;
 	}
 
 	if (iSubItem == 4)
 	{
-		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
-		CPropertyEditItem& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
-		edit.SetTextColor(item.GetColor());
+		auto& color = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
+		edit.SetTextColor(color.GetColor());
 		return TRUE;
 	}
 

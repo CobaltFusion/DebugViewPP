@@ -143,6 +143,7 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
 	m_filter.messageFilters = m_messagePage.GetFilters();
+	m_filter.processFilters = m_processPage.GetFilters();
 	EndDialog(nID);
 }
 

@@ -76,7 +76,6 @@ public:
 
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
-	BOOL PreTranslateMessage(MSG* pMsg);
 
 	void DoPaint(CDCHandle dc, const RECT& rcClip);
 
@@ -127,6 +126,7 @@ private:
 	LRESULT OnCustomDraw(NMHDR* pnmh);
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
 	LRESULT OnIncrementalSearch(NMHDR* pnmh);
+	LRESULT OnOdCacheHint(NMHDR* pnmh);
 	void OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -143,7 +143,9 @@ private:
 
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
-	bool IsIncluded(const std::string& text) const;
+	bool IsProcessIncluded(const std::wstring& msg) const;
+	bool IsMessageIncluded(const std::string& msg) const;
+	bool IsIncluded(const Message& msg) const;
 	bool IsStop(const std::string& text) const;
 	bool IsTrack(const std::string& text) const;
 	TextColor GetTextColor(const std::string& text) const;

@@ -55,6 +55,9 @@ public:
 
 	BOOL Activate(UINT action, LPARAM /*lParam*/)
 	{
+		if (!IsEnabled())
+			return FALSE;
+
 		switch (action)
 		{
 		case PACT_SPACE:
@@ -75,6 +78,9 @@ public:
 	{
 		CDCHandle dc(di.hDC);
 		RECT rect = di.rcItem;
+		if (!IsEnabled())
+			return dc.FillSolidRect(&rect, di.clrDisabledBack);
+
 		dc.FillSolidRect(&rect, di.clrBorder);
 		::InflateRect(&rect, -1, -1);
 		dc.FillSolidRect(&rect, RGB(0, 0, 0));

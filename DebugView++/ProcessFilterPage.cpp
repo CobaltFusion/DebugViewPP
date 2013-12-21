@@ -77,6 +77,9 @@ BOOL CProcessFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*
 	m_grid.InsertColumn(5, L"", LVCFMT_LEFT, 16, 0);
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT | PGS_EX_ADDITEMATEND);
 
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+		AddFilter(*it);
+
 	DlgResize_Init(false);
 
 	return TRUE;
