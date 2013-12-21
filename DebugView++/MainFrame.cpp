@@ -189,24 +189,29 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_LOG_GLOBAL, m_pGlobalReader);
 }
 
-std::wstring FormatBytes(size_t bytes)
+std::wstring FormatBytes(size_t size)
 {
-	if (bytes < 1024)
+	static const wchar_t* units[] =
 	{
-		return wstringbuilder() << bytes << " bytes"; 
-	}
-	bytes /= 1024;
-	if (bytes < 1024)
+		L"bytes",
+		L"kB",
+		L"MB",
+		L"GB",
+		L"TB",
+		L"PB",
+		L"EB",
+		nullptr
+	};
+
+	const wchar_t** unit = units;
+	const int kb = 1024;
+	while (size / kb > 0 && unit[1] != nullptr)
 	{
-		return wstringbuilder() << bytes << " kB"; 
+		size = size / kb;
+		++unit;
 	}
-	bytes /= 1024;
-	if (bytes < 1024)
-	{
-		return wstringbuilder() << bytes << " MB"; 
-	}
-	bytes /= 1024;
-	return wstringbuilder() << bytes << " GB"; 
+
+	return wstringbuilder() << size << L" " << *unit; 
 }
 
 void CMainFrame::UpdateStatusBar()
