@@ -47,10 +47,11 @@ public:
 	    UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
-		UPDATE_ELEMENT(ID_TOTAL_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_VIEW_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_LOGFILE_PANE, UPDUI_STATUSBAR)
+		UPDATE_ELEMENT(ID_MEMORY_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
-	void SetLineRange(const SelectionInfo& selection);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 	void UpdateUI();
@@ -67,6 +68,8 @@ private:
 	void OnTimer(UINT_PTR nIDEvent);
 	void ProcessLines(const Lines& lines);
 
+	std::wstring GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const;
+	SelectionInfo GetLogFileRange() const;
 	void UpdateStatusBar();
 	bool LoadSettings();
 	void SaveSettings();
@@ -120,7 +123,6 @@ private:
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
-	std::wstring m_lineSelectionText;
 	std::wstring m_saitText;
 	ProcessInfo m_processInfo;
 	size_t m_initialPrivateBytes;

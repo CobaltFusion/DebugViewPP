@@ -133,8 +133,8 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 //	CreateSimpleStatusBar();
 	m_hWndStatusBar = m_statusBar.Create(*this);
 	UIAddStatusBar(m_hWndStatusBar);
-	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_TOTAL_PANE };
-	m_statusBar.SetPanes(paneIds, 3, false);
+	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE };
+	m_statusBar.SetPanes(paneIds, 5, false);
 
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
@@ -189,18 +189,54 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_LOG_GLOBAL, m_pGlobalReader);
 }
 
+std::wstring FormatUnits(int n, const std::wstring& unit)
+{
+	if (n == 0)
+		return L"";
+	if (n == 1)
+		return wstringbuilder() << n << " " << unit;
+	return wstringbuilder() << n << " " << unit << "s";
+}
+
+std::wstring FormatDuration(double seconds)
+{
+	int minutes = floor_to<int>(seconds / 60);
+	seconds -= 60 * minutes;
+
+	int hours = minutes / 60;
+	minutes -= 60 * hours;
+
+	int days = hours / 24;
+	hours -= 24 * days;
+
+	if (days > 0)
+		return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
+
+	if (hours > 0)
+		return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
+
+	if (minutes > 0)
+		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(floor_to<int>(seconds), L"second");
+
+	static const wchar_t* units[] =
+	{
+		L"s", L"ms", L"µs", L"ns", nullptr
+	};
+	const wchar_t** unit = units;
+	while (*unit != nullptr && seconds > 0 && seconds < 1)
+	{
+		seconds *= 1e3;
+		++unit;
+	}
+
+	return wstringbuilder() << std::setprecision(6) << seconds << L" " << *unit;
+}
+
 std::wstring FormatBytes(size_t size)
 {
 	static const wchar_t* units[] =
 	{
-		L"bytes",
-		L"kB",
-		L"MB",
-		L"GB",
-		L"TB",
-		L"PB",
-		L"EB",
-		nullptr
+		L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr
 	};
 
 	const wchar_t** unit = units;
@@ -214,18 +250,37 @@ std::wstring FormatBytes(size_t size)
 	return wstringbuilder() << size << L" " << *unit; 
 }
 
+std::wstring CMainFrame::GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const
+{
+	if (selection.count < 2)
+		return std::wstring();
+
+	double dt = m_logFile[selection.endLine].time - m_logFile[selection.beginLine].time;
+	return wstringbuilder() << label << L": " << FormatDuration(dt) << L" (" << selection.count << " lines)";
+}
+
+SelectionInfo CMainFrame::GetLogFileRange() const
+{
+	if (m_logFile.Empty())
+		return SelectionInfo();
+
+	return SelectionInfo(0, m_logFile.Count() - 1, m_logFile.Count());
+}
+
 void CMainFrame::UpdateStatusBar()
 {
 	std::wstring search = wstringbuilder() << L"Searching: \"" << m_saitText << L"\"";
 	UISetText(ID_DEFAULT_PANE,
 		m_saitText.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
-	UISetText(ID_SELECTION_PANE, m_lineSelectionText.c_str());
+	UISetText(ID_SELECTION_PANE, GetSelectionInfoText(L"Selected", GetView().GetSelectedRange()).c_str());
+	UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
+	UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());
 
 	m_processInfo.Refresh();
 	size_t memoryUsage = m_processInfo.GetPrivateBytes() - m_initialPrivateBytes;
 	if (memoryUsage < 0)
 		memoryUsage = 0;
-	UISetText(ID_TOTAL_PANE, FormatBytes(memoryUsage).c_str());
+	UISetText(ID_MEMORY_PANE, FormatBytes(memoryUsage).c_str());
 }
 
 void CMainFrame::ProcessLines(const Lines& lines)
@@ -246,6 +301,8 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 	for (auto it = m_views.begin(); it != m_views.end(); ++it)
 		(*it)->EndUpdate();
+
+	UpdateStatusBar();
 }
 
 void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
@@ -349,69 +406,6 @@ void CMainFrame::SetAutoNewLine(bool value)
 	m_autoNewLine = value;
 }
 
-std::wstring FormatUnits(int n, const std::wstring& unit)
-{
-	if (n == 0)
-		return L"";
-	if (n == 1)
-		return wstringbuilder() << n << " " << unit;
-	return wstringbuilder() << n << " " << unit << "s";
-}
-
-std::wstring FormatDuration(double seconds)
-{
-	int minutes = floor_to<int>(seconds / 60);
-	seconds -= 60 * minutes;
-
-	int hours = minutes / 60;
-	minutes -= 60 * hours;
-
-	int days = hours / 24;
-	hours -= 24 * days;
-
-	if (days > 0)
-		return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
-
-	if (hours > 0)
-		return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
-
-	if (minutes > 0)
-		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(floor_to<int>(seconds), L"second");
-
-	std::wstring unit = L"s";
-	if (seconds < 1)
-	{
-		seconds *= 1e3;
-		unit = L"ms";
-	}
-	if (seconds < 1)
-	{
-		seconds *= 1e3;
-		unit = L"µs";
-	}
-	if (seconds < 1)
-	{
-		seconds *= 1e3;
-		unit = L"ns";
-	}
-
-	return wstringbuilder() << std::setprecision(6) << seconds << L" " << unit;
-}
-
-void CMainFrame::SetLineRange(const SelectionInfo& selection)
-{
-	if (selection.count > 1)
-	{
-		double dt = m_logFile[selection.endLine].time - m_logFile[selection.beginLine].time;
-		m_lineSelectionText = wstringbuilder() << FormatDuration(dt) << L" (" << selection.count << " messages)";
-	}
-	else
-	{
-		m_lineSelectionText.clear();
-	}
-	UpdateStatusBar();
-}
-
 void CMainFrame::FindNext(const std::wstring& text)
 {
 	if (!GetView().FindNext(text))
@@ -463,7 +457,7 @@ LRESULT CMainFrame::OnClickTab(NMHDR* pnmh)
 
 LRESULT CMainFrame::OnChangeTab(NMHDR* /*pnmh*/)
 {
-	SetLineRange(GetView().GetSelectedRange());
+	UpdateUI();
 	SetMsgHandled(FALSE);
 	return 0;
 }

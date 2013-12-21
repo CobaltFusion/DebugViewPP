@@ -115,6 +115,7 @@ public:
 	void Save(const std::wstring& fileName) const;
 	
 	std::vector<int> GetSelectedIndices() const;
+	SelectionInfo GetViewRange() const;
 	SelectionInfo GetSelectedRange() const;
 
 private:

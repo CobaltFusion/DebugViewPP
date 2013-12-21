@@ -178,9 +178,6 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLISTVIEW*>(pnmh);
 
-	if ((nmhdr.uOldState & LVIS_SELECTED) || (nmhdr.uNewState & LVIS_SELECTED))
-		m_mainFrame.SetLineRange(GetSelectedRange());
-
 	if ((nmhdr.uNewState & LVIS_FOCUSED) == 0 ||
 		nmhdr.iItem < 0  ||
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
@@ -548,12 +545,20 @@ SelectionInfo CLogView::GetSelectedRange() const
 	return SelectionInfo(m_logLines[first].line, m_logLines[last].line, last - first + 1);
 }
 
+SelectionInfo CLogView::GetViewRange() const
+{
+	if (m_logLines.empty())
+		return SelectionInfo();
+
+	return SelectionInfo(m_logLines.front().line, m_logLines.back().line, m_logLines.size());
+}
+
 LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
 	nmhdr;
 
-	m_mainFrame.SetLineRange(GetSelectedRange());
+	m_mainFrame.UpdateUI();
 
 	return 0;
 }
