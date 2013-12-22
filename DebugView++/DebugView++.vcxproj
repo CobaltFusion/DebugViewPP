@@ -177,6 +177,7 @@
     <ResourceCompile Include="DebugView++.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\Bookmark.ico" />
     <None Include="res\DebugView++.ico" />
     <None Include="res\toolbar.bmp" />
   </ItemGroup>

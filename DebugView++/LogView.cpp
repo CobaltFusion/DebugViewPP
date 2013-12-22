@@ -29,13 +29,14 @@ SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
 }
 
 LogLine::LogLine(int line, TextColor color) :
-	line(line), color(color)
+	bookmark(false), line(line), color(color)
 {
 }
 
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
-	MSG_WM_CONTEXTMENU(OnContextMenu);
+	MSG_WM_CONTEXTMENU(OnContextMenu)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
@@ -54,6 +55,9 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_PROCESS, OnViewExclude)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -65,7 +69,8 @@ CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_clockTime(false),
 	m_autoScrollDown(true),
 	m_dirty(false),
-	m_insidePaint(false)
+	m_insidePaint(false),
+	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR)))
 {
 }
 
@@ -80,11 +85,12 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
 
-	InsertColumn(0, L"Line", LVCFMT_RIGHT, 60, 0);
-	InsertColumn(1, L"Time", LVCFMT_RIGHT, 90, 0);
-	InsertColumn(2, L"PID", LVCFMT_RIGHT, 60, 0);
-	InsertColumn(3, L"Process", LVCFMT_LEFT, 140, 0);
-	InsertColumn(4, L"Log", LVCFMT_LEFT, 600, 0);
+	InsertColumn(0, L"", LVCFMT_RIGHT, 20, 0);
+	InsertColumn(1, L"Line", LVCFMT_RIGHT, 60, 0);
+	InsertColumn(2, L"Time", LVCFMT_RIGHT, 90, 0);
+	InsertColumn(3, L"PID", LVCFMT_RIGHT, 60, 0);
+	InsertColumn(4, L"Process", LVCFMT_LEFT, 140, 0);
+	InsertColumn(5, L"Log", LVCFMT_LEFT, 600, 0);
 
 	ApplyFilters();
 	return 0;
@@ -110,7 +116,7 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 		return;
 
 	CMenu menuContext;
-	menuContext.LoadMenu(info.iSubItem == 3 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU);
+	menuContext.LoadMenu(info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU);
 	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
 	ClientToScreen(&pt);
 	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);
@@ -139,6 +145,19 @@ bool iswordchar(int c)
 	return isalnum(c) || c == '_';
 }
 
+LRESULT CLogView::OnClick(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
+
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = nmhdr.ptAction;
+	SubItemHitTest(&info);
+	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == 0)
+		ToggleBookmark(info.iItem);
+	return 0;
+}
+
 LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
@@ -148,7 +167,7 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 
 	auto msg = m_logFile[m_logLines[nmhdr.iItem].line];
 
-	auto rect = GetSubItemRect(0, 4, LVIR_BOUNDS);
+	auto rect = GetSubItemRect(0, 5, LVIR_BOUNDS);
 	CDCHandle dc(GetDC());
 	GdiObjectSelection font(dc, GetFont());
 	int nFit = GetTextOffset(dc, msg.text, nmhdr.ptAction.x - rect.left);
@@ -183,7 +202,6 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 		return 0;
 
 	m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
-	m_mainFrame.UpdateUI();
 	return 0;
 }
 
@@ -353,6 +371,14 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 	ExtTextOut(hdc, pos, rcHighlight, text);
 }
 
+void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
+{
+	if (!m_logLines[iItem].bookmark)
+		return;
+	RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
+	dc.DrawIconEx(rect.left, rect.top, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
+}
+
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 {
 	auto text = GetItemWText(iItem, iSubItem);
@@ -360,7 +386,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
 	int margin = GetHeader().GetBitmapMargin();
 	rect.left += margin;
 	rect.right -= margin;
-	if (iSubItem == 4)
+	if (iSubItem == 5)
 		return DrawHighlightedText(dc, rect, text, m_logLines[iItem].highlights, m_highlightText);
 
 	HDITEM item;
@@ -382,7 +408,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	ScopedTextColor tcol(dc, txColor);
 
 	int subitemCount = GetHeader().GetItemCount();
-	for (int i = 0; i < subitemCount; ++i)
+	DrawBookmark(dc, iItem);
+	for (int i = 1; i < subitemCount; ++i)
 		DrawSubItem(dc, iItem, i);
 	if (focused)
 		dc.DrawFocusRect(&rect);
@@ -492,11 +519,11 @@ std::string CLogView::GetSubItemText(int iItem, int iSubItem) const
 
 	switch (iSubItem)
 	{
-	case 0: return std::to_string(line + 1ULL);
-	case 1: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
-	case 2: return std::to_string(msg.processId + 0ULL);
-	case 3: return Str(m_displayInfo.GetProcessName(msg.processId)).str();
-	case 4: return msg.text;
+	case 1: return std::to_string(line + 1ULL);
+	case 2: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
+	case 3: return std::to_string(msg.processId + 0ULL);
+	case 4: return Str(m_displayInfo.GetProcessName(msg.processId)).str();
+	case 5: return msg.text;
 	}
 	return std::string();
 }
@@ -556,8 +583,6 @@ LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
 	nmhdr;
-
-	m_mainFrame.UpdateUI();
 
 	return 0;
 }
@@ -660,6 +685,56 @@ void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	ApplyFilters();
 }
 
+bool CLogView::GetBookmark() const
+{
+	int item = GetNextItem(-1, LVIS_FOCUSED);
+	return item >= 0 && m_logLines[item].bookmark;
+}
+
+void CLogView::ToggleBookmark(int iItem)
+{
+	m_logLines[iItem].bookmark = !m_logLines[iItem].bookmark;
+	auto rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
+	InvalidateRect(&rect);
+}
+
+void CLogView::OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl)
+{
+	int item = GetNextItem(-1, LVIS_FOCUSED);
+	if (item < 0)
+		return;
+
+	ToggleBookmark(item);
+}
+
+void CLogView::FindBookmark(int direction)
+{
+	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
+	int line = begin;
+	do
+	{
+		line += direction;
+		if (line < 0)
+			line += m_logLines.size();
+		if (line == static_cast<int>(m_logLines.size()))
+			line = 0;
+
+		if (m_logLines[line].bookmark)
+			return ScrollToIndex(line, false);
+	}
+	while (line != begin);
+}
+
+void CLogView::OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl)
+{
+	FindBookmark(+1);
+}
+
+void CLogView::OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl)
+{
+	FindBookmark(-1);
+}
+
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 {
 	m_insidePaint = true;
@@ -698,7 +773,6 @@ void CLogView::Add(int line, const Message& msg)
 	m_dirty = true;
 	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
 	m_logLines.back().highlights = GetHighlights(msg.text);
-
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
 		m_stop = [this, line] () 
@@ -827,11 +901,11 @@ std::wstring CLogView::GetItemWText(int item, int subItem) const
 std::string CLogView::GetItemText(int item) const
 {
 	return stringbuilder() <<
-		GetItemText(item, 0) << "\t" <<
 		GetItemText(item, 1) << "\t" <<
 		GetItemText(item, 2) << "\t" <<
 		GetItemText(item, 3) << "\t" <<
-		GetItemText(item, 4);
+		GetItemText(item, 4) << "\t" <<
+		GetItemText(item, 5);
 }
 
 void CLogView::Copy()
@@ -871,9 +945,10 @@ void CLogView::SetHighlightText(const std::wstring& text)
 bool CLogView::Find(const std::string& text, int direction)
 {
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
-	int line = begin + direction;
+	int line = begin;
 	while (line != begin)
 	{
+		line += direction;
 		if (line < 0)
 			line += m_logLines.size();
 		if (line == static_cast<int>(m_logLines.size()))
@@ -881,11 +956,10 @@ bool CLogView::Find(const std::string& text, int direction)
 
 		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
-			ScrollToIndex(line, TRUE);
+			ScrollToIndex(line, true);
 			SetHighlightText(WStr(text));
 			return true;
 		}
-		line += direction;
 	}
 	return false;
 }
@@ -954,7 +1028,8 @@ void CLogView::SaveSettings(CRegKey& reg)
 {
 	std::wostringstream ss;
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
-	for (int i = 0; i < 5; ++i)
+	int subitemCount = GetHeader().GetItemCount();
+	for (int i = 0; i < subitemCount; ++i)
 		ss << GetColumnWidth(i) << " ";
 	reg.SetStringValue(L"ColWidths", ss.str().c_str());
 

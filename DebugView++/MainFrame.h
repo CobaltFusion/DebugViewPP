@@ -45,6 +45,7 @@ public:
 	    UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+		UPDATE_ELEMENT(ID_VIEW_BOOKMARK, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_VIEW_PANE, UPDUI_STATUSBAR)
@@ -85,8 +86,7 @@ private:
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);
 
-	LRESULT OnClickTab(NMHDR* pnmh);
-	LRESULT OnChangeTab(NMHDR* pnmh);
+	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);

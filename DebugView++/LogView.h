@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "OffscreenPaint.h"
+#include "Win32Lib.h"
 #include "LogFile.h"
 #include "FilterDlg.h"
 #include "DisplayInfo.h"
@@ -58,6 +59,7 @@ struct LogLine
 {
 	LogLine(int line, TextColor color);
 
+	bool bookmark;
 	int line;
 	TextColor color;
 	std::vector<Highlight> highlights;
@@ -94,6 +96,7 @@ public:
 
 	bool GetClockTime() const;
 	void SetClockTime(bool clockTime);
+	bool GetBookmark() const;
 	void SelectAll();
 	void Copy();
 
@@ -121,6 +124,7 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
+	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
 	LRESULT OnCustomDraw(NMHDR* pnmh);
@@ -138,14 +142,20 @@ private:
 	void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	std::string GetSubItemText(int iItem, int iSubItem) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
 	std::vector<Highlight> GetHighlights(const std::string& text) const;
+	void DrawBookmark(CDCHandle dc, int iItem) const;
 	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const;
 
+	void ToggleBookmark(int iItem);
+	void FindBookmark(int direction);
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
 	bool IsProcessIncluded(const std::wstring& msg) const;
@@ -167,6 +177,7 @@ private:
 	std::function<void ()> m_stop;
 	std::function<void ()> m_track;
 	bool m_insidePaint;
+	HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;
 };
 

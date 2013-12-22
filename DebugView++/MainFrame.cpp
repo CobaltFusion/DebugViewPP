@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <boost/utility.hpp>
 #include <psapi.h>
+#include "dbgstream.h"
 #include "Utilities.h"
 #include "Resource.h"
 #include "FilterDlg.h"
@@ -38,11 +39,10 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FONT, OnViewFont)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
-	NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClickTab)
-	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
+	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGING, OnChangingTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
-	CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 	CHAIN_MSG_MAP(CTabbedFrameImpl<CMainFrame>)
+	CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 	REFLECT_NOTIFICATIONS()
 END_MSG_MAP_CATCH(ExceptionHandler)
 
@@ -78,7 +78,6 @@ CMainFrame::CMainFrame() :
 		// todo: indicate in the UI that global messages are not available due to access rights restrictions
 	}
 
-	m_views.push_back(make_unique<CLogView>(*this, m_logFile));
 	SetAutoNewLine(m_autoNewLine);
 }
 
@@ -133,11 +132,10 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	m_statusBar.SetPanes(paneIds, 5, false);
 	UIAddStatusBar(m_hWndStatusBar);
 
-	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON /*| CTCS_DRAGREARRANGE */);
 
-	m_views.front()->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
-	AddTab(*m_views.front(), L"Log", 0);
-	GetTabCtrl().InsertItem(1, L"+");
+	GetTabCtrl().InsertItem(0, L"+");
+	AddFilterView(L"Log");
 	HideTabControl();
 
 	SetLogFont();
@@ -179,6 +177,7 @@ void CMainFrame::UpdateUI()
 	UpdateStatusBar();
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
 	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
+	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 	UISetCheck(ID_LOG_AUTONEWLINE, m_autoNewLine);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
 	UISetCheck(ID_LOG_GLOBAL, m_pGlobalReader);
@@ -428,39 +427,36 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 	ShowTabControl();
 }
 
-LRESULT CMainFrame::OnClickTab(NMHDR* pnmh)
+LRESULT CMainFrame::OnChangingTab(NMHDR* pnmh)
 {
-	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
-	if (nmhdr.hdr.hwndFrom != GetTabCtrl())
-		return FALSE;
+	auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 
-	int plusIndex = GetTabCtrl().GetItemCount() - 1;
-	if (nmhdr.iItem == plusIndex)
+//	cdbg << "OnChangingTab(" << nmhdr.iItem1 << ", " << nmhdr.iItem2 << ")\n";
+
+	if (nmhdr.iItem2 > 0 && nmhdr.iItem2 == static_cast<int>(m_views.size()))
 	{
 		AddFilterView();
 		return TRUE;
 	}
-	return FALSE;
-}
 
-LRESULT CMainFrame::OnChangeTab(NMHDR* /*pnmh*/)
-{
-	SetMsgHandled(FALSE);
-	return 0;
+	return FALSE;
 }
 
 LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
+
+//	cdbg << "OnCloseTab(" << nmhdr.iItem << ")\n";
+
 	int filterIndex = nmhdr.iItem;
 	if (filterIndex > 0 && filterIndex < static_cast<int>(m_views.size()))
 	{
-		GetTabCtrl().DeleteItem(filterIndex);
+		GetTabCtrl().DeleteItem(filterIndex, false);
+		int select = filterIndex == static_cast<int>(m_views.size()) - 1 ? filterIndex - 1 : filterIndex;
 		auto it = m_views.begin() + filterIndex;
 		(*it)->DestroyWindow();
 		m_views.erase(it);
-		if (filterIndex == static_cast<int>(m_views.size()))
-			GetTabCtrl().SetCurSel(filterIndex - 1);
+		GetTabCtrl().SetCurSel(select);
 		if (m_views.size() == 1)
 			HideTabControl();
 	}
