@@ -87,6 +87,9 @@ private:
 	bool LoadSettings();
 	void SaveSettings();
 
+	bool IsPaused() const;
+	void Pause();
+	void Resume();
 	bool GetAutoNewLine() const;
 	void SetAutoNewLine(bool value);
 
@@ -131,8 +134,7 @@ private:
 	HFont m_hFont;
 	CFindDlg m_findDlg;
 	bool m_autoNewLine;
-	bool m_localReaderPaused;
-	bool m_globalReaderPaused;
+	bool m_tryGlobal;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
 	boost::signals2::connection m_localConnection;

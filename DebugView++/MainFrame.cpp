@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <algorithm>
 #include <boost/utility.hpp>
 #include <psapi.h>
 #include "dbgstream.h"
@@ -73,24 +74,13 @@ CMainFrame::CMainFrame() :
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
 	m_autoNewLine(false),
-	m_pLocalReader(make_unique<DBWinReader>(false)),
-	m_localReaderPaused(false),
-	m_globalReaderPaused(false),
+	m_tryGlobal(true),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes())
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
 #endif
-
-	try
-	{
-		m_pGlobalReader = make_unique<DBWinReader>(true);
-	}
-	catch (std::exception e)
-	{
-		// todo: indicate in the UI that global messages are not available due to access rights restrictions
-	}
 
 	SetAutoNewLine(m_autoNewLine);
 }
@@ -169,6 +159,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddIdleHandler(this);
 
 	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
+	Resume();
 	return 0;
 }
 
@@ -194,7 +185,8 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 	UISetCheck(ID_LOG_AUTONEWLINE, m_autoNewLine);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
-	UISetCheck(ID_LOG_GLOBAL, m_pGlobalReader);
+	UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
+	UISetCheck(ID_LOG_GLOBAL, m_tryGlobal);
 }
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
@@ -512,6 +504,38 @@ void CMainFrame::SaveLogFile(const std::wstring& fileName)
 	UpdateStatusBar();
 }
 
+class TabSplitter
+{
+public:
+	explicit TabSplitter(const std::string& text);
+
+	std::string GetNext();
+	std::string GetTail() const;
+
+private:
+	std::string::const_iterator m_it;
+	std::string::const_iterator m_end;
+};
+
+TabSplitter::TabSplitter(const std::string& text) :
+	m_it(text.begin()),
+	m_end(text.end())
+{
+};
+
+std::string TabSplitter::GetNext()
+{
+	auto it = std::find(m_it, m_end, '\t');
+	std::string s(m_it, it);
+	m_it = it == m_end ? it : it + 1;
+	return s;
+}
+
+std::string TabSplitter::GetTail() const
+{
+	return std::string(m_it, m_end);
+}
+
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.txt";
@@ -527,12 +551,22 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	if (!file)
 		ThrowLastError(fileName);
 
+	Pause();
 	ClearLog();
+
+	DWORD pid = GetCurrentProcessId();
 	std::string line;
 	while (std::getline(file, line))
 	{
+		TabSplitter split(line);
+		auto lineno = split.GetNext();
+		auto time = split.GetNext();
+		auto pidtxt = split.GetNext();
+		auto process = split.GetNext();
+		auto message = split.GetTail();
+
 		FILETIME ft = {};
-		AddMessage(Message(0, ft, 0, line));
+		AddMessage(Message(0, ft, pid, message));
 	}
 }
 
@@ -568,55 +602,60 @@ void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 	SetAutoNewLine(!GetAutoNewLine());
 }
 
-void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+bool CMainFrame::IsPaused() const
 {
-	if (m_localReaderPaused)
-	{
-		m_pLocalReader = make_unique<DBWinReader>(false);
-		m_localReaderPaused = false;
-	}
-	else if (m_pLocalReader)
-	{
-		m_pLocalReader.reset();
-		m_localReaderPaused = true;
-	}
+	return !m_pLocalReader;
+}
 
-	if (m_globalReaderPaused)
+void CMainFrame::Pause()
+{
+	m_pLocalReader.reset();
+	m_pGlobalReader.reset();
+}
+
+void CMainFrame::Resume()
+{
+	if (!m_pLocalReader)
+		m_pLocalReader = make_unique<DBWinReader>(false);
+
+	if (m_tryGlobal)
 	{
-		m_pGlobalReader = make_unique<DBWinReader>(false);
-		m_globalReaderPaused = false;
-	}
-	else if (m_pGlobalReader)
-	{
-		m_pGlobalReader.reset();
-		m_globalReaderPaused = true;
+		try
+		{
+			m_pGlobalReader = make_unique<DBWinReader>(true);
+		}
+		catch (std::exception&)
+		{
+			MessageBox(
+				L"Unable to capture Global Win32 Messages.\n"
+				L"\n"
+				L"Make sure you have appropriate permissions.\n"
+				L"\n"
+				L"You may need to start this application by right-clicking it and selecting\n"
+				L"'Run As Administator' even if you have administrator rights.",
+				LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+			m_tryGlobal = false;
+		}
 	}
 
 	SetAutoNewLine(GetAutoNewLine());
 }
 
+void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	if (IsPaused())
+		Resume();
+	else
+		Pause();
+}
+
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	if (m_pGlobalReader)
-	{
-		m_pGlobalReader.reset();
-	}
+	m_tryGlobal = !m_pGlobalReader;
+	if (m_pLocalReader && m_tryGlobal)
+		Resume();
 	else
-	{
-		try {
-			m_pGlobalReader = make_unique<DBWinReader>(true);
-		}
-		catch (std::exception)
-		{
-			MessageBox(L"Unable to capture Global Win32 Messages.\n\nMake sure you have appropriate permissions.\n\n" \
-                        L"You may need to start this application by right-clicking it and selecting\n" \
-						L"'Run As Administator' even if you have administrator rights.",
-						LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
-			return;
-		}
-	}
-
-	SetAutoNewLine(GetAutoNewLine());
+		m_pGlobalReader.reset();
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
