@@ -27,13 +27,25 @@ namespace fusion {
 
 struct SelectionInfo;
 
+class CLogViewTabItem : public CTabViewTabItem
+{
+public:
+	void SetView(const std::shared_ptr<CLogView>& pView);
+	CLogView& GetView();
+
+private:
+	 std::shared_ptr<CLogView> m_pView;
+};
+
 class CMainFrame :
-	public CTabbedFrameImpl<CMainFrame>,
+	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>>,
 	public CUpdateUI<CMainFrame>,
 	public CMessageFilter,
 	public CIdleHandler
 {
 public:
+	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>> TabbedFrame;
+
 	CMainFrame();
 	~CMainFrame();
 
@@ -83,12 +95,16 @@ private:
 	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 
+	void ClearLog();
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);
 
+	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
+	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -100,6 +116,8 @@ private:
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
+	int GetViewCount() const;
+	CLogView& GetView(int i);
 	CLogView& GetView();
 	void SetLogFont();
 
@@ -109,7 +127,6 @@ private:
 	double m_timeOffset;
 	LogFile m_logFile;
 	int m_filterNr;
-	std::vector<std::unique_ptr<CLogView>> m_views;
 	CFontDialog m_fontDlg;
 	HFont m_hFont;
 	CFindDlg m_findDlg;

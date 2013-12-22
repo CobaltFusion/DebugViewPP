@@ -698,7 +698,7 @@ void CLogView::ToggleBookmark(int iItem)
 	InvalidateRect(&rect);
 }
 
-void CLogView::OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl)
+void CLogView::OnViewBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	int item = GetNextItem(-1, LVIS_FOCUSED);
 	if (item < 0)
@@ -725,12 +725,12 @@ void CLogView::FindBookmark(int direction)
 	while (line != begin);
 }
 
-void CLogView::OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl)
+void CLogView::OnViewNextBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	FindBookmark(+1);
 }
 
-void CLogView::OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl)
+void CLogView::OnViewPreviousBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	FindBookmark(-1);
 }
