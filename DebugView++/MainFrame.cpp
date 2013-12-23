@@ -159,7 +159,8 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddIdleHandler(this);
 
 	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
-	Resume();
+
+	Resume(false);
 	return 0;
 }
 
@@ -613,7 +614,7 @@ void CMainFrame::Pause()
 	m_pGlobalReader.reset();
 }
 
-void CMainFrame::Resume()
+void CMainFrame::Resume(bool report = true)
 {
 	if (!m_pLocalReader)
 		m_pLocalReader = make_unique<DBWinReader>(false);
@@ -626,14 +627,17 @@ void CMainFrame::Resume()
 		}
 		catch (std::exception&)
 		{
-			MessageBox(
-				L"Unable to capture Global Win32 Messages.\n"
-				L"\n"
-				L"Make sure you have appropriate permissions.\n"
-				L"\n"
-				L"You may need to start this application by right-clicking it and selecting\n"
-				L"'Run As Administator' even if you have administrator rights.",
-				LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+			if (report)
+			{
+				MessageBox(
+					L"Unable to capture Global Win32 Messages.\n"
+					L"\n"
+					L"Make sure you have appropriate permissions.\n"
+					L"\n"
+					L"You may need to start this application by right-clicking it and selecting\n"
+					L"'Run As Administator' even if you have administrator rights.",
+					LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+			}
 			m_tryGlobal = false;
 		}
 	}
@@ -644,7 +648,7 @@ void CMainFrame::Resume()
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (IsPaused())
-		Resume();
+		Resume(true);
 	else
 		Pause();
 }
@@ -653,7 +657,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 {
 	m_tryGlobal = !m_pGlobalReader;
 	if (m_pLocalReader && m_tryGlobal)
-		Resume();
+		Resume(true);
 	else
 		m_pGlobalReader.reset();
 }
