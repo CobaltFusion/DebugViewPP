@@ -79,7 +79,7 @@ void DBWinReader::Run()
 		if (m_end)
 			break;
 
-		HANDLE handle = 0; //::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pData->processId);	// disabled, todo: close handles
+		HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pData->processId);
 		Add(pData->processId, pData->data, handle);
 	}
 }

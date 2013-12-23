@@ -16,8 +16,8 @@ namespace fusion {
 struct Message
 {
 	Message(const Message& msg) : 
-		time(msg.time), systemTime(msg.systemTime), processId(msg.processId), text(msg.text), handleValid(false), 
-			handle(0)
+		time(msg.time), systemTime(msg.systemTime), processId(msg.processId), processName(msg.processName), 
+			text(msg.text), handleValid(false), handle(0)
 	{
 	}
 

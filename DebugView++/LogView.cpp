@@ -572,7 +572,7 @@ std::string CLogView::GetSubItemText(int iItem, int index) const
 	case 1: return std::to_string(line + 1ULL);
 	case 2: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
 	case 3: return std::to_string(msg.processId + 0ULL);
-	case 4: return Str(m_displayInfo.GetProcessName(msg.processId)).str();
+	case 4: return msg.processName;
 	case 5: return msg.text;
 	}
 	return std::string();
@@ -730,7 +730,7 @@ void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	if (item < 0)
 		return;
 
-	const auto& name = m_processInfo.GetProcessName(m_logFile[m_logLines[item].line].processId);
+	const auto& name = m_logFile[m_logLines[item].line].processName;
 	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, FilterType::Exclude));
 	ApplyFilters();
 }
@@ -1156,10 +1156,8 @@ TextColor CLogView::GetTextColor(const std::string& text) const
 	return TextColor(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT));
 }
 
-bool CLogView::IsProcessIncluded(const std::wstring& process) const
+bool CLogView::IsProcessIncluded(const std::string& process) const
 {
-	std::string text = Str(process).str();
-
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
 		if (!it->enable)
@@ -1169,7 +1167,7 @@ bool CLogView::IsProcessIncluded(const std::wstring& process) const
 		{
 		case FilterType::Include:
 		case FilterType::Exclude:
-			if (std::regex_search(text, it->re))
+			if (std::regex_search(process, it->re))
 				return it->type == FilterType::Include;
 			break;
 
@@ -1204,7 +1202,10 @@ bool CLogView::IsMessageIncluded(const std::string& text) const
 
 bool CLogView::IsIncluded(const Message& msg) const
 {
-	return IsProcessIncluded(m_processInfo.GetProcessName(msg.processId)) && IsMessageIncluded(msg.text);
+	if (!IsProcessIncluded(msg.processName))
+		return false;
+
+	return IsMessageIncluded(msg.text);
 }
 
 bool CLogView::IsStop(const std::string& text) const

@@ -160,7 +160,7 @@ private:
 	void FindBookmark(int direction);
 	bool Find(const std::string& text, int direction);
 	void ApplyFilters();
-	bool IsProcessIncluded(const std::wstring& msg) const;
+	bool IsProcessIncluded(const std::string& msg) const;
 	bool IsMessageIncluded(const std::string& msg) const;
 	bool IsIncluded(const Message& msg) const;
 	bool IsStop(const std::string& text) const;
