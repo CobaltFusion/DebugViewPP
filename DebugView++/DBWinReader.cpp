@@ -205,7 +205,6 @@ Lines DBWinReader::CheckHandleCache()
 	Lines lines;
 	if ((m_timer.Get() - m_handleCacheTime) > HandleCacheTimeout)
 	{
-		printf("Clear...\n");
 		for (auto i = m_handleCache.begin(); i != m_handleCache.end(); i++)
 		{
 			DWORD pid = GetProcessId(i->get());
@@ -215,14 +214,16 @@ Lines DBWinReader::CheckHandleCache()
 				BOOL result = GetExitCodeProcess(i->get(), &exitcode);
 				if (result == FALSE || exitcode != STILL_ACTIVE)
 				{
-					printf("Flush dead pid: %d\n", pid);
-					Line line;
-					line.pid = pid;
-					line.processName = "<flush>";
-					line.time = m_timer.Get();
-					line.systemTime = GetSystemTimeAsFileTime();
-					line.message = m_lineBuffers[pid];
-					lines.push_back(line);
+					if (!m_lineBuffers[pid].empty())
+					{
+						Line line;
+						line.pid = pid;
+						line.processName = "<flush>";
+						line.time = m_timer.Get();
+						line.systemTime = GetSystemTimeAsFileTime();
+						line.message = m_lineBuffers[pid];
+						lines.push_back(line);
+					}
 					m_lineBuffers.erase(pid);
 				}
 			}
