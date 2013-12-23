@@ -683,7 +683,7 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_findDlg.ShowWindow(SW_SHOW);
+	m_findDlg.Show();
 }
 
 void CMainFrame::OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

@@ -52,6 +52,7 @@ public:
 	void OnNext(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
 	void OnClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
 
+	void Show();
 private:
 	CMainFrame& m_mainFrame;
 };

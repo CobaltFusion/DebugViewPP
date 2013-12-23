@@ -48,4 +48,11 @@ void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 	ShowWindow(SW_HIDE);
 }
 
+void CFindDlg::Show()
+{
+	ShowWindow(SW_SHOW);
+	GetDlgItem(IDC_TEXT).SetFocus();
+}
+
+
 } // namespace fusion

@@ -80,6 +80,17 @@ void DBWinReader::Run()
 			break;
 
 		HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pData->processId);
+
+#define DEBUG_OPENPROCESS
+#ifdef DEBUG_OPENPROCESS
+		if (handle == 0)
+		{
+			Win32Error error(GetLastError(), "OpenProcess");
+			std::string s = stringbuilder() << error.what() << " " <<  pData->data;
+			Add(pData->processId, s.c_str(), handle);
+			continue;
+		}
+#endif
 		Add(pData->processId, pData->data, handle);
 	}
 }

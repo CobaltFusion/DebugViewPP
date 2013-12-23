@@ -988,6 +988,10 @@ bool CLogView::Find(const std::string& text, int direction)
 {
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	int line = begin;
+
+	if (m_logLines.size() < 1)
+		return false;
+
 	do
 	{
 		line += direction;
