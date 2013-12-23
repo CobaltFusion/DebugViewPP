@@ -89,7 +89,7 @@ private:
 
 	bool IsPaused() const;
 	void Pause();
-	void Resume();
+	void Resume(bool report);
 	bool GetAutoNewLine() const;
 	void SetAutoNewLine(bool value);
 
