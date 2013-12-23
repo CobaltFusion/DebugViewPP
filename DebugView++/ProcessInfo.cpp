@@ -14,8 +14,13 @@
 
 namespace fusion {
 
-ProcessInfo::ProcessInfo()
+ProcessInfo::ProcessInfo() : m_unqiueId(0)
 {
+}
+
+void ProcessInfo::Reset()
+{
+	m_unqiueId = 0;
 }
 
 size_t ProcessInfo::GetPrivateBytes()
@@ -58,7 +63,6 @@ catch (Win32Error& e)
 
 DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
 {
-	static DWORD static_uid = 0;
 	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); i++)
 	{
 		if (i->second.pid == processId && i->second.name == processName)
@@ -67,8 +71,8 @@ DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
 		}
 	}
 
-	DWORD index = static_uid;
-	static_uid++;
+	DWORD index = m_unqiueId;
+	m_unqiueId++;
 
 	m_processProperties[index] = InternalProcessProperties(processId, processName);
 	return index;
@@ -77,13 +81,9 @@ DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
 ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::string& processName)
 {
 	auto uid = GetUid(processId, processName);
-	return ProcessProperties(m_processProperties[uid]);
-}
-
-ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, HANDLE handle)
-{
-	auto uid = GetUid(processId, Str(GetProcessName(handle)));
-	return ProcessProperties(m_processProperties[uid]);
+	ProcessProperties props(m_processProperties[uid]);
+	props.uid = uid;
+	return props;
 }
 
 ProcessProperties ProcessInfo::GetProcessProperties(DWORD uid) const

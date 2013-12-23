@@ -21,11 +21,21 @@ struct Line
 	double time;
 	FILETIME systemTime;
 	DWORD pid;
+	std::string processName;
+	std::string message;
+};
+
+struct InternalLine
+{
+	double time;
+	FILETIME systemTime;
+	DWORD pid;
 	std::string message;
 	HANDLE handle;
 };
 
 typedef std::vector<Line> Lines;
+typedef std::vector<InternalLine> InternalLines;
 
 class DBWinReader : boost::noncopyable
 {
@@ -37,16 +47,16 @@ public:
 	void AutoNewLine(bool value);
 
 	void Abort();
-	const Lines& GetLines();
+	Lines GetLines();
 
 private:
 	void Run();
 	void Add(DWORD pid, const char* text, HANDLE handle);
-	void AddLine(const Line& line);
+	void AddLine(const InternalLine& InternalLine);
+	Lines ResolveLines(const InternalLines& lines);
 
-	Lines m_lines;
-	Lines m_linesBackingBuffer;
-	Line m_lineBuffer;
+	InternalLines m_lines;
+	InternalLine m_lineBuffer;
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 

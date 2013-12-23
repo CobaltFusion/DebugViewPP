@@ -296,7 +296,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 		GetView(i).BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->handle, it->message));
+		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->processName, it->message));
 
 	for (int i = 0; i < views; ++i)
 		GetView(i).EndUpdate();
@@ -747,10 +747,10 @@ void CMainFrame::AddMessage(const Message& message)
 	}
 
 	int index = m_logFile.Count();
-	Message msg = m_logFile.Add(message);
+	m_logFile.Add(message);
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
-		GetView(i).Add(index, msg);
+		GetView(i).Add(index, message);
 }
 
 } // namespace fusion

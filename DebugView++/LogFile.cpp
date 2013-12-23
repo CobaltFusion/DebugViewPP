@@ -22,23 +22,10 @@ void LogFile::Clear()
 	m_messages.clear();
 }
 
-Message LogFile::Add(const Message& msg)
+void LogFile::Add(const Message& msg)
 {
-	Message message(msg);
-	if (msg.handleValid)
-	{
-		Handle processHandle(msg.handle);
-		auto props = m_processInfo.GetProcessProperties(msg.processId, processHandle.get());
-		m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid, msg.text));
-		message.processName = props.name;
-	}
-	else
-	{
-		auto props = m_processInfo.GetProcessProperties(msg.processId, msg.processName);
-		m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid, msg.text));
-		message.processName = props.name;
-	}
-	return message;
+	auto props = m_processInfo.GetProcessProperties(msg.processId, msg.processName);
+	m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid, msg.text));
 }
 
 int LogFile::Count() const

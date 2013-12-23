@@ -15,19 +15,8 @@ namespace fusion {
 
 struct Message
 {
-	Message(const Message& msg) : 
-		time(msg.time), systemTime(msg.systemTime), processId(msg.processId), processName(msg.processName), 
-			text(msg.text), handleValid(false), handle(0)
-	{
-	}
-
-	Message(double time, FILETIME systemTime, DWORD pid, HANDLE handle_, const std::string& msg) :
-		time(time), systemTime(systemTime), processId(pid), handle(handle_), text(msg), handleValid(true)
-	{
-	}
-
 	Message(double time, FILETIME systemTime, DWORD pid, const std::string processName_, const std::string& msg) :
-		time(time), systemTime(systemTime), processId(pid), processName(processName_), text(msg), handleValid(false)
+		time(time), systemTime(systemTime), processId(pid), processName(processName_), text(msg)
 	{
 	}
 
@@ -36,19 +25,12 @@ struct Message
 	DWORD processId;
 	std::string processName;
 	std::string text;
-	HANDLE handle;
-	bool handleValid;
 };
 
 class LogFile
 {
 	struct InternalMessage
 	{
-		InternalMessage(const Message& msg) : 
-			time(msg.time), systemTime(msg.systemTime), uid(msg.processId), text(msg.text)
-		{
-		}
-
 		InternalMessage(double time, FILETIME systemTime, DWORD uid_, const std::string& msg) :
 			time(time), systemTime(systemTime), uid(uid_), text(msg)
 		{
@@ -63,7 +45,7 @@ class LogFile
 public:
 	bool Empty() const;
 	void Clear();
-	Message Add(const Message& msg);
+	void Add(const Message& msg);
 	int Count() const;
 	Message operator[](int i) const;
 

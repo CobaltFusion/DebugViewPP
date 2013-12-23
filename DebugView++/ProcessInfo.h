@@ -43,18 +43,19 @@ class ProcessInfo
 {
 public:
 	ProcessInfo();
+	void Reset();
 	static size_t GetPrivateBytes();
 	static std::wstring GetProcessName(HANDLE handle);
 	static std::wstring GetProcessName(DWORD processId);
 
 	DWORD GetUid(DWORD processId, const std::string& processName);
 	ProcessProperties GetProcessProperties(DWORD processId, const std::string& processName);
-	ProcessProperties GetProcessProperties(DWORD processId, HANDLE handle);
 	ProcessProperties GetProcessProperties(DWORD uid) const;
 
 private:
 	typedef std::map<DWORD, InternalProcessProperties> ProcessMap;
 	ProcessMap m_processProperties;
+	DWORD m_unqiueId;
 };
 
 } // namespace fusion

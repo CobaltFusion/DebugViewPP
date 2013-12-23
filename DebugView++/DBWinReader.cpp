@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "Win32Lib.h"
 #include "DBWinReader.h"
+#include "ProcessInfo.h"
 
 namespace fusion {
 
@@ -42,7 +43,6 @@ DBWinReader::DBWinReader(bool global) :
 	m_thread(boost::thread(&DBWinReader::Run, this))
 {
 	m_lines.reserve(4000);
-	m_linesBackingBuffer.reserve(4000);
 }
 
 DBWinReader::~DBWinReader()
@@ -84,15 +84,15 @@ void DBWinReader::Run()
 	}
 }
 
-void DBWinReader::AddLine(const Line& line)
+void DBWinReader::AddLine(const InternalLine& InternalLine)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_lines.push_back(line);
+	m_lines.push_back(InternalLine);
 }
 
 void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 {
-	Line line;
+	InternalLine line;
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = pid;
@@ -116,21 +116,42 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 		++text;
 	}
 
-	if (!m_lineBuffer.message.empty() && (m_autoNewLine || m_lineBuffer.message.size() > 8192))	// 8k line limit prevents stack overflows in handling code 
+	if (!m_lineBuffer.message.empty() && (m_autoNewLine || m_lineBuffer.message.size() > 8192))	// 8k InternalLine limit prevents stack overflows in handling code 
 	{
 		AddLine(m_lineBuffer);
 		m_lineBuffer.message.clear();
 	}
 }
 
-const Lines& DBWinReader::GetLines()
+Lines DBWinReader::GetLines()
 {
-	m_linesBackingBuffer.clear();
+	InternalLines lines;
+	lines.reserve(4000);
 	{
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
-		m_lines.swap(m_linesBackingBuffer);
+		m_lines.swap(lines);
 	}
-	return m_linesBackingBuffer;
+	return std::move(ResolveLines(lines));
+}
+
+Lines DBWinReader::ResolveLines(const InternalLines& internalLines)
+{
+	Lines resolvedLines;
+	for (auto i=internalLines.begin(); i != internalLines.end(); i++)
+	{
+		Line line;
+		line.time = i->time;
+		line.systemTime = i->systemTime;
+		line.pid = i->pid;
+		line.message = i->message;
+		if (i->handle)
+		{
+			Handle handle(i->handle);
+			line.processName = Str(ProcessInfo::GetProcessName(handle.get())).c_str();
+		}
+		resolvedLines.push_back(line);
+	}
+	return std::move(resolvedLines);
 }
 
 } // namespace fusion
