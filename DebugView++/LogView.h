@@ -86,6 +86,7 @@ public:
 	void ScrollDown();
 	bool IsLastLineSelected();
 
+	bool IsColumnViewed(int nID) const;
 	bool GetClockTime() const;
 	void SetClockTime(bool clockTime);
 	bool GetBookmark() const;
@@ -143,8 +144,9 @@ private:
 	void OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
-	std::string GetSubItemText(int iItem, int iSubItem) const;
+	std::string GetSubItemText(int iItem, int index) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;

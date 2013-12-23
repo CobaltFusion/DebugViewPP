@@ -68,9 +68,26 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
+	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
+
+bool CLogView::IsColumnViewed(int nID) const
+{
+	HDITEM item;
+	item.mask = HDI_WIDTH;
+	GetHeader().GetItem(nID - ID_VIEW_COLUMN_FIRST, &item);
+	return item.cxy > 0;
+}
+
+void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
+{
+	HDITEM item;
+	item.mask = HDI_WIDTH;
+	item.cxy = IsColumnViewed(nID) ? 0 : 64;
+	GetHeader().SetItem(nID - ID_VIEW_COLUMN_FIRST, &item);
+}
 
 CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_mainFrame(mainFrame),
@@ -118,15 +135,26 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 		ScreenToClient(&pt);
 	}
 
+	HDHITTESTINFO hdrInfo;
+	hdrInfo.flags = 0;
+	hdrInfo.pt = pt;
+	GetHeader().HitTest(&hdrInfo);
+
 	LVHITTESTINFO info;
 	info.flags = 0;
 	info.pt = pt;
 	SubItemHitTest(&info);
-	if ((info.flags & LVHT_ONITEM) == 0)
+
+	int menuId = 0;
+	if ((hdrInfo.flags & HHT_ONHEADER) != 0)
+		menuId = IDR_HEADER_CONTEXTMENU;
+	else if ((info.flags & LVHT_ONITEM) == 0)
+		menuId = info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU;
+	else
 		return;
 
 	CMenu menuContext;
-	menuContext.LoadMenu(info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU);
+	menuContext.LoadMenu(menuId);
 	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
 	ClientToScreen(&pt);
 	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);
@@ -534,12 +562,12 @@ std::string GetTimeText(const FILETIME& ft)
 	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
-std::string CLogView::GetSubItemText(int iItem, int iSubItem) const
+std::string CLogView::GetSubItemText(int iItem, int index) const
 {
 	int line = m_logLines[iItem].line;
 	const Message& msg = m_logFile[line];
 
-	switch (iSubItem)
+	switch (index)
 	{
 	case 1: return std::to_string(line + 1ULL);
 	case 2: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
@@ -905,13 +933,6 @@ void CLogView::SelectAll()
 		SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
 }
 
-std::string CLogView::GetItemText(int item, int subItem) const
-{
-	CComBSTR bstr;
-	GetItemText(item, subItem, bstr.m_str);
-	return std::string(bstr.m_str, bstr.m_str + bstr.Length());
-}
-
 std::wstring CLogView::GetItemWText(int item, int subItem) const
 {
 	CComBSTR bstr;
@@ -922,11 +943,11 @@ std::wstring CLogView::GetItemWText(int item, int subItem) const
 std::string CLogView::GetItemText(int item) const
 {
 	return stringbuilder() <<
-		GetItemText(item, 1) << "\t" <<
-		GetItemText(item, 2) << "\t" <<
-		GetItemText(item, 3) << "\t" <<
-		GetItemText(item, 4) << "\t" <<
-		GetItemText(item, 5);
+		GetSubItemText(item, 1) << "\t" <<
+		GetSubItemText(item, 2) << "\t" <<
+		GetSubItemText(item, 3) << "\t" <<
+		GetSubItemText(item, 4) << "\t" <<
+		GetSubItemText(item, 5);
 }
 
 void CLogView::Copy()
