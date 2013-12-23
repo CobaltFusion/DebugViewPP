@@ -53,9 +53,15 @@ private:
 	void Run();
 	void Add(DWORD pid, const char* text, HANDLE handle);
 	void AddLine(const InternalLine& InternalLine);
-	Lines ResolveLines(const InternalLines& lines);
+	Lines ProcessLines(const InternalLines& lines);
+	Lines ProcessLine(const Line& internalLine);
+
+	void AddCache(HANDLE handle);
+	void CleanupHandleCache();
 
 	InternalLines m_lines;
+	InternalLines m_backBuffer;
+
 	InternalLine m_lineBuffer;
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
@@ -66,6 +72,8 @@ private:
 	Handle m_dbWinBufferReady;
 	Handle m_dbWinDataReady;
 	boost::thread m_thread;
+
+	std::vector<Handle> mHandleCache;
 };
 
 } // namespace fusion

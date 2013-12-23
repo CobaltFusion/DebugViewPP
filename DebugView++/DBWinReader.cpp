@@ -6,7 +6,6 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32Lib.h"
 #include "DBWinReader.h"
 #include "ProcessInfo.h"
 
@@ -43,6 +42,7 @@ DBWinReader::DBWinReader(bool global) :
 	m_thread(boost::thread(&DBWinReader::Run, this))
 {
 	m_lines.reserve(4000);
+	m_backBuffer.reserve(4000);
 }
 
 DBWinReader::~DBWinReader()
@@ -136,33 +136,66 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 
 Lines DBWinReader::GetLines()
 {
-	InternalLines lines;
-	lines.reserve(4000);
+	CleanupHandleCache();
+	m_backBuffer.clear();
 	{
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
-		m_lines.swap(lines);
+		m_lines.swap(m_backBuffer);
 	}
-	return std::move(ResolveLines(lines));
+	return std::move(ProcessLines(m_backBuffer));
 }
 
-Lines DBWinReader::ResolveLines(const InternalLines& internalLines)
+Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
 {
 	Lines resolvedLines;
 	for (auto i=internalLines.begin(); i != internalLines.end(); i++)
 	{
+		std::string processName; 
+		if (i->handle)
+		{
+			AddCache(i->handle);
+			processName = Str(ProcessInfo::GetProcessName(i->handle)).c_str();
+		}
+
 		Line line;
 		line.time = i->time;
 		line.systemTime = i->systemTime;
 		line.pid = i->pid;
+		line.processName = processName;
 		line.message = i->message;
-		if (i->handle)
+
+		auto lines = ProcessLine(line);
+		for (auto line = lines.begin(); line != lines.end(); line++)
 		{
-			Handle handle(i->handle);
-			line.processName = Str(ProcessInfo::GetProcessName(handle.get())).c_str();
+			resolvedLines.push_back(*line);
 		}
-		resolvedLines.push_back(line);
 	}
 	return std::move(resolvedLines);
+}
+
+Lines DBWinReader::ProcessLine(const Line& line)
+{
+	Lines lines;
+	lines.push_back(line);
+	return lines;
+}
+
+void DBWinReader::AddCache(HANDLE handle)
+{
+	//todo: do not store multiple handle to the same process
+	mHandleCache.push_back(std::move(Handle(handle)));
+}
+
+void DBWinReader::CleanupHandleCache()
+{
+	static int count = 0;
+	count++;
+	if (count > 25*10)
+	{
+		printf("Clear....\n");
+		mHandleCache.clear();
+		count = 0;
+	}
 }
 
 } // namespace fusion
