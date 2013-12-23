@@ -39,7 +39,8 @@ DBWinReader::DBWinReader(bool global) :
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
-	m_thread(boost::thread(&DBWinReader::Run, this))
+	m_thread(boost::thread(&DBWinReader::Run, this)),
+	mHandleCacheCounter(0)
 {
 	m_lines.reserve(4000);
 	m_backBuffer.reserve(4000);
@@ -136,7 +137,7 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 
 Lines DBWinReader::GetLines()
 {
-	CleanupHandleCache();
+	FlushHandleCache();
 	m_backBuffer.clear();
 	{
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
@@ -186,15 +187,13 @@ void DBWinReader::AddCache(HANDLE handle)
 	mHandleCache.push_back(std::move(Handle(handle)));
 }
 
-void DBWinReader::CleanupHandleCache()
+void DBWinReader::FlushHandleCache()
 {
-	static int count = 0;
-	count++;
-	if (count > 25*10)
+	mHandleCacheCounter++;
+	if (mHandleCacheCounter > 25*15)	// ~15 seconds
 	{
-		printf("Clear....\n");
 		mHandleCache.clear();
-		count = 0;
+		mHandleCacheCounter = 0;
 	}
 }
 

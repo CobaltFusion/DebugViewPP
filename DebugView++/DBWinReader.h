@@ -57,7 +57,7 @@ private:
 	Lines ProcessLine(const Line& internalLine);
 
 	void AddCache(HANDLE handle);
-	void CleanupHandleCache();
+	void FlushHandleCache();
 
 	InternalLines m_lines;
 	InternalLines m_backBuffer;
@@ -74,6 +74,7 @@ private:
 	boost::thread m_thread;
 
 	std::vector<Handle> mHandleCache;
+	int mHandleCacheCounter;
 };
 
 } // namespace fusion
