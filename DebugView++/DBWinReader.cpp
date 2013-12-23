@@ -11,6 +11,8 @@
 
 namespace fusion {
 
+const double HandleCacheTimeout = 15.0; //seconds
+
 struct DbWinBuffer
 {
 	DWORD processId;
@@ -40,7 +42,7 @@ DBWinReader::DBWinReader(bool global) :
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
 	m_thread(boost::thread(&DBWinReader::Run, this)),
-	mHandleCacheCounter(0)
+	m_handleCacheTime(0.0)
 {
 	m_lines.reserve(4000);
 	m_backBuffer.reserve(4000);
@@ -82,8 +84,7 @@ void DBWinReader::Run()
 
 		HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pData->processId);
 
-#define DEBUG_OPENPROCESS
-#ifdef DEBUG_OPENPROCESS
+#ifdef OPENPROCESS_DEBUG
 		if (handle == 0)
 		{
 			Win32Error error(GetLastError(), "OpenProcess");
@@ -108,36 +109,13 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = pid;
-	line.message.reserve(4000);
 	line.handle = handle;
-
-	if (m_lineBuffer.message.empty())
-		m_lineBuffer = line;
-
-	while (*text)
-	{
-		if (*text == '\n')
-		{
-			AddLine(m_lineBuffer);
-			m_lineBuffer = line;
-		}
-		else
-		{
-			m_lineBuffer.message.push_back(*text);
-		}
-		++text;
-	}
-
-	if (!m_lineBuffer.message.empty() && (m_autoNewLine || m_lineBuffer.message.size() > 8192))	// 8k InternalLine limit prevents stack overflows in handling code 
-	{
-		AddLine(m_lineBuffer);
-		m_lineBuffer.message.clear();
-	}
+	line.message = text;
+	AddLine(line);
 }
 
 Lines DBWinReader::GetLines()
 {
-	FlushHandleCache();
 	m_backBuffer.clear();
 	{
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
@@ -148,7 +126,7 @@ Lines DBWinReader::GetLines()
 
 Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
 {
-	Lines resolvedLines;
+	Lines resolvedLines = CheckHandleCache();
 	for (auto i=internalLines.begin(); i != internalLines.end(); i++)
 	{
 		std::string processName; 
@@ -177,24 +155,82 @@ Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
 Lines DBWinReader::ProcessLine(const Line& line)
 {
 	Lines lines;
-	lines.push_back(line);
-	return lines;
+	if (m_lineBuffers.find(line.pid) == m_lineBuffers.end())
+	{
+		std::string message;
+		message.reserve(4000);
+		m_lineBuffers[line.pid] = std::move(message);
+	}
+	std::string& message = m_lineBuffers[line.pid];
+
+	Line outputLine = line;
+	for (auto i = line.message.begin(); i != line.message.end(); i++)
+	{
+		if (*i == '\r')
+			continue;
+
+		if (*i == '\n')
+		{
+			outputLine.message = std::move(message);
+			message.clear();
+			lines.push_back(outputLine);
+		}
+		else
+		{
+			message.push_back(char(*i));
+		}
+	}
+
+	if (message.empty())
+	{
+		m_lineBuffers.erase(line.pid);
+	}
+	else if (m_autoNewLine || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	{
+		outputLine.message = std::move(message);
+		message.clear();
+		lines.push_back(outputLine);
+	}
+	return std::move(lines);
 }
 
 void DBWinReader::AddCache(HANDLE handle)
 {
-	//todo: do not store multiple handle to the same process
-	mHandleCache.push_back(std::move(Handle(handle)));
+	//todo: do not store multiple handles to the same process
+	m_handleCache.push_back(std::move(Handle(handle)));
 }
 
-void DBWinReader::FlushHandleCache()
+Lines DBWinReader::CheckHandleCache()
 {
-	mHandleCacheCounter++;
-	if (mHandleCacheCounter > 25*15)	// ~15 seconds
+	Lines lines;
+	if ((m_timer.Get() - m_handleCacheTime) > HandleCacheTimeout)
 	{
-		mHandleCache.clear();
-		mHandleCacheCounter = 0;
+		printf("Clear...\n");
+		for (auto i = m_handleCache.begin(); i != m_handleCache.end(); i++)
+		{
+			DWORD pid = GetProcessId(i->get());
+			if (m_lineBuffers.find(pid) != m_lineBuffers.end())
+			{
+				DWORD exitcode = 0;
+				BOOL result = GetExitCodeProcess(i->get(), &exitcode);
+				if (result == FALSE || exitcode != STILL_ACTIVE)
+				{
+					printf("Flush dead pid: %d\n", pid);
+					Line line;
+					line.pid = pid;
+					line.processName = "<flush>";
+					line.time = m_timer.Get();
+					line.systemTime = GetSystemTimeAsFileTime();
+					line.message = m_lineBuffers[pid];
+					lines.push_back(line);
+					m_lineBuffers.erase(pid);
+				}
+			}
+		}
+		m_handleCache.clear();
+		m_handleCacheTime = m_timer.Get();
 	}
+	return std::move(lines);
 }
 
 } // namespace fusion

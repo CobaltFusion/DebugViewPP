@@ -57,12 +57,10 @@ private:
 	Lines ProcessLine(const Line& internalLine);
 
 	void AddCache(HANDLE handle);
-	void FlushHandleCache();
+	Lines CheckHandleCache();
 
 	InternalLines m_lines;
 	InternalLines m_backBuffer;
-
-	InternalLine m_lineBuffer;
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 
@@ -73,8 +71,10 @@ private:
 	Handle m_dbWinDataReady;
 	boost::thread m_thread;
 
-	std::vector<Handle> mHandleCache;
-	int mHandleCacheCounter;
+	std::vector<Handle> m_handleCache;
+	double m_handleCacheTime;
+
+	std::map<DWORD, std::string> m_lineBuffers;
 };
 
 } // namespace fusion
