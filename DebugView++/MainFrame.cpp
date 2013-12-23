@@ -139,7 +139,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
 	GetTabCtrl().InsertItem(0, L"+");
-	AddFilterView(L"Log");
+	AddFilterView(L"View");
 	HideTabControl();
 
 	SetLogFont();
@@ -291,7 +291,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 		GetView(i).BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->message));
+		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->handle, it->message));
 
 	for (int i = 0; i < views; ++i)
 		GetView(i).EndUpdate();
@@ -567,7 +567,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		auto message = split.GetTail();
 
 		FILETIME ft = {};
-		AddMessage(Message(0, ft, pid, message));
+		AddMessage(Message(0, ft, pid, process, message));
 	}
 }
 
@@ -742,10 +742,10 @@ void CMainFrame::AddMessage(const Message& message)
 	}
 
 	int index = m_logFile.Count();
-	m_logFile.Add(message);
+	Message msg = m_logFile.Add(message);
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
-		GetView(i).Add(index, message);
+		GetView(i).Add(index, msg);
 }
 
 } // namespace fusion

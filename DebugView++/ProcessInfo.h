@@ -19,13 +19,13 @@ struct InternalProcessProperties
 	{
 	}
 
-	explicit InternalProcessProperties(DWORD pid_, const std::wstring& name_) :
+	explicit InternalProcessProperties(DWORD pid_, const std::string& name_) :
 		pid(pid_), name(name_)
 	{
 	}
 
 	DWORD pid;			// system processId
-	std::wstring name;
+	std::string name;
 };
 
 struct ProcessProperties
@@ -36,7 +36,7 @@ struct ProcessProperties
 	}
 	DWORD uid;			// unique id
 	DWORD pid;			// system processId
-	std::wstring name;
+	std::string name;
 };
 
 class ProcessInfo
@@ -47,12 +47,14 @@ public:
 	static std::wstring GetProcessName(HANDLE handle);
 	static std::wstring GetProcessName(DWORD processId);
 
-	DWORD GetUid(DWORD processId, const std::wstring& processName);
-	ProcessProperties GetProcessProperties(DWORD processId, const std::wstring& processName);
+	DWORD GetUid(DWORD processId, const std::string& processName);
+	ProcessProperties GetProcessProperties(DWORD processId, const std::string& processName);
 	ProcessProperties GetProcessProperties(DWORD processId, HANDLE handle);
+	ProcessProperties GetProcessProperties(DWORD uid) const;
 
 private:
-	std::map<int, InternalProcessProperties> m_processProperties;
+	typedef std::map<DWORD, InternalProcessProperties> ProcessMap;
+	ProcessMap m_processProperties;
 };
 
 } // namespace fusion

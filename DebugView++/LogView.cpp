@@ -90,7 +90,7 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	InsertColumn(2, L"Time", LVCFMT_RIGHT, 90, 0);
 	InsertColumn(3, L"PID", LVCFMT_RIGHT, 60, 0);
 	InsertColumn(4, L"Process", LVCFMT_LEFT, 140, 0);
-	InsertColumn(5, L"Log", LVCFMT_LEFT, 600, 0);
+	InsertColumn(5, L"Message", LVCFMT_LEFT, 600, 0);
 
 	ApplyFilters();
 	return 0;

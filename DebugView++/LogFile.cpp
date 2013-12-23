@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <vector>
 #include "LogFile.h"
+#include "Win32Lib.h"
 
 namespace fusion {
 
@@ -21,11 +22,25 @@ void LogFile::Clear()
 	m_messages.clear();
 }
 
-void LogFile::Add(const Message& msg)
+Message LogFile::Add(const Message& msg)
 {
-	m_messages.push_back(msg);
+	Message message(msg);
+	if (msg.handleValid)
+	{
+		Handle processHandle(msg.handle);
+		auto props = m_processInfo.GetProcessProperties(msg.processId, processHandle.get());
+		m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid, msg.text));
+		message.processName = props.name;
+	}
+	else
+	{
+		auto props = m_processInfo.GetProcessProperties(msg.processId, msg.processName);
+		m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid, msg.text));
+		message.processName = props.name;
+	}
+	return message;
 }
-	
+
 int LogFile::Count() const
 {
 	return m_messages.size();
@@ -33,7 +48,9 @@ int LogFile::Count() const
 
 Message LogFile::operator[](int i) const
 {
-	return m_messages[i];
+	auto msg = m_messages[i];
+	auto props = m_processInfo.GetProcessProperties(msg.uid);
+	return Message(msg.time, msg.systemTime, props.pid, props.name, msg.text);
 }
 
 } // namespace fusion

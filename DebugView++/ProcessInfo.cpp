@@ -56,7 +56,7 @@ catch (Win32Error& e)
 	return wstringbuilder() << e.what();
 }
 
-DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
+DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
 {
 	static DWORD static_uid = 0;
 	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); i++)
@@ -74,7 +74,7 @@ DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
 	return index;
 }
 
-ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::wstring& processName)
+ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::string& processName)
 {
 	auto uid = GetUid(processId, processName);
 	return ProcessProperties(m_processProperties[uid]);
@@ -82,8 +82,16 @@ ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::
 
 ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, HANDLE handle)
 {
-	auto uid = GetUid(processId, GetProcessName(handle));
+	auto uid = GetUid(processId, Str(GetProcessName(handle)));
 	return ProcessProperties(m_processProperties[uid]);
+}
+
+ProcessProperties ProcessInfo::GetProcessProperties(DWORD uid) const
+{
+	auto processMap = const_cast<ProcessMap&>(m_processProperties);		// AUW! todo: Fix!
+	auto props = processMap[uid];
+	//auto props = m_processProperties[uid];
+	return ProcessProperties(props);
 }
 
 } // namespace fusion
