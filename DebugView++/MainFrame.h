@@ -27,13 +27,25 @@ namespace fusion {
 
 struct SelectionInfo;
 
+class CLogViewTabItem : public CTabViewTabItem
+{
+public:
+	void SetView(const std::shared_ptr<CLogView>& pView);
+	CLogView& GetView();
+
+private:
+	 std::shared_ptr<CLogView> m_pView;
+};
+
 class CMainFrame :
-	public CTabbedFrameImpl<CMainFrame>,
+	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>>,
 	public CUpdateUI<CMainFrame>,
 	public CMessageFilter,
 	public CIdleHandler
 {
 public:
+	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>> TabbedFrame;
+
 	CMainFrame();
 	~CMainFrame();
 
@@ -45,6 +57,7 @@ public:
 	    UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+		UPDATE_ELEMENT(ID_VIEW_BOOKMARK, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_VIEW_PANE, UPDUI_STATUSBAR)
@@ -74,6 +87,9 @@ private:
 	bool LoadSettings();
 	void SaveSettings();
 
+	bool IsPaused() const;
+	void Pause();
+	void Resume();
 	bool GetAutoNewLine() const;
 	void SetAutoNewLine(bool value);
 
@@ -82,26 +98,29 @@ private:
 	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 
+	void ClearLog();
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);
 
-	LRESULT OnClickTab(NMHDR* pnmh);
-	LRESULT OnChangeTab(NMHDR* pnmh);
+	LRESULT OnBeginTabDrag(NMHDR* pnmh);
+	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
+	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
+	int GetViewCount() const;
+	CLogView& GetView(int i);
 	CLogView& GetView();
 	void SetLogFont();
 
@@ -111,13 +130,11 @@ private:
 	double m_timeOffset;
 	LogFile m_logFile;
 	int m_filterNr;
-	std::vector<std::unique_ptr<CLogView>> m_views;
 	CFontDialog m_fontDlg;
 	HFont m_hFont;
 	CFindDlg m_findDlg;
 	bool m_autoNewLine;
-	bool m_localReaderPaused;
-	bool m_globalReaderPaused;
+	bool m_tryGlobal;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
 	boost::signals2::connection m_localConnection;
