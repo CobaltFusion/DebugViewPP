@@ -967,7 +967,7 @@ bool CLogView::Find(const std::string& text, int direction)
 {
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	int line = begin;
-	while (line != begin)
+	do
 	{
 		line += direction;
 		if (line < 0)
@@ -982,6 +982,8 @@ bool CLogView::Find(const std::string& text, int direction)
 			return true;
 		}
 	}
+	while (line != begin);
+
 	return false;
 }
 
