@@ -148,7 +148,7 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 	int menuId = 0;
 	if ((hdrInfo.flags & HHT_ONHEADER) != 0)
 		menuId = IDR_HEADER_CONTEXTMENU;
-	else if ((info.flags & LVHT_ONITEM) == 0)
+	else if ((info.flags & LVHT_ONITEM) != 0)
 		menuId = info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU;
 	else
 		return;
@@ -998,8 +998,16 @@ bool CLogView::Find(const std::string& text, int direction)
 
 		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
-			ScrollToIndex(line, true);
-			SetHighlightText(WStr(text));
+			auto selection = GetSelectedIndices();
+			if (selection.size() > 0)
+			{
+				// only scroll to the line if it is not already selected
+				if (GetSelectedIndices()[0] != line)
+				{
+					ScrollToIndex(line, true);
+					SetHighlightText(WStr(text));
+				}
+			}
 			return true;
 		}
 	}
