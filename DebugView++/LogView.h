@@ -33,10 +33,7 @@ struct SelectionInfo
 
 struct TextColor
 {
-	TextColor(COLORREF back, COLORREF fore) :
-		back(back), fore(fore)
-	{
-	}
+	TextColor(COLORREF back, COLORREF fore);
 
 	COLORREF back;
 	COLORREF fore;
@@ -44,15 +41,11 @@ struct TextColor
 
 struct Highlight
 {
-	Highlight(int begin, int end, COLORREF bkColor, COLORREF fgColor) :
-		begin(begin), end(end), bkColor(bkColor), fgColor(fgColor)
-	{
-	}
+	Highlight(int begin, int end, const TextColor& color);
 
 	int begin;
 	int end;
-	COLORREF bkColor;
-	COLORREF fgColor;
+	TextColor color;
 };
 
 struct LogLine
@@ -62,7 +55,6 @@ struct LogLine
 	bool bookmark;
 	int line;
 	TextColor color;
-	std::vector<Highlight> highlights;
 };
 
 class CLogView :
@@ -121,6 +113,12 @@ public:
 	SelectionInfo GetSelectedRange() const;
 
 private:
+	struct ItemData
+	{
+		std::wstring text[6];
+		std::vector<Highlight> highlights;
+	};
+
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
@@ -152,7 +150,9 @@ private:
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
 	std::vector<Highlight> GetHighlights(const std::string& text) const;
 	void DrawBookmark(CDCHandle dc, int iItem) const;
-	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const;
+	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const;
+
+	ItemData GetItemData(int iItem) const;
 
 	void ToggleBookmark(int iItem);
 	void FindBookmark(int direction);

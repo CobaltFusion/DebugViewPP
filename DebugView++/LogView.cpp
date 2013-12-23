@@ -28,6 +28,16 @@ SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
 {
 }
 
+TextColor::TextColor(COLORREF back, COLORREF fore) :
+	back(back), fore(fore)
+{
+}
+
+Highlight::Highlight(int begin, int end, const TextColor& color) :
+	begin(begin), end(end), color(color)
+{
+}
+
 LogLine::LogLine(int line, TextColor color) :
 	bookmark(false), line(line), color(color)
 {
@@ -329,7 +339,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
 		for (auto tok = begin; tok != end; ++tok)
-			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), it->bgColor, it->fgColor));
+			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), TextColor(it->bgColor, it->fgColor)));
 	}
 
 	return highlights;
@@ -344,7 +354,7 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		if (match.empty())
 			break;
 
-		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), RGB(255, 255, 55), RGB(0, 0, 0)));
+		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
 
@@ -361,8 +371,8 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		rcHighlight.left = rcHighlight.right;
 		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->end).cx;
 		{
-			ScopedTextColor txtcol(hdc, it->fgColor);
-			ScopedBkColor bkcol(hdc, it->bkColor);
+			ScopedTextColor txtcol(hdc, it->color.fore);
+			ScopedBkColor bkcol(hdc, it->color.back);
 			ExtTextOut(hdc, pos, rcHighlight, text);
 		}
 		rcHighlight.left = rcHighlight.right;
@@ -379,15 +389,48 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 	dc.DrawIconEx(rect.left, rect.top, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
 }
 
-void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
+std::string TabsToSpaces(const std::string& s, int tabsize = 4)
 {
-	auto text = GetItemWText(iItem, iSubItem);
+	std::string result;
+	result.reserve(s.size() + 3*tabsize);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == '\t')
+		{
+			do
+			{
+				result.push_back(' ');
+			}
+			while (result.size() % tabsize != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
+}
+
+CLogView::ItemData CLogView::GetItemData(int iItem) const
+{
+	ItemData data;
+	for (int i = 0; i < 5; ++i)
+		data.text[i] = GetItemWText(iItem, i);
+	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
+	data.highlights = GetHighlights(text);
+	data.text[5] = WStr(text).str();
+	return data;
+}
+
+void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
+{
+	const auto& text = data.text[iSubItem];
 	RECT rect = GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS);
 	int margin = GetHeader().GetBitmapMargin();
 	rect.left += margin;
 	rect.right -= margin;
 	if (iSubItem == 5)
-		return DrawHighlightedText(dc, rect, text, m_logLines[iItem].highlights, m_highlightText);
+		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText);
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;
@@ -407,10 +450,11 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
 
+	auto data = GetItemData(iItem);
 	int subitemCount = GetHeader().GetItemCount();
 	DrawBookmark(dc, iItem);
 	for (int i = 1; i < subitemCount; ++i)
-		DrawSubItem(dc, iItem, i);
+		DrawSubItem(dc, iItem, i, data);
 	if (focused)
 		dc.DrawFocusRect(&rect);
 }
@@ -435,28 +479,6 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	}
 
 	return CDRF_DODEFAULT;
-}
-
-std::string TabsToSpaces(const std::string& s, int tabsize = 4)
-{
-	std::string result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == '\t')
-		{
-			do
-			{
-				result.push_back(' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
 }
 
 template <typename CharT>
@@ -772,7 +794,6 @@ void CLogView::Add(int line, const Message& msg)
 
 	m_dirty = true;
 	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
-	m_logLines.back().highlights = GetHighlights(msg.text);
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
 		m_stop = [this, line] () 
