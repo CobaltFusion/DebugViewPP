@@ -5,11 +5,14 @@ DebugView++ is a viewer for Win32 OutputDebugString based logging in the style o
 Sysinternals DbgView. DebugView++ features:
 
 * tabbed views
-* advanced filtering and highlighting (ability to use regular expressions)
+* advanced filtering, exclude, track, stop (ability to use regular expressions) 
+* line and token highlighting (create your own syntax highlighting)
 * minimal delay of the traced application
 * responsive user-interface, even with +50.000 incoming lines per second
 * SAIT (search-as-I-type) token highlighting
- 
+* bookmarks
+* statusbar shows detailed log/view/selection information
+* open saved logs for post-mortum analysis
 
 How to build
 ------------
@@ -18,7 +21,7 @@ This is a Visual Studio 2010 project with the following dependencies:
 - boost 1.43 or later
 - WTL 8.0 or later
 
-These libraries must be installed in Libraries. All projects should now build.
+These libraries must be installed in /Libraries. All projects should now build.
 
 
 Gert-Jan de Vos
