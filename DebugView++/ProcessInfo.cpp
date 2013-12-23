@@ -28,30 +28,32 @@ size_t ProcessInfo::GetPrivateBytes()
 std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 {
 	std::array<wchar_t, MAX_PATH> buf;
-	try
-	{
-		DWORD rc = GetProcessImageFileName(handle, buf.data(), buf.size());
-		if (rc == 0)
-			return L"";
+	DWORD rc = GetProcessImageFileName(handle, buf.data(), buf.size());
+	if (rc == 0)
+		return L"";
 
-		const wchar_t* name = buf.data();
-		for (auto it = buf.data(); *it; ++it)
-		{
-			if (*it == '\\')
-				name = it + 1;
-		}
-		return name;
-	}
-	catch (Win32Error& e)
+	const wchar_t* name = buf.data();
+	for (auto it = buf.data(); *it; ++it)
 	{
-		return wstringbuilder() << e.what();
+		if (*it == '\\')
+			name = it + 1;
 	}
+	return name;
 }
 
 std::wstring ProcessInfo::GetProcessName(DWORD processId)
+try
 {
 	Handle hProcess(OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
-	return GetProcessName(hProcess.get());
+	if (hProcess)
+	{
+		return GetProcessName(hProcess.get());
+	}
+	return L"";
+}
+catch (Win32Error& e)
+{
+	return wstringbuilder() << e.what();
 }
 
 DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
