@@ -28,6 +28,16 @@ SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
 {
 }
 
+TextColor::TextColor(COLORREF back, COLORREF fore) :
+	back(back), fore(fore)
+{
+}
+
+Highlight::Highlight(int begin, int end, const TextColor& color) :
+	begin(begin), end(end), color(color)
+{
+}
+
 LogLine::LogLine(int line, TextColor color) :
 	bookmark(false), line(line), color(color)
 {
@@ -58,9 +68,26 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
+	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
 END_MSG_MAP_CATCH(ExceptionHandler)
+
+bool CLogView::IsColumnViewed(int nID) const
+{
+	HDITEM item;
+	item.mask = HDI_WIDTH;
+	GetHeader().GetItem(nID - ID_VIEW_COLUMN_FIRST, &item);
+	return item.cxy > 0;
+}
+
+void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
+{
+	HDITEM item;
+	item.mask = HDI_WIDTH;
+	item.cxy = IsColumnViewed(nID) ? 0 : 64;
+	GetHeader().SetItem(nID - ID_VIEW_COLUMN_FIRST, &item);
+}
 
 CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_mainFrame(mainFrame),
@@ -108,15 +135,26 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 		ScreenToClient(&pt);
 	}
 
+	HDHITTESTINFO hdrInfo;
+	hdrInfo.flags = 0;
+	hdrInfo.pt = pt;
+	GetHeader().HitTest(&hdrInfo);
+
 	LVHITTESTINFO info;
 	info.flags = 0;
 	info.pt = pt;
 	SubItemHitTest(&info);
-	if ((info.flags & LVHT_ONITEM) == 0)
+
+	int menuId = 0;
+	if ((hdrInfo.flags & HHT_ONHEADER) != 0)
+		menuId = IDR_HEADER_CONTEXTMENU;
+	else if ((info.flags & LVHT_ONITEM) == 0)
+		menuId = info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU;
+	else
 		return;
 
 	CMenu menuContext;
-	menuContext.LoadMenu(info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU);
+	menuContext.LoadMenu(menuId);
 	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
 	ClientToScreen(&pt);
 	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);
@@ -329,7 +367,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
 		for (auto tok = begin; tok != end; ++tok)
-			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), it->bgColor, it->fgColor));
+			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), TextColor(it->bgColor, it->fgColor)));
 	}
 
 	return highlights;
@@ -344,7 +382,7 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		if (match.empty())
 			break;
 
-		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), RGB(255, 255, 55), RGB(0, 0, 0)));
+		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
 
@@ -361,8 +399,8 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		rcHighlight.left = rcHighlight.right;
 		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->end).cx;
 		{
-			ScopedTextColor txtcol(hdc, it->fgColor);
-			ScopedBkColor bkcol(hdc, it->bkColor);
+			ScopedTextColor txtcol(hdc, it->color.fore);
+			ScopedBkColor bkcol(hdc, it->color.back);
 			ExtTextOut(hdc, pos, rcHighlight, text);
 		}
 		rcHighlight.left = rcHighlight.right;
@@ -379,15 +417,48 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 	dc.DrawIconEx(rect.left, rect.top, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
 }
 
-void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem) const
+std::string TabsToSpaces(const std::string& s, int tabsize = 4)
 {
-	auto text = GetItemWText(iItem, iSubItem);
+	std::string result;
+	result.reserve(s.size() + 3*tabsize);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == '\t')
+		{
+			do
+			{
+				result.push_back(' ');
+			}
+			while (result.size() % tabsize != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
+}
+
+CLogView::ItemData CLogView::GetItemData(int iItem) const
+{
+	ItemData data;
+	for (int i = 0; i < 5; ++i)
+		data.text[i] = GetItemWText(iItem, i);
+	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
+	data.highlights = GetHighlights(text);
+	data.text[5] = WStr(text).str();
+	return data;
+}
+
+void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
+{
+	const auto& text = data.text[iSubItem];
 	RECT rect = GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS);
 	int margin = GetHeader().GetBitmapMargin();
 	rect.left += margin;
 	rect.right -= margin;
 	if (iSubItem == 5)
-		return DrawHighlightedText(dc, rect, text, m_logLines[iItem].highlights, m_highlightText);
+		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText);
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;
@@ -407,10 +478,11 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
 
+	auto data = GetItemData(iItem);
 	int subitemCount = GetHeader().GetItemCount();
 	DrawBookmark(dc, iItem);
 	for (int i = 1; i < subitemCount; ++i)
-		DrawSubItem(dc, iItem, i);
+		DrawSubItem(dc, iItem, i, data);
 	if (focused)
 		dc.DrawFocusRect(&rect);
 }
@@ -435,28 +507,6 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	}
 
 	return CDRF_DODEFAULT;
-}
-
-std::string TabsToSpaces(const std::string& s, int tabsize = 4)
-{
-	std::string result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == '\t')
-		{
-			do
-			{
-				result.push_back(' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
 }
 
 template <typename CharT>
@@ -512,12 +562,12 @@ std::string GetTimeText(const FILETIME& ft)
 	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
-std::string CLogView::GetSubItemText(int iItem, int iSubItem) const
+std::string CLogView::GetSubItemText(int iItem, int index) const
 {
 	int line = m_logLines[iItem].line;
 	const Message& msg = m_logFile[line];
 
-	switch (iSubItem)
+	switch (index)
 	{
 	case 1: return std::to_string(line + 1ULL);
 	case 2: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
@@ -772,7 +822,6 @@ void CLogView::Add(int line, const Message& msg)
 
 	m_dirty = true;
 	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
-	m_logLines.back().highlights = GetHighlights(msg.text);
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
 		m_stop = [this, line] () 
@@ -884,13 +933,6 @@ void CLogView::SelectAll()
 		SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
 }
 
-std::string CLogView::GetItemText(int item, int subItem) const
-{
-	CComBSTR bstr;
-	GetItemText(item, subItem, bstr.m_str);
-	return std::string(bstr.m_str, bstr.m_str + bstr.Length());
-}
-
 std::wstring CLogView::GetItemWText(int item, int subItem) const
 {
 	CComBSTR bstr;
@@ -901,11 +943,11 @@ std::wstring CLogView::GetItemWText(int item, int subItem) const
 std::string CLogView::GetItemText(int item) const
 {
 	return stringbuilder() <<
-		GetItemText(item, 1) << "\t" <<
-		GetItemText(item, 2) << "\t" <<
-		GetItemText(item, 3) << "\t" <<
-		GetItemText(item, 4) << "\t" <<
-		GetItemText(item, 5);
+		GetSubItemText(item, 1) << "\t" <<
+		GetSubItemText(item, 2) << "\t" <<
+		GetSubItemText(item, 3) << "\t" <<
+		GetSubItemText(item, 4) << "\t" <<
+		GetSubItemText(item, 5);
 }
 
 void CLogView::Copy()
@@ -946,7 +988,7 @@ bool CLogView::Find(const std::string& text, int direction)
 {
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	int line = begin;
-	while (line != begin)
+	do
 	{
 		line += direction;
 		if (line < 0)
@@ -961,6 +1003,8 @@ bool CLogView::Find(const std::string& text, int direction)
 			return true;
 		}
 	}
+	while (line != begin);
+
 	return false;
 }
 

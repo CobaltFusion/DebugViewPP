@@ -181,9 +181,14 @@ void CMainFrame::OnClose()
 void CMainFrame::UpdateUI()
 {
 	UpdateStatusBar();
+
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
 	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
+
+	for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
+		UISetCheck(id, GetView().IsColumnViewed(id));
+
 	UISetCheck(ID_LOG_AUTONEWLINE, m_autoNewLine);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
 	UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
