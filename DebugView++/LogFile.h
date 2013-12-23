@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include "ProcessInfo.h"
 
 namespace fusion {
 
@@ -32,6 +33,25 @@ struct Message
 
 class LogFile
 {
+
+	struct InternalMessage
+	{
+		InternalMessage(const Message& msg) : 
+			time(msg.time), systemTime(msg.systemTime), uid(msg.processId), text(msg.text)
+		{
+		}
+
+		InternalMessage(double time, FILETIME systemTime, DWORD uid_, const std::string& msg) :
+			time(time), systemTime(systemTime), uid(uid_), text(msg)
+		{
+		}
+
+		double time;
+		FILETIME systemTime;
+		DWORD uid;
+		std::string text;
+	};
+
 public:
 	bool Empty() const;
 	void Clear();
@@ -41,6 +61,7 @@ public:
 
 private:
 	std::vector<Message> m_messages;
+	ProcessInfo m_processInfo;
 };
 
 } // namespace fusion

@@ -54,16 +54,34 @@ std::wstring ProcessInfo::GetProcessName(DWORD processId)
 	return GetProcessName(hProcess.get());
 }
 
-ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, HANDLE handle)
+DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
 {
 	static DWORD static_uid = 0;
+	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); i++)
+	{
+		if (i->second.pid == processId && i->second.name == processName)
+		{
+			return i->first;
+		}
+	}
+
+	DWORD index = static_uid;
 	static_uid++;
 
-	ProcessProperties props;
-	props.uid = static_uid;
-	props.pid = processId;
-	props.name = GetProcessName(handle);
-	return props;
+	m_processProperties[index] = InternalProcessProperties(processId, processName);
+	return index;
+}
+
+ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::wstring& processName)
+{
+	auto uid = GetUid(processId, processName);
+	return ProcessProperties(m_processProperties[uid]);
+}
+
+ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, HANDLE handle)
+{
+	auto uid = GetUid(processId, GetProcessName(handle));
+	return ProcessProperties(m_processProperties[uid]);
 }
 
 } // namespace fusion
