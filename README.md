@@ -1,3 +1,6 @@
+DebugView++
+----------
+
 - tabbed views
 - advanced filtering, exclude, track, stop (ability to use regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
