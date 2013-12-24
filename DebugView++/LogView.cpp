@@ -10,6 +10,7 @@
 #include <array>
 #include <regex>
 #include <boost/algorithm/string.hpp>
+#include "dbgstream.h"
 #include "Win32Lib.h"
 #include "Utilities.h"
 #include "Resource.h"
@@ -46,6 +47,9 @@ LogLine::LogLine(int line, TextColor color) :
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
+	MSG_WM_LBUTTONDOWN(OnLButtonDown)
+	MSG_WM_MOUSEMOVE(OnMouseMove)
+	MSG_WM_LBUTTONUP(OnLButtonUp)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
@@ -97,7 +101,9 @@ CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_autoScrollDown(true),
 	m_dirty(false),
 	m_insidePaint(false),
-	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR)))
+	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
+	m_dragStart(0, 0),
+	m_dragEnd(0, 0)
 {
 }
 
@@ -112,12 +118,12 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
 
-	InsertColumn(0, L"", LVCFMT_RIGHT, 20, 0);
-	InsertColumn(1, L"Line", LVCFMT_RIGHT, 60, 0);
-	InsertColumn(2, L"Time", LVCFMT_RIGHT, 90, 0);
-	InsertColumn(3, L"PID", LVCFMT_RIGHT, 60, 0);
-	InsertColumn(4, L"Process", LVCFMT_LEFT, 140, 0);
-	InsertColumn(5, L"Message", LVCFMT_LEFT, 600, 0);
+	InsertColumn(0, L"", LVCFMT_RIGHT, 20, 1);
+	InsertColumn(1, L"Line", LVCFMT_RIGHT, 60, 2);
+	InsertColumn(2, L"Time", LVCFMT_RIGHT, 90, 3);
+	InsertColumn(3, L"PID", LVCFMT_RIGHT, 60, 4);
+	InsertColumn(4, L"Process", LVCFMT_LEFT, 140, 5);
+	InsertColumn(5, L"Message", LVCFMT_LEFT, 600, 6);
 
 	ApplyFilters();
 	return 0;
@@ -191,9 +197,71 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 	info.flags = 0;
 	info.pt = nmhdr.ptAction;
 	SubItemHitTest(&info);
-	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == 0)
+	if ((info.flags & LVHT_ONITEM) == 0)
+		return 0;
+
+	if (info.iSubItem == 0)
 		ToggleBookmark(info.iItem);
+
 	return 0;
+}
+
+void CLogView::OnLButtonDown(UINT /*flags*/, CPoint point)
+{
+	SetMsgHandled(false);
+
+	m_dragStart = point;
+	m_dragEnd = point;
+}
+
+void CLogView::OnMouseMove(UINT flags, CPoint point)
+{
+	SetMsgHandled(false);
+
+	if ((flags & MK_LBUTTON) == 0)
+		return;
+
+	m_dragEnd = point;
+	Invalidate();
+}
+
+void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
+{
+	SetMsgHandled(false);
+
+	if (abs(point.x - m_dragStart.x) <= GetSystemMetrics(SM_CXDRAG) &&
+		abs(point.y - m_dragStart.y) <= GetSystemMetrics(SM_CYDRAG))
+		return;
+
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = m_dragStart;
+	SubItemHitTest(&info);
+	int x1 = std::min(m_dragStart.x, point.x);
+	int x2 = std::max(m_dragStart.x, point.x);
+	m_dragStart = CPoint();
+	m_dragEnd = CPoint();
+	Invalidate();
+	if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != 5)
+		return;
+
+	int begin = GetTextIndex(info.iItem, x1);
+	int end = GetTextIndex(info.iItem, x2);
+	SetHighlightText(GetItemWText(info.iItem, 5).substr(begin, end - begin));
+}
+
+int CLogView::GetTextIndex(int iItem, int xPos)
+{
+	auto rect = GetSubItemRect(0, 5, LVIR_BOUNDS);
+	int x0 = rect.left + GetHeader().GetBitmapMargin();
+
+	CDCHandle dc(GetDC());
+	GdiObjectSelection font(dc, GetFont());
+	auto text = GetItemWText(iItem, 5);
+	int index = GetTextOffset(dc, text, xPos - x0);
+	if (index < 0)
+		return xPos > x0 ? text.size() : 0;
+	return index;
 }
 
 LRESULT CLogView::OnDblClick(NMHDR* pnmh)
@@ -203,30 +271,26 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 	if (nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
-	auto msg = m_logFile[m_logLines[nmhdr.iItem].line];
-
-	auto rect = GetSubItemRect(0, 5, LVIR_BOUNDS);
-	CDCHandle dc(GetDC());
-	GdiObjectSelection font(dc, GetFont());
-	int nFit = GetTextOffset(dc, msg.text, nmhdr.ptAction.x - rect.left);
+	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
 	if (nFit < 0)
 		return 0;
 
+	auto text = m_logFile[m_logLines[nmhdr.iItem].line].text;
 	int begin = nFit;
 	while (begin > 0)
 	{
-		if (!iswordchar(msg.text[begin - 1]))
+		if (!iswordchar(text[begin - 1]))
 			break;
 		--begin;
 	}
 	int end = nFit;
-	while (end < static_cast<int>(msg.text.size()))
+	while (end < static_cast<int>(text.size()))
 	{
-		if (!iswordchar(msg.text[end]))
+		if (!iswordchar(text[end]))
 			break;
 		++end;
 	}
-	SetHighlightText(std::wstring(msg.text.begin() + begin, msg.text.begin() + end));
+	SetHighlightText(std::wstring(text.begin() + begin, text.begin() + end));
 	return 0;
 }
 
@@ -373,7 +437,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	return highlights;
 }
 
-void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const std::wstring& highlightText)
+void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const std::wstring& highlightText, const Highlight& selection)
 {
 	auto line = boost::make_iterator_range(text);
 	for (;;)
@@ -385,6 +449,7 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
+	InsertHighlight(highlights, selection);
 
 	AddEllipsis(hdc, text, rect.right - rect.left);
 
@@ -450,6 +515,28 @@ CLogView::ItemData CLogView::GetItemData(int iItem) const
 	return data;
 }
 
+bool Contains(const RECT& rect, const POINT& pt)
+{
+	return pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y < rect.bottom;
+}
+
+Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem, const std::wstring& text) const
+{
+	auto rect = GetSubItemRect(iItem, 5, LVIR_BOUNDS);
+	int x0 = rect.left + GetHeader().GetBitmapMargin();
+
+	if (!Contains(rect, m_dragStart))
+		return Highlight(0, 0, TextColor(0, 0));
+
+	int begin = GetTextOffset(dc, text, std::min(m_dragStart.x, m_dragEnd.x) - x0);
+	if (begin < 0)
+		begin = 0;
+	int end = GetTextOffset(dc, text, std::max(m_dragStart.x, m_dragEnd.x) - x0);
+	if (end < 0)
+		end = text.size();
+	return Highlight(begin, end, TextColor(RGB(128, 255, 255), RGB(0, 0, 0)));	
+}
+
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
 {
 	const auto& text = data.text[iSubItem];
@@ -458,7 +545,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 	rect.left += margin;
 	rect.right -= margin;
 	if (iSubItem == 5)
-		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText);
+		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText, GetSelectionHighlight(dc, iItem, text));
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;

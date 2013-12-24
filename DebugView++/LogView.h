@@ -122,6 +122,9 @@ private:
 
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnContextMenu(HWND hWnd, CPoint pt);
+	void OnLButtonDown(UINT nFlags, CPoint point);
+	void OnMouseMove(UINT flags, CPoint point);
+	void OnLButtonUp(UINT nFlags, CPoint point);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
@@ -146,10 +149,12 @@ private:
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
+	int GetTextIndex(int iItem, int xPos);
 	std::string GetSubItemText(int iItem, int index) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
+	Highlight GetSelectionHighlight(CDCHandle dc, int iItem, const std::wstring& text) const;
 	std::vector<Highlight> GetHighlights(const std::string& text) const;
 	void DrawBookmark(CDCHandle dc, int iItem) const;
 	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const;
@@ -181,6 +186,8 @@ private:
 	bool m_insidePaint;
 	HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;
+	CPoint m_dragStart;
+	CPoint m_dragEnd;
 };
 
 } // namespace fusion
