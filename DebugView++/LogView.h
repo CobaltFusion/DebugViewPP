@@ -50,11 +50,19 @@ struct Highlight
 
 struct LogLine
 {
-	LogLine(int line, TextColor color);
+	explicit LogLine(int line);
 
 	bool bookmark;
 	int line;
+};
+
+struct ItemData
+{
+	ItemData();
+
+	std::wstring text[6];
 	TextColor color;
+	std::vector<Highlight> highlights;
 };
 
 struct ColumnInfo
@@ -142,12 +150,6 @@ public:
 	SelectionInfo GetSelectedRange() const;
 
 private:
-	struct ItemData
-	{
-		std::wstring text[6];
-		std::vector<Highlight> highlights;
-	};
-
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	void OnLButtonDown(UINT nFlags, CPoint point);

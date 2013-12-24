@@ -39,8 +39,13 @@ Highlight::Highlight(int begin, int end, const TextColor& color) :
 {
 }
 
-LogLine::LogLine(int line, TextColor color) :
-	bookmark(false), line(line), color(color)
+LogLine::LogLine(int line) :
+	bookmark(false), line(line)
+{
+}
+
+ItemData::ItemData() :
+	color(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT))
 {
 }
 
@@ -559,7 +564,7 @@ std::string TabsToSpaces(const std::string& s, int tabsize = 4)
 	return result;
 }
 
-CLogView::ItemData CLogView::GetItemData(int iItem) const
+ItemData CLogView::GetItemData(int iItem) const
 {
 	ItemData data;
 	for (int i = 0; i < 5; ++i)
@@ -567,6 +572,7 @@ CLogView::ItemData CLogView::GetItemData(int iItem) const
 	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
 	data.highlights = GetHighlights(text);
 	data.text[5] = WStr(text).str();
+	data.color = GetTextColor(m_logFile[m_logLines[iItem].line].text);
 	return data;
 }
 
@@ -609,16 +615,16 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 {
 	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
+	auto data = GetItemData(iItem);
 
 	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
 	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
-	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : m_logLines[iItem].color.back;
-	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : m_logLines[iItem].color.fore;
+	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : data.color.back;
+	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : data.color.fore;
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
 
-	auto data = GetItemData(iItem);
 	int subitemCount = GetHeader().GetItemCount();
 	DrawBookmark(dc, iItem);
 	for (int i = 1; i < subitemCount; ++i)
@@ -959,7 +965,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 
 	m_dirty = true;
-	m_logLines.push_back(LogLine(line, GetTextColor(msg.text)));
+	m_logLines.push_back(LogLine(line));
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
 		m_stop = [this, line] () 
@@ -981,12 +987,12 @@ void CLogView::Add(int line, const Message& msg)
 
 void CLogView::BeginUpdate()
 {
-	SetRedraw(false);
+//	SetRedraw(false);
 }
 
 void CLogView::EndUpdate()
 {
-	SetRedraw(true);
+//	SetRedraw(true);
 
 	if (m_dirty)
 	{
@@ -1290,13 +1296,36 @@ void CLogView::SetFilters(const LogFilter& filter)
 
 void CLogView::ApplyFilters()
 {
-	SetItemCount(0);
-	m_logLines.clear();
-
+	std::vector<LogLine> logLines;
+	logLines.reserve(m_logLines.size());
 	int count = m_logFile.Count();
-	for (int i = 0; i < count; ++i)
-		Add(i, m_logFile[i]);
+	int line = 0;
+	int item = 0;
+	bool changed = false;
+	while (!changed && line < count && item < static_cast<int>(m_logLines.size()))
+	{
+		if (IsIncluded(m_logFile[line]))
+		{
+			logLines.push_back(LogLine(line));
+			if (m_logLines[item].line == line)
+				logLines.back() = m_logLines[item];
+			else
+				changed = true;
+			++item;
+		}
+		++line;
+	}
+	while (line < count)
+	{
+		if (IsIncluded(m_logFile[line]))
+			logLines.push_back(LogLine(line));
+		++line;
+	}
 
+	m_logLines.swap(logLines);
+	if (changed)
+		SetItemCount(m_logLines.size());
+	Invalidate();
 	EndUpdate();
 }
 
