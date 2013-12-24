@@ -16,7 +16,7 @@ Sysinternals DbgView. DebugView++ features:
 
 Screenshot
 ----------
-![DebugView++ Screenshot](/DebugView++/art/syntax_high.png "DebugView++ Screenshot")
+![DebugView++ Screenshot](./DebugView++/art/syntax_high.png "DebugView++ Screenshot")
 
 How to build
 ------------
