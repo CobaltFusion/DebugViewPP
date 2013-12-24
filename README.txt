@@ -4,6 +4,8 @@ DebugView++
 DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
 Sysinternals DbgView. DebugView++ features:
 
+- [x] test
+
 * tabbed views
 * advanced filtering, exclude, track, stop (ability to use regular expressions) 
 * line and token highlighting (create your own syntax highlighting)
