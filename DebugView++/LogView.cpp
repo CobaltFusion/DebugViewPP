@@ -79,19 +79,16 @@ END_MSG_MAP_CATCH(ExceptionHandler)
 
 bool CLogView::IsColumnViewed(int nID) const
 {
-	HDITEM item;
-	item.mask = HDI_WIDTH;
-	GetHeader().GetItem(nID - ID_VIEW_COLUMN_FIRST, &item);
-	return item.cxy > 0;
+	return m_columns[nID - ID_VIEW_COLUMN_FIRST].enable;
 }
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	HDITEM item;
-	item.mask = HDI_WIDTH;
-	item.cxy = IsColumnViewed(nID) ? 0 : 64;
-	GetHeader().SetItem(nID - ID_VIEW_COLUMN_FIRST, &item);
+	m_columns[nID - ID_VIEW_COLUMN_FIRST].enable = !m_columns[nID - ID_VIEW_COLUMN_FIRST].enable;
+	UpdateColumnWidths();
+	UpdateColumns();
 }
+
 
 CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_mainFrame(mainFrame),
@@ -112,18 +109,73 @@ void CLogView::ExceptionHandler()
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
+int CLogView::ColumnToSubItem(int iColumn) const
+{
+	int columns = GetHeader().GetItemCount();
+	for (int iSubItem = 0; iSubItem < columns; ++iSubItem)
+	{
+		LVCOLUMN column;
+		column.mask = LVCF_SUBITEM;
+		GetColumn(iSubItem, &column);
+		if (column.iSubItem == iColumn)
+			return iSubItem;
+	}
+	return 0;
+}
+
+int CLogView::SubItemToColumn(int iSubItem) const
+{
+	LVCOLUMN column;
+	column.mask = LVCF_SUBITEM;
+	GetColumn(iSubItem, &column);
+	return column.iSubItem;
+}
+
+void CLogView::UpdateColumnWidths()
+{
+	int columns = GetHeader().GetItemCount();
+	for (int i = 0; i < columns; ++i)
+		m_columns[SubItemToColumn(i)].column.cx = GetColumnWidth(i);
+}
+
+void CLogView::UpdateColumns()
+{
+	int columns = GetHeader().GetItemCount();
+	for (int i = 0; i < columns; ++i)
+		DeleteColumn(0);
+
+	int col = 0;
+	for (auto it = m_columns.begin(); it != m_columns.end(); ++it)
+		if (it->enable)
+			InsertColumn(col++, &it->column);
+}
+
+ColumnInfo MakeColumn(int iSubItem, const wchar_t* name, int format, int width)
+{
+	ColumnInfo info;
+	info.enable = true;
+	info.column.iSubItem = iSubItem;
+	info.column.pszText = const_cast<wchar_t*>(name);
+	info.column.fmt = format;
+	info.column.cx = width;
+	info.column.mask = LVCF_SUBITEM | LVCF_TEXT | LVCF_FMT | LVCF_WIDTH;
+	return info;
+}
+
 LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP);
+	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
+	m_hdr.SubclassWindow(GetHeader());
 
-	InsertColumn(0, L"", LVCFMT_RIGHT, 20, 1);
-	InsertColumn(1, L"Line", LVCFMT_RIGHT, 60, 2);
-	InsertColumn(2, L"Time", LVCFMT_RIGHT, 90, 3);
-	InsertColumn(3, L"PID", LVCFMT_RIGHT, 60, 4);
-	InsertColumn(4, L"Process", LVCFMT_LEFT, 140, 5);
-	InsertColumn(5, L"Message", LVCFMT_LEFT, 600, 6);
+	m_columns.push_back(MakeColumn(0, L"", LVCFMT_RIGHT, 20));
+	m_columns.push_back(MakeColumn(1, L"Line", LVCFMT_RIGHT, 60));
+	m_columns.push_back(MakeColumn(2, L"Time", LVCFMT_RIGHT, 90));
+	m_columns.push_back(MakeColumn(3, L"PID", LVCFMT_RIGHT, 60));
+	m_columns.push_back(MakeColumn(4, L"Process", LVCFMT_LEFT, 140));
+	m_columns.push_back(MakeColumn(5, L"Message", LVCFMT_LEFT, 600));
+	UpdateColumns();
 
 	ApplyFilters();
 	return 0;
@@ -197,13 +249,8 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 	info.flags = 0;
 	info.pt = nmhdr.ptAction;
 	SubItemHitTest(&info);
-	if ((info.flags & LVHT_ONITEM) == 0)
-		return 0;
-
-	if (info.iSubItem == 0)
+	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == 0)
 		ToggleBookmark(info.iItem);
-//	else if (info.iSubItem == 5)
-//		SetHighlightText();
 
 	return 0;
 }
@@ -544,12 +591,13 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
 {
-	const auto& text = data.text[iSubItem];
+	int column = SubItemToColumn(iSubItem);
+	const auto& text = data.text[column];
 	RECT rect = GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS);
 	int margin = GetHeader().GetBitmapMargin();
 	rect.left += margin;
 	rect.right -= margin;
-	if (iSubItem == 5)
+	if (column == 5)
 		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText, GetSelectionHighlight(dc, iItem));
 
 	HDITEM item;
@@ -933,10 +981,13 @@ void CLogView::Add(int line, const Message& msg)
 
 void CLogView::BeginUpdate()
 {
+	SetRedraw(false);
 }
 
 void CLogView::EndUpdate()
 {
+	SetRedraw(true);
+
 	if (m_dirty)
 	{
 		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
@@ -1138,7 +1189,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 		int width;
 		while (ss >> width)
 		{
-			SetColumnWidth(col, width);
+			m_columns[col].column.cx = width;
 			++col;
 		}
 	}
@@ -1173,15 +1224,18 @@ void CLogView::LoadSettings(CRegKey& reg)
 	}
 
 	ApplyFilters();
+	UpdateColumns();
 }
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
+	UpdateColumnWidths();
+
 	std::wostringstream ss;
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
-	int subitemCount = GetHeader().GetItemCount();
-	for (int i = 0; i < subitemCount; ++i)
-		ss << GetColumnWidth(i) << " ";
+
+	for (auto it = m_columns.begin(); it < m_columns.end(); ++it)
+		ss << it->column.cx << " ";
 	reg.SetStringValue(L"ColWidths", ss.str().c_str());
 
 	int i = 0;

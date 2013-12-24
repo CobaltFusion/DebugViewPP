@@ -57,6 +57,35 @@ struct LogLine
 	TextColor color;
 };
 
+struct ColumnInfo
+{
+	bool enable;
+	LVCOLUMN column;
+};
+
+class CMyHeaderCtrl : public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
+{
+public:
+	BEGIN_MSG_MAP_EX(CMyHeaderCtrl)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_BEGINDRAG, BlockColumn0)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_ENDDRAG, BlockColumn0)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_BEGINTRACK, BlockColumn0)
+	END_MSG_MAP()
+
+	LRESULT BlockColumn0(NMHDR* pnmh)
+	{
+		auto& nmhdr = *reinterpret_cast<NMHEADER*>(pnmh);
+		if (nmhdr.iItem == 0)
+			return TRUE;
+
+		HDHITTESTINFO info;
+		auto pos = GetMessagePos();
+		info.pt = CPoint(GET_X_LPARAM(pos), GET_Y_LPARAM(pos));
+		ScreenToClient(&info.pt);
+		return HitTest(&info) < 1;
+	}
+};
+
 class CLogView :
 	public CWindowImpl<CLogView, CListViewCtrl, CListViewTraits>,
 	public COffscreenPaint<CLogView>
@@ -148,6 +177,10 @@ private:
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
+	void UpdateColumnWidths();
+	void UpdateColumns();
+	int ColumnToSubItem(int column) const;
+	int SubItemToColumn(int iSubItem) const;
 	int GetTextIndex(int iItem, int xPos);
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	std::string GetSubItemText(int iItem, int index) const;
@@ -175,6 +208,8 @@ private:
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
 	LogFilter m_filter;
+	CMyHeaderCtrl m_hdr;
+	std::vector<ColumnInfo> m_columns;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_autoScrollDown;
