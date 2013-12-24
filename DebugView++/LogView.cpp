@@ -987,12 +987,12 @@ void CLogView::Add(int line, const Message& msg)
 
 void CLogView::BeginUpdate()
 {
-	SetRedraw(false);
+//	SetRedraw(false);
 }
 
 void CLogView::EndUpdate()
 {
-	SetRedraw(true);
+//	SetRedraw(true);
 
 	if (m_dirty)
 	{
@@ -1296,13 +1296,36 @@ void CLogView::SetFilters(const LogFilter& filter)
 
 void CLogView::ApplyFilters()
 {
-	SetItemCount(0);
-	m_logLines.clear();
-
+	std::vector<LogLine> logLines;
+	logLines.reserve(m_logLines.size());
 	int count = m_logFile.Count();
-	for (int i = 0; i < count; ++i)
-		Add(i, m_logFile[i]);
+	int line = 0;
+	int item = 0;
+	bool changed = false;
+	while (!changed && line < count && item < static_cast<int>(m_logLines.size()))
+	{
+		if (IsIncluded(m_logFile[line]))
+		{
+			logLines.push_back(LogLine(line));
+			if (m_logLines[item].line == line)
+				logLines.back() = m_logLines[item];
+			else
+				changed = true;
+			++item;
+		}
+		++line;
+	}
+	while (line < count)
+	{
+		if (IsIncluded(m_logFile[line]))
+			logLines.push_back(LogLine(line));
+		++line;
+	}
 
+	m_logLines.swap(logLines);
+	if (changed)
+		SetItemCount(m_logLines.size());
+	Invalidate();
 	EndUpdate();
 }
 
