@@ -1,15 +1,3 @@
-- [ ] a task list item
-- [ ] list syntax required
-- [ ] normal **formatting**, @mentions, #1234 refs
-- [ ] incomplete
-- [x] completed
-
-DebugView++
-~~~~~~~~~~~
-
-DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
-Sysinternals DbgView. DebugView++ features:
-
 - tabbed views
 - advanced filtering, exclude, track, stop (ability to use regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
@@ -19,6 +7,14 @@ Sysinternals DbgView. DebugView++ features:
 - bookmarks
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
+
+DebugView++
+~~~~~~~~~~~
+
+DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
+Sysinternals DbgView. DebugView++ features:
+
+
 
 
 Screenshot
