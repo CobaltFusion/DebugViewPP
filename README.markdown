@@ -14,6 +14,7 @@ Sysinternals DbgView. DebugView++ features:
 [x] statusbar shows detailed log/view/selection information
 [x] open saved logs for post-mortum analysis
 
+
 Screenshot
 ----------
 ![DebugView++ Screenshot](/DebugView++/art/syntax_high.png "DebugView++ Screenshot")
