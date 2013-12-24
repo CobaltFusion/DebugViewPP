@@ -97,12 +97,6 @@ void CMainFrame::ExceptionHandler()
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
-void CMainFrame::SaitUpdate(const std::wstring& text)
-{
-	m_saitText = text;
-	UpdateStatusBar();
-}
-
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	if (GetActiveWindow() == m_findDlg)
@@ -268,9 +262,10 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 
 void CMainFrame::UpdateStatusBar()
 {
-	std::wstring search = wstringbuilder() << L"Searching: \"" << m_saitText << L"\"";
+	auto isearch = GetView().GetHighlightText();
+	std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
 	UISetText(ID_DEFAULT_PANE,
-		m_saitText.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
+		isearch.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
 	UISetText(ID_SELECTION_PANE, GetSelectionInfoText(L"Selected", GetView().GetSelectedRange()).c_str());
 	UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
 	UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());

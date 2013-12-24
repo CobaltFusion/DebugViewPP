@@ -62,8 +62,6 @@ class CLogView :
 	public COffscreenPaint<CLogView>
 {
 public:
-	typedef boost::signals2::signal<void (const std::wstring&)> SaitUpdateSignal;
-
 	CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
@@ -93,6 +91,7 @@ public:
 	void SelectAll();
 	void Copy();
 
+	std::wstring GetHighlightText() const;
 	void SetHighlightText(const std::wstring& text = std::wstring());
 	bool FindNext(const std::wstring& text);
 	bool FindPrevious(const std::wstring& text);
@@ -150,11 +149,12 @@ private:
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	int GetTextIndex(int iItem, int xPos);
+	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	std::string GetSubItemText(int iItem, int index) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
-	Highlight GetSelectionHighlight(CDCHandle dc, int iItem, const std::wstring& text) const;
+	Highlight GetSelectionHighlight(CDCHandle dc, int iItem) const;
 	std::vector<Highlight> GetHighlights(const std::string& text) const;
 	void DrawBookmark(CDCHandle dc, int iItem) const;
 	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const;

@@ -202,6 +202,8 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 
 	if (info.iSubItem == 0)
 		ToggleBookmark(info.iItem);
+//	else if (info.iSubItem == 5)
+//		SetHighlightText();
 
 	return 0;
 }
@@ -212,6 +214,7 @@ void CLogView::OnLButtonDown(UINT /*flags*/, CPoint point)
 
 	m_dragStart = point;
 	m_dragEnd = point;
+	SetHighlightText();
 }
 
 void CLogView::OnMouseMove(UINT flags, CPoint point)
@@ -252,11 +255,16 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 
 int CLogView::GetTextIndex(int iItem, int xPos)
 {
+	CDCHandle dc(GetDC());
+	GdiObjectSelection font(dc, GetFont());
+	return GetTextIndex(dc, iItem, xPos);
+}
+
+int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
+{
 	auto rect = GetSubItemRect(0, 5, LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
-	CDCHandle dc(GetDC());
-	GdiObjectSelection font(dc, GetFont());
 	auto text = GetItemWText(iItem, 5);
 	int index = GetTextOffset(dc, text, xPos - x0);
 	if (index < 0)
@@ -272,9 +280,6 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
-	if (nFit < 0)
-		return 0;
-
 	auto text = m_logFile[m_logLines[nmhdr.iItem].line].text;
 	int begin = nFit;
 	while (begin > 0)
@@ -396,6 +401,9 @@ void AddEllipsis(HDC hdc, std::wstring& text, int width)
 
 void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highlight)
 {
+	if (highlight.begin == highlight.end)
+		return;
+
 	std::vector<Highlight> newHighlights;
 	newHighlights.reserve(highlights.size() + 2);
 
@@ -520,20 +528,17 @@ bool Contains(const RECT& rect, const POINT& pt)
 	return pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y < rect.bottom;
 }
 
-Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem, const std::wstring& text) const
+Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
 	auto rect = GetSubItemRect(iItem, 5, LVIR_BOUNDS);
-	int x0 = rect.left + GetHeader().GetBitmapMargin();
-
 	if (!Contains(rect, m_dragStart))
 		return Highlight(0, 0, TextColor(0, 0));
 
-	int begin = GetTextOffset(dc, text, std::min(m_dragStart.x, m_dragEnd.x) - x0);
-	if (begin < 0)
-		begin = 0;
-	int end = GetTextOffset(dc, text, std::max(m_dragStart.x, m_dragEnd.x) - x0);
-	if (end < 0)
-		end = text.size();
+	int x1 = std::min(m_dragStart.x, m_dragEnd.x);
+	int x2 = std::max(m_dragStart.x, m_dragEnd.x);
+
+	int begin = GetTextIndex(dc, iItem, x1);
+	int end = GetTextIndex(dc, iItem, x2);
 	return Highlight(begin, end, TextColor(RGB(128, 255, 255), RGB(0, 0, 0)));	
 }
 
@@ -545,7 +550,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 	rect.left += margin;
 	rect.right -= margin;
 	if (iSubItem == 5)
-		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText, GetSelectionHighlight(dc, iItem, text));
+		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText, GetSelectionHighlight(dc, iItem));
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;
@@ -734,7 +739,6 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
-	m_mainFrame.SaitUpdate(WStr(text));
 //	int line = nmhdr.iStart; // Does not work as specified...
 	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	while (line != static_cast<int>(m_logLines.size()))
@@ -787,7 +791,6 @@ void CLogView::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetHighlightText();
-	m_mainFrame.SaitUpdate(L"");
 	StopScrolling();
 }
 
@@ -1065,6 +1068,11 @@ void CLogView::Copy()
 	}
 }
 
+std::wstring CLogView::GetHighlightText() const
+{
+	return m_highlightText;
+}
+
 void CLogView::SetHighlightText(const std::wstring& text)
 {
 	m_highlightText = text;
@@ -1076,7 +1084,7 @@ bool CLogView::Find(const std::string& text, int direction)
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	int line = begin;
 
-	if (m_logLines.size() < 1)
+	if (m_logLines.empty())
 		return false;
 
 	do

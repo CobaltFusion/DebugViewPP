@@ -72,7 +72,6 @@ public:
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 	void UpdateUI();
-	void SaitUpdate(const std::wstring&);
 
 private:
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
@@ -144,7 +143,6 @@ private:
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
-	std::wstring m_saitText;
 	size_t m_initialPrivateBytes;
 };
 
