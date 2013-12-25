@@ -355,6 +355,12 @@ bool CMainFrame::LoadSettings()
 		GetView().LoadSettings(regView);
 	}
 
+	CRegKey regColors;
+	regColors.Open(reg, L"Colors");
+	auto colors = ColorDialog::GetCustomColors();
+	for (int i = 0; i < 16; ++i)
+		colors[i] = RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
+
 	return true;
 }
 
@@ -385,6 +391,12 @@ void CMainFrame::SaveSettings()
 		regView.SetStringValue(L"", GetTabCtrl().GetItem(i)->GetTextRef());
 		GetView(i).SaveSettings(regView);
 	}
+
+	CRegKey regColors;
+	regColors.Create(reg, L"Colors");
+	auto colors = ColorDialog::GetCustomColors();
+	for (int i = 0; i < 16; ++i)
+		regColors.SetDWORDValue(WStr(wstringbuilder() << L"Color" << i), colors[i]);
 }
 
 bool CMainFrame::GetAutoNewLine() const
