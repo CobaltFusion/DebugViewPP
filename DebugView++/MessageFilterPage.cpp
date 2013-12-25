@@ -194,4 +194,11 @@ std::vector<MessageFilter> CMessageFilterPage::GetFilters() const
 	return filters;
 }
 
+void CMessageFilterPage::SetFilters(const std::vector<MessageFilter>& filters)
+{
+	m_grid.DeleteAllItems();
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+		AddFilter(*it);
+}
+
 } // namespace fusion

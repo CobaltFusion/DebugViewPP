@@ -269,6 +269,16 @@ public:
       return TBase::GetItemCount();
    }
 
+   void DeleteAllItems()
+   {
+	   int count = GetItemCount();
+	   while (count > 0)
+	   {
+		   --count;
+		   DeleteItem(count);
+	   }
+   }
+
    int InsertItem(int nItem, HPROPERTY hProp)
    {
       // NOTE: This is the only InsertItem() we support...

@@ -45,6 +45,8 @@ public:
 	void OnDestroy();
 	void OnSize(UINT nType, CSize size);
 
+	void OnSave(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
+	void OnLoad(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
 	LRESULT OnTabSelChange(NMHDR* pnmh);

@@ -137,6 +137,7 @@
     <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="LogFile.cpp" />
+    <ClCompile Include="LogFilter.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="MessageFilterPage.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="GuiThread.h" />
+    <ClInclude Include="LogFilter.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="MainFrame.h" />

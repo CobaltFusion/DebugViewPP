@@ -38,6 +38,7 @@ public:
 	explicit CMessageFilterPage(const std::vector<MessageFilter>& filters);
 
 	std::vector<MessageFilter> GetFilters() const;
+	void SetFilters(const std::vector<MessageFilter>& filters);
 
 	enum { IDD = IDD_FILTER_PAGE };
 

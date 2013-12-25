@@ -38,6 +38,7 @@ public:
 	explicit CProcessFilterPage(const std::vector<ProcessFilter>& filters);
 
 	std::vector<ProcessFilter> GetFilters() const;
+	void SetFilters(const std::vector<ProcessFilter>& filters);
 
 	enum { IDD = IDD_FILTER_PAGE };
 

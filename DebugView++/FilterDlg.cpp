@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "atlstr.h"
-#include "dbgstream.h"
+#include "LogFilter.h"
 #include "resource.h"
 #include "Utilities.h"
 #include "FilterDlg.h"
@@ -47,6 +47,8 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
 	MSG_WM_SIZE(OnSize)
+	COMMAND_ID_HANDLER_EX(IDC_FILTER_SAVE, OnSave)
+	COMMAND_ID_HANDLER_EX(IDC_FILTER_LOAD, OnLoad)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	NOTIFY_CODE_HANDLER_EX(TCN_SELCHANGE, OnTabSelChange)
@@ -132,6 +134,64 @@ LRESULT CFilterDlg::OnTabSelChange(NMHDR* /*pnmh*/)
 	m_messagePage.ShowWindow(tab == 0 ? SW_SHOW : SW_HIDE);
 	m_processPage.ShowWindow(tab == 1 ? SW_SHOW : SW_HIDE);
 	return 0;
+}
+
+std::wstring GetFileNameExt(const std::wstring& fileName)
+{
+	auto it = fileName.find_last_of('.');
+	if (it == fileName.npos)
+		return std::wstring();
+	return fileName.substr(it + 1);
+}
+
+void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CFileDialog dlg(false, L".xml", m_name.c_str(), OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY,
+		L"XML Files (*.xml)\0*.xml\0"
+		L"JSON Files (*.json)\0*.json\0"
+		L"All Files\0*.*\0"
+		L"\0", 0);
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Save DebugView Filter";
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	LogFilter filter;
+	auto name = fusion::GetDlgItemText(*this, IDC_NAME);
+	filter.messageFilters = m_messagePage.GetFilters();
+	filter.processFilters = m_processPage.GetFilters();
+
+	auto ext = GetFileNameExt(dlg.m_szFileName);
+	auto fileName = Str(dlg.m_szFileName).str();
+	if (boost::iequals(ext, L"xml"))
+		SaveXml(fileName, Str(name), filter);
+	else if (boost::iequals(ext, L"json"))
+		SaveJson(fileName, Str(name), filter);
+}
+
+void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CFileDialog dlg(true, L".xml", m_name.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"XML Files (*.xml)\0*.xml\0"
+		L"JSON Files (*.json)\0*.json\0"
+		L"All Files\0*.*\0"
+		L"\0", 0);
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Load DebugView Filter";
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	auto ext = GetFileNameExt(dlg.m_szFileName);
+	auto fileName = Str(dlg.m_szFileName).str();
+	FilterData data;
+	if (boost::iequals(ext, L"xml"))
+		data = LoadXml(fileName);
+	else if (boost::iequals(ext, L"json"))
+		data = LoadJson(fileName);
+
+	SetDlgItemTextA(*this, IDC_NAME, data.name.c_str());
+	m_messagePage.SetFilters(data.filter.messageFilters);
+	m_processPage.SetFilters(data.filter.processFilters);
 }
 
 void CFilterDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)

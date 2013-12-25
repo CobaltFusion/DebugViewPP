@@ -183,4 +183,11 @@ std::vector<ProcessFilter> CProcessFilterPage::GetFilters() const
 	return filters;
 }
 
+void CProcessFilterPage::SetFilters(const std::vector<ProcessFilter>& filters)
+{
+	m_grid.DeleteAllItems();
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+		AddFilter(*it);
+}
+
 } // namespace fusion
