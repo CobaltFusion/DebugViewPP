@@ -1296,36 +1296,49 @@ void CLogView::SetFilters(const LogFilter& filter)
 
 void CLogView::ApplyFilters()
 {
+	int focusItem = GetNextItem(-1, LVIS_FOCUSED);
+	int focusLine = focusItem < 0 ? -1 : m_logLines[focusItem].line;
+
 	std::vector<LogLine> logLines;
 	logLines.reserve(m_logLines.size());
 	int count = m_logFile.Count();
 	int line = 0;
 	int item = 0;
+	focusItem = 0;
 	bool changed = false;
-	while (!changed && line < count && item < static_cast<int>(m_logLines.size()))
-	{
-		if (IsIncluded(m_logFile[line]))
-		{
-			logLines.push_back(LogLine(line));
-			if (m_logLines[item].line == line)
-				logLines.back() = m_logLines[item];
-			else
-				changed = true;
-			++item;
-		}
-		++line;
-	}
 	while (line < count)
 	{
 		if (IsIncluded(m_logFile[line]))
-			logLines.push_back(LogLine(line));
+		{
+			if (item < static_cast<int>(m_logLines.size()) && m_logLines[item].line == line)
+			{
+				logLines.push_back(m_logLines[item]);
+			}
+			else
+			{
+				logLines.push_back(LogLine(line));
+				changed = true;
+			}
+
+			if (line <= focusLine)
+				focusItem = item;
+
+			++item;
+		}
 		++line;
 	}
 
 	m_logLines.swap(logLines);
 	if (changed)
-		SetItemCount(m_logLines.size());
-	Invalidate();
+	{
+		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
+		ScrollToIndex(focusItem, false);
+		SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
+	}
+	else
+	{
+		Invalidate();
+	}
 	EndUpdate();
 }
 
