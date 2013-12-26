@@ -11,6 +11,7 @@
 #include "MainFrame.h"
 
 #include "Utilities.h"
+#include "IndexedStorage.h"
 
 CAppModule _Module;
 

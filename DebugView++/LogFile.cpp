@@ -25,7 +25,8 @@ void LogFile::Clear()
 void LogFile::Add(const Message& msg)
 {
 	auto props = m_processInfo.GetProcessProperties(msg.processId, msg.processName);
-	m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid, msg.text));
+	m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid));
+	m_storage.Add(msg.text);
 }
 
 int LogFile::Count() const
@@ -37,7 +38,7 @@ Message LogFile::operator[](int i) const
 {
 	auto msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
-	return Message(msg.time, msg.systemTime, props.pid, props.name, msg.text);
+	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i]);
 }
 
 } // namespace fusion

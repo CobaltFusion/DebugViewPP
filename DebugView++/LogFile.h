@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "ProcessInfo.h"
+#include "IndexedStorage.h"
 
 namespace fusion {
 
@@ -31,15 +32,14 @@ class LogFile
 {
 	struct InternalMessage
 	{
-		InternalMessage(double time, FILETIME systemTime, DWORD uid_, const std::string& msg) :
-			time(time), systemTime(systemTime), uid(uid_), text(msg)
+		InternalMessage(double time, FILETIME systemTime, DWORD uid_) :
+			time(time), systemTime(systemTime), uid(uid_)
 		{
 		}
 
 		double time;
 		FILETIME systemTime;
 		DWORD uid;
-		std::string text;
 	};
 
 public:
@@ -52,6 +52,7 @@ public:
 private:
 	std::vector<InternalMessage> m_messages;
 	ProcessInfo m_processInfo;
+	VectorStorage m_storage;
 };
 
 } // namespace fusion
