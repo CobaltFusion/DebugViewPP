@@ -40,16 +40,21 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
+	MSG_WM_SYSCOMMAND(OnSysCommand)
+    MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
+    COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
+    COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
-	COMMAND_ID_HANDLER_EX(ID_LOG_AUTONEWLINE, OnAutoNewline)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_FONT, OnViewFont)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
 	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
@@ -71,9 +76,10 @@ LOGFONT& GetDefaultLogFont()
 CMainFrame::CMainFrame() :
 	m_timeOffset(0),
 	m_filterNr(0),
-	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_findDlg(*this),
+	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_autoNewLine(false),
+	m_hide(false),
 	m_tryGlobal(true),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes())
 {
@@ -82,6 +88,7 @@ CMainFrame::CMainFrame() :
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
 #endif
 
+	m_notifyIconData.cbSize = 0;
 	SetAutoNewLine(m_autoNewLine);
 }
 
@@ -118,6 +125,8 @@ BOOL CMainFrame::OnIdle()
 
 LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
+	m_notifyIconData.cbSize = 0;
+
 	SetWindowText(WStr(LoadString(IDR_APPNAME)));
 
 	m_findDlg.Create(*this, 0);
@@ -166,6 +175,12 @@ void CMainFrame::OnClose()
 	SaveSettings();
 	DestroyWindow();
 
+	if (m_notifyIconData.cbSize)
+	{
+		Shell_NotifyIcon(NIM_DELETE, &m_notifyIconData);
+		m_notifyIconData.cbSize = 0;
+	}
+
 #ifdef CONSOLE_DEBUG
 	fclose(stdout);
 	FreeConsole();
@@ -183,7 +198,8 @@ void CMainFrame::UpdateUI()
 	for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
 		UISetCheck(id, GetView().IsColumnViewed(id));
 
-	UISetCheck(ID_LOG_AUTONEWLINE, m_autoNewLine);
+	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_autoNewLine);
+	UISetCheck(ID_OPTIONS_HIDE, m_hide);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
 	UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
 	UISetCheck(ID_LOG_GLOBAL, m_tryGlobal);
@@ -315,6 +331,81 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	ProcessLines(lines);
 }
 
+LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
+{
+	switch (nCommand)
+	{
+	case SC_MINIMIZE:
+		if (!m_hide)
+			break;
+
+		if (!m_notifyIconData.cbSize)
+		{
+			m_notifyIconData.cbSize = sizeof(m_notifyIconData);
+			m_notifyIconData.hWnd = *this;
+			m_notifyIconData.uID = 1;
+			m_notifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+			m_notifyIconData.uCallbackMessage = WM_SYSTEMTRAYICON;
+			m_notifyIconData.hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON));
+			CString sWindowText;
+			GetWindowText(sWindowText);
+			_tcscpy_s(m_notifyIconData.szTip, sWindowText);
+			if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData))
+				break;
+		}
+		ShowWindow(SW_HIDE);
+		return 0;
+	}
+
+	SetMsgHandled(false);
+	return 0;
+}
+
+LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
+{
+	ATLASSERT(wParam == 1);
+	switch (lParam)
+	{
+	case WM_LBUTTONDBLCLK:
+		SendMessage(WM_COMMAND, SC_RESTORE);
+		break;
+	case WM_RBUTTONUP:
+		{
+			SetForegroundWindow(m_hWnd);
+			CMenuHandle menu = GetSystemMenu(false);
+			menu.EnableMenuItem(SC_RESTORE, MF_BYCOMMAND | MF_ENABLED);
+			menu.EnableMenuItem(SC_MOVE, MF_BYCOMMAND | MF_GRAYED);
+			menu.EnableMenuItem(SC_SIZE, MF_BYCOMMAND | MF_GRAYED);
+			menu.EnableMenuItem(SC_MINIMIZE, MF_BYCOMMAND | MF_GRAYED);
+			menu.EnableMenuItem(SC_MAXIMIZE, MF_BYCOMMAND | MF_GRAYED);
+			menu.EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
+			POINT position;
+			ATLVERIFY(GetCursorPos(&position));
+			menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, position.x, position.y, m_hWnd);
+		}
+		break;
+	}
+	return 0;
+}
+
+LRESULT CMainFrame::OnScRestore(UINT, INT, HWND)
+{
+	if (m_notifyIconData.cbSize)
+	{
+		Shell_NotifyIcon(NIM_DELETE, &m_notifyIconData);
+		m_notifyIconData.cbSize = 0;
+	}
+	ShowWindow(SW_SHOW);
+	BringWindowToTop();
+	return 0;
+}
+
+LRESULT CMainFrame::OnScClose(UINT, INT, HWND)
+{
+	PostMessage(WM_COMMAND, IDCANCEL);
+	return 0;
+}
+
 const wchar_t* RegistryPath = L"Software\\Fusion\\DebugView++";
 
 bool CMainFrame::LoadSettings()
@@ -330,6 +421,7 @@ bool CMainFrame::LoadSettings()
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
+	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
 	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
 	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
@@ -376,6 +468,7 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
 	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+	reg.SetDWORDValue(L"Hide", m_hide);
 
 	LOGFONT lf;
 	m_fontDlg.GetCurrentFont(&lf);
@@ -613,6 +706,11 @@ void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetAutoNewLine(!GetAutoNewLine());
+}
+
+void CMainFrame::OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_hide = !m_hide;
 }
 
 bool CMainFrame::IsPaused() const

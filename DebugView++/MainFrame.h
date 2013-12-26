@@ -52,7 +52,8 @@ public:
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
-		UPDATE_ELEMENT(ID_LOG_AUTONEWLINE, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_OPTIONS_AUTONEWLINE, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_OPTIONS_HIDE, UPDUI_MENUPOPUP)
 	    UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
@@ -74,6 +75,12 @@ public:
 	void UpdateUI();
 
 private:
+	enum
+	{
+		WM_FIRST = WM_APP,
+		WM_SYSTEMTRAYICON,
+	};
+
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -105,6 +112,10 @@ private:
 	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);
 
+	LRESULT OnSysCommand(UINT nCommand, CPoint);
+	LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
+	LRESULT OnScRestore(UINT, INT, HWND);
+	LRESULT OnScClose(UINT, INT, HWND);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
@@ -115,6 +126,7 @@ private:
 	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -133,10 +145,11 @@ private:
 	double m_timeOffset;
 	LogFile m_logFile;
 	int m_filterNr;
+	CFindDlg m_findDlg;
 	CFontDialog m_fontDlg;
 	HFont m_hFont;
-	CFindDlg m_findDlg;
 	bool m_autoNewLine;
+	bool m_hide;
 	bool m_tryGlobal;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
@@ -144,6 +157,7 @@ private:
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
 	size_t m_initialPrivateBytes;
+	NOTIFYICONDATA m_notifyIconData;
 };
 
 } // namespace fusion
