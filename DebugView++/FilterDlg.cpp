@@ -6,7 +6,8 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "atlstr.h"
+#include <boost/algorithm/string.hpp>
+#include <atlstr.h>
 #include "LogFilter.h"
 #include "resource.h"
 #include "Utilities.h"

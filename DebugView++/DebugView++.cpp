@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <boost/algorithm/string.hpp>
 #include "resource.h"
 #include "Win32Lib.h"
 #include "MainFrame.h"
@@ -41,6 +42,15 @@ private:
 int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 {
 	MessageLoop theLoop(_Module);
+
+	int argc;
+	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+	for (int i = 1; i < argc; ++i)
+	{
+		if (boost::iequals(argv[i], L"/min"))
+			cmdShow = SW_MINIMIZE;
+	}
 
 	fusion::CMainFrame wndMain;
 	if (wndMain.CreateEx() == nullptr)
