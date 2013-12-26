@@ -54,5 +54,4 @@ void CFindDlg::Show()
 	GetDlgItem(IDC_TEXT).SetFocus();
 }
 
-
 } // namespace fusion
