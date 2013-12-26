@@ -1294,10 +1294,22 @@ void CLogView::SetFilters(const LogFilter& filter)
 	ApplyFilters();
 }
 
+std::vector<int> CLogView::GetBookmarks() const
+{
+	std::vector<int> bookmarks;
+	for (auto it = m_logLines.begin(); it != m_logLines.end(); ++it)
+		if (it->bookmark)
+			bookmarks.push_back(it->line);
+	return bookmarks;
+}
+
 void CLogView::ApplyFilters()
 {
 	int focusItem = GetNextItem(-1, LVIS_FOCUSED);
 	int focusLine = focusItem < 0 ? -1 : m_logLines[focusItem].line;
+
+	auto bookmarks = GetBookmarks();
+	auto itBookmark = bookmarks.begin();
 
 	std::vector<LogLine> logLines;
 	logLines.reserve(m_logLines.size());
@@ -1310,14 +1322,14 @@ void CLogView::ApplyFilters()
 	{
 		if (IsIncluded(m_logFile[line]))
 		{
-			if (item < static_cast<int>(m_logLines.size()) && m_logLines[item].line == line)
-			{
-				logLines.push_back(m_logLines[item]);
-			}
-			else
-			{
-				logLines.push_back(LogLine(line));
+			logLines.push_back(LogLine(line));
+			if (item >= static_cast<int>(m_logLines.size()) || m_logLines[item].line != line)
 				changed = true;
+
+			if (itBookmark != bookmarks.end() && *itBookmark == line)
+			{
+				logLines.back().bookmark = true;
+				++itBookmark;
 			}
 
 			if (line <= focusLine)

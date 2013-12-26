@@ -196,6 +196,7 @@ private:
 
 	ItemData GetItemData(int iItem) const;
 
+	std::vector<int> GetBookmarks() const;
 	void ToggleBookmark(int iItem);
 	void FindBookmark(int direction);
 	bool Find(const std::string& text, int direction);

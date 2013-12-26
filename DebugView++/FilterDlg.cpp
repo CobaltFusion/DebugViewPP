@@ -163,10 +163,10 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 
 	auto ext = GetFileNameExt(dlg.m_szFileName);
 	auto fileName = Str(dlg.m_szFileName).str();
-	if (boost::iequals(ext, L"xml"))
-		SaveXml(fileName, Str(name), filter);
-	else if (boost::iequals(ext, L"json"))
+	if (boost::iequals(ext, L"json"))
 		SaveJson(fileName, Str(name), filter);
+	else /* if (boost::iequals(ext, L"xml")) */
+		SaveXml(fileName, Str(name), filter);
 }
 
 void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -184,10 +184,10 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	auto ext = GetFileNameExt(dlg.m_szFileName);
 	auto fileName = Str(dlg.m_szFileName).str();
 	FilterData data;
-	if (boost::iequals(ext, L"xml"))
-		data = LoadXml(fileName);
-	else if (boost::iequals(ext, L"json"))
+	if (boost::iequals(ext, L"json"))
 		data = LoadJson(fileName);
+	else /* if (boost::iequals(ext, L"xml")) */
+		data = LoadXml(fileName);
 
 	SetDlgItemTextA(*this, IDC_NAME, data.name.c_str());
 	m_messagePage.SetFilters(data.filter.messageFilters);
