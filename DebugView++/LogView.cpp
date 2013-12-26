@@ -328,7 +328,7 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
 
-	if (nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
+	if (nmhdr.iSubItem != 5 || nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
