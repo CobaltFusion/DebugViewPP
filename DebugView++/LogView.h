@@ -94,6 +94,20 @@ public:
 	}
 };
 
+struct Column
+{
+	enum type
+	{
+		Bookmark = 0,
+		Line,
+		Time,
+		Pid,
+		Process,
+		Message,
+		Count
+	};
+};
+
 class CLogView :
 	public CWindowImpl<CLogView, CListViewCtrl, CListViewTraits>,
 	public COffscreenPaint<CLogView>
@@ -181,11 +195,11 @@ private:
 
 	void UpdateColumnWidths();
 	void UpdateColumns();
-	int ColumnToSubItem(int column) const;
-	int SubItemToColumn(int iSubItem) const;
+	int ColumnToSubItem(Column::type column) const;
+	Column::type SubItemToColumn(int iSubItem) const;
 	int GetTextIndex(int iItem, int xPos);
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
-	std::string GetSubItemText(int iItem, int index) const;
+	std::string GetColumnText(int iItem, Column::type column) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
