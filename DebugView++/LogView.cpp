@@ -297,7 +297,7 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	m_dragStart = CPoint();
 	m_dragEnd = CPoint();
 	Invalidate();
-	if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != 5)
+	if ((info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != 5)
 		return;
 
 	int begin = GetTextIndex(info.iItem, x1);
@@ -314,7 +314,7 @@ int CLogView::GetTextIndex(int iItem, int xPos)
 
 int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
 {
-	auto rect = GetSubItemRect(0, 5, LVIR_BOUNDS);
+	auto rect = GetSubItemRect(0, ColumnToSubItem(5), LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
 	auto text = GetItemWText(iItem, 5);
@@ -328,7 +328,7 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
 
-	if (nmhdr.iSubItem != 5 || nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
+	if (SubItemToColumn(nmhdr.iSubItem) != 5 || nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
@@ -583,7 +583,7 @@ bool Contains(const RECT& rect, const POINT& pt)
 
 Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
-	auto rect = GetSubItemRect(iItem, 5, LVIR_BOUNDS);
+	auto rect = GetSubItemRect(iItem, ColumnToSubItem(5), LVIR_BOUNDS);
 	if (!Contains(rect, m_dragStart))
 		return Highlight(0, 0, TextColor(0, 0));
 
