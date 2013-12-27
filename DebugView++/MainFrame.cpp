@@ -357,6 +357,7 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
 LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
 {
 	ATLASSERT(wParam == 1);
+	wParam;
 	switch (lParam)
 	{
 	case WM_LBUTTONDBLCLK:

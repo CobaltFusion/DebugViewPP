@@ -21,22 +21,25 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Libraries\snappy-1.1.1\snappy.h">
+    <ClInclude Include="..\Libraries\snappy\snappy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Libraries\snappy-1.1.1\snappy-c.h">
+    <ClInclude Include="..\Libraries\snappy\snappy-c.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Libraries\snappy-1.1.1\snappy-internal.h">
+    <ClInclude Include="..\Libraries\snappy\snappy-internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Libraries\snappy-1.1.1\snappy-sinksource.h">
+    <ClInclude Include="..\Libraries\snappy\snappy-sinksource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Libraries\snappy-1.1.1\snappy-stubs-internal.h">
+    <ClInclude Include="..\Libraries\snappy\snappy-stubs-internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Libraries\snappy-1.1.1\snappy-stubs-public.h">
+    <ClInclude Include="..\Libraries\snappy\snappy-stubs-public.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libsnappy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,20 +47,21 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Libraries\snappy-1.1.1\snappy.cc">
+    <ClCompile Include="..\Libraries\snappy\snappy.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Libraries\snappy-1.1.1\snappy-c.cc">
+    <ClCompile Include="..\Libraries\snappy\snappy-c.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Libraries\snappy-1.1.1\snappy-sinksource.cc">
+    <ClCompile Include="..\Libraries\snappy\snappy-sinksource.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Libraries\snappy-1.1.1\snappy-stubs-internal.cc">
+    <ClCompile Include="..\Libraries\snappy\snappy-stubs-internal.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Libraries\snappy-1.1.1\snappy-stubs-public.h.in" />
+    <None Include="..\Libraries\snappy\snappy-stubs-public.h.in" />
   </ItemGroup>
 </Project>

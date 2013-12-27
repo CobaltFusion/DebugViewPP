@@ -68,3 +68,5 @@ extern CAppModule _Module;
 
 #include <windows.h>
 
+#include "libsnappy.h"
+

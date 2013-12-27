@@ -12,4 +12,7 @@
 typedef int ssize_t;
 #include <sys/types.h>
 
+#pragma comment(linker, "/nodefaultlib:msvcrt.lib") 
+
+
 // TODO: reference additional headers your program requires here
