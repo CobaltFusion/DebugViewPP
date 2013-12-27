@@ -52,7 +52,7 @@ public:
 private:
 	std::vector<InternalMessage> m_messages;
 	ProcessInfo m_processInfo;
-	VectorStorage m_storage;
+	mutable SnappyStorage m_storage;
 };
 
 } // namespace fusion

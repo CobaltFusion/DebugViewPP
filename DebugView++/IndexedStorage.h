@@ -40,6 +40,9 @@ namespace fusion {
 		int Add(const std::string& value);
 		int Count() const;
 		std::string operator[](int i);
+
+		std::string Compress(std::vector<std::string> value) const;
+		std::vector<std::string> Decompress(const std::string& value) const;
 	private:
 
 	    int GetBlockIndex(int index) const;
@@ -51,8 +54,6 @@ namespace fusion {
 		std::vector<std::string> m_readList;
 		std::vector<std::string> m_writeList;
 
-		std::string Compress(std::vector<std::string> value) const;
-		std::vector<std::string> Decompress(const std::string& value) const;
 		std::vector<std::string> m_storage;
 	};
 	

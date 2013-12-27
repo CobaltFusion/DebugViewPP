@@ -76,8 +76,10 @@ namespace fusion {
 		int result = (m_writeBlockIndex* blockSize) + id;
         if (id == (blockSize-1))
         {
-            m_storage[m_writeBlockIndex] = Compress(m_writeList);
+			std::string test = Compress(m_writeList);
+			m_storage.push_back(test);
             m_writeBlockIndex++;
+			m_writeList.clear();
         }
         return result;
 	}
@@ -112,7 +114,7 @@ namespace fusion {
             return m_writeList[id];
         }
 
-        if (m_readBlockIndex != blockId)
+        if (blockId != m_readBlockIndex)
         {
             m_readList = Decompress(m_storage[blockId]);
             m_readBlockIndex = blockId;
@@ -122,14 +124,17 @@ namespace fusion {
 
 	std::string SnappyStorage::Compress(std::vector<std::string> value) const
 	{
-		auto sb = stringbuilder();
+		std::vector<char> raw;
 		for (auto s = value.begin(); s != value.end(); s++)
 		{
-			sb << s->c_str();
-			sb << "\0";
+			for (auto t = s->begin(); t != s->end(); t++)
+			{
+				raw.push_back(*t);
+			}
+			raw.push_back(0);
 		}
 		std::string data;
-		snappy::Compress(sb.str().c_str(), sb.str().size(), &data);
+		snappy::Compress(&raw[0], raw.size(), &data);
 		return std::move(data);
 	}
 
@@ -146,6 +151,7 @@ namespace fusion {
 			while (*i)
 			{
 				sb << *i;
+				i++;
 			}
 			vec.push_back(sb.str());
 		}
