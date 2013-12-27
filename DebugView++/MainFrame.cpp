@@ -146,14 +146,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	HideTabControl();
 
 	SetLogFont();
-	try 
-	{
-		LoadSettings();
-	}
-	catch (std::exception e)
-	{
-		// handle bad registry entries?
-	}
+	LoadSettings();
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -414,10 +407,10 @@ bool CMainFrame::LoadSettings()
 	CRegKey reg;
 	if (reg.Open(HKEY_CURRENT_USER, RegistryPath, KEY_READ) != ERROR_SUCCESS)
 		return false;
-	reg.QueryDWORDValue(L"x", x);
-	reg.QueryDWORDValue(L"y", y);
-	reg.QueryDWORDValue(L"width", cx);
-	reg.QueryDWORDValue(L"height", cy);
+	reg.QueryDWORDValue(L"X", x);
+	reg.QueryDWORDValue(L"Y", y);
+	reg.QueryDWORDValue(L"Width", cx);
+	reg.QueryDWORDValue(L"Height", cy);
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
@@ -462,10 +455,10 @@ void CMainFrame::SaveSettings()
 
 	CRegKey reg;
 	reg.Create(HKEY_CURRENT_USER, RegistryPath);
-	reg.SetDWORDValue(L"x", placement.rcNormalPosition.left);
-	reg.SetDWORDValue(L"y", placement.rcNormalPosition.top);
-	reg.SetDWORDValue(L"width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
-	reg.SetDWORDValue(L"height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
+	reg.SetDWORDValue(L"X", placement.rcNormalPosition.left);
+	reg.SetDWORDValue(L"Y", placement.rcNormalPosition.top);
+	reg.SetDWORDValue(L"Width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
+	reg.SetDWORDValue(L"Height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
 	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
 	reg.SetDWORDValue(L"Hide", m_hide);
