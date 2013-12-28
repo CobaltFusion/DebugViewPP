@@ -729,7 +729,7 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 
 	switch (column)
 	{
-	case Column::Line: return std::to_string(line + 1ULL);
+	case Column::Line: return std::to_string(iItem + 1ULL);
 	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return msg.processName;
@@ -971,6 +971,26 @@ void CLogView::Clear()
 	m_dirty = false;
 	m_logLines.clear();
 	m_highlightText.clear();
+}
+
+int CLogView::GetFocusLine() const
+{
+	int item = GetNextItem(-1, LVNI_FOCUSED);
+	if (item < 0)
+		return -1;
+
+	return m_logLines[item].line;
+}
+
+void CLogView::SetFocusLine(int line)
+{
+	int item = 0;
+	int count = m_logLines.size();
+	while (item < count && m_logLines[item].line <= line)
+		++item;
+	--item;
+
+	ScrollToIndex(item, false);
 }
 
 void CLogView::Add(int line, const Message& msg)

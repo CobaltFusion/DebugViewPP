@@ -49,6 +49,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
@@ -59,6 +60,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
 	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
 	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGING, OnChangingTab)
+	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
 	CHAIN_MSG_MAP(TabbedFrame)
@@ -78,6 +80,7 @@ CMainFrame::CMainFrame() :
 	m_filterNr(0),
 	m_findDlg(*this),
 	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
+	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
 	m_tryGlobal(true),
@@ -191,6 +194,7 @@ void CMainFrame::UpdateUI()
 	for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
 		UISetCheck(id, GetView().IsColumnViewed(id));
 
+	UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
 	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_autoNewLine);
 	UISetCheck(ID_OPTIONS_HIDE, m_hide);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
@@ -414,6 +418,7 @@ bool CMainFrame::LoadSettings()
 	reg.QueryDWORDValue(L"Height", cy);
 	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
+	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
 	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
@@ -461,6 +466,7 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"Width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
 	reg.SetDWORDValue(L"Height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
+	reg.SetDWORDValue(L"LinkViews", m_linkViews);
 	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
 	reg.SetDWORDValue(L"Hide", m_hide);
 
@@ -552,6 +558,23 @@ LRESULT CMainFrame::OnChangingTab(NMHDR* pnmh)
 		PostMessage(WM_COMMAND, ID_FILE_NEWTAB, (LPARAM)m_hWnd);
 
 	return FALSE;
+}
+
+LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
+{
+	SetMsgHandled(false);
+
+	auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
+
+	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
+		nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() ||
+		nmhdr.iItem2 < 0 || nmhdr.iItem2 >= GetViewCount())
+		return 0;
+
+	int line = GetView(nmhdr.iItem1).GetFocusLine();
+	GetView(nmhdr.iItem2).SetFocusLine(line);
+	
+	return 0;
 }
 
 LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
@@ -695,6 +718,11 @@ void CMainFrame::ClearLog()
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	ClearLog();
+}
+
+void CMainFrame::OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_linkViews = !m_linkViews;
 }
 
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

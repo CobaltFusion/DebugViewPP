@@ -52,8 +52,6 @@ public:
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
-		UPDATE_ELEMENT(ID_OPTIONS_AUTONEWLINE, UPDUI_MENUPOPUP)
-		UPDATE_ELEMENT(ID_OPTIONS_HIDE, UPDUI_MENUPOPUP)
 	    UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 	    UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
@@ -63,6 +61,9 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_COLUMN_TIME, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_COLUMN_PID, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_COLUMN_PROCESS, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_OPTIONS_LINKVIEWS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+		UPDATE_ELEMENT(ID_OPTIONS_AUTONEWLINE, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_OPTIONS_HIDE, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_VIEW_PANE, UPDUI_STATUSBAR)
@@ -118,6 +119,7 @@ private:
 	LRESULT OnScClose(UINT, INT, HWND);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
+	LRESULT OnChangeTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -125,6 +127,7 @@ private:
 	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -148,6 +151,7 @@ private:
 	CFindDlg m_findDlg;
 	CFontDialog m_fontDlg;
 	HFont m_hFont;
+	bool m_linkViews;
 	bool m_autoNewLine;
 	bool m_hide;
 	bool m_tryGlobal;

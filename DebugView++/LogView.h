@@ -125,6 +125,8 @@ public:
 	bool GetScroll() const;
 	void SetScroll(bool enable);
 	void Clear();
+	int GetFocusLine() const;
+	void SetFocusLine(int line);
 	void Add(int line, const Message& msg);
 	void BeginUpdate();
 	void EndUpdate();
