@@ -552,7 +552,7 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 	if (!m_logLines[iItem].bookmark)
 		return;
 	RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
-	dc.DrawIconEx(rect.left, rect.top, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
+	dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16)/2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
 }
 
 std::string TabsToSpaces(const std::string& s, int tabsize = 4)
@@ -1005,8 +1005,8 @@ void CLogView::Add(int line, const Message& msg)
 	m_logLines.push_back(LogLine(line));
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
-		m_stop = [this, line] () 
-		{ 
+		m_stop = [this, line] ()
+		{
 			StopScrolling();
 			ScrollToIndex(line, true);
 		};
