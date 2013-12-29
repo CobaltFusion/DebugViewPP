@@ -175,6 +175,8 @@ void PrintUsage()
 		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n" \
 		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n" \
 		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n" \
+		"  -7 DbgMsgTest, sends 4 different test lines, using different newlines styles\n" \
+		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n" \
 		"\n" \
 		);
 }
