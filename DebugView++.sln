@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DbgMsgSrc", "DbgMsgSrc\DbgMsgSrc.vcxproj", "{722E0592-E026-4D51-87EC-6ACA85B385F4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BugGazerTester", "BugGazerTester\BugGazerTester.vcxproj", "{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsnappy", "libsnappy\libsnappy.vcxproj", "{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DebugView++Setup", "DebugView++Setup\DebugView++Setup.wixproj", "{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}"
@@ -45,14 +43,6 @@ Global
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|Win32.Build.0 = Release|Win32
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|x86.ActiveCfg = Release|Win32
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|x86.Build.0 = Release|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Debug|Win32.ActiveCfg = Debug|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Debug|Win32.Build.0 = Debug|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Debug|x86.ActiveCfg = Debug|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Release|Win32.ActiveCfg = Release|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Release|Win32.Build.0 = Release|Win32
-		{DA5E956C-AE1E-48E7-85E0-5A24A5A7B320}.Release|x86.ActiveCfg = Release|Win32
 		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Win32.ActiveCfg = Debug|Win32
