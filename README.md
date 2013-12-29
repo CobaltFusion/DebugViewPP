@@ -13,6 +13,7 @@ Sysinternals DebugView. DebugView++ features:
 - bookmarks
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
+- Memory Compressed buffers (-50% RAM consumed)
 
 Screenshot
 ----------
