@@ -77,6 +77,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_BOOKMARKS, OnViewClearBookmarks)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	DEFAULT_REFLECTION_HANDLER()
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
@@ -943,6 +944,13 @@ void CLogView::OnViewPreviousBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow
 	FindBookmark(-1);
 }
 
+void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	for (auto it = m_logLines.begin(); it != m_logLines.end(); ++it)
+		it->bookmark = false;
+	Invalidate();
+}
+
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 {
 	m_insidePaint = true;
@@ -984,13 +992,8 @@ int CLogView::GetFocusLine() const
 
 void CLogView::SetFocusLine(int line)
 {
-	int item = 0;
-	int count = m_logLines.size();
-	while (item < count && m_logLines[item].line <= line)
-		++item;
-	--item;
-
-	ScrollToIndex(item, false);
+	auto it = std::upper_bound(m_logLines.begin(), m_logLines.end(), line, [](int line, const LogLine& logLine) { return line < logLine.line; });
+	ScrollToIndex(it - m_logLines.begin() - 1, false);
 }
 
 void CLogView::Add(int line, const Message& msg)
