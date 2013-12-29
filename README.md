@@ -1,4 +1,4 @@
-DebugView++
+Cobalt Fusion presents: DebugView++
 ----------
 
 DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
@@ -27,6 +27,7 @@ This is a Visual Studio 2010 project with the following dependencies:
 
 These libraries must be installed in /Libraries. All projects should now build.
 
+-= Cobalt Fusion =-
 
 Gert-Jan de Vos
 mailto:boosttestui@on.nl
