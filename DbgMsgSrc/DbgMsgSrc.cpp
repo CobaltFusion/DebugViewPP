@@ -1,7 +1,5 @@
 #include <windows.h>
-#include <tchar.h>
 #include <psapi.h>
-#include <stdio.h>
 #pragma comment(lib, "psapi.lib")
 
 #include <iostream>
@@ -46,11 +44,11 @@ using namespace std;
 #include <fstream>
 #include <vector>
 
-int getMilliCount(){
+int getMilliCount()
+{
 	timeb tb;
 	ftime(&tb);
-	int nCount = tb.millitm + (tb.time & 0xfffff) * 1000;
-	return nCount;
+	return tb.millitm + (tb.time & 0xfffff) * 1000;
 }
 
 void testLongString()
@@ -60,30 +58,29 @@ void testLongString()
 	ss << "1234567890ABCDEF-%s {0} \t\r\n";
 	ss << length;
 	std::string test = ss.str();
-	for (size_t i=0;i<length-test.size()-1; i++)
-	{
+	for (size_t i = 0; i < length - test.size() - 1; ++i)
 		ss << "X";
-	}
+
 	ss << "\n";
 	test = ss.str();	
 	
 	OutputDebugStringA(test.c_str());
 }
 
-void Output(std::wstring filename)
+void Output(const std::string& filename)
 {
-	printf("Buggazer tester, PID: %d\n", GetCurrentProcessId());
+	std::cout << "Buggazer tester, PID: " << GetCurrentProcessId() << "\n";
 	OutputDebugStringA("Output Titan crash log\n");
 	std::fstream fs;
 	fs.open(filename, std::fstream::in);
 
 	if (!fs.good())
 	{
-		printf("'%S' not found!\n", filename.c_str());
+		std::cout << "\"" << filename << "\" not found!\n";
 		return;
 	}
 
-	printf("read\n");
+	std::cout << "read\n";
 	std::vector<std::string> lines;
 	while (!fs.eof())
 	{
@@ -93,22 +90,21 @@ void Output(std::wstring filename)
 	}
 	fs.close();
 
-	printf("writing...%d lines\n", lines.size());
+	std::cout << "writing... " << lines.size() << " lines\n";
 
 	int i = 0;
 	long t1 = getMilliCount();
 
-	for (auto s= lines.begin(); s != lines.end(); s++)
+	for (auto s = lines.begin(); s != lines.end(); ++s)
 	{
 		++i;
-
 		//auto t = s + "\n";
 		OutputDebugStringA(s->c_str());
 		//Sleep(50);
 	}
 	long t2 = getMilliCount();
 
-	printf("OutputDebugStringA %d lines, took: %u ms\n", i, t2 - t1);
+	std::cout << "OutputDebugStringA " << i << " lines, took: " << t2 - t1 << " ms\n";
 }
 
 void EndlessTest()
@@ -118,25 +114,24 @@ void EndlessTest()
 	ss << "123456:jan-7890_ABC__DEF-te m_test";
 	ss << length;
 	std::string test = ss.str();
-	for (size_t i = 0; i<length - test.size() - 1; i++)
-	{
+	for (size_t i = 0; i < length - test.size() - 1; ++i)
 		ss << "X";
-	}
+
 	ss << "\n";
 	test = ss.str();
 
 	//testLongString();
 
-	while (1)
+	for (;;)
 	{
 		long t1 = getMilliCount();
 
-		for (int a = 0; a < 5; a++)
+		for (int a = 0; a < 5; ++a)
 		{
 			OutputDebugStringA("    ## before me ##\n");
 
 			// write exactly 2MB to hte debug buffer;
-			for (int i = 0; i < 9; i++)
+			for (int i = 0; i < 9; ++i)
 			{
 				OutputDebugStringA(test.c_str());
 			}
@@ -147,48 +142,44 @@ void EndlessTest()
 			Sleep(50);
 		}
 		//OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
-
 	}
 }
 
 void SeparateProcessTest()
 {
-	while (1)
+	for (;;)
 	{
-		ShellExecute(0, L"open", L"BugGazerTester.exe", L"-n", NULL, SW_HIDE);
+		ShellExecute(0, L"open", L"BugGazerTester.exe", L"-n", nullptr, SW_HIDE);
 		Sleep(100);
 	}
-	
 }
 
 void PrintUsage()
 {
-	printf(\
-		"Usage:\n" \
-		"  -1 read 'titan_crash_debugview_43mb.log' and output it through OutputDebugStringA\n" \
-		"  -2 <filename> read <filename> and output it through OutputDebugStringA\n" \
-		"  -3 run endless test\n" \
-		"  -s run -n repeatedly (10x / second) in separate processes)\n" \
-		"  -w Send OutputDebugStringA 'WithoutNewLine'\n" \
-		"  -n Send OutputDebugStringA 'WithNewLine\\n'\n" \
-		"  -e Send empty OutputDebugStringA message (does not trigger DBwinMutex!)\n" \
-		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n" \
-		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n" \
-		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n" \
-		"  -7 DbgMsgTest, sends 4 different test lines, using different newlines styles\n" \
-		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n" \
-		"\n" \
-		);
+	std::cout <<
+		"Usage:\n" 
+		"  -1 read 'titan_crash_debugview_43mb.log' and output it through OutputDebugStringA\n"
+		"  -2 <filename> read <filename> and output it through OutputDebugStringA\n"
+		"  -3 run endless test\n"
+		"  -s run -n repeatedly (10x / second) in separate processes)\n"
+		"  -w Send OutputDebugStringA 'WithoutNewLine'\n"
+		"  -n Send OutputDebugStringA 'WithNewLine\\n'\n"
+		"  -e Send empty OutputDebugStringA message (does not trigger DBwinMutex!)\n"
+		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n"
+		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
+		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
+		"  -7 DbgMsgTest, sends 4 different test lines, using different newlines styles\n"
+		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
+		"\n";
 }
 
-
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	//OutputDebugStringA("ping");
 	//return 0;
 
 	// get un-spoofable executable file name 
-	//WCHAR buf[260];
+	//char buf[260];
 	//GetMappedFileName(GetCurrentProcess(), _tmain, buf, sizeof(buf));
 	//printf("%S\n", buf);
 
@@ -196,15 +187,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	//HANDLE handle2 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	//HANDLE handle3 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	//printf(" %p, %p, %p\n", handle1, handle2, handle3);
-	
+
 	int lastArgc = argc - 1;
-	for (int i = 1; i < argc; i++) {
-		if (_tcscmp(argv[i], L"-1") == 0) 
+	for (int i = 1; i < argc; ++i)
+	{
+		std::string arg(argv[i]);
+		if (arg == "-1")
 		{
-			Output(L"titan_crash_debugview_43mb.log");
+			Output("titan_crash_debugview_43mb.log");
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-2") == 0) 
+		else if (arg == "-2")
 		{
 			if (i == lastArgc)
 			{
@@ -214,72 +207,71 @@ int _tmain(int argc, _TCHAR* argv[])
 			Output(argv[i + 1]);
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-3") == 0)
+		else if (arg == "-3")
 		{
 			EndlessTest();
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-s") == 0)		// run separate process test
+		else if (arg == "-s")		// run separate process test
 		{
 			SeparateProcessTest();
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-w") == 0)
+		else if (arg == "-w")
 		{
-			printf("Send OutputDebugStringA 'WithoutNewLine'\n");
+			std::cout << "Send OutputDebugStringA 'WithoutNewLine'\n";
 			OutputDebugStringA("WithoutNewLine ");
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-n") == 0)
+		else if (arg == "-n")
 		{
-			printf("Send OutputDebugStringA 'WithNewLine\\n'\n");
+			std::cout << "Send OutputDebugStringA 'WithNewLine\\n'\n";
 			OutputDebugStringA("WithNewLine\n");
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-e") == 0)
+		else if (arg == "-e")
 		{
-			printf("Send empty OutputDebugStringA message\n");
+			std::cout << "Send empty OutputDebugStringA message\n";
 			OutputDebugStringA("");			//empty message
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-4") == 0)
+		else if (arg == "-4")
 		{
-			printf("Send 2x OutputDebugStringA 'WithNewLine\\n'\n");
+			std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n'\n";
 			OutputDebugStringA("WithNewLine\n");
 			OutputDebugStringA("WithNewLine\n");
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-5") == 0)
+		else if (arg == "-5")
 		{
-			printf("Send OutputDebugStringA '1\\n2\\n3\\n'\n");
+			std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n'\n";
 			OutputDebugStringA("1\n2\n3\n");
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-6") == 0)
+		else if (arg == "-6")
 		{
-			printf("Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n");
+			std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n";
 			OutputDebugStringA("1 ");
 			OutputDebugStringA("2 ");
 			OutputDebugStringA("3\n");
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-7") == 0)
+		else if (arg == "-7")
 		{
 			DbgMsgTest();
 			return 0;
 		}
-		else if (_tcscmp(argv[i], L"-8") == 0) 
+		else if (arg == "-8")
 		{
 			if (i == lastArgc)
 			{
 				PrintUsage();
 				return -1;
 			}
-			int n = _wtoi(argv[i + 1]);
+			int n = atoi(argv[i + 1]);
 			DbgMsgSrc(n);
 			return 0;
 		}
-		
 	}
 	PrintUsage();
 	return 0;

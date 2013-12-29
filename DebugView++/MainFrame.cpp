@@ -668,8 +668,9 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	fileName = dlg.m_szFileName;
+	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
+	fileName = dlg.m_szFileName;
 	std::ifstream file(fileName);
 	if (!file)
 		ThrowLastError(fileName);
@@ -869,10 +870,7 @@ bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
 void CMainFrame::AddMessage(const Message& message)
 {
 	if (IsDbgViewClearMessage(message.text))
-	{
-		OnLogClear(0, 0, 0);
-		return;
-	}
+		return ClearLog();
 
 	int index = m_logFile.Count();
 	m_logFile.Add(message);
