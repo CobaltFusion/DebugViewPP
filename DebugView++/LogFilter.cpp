@@ -7,14 +7,12 @@
 
 
 #include "stdafx.h"
-
-#pragma warning(push, 3)
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#pragma warning(push, 3)
 #include <boost/property_tree/json_parser.hpp>
 #pragma warning(pop)
-
 #include "LogFilter.h"
 
 namespace fusion {

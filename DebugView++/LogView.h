@@ -193,6 +193,7 @@ private:
 	void OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	void UpdateColumnWidths();
