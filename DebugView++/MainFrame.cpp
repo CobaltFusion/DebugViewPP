@@ -404,7 +404,7 @@ LRESULT CMainFrame::OnScClose(UINT, INT, HWND)
 	return 0;
 }
 
-const wchar_t* RegistryPath = L"Software\\Fusion\\DebugView++";
+const wchar_t* RegistryPath = L"Software\\Cobalt Fusion\\DebugView++";
 
 bool CMainFrame::LoadSettings()
 {
