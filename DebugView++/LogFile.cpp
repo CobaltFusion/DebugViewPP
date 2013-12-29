@@ -20,6 +20,7 @@ bool LogFile::Empty() const
 void LogFile::Clear()
 {
 	m_messages.clear();
+	m_storage.Clear();
 }
 
 void LogFile::Add(const Message& msg)

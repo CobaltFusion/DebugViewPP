@@ -12,49 +12,44 @@
 
 namespace fusion {
 
-	class VectorStorage
-	{
-	public:
+class VectorStorage
+{
+public:
+	bool Empty() const;
+	void Clear();
+	int Add(const std::string& value);
+	int Count() const;
+	std::string operator[](int i) const;
 
-		VectorStorage();
-		~VectorStorage();
+private:
+	std::vector<std::string> m_storage;
+};
 
-		bool Empty() const;
-		void Clear();
-		int Add(const std::string& value);
-		int Count() const;
-		std::string operator[](int i) const;
-	private:
-		std::vector<std::string> m_storage;
-	};
+class SnappyStorage
+{
+public:
+	SnappyStorage();
 
-	class SnappyStorage
-	{
-	public:
+	bool Empty() const;
+	void Clear();
+	int Add(const std::string& value);
+	int Count() const;
+	std::string operator[](int i);
 
-		SnappyStorage();
-		~SnappyStorage();
+	std::string Compress(const std::vector<std::string>& value) const;
+	std::vector<std::string> Decompress(const std::string& value) const;
 
-		bool Empty() const;
-		void Clear();
-		int Add(const std::string& value);
-		int Count() const;
-		std::string operator[](int i);
+private:
+	int GetBlockIndex(int index) const;
+	int GetRelativeIndex(int index) const;
+	std::string GetString(int index);
 
-		std::string Compress(std::vector<std::string> value) const;
-		std::vector<std::string> Decompress(const std::string& value) const;
-	private:
+	int m_writeBlockIndex;
+	int m_readBlockIndex;
+	std::vector<std::string> m_readList;
+	std::vector<std::string> m_writeList;
 
-	    int GetBlockIndex(int index) const;
-		int GetRelativeIndex(int index) const;
-		std::string GetString(int index);
-
-		int m_writeBlockIndex;
-		int m_readBlockIndex;
-		std::vector<std::string> m_readList;
-		std::vector<std::string> m_writeList;
-
-		std::vector<std::string> m_storage;
-	};
+	std::vector<std::string> m_storage;
+};
 	
 } // namespace fusion

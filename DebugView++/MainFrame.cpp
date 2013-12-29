@@ -677,7 +677,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	Pause();
 	ClearLog();
 
-	DWORD pid = GetCurrentProcessId();
+//	DWORD pid = GetCurrentProcessId();
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -689,7 +689,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		auto message = split.GetTail();
 
 		FILETIME ft = {};
-		AddMessage(Message(0, ft, pid, process, message));
+		AddMessage(Message(atof(time.c_str()), ft, atoi(pidtxt.c_str()), process, message));
 	}
 }
 
@@ -709,10 +709,11 @@ void CMainFrame::OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::ClearLog()
 {
+	// First Clear LogFile such that views reset their m_firstLine:
+	m_logFile.Clear();
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
 		GetView(i).Clear();
-	m_logFile.Clear();
 }
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

@@ -107,6 +107,7 @@ CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 	m_mainFrame(mainFrame),
 	m_logFile(logFile),
 	m_filter(std::move(filter)),
+	m_firstLine(0),
 	m_clockTime(false),
 	m_autoScrollDown(true),
 	m_dirty(false),
@@ -834,6 +835,7 @@ LRESULT CLogView::OnOdCacheHint(NMHDR* pnmh)
 
 void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	m_firstLine = m_logFile.Count();
 	Clear();
 }
 
@@ -1354,7 +1356,7 @@ void CLogView::ApplyFilters()
 	std::vector<LogLine> logLines;
 	logLines.reserve(m_logLines.size());
 	int count = m_logFile.Count();
-	int line = 0;
+	int line = m_firstLine;
 	int item = 0;
 	focusItem = 0;
 	bool changed = false;

@@ -230,11 +230,10 @@ private:
 	LogFilter m_filter;
 	CMyHeaderCtrl m_hdr;
 	std::vector<ColumnInfo> m_columns;
+	int m_firstLine;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_autoScrollDown;
-	DisplayInfo m_displayInfo;
-	ProcessInfo m_processInfo;
 	bool m_dirty;
 	std::function<void ()> m_stop;
 	std::function<void ()> m_track;
