@@ -80,6 +80,9 @@
   <ItemGroup>
     <ClCompile Include="DbgMsgSrc.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dbgstream.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
