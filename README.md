@@ -1,18 +1,23 @@
-DebugView++
+Cobalt Fusion presents: DebugView++
 ----------
 
 DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
 Sysinternals DebugView. DebugView++ features:
 
+- single selfcontaining executable, setup is provided but not required
+- runs without prerequisites on WinXPSP3, Vista and 7/8.x
+- capture both Win32 and Global Win32 messages
 - tabbed views
 - advanced filtering, exclude, track, stop (ability to use regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
-- minimal delay of the traced application
-- responsive user-interface, even with +50.000 incoming lines per second
+- minimal delay of the traced application, compared to debugview a factor of 10 better.
+- fast and responsive user-interface, even with +50.000 incoming lines per second
 - SAIT (search-as-I-type) token highlighting
 - bookmarks
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
+- memory compressed logbuffer using google snappy (-50% RAM consumed)
+
 
 Screenshot
 ----------
@@ -27,6 +32,7 @@ This is a Visual Studio 2010 project with the following dependencies:
 
 These libraries must be installed in /Libraries. All projects should now build.
 
+-= Cobalt Fusion =-
 
 Gert-Jan de Vos
 mailto:boosttestui@on.nl
