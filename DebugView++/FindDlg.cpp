@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "dbgstream.h"
 #include "resource.h"
 #include "Utilities.h"
 #include "MainFrame.h"
@@ -18,11 +19,29 @@ CFindDlg::CFindDlg(CMainFrame& mainFrame) :
 {
 }
 
+BOOL CFindDlg::PreTranslateMessage(MSG* pMsg)
+{
+	return IsDialogMessage(pMsg);
+}
+
 BOOL CFindDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-	CenterWindow(GetParent());
 	DlgResize_Init();
+
+	// register object for message filtering and idle updates
+	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	ATLASSERT(pLoop != nullptr);
+	pLoop->AddMessageFilter(this);
+
 	return TRUE;
+}
+
+void CFindDlg::OnDestroy()
+{
+	// register object for message filtering and idle updates
+	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	ATLASSERT(pLoop != nullptr);
+	pLoop->RemoveMessageFilter(this);
 }
 
 void CFindDlg::OnGetMinMaxInfo(MINMAXINFO* pInfo)
@@ -46,12 +65,6 @@ void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
 	ShowWindow(SW_HIDE);
-}
-
-void CFindDlg::Show()
-{
-	ShowWindow(SW_SHOW);
-	GetDlgItem(IDC_TEXT).SetFocus();
 }
 
 } // namespace fusion

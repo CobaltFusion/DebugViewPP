@@ -109,8 +109,9 @@ void CMainFrame::ExceptionHandler()
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-	if (GetActiveWindow() == m_findDlg)
+	if (pMsg->hwnd == m_findDlg)
 	{
+//		cdbg << "PreTranslateMessage(" << pMsg->message << ")\n";
 		if (m_findDlg.IsDialogMessage(pMsg))
 			return TRUE;
 	}
@@ -132,10 +133,37 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	SetWindowText(WStr(LoadString(IDR_APPNAME)));
 
-	m_findDlg.Create(*this, 0);
+#if 1
+	HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
+	m_cmdBar.AttachMenu(GetMenu());
+	m_cmdBar.LoadImages(IDR_MAINFRAME);
+	SetMenu(nullptr);
 
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+	CReBarCtrl rebar(m_hWndToolBar);
+
+	AddSimpleReBarBand(hWndCmdBar);
+
+	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	AddSimpleReBarBand(hWndToolBar, nullptr, true);
+	UIAddToolBar(hWndToolBar);
+
+//	m_findBox.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, ID_FIND);
+//	m_findBox.SetFont(AtlGetDefaultGuiFont());
+	m_findDlg.Create(rebar);
+	AddSimpleReBarBand(m_findDlg, L"Find: ", false, 10000);
+	SizeSimpleReBarBands();
+
+//	CStatic stCtrl;
+//	stCtrl.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+//	AddSimpleReBarBand(stCtrl, nullptr, false, 100);
+//	rebar.LockBands(true);
+	rebar.SetNotifyWnd(*this);
+
+#else
 	CreateSimpleToolBar();
 	UIAddToolBar(m_hWndToolBar);
+#endif
 
 	m_hWndStatusBar = m_statusBar.Create(*this);
 	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE };
@@ -812,7 +840,8 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_findDlg.Show();
+//	m_findDlg.Show();
+	m_findDlg.SetFocus();
 }
 
 void CMainFrame::OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

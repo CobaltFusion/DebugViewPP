@@ -143,6 +143,8 @@ private:
 	void SetLogFont();
 
 	FILE* m_stdout;
+	CCommandBarCtrl m_cmdBar;
+	CEdit m_findBox;
 	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
 	double m_timeOffset;
