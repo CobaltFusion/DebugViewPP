@@ -23,6 +23,14 @@ Screenshot
 ----------
 ![DebugView++ Screenshot](/DebugView++/art/syntax_high.jpg "DebugView++ Screenshot")
 
+The screenshot demonstrates bookmarks and highlighting featuees:
+
+highlighted:
+regex (token filter):     [^\s]*\\[\\\w+\.\s]+    filenames in blue
+regex (token filter):     0x\w+                   hexadecimal numbers in red
+regex (highlight filter): data                    lines with the word 'data' lightgreen
+
+
 How to build
 ------------
 
