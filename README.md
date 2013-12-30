@@ -31,6 +31,7 @@ highlighted:
 - regex (token filter):     0x\w+                   hexadecimal numbers in red
 - regex (highlight filter): data                    lines with the word 'data' lightgreen
 
+See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options
 
 How to build
 ------------
