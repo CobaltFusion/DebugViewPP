@@ -133,7 +133,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	SetWindowText(WStr(LoadString(IDR_APPNAME)));
 
-#if 1
 	HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_cmdBar.AttachMenu(GetMenu());
 	m_cmdBar.LoadImages(IDR_MAINFRAME);
@@ -157,13 +156,8 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 //	CStatic stCtrl;
 //	stCtrl.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 //	AddSimpleReBarBand(stCtrl, nullptr, false, 100);
-//	rebar.LockBands(true);
+	rebar.LockBands(true);
 	rebar.SetNotifyWnd(*this);
-
-#else
-	CreateSimpleToolBar();
-	UIAddToolBar(m_hWndToolBar);
-#endif
 
 	m_hWndStatusBar = m_statusBar.Create(*this);
 	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE };
@@ -475,13 +469,12 @@ bool CMainFrame::LoadSettings()
 	}
 
 	CRegKey regColors;
-	if (regColors.Open(reg, L"Colors") != ERROR_SUCCESS)
+	if (regColors.Open(reg, L"Colors") == ERROR_SUCCESS)
 	{
-		throw std::runtime_error("Colors missing from registry");
+		auto colors = ColorDialog::GetCustomColors();
+		for (int i = 0; i < 16; ++i)
+			colors[i] = RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
 	}
-	auto colors = ColorDialog::GetCustomColors();
-	for (int i = 0; i < 16; ++i)
-		colors[i] = RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
 
 	return true;
 }
