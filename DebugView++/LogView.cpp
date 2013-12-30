@@ -346,7 +346,8 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
-	auto text = m_logFile[m_logLines[nmhdr.iItem].line].text;
+	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));
+
 	int begin = nFit;
 	while (begin > 0)
 	{
@@ -751,20 +752,6 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 	return 0;
 }
 
-std::vector<int> CLogView::GetSelectedIndices() const
-{
-	std::vector<int> result;
-	int item = -1;
-	for (;;)
-	{
-		item = GetNextItem(item, LVNI_SELECTED);
-		if (item < 0) 
-			break;
-		result.push_back(item);
-	}
-	return result;
-}
-
 SelectionInfo CLogView::GetSelectedRange() const
 {
 	int first = GetNextItem(-1, LVNI_SELECTED);
@@ -1072,10 +1059,13 @@ void CLogView::StopScrolling()
 
 void CLogView::ClearSelection()
 {
-	auto lines = GetSelectedIndices();
-	for (auto i = lines.begin(); i != lines.end(); ++i)
+	int item = -1;
+	for (;;)
 	{
-		SetItemState(*i, static_cast<UINT>(~(LVIS_FOCUSED | LVIS_SELECTED)), LVIS_FOCUSED | LVIS_SELECTED);
+		item = GetNextItem(item, LVNI_SELECTED);
+		if (item < 0)
+			break;
+		SetItemState(item, 0, LVIS_SELECTED);
 	}
 }
 
@@ -1193,16 +1183,10 @@ bool CLogView::Find(const std::string& text, int direction)
 
 		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
-			auto selection = GetSelectedIndices();
-			if (selection.size() > 0)
-			{
-				// only scroll to the line if it is not already selected
-				if (GetSelectedIndices()[0] != line)
-				{
-					ScrollToIndex(line, true);
-					SetHighlightText(WStr(text));
-				}
-			}
+			// only scroll to the line if it is not already in focus
+			if (GetItemState(line, LVIS_FOCUSED) == 0)
+				ScrollToIndex(line, true);
+			SetHighlightText(WStr(text));
 			return true;
 		}
 	}

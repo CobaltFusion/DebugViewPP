@@ -1,8 +1,12 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <vector>
 #include <windows.h>
 #include <psapi.h>
 #pragma comment(lib, "psapi.lib")
-
-#include <iostream>
+#include <sys/timeb.h>
 #include "dbgstream.h"
 
 void DbgMsgSrc(double freq)
@@ -30,19 +34,8 @@ void DbgMsgTest()
 	OutputDebugStringA("Message 2 without newline");
 	OutputDebugStringA("Message 3 with newline\n");
 	OutputDebugStringA("Message with\nembedded newline\n");
+	OutputDebugStringA("Tabs:\t1\t2\t3\t4\t5\t6\tlast\n");
 }
-
-
-#include "windows.h"
-#include <stdio.h>
-#include <string>
-
-#include <iostream>
-using namespace std;
-#include <sys/timeb.h>
-#include <sstream>
-#include <fstream>
-#include <vector>
 
 int getMilliCount()
 {
@@ -74,7 +67,7 @@ void Output(const std::string& filename)
 	std::fstream fs;
 	fs.open(filename, std::fstream::in);
 
-	if (!fs.good())
+	if (!fs)
 	{
 		std::cout << "\"" << filename << "\" not found!\n";
 		return;
@@ -82,12 +75,9 @@ void Output(const std::string& filename)
 
 	std::cout << "read\n";
 	std::vector<std::string> lines;
-	while (!fs.eof())
-	{
-		std::string line;
-		getline(fs, line);
+	std::string line;
+	while (getline(fs, line))
 		lines.push_back(line);
-	}
 	fs.close();
 
 	std::cout << "writing... " << lines.size() << " lines\n";
@@ -130,15 +120,13 @@ void EndlessTest()
 		{
 			OutputDebugStringA("    ## before me ##\n");
 
-			// write exactly 2MB to hte debug buffer;
+			// write exactly 2MB to the debug buffer;
 			for (int i = 0; i < 9; ++i)
-			{
 				OutputDebugStringA(test.c_str());
-			}
-			long t2 = getMilliCount();
 
+			long t2 = getMilliCount();
 			OutputDebugStringA("    ## tracking me ##\n");
-			printf("took: %u ms\n", t2 - t1);
+			std::cout << "took: " << t2 - t1 << " ms\n";
 			Sleep(50);
 		}
 		//OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
@@ -157,7 +145,8 @@ void SeparateProcessTest()
 void PrintUsage()
 {
 	std::cout <<
-		"Usage:\n" 
+		"Usage: DbgMsgSrc <opt>\n"
+		"\n"
 		"  -1 read 'titan_crash_debugview_43mb.log' and output it through OutputDebugStringA\n"
 		"  -2 <filename> read <filename> and output it through OutputDebugStringA\n"
 		"  -3 run endless test\n"
@@ -168,9 +157,8 @@ void PrintUsage()
 		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n"
 		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
 		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
-		"  -7 DbgMsgTest, sends 4 different test lines, using different newlines styles\n"
-		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
-		"\n";
+		"  -7 DbgMsgTest, sends 5 different test lines, using different newlines styles\n"
+		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n";
 }
 
 int main(int argc, char* argv[])
@@ -270,6 +258,11 @@ int main(int argc, char* argv[])
 			}
 			int n = atoi(argv[i + 1]);
 			DbgMsgSrc(n);
+			return 0;
+		}
+		else
+		{
+			Output(arg);
 			return 0;
 		}
 	}
