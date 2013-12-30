@@ -388,12 +388,10 @@ RECT CLogView::GetItemRect(int iItem, unsigned code) const
 
 RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
 {
-	int subitemCount = GetHeader().GetItemCount();
-
 	RECT rect;
 	CListViewCtrl::GetSubItemRect(iItem, iSubItem, code, &rect);
-	if (iSubItem == 0 && subitemCount > 1)
-		rect.right = GetSubItemRect(iItem, 1, code).left;
+	if (iSubItem == 0)
+		rect.right = rect.left + GetColumnWidth(0);
 	return rect;
 }
 
@@ -1382,17 +1380,30 @@ void CLogView::ApplyFilters()
 	EndUpdate();
 }
 
+bool FilterSupportsColor(FilterType::type value)
+{
+	switch (value)
+	{
+	case FilterType::Include:
+	case FilterType::Highlight:
+	case FilterType::Track:
+	case FilterType::Stop:
+		return true;
+	}
+	return false;
+}
+
 TextColor CLogView::GetTextColor(const std::string& text) const
 {
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
+		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
-		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
+		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
