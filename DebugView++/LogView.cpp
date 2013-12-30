@@ -991,6 +991,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 
 	m_dirty = true;
+	++m_addedLines;
 	m_logLines.push_back(LogLine(line));
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
@@ -1014,9 +1015,10 @@ void CLogView::Add(int line, const Message& msg)
 void CLogView::BeginUpdate()
 {
 //	SetRedraw(false);
+	m_addedLines = 0;
 }
 
-void CLogView::EndUpdate()
+int CLogView::EndUpdate()
 {
 //	SetRedraw(true);
 
@@ -1038,6 +1040,8 @@ void CLogView::EndUpdate()
 	{
 		m_track();
 	}
+
+	return m_addedLines;
 }
 
 void CLogView::StopScrolling()

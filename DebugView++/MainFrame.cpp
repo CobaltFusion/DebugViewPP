@@ -314,7 +314,13 @@ void CMainFrame::ProcessLines(const Lines& lines)
 		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->processName, it->message));
 
 	for (int i = 0; i < views; ++i)
-		GetView(i).EndUpdate();
+	{
+		if (GetView(i).EndUpdate() > 0 && GetTabCtrl().GetCurSel() != i)
+		{
+			GetTabCtrl().GetItem(i)->SetHighlighted(true);
+			GetTabCtrl().Invalidate();
+		}
+	}
 
 	UpdateStatusBar();
 }
@@ -574,6 +580,9 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 	SetMsgHandled(false);
 
 	auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
+
+	if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
+		GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(false);
 
 	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
 		nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() ||
