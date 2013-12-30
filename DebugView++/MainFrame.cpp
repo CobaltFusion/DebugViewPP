@@ -447,7 +447,10 @@ bool CMainFrame::LoadSettings()
 	}
 
 	CRegKey regColors;
-	regColors.Open(reg, L"Colors");
+	if (regColors.Open(reg, L"Colors") != ERROR_SUCCESS)
+	{
+		throw std::runtime_error("Colors missing from registry");
+	}
 	auto colors = ColorDialog::GetCustomColors();
 	for (int i = 0; i < 16; ++i)
 		colors[i] = RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
