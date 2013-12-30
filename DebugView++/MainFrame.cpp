@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include <algorithm>
 #include <boost/utility.hpp>
-#include <psapi.h>
 #include "dbgstream.h"
 #include "Utilities.h"
 #include "Resource.h"
@@ -18,8 +17,6 @@
 #include "MainFrame.h"
 #include "Win32Lib.h"
 #include "ProcessInfo.h"
-
-#pragma comment(lib, "psapi.lib")
 
 namespace fusion {
 
@@ -109,13 +106,6 @@ void CMainFrame::ExceptionHandler()
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-	if (pMsg->hwnd == m_findDlg)
-	{
-//		cdbg << "PreTranslateMessage(" << pMsg->message << ")\n";
-		if (m_findDlg.IsDialogMessage(pMsg))
-			return TRUE;
-	}
-
 	return TabbedFrame::PreTranslateMessage(pMsg);
 }
 
@@ -143,19 +133,14 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	AddSimpleReBarBand(hWndCmdBar);
 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 	AddSimpleReBarBand(hWndToolBar, nullptr, true);
 	UIAddToolBar(hWndToolBar);
 
-//	m_findBox.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, ID_FIND);
-//	m_findBox.SetFont(AtlGetDefaultGuiFont());
 	m_findDlg.Create(rebar);
 	AddSimpleReBarBand(m_findDlg, L"Find: ", false, 10000);
 	SizeSimpleReBarBands();
 
-//	CStatic stCtrl;
-//	stCtrl.Create(m_hWnd, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-//	AddSimpleReBarBand(stCtrl, nullptr, false, 100);
 	rebar.LockBands(true);
 	rebar.SetNotifyWnd(*this);
 

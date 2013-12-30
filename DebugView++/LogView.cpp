@@ -626,7 +626,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 	HDITEM item;
 	item.mask = HDI_FORMAT;
 	unsigned align = (GetHeader().GetItem(iSubItem, &item)) ? GetTextAlign(item) : HDF_LEFT;
-	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_NOCLIP | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
@@ -638,6 +638,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
 	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : data.color.back;
 	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : data.color.fore;
+
+	rect.left += GetColumnWidth(0);
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
