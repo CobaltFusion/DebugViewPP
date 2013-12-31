@@ -139,7 +139,8 @@ FilterData MakeFilterData(const ptree& pt)
 
 void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter)
 {
-	write_xml(fileName, MakePTree(name, filter));
+	boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+	write_xml(fileName, MakePTree(name, filter), std::locale(), settings);
 }
 
 void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter)
@@ -150,7 +151,7 @@ void SaveJson(const std::string& fileName, const std::string& name, const LogFil
 FilterData LoadXml(const std::string& fileName)
 {
 	ptree pt;
-	read_xml(fileName, pt);
+	read_xml(fileName, pt, boost::property_tree::xml_parser::trim_whitespace);
 	return MakeFilterData(pt);
 }
 
