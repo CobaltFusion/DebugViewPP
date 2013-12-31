@@ -425,11 +425,12 @@ bool CMainFrame::LoadSettings()
 	CRegKey reg;
 	if (reg.Open(HKEY_CURRENT_USER, RegistryPath, KEY_READ) != ERROR_SUCCESS)
 		return false;
-	reg.QueryDWORDValue(L"X", x);
-	reg.QueryDWORDValue(L"Y", y);
-	reg.QueryDWORDValue(L"Width", cx);
-	reg.QueryDWORDValue(L"Height", cy);
-	SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
+
+	if ( reg.QueryDWORDValue(L"X", x) == ERROR_SUCCESS
+		&& reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS
+		&& reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS
+		&& reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS
+		) SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
 	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
