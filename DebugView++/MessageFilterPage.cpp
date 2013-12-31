@@ -20,7 +20,7 @@ MessageFilter::MessageFilter() :
 }
 
 MessageFilter::MessageFilter(const std::string& text, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable) :
-	text(text), re(text, std::regex_constants::icase), type(type), bgColor(bgColor), fgColor(fgColor), enable(enable)
+	text(text), re(text, std::regex_constants::icase | std::regex_constants::optimize), type(type), bgColor(bgColor), fgColor(fgColor), enable(enable)
 {
 }
 

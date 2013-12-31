@@ -388,12 +388,10 @@ RECT CLogView::GetItemRect(int iItem, unsigned code) const
 
 RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
 {
-	int subitemCount = GetHeader().GetItemCount();
-
 	RECT rect;
 	CListViewCtrl::GetSubItemRect(iItem, iSubItem, code, &rect);
-	if (iSubItem == 0 && subitemCount > 1)
-		rect.right = GetSubItemRect(iItem, 1, code).left;
+	if (iSubItem == 0)
+		rect.right = rect.left + GetColumnWidth(0);
 	return rect;
 }
 
@@ -626,7 +624,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 	HDITEM item;
 	item.mask = HDI_FORMAT;
 	unsigned align = (GetHeader().GetItem(iSubItem, &item)) ? GetTextAlign(item) : HDF_LEFT;
-	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_NOCLIP | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
@@ -638,6 +636,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
 	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : data.color.back;
 	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : data.color.fore;
+
+	rect.left += GetColumnWidth(0);
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
@@ -991,6 +991,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 
 	m_dirty = true;
+	++m_addedLines;
 	m_logLines.push_back(LogLine(line));
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
@@ -1014,9 +1015,10 @@ void CLogView::Add(int line, const Message& msg)
 void CLogView::BeginUpdate()
 {
 //	SetRedraw(false);
+	m_addedLines = 0;
 }
 
-void CLogView::EndUpdate()
+int CLogView::EndUpdate()
 {
 //	SetRedraw(true);
 
@@ -1038,6 +1040,8 @@ void CLogView::EndUpdate()
 	{
 		m_track();
 	}
+
+	return m_addedLines;
 }
 
 void CLogView::StopScrolling()
@@ -1380,17 +1384,30 @@ void CLogView::ApplyFilters()
 	EndUpdate();
 }
 
+bool FilterSupportsColor(FilterType::type value)
+{
+	switch (value)
+	{
+	case FilterType::Include:
+	case FilterType::Highlight:
+	case FilterType::Track:
+	case FilterType::Stop:
+		return true;
+	}
+	return false;
+}
+
 TextColor CLogView::GetTextColor(const std::string& text) const
 {
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
+		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
-		if (it->enable && it->type == FilterType::Highlight && std::regex_search(text, it->re))
+		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 

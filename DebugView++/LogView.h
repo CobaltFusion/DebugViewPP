@@ -129,7 +129,7 @@ public:
 	void SetFocusLine(int line);
 	void Add(int line, const Message& msg);
 	void BeginUpdate();
-	void EndUpdate();
+	int EndUpdate();
 	void ClearSelection();
 
 	void StopScrolling();
@@ -234,6 +234,7 @@ private:
 	bool m_clockTime;
 	bool m_autoScrollDown;
 	bool m_dirty;
+	int m_addedLines;
 	std::function<void ()> m_stop;
 	std::function<void ()> m_track;
 	bool m_insidePaint;

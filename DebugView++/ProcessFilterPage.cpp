@@ -23,7 +23,7 @@ ProcessFilter::ProcessFilter() :
 }
 
 ProcessFilter::ProcessFilter(const std::string& text, DWORD pid, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable) :
-	text(text), re(text, std::regex_constants::icase), pid(pid), type(type), bgColor(bgColor), fgColor(fgColor), enable(enable)
+	text(text), re(text, std::regex_constants::icase | std::regex_constants::optimize), pid(pid), type(type), bgColor(bgColor), fgColor(fgColor), enable(enable)
 {
 }
 
