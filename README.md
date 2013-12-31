@@ -1,4 +1,9 @@
-Cobalt Fusion presents: DebugView++
+Cobalt Fusion presents: A HAPPY NEW YEAR !
+
+and....
+
+
+DebugView++
 ----------
 
 DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
