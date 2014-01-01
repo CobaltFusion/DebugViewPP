@@ -113,7 +113,7 @@ class CLogView :
 	public COffscreenPaint<CLogView>
 {
 public:
-	CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
+	CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
@@ -122,6 +122,8 @@ public:
 
 	void DoPaint(CDCHandle dc, const RECT& rcClip);
 
+	std::wstring GetName() const;
+	void SetName(const std::wstring& name);
 	bool GetScroll() const;
 	void SetScroll(bool enable);
 	void Clear();
@@ -224,6 +226,7 @@ private:
 	bool IsTrack(const std::string& text) const;
 	TextColor GetTextColor(const std::string& text) const;
 
+	std::wstring m_name;
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
 	LogFilter m_filter;

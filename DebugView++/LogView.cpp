@@ -103,7 +103,8 @@ void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	UpdateColumns();
 }
 
-CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
+CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
+	m_name(name),
 	m_mainFrame(mainFrame),
 	m_logFile(logFile),
 	m_filter(std::move(filter)),
@@ -948,6 +949,16 @@ void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
  
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 	m_insidePaint = false;
+}
+
+std::wstring CLogView::GetName() const
+{
+	return m_name;
+}
+
+void CLogView::SetName(const std::wstring& name)
+{
+	m_name = name;
 }
 
 bool CLogView::GetScroll() const

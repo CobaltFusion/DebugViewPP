@@ -317,7 +317,9 @@ void CMainFrame::ProcessLines(const Lines& lines)
 	{
 		if (GetView(i).EndUpdate() > 0 && GetTabCtrl().GetCurSel() != i)
 		{
-			GetTabCtrl().GetItem(i)->SetHighlighted(true);
+//			GetTabCtrl().GetItem(i)->SetHighlighted(true);
+			GetTabCtrl().GetItem(i)->SetText((GetView(i).GetName() + L"*").c_str());
+			GetTabCtrl().UpdateLayout();
 			GetTabCtrl().Invalidate();
 		}
 	}
@@ -497,7 +499,7 @@ void CMainFrame::SaveSettings()
 	{
 		CRegKey regView;
 		regView.Create(reg, WStr(wstringbuilder() << L"Views\\View" << i));
-		regView.SetStringValue(L"", GetTabCtrl().GetItem(i)->GetTextRef());
+		regView.SetStringValue(L"", GetView(i).GetName().c_str());
 		GetView(i).SaveSettings(regView);
 	}
 
@@ -546,7 +548,7 @@ void CMainFrame::AddFilterView()
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
-	auto pView = std::make_shared<CLogView>(*this, m_logFile, filter);
+	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
 	pView->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 	pView->SetFont(m_hFont.get());
 
@@ -583,7 +585,10 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 
 	if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
-		GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(false);
+	{
+//		GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(false);
+		GetTabCtrl().GetItem(nmhdr.iItem2)->SetText(GetView(nmhdr.iItem2).GetName().c_str());
+	}
 
 	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
 		nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() ||
@@ -819,13 +824,14 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 {
 	int tabIdx = GetTabCtrl().GetCurSel();
 
-	CFilterDlg dlg(GetTabCtrl().GetItem(tabIdx)->GetTextRef(), GetView().GetFilters());
+	CFilterDlg dlg(GetView().GetName(), GetView().GetFilters());
 	if (dlg.DoModal() != IDOK)
 		return;
 
 	GetTabCtrl().GetItem(tabIdx)->SetText(dlg.GetName().c_str());
 	GetTabCtrl().UpdateLayout();
 	GetTabCtrl().Invalidate();
+	GetView().SetName(dlg.GetName());
 	GetView().SetFilters(dlg.GetFilters());
 }
 
