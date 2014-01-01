@@ -18,6 +18,7 @@
 #include "LogView.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 SelectionInfo::SelectionInfo() :
 	beginLine(0), endLine(0), count(0)
@@ -121,7 +122,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 
 void CLogView::ExceptionHandler()
 {
-	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 int CLogView::ColumnToSubItem(Column::type iColumn) const
@@ -151,7 +152,8 @@ void CLogView::UpdateColumnWidths()
 	int count = GetHeader().GetItemCount();
 	for (int i = 0; i < count; ++i)
 	{
-		GetColumn(i, &m_columns[SubItemToColumn(i)].column);
+		auto t = m_columns[SubItemToColumn(i)];
+		GetColumn(i, &t.column);        // null-pointer ahead here, at OnClose(), only in release mode??
 	}
 }
 
@@ -1271,7 +1273,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
-	UpdateColumnWidths();
+	//UpdateColumnWidths();     // fixes not being able to close application on release mode
 
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 
@@ -1515,4 +1517,5 @@ bool CLogView::IsTrack(const std::string& text) const
 	return false;
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

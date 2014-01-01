@@ -12,6 +12,7 @@
 #pragma warning(pop)
 
 namespace fusion {
+namespace debugviewpp {
 
 ProcessFilter::ProcessFilter() :
 	pid(0),
@@ -190,4 +191,5 @@ void CProcessFilterPage::SetFilters(const std::vector<ProcessFilter>& filters)
 		AddFilter(*it);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

@@ -10,6 +10,7 @@
 #include "MessageFilterPage.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 MessageFilter::MessageFilter() :
 	type(FilterType::Include),
@@ -201,4 +202,5 @@ void CMessageFilterPage::SetFilters(const std::vector<MessageFilter>& filters)
 		AddFilter(*it);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

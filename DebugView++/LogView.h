@@ -16,6 +16,7 @@
 #include "ProcessInfo.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 typedef CWinTraitsOR<LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS> CListViewTraits;
 
@@ -247,4 +248,5 @@ private:
 	CPoint m_dragEnd;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

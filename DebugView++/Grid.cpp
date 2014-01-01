@@ -9,6 +9,7 @@
 #include "Grid.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
 {
@@ -19,4 +20,5 @@ std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubI
 	return L"";
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

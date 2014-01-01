@@ -11,6 +11,7 @@
 #include "Win32Lib.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 bool LogFile::Empty() const
 {
@@ -42,4 +43,5 @@ Message LogFile::operator[](int i) const
 	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i]);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

@@ -10,6 +10,7 @@
 #include <atlgdi.h>
 
 namespace fusion {
+namespace debugviewpp {
 
 template <typename T>
 class COffscreenPaint
@@ -52,4 +53,5 @@ public:
 	}
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

@@ -13,6 +13,7 @@
 #include "FindDlg.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 CFindDlg::CFindDlg(CMainFrame& mainFrame) :
 	m_mainFrame(mainFrame)
@@ -67,4 +68,5 @@ void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 	ShowWindow(SW_HIDE);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

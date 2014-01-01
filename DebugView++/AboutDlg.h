@@ -10,6 +10,7 @@
 #include "Resource.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 class CAboutDlg : public CDialogImpl<CAboutDlg>
 {
@@ -29,4 +30,5 @@ private:
 	CHyperLink m_link;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

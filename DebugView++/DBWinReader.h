@@ -15,6 +15,7 @@
 #include "Utilities.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct Line
 {
@@ -77,4 +78,5 @@ private:
 	std::map<DWORD, std::string> m_lineBuffers;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

@@ -13,6 +13,7 @@
 #include "IndexedStorage.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct Message
 {
@@ -56,4 +57,5 @@ private:
 //	VectorStorage m_storage;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

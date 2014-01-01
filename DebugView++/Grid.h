@@ -15,6 +15,7 @@
 #include "PropertyColorItem.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubItem);
 
@@ -24,4 +25,5 @@ ItemType& GetGridItem(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
 	return dynamic_cast<ItemType&>(*grid.GetProperty(iItem, iSubItem));
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

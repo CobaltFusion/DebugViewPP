@@ -13,8 +13,8 @@
         <Directory Id="INSTALLFOLDER" Name="DebugView++">
           <Component Id="MainExecutable" Guid="b08d6606-883f-4661-813c-1ecbed9b65de">
             <File Id="DebugViewPPEXE" Name="DebugView++.exe" DiskId="1" Source="$(var.SolutionDir)/$(var.Configuration)/DebugView++.exe" KeyPath="yes">
-              <Shortcut Id="StartMenuDebugViewPP" Directory="ProgramMenuDir" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewPP.exe" IconIndex="0" Advertise="yes" />
-              <Shortcut Id="DesktopDebugViewPP" Directory="DesktopFolder" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewPP.exe" IconIndex="0" Advertise="yes" />
+              <Shortcut Id="StartMenuDebugViewPP" Directory="ProgramMenuDir" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewpp.ico" IconIndex="0" Advertise="yes" />
+              <Shortcut Id="DesktopDebugViewPP" Directory="DesktopFolder" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewpp.ico" IconIndex="0" Advertise="yes" />
             </File>
           </Component>
         </Directory>
@@ -37,7 +37,8 @@
       <ComponentRef Id='ProgramMenuDir' />
     </Feature>
 
-    <Icon Id="DebugViewPP.exe" SourceFile="$(var.SolutionDir)/$(var.Configuration)/DebugView++.exe" />
+    <Icon Id="DebugViewpp.ico" SourceFile="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" />
+    <Property Id="ARPPRODUCTICON" Value="DebugViewpp.ico" />
 
   </Product>
 </Wix>

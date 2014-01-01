@@ -10,6 +10,7 @@
 #include "Resource.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 class CMainFrame;
 
@@ -58,4 +59,5 @@ private:
 	CMainFrame& m_mainFrame;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

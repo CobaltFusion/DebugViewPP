@@ -15,6 +15,7 @@
 #include "Utilities.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct ProcessFilter
 {
@@ -68,4 +69,5 @@ private:
 	std::vector<ProcessFilter> m_filters;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

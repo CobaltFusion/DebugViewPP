@@ -16,6 +16,7 @@
 #include "FilterType.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct LogFilter
 {
@@ -66,4 +67,5 @@ private:
 	LogFilter m_filter;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

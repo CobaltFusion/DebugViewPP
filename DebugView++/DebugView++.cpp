@@ -53,7 +53,7 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 			cmdShow = SW_MINIMIZE;
 	}
 
-	fusion::CMainFrame wndMain;
+	fusion::debugviewpp::CMainFrame wndMain;
 	if (wndMain.CreateEx() == nullptr)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));

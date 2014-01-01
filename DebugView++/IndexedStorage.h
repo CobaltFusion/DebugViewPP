@@ -11,6 +11,7 @@
 #include <vector>
 
 namespace fusion {
+namespace debugviewpp {
 
 class VectorStorage
 {
@@ -52,4 +53,5 @@ private:
 	std::vector<std::string> m_storage;
 };
 	
+} // namespace debugviewpp 
 } // namespace fusion

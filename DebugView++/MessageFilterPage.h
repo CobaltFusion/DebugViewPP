@@ -16,6 +16,7 @@
 #include "FilterType.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct MessageFilter
 {
@@ -68,4 +69,5 @@ private:
 	std::vector<MessageFilter> m_filters;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

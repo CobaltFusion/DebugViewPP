@@ -12,6 +12,7 @@
 #include "AboutDlg.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 BOOL CAboutDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
@@ -28,4 +29,5 @@ void CAboutDlg::OnCloseCmd(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion
