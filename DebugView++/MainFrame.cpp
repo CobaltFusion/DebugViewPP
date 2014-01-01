@@ -38,9 +38,9 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
 	MSG_WM_SYSCOMMAND(OnSysCommand)
-    MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
-    COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
-    COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
+	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
+	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
+	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
@@ -101,7 +101,7 @@ CMainFrame::~CMainFrame()
 
 void CMainFrame::ExceptionHandler()
 {
-	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)

@@ -120,7 +120,7 @@ CLogView::CLogView(CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
 
 void CLogView::ExceptionHandler()
 {
-	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 int CLogView::ColumnToSubItem(Column::type iColumn) const
@@ -150,7 +150,8 @@ void CLogView::UpdateColumnWidths()
 	int count = GetHeader().GetItemCount();
 	for (int i = 0; i < count; ++i)
 	{
-		GetColumn(i, &m_columns[SubItemToColumn(i)].column);
+		auto t = m_columns[SubItemToColumn(i)];
+		GetColumn(i, &t.column);        // null-pointer ahead here, at OnClose(), only in release mode??
 	}
 }
 
@@ -1260,7 +1261,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
-	UpdateColumnWidths();
+	//UpdateColumnWidths();     // fixes not being able to close application on release mode
 
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 
