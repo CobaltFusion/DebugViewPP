@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <stdexcept>
-#include "Types.h"
+#include "FilterType.h"
 
 namespace fusion {
 
@@ -29,6 +29,35 @@ FilterType::type IntToFilterType(int value)
 	default: assert(!"Unexpected FilterType"); break;
 	}
 	throw std::invalid_argument("bad FilterType!");
+}
+
+std::string FilterTypeToString(FilterType::type value)
+{
+	switch (value)
+	{
+	case FilterType::Include: return "Include";
+	case FilterType::Exclude: return "Exclude";
+	case FilterType::Highlight: return "Highlight";
+	case FilterType::Token: return "Token";
+	case FilterType::Track: return "Track";
+	case FilterType::Stop: return "Stop";
+	default: assert(!"Unexpected FilterType"); break;
+	}
+	throw std::invalid_argument("bad FilterType!");
+}
+
+FilterType::type StringToFilterType(const std::string& s)
+{
+#define FILTER_TYPE(f) if (boost::iequals(s, _T(#f))) return FilterType::f;
+	FILTER_TYPE(Include);
+	FILTER_TYPE(Exclude);
+	FILTER_TYPE(Highlight);
+	FILTER_TYPE(Token);
+	FILTER_TYPE(Track);
+	FILTER_TYPE(Stop);
+#undef FILTER_TYPE
+
+	return IntToFilterType(boost::lexical_cast<int>(s));
 }
 
 } // namespace fusion

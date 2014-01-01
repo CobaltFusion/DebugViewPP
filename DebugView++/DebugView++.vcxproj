@@ -148,7 +148,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ProcessFilterPage.cpp" />
-    <ClCompile Include="Types.cpp" />
+    <ClCompile Include="FilterType.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="Win32Lib.cpp" />
   </ItemGroup>
@@ -172,7 +172,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ProcessFilterPage.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="FilterType.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="Win32Lib.h" />

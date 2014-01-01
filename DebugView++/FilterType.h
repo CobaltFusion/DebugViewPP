@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace fusion {
  
 struct FilterType
@@ -25,5 +27,9 @@ struct FilterType
 int FilterTypeToInt(FilterType::type value);
 
 FilterType::type IntToFilterType(int value);
+
+std::string FilterTypeToString(FilterType::type value);
+
+FilterType::type StringToFilterType(const std::string& s);
 
 } // namespace fusion

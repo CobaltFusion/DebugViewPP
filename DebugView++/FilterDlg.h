@@ -13,7 +13,7 @@
 #include "ProcessFilterPage.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
-#include "Types.h"
+#include "FilterType.h"
 
 namespace fusion {
 

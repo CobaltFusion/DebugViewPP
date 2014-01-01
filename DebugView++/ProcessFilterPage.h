@@ -10,7 +10,7 @@
 #include <regex>
 
 #include "Grid.h"
-#include "Types.h"
+#include "FilterType.h"
 #include "Resource.h"
 #include "Utilities.h"
 

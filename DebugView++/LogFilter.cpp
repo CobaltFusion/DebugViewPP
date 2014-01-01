@@ -41,7 +41,7 @@ ptree MakePTree(const MessageFilter& filter)
 	ptree pt;
 	pt.put("Enable", filter.enable);
 	pt.put("Text", filter.text);
-	pt.put<int>("Type", filter.type);
+	pt.put("Type", FilterTypeToString(filter.type));
 	pt.put_child("BackColor", MakePTree(filter.bgColor));
 	pt.put_child("TextColor", MakePTree(filter.fgColor));
 	return pt;
@@ -52,7 +52,7 @@ MessageFilter MakeMessageFilter(const ptree& pt)
 	MessageFilter filter;
 	filter.enable = pt.get<bool>("Enable");
 	filter.text = pt.get<std::string>("Text");
-	filter.type = static_cast<FilterType::type>(pt.get<int>("Type"));
+	filter.type = StringToFilterType(pt.get<std::string>("Type"));
 	filter.bgColor = MakeColor(pt.get_child("BackColor"));
 	filter.fgColor = MakeColor(pt.get_child("TextColor"));
 	return filter;
@@ -82,7 +82,7 @@ ptree MakePTree(const ProcessFilter& filter)
 	ptree pt;
 	pt.put("Enable", filter.enable);
 	pt.put("Text", filter.text);
-	pt.put<int>("Type", filter.type);
+	pt.put("Type", FilterTypeToInt(filter.type));
 	pt.put_child("BackColor", MakePTree(filter.bgColor));
 	pt.put_child("TextColor", MakePTree(filter.fgColor));
 	return pt;
@@ -93,7 +93,7 @@ ProcessFilter MakeProcessFilter(const ptree& pt)
 	ProcessFilter filter;
 	filter.enable = pt.get<bool>("Enable");
 	filter.text = pt.get<std::string>("Text");
-	filter.type = static_cast<FilterType::type>(pt.get<int>("Type"));
+	filter.type = StringToFilterType(pt.get<std::string>("Type"));
 	filter.bgColor = MakeColor(pt.get_child("BackColor"));
 	filter.fgColor = MakeColor(pt.get_child("TextColor"));
 	return filter;
