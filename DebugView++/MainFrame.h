@@ -64,6 +64,7 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_COLUMN_PROCESS, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_OPTIONS_LINKVIEWS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_OPTIONS_AUTONEWLINE, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_OPTIONS_ALWAYSONTOP, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_OPTIONS_HIDE, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
 		UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
@@ -104,6 +105,8 @@ private:
 	void Resume(bool report);
 	bool GetAutoNewLine() const;
 	void SetAutoNewLine(bool value);
+	bool GetAlwaysOnTop() const;
+	void SetAlwaysOnTop(bool value);
 
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, const LogFilter& filter = LogFilter());
@@ -131,6 +134,7 @@ private:
 	void OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnAlwaysOnTop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);

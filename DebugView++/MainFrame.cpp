@@ -47,14 +47,15 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
 	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
 	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGING, OnChangingTab)
@@ -204,6 +205,7 @@ void CMainFrame::UpdateUI()
 
 	UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
 	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_autoNewLine);
+	UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
 	UISetCheck(ID_OPTIONS_HIDE, m_hide);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
 	UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
@@ -437,6 +439,8 @@ bool CMainFrame::LoadSettings()
 
 	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
+	SetAlwaysOnTop(RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
+
 	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
 	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
@@ -487,6 +491,7 @@ void CMainFrame::SaveSettings()
 
 	reg.SetDWORDValue(L"LinkViews", m_linkViews);
 	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+	reg.SetDWORDValue(L"AlwaysOnTop", GetAlwaysOnTop());
 	reg.SetDWORDValue(L"Hide", m_hide);
 
 	LOGFONT lf;
@@ -760,6 +765,21 @@ void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 void CMainFrame::OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_hide = !m_hide;
+}
+
+bool CMainFrame::GetAlwaysOnTop() const
+{
+	return (GetWindowLong(GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
+}
+
+void CMainFrame::SetAlwaysOnTop(bool value)
+{
+	SetWindowPos(value ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+}
+
+void CMainFrame::OnAlwaysOnTop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SetAlwaysOnTop(!GetAlwaysOnTop());
 }
 
 bool CMainFrame::IsPaused() const
