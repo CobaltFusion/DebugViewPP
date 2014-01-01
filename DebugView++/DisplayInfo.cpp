@@ -32,15 +32,3 @@ std::wstring DisplayInfo::GetProcessName(DWORD pid /* , timestamp */) const
 
 } // namespace debugviewpp 
 } // namespace fusion
-
-
-#define ARGS 101,202
-
-#define STR2(x) #x
-#define STR(x) STR2(x)
-#define ARG_1(a,b) a
-#define ARG_2(a,b) b
-#define EXP(x) x
-#define ARG_N(nr, args) EXP(ARG_ ## nr(args))
-#define MESSAGE STR(ARG_N(1, ARGS).ARG_N(2, ARGS))
-#pragma message(MESSAGE)
