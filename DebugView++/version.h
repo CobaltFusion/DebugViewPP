@@ -1,1 +1,1 @@
-#define VERSION 1,0,0,527 
+#define VERSION 1,0,0,528 
