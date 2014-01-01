@@ -11,6 +11,7 @@
 #include "psapi.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct InternalProcessProperties
 {
@@ -58,4 +59,5 @@ private:
 	DWORD m_unqiueId;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

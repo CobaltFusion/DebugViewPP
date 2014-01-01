@@ -10,6 +10,7 @@
 #include "FilterType.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 int FilterTypeToInt(FilterType::type value)
 {
@@ -60,4 +61,5 @@ FilterType::type StringToFilterType(const std::string& s)
 	return IntToFilterType(boost::lexical_cast<int>(s));
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

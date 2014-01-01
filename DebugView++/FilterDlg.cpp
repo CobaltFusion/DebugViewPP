@@ -14,6 +14,7 @@
 #include "FilterDlg.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 static COLORREF HighlightColors[16] = 
 {
@@ -208,4 +209,5 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

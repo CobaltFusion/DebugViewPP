@@ -24,6 +24,7 @@ namespace WTL { using ATL::CString; };
 #include "DBWinReader.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct SelectionInfo;
 
@@ -166,4 +167,5 @@ private:
 	NOTIFYICONDATA m_notifyIconData;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

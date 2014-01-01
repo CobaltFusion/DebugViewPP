@@ -18,6 +18,7 @@
 #include "LogView.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 SelectionInfo::SelectionInfo() :
 	beginLine(0), endLine(0), count(0)
@@ -1505,4 +1506,5 @@ bool CLogView::IsTrack(const std::string& text) const
 	return false;
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

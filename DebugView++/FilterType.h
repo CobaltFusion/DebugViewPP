@@ -10,6 +10,7 @@
 #include <string>
 
 namespace fusion {
+namespace debugviewpp {
  
 struct FilterType
 {
@@ -32,4 +33,5 @@ std::string FilterTypeToString(FilterType::type value);
 
 FilterType::type StringToFilterType(const std::string& s);
 
+} // namespace debugviewpp 
 } // namespace fusion

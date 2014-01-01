@@ -16,6 +16,7 @@
 #include "LogFilter.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 using boost::property_tree::ptree;
 
@@ -162,4 +163,5 @@ FilterData LoadJson(const std::string& fileName)
 	return MakeFilterData(pt);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

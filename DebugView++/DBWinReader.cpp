@@ -10,6 +10,7 @@
 #include "ProcessInfo.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 const double HandleCacheTimeout = 15.0; //seconds
 
@@ -234,4 +235,5 @@ Lines DBWinReader::CheckHandleCache()
 	return std::move(lines);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

@@ -19,6 +19,7 @@
 #include "ProcessInfo.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
@@ -899,4 +900,5 @@ void CMainFrame::AddMessage(const Message& message)
 		GetView(i).Add(index, message);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

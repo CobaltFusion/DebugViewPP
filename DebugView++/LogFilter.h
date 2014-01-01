@@ -10,6 +10,7 @@
 #include "FilterDlg.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 struct FilterData
 {
@@ -22,4 +23,5 @@ void SaveJson(const std::string& fileName, const std::string& name, const LogFil
 FilterData LoadXml(const std::string& fileName);
 FilterData LoadJson(const std::string& fileName);
 
+} // namespace debugviewpp 
 } // namespace fusion

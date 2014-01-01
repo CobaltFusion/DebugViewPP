@@ -12,6 +12,7 @@
 #include <boost/thread.hpp>
 
 namespace fusion {
+namespace debugviewpp {
 
 namespace detail {
 
@@ -97,4 +98,5 @@ private:
 	std::queue<std::function<void ()>> m_q;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

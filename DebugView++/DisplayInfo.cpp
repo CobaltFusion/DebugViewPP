@@ -11,6 +11,7 @@
 #include "ProcessInfo.h"
 
 namespace fusion {
+namespace debugviewpp {
 
 void DisplayInfo::Clear()
 {
@@ -29,4 +30,5 @@ std::wstring DisplayInfo::GetProcessName(DWORD pid /* , timestamp */) const
 	return name;
 }
 
+} // namespace debugviewpp 
 } // namespace fusion

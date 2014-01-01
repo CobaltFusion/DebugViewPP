@@ -10,6 +10,7 @@
 #include <map>
 
 namespace fusion {
+namespace debugviewpp {
 
 class DisplayInfo 
 {
@@ -22,4 +23,5 @@ private:
 	mutable std::map<DWORD, std::wstring> m_processNames;
 };
 
+} // namespace debugviewpp 
 } // namespace fusion

@@ -13,6 +13,7 @@
 #pragma comment(lib, "psapi.lib")
 
 namespace fusion {
+namespace debugviewpp {
 
 ProcessInfo::ProcessInfo() : m_unqiueId(0)
 {
@@ -94,4 +95,5 @@ ProcessProperties ProcessInfo::GetProcessProperties(DWORD uid) const
 	return ProcessProperties(props);
 }
 
+} // namespace debugviewpp 
 } // namespace fusion
