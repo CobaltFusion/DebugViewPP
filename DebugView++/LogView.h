@@ -198,7 +198,7 @@ private:
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
-	void UpdateColumnWidths();
+	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;
 	Column::type SubItemToColumn(int iSubItem) const;

@@ -91,7 +91,7 @@ bool CLogView::IsColumnViewed(int nID) const
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	UpdateColumnWidths();
+	UpdateColumnInfo();
 
 	auto& column = m_columns[nID - ID_VIEW_COLUMN_FIRST];
 	column.enable = !column.enable;
@@ -147,13 +147,14 @@ Column::type CLogView::SubItemToColumn(int iSubItem) const
 	return static_cast<Column::type>(column.iSubItem);
 }
 
-void CLogView::UpdateColumnWidths()
+void CLogView::UpdateColumnInfo()
 {
 	int count = GetHeader().GetItemCount();
 	for (int i = 0; i < count; ++i)
 	{
-		auto t = m_columns[SubItemToColumn(i)];
-		GetColumn(i, &t.column);        // null-pointer ahead here, at OnClose(), only in release mode??
+		auto& column = m_columns[SubItemToColumn(i)].column;
+		column.mask = LVCF_WIDTH | LVCF_ORDER;
+		GetColumn(i, &column);
 	}
 }
 
@@ -1306,7 +1307,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
-	//UpdateColumnWidths();     // fixes not being able to close application on release mode
+	UpdateColumnInfo();
 
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 
