@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Filter>
+	<Name>View</Name>
+	<MessageFilters>
+		<MessageFilter>
+			<Enable>true</Enable>
+			<Text>AfxDllCanUnloadNow returning S_OK</Text>
+			<Type>Exclude</Type>
+			<BackColor>
+				<Red>255</Red>
+				<Green>255</Green>
+				<Blue>255</Blue>
+			</BackColor>
+			<TextColor>
+				<Red>0</Red>
+				<Green>0</Green>
+				<Blue>0</Blue>
+			</TextColor>
+		</MessageFilter>
+	</MessageFilters>
+	<ProcessFilters>
+		<Filter>
+			<Enable>true</Enable>
+			<Text>devenv.exe</Text>
+			<Type>1</Type>
+			<BackColor>
+				<Red>255</Red>
+				<Green>255</Green>
+				<Blue>255</Blue>
+			</BackColor>
+			<TextColor>
+				<Red>0</Red>
+				<Green>0</Green>
+				<Blue>0</Blue>
+			</TextColor>
+		</Filter>
+	</ProcessFilters>
+</Filter>
