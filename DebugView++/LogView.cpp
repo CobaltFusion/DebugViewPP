@@ -1210,6 +1210,8 @@ void CLogView::SetHighlightText(const std::wstring& text)
 
 bool CLogView::Find(const std::string& text, int direction)
 {
+	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	int line = begin;
 
