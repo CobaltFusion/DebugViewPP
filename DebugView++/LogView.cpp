@@ -868,12 +868,32 @@ void CLogView::OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*w
 		FindPrevious(m_highlightText);
 }
 
+bool CLogView::FindProcess(int direction)
+{
+	int begin = GetNextItem(-1, LVNI_FOCUSED);
+	if (begin < 0)
+		return false;
+
+	auto processName = m_logFile[m_logLines[begin].line].processName;
+
+	// Internal Compiler Error on VC2010:
+//	int line = FindLine([processName, this](const LogLine& line) { return boost::iequals(m_logFile[line.line].processName, processName); }, direction);
+	int line = FindLine([processName, this](const LogLine& line) { return m_logFile[line.line].processName == processName; }, direction);
+	if (line < 0 || line == begin)
+		return false;
+
+	ScrollToIndex(line, true);
+	return true;
+}
+
 void CLogView::OnViewNextProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	FindProcess(+1);
 }
 
 void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	FindProcess(-1);
 }
 
 void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1210,7 +1230,8 @@ void CLogView::SetHighlightText(const std::wstring& text)
 	Invalidate(false);
 }
 
-bool CLogView::Find(const std::string& text, int direction)
+template <typename Predicate>
+int CLogView::FindLine(Predicate pred, int direction) const
 {
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
@@ -1218,33 +1239,40 @@ bool CLogView::Find(const std::string& text, int direction)
 	int line = begin;
 
 	if (m_logLines.empty())
-		return false;
+		return -1;
 
 	do
 	{
 		line += direction;
 		if (line < 0)
 			line += m_logLines.size();
-		if (line == static_cast<int>(m_logLines.size()))
-			line = 0;
+		if (line >= static_cast<int>(m_logLines.size()))
+			line -= m_logLines.size();
 
-		if (Contains(m_logFile[m_logLines[line].line].text, text))
-		{
-			// only scroll to the line if it is not already in focus
-			if (line != begin)
-				ScrollToIndex(line, true);
-
-			auto wtext = WStr(text).str();
-			if (line == begin && wtext == m_highlightText)
-				return false;
-
-			SetHighlightText(WStr(text));
-			return true;
-		}
+		if (pred(m_logLines[line]))
+			return line;
 	}
 	while (line != begin);
 
-	return false;
+	return -1;
+}
+
+bool CLogView::Find(const std::string& text, int direction)
+{
+	int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, text); }, direction);
+	if (line < 0)
+		return false;
+
+	bool sameLine = GetItemState(line, LVIS_FOCUSED) != 0;
+	if (!sameLine)
+		ScrollToIndex(line, true);
+
+	auto wtext = WStr(text).str();
+	if (sameLine && wtext == m_highlightText)
+		return false;
+
+	SetHighlightText(wtext);
+	return true;
 }
 
 bool CLogView::FindNext(const std::wstring& text)
