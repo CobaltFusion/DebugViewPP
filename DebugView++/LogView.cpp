@@ -1052,6 +1052,7 @@ int CLogView::EndUpdate()
 	if (m_track) 
 	{
 		m_track();
+		m_track = 0;
 	}
 
 	return m_addedLines;
