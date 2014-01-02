@@ -1019,6 +1019,7 @@ void CLogView::Add(int line, const Message& msg)
 
 	if (IsTrack(msg.text))
 	{
+		m_autoScrollDown = false;
 		m_track = [this, line] () 
 		{ 
 			return ScrollToIndex(line, true);
