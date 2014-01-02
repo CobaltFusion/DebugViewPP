@@ -1227,8 +1227,13 @@ bool CLogView::Find(const std::string& text, int direction)
 		if (Contains(m_logFile[m_logLines[line].line].text, text))
 		{
 			// only scroll to the line if it is not already in focus
-			if (GetItemState(line, LVIS_FOCUSED) == 0)
+			if (line != begin)
 				ScrollToIndex(line, true);
+
+			auto wtext = WStr(text).str();
+			if (line == begin && wtext == m_highlightText)
+				return false;
+
 			SetHighlightText(WStr(text));
 			return true;
 		}
