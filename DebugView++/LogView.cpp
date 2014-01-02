@@ -665,8 +665,8 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	switch (pCustomDraw->nmcd.dwDrawStage)
 	{
 	case CDDS_PREPAINT:
+//		return CDRF_DODEFAULT;  // Enable this line for non-custom drawing
 		return CDRF_NOTIFYITEMDRAW;
-//		return CDRF_DODEFAULT;
 
 	case CDDS_ITEMPREPAINT:
 		DrawItem(pCustomDraw->nmcd.hdc, pCustomDraw->nmcd.dwItemSpec, pCustomDraw->nmcd.uItemState);

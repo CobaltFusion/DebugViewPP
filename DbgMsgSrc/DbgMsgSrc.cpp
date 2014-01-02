@@ -20,7 +20,7 @@ void DbgMsgSrc(double freq)
 		while (count < (GetTickCount() - t0)*msgPerTick)
 		{
 			if (count % 10 == 0)
-				cdbg << "Een, twee, drie, vier, vijf, zes, zeven, acht, negen, tien, elf, twaalf, dertien, veertien, vijftien, zestien, zeventien, achttien, negentien, twintig\n";
+				cdbg << "Een, twee, drie, vier, vijf, zes, zeven, acht, negen, tien, elf, twaalf, dertien, veertien, vijftien, zestien, zeventien, achttien, negentien, twintig, eenentwintig, tweeentwintig, drieentwintig, vierentwintig, vijfentwintig, zesentwintig, zevenentwintig, achtentwintig, negenentwintig, dertig.\n";
 			else
 				cdbg << "Message #" << count << "\n";
 			++count;
