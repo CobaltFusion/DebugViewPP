@@ -11,6 +11,7 @@ Sysinternals DebugView. DebugView++ features:
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve PID to process name
+- filter by process or message
 - advanced filtering, exclude, track, stop (ability to use regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
 - minimal delay of the traced application, compared to debugview a factor of 10 better.
