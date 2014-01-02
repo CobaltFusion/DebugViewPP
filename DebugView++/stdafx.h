@@ -9,6 +9,7 @@
 
 #define NOMINMAX
 
+#include <stdint.h>
 #include <algorithm>
 using std::min;
 using std::max;

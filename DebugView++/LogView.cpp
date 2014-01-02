@@ -197,7 +197,7 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	m_columns.push_back(MakeColumn(Column::Time, L"Time", LVCFMT_RIGHT, 90));
 	m_columns.push_back(MakeColumn(Column::Pid, L"PID", LVCFMT_RIGHT, 60));
 	m_columns.push_back(MakeColumn(Column::Process, L"Process", LVCFMT_LEFT, 140));
-	m_columns.push_back(MakeColumn(Column::Message, L"Message", LVCFMT_LEFT, 600));
+	m_columns.push_back(MakeColumn(Column::Message, L"Message", LVCFMT_LEFT, 1500));
 	UpdateColumns();
 
 	ApplyFilters();
@@ -1019,6 +1019,7 @@ void CLogView::Add(int line, const Message& msg)
 
 	if (IsTrack(msg.text))
 	{
+		m_autoScrollDown = false;
 		m_track = [this, line] () 
 		{ 
 			return ScrollToIndex(line, true);
