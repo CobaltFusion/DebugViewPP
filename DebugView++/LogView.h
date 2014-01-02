@@ -136,7 +136,7 @@ public:
 	void ClearSelection();
 
 	void StopScrolling();
-	void ScrollToIndex(int index, bool center);
+	bool ScrollToIndex(int index, bool center);
 	void ScrollDown();
 	bool IsLastLineSelected();
 
@@ -240,7 +240,7 @@ private:
 	bool m_dirty;
 	int m_addedLines;
 	std::function<void ()> m_stop;
-	std::function<void ()> m_track;
+	std::function<bool ()> m_track;
 	bool m_insidePaint;
 	HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;

@@ -921,7 +921,7 @@ void CLogView::FindBookmark(int direction)
 			line = 0;
 
 		if (m_logLines[line].bookmark)
-			return ScrollToIndex(line, false);
+			ScrollToIndex(line, false);
 	}
 	while (line != begin);
 }
@@ -1020,7 +1020,7 @@ void CLogView::Add(int line, const Message& msg)
 	{
 		m_track = [this, line] () 
 		{ 
-			ScrollToIndex(line, true);
+			return ScrollToIndex(line, true);
 		};
 	}
 }
@@ -1051,8 +1051,12 @@ int CLogView::EndUpdate()
 	}
 	if (m_track) 
 	{
-		m_track();
-		m_track = 0;
+		if (m_track())
+		{
+			// nolonger track item after it has correctly centered
+			m_track = 0;
+		}
+		
 	}
 
 	return m_addedLines;
@@ -1087,21 +1091,42 @@ void CLogView::ClearSelection()
 	}
 }
 
-void CLogView::ScrollToIndex(int index, bool center)
+// returns false if centering was requested but not executed
+//         because there where not enough lines below the requested index
+//		   and it can be usefull to call ScrollToIndex again when more lines are available
+bool CLogView::ScrollToIndex(int index, bool center)
 {
+	bool result = true;
+	bool ensureVisible = false;
+	int ensureIndex = 0;
+
+	printf("ScrollToIndex: %d\n", index);
+
 	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
-		return;
+		return true;
 
 	ClearSelection();
 	SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
-	EnsureVisible(index, false);
+	ensureVisible = true;
+	ensureIndex = index;
 
-	if (center)
+	int maxExtraItems = GetCountPerPage() / 2;
+	if (index > maxExtraItems)
 	{
-		int maxExtraItems = GetCountPerPage() / 2;
-		int maxBottomIndex = std::min<int>(m_logLines.size() - 1, index + maxExtraItems);
-		EnsureVisible(maxBottomIndex, false);
+		// if there are more items above the index then half a page, then centering may be possible.
+		if (center)
+		{
+			ensureVisible = true;
+			ensureIndex = std::min<int>(m_logLines.size() - 1, index + maxExtraItems);
+			result = (ensureIndex == (index + maxExtraItems));
+		}
 	}
+	if (ensureVisible)
+	{
+		printf("EnsureVisible: %d\n", ensureIndex);
+		EnsureVisible(ensureIndex, false);
+	}
+	return result;
 }
 
 void CLogView::ScrollDown()

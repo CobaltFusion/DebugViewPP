@@ -301,10 +301,10 @@ void CMainFrame::UpdateStatusBar()
 
 void CMainFrame::ProcessLines(const Lines& lines)
 {
-#ifdef CONSOLE_DEBUG
-	if (lines.size() > 0)
-		printf("incoming lines: %d\n", lines.size());
-#endif
+//#ifdef CONSOLE_DEBUG
+//	if (lines.size() > 0)
+//		printf("incoming lines: %d\n", lines.size());
+//#endif
 
 	if (m_logFile.Empty() && !lines.empty())
 		m_timeOffset = lines[0].time;
