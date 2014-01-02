@@ -633,6 +633,9 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 {
+	if (iItem >= static_cast<int>(m_logLines.size()))
+		return;
+
 	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
 	auto data = GetItemData(iItem);
 
@@ -643,6 +646,7 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 
 	rect.left += GetColumnWidth(0);
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
+
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
 
@@ -1411,7 +1415,10 @@ std::vector<int> CLogView::GetBookmarks() const
 
 void CLogView::ApplyFilters()
 {
+	ClearSelection();
+
 	int focusItem = GetNextItem(-1, LVIS_FOCUSED);
+	SetItemState(focusItem, 0, LVIS_FOCUSED);
 	int focusLine = focusItem < 0 ? -1 : m_logLines[focusItem].line;
 
 	auto bookmarks = GetBookmarks();
@@ -1422,7 +1429,7 @@ void CLogView::ApplyFilters()
 	int count = m_logFile.Count();
 	int line = m_firstLine;
 	int item = 0;
-	focusItem = 0;
+	focusItem = -1;
 	bool changed = false;
 	while (line < count)
 	{
@@ -1451,12 +1458,12 @@ void CLogView::ApplyFilters()
 	{
 		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
 		ScrollToIndex(focusItem, false);
-		SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	}
 	else
 	{
 		Invalidate();
 	}
+	SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	EndUpdate();
 }
 
