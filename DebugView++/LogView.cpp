@@ -1138,8 +1138,10 @@ bool CLogView::ScrollToIndex(int index, bool center)
 	int paddingLines = GetCountPerPage() / 2;
 	int minTopIndex = std::max(0, index - paddingLines);
 
-	// first ensure the item is visible at all, coming from any direction
+	// this ensures the line is visible and not at the top of the view 
+	// if it does not need to be, also when coming from a higher index
 	EnsureVisible(minTopIndex, false);
+	EnsureVisible(index, false);
 	
 	if (index > paddingLines)
 	{
