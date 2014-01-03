@@ -1548,44 +1548,41 @@ bool CLogView::IsIncluded(const Message& msg) const
 
 bool CLogView::IsStop(const std::string& text) const
 {
-	bool result = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		if (it->type == FilterType::Stop)
-			result |= std::regex_search(text, it->re);
+		if (it->type == FilterType::Stop && std::regex_search(text, it->re))
+			return true;
 	}
-	return result;
+	return false;
 }
 
 bool CLogView::IsTrack(const std::string& text) const
 {
-	bool result = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		if (it->type == FilterType::Track)
-			result |= std::regex_search(text, it->re);
+		if (it->type == FilterType::Track && std::regex_search(text, it->re))
+			return true;
 	}
-	return result;
+	return false;
 }
 
 bool CLogView::IsIgnore(const std::string& text) const
 {
-	bool result = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		if (it->type == FilterType::Ignore)
-			result |= std::regex_search(text, it->re);
+		if (it->type == FilterType::Ignore && std::regex_search(text, it->re))
+			return true;
 	}
-	return result;
+	return false;
 }
 
 } // namespace debugviewpp 

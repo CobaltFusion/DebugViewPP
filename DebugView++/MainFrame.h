@@ -114,8 +114,8 @@ private:
 	void AddMessage(const Message& message);
 
 	void ClearLog();
-	std::wstring GetLogFileName() const;
 	void SaveLogFile(const std::wstring& fileName);
+	void SaveViewFile(const std::wstring& fileName);
 
 	LRESULT OnSysCommand(UINT nCommand, CPoint);
 	LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
@@ -128,8 +128,8 @@ private:
 	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -167,6 +167,7 @@ private:
 	boost::signals2::connection m_localConnection;
 	boost::signals2::connection m_globalConnection;
 	std::wstring m_logFileName;
+	std::wstring m_txtFileName;
 	size_t m_initialPrivateBytes;
 	NOTIFYICONDATA m_notifyIconData;
 };
