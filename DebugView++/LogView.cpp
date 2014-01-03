@@ -1033,6 +1033,10 @@ void CLogView::Add(int line, const Message& msg)
 	m_dirty = true;
 	++m_addedLines;
 	int viewline = m_logLines.size();
+
+	if (!IsIgnore(msg.text))
+		m_scrolldownIndex = viewline;
+
 	m_logLines.push_back(LogLine(line));
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
@@ -1158,7 +1162,7 @@ bool CLogView::ScrollToIndex(int index, bool center)
 
 void CLogView::ScrollDown()
 {
-	ScrollToIndex(m_logLines.size() - 1, false);
+	ScrollToIndex(m_scrolldownIndex, false);
 }
 
 bool CLogView::GetClockTime() const
@@ -1467,6 +1471,7 @@ bool FilterSupportsColor(FilterType::type value)
 	case FilterType::Highlight:
 	case FilterType::Track:
 	case FilterType::Stop:
+	case FilterType::Ignore:
 		return true;
 	}
 	return false;
@@ -1564,6 +1569,20 @@ bool CLogView::IsTrack(const std::string& text) const
 			continue;
 
 		if (it->type == FilterType::Track)
+			result |= std::regex_search(text, it->re);
+	}
+	return result;
+}
+
+bool CLogView::IsIgnore(const std::string& text) const
+{
+	bool result = false;
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+
+		if (it->type == FilterType::Ignore)
 			result |= std::regex_search(text, it->re);
 	}
 	return result;

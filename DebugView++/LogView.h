@@ -230,6 +230,7 @@ private:
 	bool IsIncluded(const Message& msg) const;
 	bool IsStop(const std::string& text) const;
 	bool IsTrack(const std::string& text) const;
+	bool IsIgnore(const std::string& text) const;
 	TextColor GetTextColor(const std::string& text) const;
 
 	std::wstring m_name;
@@ -251,6 +252,7 @@ private:
 	std::wstring m_highlightText;
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
+	int m_scrolldownIndex;
 };
 
 } // namespace debugviewpp 

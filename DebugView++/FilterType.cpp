@@ -27,6 +27,7 @@ FilterType::type IntToFilterType(int value)
 	case FilterType::Token: return FilterType::Token;
 	case FilterType::Track: return FilterType::Track;
 	case FilterType::Stop: return FilterType::Stop;
+	case FilterType::Ignore: return FilterType::Ignore;
 	default: assert(!"Unexpected FilterType"); break;
 	}
 	throw std::invalid_argument("bad FilterType!");
@@ -42,6 +43,7 @@ std::string FilterTypeToString(FilterType::type value)
 	case FilterType::Token: return "Token";
 	case FilterType::Track: return "Track";
 	case FilterType::Stop: return "Stop";
+	case FilterType::Ignore: return "Ignore";
 	default: assert(!"Unexpected FilterType"); break;
 	}
 	throw std::invalid_argument("bad FilterType!");
@@ -56,6 +58,7 @@ FilterType::type StringToFilterType(const std::string& s)
 	FILTER_TYPE(Token);
 	FILTER_TYPE(Track);
 	FILTER_TYPE(Stop);
+	FILTER_TYPE(Ignore);
 #undef FILTER_TYPE
 
 	return IntToFilterType(boost::lexical_cast<int>(s));
