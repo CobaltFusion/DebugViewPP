@@ -633,9 +633,6 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 {
-	if (iItem >= static_cast<int>(m_logLines.size()))
-		return;
-
 	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
 	auto data = GetItemData(iItem);
 
@@ -1430,15 +1427,11 @@ void CLogView::ApplyFilters()
 	int line = m_firstLine;
 	int item = 0;
 	focusItem = -1;
-	bool changed = false;
 	while (line < count)
 	{
 		if (IsIncluded(m_logFile[line]))
 		{
 			logLines.push_back(LogLine(line));
-			if (item >= static_cast<int>(m_logLines.size()) || m_logLines[item].line != line)
-				changed = true;
-
 			if (itBookmark != bookmarks.end() && *itBookmark == line)
 			{
 				logLines.back().bookmark = true;
@@ -1454,15 +1447,8 @@ void CLogView::ApplyFilters()
 	}
 
 	m_logLines.swap(logLines);
-	if (changed)
-	{
-		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
-		ScrollToIndex(focusItem, false);
-	}
-	else
-	{
-		Invalidate();
-	}
+	SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
+	ScrollToIndex(focusItem, false);
 	SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	EndUpdate();
 }
