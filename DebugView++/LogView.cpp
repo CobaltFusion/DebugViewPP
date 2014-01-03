@@ -504,6 +504,9 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
+		if (!it->enable)
+			continue;
+
 		if (it->type != FilterType::Token)
 			continue;
 
@@ -1538,21 +1541,16 @@ bool CLogView::IsIncluded(const Message& msg) const
 
 bool CLogView::IsStop(const std::string& text) const
 {
+	bool result = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		switch (it->type)
-		{
-		case FilterType::Stop:
-			return std::regex_search(text, it->re);
-
-		default:
-			break;
-		}
+		if (it->type == FilterType::Stop)
+			result |= std::regex_search(text, it->re);
 	}
-	return false;
+	return result;
 }
 
 bool CLogView::IsTrack(const std::string& text) const
