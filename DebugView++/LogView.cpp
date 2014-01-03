@@ -1121,37 +1121,29 @@ void CLogView::ClearSelection()
 //		   and it can be usefull to call ScrollToIndex again when more lines are available
 bool CLogView::ScrollToIndex(int index, bool center)
 {
-	bool result = true;
-	bool ensureVisible = false;
-	int ensureIndex = 0;
-
 	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
 		return true;
 
-	printf("ScrollToIndex, line %d\n", index+1);
-
 	ClearSelection();
 	SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
-	ensureVisible = true;
-	ensureIndex = index;
 
-	int maxExtraItems = GetCountPerPage() / 2;
-	if (index > maxExtraItems)
+	int paddingLines = GetCountPerPage() / 2;
+	int minTopIndex = std::max(0, index - paddingLines);
+
+	// first ensure the item is visible at all, coming from any direction
+	EnsureVisible(minTopIndex, false);
+	
+	if (index > paddingLines)
 	{
 		// if there are more items above the index then half a page, then centering may be possible.
 		if (center)
 		{
-			ensureVisible = true;
-			ensureIndex = std::min<int>(m_logLines.size() - 1, index + maxExtraItems);
-			result = (ensureIndex == (index + maxExtraItems));
+			int maxBottomIndex = std::min<int>(m_logLines.size() - 1, index + paddingLines);
+			EnsureVisible(maxBottomIndex, false);
+			return (maxBottomIndex == (index + paddingLines));
 		}
 	}
-	if (ensureVisible)
-	{
-		printf("EnsureVisible: %d\n", ensureIndex+1);
-		EnsureVisible(ensureIndex, false);
-	}
-	return result;
+	return true;
 }
 
 void CLogView::ScrollDown()
