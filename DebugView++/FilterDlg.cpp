@@ -51,6 +51,7 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	MSG_WM_SIZE(OnSize)
 	COMMAND_ID_HANDLER_EX(IDC_FILTER_SAVE, OnSave)
 	COMMAND_ID_HANDLER_EX(IDC_FILTER_LOAD, OnLoad)
+	COMMAND_ID_HANDLER_EX(IDC_FILTER_CLEARALL, OnClearAll)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	NOTIFY_CODE_HANDLER_EX(TCN_SELCHANGE, OnTabSelChange)
@@ -192,8 +193,25 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		data = LoadXml(fileName);
 
 	SetDlgItemTextA(*this, IDC_NAME, data.name.c_str());
-	m_messagePage.SetFilters(data.filter.messageFilters);
-	m_processPage.SetFilters(data.filter.processFilters);
+	auto msgFilters = m_messagePage.GetFilters();
+	for (auto f = data.filter.messageFilters.begin(); f != data.filter.messageFilters.end(); f++)
+	{
+		msgFilters.push_back(*f);
+	}
+	m_messagePage.SetFilters(msgFilters);
+
+	auto procFilters = m_processPage.GetFilters();
+	for (auto f = data.filter.processFilters.begin(); f != data.filter.processFilters.end(); f++)
+	{
+		procFilters.push_back(*f);
+	}
+	m_processPage.SetFilters(procFilters);
+}
+
+void CFilterDlg::OnClearAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_messagePage.SetFilters(std::vector<MessageFilter>());
+	m_processPage.SetFilters(std::vector<ProcessFilter>());
 }
 
 void CFilterDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
