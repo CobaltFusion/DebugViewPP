@@ -104,7 +104,7 @@ ptree MakePTree(const std::vector<ProcessFilter>& filters)
 {
 	ptree pt;
 	for (auto it = filters.begin(); it != filters.end(); ++it)
-		pt.add_child("Filter", MakePTree(*it));
+		pt.add_child("ProcessFilter", MakePTree(*it));
 	return pt;
 }
 

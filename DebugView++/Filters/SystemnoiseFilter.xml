@@ -34,7 +34,7 @@
 		</MessageFilter>
 	</MessageFilters>
 	<ProcessFilters>
-		<Filter>
+		<ProcessFilter>
 			<Enable>true</Enable>
 			<Text>devenv.exe</Text>
 			<Type>1</Type>
@@ -48,6 +48,6 @@
 				<Green>0</Green>
 				<Blue>0</Blue>
 			</TextColor>
-		</Filter>
+		</ProcessFilter>
 	</ProcessFilters>
 </Filter>
