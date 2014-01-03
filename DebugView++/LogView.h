@@ -134,7 +134,7 @@ public:
 	void BeginUpdate();
 	int EndUpdate();
 	void ClearSelection();
-
+	void StopTracking();
 	void StopScrolling();
 	bool ScrollToIndex(int index, bool center);
 	void ScrollDown();

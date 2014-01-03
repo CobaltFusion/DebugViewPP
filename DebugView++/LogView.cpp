@@ -282,6 +282,7 @@ void CLogView::OnLButtonDown(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
 
+	StopTracking();
 	m_dragStart = point;
 	m_dragEnd = point;
 	SetHighlightText();
@@ -883,6 +884,7 @@ bool CLogView::FindProcess(int direction)
 	if (line < 0 || line == begin)
 		return false;
 
+	StopTracking();
 	ScrollToIndex(line, true);
 	return true;
 }
@@ -1079,12 +1081,15 @@ int CLogView::EndUpdate()
 		if (m_track())
 		{
 			// nolonger track item after it has correctly centered
-			m_track = 0;
+			StopTracking();
 		}
-		
 	}
-
 	return m_addedLines;
+}
+
+void CLogView::StopTracking()
+{
+	m_track = 0;
 }
 
 void CLogView::StopScrolling()
@@ -1101,7 +1106,7 @@ void CLogView::StopScrolling()
 			break;
 		}
 	}
-	m_track = 0;
+	StopTracking();
 }
 
 void CLogView::ClearSelection()
@@ -1254,6 +1259,8 @@ int CLogView::FindLine(Predicate pred, int direction) const
 
 bool CLogView::Find(const std::string& text, int direction)
 {
+	StopTracking();
+
 	int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, text); }, direction);
 	if (line < 0)
 		return false;
@@ -1390,7 +1397,7 @@ LogFilter CLogView::GetFilters() const
 
 void CLogView::SetFilters(const LogFilter& filter)
 {
-	m_track = 0;
+	StopTracking();
 	m_filter = filter;
 	ApplyFilters();
 }
@@ -1550,21 +1557,16 @@ bool CLogView::IsStop(const std::string& text) const
 
 bool CLogView::IsTrack(const std::string& text) const
 {
+	bool result = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		switch (it->type)
-		{
-		case FilterType::Track:
-			return std::regex_search(text, it->re);
-
-		default:
-			break;
-		}
+		if (it->type == FilterType::Track)
+			result |= std::regex_search(text, it->re);
 	}
-	return false;
+	return result;
 }
 
 } // namespace debugviewpp 
