@@ -218,7 +218,12 @@ private:
 	std::vector<int> GetBookmarks() const;
 	void ToggleBookmark(int iItem);
 	void FindBookmark(int direction);
+
+	template <typename Predicate>
+	int FindLine(Predicate pred, int direction) const;
+
 	bool Find(const std::string& text, int direction);
+	bool FindProcess(int direction);
 	void ApplyFilters();
 	bool IsProcessIncluded(const std::string& msg) const;
 	bool IsMessageIncluded(const std::string& msg) const;

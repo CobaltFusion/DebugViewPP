@@ -633,6 +633,9 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 {
+	if (iItem >= static_cast<int>(m_logLines.size()))
+		return;
+
 	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
 	auto data = GetItemData(iItem);
 
@@ -643,6 +646,7 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 
 	rect.left += GetColumnWidth(0);
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
+
 	ScopedBkColor bcol(dc, bkColor);
 	ScopedTextColor tcol(dc, txColor);
 
@@ -665,8 +669,8 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	switch (pCustomDraw->nmcd.dwDrawStage)
 	{
 	case CDDS_PREPAINT:
+//		return CDRF_DODEFAULT;  // Enable this line for non-custom drawing
 		return CDRF_NOTIFYITEMDRAW;
-//		return CDRF_DODEFAULT;
 
 	case CDDS_ITEMPREPAINT:
 		DrawItem(pCustomDraw->nmcd.hdc, pCustomDraw->nmcd.dwItemSpec, pCustomDraw->nmcd.uItemState);
@@ -868,12 +872,32 @@ void CLogView::OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*w
 		FindPrevious(m_highlightText);
 }
 
+bool CLogView::FindProcess(int direction)
+{
+	int begin = GetNextItem(-1, LVNI_FOCUSED);
+	if (begin < 0)
+		return false;
+
+	auto processName = m_logFile[m_logLines[begin].line].processName;
+
+	// Internal Compiler Error on VC2010:
+//	int line = FindLine([processName, this](const LogLine& line) { return boost::iequals(m_logFile[line.line].processName, processName); }, direction);
+	int line = FindLine([processName, this](const LogLine& line) { return m_logFile[line.line].processName == processName; }, direction);
+	if (line < 0 || line == begin)
+		return false;
+
+	ScrollToIndex(line, true);
+	return true;
+}
+
 void CLogView::OnViewNextProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	FindProcess(+1);
 }
 
 void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	FindProcess(-1);
 }
 
 void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1210,7 +1234,8 @@ void CLogView::SetHighlightText(const std::wstring& text)
 	Invalidate(false);
 }
 
-bool CLogView::Find(const std::string& text, int direction)
+template <typename Predicate>
+int CLogView::FindLine(Predicate pred, int direction) const
 {
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
@@ -1218,33 +1243,40 @@ bool CLogView::Find(const std::string& text, int direction)
 	int line = begin;
 
 	if (m_logLines.empty())
-		return false;
+		return -1;
 
 	do
 	{
 		line += direction;
 		if (line < 0)
 			line += m_logLines.size();
-		if (line == static_cast<int>(m_logLines.size()))
-			line = 0;
+		if (line >= static_cast<int>(m_logLines.size()))
+			line -= m_logLines.size();
 
-		if (Contains(m_logFile[m_logLines[line].line].text, text))
-		{
-			// only scroll to the line if it is not already in focus
-			if (line != begin)
-				ScrollToIndex(line, true);
-
-			auto wtext = WStr(text).str();
-			if (line == begin && wtext == m_highlightText)
-				return false;
-
-			SetHighlightText(WStr(text));
-			return true;
-		}
+		if (pred(m_logLines[line]))
+			return line;
 	}
 	while (line != begin);
 
-	return false;
+	return -1;
+}
+
+bool CLogView::Find(const std::string& text, int direction)
+{
+	int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, text); }, direction);
+	if (line < 0)
+		return false;
+
+	bool sameLine = GetItemState(line, LVIS_FOCUSED) != 0;
+	if (!sameLine)
+		ScrollToIndex(line, true);
+
+	auto wtext = WStr(text).str();
+	if (sameLine && wtext == m_highlightText)
+		return false;
+
+	SetHighlightText(wtext);
+	return true;
 }
 
 bool CLogView::FindNext(const std::wstring& text)
@@ -1383,7 +1415,10 @@ std::vector<int> CLogView::GetBookmarks() const
 
 void CLogView::ApplyFilters()
 {
+	ClearSelection();
+
 	int focusItem = GetNextItem(-1, LVIS_FOCUSED);
+	SetItemState(focusItem, 0, LVIS_FOCUSED);
 	int focusLine = focusItem < 0 ? -1 : m_logLines[focusItem].line;
 
 	auto bookmarks = GetBookmarks();
@@ -1394,7 +1429,7 @@ void CLogView::ApplyFilters()
 	int count = m_logFile.Count();
 	int line = m_firstLine;
 	int item = 0;
-	focusItem = 0;
+	focusItem = -1;
 	bool changed = false;
 	while (line < count)
 	{
@@ -1423,12 +1458,12 @@ void CLogView::ApplyFilters()
 	{
 		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
 		ScrollToIndex(focusItem, false);
-		SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	}
 	else
 	{
 		Invalidate();
 	}
+	SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	EndUpdate();
 }
 
