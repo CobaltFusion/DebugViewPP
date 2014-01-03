@@ -1027,23 +1027,25 @@ void CLogView::Add(int line, const Message& msg)
 
 	m_dirty = true;
 	++m_addedLines;
+	int viewline = m_logLines.size();
 	m_logLines.push_back(LogLine(line));
 	if (m_autoScrollDown && IsStop(msg.text))
 	{
-		m_stop = [this, line] ()
+		m_stop = [this, viewline] ()
 		{
 			StopScrolling();
-			ScrollToIndex(line, true);
+			ScrollToIndex(viewline, true);
 		};
 		return;
 	}
 
 	if (IsTrack(msg.text))
 	{
+		printf("found: trackitem at line: %d, %s\n", viewline+1, msg.text);
 		m_autoScrollDown = false;
-		m_track = [this, line] () 
+		m_track = [this, viewline] () 
 		{ 
-			return ScrollToIndex(line, true);
+			return ScrollToIndex(viewline, true);
 		};
 	}
 }
@@ -1123,10 +1125,10 @@ bool CLogView::ScrollToIndex(int index, bool center)
 	bool ensureVisible = false;
 	int ensureIndex = 0;
 
-	printf("ScrollToIndex: %d\n", index);
-
 	if (index < 0 || index >= static_cast<int>(m_logLines.size()))
 		return true;
+
+	printf("ScrollToIndex, line %d\n", index+1);
 
 	ClearSelection();
 	SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
@@ -1146,7 +1148,7 @@ bool CLogView::ScrollToIndex(int index, bool center)
 	}
 	if (ensureVisible)
 	{
-		printf("EnsureVisible: %d\n", ensureIndex);
+		printf("EnsureVisible: %d\n", ensureIndex+1);
 		EnsureVisible(ensureIndex, false);
 	}
 	return result;
