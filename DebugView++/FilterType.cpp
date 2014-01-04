@@ -57,7 +57,7 @@ std::string FilterTypeToString(FilterType::type value)
 
 FilterType::type StringToFilterType(const std::string& s)
 {
-#define FILTER_TYPE(f) if (boost::iequals(s, _T(#f))) return FilterType::f;
+#define FILTER_TYPE(f) if (s == #f) return FilterType::f;
 	FILTER_TYPE(Include);
 	FILTER_TYPE(Exclude);
 	FILTER_TYPE(Highlight);
@@ -67,7 +67,7 @@ FilterType::type StringToFilterType(const std::string& s)
 	FILTER_TYPE(Ignore);
 #undef FILTER_TYPE
 
-	return IntToFilterType(boost::lexical_cast<int>(s));
+	throw std::invalid_argument("bad FilterType!");
 }
 
 } // namespace debugviewpp 

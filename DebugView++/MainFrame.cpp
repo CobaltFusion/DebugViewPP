@@ -252,6 +252,23 @@ std::wstring FormatDuration(double seconds)
 	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 
+std::wstring FormatDateTime(const SYSTEMTIME& systemTime)
+{
+	int size = GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
+	size += GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
+	std::vector<wchar_t> buf(size);
+
+	int offset = GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data(), size);
+	buf[offset - 1] = ' ';
+	GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data() + offset, size);
+	return std::wstring(buf.data(), size - 1);
+}
+
+std::wstring FormatDateTime(const FILETIME& fileTime)
+{
+	return FormatDateTime(FileTimeToSystemTime(FileTimeToLocalFileTime(fileTime)));
+}
+
 std::wstring FormatBytes(size_t size)
 {
 	static const wchar_t* units[] = { L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr };
@@ -268,8 +285,11 @@ std::wstring FormatBytes(size_t size)
 
 std::wstring CMainFrame::GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const
 {
-	if (selection.count < 2)
+	if (selection.count == 0)
 		return std::wstring();
+
+	if (selection.count == 1)
+		return label + L": " + FormatDateTime(m_logFile[selection.beginLine].systemTime);
 
 	double dt = m_logFile[selection.endLine].time - m_logFile[selection.beginLine].time;
 	return wstringbuilder() << label << L": " << FormatDuration(dt) << L" (" << selection.count << " lines)";
