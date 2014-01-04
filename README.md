@@ -46,7 +46,7 @@ Pressing OK will open a new view without any filters.
 
 Different types of filters:
 
-Any filters support regular expressions, if you are not familliar with regular expressions you can
+All filters support regular expressions, if you are not familliar with regular expressions you can
 just type any word or part of a word to match.
 
 - include: ??? see highlight?
@@ -56,6 +56,22 @@ just type any word or part of a word to match.
 - track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched 
 - stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only of autoscroll is on, think of a stop-filter as a one-shot track filter
 - ignore: lines containing a matching expression will be ignored by the auto scroll feature. 
+
+Practical uses:
+
+Exclude and highlight filters are the most intuitive filters to use. Track, stop and ignore can be a little confusing, let me try to give examples of all filters.
+
+track; use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
+
+stop; this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
+
+ignore; this filter is usefull if you want to have auto scoll on, but some high frequeny messages are annoying you, but you cannot exclude them because they help you diagnose your problem when it occurs.
+
+In this last case you can consider a different approach:
+
+Use two views, one where the diagnostic messages are filtered and autoscroll is on, and one where the messages are included (and maybe highlighted), next turn on the 'link views' feature.
+
+
 
 Other documentation:
 --------------------
