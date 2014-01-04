@@ -6,7 +6,7 @@
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
     <Media Id='1' Cabinet='DebugViewPP.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1' />
-    <Property Id='DiskPrompt' Value="Cobolt Fusion DebugView++ Installation [1]" />
+    <Property Id='DiskPrompt' Value="Cobalt Fusion DebugView++ Installation [1]" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
