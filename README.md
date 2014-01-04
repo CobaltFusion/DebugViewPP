@@ -57,15 +57,15 @@ just type any word or part of a word to match.
 - stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only of autoscroll is on, think of a stop-filter as a one-shot track filter
 - ignore: lines containing a matching expression will be ignored by the auto scroll feature. 
 
-Practical uses:
+*Practical uses*:
 
 Exclude and highlight filters are the most intuitive filters to use. Track, stop and ignore can be a little confusing, let me try to give examples of all filters.
 
-track; use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
+**track**; use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
 
-stop; this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
+**stop**; this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
 
-ignore; this filter is usefull if you want to have auto scoll on, but some high frequeny messages are annoying you, but you cannot exclude them because they help you diagnose your problem when it occurs.
+**ignore**; this filter is usefull if you want to have auto scoll on, but some high frequeny messages are annoying you, but you cannot exclude them because they help you diagnose your problem when it occurs.
 
 In this last case you can consider a different approach:
 
