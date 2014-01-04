@@ -448,9 +448,7 @@ bool CMainFrame::LoadSettings()
 {
 	DWORD x, y, cx, cy;
 	CRegKey reg;
-	if (reg.Open(HKEY_CURRENT_USER, RegistryPath, KEY_READ) != ERROR_SUCCESS)
-		return false;
-
+	reg.Create(HKEY_CURRENT_USER, RegistryPath);
 	if ( reg.QueryDWORDValue(L"X", x) == ERROR_SUCCESS
 		&& reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS
 		&& reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS
@@ -463,8 +461,8 @@ bool CMainFrame::LoadSettings()
 
 	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
-	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
-	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
+	auto fontName = RegGetStringValue(reg, L"FontName", L"Courier").substr(0, LF_FACESIZE - 1);
+	int fontSize = RegGetDWORDValue(reg, L"FontSize", 10);
 	if (!fontName.empty())
 	{
 		LOGFONT lf;
