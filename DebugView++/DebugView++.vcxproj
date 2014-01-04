@@ -81,7 +81,8 @@
     </Link>
     <PostBuildEvent>
       <Message>Update version.h</Message>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h</Command>
+      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h
+zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,7 +126,8 @@
     </Link>
     <PostBuildEvent>
       <Message>Update version.h</Message>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h</Command>
+      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h
+zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
