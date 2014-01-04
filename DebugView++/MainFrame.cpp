@@ -42,7 +42,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
 	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
 	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
-	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
+	COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
@@ -597,7 +597,7 @@ LRESULT CMainFrame::OnChangingTab(NMHDR* pnmh)
 	// The TabCtrl doesn't like the FiltersDialog during its message processing.
 	// The PostMessage triggers the new tab after the TabControl message handling
 	if (nmhdr.iItem2 > 0 && nmhdr.iItem2 == GetViewCount())
-		PostMessage(WM_COMMAND, ID_FILE_NEWTAB, (LPARAM)m_hWnd);
+		PostMessage(WM_COMMAND, ID_FILE_NEWVIEW, (LPARAM)m_hWnd);
 
 	return FALSE;
 }
