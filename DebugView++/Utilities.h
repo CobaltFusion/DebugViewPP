@@ -45,14 +45,22 @@
 
 namespace fusion {
 
-class ScopedCursor : boost::noncopyable
+struct ScopedCursorDeleter
 {
+	typedef HCURSOR pointer;
+	void operator()(pointer p) const;
+};
+
+class ScopedCursor : public std::unique_ptr<std::remove_pointer<HCURSOR>::type, ScopedCursorDeleter>
+{
+	typedef std::unique_ptr<std::remove_pointer<HCURSOR>::type, ScopedCursorDeleter> unique_ptr;
+
 public:
-	explicit ScopedCursor(HCURSOR cursor);
-	~ScopedCursor();
+	explicit ScopedCursor(HCURSOR hCursor = nullptr);
+	void reset(HCURSOR hCursor = nullptr);
 
 private:
-	HCURSOR m_cursor;
+	static HCURSOR GetCursor(HCURSOR hCursor);
 };
 
 template <class CharType, class Traits = std::char_traits<CharType>, class Allocator = std::allocator<CharType>>

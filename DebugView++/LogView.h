@@ -88,8 +88,7 @@ public:
 			return TRUE;
 
 		HDHITTESTINFO info;
-		auto pos = GetMessagePos();
-		info.pt = CPoint(GET_X_LPARAM(pos), GET_Y_LPARAM(pos));
+		info.pt = GetMessagePos();
 		ScreenToClient(&info.pt);
 		return HitTest(&info) < 1;
 	}
@@ -170,9 +169,9 @@ public:
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnContextMenu(HWND hWnd, CPoint pt);
-	void OnLButtonDown(UINT nFlags, CPoint point);
 	void OnMouseMove(UINT flags, CPoint point);
 	void OnLButtonUp(UINT nFlags, CPoint point);
+	BOOL OnSetCursor(CWindow wnd, UINT nHitTest, UINT message);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
@@ -181,6 +180,7 @@ private:
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
 	LRESULT OnIncrementalSearch(NMHDR* pnmh);
 	LRESULT OnOdCacheHint(NMHDR* pnmh);
+	LRESULT OnBeginDrag(NMHDR* pnmh);
 	void OnViewClear(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -250,6 +250,7 @@ private:
 	bool m_insidePaint;
 	HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;
+	HCURSOR m_hBeamCursor;
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
 	int m_scrolldownIndex;

@@ -53,7 +53,7 @@ ItemData::ItemData() :
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
-	MSG_WM_LBUTTONDOWN(OnLButtonDown)
+	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
@@ -64,6 +64,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnBeginDrag)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
@@ -115,6 +116,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_dirty(false),
 	m_insidePaint(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
+	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
 	m_dragStart(0, 0),
 	m_dragEnd(0, 0)
 {
@@ -201,7 +203,27 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	UpdateColumns();
 
 	ApplyFilters();
+
 	return 0;
+}
+
+BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
+{
+	POINT pt = GetMessagePos();
+	ScreenToClient(&pt);
+
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = pt;
+	SubItemHitTest(&info);
+	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Message))
+	{
+		::SetCursor(m_hBeamCursor);
+		return TRUE;
+	}
+
+	SetMsgHandled(false);
+	return FALSE;
 }
 
 void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
@@ -278,16 +300,6 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 	return 0;
 }
 
-void CLogView::OnLButtonDown(UINT /*flags*/, CPoint point)
-{
-	SetMsgHandled(false);
-
-	StopTracking();
-	m_dragStart = point;
-	m_dragEnd = point;
-	SetHighlightText();
-}
-
 void CLogView::OnMouseMove(UINT flags, CPoint point)
 {
 	SetMsgHandled(false);
@@ -315,6 +327,7 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	int x2 = std::max(m_dragStart.x, point.x);
 	m_dragStart = CPoint();
 	m_dragEnd = CPoint();
+	ReleaseCapture();
 	Invalidate();
 	if ((info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message)
 		return;
@@ -826,6 +839,30 @@ LRESULT CLogView::OnOdCacheHint(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
 	nmhdr;
+	return 0;
+}
+
+LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMLISTVIEW*>(pnmh);
+
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = nmhdr.ptAction;
+	SubItemHitTest(&info);
+	if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != ColumnToSubItem(Column::Message))
+	{
+		SetMsgHandled(false);
+		return 0;
+	}
+
+	StopTracking();
+
+	SetCapture();
+	m_dragStart = nmhdr.ptAction;
+	m_dragEnd = nmhdr.ptAction;
+	SetHighlightText();
+
 	return 0;
 }
 
