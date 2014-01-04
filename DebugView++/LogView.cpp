@@ -595,7 +595,7 @@ ItemData CLogView::GetItemData(int iItem) const
 	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
 	data.highlights = GetHighlights(text);
 	data.text[Column::Message] = WStr(text).str();
-	data.color = GetTextColor(m_logFile[m_logLines[iItem].line].text);
+	data.color = GetTextColor(m_logFile[m_logLines[iItem].line]);
 	return data;
 }
 
@@ -1477,17 +1477,17 @@ bool FilterSupportsColor(FilterType::type value)
 	return false;
 }
 
-TextColor CLogView::GetTextColor(const std::string& text) const
+TextColor CLogView::GetTextColor(const Message& msg) const
 {
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(text, it->re))
+		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(msg.text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(text, it->re))
+		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(msg.processName, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 

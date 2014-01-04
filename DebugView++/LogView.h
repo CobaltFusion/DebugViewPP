@@ -231,7 +231,7 @@ private:
 	bool IsStop(const std::string& text) const;
 	bool IsTrack(const std::string& text) const;
 	bool IsIgnore(const std::string& text) const;
-	TextColor GetTextColor(const std::string& text) const;
+	TextColor GetTextColor(const Message& msg) const;
 
 	std::wstring m_name;
 	CMainFrame& m_mainFrame;
