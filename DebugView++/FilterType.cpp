@@ -55,6 +55,25 @@ std::string FilterTypeToString(FilterType::type value)
 	throw std::invalid_argument("bad FilterType!");
 }
 
+const wchar_t* FilterTypeToWCharPtr(FilterType::type value)
+{
+#define FILTER_TYPE(f) case FilterType::f: return L ## #f;
+	switch (value)
+	{
+	FILTER_TYPE(Include);
+	FILTER_TYPE(Exclude);
+	FILTER_TYPE(Highlight);
+	FILTER_TYPE(Token);
+	FILTER_TYPE(Track);
+	FILTER_TYPE(Stop);
+	FILTER_TYPE(Ignore);
+	default: assert(!"Unexpected FilterType"); break;
+	}
+#undef FILTER_TYPE
+
+	throw std::invalid_argument("bad FilterType!");
+}
+
 FilterType::type StringToFilterType(const std::string& s)
 {
 #define FILTER_TYPE(f) if (s == #f) return FilterType::f;

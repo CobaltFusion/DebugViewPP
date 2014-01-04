@@ -45,25 +45,33 @@ void CMessageFilterPage::ExceptionHandler()
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
+static const FilterType::type FilterTypes[] =
+{
+	FilterType::Include,
+	FilterType::Exclude,
+	FilterType::Highlight,
+	FilterType::Token,
+	FilterType::Stop,
+	FilterType::Track,
+	FilterType::Ignore
+};
+
 void CMessageFilterPage::AddFilter(const MessageFilter& filter)
 {
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
 	pFilterProp->SetBkColor(filter.bgColor);
 	pFilterProp->SetTextColor(filter.fgColor);
 
-	static const wchar_t* types[] = { L"Include", L"Exclude", L"Highlight", L"Token" , L"Stop", L"Track", nullptr };
-	auto pTypeList = PropCreateList(L"", types);
-	pTypeList->SetValue(CComVariant(filter.type));
-
 	auto pBkColor = PropCreateColorItem(L"Background Color", filter.bgColor);
 	pBkColor->SetEnabled(filter.type != FilterType::Exclude);
+
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
 	pTxColor->SetEnabled(filter.type != FilterType::Exclude);
 
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 1, pFilterProp);
-	m_grid.SetSubItem(item, 2, pTypeList);
+	m_grid.SetSubItem(item, 2, CreateFilterTypeItem(L"", FilterTypes, filter.type));
 	m_grid.SetSubItem(item, 3, pBkColor);
 	m_grid.SetSubItem(item, 4, pTxColor);
 	m_grid.SetSubItem(item, 5, PropCreateReadOnlyItem(L"", L"×"));
@@ -166,7 +174,7 @@ FilterType::type CMessageFilterPage::GetFilterType(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyListItem>(m_grid, iItem, 2).GetValue(&val);
-	return IntToFilterType(val.lVal);
+	return FilterTypes[val.lVal];
 }
 
 COLORREF CMessageFilterPage::GetFilterBgColor(int iItem) const
