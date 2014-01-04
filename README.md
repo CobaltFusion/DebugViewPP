@@ -31,8 +31,8 @@ The screenshot demonstrates bookmarks and highlighting features:
 
 highlighted:
 ------------
-- regex (token filter):     [^\s]*\\[\\\w+\.\s]+    filenames in blue
-- regex (token filter):     0x\w+                   hexadecimal numbers in red
+- regex (token filter):     ``[^\s]*\\[\\\w+\.\s]+``    filenames in blue
+- regex (token filter):     ``0x\w+``                   hexadecimal numbers in red
 - regex (highlight filter): data                    lines with the word 'data' lightgreen
 - a doubleclick on 'bytes' causes all instances of 'bytes' to highlight in yellow
 
