@@ -29,7 +29,7 @@ Screenshot
 
 The screenshot demonstrates bookmarks and highlighting features:
 
-highlighted:
+Highlighted:
 ------------
 - regex (token filter):     ``[^\s]*\\[\\\w+\.\s]+``    filenames in blue
 - regex (token filter):     ``0x\w+``                   hexadecimal numbers in red
@@ -37,6 +37,35 @@ highlighted:
 - a doubleclick on 'bytes' causes all instances of 'bytes' to highlight in yellow
 
 See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
+
+Filters:
+--------
+
+Filters can be defined per view, for example you can File->New View, and the filter dialog will popup.
+Pressing OK will open a new view without any filters. 
+
+Different types of filters:
+
+Any filters support regular expressions, if you are not familliar with regular expressions you can
+just type any word or part of a word to match.
+
+- include: ??? see highlight?
+- exclude: lines containing a matching expression will be excluded from the view
+- highlight: lines containing a matching expression will be highlighted using the specified foreground and background colors
+- token: only the matching expression will be highlighted using the specified foreground and background colors
+- track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched 
+- stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only of autoscroll is on, think of a stop-filter as a one-shot track filter
+- ignore: lines containing a matching expression will be ignored by the auto scroll feature. 
+
+Other documentation:
+--------------------
+
+Auto scroll: scrolls down to new incoming lines automatically; autoscroll is turned on automatically when the last line in the view is selected.
+
+
+
+See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options of the supported regular expressions
+
 
 How to build
 ------------
