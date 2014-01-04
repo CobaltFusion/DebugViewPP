@@ -802,6 +802,7 @@ bool Contains(const std::string& text, const std::string& substring)
 
 LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 {
+	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
