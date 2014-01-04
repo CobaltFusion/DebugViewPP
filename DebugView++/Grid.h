@@ -13,6 +13,7 @@
 #include "PropertyGrid.h"
 #pragma warning(pop)
 #include "PropertyColorItem.h"
+#include "FilterType.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -23,6 +24,23 @@ template <typename ItemType>
 ItemType& GetGridItem(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
 {
 	return dynamic_cast<ItemType&>(*grid.GetProperty(iItem, iSubItem));
+}
+
+template <size_t N>
+CPropertyListItem* CreateFilterTypeItem(const wchar_t* name, const FilterType::type (&types)[N], FilterType::type value)
+{
+	const wchar_t* items[N + 1];
+	int index = 0;
+	for (size_t i = 0; i < N; ++i)
+	{
+		items[i] = FilterTypeToWCharPtr(types[i]);
+		if (types[i] == value)
+			index = i;
+	}
+	items[N] = nullptr;
+	auto pItem = PropCreateList(name, items);
+	pItem->SetValue(CComVariant(index));
+	return pItem;
 }
 
 } // namespace debugviewpp 

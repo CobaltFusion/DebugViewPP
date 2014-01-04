@@ -120,6 +120,7 @@ void ThrowLastError(const std::string& what);
 void ThrowLastError(const std::wstring& what);
 
 WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
+POINT GetMessagePos();
 
 SYSTEMTIME GetSystemTime();
 SYSTEMTIME GetLocalTime();

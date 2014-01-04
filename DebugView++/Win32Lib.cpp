@@ -100,6 +100,13 @@ WINDOWPLACEMENT GetWindowPlacement(HWND hwnd)
 	return placement;
 }
 
+POINT GetMessagePos()
+{
+	DWORD pos = ::GetMessagePos();
+	POINT pt = { GET_X_LPARAM(pos), GET_Y_LPARAM(pos) };
+	return pt;
+}
+
 SYSTEMTIME GetSystemTime()
 {
 	SYSTEMTIME st;

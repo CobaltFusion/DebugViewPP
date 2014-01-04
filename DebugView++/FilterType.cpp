@@ -19,39 +19,64 @@ int FilterTypeToInt(FilterType::type value)
 
 FilterType::type IntToFilterType(int value)
 {
+#define FILTER_TYPE(f) case FilterType::f: return FilterType::f;
 	switch (value)
 	{
-	case FilterType::Include: return FilterType::Include;
-	case FilterType::Exclude: return FilterType::Exclude;
-	case FilterType::Highlight: return FilterType::Highlight;
-	case FilterType::Token: return FilterType::Token;
-	case FilterType::Track: return FilterType::Track;
-	case FilterType::Stop: return FilterType::Stop;
-	case FilterType::Ignore: return FilterType::Ignore;
+	FILTER_TYPE(Include);
+	FILTER_TYPE(Exclude);
+	FILTER_TYPE(Highlight);
+	FILTER_TYPE(Token);
+	FILTER_TYPE(Track);
+	FILTER_TYPE(Stop);
+	FILTER_TYPE(Ignore);
 	default: assert(!"Unexpected FilterType"); break;
 	}
+#undef FILTER_TYPE
+
 	throw std::invalid_argument("bad FilterType!");
 }
 
 std::string FilterTypeToString(FilterType::type value)
 {
+#define FILTER_TYPE(f) case FilterType::f: return #f;
 	switch (value)
 	{
-	case FilterType::Include: return "Include";
-	case FilterType::Exclude: return "Exclude";
-	case FilterType::Highlight: return "Highlight";
-	case FilterType::Token: return "Token";
-	case FilterType::Track: return "Track";
-	case FilterType::Stop: return "Stop";
-	case FilterType::Ignore: return "Ignore";
+	FILTER_TYPE(Include);
+	FILTER_TYPE(Exclude);
+	FILTER_TYPE(Highlight);
+	FILTER_TYPE(Token);
+	FILTER_TYPE(Track);
+	FILTER_TYPE(Stop);
+	FILTER_TYPE(Ignore);
 	default: assert(!"Unexpected FilterType"); break;
 	}
+#undef FILTER_TYPE
+
+	throw std::invalid_argument("bad FilterType!");
+}
+
+const wchar_t* FilterTypeToWCharPtr(FilterType::type value)
+{
+#define FILTER_TYPE(f) case FilterType::f: return L ## #f;
+	switch (value)
+	{
+	FILTER_TYPE(Include);
+	FILTER_TYPE(Exclude);
+	FILTER_TYPE(Highlight);
+	FILTER_TYPE(Token);
+	FILTER_TYPE(Track);
+	FILTER_TYPE(Stop);
+	FILTER_TYPE(Ignore);
+	default: assert(!"Unexpected FilterType"); break;
+	}
+#undef FILTER_TYPE
+
 	throw std::invalid_argument("bad FilterType!");
 }
 
 FilterType::type StringToFilterType(const std::string& s)
 {
-#define FILTER_TYPE(f) if (boost::iequals(s, _T(#f))) return FilterType::f;
+#define FILTER_TYPE(f) if (s == #f) return FilterType::f;
 	FILTER_TYPE(Include);
 	FILTER_TYPE(Exclude);
 	FILTER_TYPE(Highlight);
@@ -61,7 +86,7 @@ FilterType::type StringToFilterType(const std::string& s)
 	FILTER_TYPE(Ignore);
 #undef FILTER_TYPE
 
-	return IntToFilterType(boost::lexical_cast<int>(s));
+	throw std::invalid_argument("bad FilterType!");
 }
 
 } // namespace debugviewpp 

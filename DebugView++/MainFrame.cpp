@@ -44,8 +44,8 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWTAB, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE, OnFileSave)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_AS, OnFileSaveAs)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
@@ -252,6 +252,23 @@ std::wstring FormatDuration(double seconds)
 	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 
+std::wstring FormatDateTime(const SYSTEMTIME& systemTime)
+{
+	int size = GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
+	size += GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
+	std::vector<wchar_t> buf(size);
+
+	int offset = GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data(), size);
+	buf[offset - 1] = ' ';
+	GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data() + offset, size);
+	return std::wstring(buf.data(), size - 1);
+}
+
+std::wstring FormatDateTime(const FILETIME& fileTime)
+{
+	return FormatDateTime(FileTimeToSystemTime(FileTimeToLocalFileTime(fileTime)));
+}
+
 std::wstring FormatBytes(size_t size)
 {
 	static const wchar_t* units[] = { L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr };
@@ -268,8 +285,11 @@ std::wstring FormatBytes(size_t size)
 
 std::wstring CMainFrame::GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const
 {
-	if (selection.count < 2)
+	if (selection.count == 0)
 		return std::wstring();
+
+	if (selection.count == 1)
+		return label + L": " + FormatDateTime(m_logFile[selection.beginLine].systemTime);
 
 	double dt = m_logFile[selection.endLine].time - m_logFile[selection.beginLine].time;
 	return wstringbuilder() << label << L": " << FormatDuration(dt) << L" (" << selection.count << " lines)";
@@ -639,21 +659,44 @@ void CMainFrame::OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	AddFilterView();
 }
 
-std::wstring CMainFrame::GetLogFileName() const
+std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.txt";
-	CFileDialog dlg(false, L".txt", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
-	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Save DebugView log";
-	return dlg.DoModal() == IDOK ? dlg.m_szFileName : L"";
+	uint64_t hi = ft.dwHighDateTime;
+	uint64_t lo = ft.dwLowDateTime;
+	return os << ((hi << 32) | lo);
 }
 
 void CMainFrame::SaveLogFile(const std::wstring& fileName)
 {
 	UISetText(0, WStr(wstringbuilder() << "Saving " << fileName));
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
-	GetView().Save(fileName);
+
+	std::ofstream fs(fileName);
+	int count = m_logFile.Count();
+	for (int i = 0; i < count; ++i)
+	{
+		auto msg = m_logFile[i];
+		fs <<
+			msg.time << '\t' <<
+			msg.systemTime << '\t'<<
+			msg.processId << '\t'<<
+			msg.processName << '\t'<<
+			msg.text << '\n';
+	}
+	fs.close();
+	if (!fs)
+		ThrowLastError(fileName);
+
 	m_logFileName = fileName;
+	UpdateStatusBar();
+}
+
+void CMainFrame::SaveViewFile(const std::wstring& fileName)
+{
+	UISetText(0, WStr(wstringbuilder() << "Saving " << fileName));
+	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	GetView().Save(fileName);
+	m_txtFileName = fileName;
 	UpdateStatusBar();
 }
 
@@ -689,10 +732,19 @@ std::string TabSplitter::GetTail() const
 	return std::string(m_it, m_end);
 }
 
+FILETIME MakeFileTime(uint64_t t)
+{
+	uint32_t mask = ~0U;
+	FILETIME ft;
+	ft.dwHighDateTime = (t >> 32) & mask;
+	ft.dwLowDateTime = t & mask;
+	return ft;
+}
+
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.txt";
-	CFileDialog dlg(true, L".txt", fileName.c_str(), OFN_FILEMUSTEXIST, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.log";
+	CFileDialog dlg(true, L".txt", fileName.c_str(), OFN_FILEMUSTEXIST, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load DebugView log";
 	if (dlg.DoModal() != IDOK)
@@ -708,34 +760,38 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	Pause();
 	ClearLog();
 
-//	DWORD pid = GetCurrentProcessId();
 	std::string line;
 	while (std::getline(file, line))
 	{
 		TabSplitter split(line);
-		auto lineno = split.GetNext();
-		auto time = split.GetNext();
-		auto pidtxt = split.GetNext();
+		auto time = boost::lexical_cast<double>(split.GetNext());
+		auto systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(split.GetNext()));
+		auto pid = boost::lexical_cast<DWORD>(split.GetNext());
 		auto process = split.GetNext();
 		auto message = split.GetTail();
 
-		FILETIME ft = {};
-		AddMessage(Message(atof(time.c_str()), ft, atoi(pidtxt.c_str()), process, message));
+		AddMessage(Message(time, systemTime, pid, process, message));
 	}
 }
 
-void CMainFrame::OnFileSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	auto fileName = !m_logFileName.empty() ? m_logFileName : GetLogFileName();
-	if (!fileName.empty())
-		SaveLogFile(fileName);
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.log";
+	CFileDialog dlg(false, L".log", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Save DebugView log";
+	if (dlg.DoModal() == IDOK)
+		SaveLogFile(dlg.m_szFileName);
 }
 
-void CMainFrame::OnFileSaveAs(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	auto fileName = GetLogFileName();
-	if (!fileName.empty())
-		SaveLogFile(fileName);
+	std::wstring fileName = !m_txtFileName.empty() ? m_txtFileName : L"DebugView.txt";
+	CFileDialog dlg(false, L".txt", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Save DebugView text";
+	if (dlg.DoModal() == IDOK)
+		SaveViewFile(fileName);
 }
 
 void CMainFrame::ClearLog()
