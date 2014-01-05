@@ -59,7 +59,6 @@ extern CAppModule _Module;
 #include <string>
 #include <vector>
 #include <sstream>
-#include <cmath>
 
 #include <boost/utility.hpp>
 #include <boost/system/system_error.hpp>

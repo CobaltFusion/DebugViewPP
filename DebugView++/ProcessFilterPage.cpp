@@ -103,11 +103,11 @@ LRESULT CProcessFilterPage::OnAddItem(NMHDR* /*pnmh*/)
 
 LRESULT CProcessFilterPage::OnClickItem(NMHDR* pnmh)
 {
-	auto pClick = reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
 	int iItem;
 	int iSubItem;
-	if (m_grid.FindProperty(pClick->prop, iItem, iSubItem) && iSubItem == 5)
+	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 5)
 	{
 		m_grid.DeleteItem(iItem);
 		return TRUE;
@@ -118,16 +118,24 @@ LRESULT CProcessFilterPage::OnClickItem(NMHDR* pnmh)
 
 LRESULT CProcessFilterPage::OnItemChanged(NMHDR* pnmh)
 {
-	auto pItemChanged = reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
 	int iItem;
 	int iSubItem;
-	if (!m_grid.FindProperty(pItemChanged->prop, iItem, iSubItem))
+	if (!m_grid.FindProperty(nmhdr.prop, iItem, iSubItem))
 		return FALSE;
 	
+	if (iSubItem == 2)
+	{
+		auto& bkColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, 3));
+		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, 4));
+		bkColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
+		txColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
+	}
+
 	if (iSubItem == 3)
 	{
-		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
 		CPropertyEditItem& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
 		edit.SetBkColor(item.GetColor());
 		return TRUE;
@@ -135,7 +143,7 @@ LRESULT CProcessFilterPage::OnItemChanged(NMHDR* pnmh)
 
 	if (iSubItem == 4)
 	{
-		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		CPropertyColorItem& item = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
 		CPropertyEditItem& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
 		edit.SetTextColor(item.GetColor());
 		return TRUE;

@@ -184,14 +184,10 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 
 	// notice subtle behaviour, see http://msdn.microsoft.com/en-us/library/ms646839 at lpstrInitialDir 
 	std::wstring path;
-	TCHAR szPath[MAX_PATH];
-	if (SUCCEEDED(SHGetFolderPath(NULL, 
-                             CSIDL_PERSONAL, 
-                             NULL, 
-                             0, 
-                             szPath)))
+	wchar_t szPath[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
 	{
-	    path = szPath;
+		path = szPath;
 		path += L"\\DebugView++ Filters";
 		dlg.m_ofn.lpstrInitialDir = path.c_str();
 	}
@@ -208,18 +204,13 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		data = LoadXml(fileName);
 
 	SetDlgItemTextA(*this, IDC_NAME, data.name.c_str());
+
 	auto msgFilters = m_messagePage.GetFilters();
-	for (auto f = data.filter.messageFilters.begin(); f != data.filter.messageFilters.end(); f++)
-	{
-		msgFilters.push_back(*f);
-	}
+	msgFilters.insert(msgFilters.end(), data.filter.messageFilters.begin(), data.filter.messageFilters.end());
 	m_messagePage.SetFilters(msgFilters);
 
 	auto procFilters = m_processPage.GetFilters();
-	for (auto f = data.filter.processFilters.begin(); f != data.filter.processFilters.end(); f++)
-	{
-		procFilters.push_back(*f);
-	}
+	procFilters.insert(procFilters.end(), data.filter.processFilters.begin(), data.filter.processFilters.end());
 	m_processPage.SetFilters(procFilters);
 }
 

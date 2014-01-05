@@ -109,11 +109,11 @@ LRESULT CMessageFilterPage::OnAddItem(NMHDR* /*pnmh*/)
 
 LRESULT CMessageFilterPage::OnClickItem(NMHDR* pnmh)
 {
-	auto pClick = reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
 	int iItem;
 	int iSubItem;
-	if (m_grid.FindProperty(pClick->prop, iItem, iSubItem) && iSubItem == 5)
+	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 5)
 	{
 		m_grid.DeleteItem(iItem);
 		return TRUE;
@@ -124,11 +124,11 @@ LRESULT CMessageFilterPage::OnClickItem(NMHDR* pnmh)
 
 LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
 {
-	auto pItemChanged = reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
 	int iItem;
 	int iSubItem;
-	if (!m_grid.FindProperty(pItemChanged->prop, iItem, iSubItem))
+	if (!m_grid.FindProperty(nmhdr.prop, iItem, iSubItem))
 		return FALSE;
 	
 	if (iSubItem == 2)
@@ -141,7 +141,7 @@ LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
 
 	if (iSubItem == 3)
 	{
-		auto& color = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
 		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
 		edit.SetBkColor(color.GetColor());
 		return TRUE;
@@ -149,7 +149,7 @@ LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
 
 	if (iSubItem == 4)
 	{
-		auto& color = dynamic_cast<CPropertyColorItem&>(*pItemChanged->prop);
+		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
 		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
 		edit.SetTextColor(color.GetColor());
 		return TRUE;

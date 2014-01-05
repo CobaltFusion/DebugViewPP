@@ -83,7 +83,7 @@ ptree MakePTree(const ProcessFilter& filter)
 	ptree pt;
 	pt.put("Enable", filter.enable);
 	pt.put("Text", filter.text);
-	pt.put("Type", FilterTypeToInt(filter.type));
+	pt.put("Type", FilterTypeToString(filter.type));
 	pt.put_child("BackColor", MakePTree(filter.bgColor));
 	pt.put_child("TextColor", MakePTree(filter.fgColor));
 	return pt;
