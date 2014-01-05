@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="*" Name="DebugView++" Language="1033" Version="0.1.0.0" Manufacturer="Cobalt Fusion" UpgradeCode="523333bf-842d-442f-94c2-ae6caad5f714">
+    <?include $(var.SolutionDir)\DebugView++\version.wxi ?>
+    <Product Id="*" Name="DebugView++ $(var.ProductVersion.Major).$(var.ProductVersion.Minor)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Cobalt Fusion" UpgradeCode="523333bf-842d-442f-94c2-ae6caad5f714">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
         <Media Id="1" Cabinet="DebugViewPP.cab" EmbedCab="yes" DiskPrompt="Media" />
         <Property Id="DiskPrompt" Value="Cobalt Fusion DebugView++ Installation" />

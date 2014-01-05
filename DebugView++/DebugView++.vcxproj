@@ -80,10 +80,13 @@
       <AdditionalLibraryDirectories>..\Libraries\boost\lib\;$(Outdir)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Message>Update version.h</Message>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h
-zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
+      <Message>Create release zip</Message>
+      <Command>zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
+      <Message>Update version numbers</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,10 +128,13 @@ zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-      <Message>Update version.h</Message>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h
-zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
+      <Message>Create release zip</Message>
+      <Command>zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
+      <Message>Update version numbers</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
