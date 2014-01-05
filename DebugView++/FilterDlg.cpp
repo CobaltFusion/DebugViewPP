@@ -181,6 +181,21 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		L"\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load DebugView Filter";
+
+	// setting m_ofn.lpstrInitialDir works on Windows7, see http://msdn.microsoft.com/en-us/library/ms646839 at lpstrInitialDir 
+	std::wstring path;
+	TCHAR szPath[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPath(NULL, 
+                             CSIDL_PERSONAL, 
+                             NULL, 
+                             0, 
+                             szPath)))
+	{
+	    path = szPath;
+		path += L"\\DebugView++ Filters";
+		dlg.m_ofn.lpstrInitialDir = path.c_str();
+	}
+
 	if (dlg.DoModal() != IDOK)
 		return;
 
