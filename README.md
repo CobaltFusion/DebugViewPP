@@ -93,9 +93,9 @@ This is a Visual Studio 2010 project with the following dependencies (download a
 - WTL 8.0 or later, tested with: http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
 
-[zip-3.0-setup.exe]: http://downloads.sourceforge.net/gnuwin32/zip-3.0-setup.exe
+The libraries must be installed in /Libraries and zip.exe installed, add the binary directory to your path.
 
-These libraries must be installed in /Libraries. All projects should now build.
+[zip-3.0-setup.exe]: http://downloads.sourceforge.net/gnuwin32/zip-3.0-setup.exe
 
 -= Cobalt Fusion =-
 
