@@ -41,7 +41,7 @@ See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for sup
 Filters:
 --------
 
-Filters can be defined per view, for example you can File->New View, and the filter dialog will popup.
+Filters can be defined per view, for example choose File -> New View, and the filter dialog will popup.
 Pressing OK will open a new view without any filters. 
 
 Different types of filters:
@@ -78,7 +78,7 @@ Other documentation:
 
 **Auto scroll**: scrolls down to new incoming lines automatically; autoscroll is turned on automatically when the last line in the view is selected.
 
-**Bookmarks**: bookmarks can be placed per view using CTRL-F2, press F2 to jump to the next bookmark. Bookmarks are temporary, so cannot be saved.
+**Bookmarks**: bookmarks are view specific and can be placed on a line by clicking left of the line number or Ctrl+F2, press F2 to move to the next bookmark. Bookmarks are temporary, so cannot be saved.
 
 **ClockTime**: when enabled the time is displayed as provided by the system's real-time clock (RTC). Such a timestamp has a 16ms resolution. When disabled the time displayed as a relative time to the first message, however this timpstamp is obtained from the High-Performance Counter (HPC) which typically has a sub-microsecond resolution.
 
