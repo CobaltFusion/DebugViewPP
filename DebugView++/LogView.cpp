@@ -547,7 +547,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	int highlightId = 1;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (!it->enable || it->type != FilterType::Token)
+		if (!it->enable || it->filterType != FilterType::Token)
 			continue;
 
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
@@ -976,13 +976,13 @@ void CLogView::OnViewExcludeProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 		return;
 
 	const auto& name = m_logFile[m_logLines[item].line].processName;
-	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, FilterType::Exclude));
+	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, MatchType::Simple, FilterType::Exclude));
 	ApplyFilters();
 }
 
 void CLogView::OnViewExcludeHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), FilterType::Exclude));
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Exclude));
 	ApplyFilters();
 }
 
@@ -1166,7 +1166,7 @@ void CLogView::StopScrolling()
 	m_autoScrollDown = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		switch (it->type)
+		switch (it->filterType)
 		{
 		case FilterType::Track:
 			it->enable = false;
@@ -1382,6 +1382,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 		m_filter.messageFilters.push_back(MessageFilter(
 			Str(RegGetStringValue(regFilter)),
+			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
 			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
 			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
@@ -1397,6 +1398,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 		m_filter.processFilters.push_back(ProcessFilter(
 			Str(RegGetStringValue(regFilter)),
 			0,
+			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
 			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
 			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
@@ -1429,7 +1431,9 @@ void CLogView::SaveSettings(CRegKey& reg)
 		CRegKey regFilter;
 		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
 		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
-		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->type));
+		regFilter.SetDWORDValue(L"MatchType", MatchTypeToInt(it->matchType));
+		regFilter.SetDWORDValue(L"FilterType", FilterTypeToInt(it->filterType));
+		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->filterType));
 		regFilter.SetDWORDValue(L"BgColor", it->bgColor);
 		regFilter.SetDWORDValue(L"FgColor", it->fgColor);
 		regFilter.SetDWORDValue(L"Enable", it->enable);
@@ -1441,7 +1445,9 @@ void CLogView::SaveSettings(CRegKey& reg)
 		CRegKey regFilter;
 		regFilter.Create(reg, WStr(wstringbuilder() << L"ProcessFilters\\Filter" << i));
 		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
-		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->type));
+		regFilter.SetDWORDValue(L"MatchType", MatchTypeToInt(it->matchType));
+		regFilter.SetDWORDValue(L"FilterType", FilterTypeToInt(it->filterType));
+		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->filterType));
 		regFilter.SetDWORDValue(L"BgColor", it->bgColor);
 		regFilter.SetDWORDValue(L"FgColor", it->fgColor);
 		regFilter.SetDWORDValue(L"Enable", it->enable);
@@ -1543,13 +1549,13 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 {
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(msg.text, it->re))
+		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->type) && std::regex_search(msg.processName, it->re))
+		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.processName, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
@@ -1563,12 +1569,12 @@ bool CLogView::IsProcessIncluded(const std::string& process) const
 		if (!it->enable)
 			continue;
 
-		switch (it->type)
+		switch (it->filterType)
 		{
 		case FilterType::Include:
 		case FilterType::Exclude:
 			if (std::regex_search(process, it->re))
-				return it->type == FilterType::Include;
+				return it->filterType == FilterType::Include;
 			break;
 
 		default:
@@ -1585,12 +1591,12 @@ bool CLogView::IsMessageIncluded(const std::string& text) const
 		if (!it->enable)
 			continue;
 
-		switch (it->type)
+		switch (it->filterType)
 		{
 		case FilterType::Include:
 		case FilterType::Exclude:
 			if (std::regex_search(text, it->re))
-				return it->type == FilterType::Include;
+				return it->filterType == FilterType::Include;
 			break;
 
 		default:
@@ -1615,7 +1621,7 @@ bool CLogView::IsStop(const std::string& text) const
 		if (!it->enable)
 			continue;
 
-		if (it->type == FilterType::Stop && std::regex_search(text, it->re))
+		if (it->filterType == FilterType::Stop && std::regex_search(text, it->re))
 			return true;
 	}
 	return false;
@@ -1628,7 +1634,7 @@ bool CLogView::IsTrack(const std::string& text) const
 		if (!it->enable)
 			continue;
 
-		if (it->type == FilterType::Track && std::regex_search(text, it->re))
+		if (it->filterType == FilterType::Track && std::regex_search(text, it->re))
 			return true;
 	}
 	return false;
@@ -1641,7 +1647,7 @@ bool CLogView::IsIgnore(const std::string& text) const
 		if (!it->enable)
 			continue;
 
-		if (it->type == FilterType::Ignore && std::regex_search(text, it->re))
+		if (it->filterType == FilterType::Ignore && std::regex_search(text, it->re))
 			return true;
 	}
 	return false;

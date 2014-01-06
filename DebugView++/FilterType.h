@@ -32,7 +32,7 @@ FilterType::type IntToFilterType(int value);
 
 std::string FilterTypeToString(FilterType::type value);
 
-const wchar_t* FilterTypeToWCharPtr(FilterType::type value);
+const wchar_t* EnumToWCharPtr(FilterType::type value);
 
 FilterType::type StringToFilterType(const std::string& s);
 

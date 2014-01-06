@@ -55,7 +55,7 @@ std::string FilterTypeToString(FilterType::type value)
 	throw std::invalid_argument("bad FilterType!");
 }
 
-const wchar_t* FilterTypeToWCharPtr(FilterType::type value)
+const wchar_t* EnumToWCharPtr(FilterType::type value)
 {
 #define FILTER_TYPE(f) case FilterType::f: return L ## #f;
 	switch (value)

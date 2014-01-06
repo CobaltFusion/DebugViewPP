@@ -149,6 +149,7 @@
     <ClCompile Include="LogFilter.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
+    <ClCompile Include="MatchType.cpp" />
     <ClCompile Include="MessageFilterPage.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -173,6 +174,7 @@
     <ClInclude Include="LogView.h" />
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="MainFrame.h" />
+    <ClInclude Include="MatchType.h" />
     <ClInclude Include="MessageFilterPage.h" />
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="ProcessInfo.h" />

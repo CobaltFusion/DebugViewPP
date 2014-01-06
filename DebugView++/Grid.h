@@ -26,14 +26,14 @@ ItemType& GetGridItem(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
 	return dynamic_cast<ItemType&>(*grid.GetProperty(iItem, iSubItem));
 }
 
-template <size_t N>
-CPropertyListItem* CreateFilterTypeItem(const wchar_t* name, const FilterType::type (&types)[N], FilterType::type value)
+template <typename Enum, size_t N>
+CPropertyListItem* CreateEnumTypeItem(const wchar_t* name, const Enum (&types)[N], Enum value)
 {
 	const wchar_t* items[N + 1];
 	int index = 0;
 	for (size_t i = 0; i < N; ++i)
 	{
-		items[i] = FilterTypeToWCharPtr(types[i]);
+		items[i] = EnumToWCharPtr(types[i]);
 		if (types[i] == value)
 			index = i;
 	}

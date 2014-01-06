@@ -5,8 +5,9 @@
 		<MessageFilter>
 			<Enable>true</Enable>
 			<Text>AfxDllCanUnloadNow returning S_OK</Text>
-			<Type>Exclude</Type>
-			<BackColor>
+      <MatchType>Simple</MatchType>
+      <FilterType>Exclude</FilterType>
+      <BackColor>
 				<Red>255</Red>
 				<Green>255</Green>
 				<Blue>255</Blue>
@@ -20,8 +21,9 @@
 		<MessageFilter>
 			<Enable>true</Enable>
 			<Text>Creating dialog from within a COleControlModule application is not a supported scenario</Text>
-			<Type>Exclude</Type>
-			<BackColor>
+      <MatchType>Simple</MatchType>
+      <FilterType>Exclude</FilterType>
+      <BackColor>
 				<Red>255</Red>
 				<Green>255</Green>
 				<Blue>255</Blue>
@@ -37,8 +39,9 @@
 		<ProcessFilter>
 			<Enable>true</Enable>
 			<Text>devenv.exe</Text>
-			<Type>Exclude</Type>
-			<BackColor>
+      <MatchType>Simple</MatchType>
+      <FilterType>Exclude</FilterType>
+      <BackColor>
 				<Red>255</Red>
 				<Green>255</Green>
 				<Blue>255</Blue>

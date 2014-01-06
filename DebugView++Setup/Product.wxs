@@ -30,7 +30,7 @@
                     <Component Id="SYSTEMNOISEFILTER.XML" DiskId="1" Guid="EBD4B38A-5A32-4B7A-92F8-E615823E7112">
                         <RemoveFolder Id="FILTERS" On="uninstall" />
                         <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="filters" KeyPath="yes" />
-                        <File Id="SYSTEMNOISEFILTER.XML" Name="SystemnoiseFilter.xml" Source="$(var.SolutionDir)\DebugView++\Filters\SystemnoiseFilter.xml" />
+                        <File Id="SYSTEMNOISEFILTER.XML" Name="SystemNoiseFilter.xml" Source="$(var.SolutionDir)\DebugView++\Filters\SystemNoiseFilter.xml" />
                     </Component>
                 </Directory>
             </Directory>            

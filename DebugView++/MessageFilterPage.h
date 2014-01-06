@@ -13,6 +13,7 @@
 #include "Grid.h"
 #include "Resource.h"
 #include "Utilities.h"
+#include "MatchType.h"
 #include "FilterType.h"
 
 namespace fusion {
@@ -21,11 +22,12 @@ namespace debugviewpp {
 struct MessageFilter
 {
 	MessageFilter();
-	MessageFilter(const std::string& text, FilterType::type type, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true);
+	MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true);
 
 	std::string text;
 	std::regex re;
-	FilterType::type type;
+	MatchType::type matchType;
+	FilterType::type filterType;
 	COLORREF bgColor;
 	COLORREF fgColor;
 	bool enable;
@@ -56,6 +58,7 @@ public:
 private:
 	void AddFilter(const MessageFilter& filter);
 	std::wstring GetFilterText(int iItem) const;
+	MatchType::type GetMatchType(int iItem) const;
 	FilterType::type GetFilterType(int iItem) const;
 	COLORREF GetFilterBgColor(int iItem) const;
 	COLORREF GetFilterFgColor(int iItem) const;
