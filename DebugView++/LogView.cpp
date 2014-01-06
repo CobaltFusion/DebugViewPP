@@ -528,21 +528,22 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), TextColor(it->bgColor, it->fgColor)));
 	}
 
-	return highlights;
-}
-
-void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const std::wstring& highlightText, const Highlight& selection)
-{
 	auto line = boost::make_iterator_range(text);
 	for (;;)
 	{
-		auto match = boost::algorithm::ifind_first(line, highlightText);
+		auto match = boost::algorithm::ifind_first(line, m_highlightText);
 		if (match.empty())
 			break;
 
 		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
+
+	return highlights;
+}
+
+void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const Highlight& selection)
+{
 	InsertHighlight(highlights, selection);
 
 	AddEllipsis(hdc, text, rect.right - rect.left);
@@ -640,7 +641,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 	rect.left += margin;
 	rect.right -= margin;
 	if (column == Column::Message)
-		return DrawHighlightedText(dc, rect, text, data.highlights, m_highlightText, GetSelectionHighlight(dc, iItem));
+		return DrawHighlightedText(dc, rect, text, data.highlights, GetSelectionHighlight(dc, iItem));
 
 	HDITEM item;
 	item.mask = HDI_FORMAT;
@@ -975,23 +976,9 @@ void CLogView::OnViewBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CLogView::FindBookmark(int direction)
 {
-	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
-	int line = begin;
-	do
-	{
-		line += direction;
-		if (line < 0)
-			line += m_logLines.size();
-		if (line == static_cast<int>(m_logLines.size()))
-			line = 0;
-
-		if (m_logLines[line].bookmark)
-		{
-			ScrollToIndex(line, false);
-			break;
-		}
-	}
-	while (line != begin);
+	int line = FindLine([](const LogLine& line) { return line.bookmark; }, direction);
+	if (line >= 0)
+		ScrollToIndex(line, false);
 }
 
 void CLogView::OnViewNextBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
