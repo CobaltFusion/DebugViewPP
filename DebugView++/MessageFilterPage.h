@@ -21,7 +21,7 @@ namespace debugviewpp {
 struct MessageFilter
 {
 	MessageFilter();
-	MessageFilter(const std::string& text, FilterType::type type, COLORREF bgColor, COLORREF fgColor, bool enable);
+	MessageFilter(const std::string& text, FilterType::type type, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true);
 
 	std::string text;
 	std::regex re;

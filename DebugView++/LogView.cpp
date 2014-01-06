@@ -35,8 +35,8 @@ TextColor::TextColor(COLORREF back, COLORREF fore) :
 {
 }
 
-Highlight::Highlight(int begin, int end, const TextColor& color) :
-	begin(begin), end(end), color(color)
+Highlight::Highlight(int id, int begin, int end, const TextColor& color) :
+	id(id), begin(begin), end(end), color(color)
 {
 }
 
@@ -75,7 +75,8 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_PREVIOUS, OnViewFindPrevious)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_PROCESS, OnViewExclude)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_PROCESS, OnViewExcludeProcess)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_HIGHLIGHT, OnViewExcludeHighlight)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
@@ -155,8 +156,11 @@ void CLogView::UpdateColumnInfo()
 	for (int i = 0; i < count; ++i)
 	{
 		auto& column = m_columns[SubItemToColumn(i)].column;
-		column.mask = LVCF_WIDTH | LVCF_ORDER;
-		GetColumn(i, &column);
+		auto column2 = column;
+		column2.mask = LVCF_WIDTH | LVCF_ORDER;
+		GetColumn(i, &column2);
+		column.cx = column2.cx;
+		column.iOrder = column2.iOrder;
 	}
 }
 
@@ -226,6 +230,18 @@ BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
 	return FALSE;
 }
 
+int CLogView::TextHighlightHitTest(int iItem, const POINT& pt)
+{
+	int pos = GetTextIndex(iItem, pt.x);
+	auto highlights = GetItemData(iItem).highlights;
+	auto it = highlights.begin();
+	while (it != highlights.end() && it->end <= pos)
+		++it;
+	if (it != highlights.end() && it->begin <= pos)
+		return it->id;
+	return 0;
+}
+
 void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 {
 	if (pt == CPoint(-1, -1))
@@ -252,7 +268,20 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 	if ((hdrInfo.flags & HHT_ONHEADER) != 0)
 		menuId = IDR_HEADER_CONTEXTMENU;
 	else if ((info.flags & LVHT_ONITEM) != 0)
-		menuId = info.iSubItem == 4 ? IDR_PROCESS_CONTEXTMENU : IDR_VIEW_CONTEXTMENU;
+	{
+		switch (SubItemToColumn(info.iSubItem))
+		{
+		case Column::Process:
+			menuId = IDR_PROCESS_CONTEXTMENU;
+			break;
+		case Column::Message:
+			menuId = TextHighlightHitTest(info.iItem, pt) == 1 ? IDR_HIGHLIGHT_CONTEXTMENU : IDR_VIEW_CONTEXTMENU;
+			break;
+		default:	
+			menuId = IDR_VIEW_CONTEXTMENU;
+			break;
+		}
+	}
 	else
 		return;
 
@@ -515,17 +544,16 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 {
 	std::vector<Highlight> highlights;
 
+	int highlightId = 1;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (!it->enable)
-			continue;
-
-		if (it->type != FilterType::Token)
+		if (!it->enable || it->type != FilterType::Token)
 			continue;
 
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
+		int id = ++highlightId;
 		for (auto tok = begin; tok != end; ++tok)
-			InsertHighlight(highlights, Highlight(tok->position(), tok->position() + tok->length(), TextColor(it->bgColor, it->fgColor)));
+			InsertHighlight(highlights, Highlight(id, tok->position(), tok->position() + tok->length(), TextColor(it->bgColor, it->fgColor)));
 	}
 
 	auto line = boost::make_iterator_range(text);
@@ -535,7 +563,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		if (match.empty())
 			break;
 
-		InsertHighlight(highlights, Highlight(match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
+		InsertHighlight(highlights, Highlight(1, match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
 
@@ -622,14 +650,14 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
 	auto rect = GetSubItemRect(iItem, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	if (!Contains(rect, m_dragStart))
-		return Highlight(0, 0, TextColor(0, 0));
+		return Highlight(0, 0, 0, TextColor(0, 0));
 
 	int x1 = std::min(m_dragStart.x, m_dragEnd.x);
 	int x2 = std::max(m_dragStart.x, m_dragEnd.x);
 
 	int begin = GetTextIndex(dc, iItem, x1);
 	int end = GetTextIndex(dc, iItem, x2);
-	return Highlight(begin, end, TextColor(RGB(128, 255, 255), RGB(0, 0, 0)));	
+	return Highlight(0, begin, end, TextColor(RGB(128, 255, 255), RGB(0, 0, 0)));	
 }
 
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
@@ -941,7 +969,7 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 	FindProcess(-1);
 }
 
-void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::OnViewExcludeProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	int item = GetNextItem(-1, LVIS_FOCUSED);
 	if (item < 0)
@@ -949,6 +977,12 @@ void CLogView::OnViewExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 
 	const auto& name = m_logFile[m_logLines[item].line].processName;
 	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, FilterType::Exclude));
+	ApplyFilters();
+}
+
+void CLogView::OnViewExcludeHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), FilterType::Exclude));
 	ApplyFilters();
 }
 
