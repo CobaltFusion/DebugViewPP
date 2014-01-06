@@ -986,7 +986,10 @@ void CLogView::FindBookmark(int direction)
 			line = 0;
 
 		if (m_logLines[line].bookmark)
+		{
 			ScrollToIndex(line, false);
+			break;
+		}
 	}
 	while (line != begin);
 }
