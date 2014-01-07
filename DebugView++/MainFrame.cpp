@@ -475,8 +475,8 @@ bool CMainFrame::LoadSettings()
 
 	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
-	auto fontName = RegGetStringValue(reg, L"FontName", L"Courier").substr(0, LF_FACESIZE - 1);
-	int fontSize = RegGetDWORDValue(reg, L"FontSize", 10);
+	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
+	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
 		LOGFONT lf;
