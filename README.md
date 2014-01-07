@@ -29,7 +29,7 @@ at http://debugviewpp.wordpress.com/
 
 Screenshot
 ----------
-![DebugView++ Screenshot](/DebugView++/art/syntax_high.png "DebugView++ Screenshot")
+![DebugView++ Screenshot](/art/syntax_high.png "DebugView++ Screenshot")
 
 The screenshot demonstrates bookmarks and highlighting features:
 
@@ -42,7 +42,7 @@ Highlighted:
 
 See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
 
-![FilterDialog Screenshot](/DebugView++/art/filterdialog.png "FilterDialog Screenshot")
+![FilterDialog Screenshot](/art/filterdialog.png "FilterDialog Screenshot")
 
 Filters:
 --------
