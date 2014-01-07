@@ -213,20 +213,21 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
 {
-	POINT pt = GetMessagePos();
-	ScreenToClient(&pt);
+	//POINT pt = GetMessagePos();
+	//ScreenToClient(&pt);
 
-	LVHITTESTINFO info;
-	info.flags = 0;
-	info.pt = pt;
-	SubItemHitTest(&info);
-	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Message))
-	{
-		::SetCursor(m_hBeamCursor);
-		return TRUE;
-	}
+ //    disabled until Issue #73 is solved
+	//LVHITTESTINFO info;
+	//info.flags = 0;
+	//info.pt = pt;
+	//SubItemHitTest(&info);
+	//if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Message))
+	//{
+	//	::SetCursor(m_hBeamCursor);
+	//	return TRUE;
+	//}
 
-	SetMsgHandled(false);
+	//SetMsgHandled(false);
 	return FALSE;
 }
 
