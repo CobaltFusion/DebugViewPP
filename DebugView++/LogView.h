@@ -125,6 +125,7 @@ public:
 
 	std::wstring GetName() const;
 	void SetName(const std::wstring& name);
+	void SetFont(HFONT hFont);
 	bool GetScroll() const;
 	void SetScroll(bool enable);
 	void Clear();
