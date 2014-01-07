@@ -42,6 +42,8 @@ Highlighted:
 
 See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
 
+![FilterDialog Screenshot](/DebugView++/art/filterdialog.jpg "FilterDialog Screenshot")
+
 Filters:
 --------
 
