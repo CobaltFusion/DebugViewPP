@@ -29,7 +29,7 @@ at http://debugviewpp.wordpress.com/
 
 Screenshot
 ----------
-![DebugView++ Screenshot](/DebugView++/art/syntax_high.jpg "DebugView++ Screenshot")
+![DebugView++ Screenshot](/DebugView++/art/syntax_high.png "DebugView++ Screenshot")
 
 The screenshot demonstrates bookmarks and highlighting features:
 
