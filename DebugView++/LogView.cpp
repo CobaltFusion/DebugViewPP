@@ -211,23 +211,35 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	return 0;
 }
 
+bool Contains(const RECT& rect, const POINT& pt)
+{
+	return pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y < rect.bottom;
+}
+
 BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
 {
-	//POINT pt = GetMessagePos();
-	//ScreenToClient(&pt);
+	POINT pt = GetMessagePos();
+	ScreenToClient(&pt);
 
- //    disabled until Issue #73 is solved
-	//LVHITTESTINFO info;
-	//info.flags = 0;
-	//info.pt = pt;
-	//SubItemHitTest(&info);
-	//if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Message))
-	//{
-	//	::SetCursor(m_hBeamCursor);
-	//	return TRUE;
-	//}
+	RECT client;
+	GetClientRect(&client);
+	if (!Contains(client, pt))
+	{
+		SetMsgHandled(false);
+		return FALSE;
+	}
 
-	//SetMsgHandled(false);
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = pt;
+	SubItemHitTest(&info);
+	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Message))
+	{
+		::SetCursor(m_hBeamCursor);
+		return TRUE;
+	}
+
+	SetMsgHandled(false);
 	return FALSE;
 }
 
@@ -642,11 +654,6 @@ ItemData CLogView::GetItemData(int iItem) const
 	return data;
 }
 
-bool Contains(const RECT& rect, const POINT& pt)
-{
-	return pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y < rect.bottom;
-}
-
 Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
 	auto rect = GetSubItemRect(iItem, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
@@ -892,7 +899,6 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	SetCapture();
 	m_dragStart = nmhdr.ptAction;
 	m_dragEnd = nmhdr.ptAction;
-	SetHighlightText();
 
 	return 0;
 }
