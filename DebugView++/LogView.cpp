@@ -1052,6 +1052,12 @@ void CLogView::SetName(const std::wstring& name)
 	m_name = name;
 }
 
+void CLogView::SetFont(HFONT hFont)
+{
+	CListViewCtrl::SetFont(hFont);
+	GetHeader().Invalidate();
+}
+
 bool CLogView::GetScroll() const
 {
 	return m_autoScrollDown;
