@@ -23,6 +23,10 @@ Sysinternals DebugView. DebugView++ features:
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
 
 
+Download
+--------
+at http://debugviewpp.wordpress.com/
+
 Screenshot
 ----------
 ![DebugView++ Screenshot](/DebugView++/art/syntax_high.jpg "DebugView++ Screenshot")
