@@ -465,8 +465,8 @@ bool CMainFrame::LoadSettings()
 	reg.Create(HKEY_CURRENT_USER, RegistryPath);
 	if (reg.QueryDWORDValue(L"X", x) == ERROR_SUCCESS && static_cast<int>(x) >= GetSystemMetrics(SM_XVIRTUALSCREEN) &&
 		reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS && static_cast<int>(y) >= GetSystemMetrics(SM_YVIRTUALSCREEN) &&
-		reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS && static_cast<int>(cx) <= GetSystemMetrics(SM_CXVIRTUALSCREEN) &&
-		reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS && static_cast<int>(cy) <= GetSystemMetrics(SM_CYVIRTUALSCREEN))
+		reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS && static_cast<int>(x + cx) <= GetSystemMetrics(SM_CXVIRTUALSCREEN) &&
+		reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS && static_cast<int>(y + cy) <= GetSystemMetrics(SM_CYVIRTUALSCREEN))
 		SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
 	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
