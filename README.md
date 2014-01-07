@@ -55,7 +55,6 @@ Different types of filters:
 All filters support regular expressions, if you are not familliar with regular expressions you can
 just type any word or part of a word to match.
 
-- include: ??? see highlight?
 - exclude: lines containing a matching expression will be excluded from the view
 - highlight: lines containing a matching expression will be highlighted using the specified foreground and background colors
 - token: only the matching expression will be highlighted using the specified foreground and background colors
