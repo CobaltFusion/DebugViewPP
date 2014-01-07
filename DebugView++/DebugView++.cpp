@@ -9,12 +9,16 @@
 #include <boost/algorithm/string.hpp>
 #include "resource.h"
 #include "Win32Lib.h"
+#include "Utilities.h"
 #include "MainFrame.h"
 
 #include "Utilities.h"
 #include "IndexedStorage.h"
 
 CAppModule _Module;
+
+namespace fusion {
+namespace debugviewpp {
 
 class MessageLoop
 {
@@ -46,24 +50,35 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 
 	int argc;
 	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	wchar_t* fileName = nullptr;
 
 	for (int i = 1; i < argc; ++i)
 	{
 		if (boost::iequals(argv[i], L"/min"))
+		{
 			cmdShow = SW_MINIMIZE;
+		}
+		else if (argv[i][0] != '/')
+		{
+			if (fileName)
+				throw std::runtime_error("Duplicate filename");
+			fileName = argv[i];
+		}
 	}
 
 	fusion::debugviewpp::CMainFrame wndMain;
 	if (wndMain.CreateEx() == nullptr)
-	{
-		ATLTRACE(_T("Main window creation failed!\n"));
-		return 0;
-	}
+		ThrowLastError(L"Main window creation failed!");
 
 	wndMain.ShowWindow(cmdShow);
+	if (fileName)
+		wndMain.Load(fileName);
 
 	return theLoop.Run();
 }
+
+} // namespace debugviewpp 
+} // namespace fusion
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 try
@@ -81,7 +96,7 @@ try
 	ATLASSERT(SUCCEEDED(hRes));
 	hRes;
 
-	int nRet = Run(lpstrCmdLine, nCmdShow);
+	int nRet = fusion::debugviewpp::Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();
 
