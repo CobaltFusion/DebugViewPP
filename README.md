@@ -64,7 +64,7 @@ just type any word or part of a word to match.
 
 *Practical uses*:
 
-Exclude and highlight filters are the most intuitive filters to use. Track, stop and ignore can be a little confusing, let me try to give examples of all filters.
+Exclude and highlight filters are the most intuitive filters to use. Track, stop and ignore can be a little confusing, let me try to give examples of each filter.
 
 **track**; use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
 
