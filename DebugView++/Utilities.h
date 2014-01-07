@@ -63,6 +63,47 @@ private:
 	static HCURSOR GetCursor(HCURSOR hCursor);
 };
 
+template <typename F>
+class scope_guard : boost::noncopyable
+{
+public: 
+	explicit scope_guard(const F& x) :
+		m_action(x),
+		m_released(false)
+	{
+	}
+
+	void release()
+	{
+		m_released = true;
+	}
+
+	~scope_guard()
+	{
+		if (m_released)
+			return;
+
+		// Catch any exceptions and continue during guard clean up
+		try
+		{
+			m_action();
+		}
+		catch (...)
+		{
+		}
+	}
+
+private:
+	F m_action;
+	bool m_released;
+};
+
+template <typename F>
+scope_guard<F> make_guard(F f)
+{
+	return scope_guard<F>(f);
+}
+
 template <class CharType, class Traits = std::char_traits<CharType>, class Allocator = std::allocator<CharType>>
 class basic_stringbuilder
 {

@@ -17,18 +17,21 @@ int FilterTypeToInt(FilterType::type value)
 	return value;
 }
 
+#define FILTER_TYPES \
+	FILTER_TYPE(Include) \
+	FILTER_TYPE(Exclude) \
+	FILTER_TYPE(Highlight) \
+	FILTER_TYPE(Token) \
+	FILTER_TYPE(Track) \
+	FILTER_TYPE(Stop) \
+	FILTER_TYPE(Ignore)
+
 FilterType::type IntToFilterType(int value)
 {
 #define FILTER_TYPE(f) case FilterType::f: return FilterType::f;
 	switch (value)
 	{
-	FILTER_TYPE(Include);
-	FILTER_TYPE(Exclude);
-	FILTER_TYPE(Highlight);
-	FILTER_TYPE(Token);
-	FILTER_TYPE(Track);
-	FILTER_TYPE(Stop);
-	FILTER_TYPE(Ignore);
+	FILTER_TYPES
 	default: assert(!"Unexpected FilterType"); break;
 	}
 #undef FILTER_TYPE
@@ -41,13 +44,7 @@ std::string FilterTypeToString(FilterType::type value)
 #define FILTER_TYPE(f) case FilterType::f: return #f;
 	switch (value)
 	{
-	FILTER_TYPE(Include);
-	FILTER_TYPE(Exclude);
-	FILTER_TYPE(Highlight);
-	FILTER_TYPE(Token);
-	FILTER_TYPE(Track);
-	FILTER_TYPE(Stop);
-	FILTER_TYPE(Ignore);
+	FILTER_TYPES
 	default: assert(!"Unexpected FilterType"); break;
 	}
 #undef FILTER_TYPE
@@ -60,13 +57,7 @@ const wchar_t* EnumToWCharPtr(FilterType::type value)
 #define FILTER_TYPE(f) case FilterType::f: return L ## #f;
 	switch (value)
 	{
-	FILTER_TYPE(Include);
-	FILTER_TYPE(Exclude);
-	FILTER_TYPE(Highlight);
-	FILTER_TYPE(Token);
-	FILTER_TYPE(Track);
-	FILTER_TYPE(Stop);
-	FILTER_TYPE(Ignore);
+	FILTER_TYPES
 	default: assert(!"Unexpected FilterType"); break;
 	}
 #undef FILTER_TYPE
@@ -77,13 +68,7 @@ const wchar_t* EnumToWCharPtr(FilterType::type value)
 FilterType::type StringToFilterType(const std::string& s)
 {
 #define FILTER_TYPE(f) if (s == #f) return FilterType::f;
-	FILTER_TYPE(Include);
-	FILTER_TYPE(Exclude);
-	FILTER_TYPE(Highlight);
-	FILTER_TYPE(Token);
-	FILTER_TYPE(Track);
-	FILTER_TYPE(Stop);
-	FILTER_TYPE(Ignore);
+	FILTER_TYPES
 #undef FILTER_TYPE
 
 	throw std::invalid_argument("bad FilterType!");

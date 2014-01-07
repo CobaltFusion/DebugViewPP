@@ -73,9 +73,9 @@ public:
 		UPDATE_ELEMENT(ID_MEMORY_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
+	void Load(const std::wstring& fileName);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
-	void UpdateUI();
 
 private:
 	enum
@@ -96,6 +96,7 @@ private:
 
 	std::wstring GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const;
 	SelectionInfo GetLogFileRange() const;
+	void UpdateUI();
 	void UpdateStatusBar();
 	bool LoadSettings();
 	void SaveSettings();
@@ -121,6 +122,7 @@ private:
 	LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
 	LRESULT OnScRestore(UINT, INT, HWND);
 	LRESULT OnScClose(UINT, INT, HWND);
+	void OnDropFiles(HDROP hDropInfo);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);

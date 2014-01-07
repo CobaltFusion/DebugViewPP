@@ -38,6 +38,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
+	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_SYSCOMMAND(OnSysCommand)
 	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
 	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
@@ -169,6 +170,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
 
 	Resume(false);
+	DragAcceptFiles(true);
 	return 0;
 }
 
@@ -364,6 +366,18 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	lines.reserve(localLines.size() + globalLines.size());
 	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), [](const Line& a, const Line& b) { return a.time < b.time; });
 	ProcessLines(lines);
+}
+
+void CMainFrame::OnDropFiles(HDROP hDropInfo)
+{
+	auto guard = make_guard([hDropInfo]() { DragFinish(hDropInfo); });
+
+	if (DragQueryFile(hDropInfo, 0xFFFFFFFF, nullptr, 0) == 1)
+	{
+		std::vector<wchar_t> fileName(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
+		if (DragQueryFile(hDropInfo, 0, fileName.data(), fileName.size()))
+			Load(fileName.data());
+	}
 }
 
 LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
@@ -745,12 +759,14 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	CFileDialog dlg(true, L".txt", fileName.c_str(), OFN_FILEMUSTEXIST, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load DebugView log";
-	if (dlg.DoModal() != IDOK)
-		return;
+	if (dlg.DoModal() == IDOK)
+		Load(dlg.m_szFileName);
+}
 
+void CMainFrame::Load(const std::wstring& fileName)
+{
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	fileName = dlg.m_szFileName;
 	std::ifstream file(fileName);
 	if (!file)
 		ThrowLastError(fileName);
