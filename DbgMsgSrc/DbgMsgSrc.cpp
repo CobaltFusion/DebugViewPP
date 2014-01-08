@@ -37,6 +37,23 @@ void DbgMsgTest()
 	OutputDebugStringA("Tabs:\t1\t2\t3\t4\t5\t6\tlast\n");
 }
 
+void DbgMsgClearTest()
+{
+	OutputDebugStringA("Message 1");
+	OutputDebugStringA("Message 2");
+	OutputDebugStringA("Message 3");
+	OutputDebugStringA("Message 4");
+	OutputDebugStringA("Message 5");
+	
+	OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
+
+	OutputDebugStringA("Message 6");
+	OutputDebugStringA("Message 7");
+	OutputDebugStringA("Message 8");
+	OutputDebugStringA("Message 9");
+	OutputDebugStringA("Message 10");
+}
+
 int getMilliCount()
 {
 	timeb tb;
@@ -159,6 +176,7 @@ void PrintUsage()
 		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
 		"  -7 DbgMsgTest, sends 5 different test lines, using different newlines styles\n"
 		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n";
+		"  -9 DBGVIEWCLEAR test\n";
 }
 
 int main(int argc, char* argv[])
@@ -258,6 +276,11 @@ int main(int argc, char* argv[])
 			}
 			int n = atoi(argv[i + 1]);
 			DbgMsgSrc(n);
+			return 0;
+		}
+		else if (arg == "-9")
+		{
+			DbgMsgClearTest();
 			return 0;
 		}
 		else
