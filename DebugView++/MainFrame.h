@@ -147,6 +147,8 @@ private:
 	int GetViewCount() const;
 	CLogView& GetView(int i);
 	CLogView& GetView();
+	CLogView2& GetView2(int i);
+	CLogView2& GetView2();
 	void SetLogFont();
 
 	FILE* m_stdout;

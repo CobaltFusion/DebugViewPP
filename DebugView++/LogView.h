@@ -266,10 +266,14 @@ private:
 class CLogView2 : public CWindowImpl<CLogView2>
 {
 public:
-	DECLARE_WND_CLASS(nullptr)
+//	DECLARE_WND_CLASS(nullptr)
 
 	CLogView2(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter()) :
 		m_log(name, mainFrame, logFile, logFilter)
+	{
+	}
+
+	~CLogView2()
 	{
 	}
 
@@ -290,9 +294,7 @@ public:
 	{
 		DefWindowProc();
 
-		RECT rect;
-		GetClientRect(&rect);
-		m_log.Create(*this, &rect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+		m_log.Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 		return 0;
 	}
 

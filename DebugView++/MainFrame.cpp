@@ -661,7 +661,7 @@ LRESULT CMainFrame::OnDeleteTab(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
 
 	if (nmhdr.iItem >= 0 && nmhdr.iItem < GetViewCount())
-		GetView(nmhdr.iItem).DestroyWindow();
+		GetView2(nmhdr.iItem).DestroyWindow();
 
 	return FALSE;
 }
@@ -965,10 +965,20 @@ int CMainFrame::GetViewCount() const
 
 CLogView& CMainFrame::GetView(int i)
 {
-	return GetTabCtrl().GetItem(i)->GetView().GetLogView();
+	return GetView2(i).GetLogView();
+}
+
+CLogView2& CMainFrame::GetView2(int i)
+{
+	return GetTabCtrl().GetItem(i)->GetView();
 }
 
 CLogView& CMainFrame::GetView()
+{
+	return GetView2().GetLogView();
+}
+
+CLogView2& CMainFrame::GetView2()
 {
 	assert(GetViewCount() > 0);
 
@@ -976,7 +986,7 @@ CLogView& CMainFrame::GetView()
 	if (i < 0 || i >= GetTabCtrl().GetItemCount() - 1)
 		i = 0;
 
-	return GetView(i);
+	return GetView2(i);
 }
 
 bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
