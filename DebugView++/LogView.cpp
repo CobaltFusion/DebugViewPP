@@ -384,8 +384,8 @@ void CLogView::OnMeasureItem(int /*nIDCtl*/, MEASUREITEMSTRUCT* pMeasureItemStru
 	CClientDC dc(*this);
 	TEXTMETRIC metric;
 	dc.GetTextMetrics(&metric);
-	pMeasureItemStruct->itemHeight = metric.tmHeight;
-	cdbg << L"OnMeasureItem: -> " << metric.tmHeight << "\n";
+	pMeasureItemStruct->itemHeight = metric.tmHeight + metric.tmExternalLeading + 1;
+	//cdbg << L"OnMeasureItem: -> " << metric.tmHeight << "\n";
 }
 
 void CLogView::OnDrawItem(int /*nIDCtl*/, DRAWITEMSTRUCT* pDrawItemStruct)
