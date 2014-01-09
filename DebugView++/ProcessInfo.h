@@ -44,7 +44,7 @@ class ProcessInfo
 {
 public:
 	ProcessInfo();
-	void Reset();
+	void Clear();
 	static size_t GetPrivateBytes();
 	static std::wstring GetProcessName(HANDLE handle);
 	static std::wstring GetProcessName(DWORD processId);

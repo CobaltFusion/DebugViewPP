@@ -22,6 +22,7 @@ void LogFile::Clear()
 {
 	m_messages.clear();
 	m_storage.Clear();
+	m_processInfo.Clear();
 }
 
 void LogFile::Add(const Message& msg)
