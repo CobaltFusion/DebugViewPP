@@ -56,6 +56,10 @@ bool SnappyStorage::Empty() const
 void SnappyStorage::Clear()
 {
 	m_storage.clear();
+
+	m_readList.clear();
+	m_readBlockIndex = -1;
+
 	m_writeList.clear();
 	m_writeBlockIndex = 0;
 }

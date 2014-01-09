@@ -39,19 +39,24 @@ void DbgMsgTest()
 
 void DbgMsgClearTest()
 {
-	OutputDebugStringA("Message 1");
-	OutputDebugStringA("Message 2");
-	OutputDebugStringA("Message 3");
-	OutputDebugStringA("Message 4");
-	OutputDebugStringA("Message 5");
+	char buffer[200];
+
+	int line = 1;
+	for (int i=0; i< 400; ++i)
+	{
+		sprintf_s(buffer, "Message %d", line);
+		OutputDebugStringA(buffer);
+		++line;
+	}
 	
 	OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
 
-	OutputDebugStringA("Message 6");
-	OutputDebugStringA("Message 7");
-	OutputDebugStringA("Message 8");
-	OutputDebugStringA("Message 9");
-	OutputDebugStringA("Message 10");
+	for (int i=0; i< 10; ++i)
+	{
+		sprintf_s(buffer, "Message %d", line);
+		OutputDebugStringA(buffer);
+		++line;
+	}
 }
 
 int getMilliCount()
