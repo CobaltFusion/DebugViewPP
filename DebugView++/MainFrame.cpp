@@ -941,7 +941,6 @@ void CMainFrame::SetLogFont()
 {
 	LOGFONT lf;
 	m_fontDlg.GetCurrentFont(&lf);
-	lf.lfHeight = -lf.lfHeight;
 	HFont hFont(CreateFontIndirect(&lf));
 	if (!hFont)
 		return;
