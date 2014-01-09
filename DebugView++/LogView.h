@@ -18,8 +18,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-typedef CWinTraitsOR<LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS> CListViewTraits;
-
 class CMainFrame;
 
 struct SelectionInfo
@@ -110,7 +108,10 @@ struct Column
 };
 
 class CLogView :
-	public CWindowImpl<CLogView, CListViewCtrl, CListViewTraits>,
+	public CWindowImpl<CLogView, CListViewCtrl, 
+		CWinTraitsOR<
+			LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
+			LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
 	public COffscreenPaint<CLogView>
 {
 public:
@@ -167,6 +168,9 @@ public:
 	
 	SelectionInfo GetViewRange() const;
 	SelectionInfo GetSelectedRange() const;
+
+	void OnMeasureItem(int nIDCtl, MEASUREITEMSTRUCT* pMeasureItemStruct);
+	void OnDrawItem(int nIDCtl, DRAWITEMSTRUCT* pDrawItemStruct);
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
@@ -251,13 +255,69 @@ private:
 	int m_addedLines;
 	std::function<void ()> m_stop;
 	std::function<bool ()> m_track;
-	bool m_insidePaint;
 	HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;
 	HCURSOR m_hBeamCursor;
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
 	int m_scrolldownIndex;
+};
+
+class CLogView2 : public CWindowImpl<CLogView2>
+{
+public:
+	DECLARE_WND_CLASS(nullptr)
+
+	CLogView2(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter()) :
+		m_log(name, mainFrame, logFile, logFilter)
+	{
+	}
+
+	BEGIN_MSG_MAP(CLogView2)
+		MSG_WM_CREATE(OnCreate)
+		MSG_WM_SIZE(OnSize)
+		MSG_WM_MEASUREITEM(OnMeasureItem)
+		MSG_WM_DRAWITEM(OnDrawItem)
+		REFLECT_NOTIFICATIONS()
+	END_MSG_MAP()
+
+// Handler prototypes (uncomment arguments if needed):
+//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+
+	LRESULT OnCreate(const CREATESTRUCT* /*pCreate*/)
+	{
+		DefWindowProc();
+
+		RECT rect;
+		GetClientRect(&rect);
+		m_log.Create(*this, &rect, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+		return 0;
+	}
+
+	void OnSize(UINT /*nType*/, CSize size)
+	{
+		m_log.MoveWindow(0, 0, size.cx, size.cy);
+	}
+
+	void OnMeasureItem(int nIDCtl, MEASUREITEMSTRUCT* pMeasureItemStruct)
+	{
+		m_log.OnMeasureItem(nIDCtl, pMeasureItemStruct);
+	}
+
+	void OnDrawItem(int nIDCtl, DRAWITEMSTRUCT* pDrawItemStruct)
+	{
+		m_log.OnDrawItem(nIDCtl, pDrawItemStruct);
+	}
+
+	CLogView& GetLogView()
+	{
+		return m_log;
+	}
+
+private:
+	CLogView m_log;
 };
 
 } // namespace debugviewpp 

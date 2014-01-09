@@ -56,10 +56,11 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
+	MSG_WM_MEASUREITEM(OnMeasureItem)
+	MSG_WM_DRAWITEM(OnDrawItem)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
-	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
@@ -115,7 +116,6 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_clockTime(false),
 	m_autoScrollDown(true),
 	m_dirty(false),
-	m_insidePaint(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
 	m_dragStart(0, 0),
@@ -195,7 +195,7 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
 
-	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
+//	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
 	m_hdr.SubclassWindow(GetHeader());
 
 	m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
@@ -379,11 +379,25 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	SetHighlightText(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)).substr(begin, end - begin));
 }
 
+void CLogView::OnMeasureItem(int /*nIDCtl*/, MEASUREITEMSTRUCT* pMeasureItemStruct)
+{
+	CClientDC dc(*this);
+	TEXTMETRIC metric;
+	dc.GetTextMetrics(&metric);
+	pMeasureItemStruct->itemHeight = metric.tmHeight;
+	cdbg << L"OnMeasureItem: -> " << metric.tmHeight << "\n";
+}
+
+void CLogView::OnDrawItem(int /*nIDCtl*/, DRAWITEMSTRUCT* pDrawItemStruct)
+{
+	DrawItem(pDrawItemStruct->hDC, pDrawItemStruct->itemID, pDrawItemStruct->itemState);
+}
+
 int CLogView::GetTextIndex(int iItem, int xPos)
 {
-	CDCHandle dc(GetDC());
+	CClientDC dc(*this);
 	GdiObjectSelection font(dc, GetFont());
-	return GetTextIndex(dc, iItem, xPos);
+	return GetTextIndex(dc.m_hDC, iItem, xPos);
 }
 
 int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
@@ -709,28 +723,6 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 		dc.DrawFocusRect(&rect);
 }
 
-LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
-{
-	// See: http://stackoverflow.com/questions/938896/flickering-in-listview-with-ownerdraw-and-virtualmode
-	if (!m_insidePaint)
-		return CDRF_SKIPDEFAULT;
-
-	auto pCustomDraw = reinterpret_cast<NMLVCUSTOMDRAW*>(pnmh);
-
-	switch (pCustomDraw->nmcd.dwDrawStage)
-	{
-	case CDDS_PREPAINT:
-//		return CDRF_DODEFAULT;  // Enable this line for non-custom drawing
-		return CDRF_NOTIFYITEMDRAW;
-
-	case CDDS_ITEMPREPAINT:
-		DrawItem(pCustomDraw->nmcd.hdc, pCustomDraw->nmcd.dwItemSpec, pCustomDraw->nmcd.uItemState);
-		return CDRF_SKIPDEFAULT;
-	}
-
-	return CDRF_DODEFAULT;
-}
-
 template <typename CharT>
 void CopyItemText(const CharT* s, wchar_t* buf, size_t maxLen)
 {
@@ -1041,12 +1033,9 @@ void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 {
-	m_insidePaint = true;
-
 	dc.FillSolidRect(&rcClip, GetSysColor(COLOR_WINDOW));
  
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
-	m_insidePaint = false;
 }
 
 std::wstring CLogView::GetName() const

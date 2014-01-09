@@ -31,11 +31,11 @@ struct SelectionInfo;
 class CLogViewTabItem : public CTabViewTabItem
 {
 public:
-	void SetView(const std::shared_ptr<CLogView>& pView);
-	CLogView& GetView();
+	void SetView(const std::shared_ptr<CLogView2>& pView);
+	CLogView2& GetView();
 
 private:
-	 std::shared_ptr<CLogView> m_pView;
+	 std::shared_ptr<CLogView2> m_pView;
 };
 
 class CMainFrame :

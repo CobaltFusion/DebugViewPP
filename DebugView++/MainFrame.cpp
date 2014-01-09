@@ -23,13 +23,13 @@ namespace debugviewpp {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
-void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
+void CLogViewTabItem::SetView(const std::shared_ptr<CLogView2>& pView)
 {
 	m_pView = pView;
 	SetTabView(*pView);
 }
 
-CLogView& CLogViewTabItem::GetView()
+CLogView2& CLogViewTabItem::GetView()
 {
 	return *m_pView;
 }
@@ -586,9 +586,9 @@ void CMainFrame::AddFilterView()
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
-	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
+	auto pView = std::make_shared<CLogView2>(name, *this, m_logFile, filter);
 	pView->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
-	pView->SetFont(m_hFont.get());
+	pView->GetLogView().SetFont(m_hFont.get());
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
 	GetTabCtrl().InsertItem(newIndex, name.c_str());
@@ -928,7 +928,6 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-//	m_findDlg.Show();
 	m_findDlg.SetFocus();
 }
 
@@ -942,6 +941,7 @@ void CMainFrame::SetLogFont()
 {
 	LOGFONT lf;
 	m_fontDlg.GetCurrentFont(&lf);
+	lf.lfHeight = -lf.lfHeight;
 	HFont hFont(CreateFontIndirect(&lf));
 	if (!hFont)
 		return;
@@ -965,7 +965,7 @@ int CMainFrame::GetViewCount() const
 
 CLogView& CMainFrame::GetView(int i)
 {
-	return GetTabCtrl().GetItem(i)->GetView();
+	return GetTabCtrl().GetItem(i)->GetView().GetLogView();
 }
 
 CLogView& CMainFrame::GetView()
