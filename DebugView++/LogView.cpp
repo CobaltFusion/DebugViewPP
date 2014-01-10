@@ -74,7 +74,11 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_PREVIOUS, OnViewFindPrevious)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_PROCESS, OnViewExcludeProcess)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_HIGHLIGHT, OnViewProcessHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_EXCLUDE, OnViewProcessExclude)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TOKEN, OnViewProcessToken)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TRACK, OnViewProcessTrack)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_ONCE, OnViewProcessOnce)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_HIGHLIGHT, OnViewFilterHighlight)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_EXCLUDE, OnViewFilterExclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TOKEN, OnViewFilterToken)
@@ -977,17 +981,6 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 	FindProcess(-1);
 }
 
-void CLogView::OnViewExcludeProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	int item = GetNextItem(-1, LVIS_FOCUSED);
-	if (item < 0)
-		return;
-
-	const auto& name = m_logFile[m_logLines[item].line].processName;
-	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, MatchType::Simple, FilterType::Exclude));
-	ApplyFilters();
-}
-
 COLORREF HsvToRgb(double h, double s, double v)
 {
 	int hi = floor_to<int>(h*6);
@@ -1029,34 +1022,74 @@ COLORREF GetRandomTextColor()
 	return GetRandomColor(0.9, 0.7);
 }
 
+void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
+{
+	int item = GetNextItem(-1, LVIS_FOCUSED);
+	if (item < 0)
+		return;
+
+	const auto& name = m_logFile[m_logLines[item].line].processName;
+	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, MatchType::Simple, filterType, bgColor, fgColor));
+	ApplyFilters();
+}
+
+void CLogView::OnViewProcessHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Highlight, GetRandomBackColor());
+}
+
+void CLogView::OnViewProcessExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Exclude);
+}
+
+void CLogView::OnViewProcessToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Token, RGB(255, 255, 255), GetRandomTextColor());
+}
+
+void CLogView::OnViewProcessTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Track, GetRandomBackColor());
+}
+
+void CLogView::OnViewProcessOnce(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Once, GetRandomBackColor());
+}
+
+void CLogView::AddMessageFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
+{
+	if (m_highlightText.empty())
+		return;
+
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, filterType, bgColor, fgColor));
+	ApplyFilters();
+}
+
 void CLogView::OnViewFilterHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Highlight, GetRandomBackColor()));
-	ApplyFilters();
+	AddMessageFilter(FilterType::Highlight, GetRandomBackColor());
 }
 
 void CLogView::OnViewFilterExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Exclude));
-	ApplyFilters();
+	AddMessageFilter(FilterType::Exclude);
 }
 
 void CLogView::OnViewFilterToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Token, RGB(255, 255, 255), GetRandomTextColor()));
-	ApplyFilters();
+	AddMessageFilter(FilterType::Token, RGB(255, 255, 255), GetRandomTextColor());
 }
 
 void CLogView::OnViewFilterTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Track, GetRandomBackColor()));
-	ApplyFilters();
+	AddMessageFilter(FilterType::Track, GetRandomBackColor());
 }
 
 void CLogView::OnViewFilterOnce(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Once, GetRandomBackColor()));
-	ApplyFilters();
+	AddMessageFilter(FilterType::Once, GetRandomBackColor());
 }
 
 bool CLogView::GetBookmark() const
