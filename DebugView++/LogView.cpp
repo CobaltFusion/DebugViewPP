@@ -1057,6 +1057,17 @@ void CLogView::SetFont(HFONT hFont)
 {
 	CListViewCtrl::SetFont(hFont);
 	GetHeader().Invalidate();
+
+	// Trigger WM_MEASUREPOS
+	// See: http://www.codeproject.com/Articles/1401/Changing-Row-Height-in-an-owner-drawn-Control
+	CRect rect;
+	GetWindowRect(&rect);
+	WINDOWPOS wp;
+	wp.hwnd = *this;
+	wp.cx = rect.Width();
+	wp.cy = rect.Height();
+	wp.flags = SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER;
+	SendMessage(WM_WINDOWPOSCHANGED, 0, reinterpret_cast<LPARAM>(&wp));
 }
 
 bool CLogView::GetScroll() const
