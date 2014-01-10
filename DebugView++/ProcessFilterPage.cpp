@@ -24,8 +24,8 @@ ProcessFilter::ProcessFilter() :
 {
 }
 
-ProcessFilter::ProcessFilter(const std::string& text, DWORD pid, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable) :
-	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), pid(pid), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable)
+ProcessFilter::ProcessFilter(const std::string& text, DWORD pid, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, int matchCount) :
+text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), pid(pid), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matchCount(matchCount)
 {
 }
 
@@ -60,7 +60,10 @@ static const FilterType::type FilterTypes[] =
 {
 	FilterType::Include,
 	FilterType::Exclude,
-	FilterType::Highlight
+	FilterType::Highlight,
+	FilterType::Stop,
+	FilterType::Track,
+	FilterType::Once
 };
 
 void CProcessFilterPage::AddFilter(const ProcessFilter& filter)

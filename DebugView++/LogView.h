@@ -235,12 +235,11 @@ private:
 	bool Find(const std::string& text, int direction);
 	bool FindProcess(int direction);
 	void ApplyFilters();
-	bool IsProcessIncluded(const std::string& msg) const;
-	bool IsMessageIncluded(const std::string& msg) const;
-	bool IsIncluded(const Message& msg) const;
-	bool IsStop(const std::string& text) const;
-	bool IsTrack(const std::string& text) const;
-	bool IsIgnore(const std::string& text) const;
+	bool IsMessageIncluded(const std::string& msg);
+	bool IsProcessIncluded(const std::string& msg);
+	bool IsIncluded(const Message& msg);
+	bool IsStop(const Message& msg) const;
+	bool IsTrack(const Message& msg) const;
 	TextColor GetTextColor(const Message& msg) const;
 
 	std::wstring m_name;
@@ -262,7 +261,6 @@ private:
 	HCURSOR m_hBeamCursor;
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
-	int m_scrolldownIndex;
 };
 
 } // namespace debugviewpp 

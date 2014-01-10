@@ -1088,6 +1088,22 @@ void CLogView::Clear()
 	m_dirty = false;
 	m_logLines.clear();
 	m_highlightText.clear();
+	m_autoScrollDown = true;
+	
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (it->filterType == FilterType::Once)
+		{
+			it->matchCount = 0;
+		}
+	}
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (it->filterType == FilterType::Once)
+		{
+			it->matchCount = 0;
+		}
+	}	
 }
 
 int CLogView::GetFocusLine() const
@@ -1114,11 +1130,8 @@ void CLogView::Add(int line, const Message& msg)
 	++m_addedLines;
 	int viewline = m_logLines.size();
 
-	if (!IsIgnore(msg.text))
-		m_scrolldownIndex = viewline;
-
 	m_logLines.push_back(LogLine(line));
-	if (m_autoScrollDown && IsStop(msg.text))
+	if (m_autoScrollDown && IsStop(msg))
 	{
 		m_stop = [this, viewline] ()
 		{
@@ -1128,7 +1141,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 	}
 
-	if (IsTrack(msg.text))
+	if (IsTrack(msg))
 	{
 		printf("found: trackitem at line: %d, %s\n", viewline+1, msg.text);
 		m_autoScrollDown = false;
@@ -1141,14 +1154,11 @@ void CLogView::Add(int line, const Message& msg)
 
 void CLogView::BeginUpdate()
 {
-//	SetRedraw(false);
 	m_addedLines = 0;
 }
 
 int CLogView::EndUpdate()
 {
-//	SetRedraw(true);
-
 	if (m_dirty)
 	{
 		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
@@ -1184,13 +1194,16 @@ void CLogView::StopScrolling()
 	m_autoScrollDown = false;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		switch (it->filterType)
+		if (it->filterType == FilterType::Track)
 		{
-		case FilterType::Track:
 			it->enable = false;
-			break;
-		default:
-			break;
+		}
+	}
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (it->filterType == FilterType::Track)
+		{
+			it->enable = false;
 		}
 	}
 	StopTracking();
@@ -1242,7 +1255,7 @@ bool CLogView::ScrollToIndex(int index, bool center)
 
 void CLogView::ScrollDown()
 {
-	ScrollToIndex(m_scrolldownIndex, false);
+	ScrollToIndex(m_logLines.size() - 1, false);
 }
 
 bool CLogView::GetClockTime() const
@@ -1557,7 +1570,7 @@ bool FilterSupportsColor(FilterType::type value)
 	case FilterType::Highlight:
 	case FilterType::Track:
 	case FilterType::Stop:
-	case FilterType::Ignore:
+	case FilterType::Once:
 		return true;
 	}
 	return false;
@@ -1580,92 +1593,135 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 	return TextColor(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT));
 }
 
-bool CLogView::IsProcessIncluded(const std::string& process) const
+bool CLogView::IsMessageIncluded(const std::string& message)
 {
+	bool included = false;
+	bool includeFilterPresent = false;
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+		if (it->filterType == FilterType::Include)
+		{
+			includeFilterPresent = true;
+			included |= std::regex_search(message, it->re);
+		}
+	}
+
+	if (!includeFilterPresent) 
+		included = true;
+
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+		if (it->filterType == FilterType::Exclude && std::regex_search(message, it->re))
+			return false;
+	}
+
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+		if (it->filterType == FilterType::Once && std::regex_search(message, it->re))
+		{
+			int count = it->matchCount;
+			++it->matchCount;
+			return (count == 0);
+		}
+	}
+	return included;
+}
+
+bool CLogView::IsProcessIncluded(const std::string& process)
+{
+	bool included = false;
+	bool includeFilterPresent = false;
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+		if (it->filterType == FilterType::Include)
+		{
+			includeFilterPresent = true;
+			included |= std::regex_search(process, it->re);
+		}
+	}
+
+	if (!includeFilterPresent) 
+		included = true;
+
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+		if (it->filterType == FilterType::Exclude && std::regex_search(process, it->re))
+			return false;
+	}
+
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+		if (it->filterType == FilterType::Once && std::regex_search(process, it->re))
+		{
+			int count = it->matchCount;
+			++it->matchCount;
+			return (count == 0);
+		}
+	}
+	return included;
+}
+
+bool CLogView::IsIncluded(const Message& msg)
+{
+	if (!IsMessageIncluded(msg.text))
+	{
+		return false;
+	}
+	return IsProcessIncluded(msg.processName);
+}
+
+bool CLogView::IsStop(const Message& msg) const
+{
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+
+		if (it->filterType == FilterType::Stop && std::regex_search(msg.text, it->re))
+			return true;
+	}
+
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		switch (it->filterType)
-		{
-		case FilterType::Include:
-		case FilterType::Exclude:
-			if (std::regex_search(process, it->re))
-				return it->filterType == FilterType::Include;
-			break;
-
-		default:
-			break;
-		}
-	}
-	return true;
-}
-
-bool CLogView::IsMessageIncluded(const std::string& text) const
-{
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-
-		switch (it->filterType)
-		{
-		case FilterType::Include:
-		case FilterType::Exclude:
-			if (std::regex_search(text, it->re))
-				return it->filterType == FilterType::Include;
-			break;
-
-		default:
-			break;
-		}
-	}
-	return true;
-}
-
-bool CLogView::IsIncluded(const Message& msg) const
-{
-	if (!IsProcessIncluded(msg.processName))
-		return false;
-
-	return IsMessageIncluded(msg.text);
-}
-
-bool CLogView::IsStop(const std::string& text) const
-{
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-
-		if (it->filterType == FilterType::Stop && std::regex_search(text, it->re))
+		if (it->filterType == FilterType::Stop && std::regex_search(msg.processName, it->re))
 			return true;
 	}
+
 	return false;
 }
 
-bool CLogView::IsTrack(const std::string& text) const
+bool CLogView::IsTrack(const Message& msg) const
 {
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		if (it->filterType == FilterType::Track && std::regex_search(text, it->re))
+		if (it->filterType == FilterType::Track && std::regex_search(msg.text, it->re))
 			return true;
 	}
-	return false;
-}
 
-bool CLogView::IsIgnore(const std::string& text) const
-{
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
 		if (!it->enable)
 			continue;
 
-		if (it->filterType == FilterType::Ignore && std::regex_search(text, it->re))
+		if (it->filterType == FilterType::Track && std::regex_search(msg.processName, it->re))
 			return true;
 	}
 	return false;
