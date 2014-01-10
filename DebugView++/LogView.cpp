@@ -1479,6 +1479,7 @@ bool CLogView::FindPrevious(const std::wstring& text)
 
 void CLogView::LoadSettings(CRegKey& reg)
 {
+	SetName(RegGetStringValue(reg));
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
 
 	for (int i = 0; i < Column::Count; ++i)
