@@ -42,7 +42,7 @@ Highlighted:
 
 See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
 
-![FilterDialog Screenshot](/art/filterdialog.png "FilterDialog Screenshot")
+![FilterDialog Screenshot](https://github.com/djeedjay/DebugViewPP/art/filterdialog.png "FilterDialog Screenshot")
 
 Filters:
 --------
