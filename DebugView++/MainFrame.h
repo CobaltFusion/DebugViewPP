@@ -174,6 +174,7 @@ private:
 	size_t m_initialPrivateBytes;
 	NOTIFYICONDATA m_notifyIconData;
 	LOGFONT m_logfont;
+	std::wstring m_applicationName;
 };
 
 } // namespace debugviewpp 
