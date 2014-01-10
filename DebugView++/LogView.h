@@ -204,6 +204,7 @@ private:
 	void OnViewFilterExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterToken(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterTrack(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterOnce(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);

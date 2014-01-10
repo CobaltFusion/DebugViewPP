@@ -79,6 +79,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_EXCLUDE, OnViewFilterExclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TOKEN, OnViewFilterToken)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TRACK, OnViewFilterTrack)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_ONCE, OnViewFilterOnce)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
@@ -1048,7 +1049,13 @@ void CLogView::OnViewFilterToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
 
 void CLogView::OnViewFilterTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Track));
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Track, GetRandomBackColor()));
+	ApplyFilters();
+}
+
+void CLogView::OnViewFilterOnce(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Once, GetRandomBackColor()));
 	ApplyFilters();
 }
 
@@ -1691,11 +1698,7 @@ bool CLogView::IsMessageIncluded(const std::string& message)
 		if (!it->enable)
 			continue;
 		if (it->filterType == FilterType::Once && std::regex_search(message, it->re))
-		{
-			int count = it->matchCount;
-			++it->matchCount;
-			return (count == 0);
-		}
+			return ++it->matchCount == 1;
 	}
 	return included;
 }
@@ -1731,22 +1734,14 @@ bool CLogView::IsProcessIncluded(const std::string& process)
 		if (!it->enable)
 			continue;
 		if (it->filterType == FilterType::Once && std::regex_search(process, it->re))
-		{
-			int count = it->matchCount;
-			++it->matchCount;
-			return (count == 0);
-		}
+			return ++it->matchCount == 1;
 	}
 	return included;
 }
 
 bool CLogView::IsIncluded(const Message& msg)
 {
-	if (!IsMessageIncluded(msg.text))
-	{
-		return false;
-	}
-	return IsProcessIncluded(msg.processName);
+	return IsMessageIncluded(msg.text) && IsProcessIncluded(msg.processName);
 }
 
 bool CLogView::IsStop(const Message& msg) const
