@@ -482,21 +482,28 @@ bool CMainFrame::LoadSettings()
 	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
-		memset(&m_logfont, 0, sizeof(m_logfont));
+		LOGFONT lf = { 0 };
+		m_logfont = lf;
 		std::copy(fontName.begin(), fontName.end(), m_logfont.lfFaceName);
 		m_logfont.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
 		SetLogFont();
 	}
 
-	for (size_t i = 0; ; ++i)
+	CRegKey regViews;
+	if (regViews.Open(reg, L"Views") == ERROR_SUCCESS)
 	{
-		CRegKey regView;
-		if (regView.Open(reg, WStr(wstringbuilder() << L"Views\\View" << i)) != ERROR_SUCCESS)
-			break;
+		for (size_t i = 0; ; ++i)
+		{
+			CRegKey regView;
+			if (regView.Open(regViews, WStr(wstringbuilder() << L"View" << i)) != ERROR_SUCCESS)
+				break;
 
-		if (i > 0)
-			AddFilterView(RegGetStringValue(regView));
-		GetView().LoadSettings(regView);
+			if (i > 0)
+				AddFilterView(RegGetStringValue(regView));
+			GetView().LoadSettings(regView);
+		}
+		GetTabCtrl().SetCurSel(RegGetDWORDValue(regViews, L"Current", 0));
+		GetTabCtrl().Invalidate();
 	}
 
 	CRegKey regColors;
@@ -530,11 +537,16 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"FontSize", -MulDiv(m_logfont.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
 
 	reg.RecurseDeleteKey(L"Views");
+
+	CRegKey regViews;
+	regViews.Create(reg, L"Views");
+	regViews.SetDWORDValue(L"Current", GetTabCtrl().GetCurSel());
+
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
 	{
 		CRegKey regView;
-		regView.Create(reg, WStr(wstringbuilder() << L"Views\\View" << i));
+		regView.Create(regViews, WStr(wstringbuilder() << L"View" << i));
 		regView.SetStringValue(L"", GetView(i).GetName().c_str());
 		GetView(i).SaveSettings(regView);
 	}
