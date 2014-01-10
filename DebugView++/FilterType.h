@@ -22,7 +22,7 @@ struct FilterType
 		Token,
 		Stop,
 		Track,
-		Ignore
+		Once
 	};
 };
 

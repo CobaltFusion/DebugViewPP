@@ -21,8 +21,8 @@ MessageFilter::MessageFilter() :
 {
 }
 
-MessageFilter::MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable) :
-	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable)
+MessageFilter::MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, int matchCount) :
+	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matchCount(matchCount)
 {
 }
 
@@ -61,7 +61,7 @@ static const FilterType::type FilterTypes[] =
 	FilterType::Token,
 	FilterType::Stop,
 	FilterType::Track,
-	FilterType::Ignore
+	FilterType::Once
 };
 
 void CMessageFilterPage::AddFilter(const MessageFilter& filter)

@@ -21,7 +21,7 @@ namespace debugviewpp {
 struct ProcessFilter
 {
 	ProcessFilter();
-	ProcessFilter(const std::string& text, DWORD pid, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true);
+	ProcessFilter(const std::string& text, DWORD pid, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, int matchCount = 0);
 
 	std::string text;
 	std::regex re;
@@ -31,6 +31,7 @@ struct ProcessFilter
 	COLORREF bgColor;
 	COLORREF fgColor;
 	bool enable;
+	int matchCount;
 };
 
 class CProcessFilterPage :

@@ -160,7 +160,6 @@ private:
 	LogFile m_logFile;
 	int m_filterNr;
 	CFindDlg m_findDlg;
-	CFontDialog m_fontDlg;
 	HFont m_hFont;
 	bool m_linkViews;
 	bool m_autoNewLine;
@@ -174,6 +173,7 @@ private:
 	std::wstring m_txtFileName;
 	size_t m_initialPrivateBytes;
 	NOTIFYICONDATA m_notifyIconData;
+	LOGFONT m_logfont;
 };
 
 } // namespace debugviewpp 

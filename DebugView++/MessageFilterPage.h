@@ -22,7 +22,7 @@ namespace debugviewpp {
 struct MessageFilter
 {
 	MessageFilter();
-	MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true);
+	MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, int matchCount = 0);
 
 	std::string text;
 	std::regex re;
@@ -31,6 +31,7 @@ struct MessageFilter
 	COLORREF bgColor;
 	COLORREF fgColor;
 	bool enable;
+	int matchCount;
 };
 
 class CMessageFilterPage :
