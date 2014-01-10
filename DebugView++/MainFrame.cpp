@@ -79,7 +79,6 @@ CMainFrame::CMainFrame() :
 	m_timeOffset(0),
 	m_filterNr(0),
 	m_findDlg(*this),
-	m_fontDlg(&GetDefaultLogFont(), CF_SCREENFONTS | CF_NOVERTFONTS | CF_SELECTSCRIPT | CF_NOSCRIPTSEL),
 	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
@@ -479,12 +478,9 @@ bool CMainFrame::LoadSettings()
 	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
-		LOGFONT lf;
-		m_fontDlg.GetCurrentFont(&lf);
-		std::copy(fontName.begin(), fontName.end(), lf.lfFaceName);
-		lf.lfFaceName[fontName.size()] = '\0';
-		lf.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
-		m_fontDlg.SetLogFont(&lf);
+		memset(&m_logfont, 0, sizeof(m_logfont));
+		std::copy(fontName.begin(), fontName.end(), m_logfont.lfFaceName);
+		m_logfont.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
 		SetLogFont();
 	}
 
@@ -526,10 +522,8 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"AlwaysOnTop", GetAlwaysOnTop());
 	reg.SetDWORDValue(L"Hide", m_hide);
 
-	LOGFONT lf;
-	m_fontDlg.GetCurrentFont(&lf);
-	reg.SetStringValue(L"FontName", lf.lfFaceName);
-	reg.SetDWORDValue(L"FontSize", -MulDiv(lf.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
+	reg.SetStringValue(L"FontName", m_logfont.lfFaceName);
+	reg.SetDWORDValue(L"FontSize", -MulDiv(m_logfont.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
 
 	reg.RecurseDeleteKey(L"Views");
 	int views = GetViewCount();
@@ -933,15 +927,17 @@ void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	if (m_fontDlg.DoModal(*this) == IDOK)
+	CFontDialog dlg(&m_logfont);
+	if (dlg.DoModal(*this) == IDOK)
+	{
+		m_logfont = dlg.m_lf;
 		SetLogFont();
+	}
 }
 
 void CMainFrame::SetLogFont()
 {
-	LOGFONT lf;
-	m_fontDlg.GetCurrentFont(&lf);
-	HFont hFont(CreateFontIndirect(&lf));
+	HFont hFont(CreateFontIndirect(&m_logfont));
 	if (!hFont)
 		return;
 

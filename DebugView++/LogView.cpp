@@ -1089,21 +1089,7 @@ void CLogView::Clear()
 	m_logLines.clear();
 	m_highlightText.clear();
 	m_autoScrollDown = true;
-	
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (it->filterType == FilterType::Once)
-		{
-			it->matchCount = 0;
-		}
-	}
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
-	{
-		if (it->filterType == FilterType::Once)
-		{
-			it->matchCount = 0;
-		}
-	}	
+	ResetFilters();
 }
 
 int CLogView::GetFocusLine() const
@@ -1519,8 +1505,27 @@ std::vector<int> CLogView::GetBookmarks() const
 	return bookmarks;
 }
 
+void CLogView::ResetFilters()
+{
+	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	{
+		if (it->filterType == FilterType::Once)
+		{
+			it->matchCount = 0;
+		}
+	}
+	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	{
+		if (it->filterType == FilterType::Once)
+		{
+			it->matchCount = 0;
+		}
+	}	
+}
+
 void CLogView::ApplyFilters()
 {
+	ResetFilters();
 	ClearSelection();
 
 	int focusItem = GetNextItem(-1, LVIS_FOCUSED);

@@ -241,6 +241,7 @@ private:
 	bool IsStop(const Message& msg) const;
 	bool IsTrack(const Message& msg) const;
 	TextColor GetTextColor(const Message& msg) const;
+	void ResetFilters();
 
 	std::wstring m_name;
 	CMainFrame& m_mainFrame;
