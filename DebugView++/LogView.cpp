@@ -1002,12 +1002,13 @@ COLORREF HsvToRgb(double h, double s, double v)
 
 COLORREF GetRandomColor(double s, double v)
 {
-	// use golden ratio
+	static bool randomize = (std::srand(GetTickCount()), true);
 	static const double ratio = (1 + std::sqrt(5.))/2 - 1;
-	static double h = static_cast<double>(std::rand()) / RAND_MAX;
+	// use golden ratio
+	static double h = static_cast<double>(std::rand()) / (RAND_MAX + 1);
 
 	h += ratio;
-	if (h > 1)
+	if (h >= 1)
 		h = h - 1;
 	return HsvToRgb(h, s, v);
 }

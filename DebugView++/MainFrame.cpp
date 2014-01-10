@@ -500,6 +500,7 @@ bool CMainFrame::LoadSettings()
 			GetView().LoadSettings(regView);
 		}
 		GetTabCtrl().SetCurSel(RegGetDWORDValue(regViews, L"Current", 0));
+		GetTabCtrl().UpdateLayout();
 		GetTabCtrl().Invalidate();
 	}
 
