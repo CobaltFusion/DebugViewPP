@@ -19,9 +19,10 @@ ProcessInfo::ProcessInfo() : m_unqiueId(0)
 {
 }
 
-void ProcessInfo::Reset()
+void ProcessInfo::Clear()
 {
 	m_unqiueId = 0;
+	m_processProperties.clear();
 }
 
 size_t ProcessInfo::GetPrivateBytes()
