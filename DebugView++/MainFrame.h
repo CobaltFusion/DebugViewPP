@@ -31,11 +31,11 @@ struct SelectionInfo;
 class CLogViewTabItem : public CTabViewTabItem
 {
 public:
-	void SetView(const std::shared_ptr<CLogView2>& pView);
-	CLogView2& GetView();
+	void SetView(const std::shared_ptr<CLogView>& pView);
+	CLogView& GetView();
 
 private:
-	 std::shared_ptr<CLogView2> m_pView;
+	 std::shared_ptr<CLogView> m_pView;
 };
 
 class CMainFrame :
@@ -147,8 +147,6 @@ private:
 	int GetViewCount() const;
 	CLogView& GetView(int i);
 	CLogView& GetView();
-	CLogView2& GetView2(int i);
-	CLogView2& GetView2();
 	void SetLogFont();
 
 	FILE* m_stdout;

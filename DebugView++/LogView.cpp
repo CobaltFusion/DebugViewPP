@@ -56,8 +56,6 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
-	MSG_WM_MEASUREITEM(OnMeasureItem)
-	MSG_WM_DRAWITEM(OnDrawItem)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
@@ -83,8 +81,9 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_BOOKMARKS, OnViewClearBookmarks)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
-	DEFAULT_REFLECTION_HANDLER()
+	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
 	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
+	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP_CATCH(ExceptionHandler)
 
 bool CLogView::IsColumnViewed(int nID) const
@@ -379,18 +378,24 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	SetHighlightText(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)).substr(begin, end - begin));
 }
 
-void CLogView::OnMeasureItem(int /*nIDCtl*/, MEASUREITEMSTRUCT* pMeasureItemStruct)
+/*
+void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 {
 	CClientDC dc(*this);
 	TEXTMETRIC metric;
 	dc.GetTextMetrics(&metric);
 	pMeasureItemStruct->itemHeight = metric.tmHeight;
 	cdbg << L"OnMeasureItem: -> " << metric.tmHeight << "\n";
-}
+}*/
 
-void CLogView::OnDrawItem(int /*nIDCtl*/, DRAWITEMSTRUCT* pDrawItemStruct)
+void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct)
 {
 	DrawItem(pDrawItemStruct->hDC, pDrawItemStruct->itemID, pDrawItemStruct->itemState);
+}
+
+void CLogView::DeleteItem(DELETEITEMSTRUCT* lParam)
+{
+	COwnerDraw<CLogView>::DeleteItem(lParam);
 }
 
 int CLogView::GetTextIndex(int iItem, int xPos)

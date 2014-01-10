@@ -23,13 +23,13 @@ namespace debugviewpp {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
-void CLogViewTabItem::SetView(const std::shared_ptr<CLogView2>& pView)
+void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
 {
 	m_pView = pView;
 	SetTabView(*pView);
 }
 
-CLogView2& CLogViewTabItem::GetView()
+CLogView& CLogViewTabItem::GetView()
 {
 	return *m_pView;
 }
@@ -586,9 +586,9 @@ void CMainFrame::AddFilterView()
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
-	auto pView = std::make_shared<CLogView2>(name, *this, m_logFile, filter);
+	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
 	pView->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
-	pView->GetLogView().SetFont(m_hFont.get());
+	pView->SetFont(m_hFont.get());
 
 	int newIndex = GetTabCtrl().GetItemCount() - 1;
 	GetTabCtrl().InsertItem(newIndex, name.c_str());
@@ -661,7 +661,7 @@ LRESULT CMainFrame::OnDeleteTab(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
 
 	if (nmhdr.iItem >= 0 && nmhdr.iItem < GetViewCount())
-		GetView2(nmhdr.iItem).DestroyWindow();
+		GetView(nmhdr.iItem).DestroyWindow();
 
 	return FALSE;
 }
@@ -965,28 +965,12 @@ int CMainFrame::GetViewCount() const
 
 CLogView& CMainFrame::GetView(int i)
 {
-	return GetView2(i).GetLogView();
-}
-
-CLogView2& CMainFrame::GetView2(int i)
-{
 	return GetTabCtrl().GetItem(i)->GetView();
 }
 
 CLogView& CMainFrame::GetView()
 {
-	return GetView2().GetLogView();
-}
-
-CLogView2& CMainFrame::GetView2()
-{
-	assert(GetViewCount() > 0);
-
-	int i = GetTabCtrl().GetCurSel();
-	if (i < 0 || i >= GetTabCtrl().GetItemCount() - 1)
-		i = 0;
-
-	return GetView2(i);
+	return GetView(std::max(0, GetTabCtrl().GetCurSel()));
 }
 
 bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
