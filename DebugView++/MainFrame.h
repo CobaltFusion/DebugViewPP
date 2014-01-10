@@ -74,6 +74,8 @@ public:
 	END_UPDATE_UI_MAP()
 
 	void Load(const std::wstring& fileName);
+	void Load(HANDLE hFile);
+	void Load(std::istream& is);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 

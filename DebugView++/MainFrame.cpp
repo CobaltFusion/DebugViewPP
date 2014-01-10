@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <boost/utility.hpp>
 #include "dbgstream.h"
+#include "hstream.h"
 #include "Utilities.h"
 #include "Resource.h"
 #include "FilterDlg.h"
@@ -765,11 +766,22 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::Load(const std::wstring& fileName)
 {
-	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
-
 	std::ifstream file(fileName);
 	if (!file)
 		ThrowLastError(fileName);
+
+	Load(file);
+}
+
+void CMainFrame::Load(HANDLE hFile)
+{
+	hstream file(hFile);
+	Load(file);
+}
+
+void CMainFrame::Load(std::istream& file)
+{
+	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	Pause();
 	ClearLog();

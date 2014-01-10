@@ -75,7 +75,10 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_PROCESS, OnViewExcludeProcess)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_HIGHLIGHT, OnViewExcludeHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_HIGHLIGHT, OnViewFilterHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_EXCLUDE, OnViewFilterExclude)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TOKEN, OnViewFilterToken)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TRACK, OnViewFilterTrack)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_BOOKMARK, OnViewBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_BOOKMARK, OnViewNextBookmark)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_BOOKMARK, OnViewPreviousBookmark)
@@ -984,9 +987,68 @@ void CLogView::OnViewExcludeProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 	ApplyFilters();
 }
 
-void CLogView::OnViewExcludeHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+COLORREF HsvToRgb(double h, double s, double v)
+{
+	int hi = floor_to<int>(h*6);
+	double f = h*6 - hi;
+	double p = v * (1 - s);
+	double q = v * (1 - f*s);
+	double t = v * (1 - (1 - f) * s);
+	switch (hi)
+	{
+	case 0: return RGB(floor_to<int>(v*256), floor_to<int>(t*256), floor_to<int>(p*256));
+	case 1: return RGB(floor_to<int>(q*256), floor_to<int>(v*256), floor_to<int>(p*256));
+	case 2: return RGB(floor_to<int>(p*256), floor_to<int>(v*256), floor_to<int>(t*256));
+	case 3: return RGB(floor_to<int>(p*256), floor_to<int>(q*256), floor_to<int>(v*256));
+	case 4: return RGB(floor_to<int>(t*256), floor_to<int>(p*256), floor_to<int>(v*256));
+	case 5: return RGB(floor_to<int>(v*256), floor_to<int>(p*256), floor_to<int>(q*256));
+	}
+	return 0;
+}
+
+COLORREF GetRandomColor(double s, double v)
+{
+	// use golden ratio
+	static const double ratio = (1 + std::sqrt(5.))/2 - 1;
+	static double h = static_cast<double>(std::rand()) / RAND_MAX;
+
+	h += ratio;
+	if (h > 1)
+		h = h - 1;
+	return HsvToRgb(h, s, v);
+}
+
+COLORREF GetRandomBackColor()
+{
+	return GetRandomColor(0.5, 0.95);
+}
+
+COLORREF GetRandomTextColor()
+{
+	return GetRandomColor(0.9, 0.7);
+}
+
+void CLogView::OnViewFilterHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Highlight, GetRandomBackColor()));
+	ApplyFilters();
+}
+
+void CLogView::OnViewFilterExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Exclude));
+	ApplyFilters();
+}
+
+void CLogView::OnViewFilterToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Token, RGB(255, 255, 255), GetRandomTextColor()));
+	ApplyFilters();
+}
+
+void CLogView::OnViewFilterTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, FilterType::Track));
 	ApplyFilters();
 }
 

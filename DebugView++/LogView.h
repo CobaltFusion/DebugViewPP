@@ -200,7 +200,10 @@ private:
 	void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewExcludeProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewExcludeHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterToken(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterTrack(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewNextBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);

@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include "resource.h"
 #include "Win32Lib.h"
+#include "dbgstream.h"
 #include "Utilities.h"
 #include "MainFrame.h"
 
@@ -46,6 +47,14 @@ private:
 
 int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 {
+	HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+	HANDLE hFile = nullptr, hPipe = nullptr;
+	switch (GetFileType(hStdIn))
+	{
+	case FILE_TYPE_DISK: hFile = hStdIn; break;
+	case FILE_TYPE_PIPE: hPipe = hStdIn; break;
+	}
+
 	MessageLoop theLoop(_Module);
 
 	int argc;
@@ -73,6 +82,10 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	wndMain.ShowWindow(cmdShow);
 	if (fileName)
 		wndMain.Load(fileName);
+	else if (hFile)
+		wndMain.Load(hFile);
+//	else if (hPipe)
+//		wndMain.CapturePipe(hPipe);
 
 	return theLoop.Run();
 }
