@@ -473,6 +473,9 @@ bool CMainFrame::LoadSettings()
 	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
 	SetAlwaysOnTop(RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
 
+	m_applicationName = RegGetStringValue(reg, L"ApplicationName", L"DebugView++");
+	SetWindowText(m_applicationName.c_str());
+
 	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
 	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
