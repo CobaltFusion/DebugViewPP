@@ -170,7 +170,7 @@ public:
 	SelectionInfo GetViewRange() const;
 	SelectionInfo GetSelectedRange() const;
 
-//	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct);
+	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct);
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct);
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 

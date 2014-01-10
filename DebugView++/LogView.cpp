@@ -378,15 +378,15 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	SetHighlightText(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)).substr(begin, end - begin));
 }
 
-/*
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 {
 	CClientDC dc(*this);
+
+	GdiObjectSelection font(dc, GetFont());
 	TEXTMETRIC metric;
 	dc.GetTextMetrics(&metric);
 	pMeasureItemStruct->itemHeight = metric.tmHeight;
-	cdbg << L"OnMeasureItem: -> " << metric.tmHeight << "\n";
-}*/
+}
 
 void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct)
 {
