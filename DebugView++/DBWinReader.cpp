@@ -28,11 +28,23 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 	return global ? L"Global\\" + name : name;
 }
 
+bool IsDBWinViewerActive()
+{
+	Handle hMap(OpenFileMapping(FILE_MAP_READ, false, L"DBWIN_BUFFER"));
+	return hMap != nullptr;
+}
+
+bool HasGlobalDBWinReaderRights()
+{
+	Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
+	return hMap != nullptr;
+}
+
 Handle CreateDBWinBufferMapping(bool global)
 {
 	Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
-		throw std::runtime_error("CreateDBWinBufferMapping exception");
+		throw std::runtime_error("CreateDBWinBufferMapping");
 	return hMap;
 }
 

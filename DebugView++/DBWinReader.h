@@ -38,6 +38,9 @@ struct InternalLine
 typedef std::vector<Line> Lines;
 typedef std::vector<InternalLine> InternalLines;
 
+bool IsDBWinViewerActive();
+bool HasGlobalDBWinReaderRights();
+
 class DBWinReader : boost::noncopyable
 {
 public:

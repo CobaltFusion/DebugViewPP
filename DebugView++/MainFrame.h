@@ -105,7 +105,7 @@ private:
 
 	bool IsPaused() const;
 	void Pause();
-	void Resume(bool report);
+	void Resume();
 	bool GetAutoNewLine() const;
 	void SetAutoNewLine(bool value);
 	bool GetAlwaysOnTop() const;

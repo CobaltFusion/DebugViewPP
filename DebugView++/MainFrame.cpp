@@ -83,7 +83,7 @@ CMainFrame::CMainFrame() :
 	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
-	m_tryGlobal(true),
+	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont())
 {
@@ -171,7 +171,8 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	// Resume can throw if a second debugview is running
 	// so do not rely on any commands executed afterwards
-	Resume(false);
+	if (!IsDBWinViewerActive())
+		Resume();
 	return 0;
 }
 
@@ -892,7 +893,7 @@ void CMainFrame::Pause()
 	m_pGlobalReader.reset();
 }
 
-void CMainFrame::Resume(bool report = true)
+void CMainFrame::Resume()
 {
 	SetTitle();
 
@@ -921,17 +922,14 @@ void CMainFrame::Resume(bool report = true)
 		}
 		catch (std::exception&)
 		{
-			if (report)
-			{
-				MessageBox(
-					L"Unable to capture Global Win32 Messages.\n"
-					L"\n"
-					L"Make sure you have appropriate permissions.\n"
-					L"\n"
-					L"You may need to start this application by right-clicking it and selecting\n"
-					L"'Run As Administator' even if you have administrator rights.",
-					m_applicationName.c_str(), MB_ICONERROR | MB_OK);
-			}
+			MessageBox(
+				L"Unable to capture Global Win32 Messages.\n"
+				L"\n"
+				L"Make sure you have appropriate permissions.\n"
+				L"\n"
+				L"You may need to start this application by right-clicking it and selecting\n"
+				L"'Run As Administator' even if you have administrator rights.",
+				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			m_tryGlobal = false;
 		}
 	}
@@ -957,7 +955,7 @@ void CMainFrame::Resume(bool report = true)
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (IsPaused())
-		Resume(true);
+		Resume();
 	else
 		Pause();
 }
@@ -966,7 +964,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 {
 	m_tryGlobal = !m_pGlobalReader;
 	if (m_pLocalReader && m_tryGlobal)
-		Resume(true);
+		Resume();
 	else
 		m_pGlobalReader.reset();
 }

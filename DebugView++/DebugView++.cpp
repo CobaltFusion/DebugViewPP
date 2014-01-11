@@ -96,7 +96,8 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 try
 {
-	fusion::SetPrivilege(SE_DEBUG_NAME, TRUE);
+	fusion::SetPrivilege(SE_DEBUG_NAME, true);
+	fusion::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
 
 	fusion::ComInitialization com(fusion::ComInitialization::ApartmentThreaded);
 
