@@ -124,8 +124,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	m_notifyIconData.cbSize = 0;
 
-	SetWindowText(WStr(LoadString(IDR_APPNAME)));
-
 	HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_cmdBar.AttachMenu(GetMenu());
 	m_cmdBar.LoadImages(IDR_MAINFRAME);
@@ -476,7 +474,7 @@ bool CMainFrame::LoadSettings()
 	SetAlwaysOnTop(RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
 
 	m_applicationName = RegGetStringValue(reg, L"ApplicationName", L"DebugView++");
-	SetWindowText(m_applicationName.c_str());
+	SetTitle();
 
 	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
@@ -783,6 +781,17 @@ void CMainFrame::Load(const std::wstring& fileName)
 		ThrowLastError(fileName);
 
 	Load(file);
+	SetTitle(fileName);
+}
+
+void CMainFrame::SetTitle(const std::wstring& title)
+{
+	std::wstring windowText = m_applicationName;
+	if (title.length() > 0)
+	{
+		windowText = L"[" + title + L"] - " + m_applicationName;
+	}
+	SetWindowText(windowText.c_str());
 }
 
 void CMainFrame::Load(HANDLE hFile)
@@ -883,13 +892,14 @@ bool CMainFrame::IsPaused() const
 
 void CMainFrame::Pause()
 {
+	SetTitle(L"Paused");
 	m_pLocalReader.reset();
 	m_pGlobalReader.reset();
 }
 
 void CMainFrame::Resume(bool report = true)
 {
-	SetWindowText(m_applicationName.c_str());
+	SetTitle();
 
 	if (!m_pLocalReader)
 	{
@@ -933,20 +943,20 @@ void CMainFrame::Resume(bool report = true)
 
 	SetAutoNewLine(GetAutoNewLine());
 	
-	std::wstring title = L"Paused - " + m_applicationName;
+	std::wstring title = L"Paused";
 	if (m_pLocalReader && m_pGlobalReader)
 	{
-		title = L"[Capture Win32 & Global Win32 Messages] - " + m_applicationName;
+		title = L"Capture Win32 & Global Win32 Messages";
 	}
 	else if (m_pLocalReader)
 	{
-		title = L"[Capture Win32] - " + m_applicationName;
+		title = L"Capture Win32";
 	} 
 	else if (m_pLocalReader)
 	{
-		title = L"[Capture Global Win32] - " + m_applicationName;
+		title = L"Capture Global Win32";
 	}
-	SetWindowText(title.c_str());
+	SetTitle(title);
 }
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

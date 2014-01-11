@@ -150,6 +150,7 @@ private:
 	CLogView& GetView(int i);
 	CLogView& GetView();
 	void SetLogFont();
+	void SetTitle(const std::wstring& title = L"");
 
 	FILE* m_stdout;
 	CCommandBarCtrl m_cmdBar;
