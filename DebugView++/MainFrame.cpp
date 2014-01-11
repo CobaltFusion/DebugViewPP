@@ -84,7 +84,8 @@ CMainFrame::CMainFrame() :
 	m_autoNewLine(false),
 	m_hide(false),
 	m_tryGlobal(true),
-	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes())
+	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
+	m_logfont(GetDefaultLogFont())
 {
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
@@ -324,7 +325,7 @@ void CMainFrame::UpdateStatusBar()
 void CMainFrame::ProcessLines(const Lines& lines)
 {
 //#ifdef CONSOLE_DEBUG
-//	if (lines.size() > 0)
+//	if (!lines.empty())
 //		printf("incoming lines: %d\n", lines.size());
 //#endif
 
@@ -482,8 +483,6 @@ bool CMainFrame::LoadSettings()
 	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
-		LOGFONT lf = { 0 };
-		m_logfont = lf;
 		std::copy(fontName.begin(), fontName.end(), m_logfont.lfFaceName);
 		m_logfont.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
 		SetLogFont();
@@ -786,11 +785,7 @@ void CMainFrame::Load(const std::wstring& fileName)
 
 void CMainFrame::SetTitle(const std::wstring& title)
 {
-	std::wstring windowText = m_applicationName;
-	if (title.length() > 0)
-	{
-		windowText = L"[" + title + L"] - " + m_applicationName;
-	}
+	std::wstring windowText = title.empty() ? m_applicationName : L"[" + title + L"] - " + m_applicationName;
 	SetWindowText(windowText.c_str());
 }
 

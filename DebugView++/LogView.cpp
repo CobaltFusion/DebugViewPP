@@ -202,7 +202,6 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
 
-//	SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP);
 	m_hdr.SubclassWindow(GetHeader());
 
 	m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
