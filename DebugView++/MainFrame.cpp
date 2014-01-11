@@ -773,7 +773,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load DebugView log";
 	if (dlg.DoModal() == IDOK)
-		Load(dlg.m_szFileName);
+		Load(std::wstring(dlg.m_szFileName));
 }
 
 void CMainFrame::Load(const std::wstring& fileName)
