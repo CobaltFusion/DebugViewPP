@@ -168,9 +168,11 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddIdleHandler(this);
 
 	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
-
-	Resume(false);
 	DragAcceptFiles(true);
+
+	// Resume can throw if a second debugview is running
+	// so do not rely on any commands executed afterwards
+	Resume(false);
 	return 0;
 }
 
@@ -887,8 +889,24 @@ void CMainFrame::Pause()
 
 void CMainFrame::Resume(bool report = true)
 {
+	SetWindowText(m_applicationName.c_str());
+
 	if (!m_pLocalReader)
-		m_pLocalReader = make_unique<DBWinReader>(false);
+	{
+		try 
+		{
+			m_pLocalReader = make_unique<DBWinReader>(false);
+		}
+		catch (std::exception&)
+		{
+			MessageBox(
+				L"Unable to capture Win32 Messages.\n"
+				L"\n"
+				L"Another DebugView (or simular application) might be running.\n",
+				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
+			return;
+		}
+	}
 
 	if (m_tryGlobal)
 	{
@@ -907,13 +925,28 @@ void CMainFrame::Resume(bool report = true)
 					L"\n"
 					L"You may need to start this application by right-clicking it and selecting\n"
 					L"'Run As Administator' even if you have administrator rights.",
-					LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+					m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			}
 			m_tryGlobal = false;
 		}
 	}
 
 	SetAutoNewLine(GetAutoNewLine());
+	
+	std::wstring title = L"Paused - " + m_applicationName;
+	if (m_pLocalReader && m_pGlobalReader)
+	{
+		title = L"[Capture Win32 & Global Win32 Messages] - " + m_applicationName;
+	}
+	else if (m_pLocalReader)
+	{
+		title = L"[Capture Win32] - " + m_applicationName;
+	} 
+	else if (m_pLocalReader)
+	{
+		title = L"[Capture Global Win32] - " + m_applicationName;
+	}
+	SetWindowText(title.c_str());
 }
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
