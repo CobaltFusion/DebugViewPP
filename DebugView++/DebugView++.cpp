@@ -11,7 +11,7 @@
 #include "Win32Lib.h"
 #include "dbgstream.h"
 #include "hstream.h"
-#include "DBWinReader.h"
+#include "DBWinWriter.h"
 #include "Utilities.h"
 #include "MainFrame.h"
 
@@ -50,16 +50,12 @@ private:
 int ForwardMessagesFromPipe(HANDLE hPipe)
 {
 	DBWinWriter dbwin;
+	DWORD pid = GetParentProcessId();
 
 	hstream pipe(hPipe);
-	pipe << std::noskipws;
 	std::string line;
-	DWORD pid = GetParentProcessId();
 	while (std::getline(pipe, line))
-	{
 		dbwin.Write(pid, line);
-//		OutputDebugStringA(line.c_str());
-	}
 
 	return 0;
 }

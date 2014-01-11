@@ -8,23 +8,14 @@
 #pragma once
 
 #include <boost/utility.hpp>
-#include <boost/signals2.hpp>
 #include <boost/thread.hpp>
 
 #include "Win32Lib.h"
+#include "DBWinBuffer.h"
 #include "Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
-
-struct Line
-{
-	double time;
-	FILETIME systemTime;
-	DWORD pid;
-	std::string processName;
-	std::string message;
-};
 
 struct InternalLine
 {
@@ -35,11 +26,7 @@ struct InternalLine
 	HANDLE handle;
 };
 
-typedef std::vector<Line> Lines;
 typedef std::vector<InternalLine> InternalLines;
-
-bool IsDBWinViewerActive();
-bool HasGlobalDBWinReaderRights();
 
 class DBWinReader : boost::noncopyable
 {
@@ -79,37 +66,6 @@ private:
 	double m_handleCacheTime;
 
 	std::map<DWORD, std::string> m_lineBuffers;
-};
-
-class DBWinWriter
-{
-public:
-	DBWinWriter();
-
-	void Write(DWORD pid, const std::string& message);
-
-private:
-	Handle m_hBuffer;
-	Handle m_dbWinBufferReady;
-	Handle m_dbWinDataReady;
-	MappedViewOfFile m_dbWinView;
-};
-
-class PipeReader : boost::noncopyable
-{
-public:
-	explicit PipeReader(HANDLE hPipe);
-
-	Lines GetLines();
-
-private:
-	Line MakeLine(const std::string& text) const;
-
-	HANDLE m_hPipe;
-	DWORD m_pid;
-	std::string m_process;
-	Timer m_timer;
-	std::string m_buffer;
 };
 
 } // namespace debugviewpp 

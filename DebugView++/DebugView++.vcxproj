@@ -100,6 +100,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -138,7 +139,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="DBWinBuffer.cpp" />
     <ClCompile Include="DBWinReader.cpp" />
+    <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="DebugView++.cpp" />
     <ClCompile Include="DisplayInfo.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
@@ -151,6 +154,7 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="MatchType.cpp" />
     <ClCompile Include="MessageFilterPage.cpp" />
+    <ClCompile Include="PipeReader.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -163,7 +167,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="DBWinBuffer.h" />
     <ClInclude Include="DBWinReader.h" />
+    <ClInclude Include="DBWinWriter.h" />
     <ClInclude Include="DisplayInfo.h" />
     <ClInclude Include="FilterDlg.h" />
     <ClInclude Include="FindDlg.h" />
@@ -177,6 +183,7 @@
     <ClInclude Include="MatchType.h" />
     <ClInclude Include="MessageFilterPage.h" />
     <ClInclude Include="OffscreenPaint.h" />
+    <ClInclude Include="PipeReader.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />

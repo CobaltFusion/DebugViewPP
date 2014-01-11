@@ -22,6 +22,7 @@ namespace WTL { using ATL::CString; };
 #include "LogFile.h"
 #include "LogView.h"
 #include "DBWinReader.h"
+#include "PipeReader.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "DBWinBuffer.h"
 #include "DBWinReader.h"
 #include "ProcessInfo.h"
 
@@ -14,30 +15,9 @@ namespace debugviewpp {
 
 const double HandleCacheTimeout = 15.0; //seconds
 
-struct DbWinBuffer
-{
-	DWORD processId;
-	// Total size must be 4KB (processID + data)
-	char data[4096 - sizeof(DWORD)];
-};
-
-static_assert(sizeof(DbWinBuffer) == 4096, "DBWIN_BUFFER size must be 4096");
-
 std::wstring GetDBWinName(bool global, const std::wstring& name)
 {
 	return global ? L"Global\\" + name : name;
-}
-
-bool IsDBWinViewerActive()
-{
-	Handle hMap(OpenFileMapping(FILE_MAP_READ, false, L"DBWIN_BUFFER"));
-	return hMap != nullptr;
-}
-
-bool HasGlobalDBWinReaderRights()
-{
-	Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
-	return hMap != nullptr;
 }
 
 Handle CreateDBWinBufferMapping(bool global)
@@ -134,7 +114,7 @@ Lines DBWinReader::GetLines()
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
 		m_lines.swap(m_backBuffer);
 	}
-	return std::move(ProcessLines(m_backBuffer));
+	return ProcessLines(m_backBuffer);
 }
 
 Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
@@ -203,7 +183,7 @@ Lines DBWinReader::ProcessLine(const Line& line)
 		message.clear();
 		lines.push_back(outputLine);
 	}
-	return std::move(lines);
+	return lines;
 }
 
 void DBWinReader::AddCache(HANDLE handle)
@@ -243,88 +223,7 @@ Lines DBWinReader::CheckHandleCache()
 		m_handleCache.clear();
 		m_handleCacheTime = m_timer.Get();
 	}
-	return std::move(lines);
-}
 
-DBWinWriter::DBWinWriter() :
-	m_hBuffer(OpenFileMapping(FILE_MAP_WRITE, false, L"DBWIN_BUFFER")),
-	m_dbWinBufferReady(OpenEvent(SYNCHRONIZE, false, L"DBWIN_BUFFER_READY")),
-	m_dbWinDataReady(OpenEvent(EVENT_MODIFY_STATE, false, L"DBWIN_DATA_READY")),
-	m_dbWinView(m_hBuffer.get(), FILE_MAP_WRITE, 0, 0, sizeof(DbWinBuffer))
-{
-}
-
-void DBWinWriter::Write(DWORD pid, const std::string& message)
-{
-	if (!WaitForSingleObject(m_dbWinBufferReady.get(), 10000))
-		return;
-
-	auto pData = static_cast<DbWinBuffer*>(m_dbWinView.Ptr());
-	pData->processId = pid;
-	int length = std::min<int>(message.size(), sizeof(pData->data) - 1);
-	std::copy(message.data(), message.data() + length, pData->data);
-	pData->data[length] = '\0';
-
-	SetEvent(m_dbWinDataReady.get());
-}
-
-PipeReader::PipeReader(HANDLE hPipe) :
-	m_hPipe(hPipe),
-	m_pid(GetParentProcessId()),
-	m_process(Str(ProcessInfo::GetProcessName(m_pid)).str())
-{
-}
-
-Line PipeReader::MakeLine(const std::string& text) const
-{
-	Line line;
-	line.time = m_timer.Get();
-	line.systemTime = GetSystemTimeAsFileTime();
-	line.pid = m_pid;
-	line.processName = m_process;
-	line.message = text;
-	return line;
-}
-
-Lines PipeReader::GetLines()
-{
-	if (!m_hPipe)
-		return Lines();
-
-	Lines lines;
-	char buf[4096];
-	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf);
-
-	for (;;)
-	{
-		DWORD avail = 0;
-		if (!PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, &avail, nullptr))
-		{
-			CloseHandle(m_hPipe);
-			break;
-		}
-		if (avail == 0)
-			break;
-
-		DWORD size = buf + sizeof(buf) - start;
-		DWORD read;
-		ReadFile(m_hPipe, start, size, &read, nullptr);
-
-		char* begin = buf;
-		char* end = start + read;
-		char* p = start;
-		while (p != end)
-		{
-			if (*p == '\0' || *p == '\n' || p - begin > 4000)
-			{
-				lines.push_back(MakeLine(std::string(begin, p)));
-				begin = p + 1;
-			}
-			++p;
-		}
-		start = std::copy(begin, end, buf);
-	}
-	m_buffer = std::string(buf, start);
 	return lines;
 }
 

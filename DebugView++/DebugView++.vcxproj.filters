@@ -75,6 +75,15 @@
     <ClCompile Include="MatchType.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DBWinWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PipeReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DBWinBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -147,6 +156,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MatchType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DBWinWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DBWinBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
