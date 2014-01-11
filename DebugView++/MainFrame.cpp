@@ -364,10 +364,21 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	if (m_pGlobalReader)
 		globalLines = m_pGlobalReader->GetLines();
 
+	Lines pipeLines;
+	if (m_pPipeReader)
+		pipeLines = m_pPipeReader->GetLines();
+
 	Lines lines;
 	lines.reserve(localLines.size() + globalLines.size());
-	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), [](const Line& a, const Line& b) { return a.time < b.time; });
-	ProcessLines(lines);
+	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
+	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), pred);
+	if (pipeLines.empty())
+		return ProcessLines(lines);
+
+	Lines lines2;
+	lines2.reserve(lines.size() + pipeLines.size());
+	std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
+	ProcessLines(lines2);
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -815,6 +826,11 @@ void CMainFrame::Load(std::istream& file)
 
 		AddMessage(Message(time, systemTime, pid, process, message));
 	}
+}
+
+void CMainFrame::CapturePipe(HANDLE hPipe)
+{
+	m_pPipeReader = make_unique<PipeReader>(hPipe);
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

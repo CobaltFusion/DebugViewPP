@@ -53,7 +53,6 @@ extern CAppModule _Module;
 #endif
 
 #include <boost/utility.hpp>
-#include <boost/signals2.hpp>
 #include <boost/thread.hpp>
 
 #include <string>

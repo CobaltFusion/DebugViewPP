@@ -182,4 +182,6 @@ std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName, const wchar_
 DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName = nullptr);
 DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue);
 
+ULONG_PTR GetParentProcessId();
+
 } // namespace fusion

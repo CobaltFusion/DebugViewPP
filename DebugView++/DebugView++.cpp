@@ -10,6 +10,8 @@
 #include "resource.h"
 #include "Win32Lib.h"
 #include "dbgstream.h"
+#include "hstream.h"
+#include "DBWinReader.h"
 #include "Utilities.h"
 #include "MainFrame.h"
 
@@ -45,6 +47,23 @@ private:
 	CMessageLoop m_loop;
 };
 
+int ForwardMessagesFromPipe(HANDLE hPipe)
+{
+	DBWinWriter dbwin;
+
+	hstream pipe(hPipe);
+	pipe << std::noskipws;
+	std::string line;
+	DWORD pid = GetParentProcessId();
+	while (std::getline(pipe, line))
+	{
+		dbwin.Write(pid, line);
+//		OutputDebugStringA(line.c_str());
+	}
+
+	return 0;
+}
+
 int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 {
 	HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -54,6 +73,9 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	case FILE_TYPE_DISK: hFile = hStdIn; break;
 	case FILE_TYPE_PIPE: hPipe = hStdIn; break;
 	}
+
+	if (hPipe && IsDBWinViewerActive())
+		return ForwardMessagesFromPipe(hPipe);
 
 	MessageLoop theLoop(_Module);
 
@@ -84,8 +106,8 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 		wndMain.Load(fileName);
 	else if (hFile)
 		wndMain.Load(hFile);
-//	else if (hPipe)
-//		wndMain.CapturePipe(hPipe);
+	else if (hPipe)
+		wndMain.CapturePipe(hPipe);
 
 	return theLoop.Run();
 }

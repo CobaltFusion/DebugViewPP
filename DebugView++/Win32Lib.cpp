@@ -342,4 +342,15 @@ void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 	SetPrivilege(hToken.get(), privilege, enablePrivilege);
 }
 
+ULONG_PTR GetParentProcessId()
+{
+	ULONG_PTR pbi[6];
+	ULONG ulSize = 0;
+	long (WINAPI* NtQueryInformationProcess)(HANDLE ProcessHandle, ULONG ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* pReturnLength);
+	*(FARPROC *)&NtQueryInformationProcess = GetProcAddress(LoadLibraryA("NTDLL.DLL"), "NtQueryInformationProcess");
+	if (NtQueryInformationProcess && NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
+		return pbi[5];
+	return (ULONG_PTR)-1;
+}
+
 } // namespace fusion

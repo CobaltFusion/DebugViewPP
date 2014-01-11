@@ -76,6 +76,7 @@ public:
 	void Load(const std::wstring& fileName);
 	void Load(HANDLE hFile);
 	void Load(std::istream& is);
+	void CapturePipe(HANDLE hPipe);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 
@@ -152,7 +153,6 @@ private:
 	void SetLogFont();
 	void SetTitle(const std::wstring& title = L"");
 
-	FILE* m_stdout;
 	CCommandBarCtrl m_cmdBar;
 	CEdit m_findBox;
 	CMultiPaneStatusBarCtrl m_statusBar;
@@ -168,8 +168,7 @@ private:
 	bool m_tryGlobal;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
-	boost::signals2::connection m_localConnection;
-	boost::signals2::connection m_globalConnection;
+	std::unique_ptr<PipeReader> m_pPipeReader;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
 	size_t m_initialPrivateBytes;
