@@ -146,6 +146,8 @@ public:
 	bool IsColumnViewed(int nID) const;
 	bool GetClockTime() const;
 	void SetClockTime(bool clockTime);
+	void SetViewProcessColors(bool value);
+	bool GetViewProcessColors() const;
 	bool GetBookmark() const;
 	void SelectAll();
 	void Copy();
@@ -194,6 +196,7 @@ private:
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewProcessColors(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewHideHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFindNext(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFindPrevious(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -259,6 +262,7 @@ private:
 	int m_firstLine;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
+	bool m_processColors;
 	bool m_autoScrollDown;
 	bool m_dirty;
 	int m_addedLines;

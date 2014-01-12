@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "ProcessInfo.h"
+#include "Colors.h"
 #include "IndexedStorage.h"
 
 namespace fusion {
@@ -17,24 +18,22 @@ namespace debugviewpp {
 
 struct Message
 {
-	Message(double time, FILETIME systemTime, DWORD pid, const std::string processName_, const std::string& msg) :
-		time(time), systemTime(systemTime), processId(pid), processName(processName_), text(msg)
-	{
-	}
+	Message(double time, FILETIME systemTime, DWORD pid, const std::string processName, const std::string& msg, COLORREF color = Colors::BackGround);
 
 	double time;
 	FILETIME systemTime;
 	DWORD processId;
 	std::string processName;
 	std::string text;
+	COLORREF color;
 };
 
 class LogFile
 {
 	struct InternalMessage
 	{
-		InternalMessage(double time, FILETIME systemTime, DWORD uid_) :
-			time(time), systemTime(systemTime), uid(uid_)
+		InternalMessage(double time, FILETIME systemTime, DWORD uid) :
+			time(time), systemTime(systemTime), uid(uid)
 		{
 		}
 

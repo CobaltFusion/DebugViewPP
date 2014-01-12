@@ -15,29 +15,22 @@ namespace debugviewpp {
 
 struct InternalProcessProperties
 {
-	explicit InternalProcessProperties() :
-		pid(0)
-	{
-	}
-
-	explicit InternalProcessProperties(DWORD pid_, const std::string& name_) :
-		pid(pid_), name(name_)
-	{
-	}
+	InternalProcessProperties();
+	InternalProcessProperties(DWORD pid, const std::string& name, COLORREF color);
 
 	DWORD pid;			// system processId
 	std::string name;
+	COLORREF color;
 };
 
 struct ProcessProperties
 {
-	ProcessProperties(const InternalProcessProperties& iprops) :
-		uid(0), pid(iprops.pid), name(iprops.name)
-	{
-	}
+	explicit ProcessProperties(const InternalProcessProperties& iprops);
+
 	DWORD uid;			// unique id
 	DWORD pid;			// system processId
 	std::string name;
+	COLORREF color;
 };
 
 class ProcessInfo
@@ -54,8 +47,7 @@ public:
 	ProcessProperties GetProcessProperties(DWORD uid) const;
 
 private:
-	typedef std::map<DWORD, InternalProcessProperties> ProcessMap;
-	ProcessMap m_processProperties;
+	std::map<DWORD, InternalProcessProperties> m_processProperties;
 	DWORD m_unqiueId;
 };
 

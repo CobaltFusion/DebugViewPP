@@ -13,6 +13,11 @@
 namespace fusion {
 namespace debugviewpp {
 
+Message::Message(double time, FILETIME systemTime, DWORD pid, const std::string processName, const std::string& msg, COLORREF color) :
+	time(time), systemTime(systemTime), processId(pid), processName(processName), text(msg), color(color)
+{
+}
+
 bool LogFile::Empty() const
 {
 	return m_messages.empty();
@@ -41,7 +46,7 @@ Message LogFile::operator[](int i) const
 {
 	auto msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
-	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i]);
+	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i], props.color);
 }
 
 } // namespace debugviewpp 

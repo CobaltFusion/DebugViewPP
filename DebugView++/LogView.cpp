@@ -14,6 +14,7 @@
 #include "Win32Lib.h"
 #include "Utilities.h"
 #include "Resource.h"
+#include "Colors.h"
 #include "MainFrame.h"
 #include "LogView.h"
 
@@ -46,7 +47,7 @@ LogLine::LogLine(int line) :
 }
 
 ItemData::ItemData() :
-	color(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT))
+	color(Colors::BackGround, Colors::Text)
 {
 }
 
@@ -69,6 +70,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESSCOLORS, OnViewProcessColors);
 	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnViewHideHighlight)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_NEXT, OnViewFindNext)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_PREVIOUS, OnViewFindPrevious)
@@ -121,6 +123,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_filter(std::move(filter)),
 	m_firstLine(0),
 	m_clockTime(false),
+	m_processColors(false),
 	m_autoScrollDown(true),
 	m_dirty(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
@@ -602,7 +605,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		if (match.empty())
 			break;
 
-		InsertHighlight(highlights, Highlight(1, match.begin() - text.begin(), match.end() - text.begin(), TextColor(RGB(255, 255, 55), RGB(0, 0, 0))));
+		InsertHighlight(highlights, Highlight(1, match.begin() - text.begin(), match.end() - text.begin(), TextColor(Colors::Highlight, Colors::Text)));
 		line = boost::make_iterator_range(match.end(), line.end());
 	}
 
@@ -691,7 +694,7 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 
 	int begin = GetTextIndex(dc, iItem, x1);
 	int end = GetTextIndex(dc, iItem, x2);
-	return Highlight(0, begin, end, TextColor(RGB(128, 255, 255), RGB(0, 0, 0)));	
+	return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::Text));	
 }
 
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
@@ -718,8 +721,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 
 	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
 	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
-	auto bkColor = selected ? GetSysColor(COLOR_HIGHLIGHT) : data.color.back;
-	auto txColor = selected ? GetSysColor(COLOR_HIGHLIGHTTEXT) : data.color.fore;
+	auto bkColor = selected ? Colors::ItemHighlight : data.color.back;
+	auto txColor = selected ? Colors::ItemHighlightText : data.color.fore;
 
 	rect.left += GetColumnWidth(0);
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
@@ -933,6 +936,11 @@ void CLogView::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	SetClockTime(!GetClockTime());
 }
 
+void CLogView::OnViewProcessColors(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SetViewProcessColors(!GetViewProcessColors());
+}
+
 void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetHighlightText();
@@ -980,48 +988,6 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 	FindProcess(-1);
 }
 
-COLORREF HsvToRgb(double h, double s, double v)
-{
-	int hi = floor_to<int>(h*6);
-	double f = h*6 - hi;
-	double p = v * (1 - s);
-	double q = v * (1 - f*s);
-	double t = v * (1 - (1 - f) * s);
-	switch (hi)
-	{
-	case 0: return RGB(floor_to<int>(v*256), floor_to<int>(t*256), floor_to<int>(p*256));
-	case 1: return RGB(floor_to<int>(q*256), floor_to<int>(v*256), floor_to<int>(p*256));
-	case 2: return RGB(floor_to<int>(p*256), floor_to<int>(v*256), floor_to<int>(t*256));
-	case 3: return RGB(floor_to<int>(p*256), floor_to<int>(q*256), floor_to<int>(v*256));
-	case 4: return RGB(floor_to<int>(t*256), floor_to<int>(p*256), floor_to<int>(v*256));
-	case 5: return RGB(floor_to<int>(v*256), floor_to<int>(p*256), floor_to<int>(q*256));
-	}
-	return 0;
-}
-
-COLORREF GetRandomColor(double s, double v)
-{
-	static bool randomize = (std::srand(GetTickCount()), true);
-	static const double ratio = (1 + std::sqrt(5.))/2 - 1;
-	// use golden ratio
-	static double h = static_cast<double>(std::rand()) / (RAND_MAX + 1);
-
-	h += ratio;
-	if (h >= 1)
-		h = h - 1;
-	return HsvToRgb(h, s, v);
-}
-
-COLORREF GetRandomBackColor()
-{
-	return GetRandomColor(0.5, 0.95);
-}
-
-COLORREF GetRandomTextColor()
-{
-	return GetRandomColor(0.9, 0.7);
-}
-
 void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
 {
 	int item = GetNextItem(-1, LVIS_FOCUSED);
@@ -1045,7 +1011,7 @@ void CLogView::OnViewProcessExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 
 void CLogView::OnViewProcessToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	AddProcessFilter(FilterType::Token, RGB(255, 255, 255), GetRandomTextColor());
+	AddProcessFilter(FilterType::Token, Colors::BackGround, GetRandomTextColor());
 }
 
 void CLogView::OnViewProcessTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1079,7 +1045,7 @@ void CLogView::OnViewFilterExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 
 void CLogView::OnViewFilterToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	AddMessageFilter(FilterType::Token, RGB(255, 255, 255), GetRandomTextColor());
+	AddMessageFilter(FilterType::Token, Colors::BackGround, GetRandomTextColor());
 }
 
 void CLogView::OnViewFilterTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1140,7 +1106,7 @@ void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 
 void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
 {
-	dc.FillSolidRect(&rcClip, GetSysColor(COLOR_WINDOW));
+	dc.FillSolidRect(&rcClip, Colors::BackGround);
  
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 }
@@ -1357,6 +1323,17 @@ void CLogView::SetClockTime(bool clockTime)
 	Invalidate(false);
 }
 
+void CLogView::SetViewProcessColors(bool value)
+{
+	m_processColors = value;
+	Invalidate(false);
+}
+
+bool CLogView::GetViewProcessColors() const
+{
+	return m_processColors;
+}
+
 void CLogView::SelectAll()
 {
 	int lines = GetItemCount();
@@ -1481,6 +1458,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 {
 	SetName(RegGetStringValue(reg));
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
+	SetViewProcessColors(RegGetDWORDValue(reg, L"ViewProcessColors", 0) != 0);
 
 	for (int i = 0; i < Column::Count; ++i)
 	{
@@ -1494,35 +1472,12 @@ void CLogView::LoadSettings(CRegKey& reg)
 		column.column.iOrder = RegGetDWORDValue(regColumn, L"Order", column.column.iOrder);
 	}
 
-	for (int i = 0; ; ++i)
-	{
-		CRegKey regFilter;
-		if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i)) != ERROR_SUCCESS)
-			break;
-
-		m_filter.messageFilters.push_back(Filter(
-			Str(RegGetStringValue(regFilter)),
-			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
-			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
-			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
-			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
-			RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
-	}
-
-	for (size_t i = 0; ; ++i)
-	{
-		CRegKey regFilter;
-		if (regFilter.Open(reg, WStr(wstringbuilder() << L"ProcessFilters\\Filter" << i)) != ERROR_SUCCESS)
-			break;
-
-		m_filter.processFilters.push_back(Filter(
-			Str(RegGetStringValue(regFilter)),
-			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
-			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
-			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),
-			RegGetDWORDValue(regFilter, L"FgColor", RGB(0, 0, 0)),
-			RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
-	}
+	CRegKey regFilters;
+	if (regFilters.Open(reg, L"MessageFilters") == ERROR_SUCCESS ||
+		regFilters.Open(reg, L"Filters") == ERROR_SUCCESS)
+		LoadFilterSettings(m_filter.messageFilters, regFilters);
+	if (regFilters.Open(reg, L"ProcessFilters") == ERROR_SUCCESS)
+		LoadFilterSettings(m_filter.processFilters, regFilters);
 
 	ApplyFilters();
 	UpdateColumns();
@@ -1533,44 +1488,23 @@ void CLogView::SaveSettings(CRegKey& reg)
 	UpdateColumnInfo();
 
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
+	reg.SetDWORDValue(L"ViewProcessColors", GetViewProcessColors());
 
 	int i = 0;
 	for (auto it = m_columns.begin(); it != m_columns.end(); ++it, ++i)
 	{
-		CRegKey regFilter;
-		regFilter.Create(reg, WStr(wstringbuilder() << L"Columns\\Column" << i));
-		regFilter.SetDWORDValue(L"Enable", it->enable);
-		regFilter.SetDWORDValue(L"Width", it->column.cx);
-		regFilter.SetDWORDValue(L"Order", it->column.iOrder);
+		CRegKey regColumn;
+		regColumn.Create(reg, WStr(wstringbuilder() << L"Columns\\Column" << i));
+		regColumn.SetDWORDValue(L"Enable", it->enable);
+		regColumn.SetDWORDValue(L"Width", it->column.cx);
+		regColumn.SetDWORDValue(L"Order", it->column.iOrder);
 	}
 
-	i = 0;
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it, ++i)
-	{
-		CRegKey regFilter;
-		regFilter.Create(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i));
-		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
-		regFilter.SetDWORDValue(L"MatchType", MatchTypeToInt(it->matchType));
-		regFilter.SetDWORDValue(L"FilterType", FilterTypeToInt(it->filterType));
-		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->filterType));
-		regFilter.SetDWORDValue(L"BgColor", it->bgColor);
-		regFilter.SetDWORDValue(L"FgColor", it->fgColor);
-		regFilter.SetDWORDValue(L"Enable", it->enable);
-	}
-
-	i = 0;
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it, ++i)
-	{
-		CRegKey regFilter;
-		regFilter.Create(reg, WStr(wstringbuilder() << L"ProcessFilters\\Filter" << i));
-		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
-		regFilter.SetDWORDValue(L"MatchType", MatchTypeToInt(it->matchType));
-		regFilter.SetDWORDValue(L"FilterType", FilterTypeToInt(it->filterType));
-		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->filterType));
-		regFilter.SetDWORDValue(L"BgColor", it->bgColor);
-		regFilter.SetDWORDValue(L"FgColor", it->fgColor);
-		regFilter.SetDWORDValue(L"Enable", it->enable);
-	}
+	CRegKey regFilters;
+	if (regFilters.Create(reg, L"MessageFilters") == ERROR_SUCCESS)
+		SaveFilterSettings(m_filter.messageFilters, regFilters);
+	if (regFilters.Create(reg, L"ProcessFilters") == ERROR_SUCCESS)
+		SaveFilterSettings(m_filter.processFilters, regFilters);
 }
 
 void CLogView::Save(const std::wstring& fileName) const
@@ -1697,7 +1631,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
-	return TextColor(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT));
+	return TextColor(m_processColors ? msg.color : Colors::BackGround, Colors::Text);
 }
 
 bool CLogView::IsIncluded(const Message& msg)

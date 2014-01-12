@@ -6,14 +6,31 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "ProcessInfo.h"
+#include <array>
 #include "Win32Lib.h"
 #include "Utilities.h"
-#include <array>
+#include "Colors.h"
+#include "ProcessInfo.h"
+
 #pragma comment(lib, "psapi.lib")
 
 namespace fusion {
 namespace debugviewpp {
+
+InternalProcessProperties::InternalProcessProperties() :
+	pid(0)
+{
+}
+
+InternalProcessProperties::InternalProcessProperties(DWORD pid, const std::string& name, COLORREF color) :
+	pid(pid), name(name), color(color)
+{
+}
+
+ProcessProperties::ProcessProperties(const InternalProcessProperties& iprops) :
+	uid(0), pid(iprops.pid), name(iprops.name), color(iprops.color)
+{
+}
 
 ProcessInfo::ProcessInfo() : m_unqiueId(0)
 {
@@ -49,34 +66,26 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 }
 
 std::wstring ProcessInfo::GetProcessName(DWORD processId)
-try
 {
-	Handle hProcess(OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
+	Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
 	if (hProcess)
-	{
 		return GetProcessName(hProcess.get());
-	}
+
 	return L"";
-}
-catch (Win32Error& e)
-{
-	return wstringbuilder() << e.what();
 }
 
 DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
 {
-	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); i++)
+	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); ++i)
 	{
 		if (i->second.pid == processId && i->second.name == processName)
-		{
 			return i->first;
-		}
 	}
 
 	DWORD index = m_unqiueId;
-	m_unqiueId++;
+	++m_unqiueId;
 
-	m_processProperties[index] = InternalProcessProperties(processId, processName);
+	m_processProperties[index] = InternalProcessProperties(processId, processName, GetRandomProcessColor());
 	return index;
 }
 
@@ -90,10 +99,12 @@ ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::
 
 ProcessProperties ProcessInfo::GetProcessProperties(DWORD uid) const
 {
-	auto processMap = const_cast<ProcessMap&>(m_processProperties);		// AUW! todo: Fix!
-	auto props = processMap[uid];
-	//auto props = m_processProperties[uid];
-	return ProcessProperties(props);
+	auto it = m_processProperties.find(uid);
+	assert(it != m_processProperties.end());
+	if (it == m_processProperties.end())
+		return ProcessProperties(InternalProcessProperties());
+
+	return ProcessProperties(it->second);
 }
 
 } // namespace debugviewpp 

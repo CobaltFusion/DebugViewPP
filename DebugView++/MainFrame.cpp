@@ -201,6 +201,7 @@ void CMainFrame::UpdateUI()
 	UpdateStatusBar();
 
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
+	UISetCheck(ID_VIEW_PROCESSCOLORS, GetView().GetViewProcessColors());
 	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 
