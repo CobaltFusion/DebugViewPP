@@ -27,11 +27,17 @@ Download
 --------
 at http://debugviewpp.wordpress.com/
 
-Screenshot
-----------
+Screenshots
+-----------
 ![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
 
-The screenshot demonstrates bookmarks and highlighting features:
+Screenshot demonstrating bookmarks and highlighting features.
+
+![DebugView++ Screenshot](art/logcat_example.png "DebugView++ Screenshot")
+
+Screenshot demonstrating connecting to ADB logcat (Android Debug Bridge)
+
+
 
 Highlighted:
 ------------
