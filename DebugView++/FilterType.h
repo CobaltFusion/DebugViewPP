@@ -8,6 +8,8 @@
 #pragma once
 
 #include <string>
+#include <regex>
+#include "MatchType.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -24,6 +26,21 @@ struct FilterType
 		Track,
 		Once
 	};
+};
+
+struct Filter
+{
+	Filter();
+	Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, int matchCount = 0);
+
+	std::string text;
+	std::regex re;
+	MatchType::type matchType;
+	FilterType::type filterType;
+	COLORREF bgColor;
+	COLORREF fgColor;
+	bool enable;
+	int matchCount;
 };
 
 int FilterTypeToInt(FilterType::type value);

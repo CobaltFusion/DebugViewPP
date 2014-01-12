@@ -45,6 +45,12 @@
 
 namespace fusion {
 
+template <typename T, size_t N>
+size_t array_size(T (&)[N])
+{
+	return N;
+}
+
 struct ScopedCursorDeleter
 {
 	typedef HCURSOR pointer;

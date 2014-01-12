@@ -9,8 +9,7 @@
 
 #include <vector>
 
-#include "MessageFilterPage.h"
-#include "ProcessFilterPage.h"
+#include "FilterPage.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
 #include "FilterType.h"
@@ -20,8 +19,8 @@ namespace debugviewpp {
 
 struct LogFilter
 {
-	std::vector<MessageFilter> messageFilters;
-	std::vector<ProcessFilter> processFilters;
+	std::vector<Filter> messageFilters;
+	std::vector<Filter> processFilters;
 };
 
 class CFilterDlg :
@@ -61,8 +60,8 @@ public:
 
 private:
 	CTabCtrl m_tabCtrl;
-	CMessageFilterPage m_messagePage;
-	CProcessFilterPage m_processPage;
+	CFilterPage m_messagePage;
+	CFilterPage m_processPage;
 	SIZE m_border;
 
 	std::wstring m_name;

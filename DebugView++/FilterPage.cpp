@@ -7,41 +7,27 @@
 
 #include "stdafx.h"
 #include "Resource.h"
-#include "MessageFilterPage.h"
+#include "FilterPage.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-MessageFilter::MessageFilter() :
-	matchType(MatchType::Simple),
-	filterType(FilterType::Include),
-	bgColor(RGB(255, 255, 255)),
-	fgColor(RGB(  0,   0,   0)),
-	enable(true)
+CFilterPage::CFilterPage(const FilterType::type* filterTypes, size_t filterTypeCount) :
+	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount)
 {
 }
 
-MessageFilter::MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, int matchCount) :
-	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matchCount(matchCount)
-{
-}
-
-CMessageFilterPage::CMessageFilterPage(const std::vector<MessageFilter>& filters) :
-	m_filters(filters)
-{
-}
-
-BEGIN_MSG_MAP_TRY(CMessageFilterPage)
+BEGIN_MSG_MAP_TRY(CFilterPage)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
 	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_ITEMCHANGED, OnItemChanged)
 	REFLECT_NOTIFICATIONS()
-	CHAIN_MSG_MAP(CDialogResize<CMessageFilterPage>)
+	CHAIN_MSG_MAP(CDialogResize<CFilterPage>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-void CMessageFilterPage::ExceptionHandler()
+void CFilterPage::ExceptionHandler()
 {
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
@@ -53,18 +39,7 @@ static const MatchType::type MatchTypes[] =
 	MatchType::Regex
 };
 
-static const FilterType::type FilterTypes[] =
-{
-	FilterType::Include,
-	FilterType::Exclude,
-	FilterType::Highlight,
-	FilterType::Token,
-	FilterType::Stop,
-	FilterType::Track,
-	FilterType::Once
-};
-
-void CMessageFilterPage::AddFilter(const MessageFilter& filter)
+void CFilterPage::AddFilter(const Filter& filter)
 {
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
 	pFilterProp->SetBkColor(filter.bgColor);
@@ -80,14 +55,14 @@ void CMessageFilterPage::AddFilter(const MessageFilter& filter)
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 1, pFilterProp);
 	m_grid.SetSubItem(item, 2, CreateEnumTypeItem(L"", MatchTypes, filter.matchType));
-	m_grid.SetSubItem(item, 3, CreateEnumTypeItem(L"", FilterTypes, filter.filterType));
+	m_grid.SetSubItem(item, 3, CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType));
 	m_grid.SetSubItem(item, 4, pBkColor);
 	m_grid.SetSubItem(item, 5, pTxColor);
 	m_grid.SetSubItem(item, 6, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
 }
 
-BOOL CMessageFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
+BOOL CFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_GRID));
 	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
@@ -107,17 +82,17 @@ BOOL CMessageFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*
 	return TRUE;
 }
 
-void CMessageFilterPage::OnDestroy()
+void CFilterPage::OnDestroy()
 {
 }
 
-LRESULT CMessageFilterPage::OnAddItem(NMHDR* /*pnmh*/)
+LRESULT CFilterPage::OnAddItem(NMHDR* /*pnmh*/)
 {
-	AddFilter(MessageFilter());
+	AddFilter(Filter());
 	return 0;
 }
 
-LRESULT CMessageFilterPage::OnClickItem(NMHDR* pnmh)
+LRESULT CFilterPage::OnClickItem(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
@@ -132,7 +107,7 @@ LRESULT CMessageFilterPage::OnClickItem(NMHDR* pnmh)
 	return FALSE;
 }
 
-LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
+LRESULT CFilterPage::OnItemChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
@@ -168,59 +143,59 @@ LRESULT CMessageFilterPage::OnItemChanged(NMHDR* pnmh)
 	return 0;
 }
 
-bool CMessageFilterPage::GetFilterEnable(int iItem) const
+bool CFilterPage::GetFilterEnable(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 0).GetValue(&val);
 	return val.boolVal != VARIANT_FALSE;
 }
 
-std::wstring CMessageFilterPage::GetFilterText(int iItem) const
+std::wstring CFilterPage::GetFilterText(int iItem) const
 {
 	return GetGridItemText(m_grid, iItem, 1);
 }
 
-MatchType::type CMessageFilterPage::GetMatchType(int iItem) const
+MatchType::type CFilterPage::GetMatchType(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyListItem>(m_grid, iItem, 2).GetValue(&val);
 	return MatchTypes[val.lVal];
 }
 
-FilterType::type CMessageFilterPage::GetFilterType(int iItem) const
+FilterType::type CFilterPage::GetFilterType(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyListItem>(m_grid, iItem, 3).GetValue(&val);
-	return FilterTypes[val.lVal];
+	return m_filterTypes[val.lVal];
 }
 
-COLORREF CMessageFilterPage::GetFilterBgColor(int iItem) const
+COLORREF CFilterPage::GetFilterBgColor(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyColorItem>(m_grid, iItem, 4).GetValue(&val);
 	return val.lVal;
 }
 
-COLORREF CMessageFilterPage::GetFilterFgColor(int iItem) const
+COLORREF CFilterPage::GetFilterFgColor(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyColorItem>(m_grid, iItem, 5).GetValue(&val);
 	return val.lVal;
 }
 
-std::vector<MessageFilter> CMessageFilterPage::GetFilters() const
+std::vector<Filter> CFilterPage::GetFilters() const
 {
-	std::vector<MessageFilter> filters;
+	std::vector<Filter> filters;
 	int n = m_grid.GetItemCount();
 	filters.reserve(n);
 
 	for (int i = 0; i < n; ++i)
-		filters.push_back(MessageFilter(Str(GetFilterText(i)), GetMatchType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
+		filters.push_back(Filter(Str(GetFilterText(i)), GetMatchType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
 
 	return filters;
 }
 
-void CMessageFilterPage::SetFilters(const std::vector<MessageFilter>& filters)
+void CFilterPage::SetFilters(const std::vector<Filter>& filters)
 {
 	m_grid.DeleteAllItems();
 	for (auto it = filters.begin(); it != filters.end(); ++it)

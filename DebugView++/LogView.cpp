@@ -1029,7 +1029,7 @@ void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, C
 		return;
 
 	const auto& name = m_logFile[m_logLines[item].line].processName;
-	m_filter.processFilters.push_back(ProcessFilter(Str(name), 0, MatchType::Simple, filterType, bgColor, fgColor));
+	m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
 	ApplyFilters();
 }
 
@@ -1063,7 +1063,7 @@ void CLogView::AddMessageFilter(FilterType::type filterType, COLORREF bgColor, C
 	if (m_highlightText.empty())
 		return;
 
-	m_filter.messageFilters.push_back(MessageFilter(Str(m_highlightText), MatchType::Simple, filterType, bgColor, fgColor));
+	m_filter.messageFilters.push_back(Filter(Str(m_highlightText), MatchType::Simple, filterType, bgColor, fgColor));
 	ApplyFilters();
 }
 
@@ -1500,7 +1500,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 		if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filters\\Filter" << i)) != ERROR_SUCCESS)
 			break;
 
-		m_filter.messageFilters.push_back(MessageFilter(
+		m_filter.messageFilters.push_back(Filter(
 			Str(RegGetStringValue(regFilter)),
 			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
@@ -1515,9 +1515,8 @@ void CLogView::LoadSettings(CRegKey& reg)
 		if (regFilter.Open(reg, WStr(wstringbuilder() << L"ProcessFilters\\Filter" << i)) != ERROR_SUCCESS)
 			break;
 
-		m_filter.processFilters.push_back(ProcessFilter(
+		m_filter.processFilters.push_back(Filter(
 			Str(RegGetStringValue(regFilter)),
-			0,
 			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
 			RegGetDWORDValue(regFilter, L"BgColor", RGB(255, 255, 255)),

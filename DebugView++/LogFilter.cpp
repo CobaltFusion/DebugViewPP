@@ -37,7 +37,7 @@ COLORREF MakeColor(const ptree& pt)
 	return RGB(red, green, blue);
 }
 
-ptree MakePTree(const MessageFilter& filter)
+ptree MakePTree(const Filter& filter)
 {
 	ptree pt;
 	pt.put("Enable", filter.enable);
@@ -49,9 +49,9 @@ ptree MakePTree(const MessageFilter& filter)
 	return pt;
 }
 
-MessageFilter MakeMessageFilter(const ptree& pt)
+Filter MakeFilter(const ptree& pt)
 {
-	MessageFilter filter;
+	Filter filter;
 	filter.enable = pt.get<bool>("Enable");
 	filter.text = pt.get<std::string>("Text");
 	filter.matchType = StringToMatchType(pt.get<std::string>("MatchType"));
@@ -61,64 +61,23 @@ MessageFilter MakeMessageFilter(const ptree& pt)
 	return filter;
 }
 
-ptree MakePTree(const std::vector<MessageFilter>& filters)
+ptree MakePTree(const std::vector<Filter>& filters)
 {
 	ptree pt;
 	for (auto it = filters.begin(); it != filters.end(); ++it)
-		pt.add_child("MessageFilter", MakePTree(*it));
+		pt.add_child("Filter", MakePTree(*it));
 	return pt;
 }
 
-std::vector<MessageFilter> MakeMessageFilters(const ptree& pt)
+std::vector<Filter> MakeFilters(const ptree& pt)
 {
-	std::vector<MessageFilter> filters;
+	std::vector<Filter> filters;
 	for (auto it = pt.begin(); it != pt.end(); ++it)
 	{
-		if (it->first == "MessageFilter")
-			filters.push_back(MakeMessageFilter(it->second));
-	}
-	return filters;
-}
-
-ptree MakePTree(const ProcessFilter& filter)
-{
-	ptree pt;
-	pt.put("Enable", filter.enable);
-	pt.put("Text", filter.text);
-	pt.put("MatchType", MatchTypeToString(filter.matchType));
-	pt.put("FilterType", FilterTypeToString(filter.filterType));
-	pt.put_child("BackColor", MakePTree(filter.bgColor));
-	pt.put_child("TextColor", MakePTree(filter.fgColor));
-	return pt;
-}
-
-ProcessFilter MakeProcessFilter(const ptree& pt)
-{
-	ProcessFilter filter;
-	filter.enable = pt.get<bool>("Enable");
-	filter.text = pt.get<std::string>("Text");
-	filter.matchType = StringToMatchType(pt.get<std::string>("MatchType"));
-	filter.filterType = StringToFilterType(pt.get<std::string>("FilterType"));
-	filter.bgColor = MakeColor(pt.get_child("BackColor"));
-	filter.fgColor = MakeColor(pt.get_child("TextColor"));
-	return filter;
-}
-
-ptree MakePTree(const std::vector<ProcessFilter>& filters)
-{
-	ptree pt;
-	for (auto it = filters.begin(); it != filters.end(); ++it)
-		pt.add_child("ProcessFilter", MakePTree(*it));
-	return pt;
-}
-
-std::vector<ProcessFilter> MakeProcessFilters(const ptree& pt)
-{
-	std::vector<ProcessFilter> filters;
-	for (auto it = pt.begin(); it != pt.end(); ++it)
-	{
-		if (it->first == "ProcessFilter")
-			filters.push_back(MakeProcessFilter(it->second));
+		if (it->first == "MessageFilter" ||
+			it->first == "ProcessFilter" ||
+			it->first == "Filter")
+			filters.push_back(MakeFilter(it->second));
 	}
 	return filters;
 }
@@ -136,8 +95,8 @@ FilterData MakeFilterData(const ptree& pt)
 {
 	FilterData data;
 	data.name = pt.get<std::string>("Filter.Name");
-	data.filter.messageFilters = MakeMessageFilters(pt.get_child("Filter.MessageFilters"));
-	data.filter.processFilters = MakeProcessFilters(pt.get_child("Filter.ProcessFilters"));
+	data.filter.messageFilters = MakeFilters(pt.get_child("Filter.MessageFilters"));
+	data.filter.processFilters = MakeFilters(pt.get_child("Filter.ProcessFilters"));
 
 	return data;
 }

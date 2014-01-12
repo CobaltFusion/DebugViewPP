@@ -26,21 +26,27 @@ ItemType& GetGridItem(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
 	return dynamic_cast<ItemType&>(*grid.GetProperty(iItem, iSubItem));
 }
 
-template <typename Enum, size_t N>
-CPropertyListItem* CreateEnumTypeItem(const wchar_t* name, const Enum (&types)[N], Enum value)
+template <typename Enum>
+CPropertyListItem* CreateEnumTypeItem(const wchar_t* name, const Enum* types, size_t count, Enum value)
 {
-	const wchar_t* items[N + 1];
+	std::vector<const wchar_t*> items(count + 1);
 	int index = 0;
-	for (size_t i = 0; i < N; ++i)
+	for (size_t i = 0; i < count; ++i)
 	{
 		items[i] = EnumToWCharPtr(types[i]);
 		if (types[i] == value)
 			index = i;
 	}
-	items[N] = nullptr;
-	auto pItem = PropCreateList(name, items);
+	items[count] = nullptr;
+	auto pItem = PropCreateList(name, items.data());
 	pItem->SetValue(CComVariant(index));
 	return pItem;
+}
+
+template <typename Enum, size_t N>
+CPropertyListItem* CreateEnumTypeItem(const wchar_t* name, const Enum (&types)[N], Enum value)
+{
+	return CreateEnumTypeItem<Enum>(name, types, N, value);
 }
 
 } // namespace debugviewpp 

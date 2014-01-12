@@ -19,34 +19,19 @@
 namespace fusion {
 namespace debugviewpp {
 
-struct MessageFilter
-{
-	MessageFilter();
-	MessageFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, int matchCount = 0);
-
-	std::string text;
-	std::regex re;
-	MatchType::type matchType;
-	FilterType::type filterType;
-	COLORREF bgColor;
-	COLORREF fgColor;
-	bool enable;
-	int matchCount;
-};
-
-class CMessageFilterPage :
-	public CDialogImpl<CMessageFilterPage>,
-	public CDialogResize<CMessageFilterPage>
+class CFilterPage :
+	public CDialogImpl<CFilterPage>,
+	public CDialogResize<CFilterPage>
 {
 public:
-	explicit CMessageFilterPage(const std::vector<MessageFilter>& filters);
+	CFilterPage(const FilterType::type* filterTypes, size_t filterTypeCount);
 
-	std::vector<MessageFilter> GetFilters() const;
-	void SetFilters(const std::vector<MessageFilter>& filters);
+	std::vector<Filter> GetFilters() const;
+	void SetFilters(const std::vector<Filter>& filters);
 
 	enum { IDD = IDD_FILTER_PAGE };
 
-	BEGIN_DLGRESIZE_MAP(CMessageFilterPage)
+	BEGIN_DLGRESIZE_MAP(CFilterPage)
 		DLGRESIZE_CONTROL(IDC_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
@@ -57,7 +42,7 @@ public:
 	void OnDestroy();
 
 private:
-	void AddFilter(const MessageFilter& filter);
+	void AddFilter(const Filter& filter);
 	std::wstring GetFilterText(int iItem) const;
 	MatchType::type GetMatchType(int iItem) const;
 	FilterType::type GetFilterType(int iItem) const;
@@ -69,8 +54,10 @@ private:
 	LRESULT OnClickItem(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
 
+	const FilterType::type* m_filterTypes;
+	size_t m_filterTypeCount;
 	CPropertyGridCtrl m_grid;
-	std::vector<MessageFilter> m_filters;
+	std::vector<Filter> m_filters;
 };
 
 } // namespace debugviewpp 

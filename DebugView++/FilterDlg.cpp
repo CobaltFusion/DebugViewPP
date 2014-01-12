@@ -59,12 +59,35 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	CHAIN_MSG_MAP(CDialogResize<CFilterDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
+static const FilterType::type MessageFilterTypes[] =
+{
+	FilterType::Include,
+	FilterType::Exclude,
+	FilterType::Highlight,
+	FilterType::Token,
+	FilterType::Stop,
+	FilterType::Track,
+	FilterType::Once
+};
+
+static const FilterType::type ProcessFilterTypes[] =
+{
+	FilterType::Include,
+	FilterType::Exclude,
+	FilterType::Highlight,
+	FilterType::Stop,
+	FilterType::Track,
+	FilterType::Once
+};
+
 CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :
-	m_messagePage(filters.messageFilters),
-	m_processPage(filters.processFilters),
+	m_messagePage(MessageFilterTypes, array_size(MessageFilterTypes)),
+	m_processPage(ProcessFilterTypes, array_size(ProcessFilterTypes)),
 	m_name(name),
 	m_filter(filters)
 {
+	m_messagePage.SetFilters(filters.messageFilters);
+	m_processPage.SetFilters(filters.processFilters);
 }
 
 std::wstring CFilterDlg::GetName() const
@@ -216,8 +239,8 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 
 void CFilterDlg::OnClearAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	m_messagePage.SetFilters(std::vector<MessageFilter>());
-	m_processPage.SetFilters(std::vector<ProcessFilter>());
+	m_messagePage.SetFilters(std::vector<Filter>());
+	m_processPage.SetFilters(std::vector<Filter>());
 }
 
 void CFilterDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)

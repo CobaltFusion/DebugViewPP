@@ -153,14 +153,13 @@
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="MatchType.cpp" />
-    <ClCompile Include="MessageFilterPage.cpp" />
+    <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="PipeReader.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ProcessFilterPage.cpp" />
     <ClCompile Include="FilterType.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="Win32Lib.cpp" />
@@ -181,14 +180,13 @@
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="MatchType.h" />
-    <ClInclude Include="MessageFilterPage.h" />
+    <ClInclude Include="FilterPage.h" />
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="PipeReader.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="ProcessFilterPage.h" />
     <ClInclude Include="FilterType.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="version.h" />
