@@ -42,7 +42,7 @@ More examples
 
 To connect directly to a port or service, [plink] can be used:
 
-> plink -ssh -batch -v moria 2>&1 | debugview++
+> plink -ssh -batch -v 192.168.0.1 2>&1 | debugview++
 
 Notice that 2>&1 is used *before* the pipe (|) symbol to redirect stderr to stdout.
 
