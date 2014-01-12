@@ -37,7 +37,16 @@ Screenshot demonstrating bookmarks and highlighting features.
 
 Screenshot demonstrating connecting to ADB logcat (Android Debug Bridge)
 
+More examples
+-------------
 
+To connect directly to a port or service, [plink] can be used:
+
+> plink -ssh -batch -v moria 2>&1 | debugview++
+
+Notice that 2>&1 is used *before* the pipe (|) symbol to redirect stderr to stdout.
+
+[plink]: http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 
 Highlighted:
 ------------
