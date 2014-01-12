@@ -80,9 +80,16 @@ static const FilterType::type ProcessFilterTypes[] =
 	FilterType::Once
 };
 
+static const MatchType::type MatchTypes[] =
+{
+	MatchType::Simple,
+	MatchType::Wildcard,
+	MatchType::Regex
+};
+
 CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :
-	m_messagePage(MessageFilterTypes, array_size(MessageFilterTypes)),
-	m_processPage(ProcessFilterTypes, array_size(ProcessFilterTypes)),
+	m_messagePage(MessageFilterTypes, MatchTypes),
+	m_processPage(ProcessFilterTypes, MatchTypes),
 	m_name(name),
 	m_filter(filters)
 {

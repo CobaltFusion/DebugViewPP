@@ -12,16 +12,10 @@
 #include "FilterPage.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
-#include "FilterType.h"
+#include "Filter.h"
 
 namespace fusion {
 namespace debugviewpp {
-
-struct LogFilter
-{
-	std::vector<Filter> messageFilters;
-	std::vector<Filter> processFilters;
-};
 
 class CFilterDlg :
 	public CDialogImpl<CFilterDlg>,
