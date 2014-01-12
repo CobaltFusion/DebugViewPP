@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "FilterDlg.h"
+#include "Filter.h"
 
 namespace fusion {
 namespace debugviewpp {

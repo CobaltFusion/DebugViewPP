@@ -13,25 +13,24 @@
 #include "Grid.h"
 #include "Resource.h"
 #include "Utilities.h"
-#include "MatchType.h"
-#include "FilterType.h"
+#include "Filter.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-class CFilterPage :
-	public CDialogImpl<CFilterPage>,
-	public CDialogResize<CFilterPage>
+class CFilterPageImpl :
+	public CDialogImpl<CFilterPageImpl>,
+	public CDialogResize<CFilterPageImpl>
 {
 public:
-	CFilterPage(const FilterType::type* filterTypes, size_t filterTypeCount);
+	CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount);
 
 	std::vector<Filter> GetFilters() const;
 	void SetFilters(const std::vector<Filter>& filters);
 
 	enum { IDD = IDD_FILTER_PAGE };
 
-	BEGIN_DLGRESIZE_MAP(CFilterPage)
+	BEGIN_DLGRESIZE_MAP(CFilterPageImpl)
 		DLGRESIZE_CONTROL(IDC_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
@@ -56,8 +55,20 @@ private:
 
 	const FilterType::type* m_filterTypes;
 	size_t m_filterTypeCount;
+	const MatchType::type* m_matchTypes;
+	size_t m_matchTypeCount;
 	CPropertyGridCtrl m_grid;
 	std::vector<Filter> m_filters;
+};
+
+class CFilterPage : public CFilterPageImpl
+{
+public:
+	template <size_t FilterTypeCount, size_t MatchTypeCount>
+	CFilterPage(const FilterType::type (&filterTypes)[FilterTypeCount], const MatchType::type (&matchTypes)[MatchTypeCount]) :
+		CFilterPageImpl(filterTypes, FilterTypeCount, matchTypes, MatchTypeCount)
+	{
+	}
 };
 
 } // namespace debugviewpp 

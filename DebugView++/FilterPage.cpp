@@ -12,34 +12,28 @@
 namespace fusion {
 namespace debugviewpp {
 
-CFilterPage::CFilterPage(const FilterType::type* filterTypes, size_t filterTypeCount) :
-	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount)
+CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount) :
+	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount),
+	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount)
 {
 }
 
-BEGIN_MSG_MAP_TRY(CFilterPage)
+BEGIN_MSG_MAP_TRY(CFilterPageImpl)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
 	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_ITEMCHANGED, OnItemChanged)
 	REFLECT_NOTIFICATIONS()
-	CHAIN_MSG_MAP(CDialogResize<CFilterPage>)
+	CHAIN_MSG_MAP(CDialogResize<CFilterPageImpl>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-void CFilterPage::ExceptionHandler()
+void CFilterPageImpl::ExceptionHandler()
 {
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
-static const MatchType::type MatchTypes[] =
-{
-	MatchType::Simple,
-	MatchType::Wildcard,
-	MatchType::Regex
-};
-
-void CFilterPage::AddFilter(const Filter& filter)
+void CFilterPageImpl::AddFilter(const Filter& filter)
 {
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
 	pFilterProp->SetBkColor(filter.bgColor);
@@ -54,7 +48,7 @@ void CFilterPage::AddFilter(const Filter& filter)
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 1, pFilterProp);
-	m_grid.SetSubItem(item, 2, CreateEnumTypeItem(L"", MatchTypes, filter.matchType));
+	m_grid.SetSubItem(item, 2, CreateEnumTypeItem(L"", m_matchTypes, m_matchTypeCount, filter.matchType));
 	m_grid.SetSubItem(item, 3, CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType));
 	m_grid.SetSubItem(item, 4, pBkColor);
 	m_grid.SetSubItem(item, 5, pTxColor);
@@ -62,7 +56,7 @@ void CFilterPage::AddFilter(const Filter& filter)
 	m_grid.SelectItem(item);
 }
 
-BOOL CFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
+BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_GRID));
 	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
@@ -82,17 +76,17 @@ BOOL CFilterPage::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	return TRUE;
 }
 
-void CFilterPage::OnDestroy()
+void CFilterPageImpl::OnDestroy()
 {
 }
 
-LRESULT CFilterPage::OnAddItem(NMHDR* /*pnmh*/)
+LRESULT CFilterPageImpl::OnAddItem(NMHDR* /*pnmh*/)
 {
 	AddFilter(Filter());
 	return 0;
 }
 
-LRESULT CFilterPage::OnClickItem(NMHDR* pnmh)
+LRESULT CFilterPageImpl::OnClickItem(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
@@ -107,7 +101,7 @@ LRESULT CFilterPage::OnClickItem(NMHDR* pnmh)
 	return FALSE;
 }
 
-LRESULT CFilterPage::OnItemChanged(NMHDR* pnmh)
+LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
@@ -143,47 +137,47 @@ LRESULT CFilterPage::OnItemChanged(NMHDR* pnmh)
 	return 0;
 }
 
-bool CFilterPage::GetFilterEnable(int iItem) const
+bool CFilterPageImpl::GetFilterEnable(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 0).GetValue(&val);
 	return val.boolVal != VARIANT_FALSE;
 }
 
-std::wstring CFilterPage::GetFilterText(int iItem) const
+std::wstring CFilterPageImpl::GetFilterText(int iItem) const
 {
 	return GetGridItemText(m_grid, iItem, 1);
 }
 
-MatchType::type CFilterPage::GetMatchType(int iItem) const
+MatchType::type CFilterPageImpl::GetMatchType(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyListItem>(m_grid, iItem, 2).GetValue(&val);
-	return MatchTypes[val.lVal];
+	return m_matchTypes[val.lVal];
 }
 
-FilterType::type CFilterPage::GetFilterType(int iItem) const
+FilterType::type CFilterPageImpl::GetFilterType(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyListItem>(m_grid, iItem, 3).GetValue(&val);
 	return m_filterTypes[val.lVal];
 }
 
-COLORREF CFilterPage::GetFilterBgColor(int iItem) const
+COLORREF CFilterPageImpl::GetFilterBgColor(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyColorItem>(m_grid, iItem, 4).GetValue(&val);
 	return val.lVal;
 }
 
-COLORREF CFilterPage::GetFilterFgColor(int iItem) const
+COLORREF CFilterPageImpl::GetFilterFgColor(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyColorItem>(m_grid, iItem, 5).GetValue(&val);
 	return val.lVal;
 }
 
-std::vector<Filter> CFilterPage::GetFilters() const
+std::vector<Filter> CFilterPageImpl::GetFilters() const
 {
 	std::vector<Filter> filters;
 	int n = m_grid.GetItemCount();
@@ -195,7 +189,7 @@ std::vector<Filter> CFilterPage::GetFilters() const
 	return filters;
 }
 
-void CFilterPage::SetFilters(const std::vector<Filter>& filters)
+void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 {
 	m_grid.DeleteAllItems();
 	for (auto it = filters.begin(); it != filters.end(); ++it)
