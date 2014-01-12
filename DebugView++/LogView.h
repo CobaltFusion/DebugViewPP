@@ -108,7 +108,7 @@ struct Column
 };
 
 class CLogView :
-	public CWindowImpl<CLogView, CListViewCtrl, 
+	public CWindowImpl<CLogView, CListViewCtrl,
 		CWinTraitsOR<
 			LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
 			LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
@@ -245,11 +245,8 @@ private:
 	bool Find(const std::string& text, int direction);
 	bool FindProcess(int direction);
 	void ApplyFilters();
-	bool IsMessageIncluded(const std::string& msg);
-	bool IsProcessIncluded(const std::string& msg);
 	bool IsIncluded(const Message& msg);
-	bool IsStop(const Message& msg) const;
-	bool IsTrack(const Message& msg) const;
+	bool MatchFilterType(FilterType::type type, const Message& msg) const;
 	TextColor GetTextColor(const Message& msg) const;
 	void ResetFilters();
 

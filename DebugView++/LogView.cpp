@@ -1219,7 +1219,7 @@ void CLogView::Add(int line, const Message& msg)
 	int viewline = m_logLines.size();
 
 	m_logLines.push_back(LogLine(line));
-	if (m_autoScrollDown && IsStop(msg))
+	if (m_autoScrollDown && MatchFilterType(FilterType::Stop, msg))
 	{
 		m_stop = [this, viewline] ()
 		{
@@ -1229,7 +1229,7 @@ void CLogView::Add(int line, const Message& msg)
 		return;
 	}
 
-	if (IsTrack(msg))
+	if (MatchFilterType(FilterType::Track, msg))
 	{
 //		printf("found: trackitem at line: %d, %s\n", viewline + 1, msg.text);
 		m_autoScrollDown = false;
@@ -1700,126 +1700,18 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 	return TextColor(GetSysColor(COLOR_WINDOW), GetSysColor(COLOR_WINDOWTEXT));
 }
 
-bool CLogView::IsMessageIncluded(const std::string& message)
-{
-	bool included = false;
-	bool includeFilterPresent = false;
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-		if (it->filterType == FilterType::Include)
-		{
-			includeFilterPresent = true;
-			included |= std::regex_search(message, it->re);
-		}
-	}
-
-	if (!includeFilterPresent) 
-		included = true;
-
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-		if (it->filterType == FilterType::Exclude && std::regex_search(message, it->re))
-			return false;
-	}
-
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-		if (it->filterType == FilterType::Once && std::regex_search(message, it->re))
-			return ++it->matchCount == 1;
-	}
-	return included;
-}
-
-bool CLogView::IsProcessIncluded(const std::string& process)
-{
-	bool included = false;
-	bool includeFilterPresent = false;
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-		if (it->filterType == FilterType::Include)
-		{
-			includeFilterPresent = true;
-			included |= std::regex_search(process, it->re);
-		}
-	}
-
-	if (!includeFilterPresent) 
-		included = true;
-
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-		if (it->filterType == FilterType::Exclude && std::regex_search(process, it->re))
-			return false;
-	}
-
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-		if (it->filterType == FilterType::Once && std::regex_search(process, it->re))
-			return ++it->matchCount == 1;
-	}
-	return included;
-}
-
 bool CLogView::IsIncluded(const Message& msg)
 {
-	return IsMessageIncluded(msg.text) && IsProcessIncluded(msg.processName);
+	using debugviewpp::IsIncluded;
+	return IsIncluded(m_filter.processFilters, msg.processName) && IsIncluded(m_filter.messageFilters, msg.text);
 }
 
-bool CLogView::IsStop(const Message& msg) const
+bool CLogView::MatchFilterType(FilterType::type type, const Message& msg) const
 {
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-
-		if (it->filterType == FilterType::Stop && std::regex_search(msg.text, it->re))
-			return true;
-	}
-
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-
-		if (it->filterType == FilterType::Stop && std::regex_search(msg.processName, it->re))
-			return true;
-	}
-
-	return false;
-}
-
-bool CLogView::IsTrack(const Message& msg) const
-{
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-
-		if (it->filterType == FilterType::Track && std::regex_search(msg.text, it->re))
-			return true;
-	}
-
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
-	{
-		if (!it->enable)
-			continue;
-
-		if (it->filterType == FilterType::Track && std::regex_search(msg.processName, it->re))
-			return true;
-	}
-	return false;
+	using debugviewpp::MatchFilterType;
+	return
+		MatchFilterType(m_filter.messageFilters, type, msg.text) ||
+		MatchFilterType(m_filter.processFilters, type, msg.processName);
 }
 
 } // namespace debugviewpp 

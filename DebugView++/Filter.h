@@ -37,5 +37,9 @@ struct LogFilter
 	std::vector<Filter> processFilters;
 };
 
+bool IsIncluded(std::vector<Filter>& filters, const std::string& message);
+
+bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
+
 } // namespace debugviewpp 
 } // namespace fusion

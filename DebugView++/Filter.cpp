@@ -25,5 +25,47 @@ Filter::Filter(const std::string& text, MatchType::type matchType, FilterType::t
 {
 }
 
+bool IsIncluded(std::vector<Filter>& filters, const std::string& text)
+{
+	bool included = false;
+	bool includeFilterPresent = false;
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+	{
+		if (it->enable && it->filterType == FilterType::Include)
+		{
+			includeFilterPresent = true;
+			included |= std::regex_search(text, it->re);
+		}
+	}
+
+	if (!includeFilterPresent) 
+		included = true;
+
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+	{
+		if (it->enable && it->filterType == FilterType::Exclude && std::regex_search(text, it->re))
+			return false;
+	}
+
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+	{
+		if (it->enable && it->filterType == FilterType::Once && std::regex_search(text, it->re))
+			return ++it->matchCount == 1;
+	}
+
+	return included;
+}
+
+bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text)
+{
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+	{
+		if (it->enable && it->filterType == type && std::regex_search(text, it->re))
+			return true;
+	}
+
+	return false;
+}
+
 } // namespace debugviewpp 
 } // namespace fusion
