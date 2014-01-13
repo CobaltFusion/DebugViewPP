@@ -402,7 +402,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	{
 		std::vector<wchar_t> fileName(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
 		if (DragQueryFile(hDropInfo, 0, fileName.data(), fileName.size()))
-			Load(fileName.data());
+			Load(std::wstring(fileName.data()));
 	}
 }
 

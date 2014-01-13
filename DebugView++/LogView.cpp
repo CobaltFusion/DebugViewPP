@@ -53,6 +53,7 @@ ItemData::ItemData() :
 
 BEGIN_MSG_MAP_TRY(CLogView)
 	MSG_WM_CREATE(OnCreate)
+	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
@@ -262,6 +263,12 @@ int CLogView::TextHighlightHitTest(int iItem, const POINT& pt)
 	if (it != highlights.end() && it->begin <= pos)
 		return it->id;
 	return 0;
+}
+
+void CLogView::OnDropFiles(HDROP hDropInfo)
+{
+	// Need to maunally forward to CMainFrame, don't understand why
+	m_mainFrame.OnDropFiles(hDropInfo);
 }
 
 void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)

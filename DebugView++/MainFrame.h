@@ -83,6 +83,7 @@ public:
 	void CapturePipe(HANDLE hPipe);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
+	void OnDropFiles(HDROP hDropInfo);
 
 private:
 	enum
@@ -129,7 +130,6 @@ private:
 	LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
 	LRESULT OnScRestore(UINT, INT, HWND);
 	LRESULT OnScClose(UINT, INT, HWND);
-	void OnDropFiles(HDROP hDropInfo);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);

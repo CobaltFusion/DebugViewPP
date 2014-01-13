@@ -178,6 +178,7 @@ public:
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
+	void OnDropFiles(HDROP hDropInfo);
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	void OnMouseMove(UINT flags, CPoint point);
 	void OnLButtonUp(UINT nFlags, CPoint point);
