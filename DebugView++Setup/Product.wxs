@@ -1,51 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <?include $(var.SolutionDir)\DebugView++\version.wxi ?>
-    <Product Id="*" Name="DebugView++ $(var.ProductVersion.Major).$(var.ProductVersion.Minor)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Cobalt Fusion" UpgradeCode="523333bf-842d-442f-94c2-ae6caad5f714">
-        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-        <Media Id="1" Cabinet="DebugViewPP.cab" EmbedCab="yes" DiskPrompt="Media" />
-        <Property Id="DiskPrompt" Value="Cobalt Fusion DebugView++ Installation" />
-        <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="ProgramFilesFolder">
-                <Directory Id="INSTALLFOLDER" Name="DebugView++">
-                    <Component Id="MainExecutable" Guid="b08d6606-883f-4661-813c-1ecbed9b65de">
-                        <File Id="DebugViewPPEXE" Name="DebugView++.exe" Source="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" KeyPath="yes">
-                            <Shortcut Id="StartMenuDebugViewPP" Directory="ProgramMenuDir" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewpp.ico" IconIndex="0" Advertise="yes" />
-                            <Shortcut Id="DesktopDebugViewPP" Directory="DesktopFolder" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewpp.ico" IconIndex="0" Advertise="yes" />
-                        </File>
-                    </Component>
-                </Directory>
-            </Directory>
-            <Directory Id="ProgramMenuFolder" Name="Programs">
-                <Directory Id="ProgramMenuDir" Name="DebugView++">
-                    <Component Id="ProgramMenuDir" Guid="fac89b2e-d1e8-414c-a064-4bfdc99a39e7">
-                        <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
-                        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="uninstall" KeyPath="yes" />
-                    </Component>
-                </Directory>
-            </Directory>
-            <Directory Id="DesktopFolder" Name="Desktop" />
-            <Directory Id="PersonalFolder" Name="PersonalFolder">
-                <Directory Id="FILTERS" Name="DebugView++ Filters">
-                    <Component Id="SYSTEMNOISEFILTER.XML" DiskId="1" Guid="EBD4B38A-5A32-4B7A-92F8-E615823E7112">
-                        <RemoveFolder Id="FILTERS" On="uninstall" />
-                        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="filters" KeyPath="yes" />
-                        <File Id="SYSTEMNOISEFILTER.XML" Name="SystemNoiseFilter.xml" Source="$(var.SolutionDir)\DebugView++\Filters\SystemNoiseFilter.xml" />
-                    </Component>
-                </Directory>
-            </Directory>            
-        </Directory>
-        <Feature Id="FeatureMainExecutable" Title="DebugView++ Executable" Level="1">
-            <ComponentRef Id="MainExecutable" />
-        </Feature>
-        <Feature Id="FeatureProgramMenuDir" Title="Add to Start menu" Level="1">
-            <ComponentRef Id="ProgramMenuDir" />
-        </Feature>
-        <Feature Id="FeatureDebugviewppFilters" Title="XML Filters" Level="1">
-            <ComponentRef Id="SYSTEMNOISEFILTER.XML" />
-        </Feature>
-        <Property Id="ARPPRODUCTICON" Value="DebugViewpp.ico" />
-        <UI />
-      <Icon Id="DebugViewpp.ico" SourceFile="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" />
-    </Product>
+  <?include $(var.SolutionDir)\DebugView++\version.wxi ?>
+  <Product Id="*" Name="DebugView++ $(var.ProductVersion.Major).$(var.ProductVersion.Minor)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Cobalt Fusion" UpgradeCode="523333bf-842d-442f-94c2-ae6caad5f714">
+      <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+      <Media Id="1" Cabinet="DebugViewPP.cab" EmbedCab="yes" DiskPrompt="Media" />
+      <Property Id="DiskPrompt" Value="Cobalt Fusion DebugView++ Installation" />
+      <Directory Id="TARGETDIR" Name="SourceDir">
+          <Directory Id="ProgramFilesFolder">
+              <Directory Id="INSTALLFOLDER" Name="DebugView++">
+                  <Component Id="MainExecutable" Guid="b08d6606-883f-4661-813c-1ecbed9b65de">
+                      <File Id="DebugViewPPEXE" Name="DebugView++.exe" Source="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" KeyPath="yes">
+                        <Shortcut Id="StartMenuDebugViewPP" Directory="ProgramMenuDir" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewpp.ico" IconIndex="0" Advertise="yes" />
+                        <Shortcut Id="DesktopDebugViewPP" Directory="DesktopFolder" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewpp.ico" IconIndex="0" Advertise="yes" />
+                      </File>
+                      <ProgId Id="CobaltFusion.DebugViewPP" Description="DebugView++ Log Type">
+                        <Extension Id="dblog" ContentType="CobaltFusion/dblog">
+                          <Verb Id="open" Command="open" TargetFile="DebugViewPPEXE" Argument="'%1'"/>
+                        </Extension>
+                      </ProgId>
+                  </Component>
+              </Directory>
+          </Directory>
+          <Directory Id="ProgramMenuFolder" Name="Programs">
+              <Directory Id="ProgramMenuDir" Name="DebugView++">
+                  <Component Id="ProgramMenuDir" Guid="fac89b2e-d1e8-414c-a064-4bfdc99a39e7">
+                      <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+                      <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="uninstall" KeyPath="yes" />
+                  </Component>
+              </Directory>
+          </Directory>
+          <Directory Id="DesktopFolder" Name="Desktop" />
+          <Directory Id="PersonalFolder" Name="PersonalFolder">
+              <Directory Id="FILTERS" Name="DebugView++ Filters">
+                  <Component Id="SYSTEMNOISEFILTER.XML" DiskId="1" Guid="EBD4B38A-5A32-4B7A-92F8-E615823E7112">
+                      <RemoveFolder Id="FILTERS" On="uninstall" />
+                      <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="filters" KeyPath="yes" />
+                      <File Id="SYSTEMNOISEFILTER.XML" Name="SystemNoiseFilter.xml" Source="$(var.SolutionDir)\DebugView++\Filters\SystemNoiseFilter.xml" />
+                  </Component>
+              </Directory>
+          </Directory>            
+      </Directory>
+      <Feature Id="FeatureMainExecutable" Title="DebugView++ Executable" Level="1">
+          <ComponentRef Id="MainExecutable" />
+      </Feature>
+      <Feature Id="FeatureProgramMenuDir" Title="Add to Start menu" Level="1">
+          <ComponentRef Id="ProgramMenuDir" />
+      </Feature>
+      <Feature Id="FeatureDebugviewppFilters" Title="XML Filters" Level="1">
+          <ComponentRef Id="SYSTEMNOISEFILTER.XML" />
+      </Feature>
+      <Property Id="ARPPRODUCTICON" Value="DebugViewpp.ico" />
+      <UI />
+    <Icon Id="DebugViewpp.ico" SourceFile="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" />
+  </Product>
 </Wix>

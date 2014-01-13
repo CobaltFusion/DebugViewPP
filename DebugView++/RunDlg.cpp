@@ -44,7 +44,7 @@ void CRunDlg::OnBrowse(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		L"All Files\0*.*\0"
 		L"\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Select Excutable File";
+	dlg.m_ofn.lpstrTitle = L"Select Executable File";
 
 	if (dlg.DoModal() != IDOK)
 		return;

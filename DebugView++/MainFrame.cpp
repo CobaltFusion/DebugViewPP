@@ -792,10 +792,10 @@ FILETIME MakeFileTime(uint64_t t)
 
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.log";
-	CFileDialog dlg(true, L".txt", fileName.c_str(), OFN_FILEMUSTEXIST, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
+	CFileDialog dlg(true, L".dblog", fileName.c_str(), OFN_FILEMUSTEXIST, L"DebugView++ Log Files (*.dblog)\0*.dblog\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Load DebugView log";
+	dlg.m_ofn.lpstrTitle = L"Load DebugView++ log";
 	if (dlg.DoModal() == IDOK)
 		Load(std::wstring(dlg.m_szFileName));
 }
@@ -859,10 +859,10 @@ void CMainFrame::CapturePipe(HANDLE hPipe)
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.log";
-	CFileDialog dlg(false, L".log", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
+	CFileDialog dlg(false, L".dblog", fileName.c_str(), OFN_OVERWRITEPROMPT, L"DebugView++ Log Files (*.dblog)\0*.dblog\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Save DebugView log";
+	dlg.m_ofn.lpstrTitle = L"Save DebugView++ Log";
 	if (dlg.DoModal() == IDOK)
 		SaveLogFile(dlg.m_szFileName);
 }
