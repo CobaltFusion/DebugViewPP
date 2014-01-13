@@ -496,6 +496,8 @@ bool CMainFrame::LoadSettings()
 	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
+		LOGFONT lf = {0};
+		m_logfont = lf;
 		std::copy(fontName.begin(), fontName.end(), m_logfont.lfFaceName);
 		m_logfont.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
 		SetLogFont();
