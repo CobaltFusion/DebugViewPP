@@ -10,6 +10,7 @@
 #include <boost/utility.hpp>
 #include "dbgstream.h"
 #include "hstream.h"
+#include "Process.h"
 #include "Utilities.h"
 #include "Resource.h"
 #include "RunDlg.h"
@@ -367,21 +368,23 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	if (m_pGlobalReader)
 		globalLines = m_pGlobalReader->GetLines();
 
-	Lines pipeLines;
-	if (m_pPipeReader)
-		pipeLines = m_pPipeReader->GetLines();
-
 	Lines lines;
 	lines.reserve(localLines.size() + globalLines.size());
 	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
 	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), pred);
-	if (pipeLines.empty())
+	if (m_pPipeReaders.empty())
 		return ProcessLines(lines);
 
-	Lines lines2;
-	lines2.reserve(lines.size() + pipeLines.size());
-	std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
-	ProcessLines(lines2);
+	for (auto it = m_pPipeReaders.begin(); it != m_pPipeReaders.end(); ++it)
+	{
+		Lines pipeLines((*it)->GetLines());
+		Lines lines2;
+		lines2.reserve(lines.size() + pipeLines.size());
+		std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
+		lines.swap(lines2);
+	}
+
+	ProcessLines(lines);
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -793,7 +796,11 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	CRunDlg dlg;
-	dlg.DoModal();
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	m_pProcesses.push_back(make_unique<Process>(dlg.GetPathName(), dlg.GetArguments()));
+	m_pPipeReaders.push_back(make_unique<PipeReader>(m_pProcesses.back()->GetStdOut()));
 }
 
 void CMainFrame::Load(const std::wstring& fileName)
@@ -841,7 +848,7 @@ void CMainFrame::Load(std::istream& file)
 
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
-	m_pPipeReader = make_unique<PipeReader>(hPipe);
+	m_pPipeReaders.push_back(make_unique<PipeReader>(hPipe));
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
