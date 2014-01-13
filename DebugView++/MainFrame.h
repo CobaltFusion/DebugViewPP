@@ -16,6 +16,7 @@ namespace WTL { using ATL::CString; };
 #include "DotNetTabCtrl.h"
 #include "TabbedFrame.h"
 
+#include "Process.h"
 #include "Utilities.h"
 //#include "GuiThread.h"
 #include "FindDlg.h"
@@ -171,7 +172,8 @@ private:
 	bool m_tryGlobal;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
-	std::unique_ptr<PipeReader> m_pPipeReader;
+	std::vector<std::unique_ptr<Process>> m_pProcesses;
+	std::vector<std::unique_ptr<PipeReader>> m_pPipeReaders;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
 	size_t m_initialPrivateBytes;

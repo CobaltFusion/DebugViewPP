@@ -56,7 +56,20 @@ void CRunDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CRunDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
+	m_pathName = fusion::GetDlgItemText(*this, IDC_RUN);
+	m_arguments = fusion::GetDlgItemText(*this, IDC_ARGUMENTS);
+
 	EndDialog(nID);
+}
+
+std::wstring CRunDlg::GetPathName() const
+{
+	return m_pathName;
+}
+
+std::wstring CRunDlg::GetArguments() const
+{
+	return m_arguments;
 }
 
 } // namespace debugviewpp 
