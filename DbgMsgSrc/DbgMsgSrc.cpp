@@ -164,6 +164,20 @@ void SeparateProcessTest()
 	}
 }
 
+void CoutCerrTest()
+{
+    std::cout << "Message on cout 1\n";
+    std::cout << "Message on cout 2\n";
+    std::cerr << "Message on cerr 1\n";
+    std::cerr << "Message on cerr 2\n";
+    std::cout << "Message on cout 3\n";
+    std::cerr << "Message on cerr 3\n";
+    std::cout << "Message on cout 4\n";
+    std::cerr << "Message on cerr 4\n";
+    std::cout << "Message on cout 5\n";
+    std::cerr << "Message on cerr 5\n";
+}
+
 void PrintUsage()
 {
 	std::cout <<
@@ -180,8 +194,9 @@ void PrintUsage()
 		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
 		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
 		"  -7 DbgMsgTest, sends 5 different test lines, using different newlines styles\n"
-		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n";
-		"  -9 DBGVIEWCLEAR test\n";
+		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
+		"  -9 DBGVIEWCLEAR test\n"
+		"  -A cout/cerr test\n";
 }
 
 int main(int argc, char* argv[])
@@ -286,6 +301,11 @@ int main(int argc, char* argv[])
 		else if (arg == "-9")
 		{
 			DbgMsgClearTest();
+			return 0;
+		}
+		else if (arg == "-A")
+		{
+			CoutCerrTest();
 			return 0;
 		}
 		else

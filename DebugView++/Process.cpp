@@ -37,7 +37,7 @@ Process::Process(const std::wstring& pathName, const std::wstring& args)
 
 void Process::Run(const std::wstring& pathName, const std::wstring& args)
 {
-	m_name = boost::filesystem::wpath(pathName).filename().wstring();
+	m_name = boost::filesystem::wpath(pathName).filename().c_str();
 
 	std::wstring commandLine;
 	commandLine += L"\"";
