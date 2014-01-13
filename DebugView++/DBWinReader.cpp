@@ -189,6 +189,8 @@ Lines DBWinReader::ProcessLine(const Line& line)
 void DBWinReader::AddCache(HANDLE handle)
 {
 	//todo: do not store multiple handles to the same process
+	// this can be done by comparing the PID, because while a handle 
+	// to a process with the same PID is still stored, the PID is still unique!
 	m_handleCache.push_back(std::move(Handle(handle)));
 }
 
