@@ -3,12 +3,13 @@ Cobalt Fusion presents:
 DebugView++
 ----------
 
-DebugView++ is a viewer for Win32 OutputDebugString based logging in the style of
+DebugView++ is a viewer for, amoung others, Win32 OutputDebugString based logging in the style of
 Sysinternals DebugView. DebugView++ features:
 
 - single selfcontaining executable, setup is provided but not required
 - runs without prerequisites on WinXPSP3, Vista and 7/8.x
 - capture both Win32 and Global Win32 messages
+- capture stdin piped messages, allows you to connect any kind of logging
 - tabbed views
 - resolve PID to process name
 - filter by process or message
@@ -16,7 +17,7 @@ Sysinternals DebugView. DebugView++ features:
 - line and token highlighting (create your own syntax highlighting)
 - minimal delay of the traced application, compared to debugview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
-- SAIT (search-as-I-type) token highlighting
+- SAIT (search-as-I-type) + token highlighting
 - bookmarks
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
