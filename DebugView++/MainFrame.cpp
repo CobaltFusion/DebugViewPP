@@ -800,7 +800,8 @@ void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 		return;
 
 	m_pProcesses.push_back(make_unique<Process>(dlg.GetPathName(), dlg.GetArguments()));
-	m_pPipeReaders.push_back(make_unique<PipeReader>(m_pProcesses.back()->GetStdOut()));
+	auto& process = *m_pProcesses.back();
+	m_pPipeReaders.push_back(make_unique<PipeReader>(process.GetStdOut(), process.GetProcessId(), Str(process.GetName()).str()));
 }
 
 void CMainFrame::Load(const std::wstring& fileName)
@@ -848,7 +849,8 @@ void CMainFrame::Load(std::istream& file)
 
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
-	m_pPipeReaders.push_back(make_unique<PipeReader>(hPipe));
+	DWORD pid = GetParentProcessId();
+	m_pPipeReaders.push_back(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessName(pid)).str()));
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

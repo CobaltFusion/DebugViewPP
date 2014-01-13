@@ -18,7 +18,7 @@ namespace debugviewpp {
 class PipeReader : boost::noncopyable
 {
 public:
-	explicit PipeReader(HANDLE hPipe);
+	PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName);
 
 	Lines GetLines();
 

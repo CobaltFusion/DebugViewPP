@@ -12,10 +12,10 @@
 namespace fusion {
 namespace debugviewpp {
 
-PipeReader::PipeReader(HANDLE hPipe) :
+PipeReader::PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName) :
 	m_hPipe(hPipe),
-	m_pid(GetParentProcessId()),
-	m_process(Str(ProcessInfo::GetProcessName(m_pid)).str())
+	m_pid(pid),
+	m_process(processName)
 {
 }
 
