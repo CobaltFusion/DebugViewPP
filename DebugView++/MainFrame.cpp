@@ -12,6 +12,7 @@
 #include "hstream.h"
 #include "Utilities.h"
 #include "Resource.h"
+#include "RunDlg.h"
 #include "FilterDlg.h"
 #include "AboutDlg.h"
 #include "LogView.h"
@@ -46,6 +47,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
 	COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
+	COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
@@ -784,6 +786,12 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	dlg.m_ofn.lpstrTitle = L"Load DebugView log";
 	if (dlg.DoModal() == IDOK)
 		Load(std::wstring(dlg.m_szFileName));
+}
+
+void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CRunDlg dlg;
+	dlg.DoModal();
 }
 
 void CMainFrame::Load(const std::wstring& fileName)

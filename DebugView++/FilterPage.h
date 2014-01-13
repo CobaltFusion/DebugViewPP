@@ -48,6 +48,7 @@ private:
 	COLORREF GetFilterBgColor(int iItem) const;
 	COLORREF GetFilterFgColor(int iItem) const;
 	bool GetFilterEnable(int iItem) const;
+	void UpdateGrid();
 
 	LRESULT OnAddItem(NMHDR* pnmh);
 	LRESULT OnClickItem(NMHDR* pnmh);

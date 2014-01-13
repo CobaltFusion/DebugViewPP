@@ -68,11 +68,8 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.InsertColumn(6, L"", LVCFMT_LEFT, 16, 0);
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT | PGS_EX_ADDITEMATEND);
 
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
-		AddFilter(*it);
-
+	UpdateGrid();
 	DlgResize_Init(false);
-
 	return TRUE;
 }
 
@@ -191,8 +188,13 @@ std::vector<Filter> CFilterPageImpl::GetFilters() const
 
 void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 {
+	m_filters = filters;
+}
+
+void CFilterPageImpl::UpdateGrid()
+{
 	m_grid.DeleteAllItems();
-	for (auto it = filters.begin(); it != filters.end(); ++it)
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 		AddFilter(*it);
 }
 

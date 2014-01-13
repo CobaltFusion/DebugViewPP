@@ -157,7 +157,9 @@
     <ClCompile Include="MatchType.cpp" />
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="PipeReader.cpp" />
+    <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
+    <ClCompile Include="RunDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -178,6 +180,7 @@
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="GuiThread.h" />
+    <ClInclude Include="hstream.h" />
     <ClInclude Include="IndexedStorage.h" />
     <ClInclude Include="LogFilter.h" />
     <ClInclude Include="LogView.h" />
@@ -187,9 +190,11 @@
     <ClInclude Include="FilterPage.h" />
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="PipeReader.h" />
+    <ClInclude Include="Process.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RunDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="FilterType.h" />
     <ClInclude Include="Utilities.h" />

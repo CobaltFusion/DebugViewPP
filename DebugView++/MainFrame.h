@@ -135,6 +135,7 @@ private:
 	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
