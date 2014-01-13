@@ -30,6 +30,11 @@ Line PipeReader::MakeLine(const std::string& text) const
 	return line;
 }
 
+bool PipeReader::AtEnd() const
+{
+	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
+}
+
 Lines PipeReader::GetLines()
 {
 	Lines lines;

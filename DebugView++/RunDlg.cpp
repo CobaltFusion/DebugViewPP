@@ -28,6 +28,9 @@ void CRunDlg::ExceptionHandler()
 
 BOOL CRunDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
+	SetDlgItemText(IDC_RUN, m_pathName.c_str());
+	SetDlgItemText(IDC_ARGUMENTS, m_arguments.c_str());
+
 	CenterWindow(GetParent());
 	DlgResize_Init();
 

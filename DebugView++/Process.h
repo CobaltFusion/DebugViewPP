@@ -21,6 +21,7 @@ public:
 	std::wstring GetName() const;
 	HANDLE GetStdIn() const;
 	HANDLE GetStdOut() const;
+	HANDLE GetStdErr() const;
 	HANDLE GetProcessHandle() const;
 	HANDLE GetThreadHandle() const;
 	unsigned GetProcessId() const;
@@ -35,6 +36,7 @@ private:
 	std::wstring m_name;
 	CHandle m_stdIn;
 	CHandle m_stdOut;
+	CHandle m_stdErr;
 	CHandle m_hProcess;
 	CHandle m_hThread;
 	unsigned m_processId;

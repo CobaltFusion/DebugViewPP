@@ -7,32 +7,24 @@
 
 #pragma once
 
-#include <boost/utility.hpp>
-#include "Win32Lib.h"
-#include "LogSource.h"
-#include "Utilities.h"
+#include "PipeReader.h"
+#include "Process.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-class PipeReader :
-	boost::noncopyable,
-	public LogSource
+class ProcessReader : public LogSource
 {
 public:
-	PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName);
+	ProcessReader(const std::wstring& pathName, const std::wstring& args);
 
 	virtual bool AtEnd() const;
 	virtual Lines GetLines();
 
 private:
-	Line MakeLine(const std::string& text) const;
-
-	HANDLE m_hPipe;
-	DWORD m_pid;
-	std::string m_process;
-	Timer m_timer;
-	std::string m_buffer;
+	Process m_process;
+	PipeReader m_stdout;
+	PipeReader m_stderr;
 };
 
 } // namespace debugviewpp 

@@ -71,6 +71,14 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	if (!SetHandleInformation(stdOutRd, HANDLE_FLAG_INHERIT, 0))
 		ThrowLastError("SetHandleInformation");
 
+	HANDLE stdErrRd, stdErrWr;
+	if (!CreatePipe(&stdErrRd, &stdErrWr, &saAttr, 0))
+		ThrowLastError("CreatePipe");
+	CHandle stdErrWr2(stdErrWr);
+	m_stdErr.Attach(stdErrRd);
+	if (!SetHandleInformation(stdErrRd, HANDLE_FLAG_INHERIT, 0))
+		ThrowLastError("SetHandleInformation");
+
 	STARTUPINFO startupInfo;
 	startupInfo.cb = sizeof(startupInfo);
 	startupInfo.lpReserved = nullptr;
@@ -88,8 +96,8 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	startupInfo.cbReserved2 = 0;
 	startupInfo.lpReserved2 = nullptr;
 	startupInfo.hStdInput = stdInRd2;
-	startupInfo.hStdOutput = 
-	startupInfo.hStdError = stdOutWr2;
+	startupInfo.hStdOutput = stdOutWr2;
+	startupInfo.hStdError = stdErrWr2;
 
 	PROCESS_INFORMATION processInformation;
 
@@ -125,6 +133,11 @@ HANDLE Process::GetStdIn() const
 HANDLE Process::GetStdOut() const
 {
 	return m_stdOut;
+}
+
+HANDLE Process::GetStdErr() const
+{
+	return m_stdErr;
 }
 
 HANDLE Process::GetProcessHandle() const

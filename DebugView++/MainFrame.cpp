@@ -11,6 +11,8 @@
 #include "dbgstream.h"
 #include "hstream.h"
 #include "Process.h"
+#include "PipeReader.h"
+#include "ProcessReader.h"
 #include "Utilities.h"
 #include "Resource.h"
 #include "RunDlg.h"
@@ -372,16 +374,21 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	lines.reserve(localLines.size() + globalLines.size());
 	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
 	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), pred);
-	if (m_pPipeReaders.empty())
+	if (m_pSources.empty())
 		return ProcessLines(lines);
 
-	for (auto it = m_pPipeReaders.begin(); it != m_pPipeReaders.end(); ++it)
+	for (auto it = m_pSources.begin(); it != m_pSources.end(); )
 	{
 		Lines pipeLines((*it)->GetLines());
 		Lines lines2;
 		lines2.reserve(lines.size() + pipeLines.size());
 		std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
 		lines.swap(lines2);
+
+		if ((*it)->AtEnd())
+			it = m_pSources.erase(it);
+		else
+			++it;
 	}
 
 	ProcessLines(lines);
@@ -795,13 +802,10 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CRunDlg dlg;
-	if (dlg.DoModal() != IDOK)
+	if (m_runDlg.DoModal() != IDOK)
 		return;
 
-	m_pProcesses.push_back(make_unique<Process>(dlg.GetPathName(), dlg.GetArguments()));
-	auto& process = *m_pProcesses.back();
-	m_pPipeReaders.push_back(make_unique<PipeReader>(process.GetStdOut(), process.GetProcessId(), Str(process.GetName()).str()));
+	m_pSources.push_back(make_unique<ProcessReader>(m_runDlg.GetPathName(), m_runDlg.GetArguments()));
 }
 
 void CMainFrame::Load(const std::wstring& fileName)
@@ -850,7 +854,7 @@ void CMainFrame::Load(std::istream& file)
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
 	DWORD pid = GetParentProcessId();
-	m_pPipeReaders.push_back(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessName(pid)).str()));
+	m_pSources.push_back(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessName(pid)).str()));
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

@@ -20,10 +20,11 @@ namespace WTL { using ATL::CString; };
 #include "Utilities.h"
 //#include "GuiThread.h"
 #include "FindDlg.h"
+#include "RunDlg.h"
 #include "LogFile.h"
 #include "LogView.h"
 #include "DBWinReader.h"
-#include "PipeReader.h"
+#include "LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -158,7 +159,6 @@ private:
 	void SetTitle(const std::wstring& title = L"");
 
 	CCommandBarCtrl m_cmdBar;
-	CEdit m_findBox;
 	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
 	double m_timeOffset;
@@ -170,10 +170,10 @@ private:
 	bool m_autoNewLine;
 	bool m_hide;
 	bool m_tryGlobal;
+	CRunDlg m_runDlg;
 	std::unique_ptr<DBWinReader> m_pLocalReader;
 	std::unique_ptr<DBWinReader> m_pGlobalReader;
-	std::vector<std::unique_ptr<Process>> m_pProcesses;
-	std::vector<std::unique_ptr<PipeReader>> m_pPipeReaders;
+	std::vector<std::unique_ptr<LogSource>> m_pSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
 	size_t m_initialPrivateBytes;
