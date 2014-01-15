@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <algorithm>
 #include <boost/utility.hpp>
+#include <boost/filesystem.hpp>
 #include "dbgstream.h"
 #include "hstream.h"
 #include "Process.h"
@@ -394,6 +395,16 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	ProcessLines(lines);
 }
 
+void CMainFrame::HandleDroppedFile(const std::wstring& file)
+{
+	auto ext = boost::filesystem::wpath(file).extension().wstring();
+
+	if (boost::algorithm::iequals(ext, L".dblog"))
+		Load(file);
+	else if (boost::algorithm::iequals(ext, L".exe"))
+		Run(file);
+}
+
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
 {
 	auto guard = make_guard([hDropInfo]() { DragFinish(hDropInfo); });
@@ -402,7 +413,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	{
 		std::vector<wchar_t> fileName(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
 		if (DragQueryFile(hDropInfo, 0, fileName.data(), fileName.size()))
-			Load(std::wstring(fileName.data()));
+			HandleDroppedFile(std::wstring(fileName.data()));
 	}
 }
 
@@ -800,12 +811,18 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		Load(std::wstring(dlg.m_szFileName));
 }
 
+void CMainFrame::Run(const std::wstring& pathName)
+{
+	if (!pathName.empty())
+		m_runDlg.SetPathName(pathName);
+
+	if (m_runDlg.DoModal() == IDOK)
+		m_pSources.push_back(make_unique<ProcessReader>(m_runDlg.GetPathName(), m_runDlg.GetArguments()));
+}
+
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	if (m_runDlg.DoModal() != IDOK)
-		return;
-
-	m_pSources.push_back(make_unique<ProcessReader>(m_runDlg.GetPathName(), m_runDlg.GetArguments()));
+	Run();
 }
 
 void CMainFrame::Load(const std::wstring& fileName)
@@ -948,7 +965,7 @@ void CMainFrame::Resume()
 			MessageBox(
 				L"Unable to capture Win32 Messages.\n"
 				L"\n"
-				L"Another DebugView (or simular application) might be running.\n",
+				L"Another DebugView++ (or simular application) might be running.\n",
 				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			return;
 		}
@@ -1003,6 +1020,7 @@ void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_tryGlobal = !m_pGlobalReader;
+	
 	if (m_pLocalReader && m_tryGlobal)
 		Resume();
 	else

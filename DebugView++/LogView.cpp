@@ -1465,7 +1465,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 {
 	SetName(RegGetStringValue(reg));
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
-	SetViewProcessColors(RegGetDWORDValue(reg, L"ViewProcessColors", 0) != 0);
+	SetViewProcessColors(RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
 
 	for (int i = 0; i < Column::Count; ++i)
 	{
@@ -1480,8 +1480,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 	}
 
 	CRegKey regFilters;
-	if (regFilters.Open(reg, L"MessageFilters") == ERROR_SUCCESS ||
-		regFilters.Open(reg, L"Filters") == ERROR_SUCCESS)
+	if (regFilters.Open(reg, L"MessageFilters") == ERROR_SUCCESS)
 		LoadFilterSettings(m_filter.messageFilters, regFilters);
 	if (regFilters.Open(reg, L"ProcessFilters") == ERROR_SUCCESS)
 		LoadFilterSettings(m_filter.processFilters, regFilters);
@@ -1495,7 +1494,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 	UpdateColumnInfo();
 
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
-	reg.SetDWORDValue(L"ViewProcessColors", GetViewProcessColors());
+	reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
 
 	int i = 0;
 	for (auto it = m_columns.begin(); it != m_columns.end(); ++it, ++i)

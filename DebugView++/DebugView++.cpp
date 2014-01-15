@@ -55,7 +55,10 @@ int ForwardMessagesFromPipe(HANDLE hPipe)
 	hstream pipe(hPipe);
 	std::string line;
 	while (std::getline(pipe, line))
+	{
+		line += "\n";
 		dbwin.Write(pid, line);
+	}
 
 	return 0;
 }

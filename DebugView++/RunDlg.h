@@ -21,6 +21,7 @@ public:
 	enum { IDD = IDD_RUN };
 
 	std::wstring GetPathName() const;
+	void SetPathName(const std::wstring& pathNamde);
 	std::wstring GetArguments() const;
 
 	BEGIN_DLGRESIZE_MAP(CRunDlg)

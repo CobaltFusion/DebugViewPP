@@ -72,6 +72,11 @@ std::wstring CRunDlg::GetPathName() const
 	return m_pathName;
 }
 
+void CRunDlg::SetPathName(const std::wstring& pathNamde)
+{
+	m_pathName = pathNamde;
+}
+
 std::wstring CRunDlg::GetArguments() const
 {
 	return m_arguments;

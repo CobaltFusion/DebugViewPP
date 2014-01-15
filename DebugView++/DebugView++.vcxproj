@@ -211,7 +211,7 @@
   <ItemGroup>
     <None Include="res\Bookmark.ico" />
     <None Include="res\DebugView++.ico" />
-    <None Include="res\DebugViewpp.ico" />
+    <None Include="res\DebugViewPP.ico" />
     <None Include="res\toolbar.bmp" />
     <None Include="Version.rc2" />
   </ItemGroup>
