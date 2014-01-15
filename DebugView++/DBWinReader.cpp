@@ -34,7 +34,7 @@ DBWinReader::DBWinReader(bool global) :
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
-	m_thread(boost::thread(&DBWinReader::Run, this)),
+	m_thread(&DBWinReader::Run, this),
 	m_handleCacheTime(0.0)
 {
 	m_lines.reserve(4000);
