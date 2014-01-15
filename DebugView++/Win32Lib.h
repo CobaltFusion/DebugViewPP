@@ -168,8 +168,8 @@ class ComInitialization : boost::noncopyable
 public:
 	enum CoInit
 	{
-		ApartmentThreaded,
-		Multithreaded
+		ApartmentThreaded = COINIT_APARTMENTTHREADED,
+		Multithreaded = COINIT_MULTITHREADED
 	};
 
 	explicit ComInitialization(CoInit init);

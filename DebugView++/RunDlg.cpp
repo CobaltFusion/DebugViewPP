@@ -31,6 +31,8 @@ BOOL CRunDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	SetDlgItemText(IDC_RUN, m_pathName.c_str());
 	SetDlgItemText(IDC_ARGUMENTS, m_arguments.c_str());
 
+	SHAutoComplete(GetDlgItem(IDC_RUN), SHACF_FILESYSTEM);
+
 	CenterWindow(GetParent());
 	DlgResize_Init();
 
