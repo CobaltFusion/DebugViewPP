@@ -157,6 +157,8 @@ private:
 	CLogView& GetView();
 	void SetLogFont();
 	void SetTitle(const std::wstring& title = L"");
+	void HandleDroppedFile(const std::wstring file);
+	void AddProcessReader(const std::wstring& pathName, const std::wstring& args = L"");
 
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;

@@ -51,6 +51,8 @@ size_t array_size(T (&)[N])
 	return N;
 }
 
+bool IsExecutable(const std::string& file);
+
 struct ScopedCursorDeleter
 {
 	typedef HCURSOR pointer;

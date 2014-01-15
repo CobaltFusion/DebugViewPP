@@ -32,6 +32,7 @@ struct Line
 
 typedef std::vector<Line> Lines;
 
+bool IsWindowsVistaOrGreater();
 bool IsDBWinViewerActive();
 bool HasGlobalDBWinReaderRights();
 

@@ -12,6 +12,14 @@
 namespace fusion {
 namespace debugviewpp {
 
+bool IsWindowsVistaOrGreater()
+{
+	OSVERSIONINFO osvi = {0};
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+	return (osvi.dwMajorVersion > 5);
+}
+
 bool IsDBWinViewerActive()
 {
 	Handle hMap(OpenFileMapping(FILE_MAP_READ, false, L"DBWIN_BUFFER"));
@@ -20,8 +28,12 @@ bool IsDBWinViewerActive()
 
 bool HasGlobalDBWinReaderRights()
 {
-	Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
-	return hMap != nullptr;
+	if (IsWindowsVistaOrGreater())
+	{
+		Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
+		return hMap != nullptr;
+	}
+	return false;
 }
 
 } // namespace debugviewpp 

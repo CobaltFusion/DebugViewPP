@@ -9,8 +9,19 @@
 #include <string>
 #include <atlstr.h>
 #include "Utilities.h"
+#include <sys/stat.h>
 
 namespace fusion {
+
+bool IsExecutable(const std::string& file)
+{
+	struct stat st = {0};
+    if (stat(file.c_str(), &st) < 0)
+        return false;
+    if ((st.st_mode & S_IEXEC) != 0)
+        return true;
+    return false;
+}
 
 void ScopedCursorDeleter::operator()(pointer p) const
 {

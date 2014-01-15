@@ -394,6 +394,21 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	ProcessLines(lines);
 }
 
+void CMainFrame::HandleDroppedFile(const std::wstring file)
+{
+	if (boost::algorithm::ends_with(file, L".dvlog"))
+	{
+		Load(file);
+	}
+	else
+	{
+		if (IsExecutable(Str(file)))
+		{
+			AddProcessReader(file);
+		}
+	}
+}
+
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
 {
 	auto guard = make_guard([hDropInfo]() { DragFinish(hDropInfo); });
@@ -402,7 +417,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	{
 		std::vector<wchar_t> fileName(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
 		if (DragQueryFile(hDropInfo, 0, fileName.data(), fileName.size()))
-			Load(std::wstring(fileName.data()));
+			HandleDroppedFile(std::wstring(fileName.data()));
 	}
 }
 
@@ -792,12 +807,17 @@ FILETIME MakeFileTime(uint64_t t)
 
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.log";
-	CFileDialog dlg(true, L".txt", fileName.c_str(), OFN_FILEMUSTEXIST, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.dvlog";
+	CFileDialog dlg(true, L".txt", fileName.c_str(), OFN_FILEMUSTEXIST, L"Log Files (*.dvlog)\0*.dvlog\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load DebugView log";
 	if (dlg.DoModal() == IDOK)
 		Load(std::wstring(dlg.m_szFileName));
+}
+
+void CMainFrame::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
+{
+	m_pSources.push_back(make_unique<ProcessReader>(pathName, args));
 }
 
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -805,7 +825,7 @@ void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	if (m_runDlg.DoModal() != IDOK)
 		return;
 
-	m_pSources.push_back(make_unique<ProcessReader>(m_runDlg.GetPathName(), m_runDlg.GetArguments()));
+	AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
 }
 
 void CMainFrame::Load(const std::wstring& fileName)
@@ -859,8 +879,8 @@ void CMainFrame::CapturePipe(HANDLE hPipe)
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView.log";
-	CFileDialog dlg(false, L".log", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Log Files (*.log)\0*.log\0All Files\0*.*\0\0", 0);
+	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView";
+	CFileDialog dlg(false, L".dvlog", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Log Files (*.dvlog)\0*.dvlog\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save DebugView log";
 	if (dlg.DoModal() == IDOK)
@@ -948,7 +968,7 @@ void CMainFrame::Resume()
 			MessageBox(
 				L"Unable to capture Win32 Messages.\n"
 				L"\n"
-				L"Another DebugView (or simular application) might be running.\n",
+				L"Another DebugView++ (or simular application) might be running.\n",
 				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			return;
 		}
@@ -1003,6 +1023,7 @@ void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_tryGlobal = !m_pGlobalReader;
+	
 	if (m_pLocalReader && m_tryGlobal)
 		Resume();
 	else
