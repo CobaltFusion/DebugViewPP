@@ -79,7 +79,7 @@ public:
 
 	void Load(const std::wstring& fileName);
 	void Load(HANDLE hFile);
-	void Load(std::istream& is);
+	void Load(std::istream& is, const std::string& name, FILETIME fileTime);
 	void CapturePipe(HANDLE hPipe);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);

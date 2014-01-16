@@ -398,26 +398,26 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
+	using boost::algorithm::iequals;
 	auto ext = boost::filesystem::wpath(file).extension().wstring();
 
-	if (boost::algorithm::iequals(ext, L".dblog"))
-		Load(file);
-	else if (boost::algorithm::iequals(ext, L".exe"))
+	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
 	{
-		std::string message = stringbuilder() << "Started capturing output of " << Str(file);
-		OutputDebugStringA(message.c_str());
+		Load(file);
+	}
+	else if (iequals(ext, L".exe"))
+	{
+		cdbg << "Started capturing output of " << Str(file) << "\n";
 		Run(file);
 	}
-	else if (boost::algorithm::iequals(ext, L".bat"))
+	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
-		std::string message = stringbuilder() << "Started capturing output of " << Str(file);
-		OutputDebugStringA(message.c_str());
+		cdbg << "Started capturing output of " << Str(file) << "\n";
 		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
 	//else
 	//{
-	//	std::string message = stringbuilder() << "Started tailing " << Str(file);
-	//	OutputDebugStringA(message.c_str());
+	//	cdbg << "Started tailing " << Str(file) << "\n";
 	//	AddFileReader(file);
 	//}
 }
@@ -821,9 +821,13 @@ FILETIME MakeFileTime(uint64_t t)
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
-	CFileDialog dlg(true, L".dblog", fileName.c_str(), OFN_FILEMUSTEXIST, L"DebugView++ Log Files (*.dblog)\0*.dblog\0All Files\0*.*\0\0", 0);
+	CFileDialog dlg(true, L".dblog", fileName.c_str(), OFN_FILEMUSTEXIST,
+		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
+		L"DebugView Log Files (*.log)\0*.log\0"
+		L"All Files (*.*)\0*.*\0\0",
+		0);
 	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Load DebugView++ log";
+	dlg.m_ofn.lpstrTitle = L"Load Log File";
 	if (dlg.DoModal() == IDOK)
 		Load(std::wstring(dlg.m_szFileName));
 }
@@ -858,7 +862,9 @@ void CMainFrame::Load(const std::wstring& fileName)
 	if (!file)
 		ThrowLastError(fileName);
 
-	Load(file);
+	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
+	GetFileAttributesEx(fileName.c_str(), GetFileExInfoStandard, &fileInfo);
+	Load(file, boost::filesystem::wpath(fileName).filename().string(), fileInfo.ftCreationTime);
 	SetTitle(fileName);
 }
 
@@ -871,10 +877,11 @@ void CMainFrame::SetTitle(const std::wstring& title)
 void CMainFrame::Load(HANDLE hFile)
 {
 	hstream file(hFile);
-	Load(file);
+	FILETIME ft = { 0 };
+	Load(file, "", ft);
 }
 
-void CMainFrame::Load(std::istream& file)
+void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME fileTime)
 {
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
@@ -885,13 +892,30 @@ void CMainFrame::Load(std::istream& file)
 	while (std::getline(file, line))
 	{
 		TabSplitter split(line);
-		auto time = boost::lexical_cast<double>(split.GetNext());
-		auto systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(split.GetNext()));
-		auto pid = boost::lexical_cast<DWORD>(split.GetNext());
-		auto process = split.GetNext();
-		auto message = split.GetTail();
+		auto col1 = split.GetNext();
+		auto col2 = split.GetNext();
+		auto col3 = split.GetNext();
+		if (!col3.empty() && col3[0] == '[')
+		{
+			std::istringstream is2(col2);
+			std::istringstream is3(col3);
+			DWORD pid;
+			char c1, c2, c3;
+			double time;
+			std::string msg;
+			if (is2 >> time && is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
+				AddMessage(Message(time, fileTime, pid, name, msg));
+		}
+		else
+		{
+			auto time = boost::lexical_cast<double>(col1);
+			auto systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
+			auto pid = boost::lexical_cast<DWORD>(col3);
+			auto process = split.GetNext();
+			auto message = split.GetTail();
 
-		AddMessage(Message(time, systemTime, pid, process, message));
+			AddMessage(Message(time, systemTime, pid, process, message));
+		}
 	}
 }
 
@@ -904,7 +928,9 @@ void CMainFrame::CapturePipe(HANDLE hPipe)
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
-	CFileDialog dlg(false, L".dblog", fileName.c_str(), OFN_OVERWRITEPROMPT, L"DebugView++ Log Files (*.dblog)\0*.dblog\0All Files\0*.*\0\0", 0);
+	CFileDialog dlg(false, L".dblog", fileName.c_str(), OFN_OVERWRITEPROMPT,
+		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
+		L"All Files (*.*)\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save DebugView++ Log";
 	if (dlg.DoModal() == IDOK)
