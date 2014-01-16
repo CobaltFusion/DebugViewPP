@@ -28,7 +28,7 @@ bool IsDBWinViewerActive()
 
 bool HasGlobalDBWinReaderRights()
 {
-	if (IsWindowsVistaOrGreater())
+	//if (IsWindowsVistaOrGreater())
 	{
 		Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
 		return hMap != nullptr;

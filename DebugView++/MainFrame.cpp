@@ -14,6 +14,7 @@
 #include "Process.h"
 #include "PipeReader.h"
 #include "ProcessReader.h"
+#include "FileReader.h"
 #include "Utilities.h"
 #include "Resource.h"
 #include "RunDlg.h"
@@ -402,14 +403,23 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	if (boost::algorithm::iequals(ext, L".dblog"))
 		Load(file);
 	else if (boost::algorithm::iequals(ext, L".exe"))
+	{
+		std::string message = stringbuilder() << "Started capturing output of " << Str(file);
+		OutputDebugStringA(message.c_str());
 		Run(file);
+	}
 	else if (boost::algorithm::iequals(ext, L".bat"))
 	{
-		std::wstring batchfile = wstringbuilder() << L"/Q /C " << file;
-		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
-		std::string message = stringbuilder() << "Started capturing process " << Str(file);
+		std::string message = stringbuilder() << "Started capturing output of " << Str(file);
 		OutputDebugStringA(message.c_str());
+		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
+	//else
+	//{
+	//	std::string message = stringbuilder() << "Started tailing " << Str(file);
+	//	OutputDebugStringA(message.c_str());
+	//	AddFileReader(file);
+	//}
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -821,6 +831,11 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
 	m_pSources.push_back(make_unique<ProcessReader>(pathName, args));
+}
+
+void CMainFrame::AddFileReader(const std::wstring& filename)
+{
+	m_pSources.push_back(make_unique<FileReader>(filename));
 }
 
 void CMainFrame::Run(const std::wstring& pathName)
