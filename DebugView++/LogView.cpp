@@ -1204,7 +1204,6 @@ void CLogView::Add(int line, const Message& msg)
 
 	if (MatchFilterType(FilterType::Track, msg))
 	{
-//		printf("found: trackitem at line: %d, %s\n", viewline + 1, msg.text);
 		m_autoScrollDown = false;
 		m_track = [this, viewline] () 
 		{ 

@@ -403,6 +403,13 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 		Load(file);
 	else if (boost::algorithm::iequals(ext, L".exe"))
 		Run(file);
+	else if (boost::algorithm::iequals(ext, L".bat"))
+	{
+		std::wstring batchfile = wstringbuilder() << L"/Q /C " << file;
+		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
+		std::string message = stringbuilder() << "Started capturing process " << Str(file);
+		OutputDebugStringA(message.c_str());
+	}
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -811,13 +818,18 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		Load(std::wstring(dlg.m_szFileName));
 }
 
+void CMainFrame::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
+{
+	m_pSources.push_back(make_unique<ProcessReader>(pathName, args));
+}
+
 void CMainFrame::Run(const std::wstring& pathName)
 {
 	if (!pathName.empty())
 		m_runDlg.SetPathName(pathName);
 
 	if (m_runDlg.DoModal() == IDOK)
-		m_pSources.push_back(make_unique<ProcessReader>(m_runDlg.GetPathName(), m_runDlg.GetArguments()));
+		AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
 }
 
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
