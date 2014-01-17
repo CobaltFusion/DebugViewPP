@@ -418,7 +418,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	else
 	{
 		cdbg << "Started tailing " << Str(file) << "\n";
-		AddFileReader(boost::filesystem::wpath(file).parent_path().string());
+		AddFileReader(file);
 	}
 }
 

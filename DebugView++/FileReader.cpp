@@ -41,6 +41,7 @@ bool FileReader::AtEnd() const
 
 void FileReader::Run()
 {
+	m_end = false;
 	std::ifstream ifs(m_filename.c_str(), std::ifstream::in);
 	if (ifs.is_open())
 	{
@@ -55,8 +56,13 @@ void FileReader::Run()
 				break; 
 			}
 			ifs.clear(); // clear EOF condition
-			WaitForSingleObject(m_handle);
-			FindNextChangeNotification(m_handle);
+			DWORD result = WaitForSingleObject(m_handle, 1000);
+			if (m_end)
+				break;
+			if (result == WAIT_OBJECT_0)
+			{
+				FindNextChangeNotification(m_handle);
+			}
 		}
 	}
 	Add(stringbuilder() << "Stopped tailing " << Str(m_filename));
