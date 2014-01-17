@@ -398,7 +398,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 
 	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
 	{
-		Load(file);
+		AddDBLogReader(file);
 	}
 	else if (iequals(ext, L".exe"))
 	{
@@ -771,47 +771,6 @@ void CMainFrame::SaveViewFile(const std::wstring& fileName)
 	UpdateStatusBar();
 }
 
-class TabSplitter
-{
-public:
-	explicit TabSplitter(const std::string& text);
-
-	std::string GetNext();
-	std::string GetTail() const;
-
-private:
-	std::string::const_iterator m_it;
-	std::string::const_iterator m_end;
-};
-
-TabSplitter::TabSplitter(const std::string& text) :
-	m_it(text.begin()),
-	m_end(text.end())
-{
-};
-
-std::string TabSplitter::GetNext()
-{
-	auto it = std::find(m_it, m_end, '\t');
-	std::string s(m_it, it);
-	m_it = it == m_end ? it : it + 1;
-	return s;
-}
-
-std::string TabSplitter::GetTail() const
-{
-	return std::string(m_it, m_end);
-}
-
-FILETIME MakeFileTime(uint64_t t)
-{
-	uint32_t mask = ~0U;
-	FILETIME ft;
-	ft.dwHighDateTime = (t >> 32) & mask;
-	ft.dwLowDateTime = t & mask;
-	return ft;
-}
-
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
@@ -835,6 +794,12 @@ void CMainFrame::AddFileReader(const std::wstring& filename)
 {
 	m_pSources.push_back(make_unique<FileReader>(filename));
 }
+
+void CMainFrame::AddDBLogReader(const std::wstring& filename)
+{
+	m_pSources.push_back(make_unique<DBLogReader>(filename));
+}
+
 
 void CMainFrame::Run(const std::wstring& pathName)
 {

@@ -89,4 +89,32 @@ std::wstring GetDlgItemText(const CWindow& wnd, int idc)
 	return std::wstring(text, text.GetLength());
 }
 
+TabSplitter::TabSplitter(const std::string& text) :
+	m_it(text.begin()),
+	m_end(text.end())
+{
+};
+
+std::string TabSplitter::GetNext()
+{
+	auto it = std::find(m_it, m_end, '\t');
+	std::string s(m_it, it);
+	m_it = it == m_end ? it : it + 1;
+	return s;
+}
+
+std::string TabSplitter::GetTail() const
+{
+	return std::string(m_it, m_end);
+}
+
+FILETIME MakeFileTime(uint64_t t)
+{
+	uint32_t mask = ~0U;
+	FILETIME ft;
+	ft.dwHighDateTime = (t >> 32) & mask;
+	ft.dwLowDateTime = t & mask;
+	return ft;
+}
+
 } // namespace fusion
