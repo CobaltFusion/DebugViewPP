@@ -18,20 +18,23 @@ class FileReader : public LogSource
 {
 public:
 	FileReader(const std::wstring& filename);
+    ~FileReader();
 
 	virtual bool AtEnd() const;
 	virtual Lines GetLines();
 
 private:
 	void Run();
+    void Abort();
 	void Add(const std::string& line);
 
 	Lines m_buffer;
 	Timer m_timer;
 	mutable boost::mutex m_linesMutex;
 
+    bool m_end;
 	std::wstring m_filename;	
-	Handle m_handle;
+	HANDLE m_handle;
 	boost::thread m_thread;
 };
 

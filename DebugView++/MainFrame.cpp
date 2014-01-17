@@ -399,7 +399,7 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
 	using boost::algorithm::iequals;
-	auto ext = boost::filesystem::wpath(file).extension().wstring();
+	std::wstring ext = boost::filesystem::wpath(file).extension();
 
 	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
 	{
@@ -415,11 +415,11 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 		cdbg << "Started capturing output of " << Str(file) << "\n";
 		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
-	//else
-	//{
-	//	cdbg << "Started tailing " << Str(file) << "\n";
-	//	AddFileReader(file);
-	//}
+	else
+	{
+		cdbg << "Started tailing " << Str(file) << "\n";
+		AddFileReader(boost::filesystem::wpath(file).parent_path().string());
+	}
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -864,7 +864,7 @@ void CMainFrame::Load(const std::wstring& fileName)
 
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
 	GetFileAttributesEx(fileName.c_str(), GetFileExInfoStandard, &fileInfo);
-	Load(file, boost::filesystem::wpath(fileName).filename().string(), fileInfo.ftCreationTime);
+	Load(file, Str(boost::filesystem::wpath(fileName).filename()), fileInfo.ftCreationTime);
 	SetTitle(fileName);
 }
 
