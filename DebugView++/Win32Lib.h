@@ -32,6 +32,15 @@ struct HandleDeleter
 
 typedef std::unique_ptr<void, HandleDeleter> Handle;
 
+struct ChangeNotificationHandleDeleter
+{
+	typedef HANDLE pointer;
+
+	void operator()(pointer p) const;
+};
+
+typedef std::unique_ptr<void, ChangeNotificationHandleDeleter> ChangeNotificationHandle;
+
 template <typename T>
 struct GdiObjectDeleter
 {
@@ -121,6 +130,7 @@ void ThrowLastError(const std::wstring& what);
 
 WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
 POINT GetMessagePos();
+POINT GetCursorPos();
 
 SYSTEMTIME GetSystemTime();
 SYSTEMTIME GetLocalTime();

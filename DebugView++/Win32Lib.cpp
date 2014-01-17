@@ -25,6 +25,12 @@ void HandleDeleter::operator()(pointer p) const
 		CloseHandle(p);
 }
 
+void ChangeNotificationHandleDeleter::operator()(pointer p) const
+{
+	if (p != nullptr && p != INVALID_HANDLE_VALUE)
+		FindCloseChangeNotification(p);
+}
+
 GdiObjectSelection::GdiObjectSelection(HDC hdc, HGDIOBJ hObject) :
 	m_hdc(hdc), m_hObject(SelectObject(hdc, hObject))
 {
@@ -105,6 +111,14 @@ POINT GetMessagePos()
 	DWORD pos = ::GetMessagePos();
 	POINT pt = { GET_X_LPARAM(pos), GET_Y_LPARAM(pos) };
 	return pt;
+}
+
+POINT GetCursorPos()
+{
+	POINT pos;
+	if (!GetCursorPos(&pos))
+		ThrowLastError("GetCursorPos");
+	return pos;
 }
 
 SYSTEMTIME GetSystemTime()

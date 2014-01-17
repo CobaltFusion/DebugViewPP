@@ -333,11 +333,6 @@ void CMainFrame::UpdateStatusBar()
 
 void CMainFrame::ProcessLines(const Lines& lines)
 {
-//#ifdef CONSOLE_DEBUG
-//	if (!lines.empty())
-//		printf("incoming lines: %d\n", lines.size());
-//#endif
-
 	if (m_logFile.Empty() && !lines.empty())
 		m_timeOffset = lines[0].time;
 
@@ -399,7 +394,7 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
 	using boost::algorithm::iequals;
-	std::wstring ext = boost::filesystem::wpath(file).extension();
+	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
 
 	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
 	{
@@ -483,8 +478,7 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
 			menu.EnableMenuItem(SC_MINIMIZE, MF_BYCOMMAND | MF_GRAYED);
 			menu.EnableMenuItem(SC_MAXIMIZE, MF_BYCOMMAND | MF_GRAYED);
 			menu.EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
-			POINT position;
-			ATLVERIFY(GetCursorPos(&position));
+			POINT position = GetCursorPos();
 			menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, position.x, position.y, m_hWnd);
 		}
 		break;
@@ -864,7 +858,7 @@ void CMainFrame::Load(const std::wstring& fileName)
 
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
 	GetFileAttributesEx(fileName.c_str(), GetFileExInfoStandard, &fileInfo);
-	Load(file, Str(boost::filesystem::wpath(fileName).filename()), fileInfo.ftCreationTime);
+	Load(file, boost::filesystem::wpath(fileName).filename().string(), fileInfo.ftCreationTime);
 	SetTitle(fileName);
 }
 

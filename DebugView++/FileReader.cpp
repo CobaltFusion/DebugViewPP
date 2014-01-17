@@ -6,9 +6,9 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "FileReader.h"
-#include "Utilities.h"
 #include <boost/filesystem.hpp>
+#include "Utilities.h"
+#include "FileReader.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -16,7 +16,7 @@ namespace debugviewpp {
 FileReader::FileReader(const std::wstring& filename) :
 	m_end(false),
 	m_filename(filename),
-	m_handle(FindFirstChangeNotification( boost::filesystem::wpath(m_filename).parent_path().string().c_str(), FALSE, FILE_NOTIFY_CHANGE_SIZE)),
+	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)),
 	m_thread(&FileReader::Run, this)
 {
 }
@@ -29,10 +29,8 @@ FileReader::~FileReader()
 void FileReader::Abort()
 {
 	m_end = true;
-	SetEvent(m_handle);
 	m_thread.join();
 }
-
 
 bool FileReader::AtEnd() const
 {
@@ -41,7 +39,6 @@ bool FileReader::AtEnd() const
 
 void FileReader::Run()
 {
-	m_end = false;
 	std::ifstream ifs(m_filename.c_str(), std::ifstream::in);
 	if (ifs.is_open())
 	{
@@ -56,18 +53,14 @@ void FileReader::Run()
 				break; 
 			}
 			ifs.clear(); // clear EOF condition
-			DWORD result = WaitForSingleObject(m_handle, 1000);
+			bool signalled = WaitForSingleObject(m_handle.get(), 1000);
 			if (m_end)
 				break;
-			if (result == WAIT_OBJECT_0)
-			{
-				FindNextChangeNotification(m_handle);
-			}
+			if (signalled)
+				FindNextChangeNotification(m_handle.get());
 		}
 	}
 	Add(stringbuilder() << "Stopped tailing " << Str(m_filename));
-	FindCloseChangeNotification(m_handle);
-	m_handle = 0;
 }
 
 void FileReader::Add(const std::string& text)
@@ -77,7 +70,7 @@ void FileReader::Add(const std::string& text)
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = 0;
 	line.message = text;
-	line.processName = Str(boost::filesystem::wpath(m_filename).filename()).str();
+	line.processName = boost::filesystem::wpath(m_filename).filename().string();
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_buffer.push_back(line);
 }
@@ -85,11 +78,9 @@ void FileReader::Add(const std::string& text)
 Lines FileReader::GetLines()
 {
 	Lines lines;
-	{
-		boost::unique_lock<boost::mutex> lock(m_linesMutex);
-		m_buffer.swap(lines);
-	}
-	return std::move(lines);
+	boost::unique_lock<boost::mutex> lock(m_linesMutex);
+	m_buffer.swap(lines);
+	return lines;
 }
 
 } // namespace debugviewpp 

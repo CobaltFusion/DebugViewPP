@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Win32Lib.h"
 #include "PipeReader.h"
 #include "Process.h"
 #include "DBWinBuffer.h"
@@ -34,7 +35,7 @@ private:
 
     bool m_end;
 	std::wstring m_filename;	
-	HANDLE m_handle;
+	ChangeNotificationHandle m_handle;
 	boost::thread m_thread;
 };
 
