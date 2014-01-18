@@ -154,6 +154,7 @@
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogFilter.cpp" />
     <ClCompile Include="LogSource.cpp" />
+    <ClCompile Include="LogSources.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="MatchType.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="IndexedStorage.h" />
     <ClInclude Include="LogFilter.h" />
     <ClInclude Include="LogSource.h" />
+    <ClInclude Include="LogSources.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="MainFrame.h" />
