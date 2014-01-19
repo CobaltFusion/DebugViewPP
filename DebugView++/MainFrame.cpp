@@ -881,7 +881,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
 	DWORD pid = GetParentProcessId();
-	m_pSources.push_back(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessName(pid)).str()));
+	m_pSources.push_back(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str()));
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

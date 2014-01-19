@@ -90,12 +90,6 @@ void DBWinReader::Run()
 	}
 }
 
-void DBWinReader::AddLine(const InternalLine& InternalLine)
-{
-	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_lines.push_back(InternalLine);
-}
-
 void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 {
 	InternalLine line;
@@ -105,6 +99,12 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 	line.handle = handle;
 	line.message = text;
 	AddLine(line);
+}
+
+void DBWinReader::AddLine(const InternalLine& InternalLine)
+{
+	boost::unique_lock<boost::mutex> lock(m_linesMutex);
+	m_lines.push_back(InternalLine);
 }
 
 Lines DBWinReader::GetLines()
@@ -125,8 +125,9 @@ Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
 		std::string processName; 
 		if (i->handle)
 		{
-			AddCache(i->handle);
-			processName = Str(ProcessInfo::GetProcessName(i->handle)).c_str();
+			Handle processHandle(i->handle);
+			processName = Str(ProcessInfo::GetProcessName(processHandle.get())).str();
+			AddCache(i->pid, std::move(processHandle));
 		}
 
 		Line line;
@@ -186,12 +187,12 @@ Lines DBWinReader::ProcessLine(const Line& line)
 	return lines;
 }
 
-void DBWinReader::AddCache(HANDLE handle)
+void DBWinReader::AddCache(DWORD pid, Handle handle)
 {
-	//todo: do not store multiple handles to the same process
-	// this can be done by comparing the PID, because while a handle 
-	// to a process with the same PID is still stored, the PID is still unique!
-	m_handleCache.push_back(std::move(Handle(handle)));
+	if (m_handleCache.find(pid) == m_handleCache.end())
+	{
+		m_handleCache[pid] = std::move(handle);
+	}
 }
 
 Lines DBWinReader::CheckHandleCache()
@@ -201,11 +202,11 @@ Lines DBWinReader::CheckHandleCache()
 	{
 		for (auto i = m_handleCache.begin(); i != m_handleCache.end(); i++)
 		{
-			DWORD pid = GetProcessId(i->get());
+			DWORD pid = i->first;
 			if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 			{
 				DWORD exitcode = 0;
-				BOOL result = GetExitCodeProcess(i->get(), &exitcode);
+				BOOL result = GetExitCodeProcess(i->second.get(), &exitcode);
 				if (result == FALSE || exitcode != STILL_ACTIVE)
 				{
 					if (!m_lineBuffers[pid].empty())
@@ -219,10 +220,10 @@ Lines DBWinReader::CheckHandleCache()
 						lines.push_back(line);
 					}
 					m_lineBuffers.erase(pid);
+					m_handleCache.erase(pid);
 				}
 			}
 		}
-		m_handleCache.clear();
 		m_handleCacheTime = m_timer.Get();
 	}
 

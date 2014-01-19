@@ -45,12 +45,12 @@ void LogSources::Abort()
 
 LogSourcesVector LogSources::GetLogSources() const
 {
-	//LogSourcesVector sources;
-	//for (auto i = m_sources.begin(); i != m_sources.end(); i++)
-	//{
-	//	const LogSource& logSource = *(i->get());
-	//	sources.push_back(LogSourceInfo(0 /* logSource->GetHandle() */, logSource));
-	//}
+	LogSourcesVector sources;
+	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
+	{
+		const LogSource& logSource = *(i->get());
+		sources.push_back(LogSourceInfo(0 /* logSource->GetHandle() */, logSource));
+	}
 	return LogSourcesVector();
 }
 
