@@ -232,9 +232,8 @@ WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSecon
 	if (rc == WAIT_FAILED)
 		ThrowLastError("WaitForMultipleObjects");
 	if (rc >= WAIT_OBJECT_0 && rc < WAIT_OBJECT_0+handles.size())
-	{
 		return WaitResult(true, rc);
-	} else 
+	else 
 		throw std::runtime_error("WaitForMultipleObjects");
 }
 

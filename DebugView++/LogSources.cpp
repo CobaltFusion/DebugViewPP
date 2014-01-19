@@ -89,6 +89,7 @@ void LogSources::Run()
 void LogSources::Process(const LogSource& logsource)
 {
 	logsource;
+	//logsource->ProcessEvent();
 }
 
 LogSources::~LogSources()
