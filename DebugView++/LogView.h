@@ -12,7 +12,6 @@
 #include "Win32Lib.h"
 #include "LogFile.h"
 #include "FilterDlg.h"
-#include "DisplayInfo.h"
 
 namespace fusion {
 namespace debugviewpp {
