@@ -13,7 +13,6 @@
 #include "LogFile.h"
 #include "FilterDlg.h"
 #include "DisplayInfo.h"
-#include "ProcessInfo.h"
 
 namespace fusion {
 namespace debugviewpp {
