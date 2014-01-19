@@ -13,6 +13,13 @@
 namespace fusion {
 namespace debugviewpp {
 
+LogSourceInfo::LogSourceInfo(HANDLE handle, const LogSource& logsource) :
+	handle(handle), 
+	logsource(logsource)
+{
+
+}
+
 LogSources::LogSources() : 
 	m_end(false),
 	m_sourcesDirty(false),
@@ -36,27 +43,52 @@ void LogSources::Abort()
 	m_thread.join();
 }
 
-std::map<HANDLE, LogSource*> LogSources::GetLogSourcesMap() const
+LogSourcesVector LogSources::GetLogSources() const
 {
-	return std::map<HANDLE, LogSource*>();
+	//LogSourcesVector sources;
+	//for (auto i = m_sources.begin(); i != m_sources.end(); i++)
+	//{
+	//	const LogSource& logSource = *(i->get());
+	//	sources.push_back(LogSourceInfo(0 /* logSource->GetHandle() */, logSource));
+	//}
+	return LogSourcesVector();
 }
 
-std::vector<HANDLE> LogSources::GetObjects() const
+LogSourcesHandles LogSources::GetWaitHandles(const LogSourcesVector& vector) const
 {
-	// collect handles from LogSources
-	return std::vector<HANDLE>();
+	LogSourcesHandles handles;
+	for (auto i = vector.begin(); i != vector.end(); i++)
+	{
+		handles.push_back(i->handle);
+	}
+	handles.push_back(m_updateEvent.get());
+	return handles;
 }
 
 void LogSources::Run()
 {
 	for (;;)
 	{
-		auto objects = GetObjects();
-		WaitForMultipleObjects(objects.size(), &objects[0], FALSE, 1000);
+		auto logsources = GetLogSources();
+		auto handles = GetWaitHandles(logsources);
+		for (;;)
+		{
+			auto res = WaitForAnyObject(handles, 1000);
+			if (m_end || m_sourcesDirty)
+				break;
+			if (res.signaled)
+			{
+				Process(logsources[res.index].logsource);
+			}
+		}
 		if (m_end)
 			break;
 	}
+}
 
+void LogSources::Process(const LogSource& logsource)
+{
+	logsource;
 }
 
 LogSources::~LogSources()
