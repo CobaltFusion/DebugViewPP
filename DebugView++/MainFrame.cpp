@@ -546,8 +546,11 @@ bool CMainFrame::LoadSettings()
 			if (regView.Open(regViews, WStr(wstringbuilder() << L"View" << i)) != ERROR_SUCCESS)
 				break;
 
-			if (i > 0)
-				AddFilterView(RegGetStringValue(regView));
+			auto name = RegGetStringValue(regView);
+			if (i == 0)
+				GetTabCtrl().GetItem(0)->SetText(name.c_str());
+			else
+				AddFilterView(name);
 			GetView().LoadSettings(regView);
 		}
 		GetTabCtrl().SetCurSel(RegGetDWORDValue(regViews, L"Current", 0));
