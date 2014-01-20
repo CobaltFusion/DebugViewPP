@@ -65,7 +65,7 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 	return name;
 }
 
-std::wstring ProcessInfo::GetProcessName(DWORD processId)
+std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
 {
 	Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
 	if (hProcess)

@@ -24,19 +24,31 @@ public:
 	virtual bool AtEnd() const;
 	virtual Lines GetLines();
 
+protected:
+	virtual void Add(const std::string& line);
+	Timer m_timer;
+
+	boost::mutex m_linesMutex;
+	Lines m_buffer;
+	std::wstring m_filename;	
+	std::string m_name;	
+
 private:
 	void Run();
     void Abort();
-	void Add(const std::string& line);
-
-	Lines m_buffer;
-	Timer m_timer;
-	mutable boost::mutex m_linesMutex;
 
     bool m_end;
-	std::wstring m_filename;	
 	ChangeNotificationHandle m_handle;
 	boost::thread m_thread;
+};
+
+class DBLogReader : public FileReader
+{
+public:
+	DBLogReader(const std::wstring& filename);
+private:
+	virtual void Add(const std::string& line);
+	FILETIME m_time;
 };
 
 } // namespace debugviewpp 

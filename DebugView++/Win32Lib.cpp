@@ -218,6 +218,25 @@ bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds)
 	}
 }
 
+WaitResult::WaitResult(bool signaled, int index) : 
+	signaled(signaled),
+	index(index)
+{
+}
+
+WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSeconds)
+{
+	auto rc = ::WaitForMultipleObjects(handles.size(), &handles[0], FALSE, milliSeconds);
+	if (rc == WAIT_TIMEOUT)
+		return WaitResult(false);
+	if (rc == WAIT_FAILED)
+		ThrowLastError("WaitForMultipleObjects");
+	if (rc >= WAIT_OBJECT_0 && rc < WAIT_OBJECT_0+handles.size())
+		return WaitResult(true, rc);
+	else 
+		throw std::runtime_error("WaitForMultipleObjects");
+}
+
 MutexLock::MutexLock(HANDLE hMutex) :
 	m_hMutex(hMutex)
 {

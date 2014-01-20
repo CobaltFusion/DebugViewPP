@@ -47,7 +47,7 @@ private:
 	Lines ProcessLines(const InternalLines& lines);
 	Lines ProcessLine(const Line& internalLine);
 
-	void AddCache(HANDLE handle);
+	void AddCache(DWORD pid, Handle handle);
 	Lines CheckHandleCache();
 
 	InternalLines m_lines;
@@ -60,12 +60,13 @@ private:
 	Handle m_hBuffer;
 	Handle m_dbWinBufferReady;
 	Handle m_dbWinDataReady;
-	boost::thread m_thread;
-
-	std::vector<Handle> m_handleCache;
+	
+	std::map<DWORD, Handle> m_handleCache;
 	double m_handleCacheTime;
-
 	std::map<DWORD, std::string> m_lineBuffers;
+
+	// make sure the thread is last to initialize
+	boost::thread m_thread;
 };
 
 } // namespace debugviewpp 

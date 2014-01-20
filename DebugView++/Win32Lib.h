@@ -145,8 +145,16 @@ Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwne
 void SetPrivilege(const wchar_t* privilege, bool enablePrivilege);
 void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege);
 
+struct WaitResult
+{
+	WaitResult(bool signaled = false, int index = 0);
+	bool signaled;
+	int index;
+};
+
 void WaitForSingleObject(HANDLE hObject);
 bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds);
+WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSeconds);
 
 class MutexLock : boost::noncopyable
 {
@@ -193,5 +201,6 @@ DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName = nullptr);
 DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue);
 
 ULONG_PTR GetParentProcessId();
+
 
 } // namespace fusion

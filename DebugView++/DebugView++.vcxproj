@@ -144,7 +144,6 @@
     <ClCompile Include="DBWinReader.cpp" />
     <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="DebugView++.cpp" />
-    <ClCompile Include="DisplayInfo.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
@@ -154,6 +153,7 @@
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogFilter.cpp" />
     <ClCompile Include="LogSource.cpp" />
+    <ClCompile Include="LogSources.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="MatchType.cpp" />
@@ -177,7 +177,6 @@
     <ClInclude Include="DBWinBuffer.h" />
     <ClInclude Include="DBWinReader.h" />
     <ClInclude Include="DBWinWriter.h" />
-    <ClInclude Include="DisplayInfo.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FilterDlg.h" />
@@ -188,6 +187,7 @@
     <ClInclude Include="IndexedStorage.h" />
     <ClInclude Include="LogFilter.h" />
     <ClInclude Include="LogSource.h" />
+    <ClInclude Include="LogSources.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="LogFile.h" />
     <ClInclude Include="MainFrame.h" />

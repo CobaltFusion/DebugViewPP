@@ -18,6 +18,7 @@ public:
 	virtual ~LogSource();
 
 	virtual bool AtEnd() const = 0;
+//	virtual HANDLE GetHandle() const = 0;
 	virtual Lines GetLines() = 0;
 };
 

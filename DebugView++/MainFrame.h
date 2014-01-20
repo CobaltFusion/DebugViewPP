@@ -161,6 +161,7 @@ private:
 	void Run(const std::wstring& pathName = L"");
 	void AddProcessReader(const std::wstring& pathName, const std::wstring& args);
 	void AddFileReader(const std::wstring& filename);
+	void AddDBLogReader(const std::wstring& filename);
 
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;
