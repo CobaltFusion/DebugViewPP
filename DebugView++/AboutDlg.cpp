@@ -4,6 +4,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
+// test branch for first release
 
 #include "stdafx.h"
 #include "resource.h"
