@@ -859,24 +859,28 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 		auto col3 = split.GetNext();
 		if (!col3.empty() && col3[0] == '[')
 		{
-			std::istringstream is2(col2);
 			std::istringstream is3(col3);
 			DWORD pid;
 			char c1, c2, c3;
-			double time;
 			std::string msg;
-			if (is2 >> time && is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
-				AddMessage(Message(time, fileTime, pid, name, msg));
-		}
-		else
-		{
-			auto time = boost::lexical_cast<double>(col1);
-			auto systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
-			auto pid = boost::lexical_cast<DWORD>(col3);
-			auto process = split.GetNext();
-			auto message = split.GetTail();
+			if (is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
+			{
+				double time = 0;
+				FILETIME systemTime = fileTime;
+				if (!ReadTime(col2, time))
+					ReadSystemTime(col2, fileTime, systemTime);
+				AddMessage(Message(time, systemTime, pid, name, msg));
+			}
+			else
+			{
+				auto time = boost::lexical_cast<double>(col1);
+				auto systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
+				auto pid = boost::lexical_cast<DWORD>(col3);
+				auto process = split.GetNext();
+				auto message = split.GetTail();
 
-			AddMessage(Message(time, systemTime, pid, process, message));
+				AddMessage(Message(time, systemTime, pid, process, message));
+			}
 		}
 	}
 }

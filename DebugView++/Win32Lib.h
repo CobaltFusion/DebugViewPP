@@ -137,6 +137,7 @@ SYSTEMTIME GetLocalTime();
 FILETIME GetSystemTimeAsFileTime();
 FILETIME FileTimeToLocalFileTime(const FILETIME& ft);
 SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft);
+FILETIME SystemTimeToFileTime(const SYSTEMTIME& st);
 
 Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName);
 Handle OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId);

@@ -90,6 +90,31 @@ DBLogReader::DBLogReader(const std::wstring& filename) :
 {
 }
 
+bool ReadTime(const std::string& s, double& time)
+{
+	std::istringstream is(s);
+	return is >> time && is.eof();
+}
+
+bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft)
+{
+	std::istringstream is(text);
+	WORD h, m, s;
+	char c1, c2, p1, p2;
+	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
+		return false;
+	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+		h += 12;
+
+	SYSTEMTIME st = FileTimeToSystemTime(ftRef);
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = 0;
+	ft = SystemTimeToFileTime(st);
+	return true;
+}
+
 void DBLogReader::Add(const std::string& text)
 {
 	TabSplitter split(text);
@@ -98,17 +123,23 @@ void DBLogReader::Add(const std::string& text)
 	auto col3 = split.GetNext();
 	if (!col3.empty() && col3[0] == '[')
 	{
-		std::istringstream is2(col2);
 		std::istringstream is3(col3);
 		DWORD pid;
 		char c1, c2, c3;
-		double time;
 		std::string msg;
-		if (is2 >> time && is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
+		if (is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
 		{
 			Line line;
-			line.time = time;
-			line.systemTime = m_time;
+			if (ReadTime(col2, line.time))
+			{
+				line.systemTime = m_time;
+			}
+			else
+			{
+				line.time = 0;
+				if (!ReadSystemTime(col2, m_time, line.systemTime))
+					line.systemTime = m_time;
+			}
 			line.pid = pid;
 			line.processName = Str(m_name).str();
 			line.message = msg;

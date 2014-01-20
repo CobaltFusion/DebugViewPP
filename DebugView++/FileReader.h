@@ -18,7 +18,7 @@ namespace debugviewpp {
 class FileReader : public LogSource
 {
 public:
-	FileReader(const std::wstring& filename);
+	explicit FileReader(const std::wstring& filename);
     ~FileReader();
 
 	virtual bool AtEnd() const;
@@ -45,11 +45,15 @@ private:
 class DBLogReader : public FileReader
 {
 public:
-	DBLogReader(const std::wstring& filename);
+	explicit DBLogReader(const std::wstring& filename);
+
 private:
 	virtual void Add(const std::string& line);
 	FILETIME m_time;
 };
+
+bool ReadTime(const std::string& s, double& time);
+bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft);
 
 } // namespace debugviewpp 
 } // namespace fusion

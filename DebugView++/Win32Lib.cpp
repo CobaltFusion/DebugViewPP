@@ -158,6 +158,14 @@ SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft)
 	return st;
 }
 
+FILETIME SystemTimeToFileTime(const SYSTEMTIME& st)
+{
+	FILETIME ft;
+	if (!::SystemTimeToFileTime(&st, &ft))
+		ThrowLastError("SystemTimeToFileTime");
+	return ft;
+}
+
 Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName)
 {
 	Handle hMap(::CreateFileMappingW(hFile, const_cast<SECURITY_ATTRIBUTES*>(pAttributes), protect, maximumSizeHigh, maximumSizeLow, pName));
