@@ -843,6 +843,38 @@ void CMainFrame::Load(HANDLE hFile)
 	Load(file, "", ft);
 }
 
+std::istream& ReadLogFileMessage(std::istream& is, Message& msg)
+{
+	std::string line;
+	if (!std::getline(is, line))
+		return is;
+
+	TabSplitter split(line);
+	auto col1 = split.GetNext();
+	auto col2 = split.GetNext();
+	auto col3 = split.GetTail();
+	if (!col3.empty() && col3[0] == '[')
+	{
+		std::istringstream is3(col3);
+		char c1, c2, c3;
+		if (is3 >> std::noskipws >> c1 >> msg.processId >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg.text))
+		{
+			if (!ReadTime(col2, msg.time))
+				ReadSystemTime(col2, msg.systemTime, msg.systemTime);
+		}
+		else
+		{
+			msg.time = boost::lexical_cast<double>(col1);
+			msg.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
+			msg.processId = boost::lexical_cast<DWORD>(split.GetNext());
+			msg.processName = split.GetNext();
+			msg.text = split.GetTail();
+		}
+	}
+
+	return is;
+}
+
 void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME fileTime)
 {
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
@@ -850,39 +882,11 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 	Pause();
 	ClearLog();
 
-	std::string line;
-	while (std::getline(file, line))
-	{
-		TabSplitter split(line);
-		auto col1 = split.GetNext();
-		auto col2 = split.GetNext();
-		auto col3 = split.GetNext();
-		if (!col3.empty() && col3[0] == '[')
-		{
-			std::istringstream is3(col3);
-			DWORD pid;
-			char c1, c2, c3;
-			std::string msg;
-			if (is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
-			{
-				double time = 0;
-				FILETIME systemTime = fileTime;
-				if (!ReadTime(col2, time))
-					ReadSystemTime(col2, fileTime, systemTime);
-				AddMessage(Message(time, systemTime, pid, name, msg));
-			}
-			else
-			{
-				auto time = boost::lexical_cast<double>(col1);
-				auto systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
-				auto pid = boost::lexical_cast<DWORD>(col3);
-				auto process = split.GetNext();
-				auto message = split.GetTail();
-
-				AddMessage(Message(time, systemTime, pid, process, message));
-			}
-		}
-	}
+	Message msg(0, fileTime, 0, name, "");
+	msg.processName = name;
+	msg.systemTime = fileTime;
+	while (ReadLogFileMessage(file, msg))
+		AddMessage(msg);
 }
 
 void CMainFrame::CapturePipe(HANDLE hPipe)
