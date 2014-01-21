@@ -13,13 +13,18 @@
 namespace fusion {
 namespace debugviewpp {
 
-CircularBuffer::CircularBuffer()
+CircularBuffer::CircularBuffer(size_t size) :
+	m_pBegin(new char[size]),
+	m_pEnd(m_pBegin + size),
+	m_pRead(m_pBegin),
+	m_pWrite(m_pBegin)
 {
 }
 
 CircularBuffer::~CircularBuffer()
 {
+	delete[] m_pBegin;
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

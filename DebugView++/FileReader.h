@@ -50,13 +50,11 @@ public:
 	explicit DBLogReader(const std::wstring& filename);
 	virtual HANDLE GetHandle() const;
 	virtual Line GetLine();
+
 private:
 	virtual void Add(const std::string& line);
 	FILETIME m_time;
 };
-
-bool ReadTime(const std::string& s, double& time);
-bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft);
 
 } // namespace debugviewpp 
 } // namespace fusion

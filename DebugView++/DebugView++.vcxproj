@@ -145,6 +145,7 @@
     <ClCompile Include="DBWinReader.cpp" />
     <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="DebugView++.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="DBWinBuffer.h" />
     <ClInclude Include="DBWinReader.h" />
     <ClInclude Include="DBWinWriter.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FilterDlg.h" />

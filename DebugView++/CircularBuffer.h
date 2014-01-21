@@ -10,12 +10,17 @@
 namespace fusion {
 namespace debugviewpp {
 
-class CircularBuffer
+class CircularBuffer : boost::noncopyable
 {
 public:
-	CircularBuffer();
-	virtual ~CircularBuffer();
+	explicit CircularBuffer(size_t size);
+	~CircularBuffer();
 
+private:
+	char* m_pBegin;
+	char* m_pEnd;
+	const char* m_pRead;
+	char* m_pWrite;
 };
 
 } // namespace debugviewpp 

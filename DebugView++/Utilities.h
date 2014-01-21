@@ -289,19 +289,6 @@ T floor_to(double value)
 
 std::wstring GetDlgItemText(const CWindow& wnd, int idc);
 
-class TabSplitter
-{
-public:
-	explicit TabSplitter(const std::string& text);
-
-	std::string GetNext();
-	std::string GetTail() const;
-
-private:
-	std::string::const_iterator m_it;
-	std::string::const_iterator m_end;
-};
-
 FILETIME MakeFileTime(uint64_t t);
 
 } // namespace fusion

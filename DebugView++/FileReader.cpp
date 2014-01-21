@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <boost/filesystem.hpp>
 #include "Utilities.h"
+#include "FileIO.h"
 #include "FileReader.h"
 
 namespace fusion {
@@ -51,7 +52,7 @@ Line FileReader::GetLine()
 
 void FileReader::Run()
 {
-	std::ifstream ifs(m_filename.c_str(), std::ifstream::in);
+	std::ifstream ifs(m_filename);
 	if (ifs.is_open())
 	{
 		std::string line;
@@ -112,80 +113,12 @@ Line DBLogReader::GetLine()
 	return line;
 }
 
-bool ReadTime(const std::string& s, double& time)
+void DBLogReader::Add(const std::string& data)
 {
-	std::istringstream is(s);
-	return is >> time && is.eof();
-}
-
-bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft)
-{
-	std::istringstream is(text);
-	WORD h, m, s;
-	char c1, c2, p1, p2;
-	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
-		return false;
-	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
-		h += 12;
-
-	SYSTEMTIME st = FileTimeToSystemTime(ftRef);
-	st.wHour = h;
-	st.wMinute = m;
-	st.wSecond = s;
-	st.wMilliseconds = 0;
-	ft = SystemTimeToFileTime(st);
-	return true;
-}
-
-void DBLogReader::Add(const std::string& text)
-{
-	TabSplitter split(text);
-	auto col1 = split.GetNext();
-	auto col2 = split.GetNext();
-	auto col3 = split.GetNext();
-	if (!col3.empty() && col3[0] == '[')
-	{
-		std::istringstream is3(col3);
-		DWORD pid;
-		char c1, c2, c3;
-		std::string msg;
-		if (is3 >> std::noskipws >> c1 >> pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, msg))
-		{
-			Line line;
-			if (ReadTime(col2, line.time))
-			{
-				line.systemTime = m_time;
-			}
-			else
-			{
-				line.time = 0;
-				if (!ReadSystemTime(col2, m_time, line.systemTime))
-					line.systemTime = m_time;
-			}
-			line.pid = pid;
-			line.processName = Str(m_name).str();
-			line.message = msg;
-			m_buffer.push_back(line);
-		}
-	}
-	else
-	{
-		Line line;
-		line.time = boost::lexical_cast<double>(col1);
-		line.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
-		line.pid = boost::lexical_cast<DWORD>(col3);
-		line.processName = split.GetNext();
-		line.message = split.GetTail();
-		m_buffer.push_back(line);
-	}
-
 	Line line;
-	line.time = m_timer.Get();
-	line.systemTime = GetSystemTimeAsFileTime();
-	line.pid = 0;
-	line.message = text;
-	line.processName = boost::filesystem::wpath(m_filename).filename().string();
-	boost::unique_lock<boost::mutex> lock(m_linesMutex);
+	line.systemTime = m_time;
+	line.processName = m_name;
+	ReadLogFileMessage(data, line);
 	m_buffer.push_back(line);
 }
 
