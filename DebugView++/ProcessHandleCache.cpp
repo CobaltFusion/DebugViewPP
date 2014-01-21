@@ -21,9 +21,7 @@ ProcessHandleCache::~ProcessHandleCache()
 void ProcessHandleCache::Add(DWORD pid, Handle handle)
 {
 	if (m_cache.find(pid) == m_cache.end())
-	{
 		m_cache[pid] = std::move(handle);
-	}
 }
 
 Pids ProcessHandleCache::Cleanup()
