@@ -197,6 +197,7 @@ void DBWinReader::AddCache(DWORD pid, Handle handle)
 
 Lines DBWinReader::CheckHandleCache()
 {
+	std::vector<DWORD> removePids;
 	Lines lines;
 	if ((m_timer.Get() - m_handleCacheTime) > HandleCacheTimeout)
 	{
@@ -220,13 +221,17 @@ Lines DBWinReader::CheckHandleCache()
 						lines.push_back(line);
 					}
 					m_lineBuffers.erase(pid);
-					m_handleCache.erase(pid);
+					removePids.push_back(pid);
 				}
 			}
 		}
 		m_handleCacheTime = m_timer.Get();
 	}
 
+	for (auto i = removePids.begin(); i != removePids.end(); i++)
+	{
+		m_handleCache.erase(*i);
+	}
 	return lines;
 }
 
