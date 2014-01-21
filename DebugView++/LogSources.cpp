@@ -26,8 +26,14 @@ LogSources::LogSources() :
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_thread(&LogSources::Run, this)
 {
-
 }
+
+	
+LogSources::~LogSources()
+{
+	Abort();
+}
+
 
 void LogSources::Add(std::unique_ptr<LogSource> source)
 {
@@ -78,11 +84,6 @@ void LogSources::Process(int index)
 	logsource->Notify();
 	if (logsource->AtEnd())
 		m_sources.erase(m_sources.begin() + index);
-}
-
-
-LogSources::~LogSources()
-{
 }
 
 } // namespace debugviewpp 

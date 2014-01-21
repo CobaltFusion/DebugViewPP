@@ -58,11 +58,14 @@ std::wstring GetExceptionMessage()
 }
 
 Timer::Timer() :
-	m_offset(0)
+	m_offset(0),
+	m_timerUnit(0.0)
 {
 	LARGE_INTEGER li;
 	QueryPerformanceFrequency(&li);
-	m_timerUnit = 1./li.QuadPart;	//todo: QuadPart can be zero!
+	if (li.QuadPart == 0)
+		throw std::runtime_error("QueryPerformanceCounter not supported!");
+	m_timerUnit = 1./li.QuadPart;
 }
 
 void Timer::Reset()
