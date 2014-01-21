@@ -18,6 +18,17 @@ ProcessReader::ProcessReader(const std::wstring& pathName, const std::wstring& a
 {
 }
 
+HANDLE ProcessReader::GetHandle() const
+{
+	return 0;	// todo::implement
+}
+
+Line ProcessReader::GetLine()
+{
+	Line line; // todo::implement
+	return line;
+}
+
 bool ProcessReader::AtEnd() const
 {
 	return m_stdout.AtEnd() && m_stderr.AtEnd();

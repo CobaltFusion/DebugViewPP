@@ -23,6 +23,8 @@ public:
 	PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName);
 
 	virtual bool AtEnd() const;
+	virtual HANDLE GetHandle() const;
+	virtual Line GetLine();
 	virtual Lines GetLines();
 
 private:

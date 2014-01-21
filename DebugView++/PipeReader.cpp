@@ -19,6 +19,17 @@ PipeReader::PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName) 
 {
 }
 
+HANDLE PipeReader::GetHandle() const
+{
+	return 0;	// todo::implement
+}
+
+Line PipeReader::GetLine()
+{
+	Line line; // todo::implement
+	return line;
+}
+
 Line PipeReader::MakeLine(const std::string& text) const
 {
 	Line line;
