@@ -11,6 +11,7 @@
 #include <boost/thread.hpp>
 
 #include "Win32Lib.h"
+#include "LogSource.h"
 #include "DBWinBuffer.h"
 #include "Utilities.h"
 
@@ -28,17 +29,21 @@ struct InternalLine
 
 typedef std::vector<InternalLine> InternalLines;
 
-class DBWinReader : boost::noncopyable
+class DBWinReader : public LogSource
 {
 public:
 	explicit DBWinReader(bool global);
 	~DBWinReader();
 
-	bool AutoNewLine() const;
-	void AutoNewLine(bool value);
+	virtual bool AtEnd() const;
+	virtual HANDLE GetHandle() const;
+	virtual Line GetLine();
+	virtual Lines GetLines();
 
 	void Abort();
-	Lines GetLines();
+
+	bool AutoNewLine() const;
+	void AutoNewLine(bool value);
 
 private:
 	void Run();
@@ -66,6 +71,8 @@ private:
 	std::map<DWORD, std::string> m_lineBuffers;
 
 	// make sure the thread is last to initialize
+	MappedViewOfFile m_mappedViewOfFile;
+	const DbWinBuffer* m_dbWinBuffer;
 	boost::thread m_thread;
 };
 

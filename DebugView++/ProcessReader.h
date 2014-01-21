@@ -19,6 +19,8 @@ public:
 	ProcessReader(const std::wstring& pathName, const std::wstring& args);
 
 	virtual bool AtEnd() const;
+	virtual HANDLE GetHandle() const;
+	virtual Line GetLine();
 	virtual Lines GetLines();
 
 private:

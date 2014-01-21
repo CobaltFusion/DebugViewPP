@@ -38,6 +38,17 @@ bool FileReader::AtEnd() const
 	return false;
 }
 
+HANDLE FileReader::GetHandle() const
+{
+	return 0;	// todo::implement
+}
+
+Line FileReader::GetLine()
+{
+	Line line; // todo::implement
+	return line;
+}
+
 void FileReader::Run()
 {
 	std::ifstream ifs(m_filename.c_str(), std::ifstream::in);
@@ -88,6 +99,17 @@ DBLogReader::DBLogReader(const std::wstring& filename) :
 	FileReader(filename),
 	m_time(GetSystemTimeAsFileTime())
 {
+}
+
+HANDLE DBLogReader::GetHandle() const
+{
+	return 0;	// todo::implement
+}
+
+Line DBLogReader::GetLine()
+{
+	Line line; // todo::implement
+	return line;
 }
 
 bool ReadTime(const std::string& s, double& time)
