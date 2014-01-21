@@ -43,23 +43,12 @@ void LogSources::Abort()
 	m_thread.join();
 }
 
-LogSourcesVector LogSources::GetLogSources() const
-{
-	LogSourcesVector sources;
-	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
-	{
-		LogSource& logSource = *(i->get());
-		sources.push_back(LogSourceInfo(logSource.GetHandle(), logSource));
-	}
-	return LogSourcesVector();
-}
-
-LogSourcesHandles LogSources::GetWaitHandles(const LogSourcesVector& vector) const
+LogSourcesHandles LogSources::GetWaitHandles() const
 {
 	LogSourcesHandles handles;
-	for (auto i = vector.begin(); i != vector.end(); i++)
+	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
 	{
-		handles.push_back(i->handle);
+		handles.push_back(i->get());
 	}
 	handles.push_back(m_updateEvent.get());
 	return handles;
@@ -69,22 +58,28 @@ void LogSources::Run()
 {
 	for (;;)
 	{
-		auto logsources = GetLogSources();
-		auto handles = GetWaitHandles(logsources);
+		auto handles = GetWaitHandles();
 		for (;;)
 		{
 			auto res = WaitForAnyObject(handles, 1000);
 			if (m_end || m_sourcesDirty)
 				break;
 			if (res.signaled)
-			{
-				logsources[res.index].logsource.Notify();
-			}
+				Process(res.index);
 		}
 		if (m_end)
 			break;
 	}
 }
+
+void LogSources::Process(int index)
+{
+	auto& logsource = m_sources[index];
+	logsource->Notify();
+	if (logsource->AtEnd())
+		m_sources.erase(m_sources.begin() + index);
+}
+
 
 LogSources::~LogSources()
 {

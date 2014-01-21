@@ -33,8 +33,8 @@ public:
 	void Abort();
 
 private:
-	LogSourcesVector GetLogSources() const;
-	LogSourcesHandles GetWaitHandles(const LogSourcesVector& vector) const;
+	LogSourcesHandles GetWaitHandles() const;
+	void Process(int index);
 
 	std::vector<std::unique_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
