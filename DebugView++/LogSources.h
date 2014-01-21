@@ -14,9 +14,9 @@ namespace fusion {
 namespace debugviewpp {
 
 struct LogSourceInfo {
-	LogSourceInfo(HANDLE handle, const LogSource& logsource);		
+	LogSourceInfo(HANDLE handle, LogSource& logsource);		
 	HANDLE handle;
-	const LogSource& logsource;
+	LogSource& logsource;
 };
 
 typedef std::vector<LogSourceInfo> LogSourcesVector;
@@ -33,10 +33,8 @@ public:
 	void Abort();
 
 private:
-
 	LogSourcesVector GetLogSources() const;
 	LogSourcesHandles GetWaitHandles(const LogSourcesVector& vector) const;
-	void Process(const LogSource& logsource);
 
 	std::vector<std::unique_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;

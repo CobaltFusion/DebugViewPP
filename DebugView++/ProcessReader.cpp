@@ -23,10 +23,9 @@ HANDLE ProcessReader::GetHandle() const
 	return 0;	// todo::implement
 }
 
-Line ProcessReader::GetLine()
+void ProcessReader::Notify()
 {
-	Line line; // todo::implement
-	return line;
+	// add a line to CircularBuffer
 }
 
 bool ProcessReader::AtEnd() const

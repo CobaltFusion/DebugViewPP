@@ -15,12 +15,13 @@ namespace debugviewpp {
 class LogSource
 {
 public:
-	virtual ~LogSource();
 
+	virtual ~LogSource();
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
-	virtual Line GetLine() = 0;
-	virtual Lines GetLines() = 0;
+	virtual void Notify() = 0;
+
+	virtual Lines GetLines() = 0; // remove
 };
 
 } // namespace debugviewpp 

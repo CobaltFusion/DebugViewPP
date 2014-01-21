@@ -13,7 +13,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-LogSourceInfo::LogSourceInfo(HANDLE handle, const LogSource& logsource) :
+LogSourceInfo::LogSourceInfo(HANDLE handle, LogSource& logsource) :
 	handle(handle), 
 	logsource(logsource)
 {
@@ -48,8 +48,8 @@ LogSourcesVector LogSources::GetLogSources() const
 	LogSourcesVector sources;
 	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
 	{
-		const LogSource& logSource = *(i->get());
-		sources.push_back(LogSourceInfo(0 /* logSource->GetHandle() */, logSource));
+		LogSource& logSource = *(i->get());
+		sources.push_back(LogSourceInfo(logSource.GetHandle(), logSource));
 	}
 	return LogSourcesVector();
 }
@@ -78,18 +78,12 @@ void LogSources::Run()
 				break;
 			if (res.signaled)
 			{
-				Process(logsources[res.index].logsource);
+				logsources[res.index].logsource.Notify();
 			}
 		}
 		if (m_end)
 			break;
 	}
-}
-
-void LogSources::Process(const LogSource& logsource)
-{
-	logsource;
-	//logsource->ProcessEvent();
 }
 
 LogSources::~LogSources()

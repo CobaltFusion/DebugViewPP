@@ -59,24 +59,7 @@ HANDLE DBWinReader::GetHandle() const
 	return m_dbWinDataReady.get();
 }
 
-bool DBWinReader::AutoNewLine() const
-{
-	return m_autoNewLine;
-}
-
-void DBWinReader::AutoNewLine(bool value)
-{
-	m_autoNewLine = value;
-}
-
-void DBWinReader::Abort()
-{
-	m_end = true;
-	SetEvent(m_dbWinDataReady.get());	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
-	m_thread.join();
-}
-
-Line DBWinReader::GetLine()
+void DBWinReader::Notify()
 {
 	HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_dbWinBuffer->processId);
 
@@ -92,8 +75,24 @@ Line DBWinReader::GetLine()
 	Add(m_dbWinBuffer->processId, m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
 
-	Line line;
-	return line;
+	// add a line to CircularBuffer
+}
+
+bool DBWinReader::AutoNewLine() const
+{
+	return m_autoNewLine;
+}
+
+void DBWinReader::AutoNewLine(bool value)
+{
+	m_autoNewLine = value;
+}
+
+void DBWinReader::Abort()
+{
+	m_end = true;
+	SetEvent(m_dbWinDataReady.get());	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
+	m_thread.join();
 }
 
 void DBWinReader::Run()

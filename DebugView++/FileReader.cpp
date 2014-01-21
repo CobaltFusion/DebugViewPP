@@ -44,10 +44,9 @@ HANDLE FileReader::GetHandle() const
 	return 0;	// todo::implement
 }
 
-Line FileReader::GetLine()
+void FileReader::Notify()
 {
-	Line line; // todo::implement
-	return line;
+	// add a line to CircularBuffer
 }
 
 void FileReader::Run()
@@ -107,10 +106,9 @@ HANDLE DBLogReader::GetHandle() const
 	return 0;	// todo::implement
 }
 
-Line DBLogReader::GetLine()
+void DBLogReader::Notify()
 {
-	Line line; // todo::implement
-	return line;
+	// add a line to CircularBuffer
 }
 
 void DBLogReader::Add(const std::string& data)

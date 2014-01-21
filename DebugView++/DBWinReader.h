@@ -38,7 +38,7 @@ public:
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
-	virtual Line GetLine();
+	virtual void Notify();
 	virtual Lines GetLines();
 
 	void Abort();

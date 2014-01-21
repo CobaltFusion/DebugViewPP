@@ -24,10 +24,9 @@ HANDLE PipeReader::GetHandle() const
 	return 0;	// todo::implement
 }
 
-Line PipeReader::GetLine()
+void PipeReader::Notify()
 {
-	Line line; // todo::implement
-	return line;
+	// add a line to CircularBuffer
 }
 
 Line PipeReader::MakeLine(const std::string& text) const

@@ -23,7 +23,7 @@ public:
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
-	virtual Line GetLine();
+	virtual void Notify();
 	virtual Lines GetLines();
 
 protected:
@@ -49,7 +49,7 @@ class DBLogReader : public FileReader
 public:
 	explicit DBLogReader(const std::wstring& filename);
 	virtual HANDLE GetHandle() const;
-	virtual Line GetLine();
+	virtual void Notify();
 
 private:
 	virtual void Add(const std::string& line);
