@@ -18,13 +18,11 @@ ProcessHandleCache::~ProcessHandleCache()
 {
 }
 
-// Add takes ownership of the handle
-void ProcessHandleCache::Add(DWORD pid, HANDLE handle)
+void ProcessHandleCache::Add(DWORD pid, Handle handle)
 {
-	Handle processHandle(handle);
 	if (m_cache.find(pid) == m_cache.end())
 	{
-		m_cache[pid] = std::move(processHandle);
+		m_cache[pid] = std::move(handle);
 	}
 }
 

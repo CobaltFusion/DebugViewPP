@@ -157,7 +157,7 @@ Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
 		{
 			Handle processHandle(i->handle);
 			processName = Str(ProcessInfo::GetProcessName(processHandle.get())).str();
-			AddCache(i->pid, std::move(processHandle));
+			m_handleCache.Add(i->pid, std::move(processHandle));
 		}
 
 		Line line;
@@ -217,50 +217,31 @@ Lines DBWinReader::ProcessLine(const Line& line)
 	return lines;
 }
 
-void DBWinReader::AddCache(DWORD pid, Handle handle)
-{
-	if (m_handleCache.find(pid) == m_handleCache.end())
-	{
-		m_handleCache[pid] = std::move(handle);
-	}
-}
-
 Lines DBWinReader::CheckHandleCache()
 {
-	std::vector<DWORD> removePids;
 	Lines lines;
 	if ((m_timer.Get() - m_handleCacheTime) > HandleCacheTimeout)
 	{
-		for (auto i = m_handleCache.begin(); i != m_handleCache.end(); i++)
+		Pids removedPids = m_handleCache.Cleanup();
+		for (auto i = removedPids.begin(); i != removedPids.end(); i++)
 		{
-			DWORD pid = i->first;
+			DWORD pid = *i;
 			if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 			{
-				DWORD exitcode = 0;
-				BOOL result = GetExitCodeProcess(i->second.get(), &exitcode);
-				if (result == FALSE || exitcode != STILL_ACTIVE)
+				if (!m_lineBuffers[pid].empty())
 				{
-					if (!m_lineBuffers[pid].empty())
-					{
-						Line line;
-						line.pid = pid;
-						line.processName = "<flush>";
-						line.time = m_timer.Get();
-						line.systemTime = GetSystemTimeAsFileTime();
-						line.message = m_lineBuffers[pid];
-						lines.push_back(line);
-					}
-					m_lineBuffers.erase(pid);
-					removePids.push_back(pid);
+					Line line;
+					line.pid = pid;
+					line.processName = "<flush>";
+					line.time = m_timer.Get();
+					line.systemTime = GetSystemTimeAsFileTime();
+					line.message = m_lineBuffers[pid];
+					lines.push_back(line);
 				}
+				m_lineBuffers.erase(pid);
 			}
 		}
 		m_handleCacheTime = m_timer.Get();
-	}
-
-	for (auto i = removePids.begin(); i != removePids.end(); i++)
-	{
-		m_handleCache.erase(*i);
 	}
 	return lines;
 }

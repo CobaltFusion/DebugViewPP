@@ -18,7 +18,7 @@ class ProcessHandleCache
 public:
 	~ProcessHandleCache();
 
-	void Add(DWORD pid, HANDLE handle);
+	void Add(DWORD pid, Handle handle);
 	Pids Cleanup();
 
 private:

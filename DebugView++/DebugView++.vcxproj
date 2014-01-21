@@ -162,6 +162,7 @@
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="PipeReader.cpp" />
     <ClCompile Include="Process.cpp" />
+    <ClCompile Include="ProcessHandleCache.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="ProcessReader.cpp" />
     <ClCompile Include="RunDlg.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="PipeReader.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="ProcessHandleCache.h" />
     <ClInclude Include="ProcessInfo.h" />
     <ClInclude Include="ProcessReader.h" />
     <ClInclude Include="PropertyColorItem.h" />

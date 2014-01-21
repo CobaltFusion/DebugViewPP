@@ -14,6 +14,7 @@
 #include "LogSource.h"
 #include "DBWinBuffer.h"
 #include "Utilities.h"
+#include "ProcessHandleCache.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -51,8 +52,6 @@ private:
 	void AddLine(const InternalLine& InternalLine);
 	Lines ProcessLines(const InternalLines& lines);
 	Lines ProcessLine(const Line& internalLine);
-
-	void AddCache(DWORD pid, Handle handle);
 	Lines CheckHandleCache();
 
 	InternalLines m_lines;
@@ -66,13 +65,14 @@ private:
 	Handle m_dbWinBufferReady;
 	Handle m_dbWinDataReady;
 	
-	std::map<DWORD, Handle> m_handleCache;
 	double m_handleCacheTime;
 	std::map<DWORD, std::string> m_lineBuffers;
 
 	// make sure the thread is last to initialize
 	MappedViewOfFile m_mappedViewOfFile;
 	const DbWinBuffer* m_dbWinBuffer;
+
+	ProcessHandleCache m_handleCache;
 	boost::thread m_thread;
 };
 
