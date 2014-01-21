@@ -29,7 +29,7 @@ void ProcessHandleCache::Add(DWORD pid, Handle handle)
 Pids ProcessHandleCache::Cleanup()
 {
 	Pids removePids;
-	for (auto i = m_cache.begin(); i != m_cache.end(); i++)
+	for (auto i = m_cache.begin(); i != m_cache.end(); ++i)
 	{
 		DWORD exitcode = 0;
 		BOOL result = GetExitCodeProcess(i->second.get(), &exitcode);
@@ -40,10 +40,8 @@ Pids ProcessHandleCache::Cleanup()
 		}
 	}
 
-	for (auto i = removePids.begin(); i != removePids.end(); i++)
-	{
+	for (auto i = removePids.begin(); i != removePids.end(); ++i)
 		m_cache.erase(*i);
-	}
 	return removePids;
 }
 
