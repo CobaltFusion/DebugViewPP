@@ -91,6 +91,7 @@ CMainFrame::CMainFrame() :
 	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
+	m_circularBuffer(2*1024*1024),
 	m_pLocalReader(0),
 	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
@@ -924,7 +925,7 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			auto reader = make_unique<DBWinReader>(false);
+			auto reader = make_unique<DBWinReader>(m_circularBuffer, false);
 			m_pLocalReader = reader.get();
 			m_logSources.Add(std::move(reader));
 		}
@@ -943,7 +944,7 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			auto reader = make_unique<DBWinReader>(true);
+			auto reader = make_unique<DBWinReader>(m_circularBuffer, true);
 			m_pGlobalReader = reader.get();
 			m_logSources.Add(std::move(reader));
 		}

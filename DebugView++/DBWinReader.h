@@ -30,10 +30,12 @@ struct InternalLine
 
 typedef std::vector<InternalLine> InternalLines;
 
+class CircularBuffer;
+
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(bool global);
+	explicit DBWinReader(CircularBuffer& circularBuffer, bool global);
 	~DBWinReader();
 
 	virtual bool AtEnd() const;
@@ -54,6 +56,7 @@ private:
 	Lines ProcessLine(const Line& internalLine);
 	Lines CheckHandleCache();
 
+	CircularBuffer& m_circularBuffer;
 	InternalLines m_lines;
 	InternalLines m_backBuffer;
 	mutable boost::mutex m_linesMutex;
