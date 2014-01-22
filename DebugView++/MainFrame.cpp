@@ -91,6 +91,8 @@ CMainFrame::CMainFrame() :
 	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
+	m_pLocalReader(0),
+	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont())
@@ -360,36 +362,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 {
-	Lines localLines;
-	if (m_pLocalReader)
-		localLines = m_pLocalReader->GetLines();
-
-	Lines globalLines;
-	if (m_pGlobalReader)
-		globalLines = m_pGlobalReader->GetLines();
-
-	Lines lines;
-	lines.reserve(localLines.size() + globalLines.size());
-	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
-	std::merge(localLines.begin(), localLines.end(), globalLines.begin(), globalLines.end(), std::back_inserter(lines), pred);
-	if (m_pSources.empty())
-		return ProcessLines(lines);
-
-	for (auto it = m_pSources.begin(); it != m_pSources.end(); )
-	{
-		Lines pipeLines((*it)->GetLines());
-		Lines lines2;
-		lines2.reserve(lines.size() + pipeLines.size());
-		std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
-		lines.swap(lines2);
-
-		if ((*it)->AtEnd())
-			it = m_pSources.erase(it);
-		else
-			++it;
-	}
-
-	ProcessLines(lines);
+	ProcessLines(m_logSources.GetLines());
 }
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
@@ -791,19 +764,18 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
-	m_pSources.push_back(make_unique<ProcessReader>(pathName, args));
+	m_logSources.Add(make_unique<ProcessReader>(pathName, args));
 }
 
 void CMainFrame::AddFileReader(const std::wstring& filename)
 {
-	m_pSources.push_back(make_unique<FileReader>(filename));
+	m_logSources.Add(make_unique<FileReader>(filename));
 }
 
 void CMainFrame::AddDBLogReader(const std::wstring& filename)
 {
-	m_pSources.push_back(make_unique<DBLogReader>(filename));
+	m_logSources.Add(make_unique<DBLogReader>(filename));
 }
-
 
 void CMainFrame::Run(const std::wstring& pathName)
 {
@@ -861,7 +833,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
 	DWORD pid = GetParentProcessId();
-	m_pSources.push_back(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str()));
+	m_logSources.Add(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str()));
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -938,8 +910,10 @@ bool CMainFrame::IsPaused() const
 void CMainFrame::Pause()
 {
 	SetTitle(L"Paused");
-	m_pLocalReader.reset();
-	m_pGlobalReader.reset();
+	if (m_pLocalReader)
+		m_pLocalReader->Abort();
+	if (m_pGlobalReader)
+		m_pGlobalReader->Abort();
 }
 
 void CMainFrame::Resume()
@@ -950,7 +924,9 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			m_pLocalReader = make_unique<DBWinReader>(false);
+			auto reader = make_unique<DBWinReader>(false);
+			m_pLocalReader = reader.get();
+			m_logSources.Add(std::move(reader));
 		}
 		catch (std::exception&)
 		{
@@ -967,7 +943,9 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			m_pGlobalReader = make_unique<DBWinReader>(true);
+			auto reader = make_unique<DBWinReader>(true);
+			m_pGlobalReader = reader.get();
+			m_logSources.Add(std::move(reader));
 		}
 		catch (std::exception&)
 		{
@@ -1016,7 +994,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	if (m_pLocalReader && m_tryGlobal)
 		Resume();
 	else
-		m_pGlobalReader.reset();
+		m_pGlobalReader->Abort();
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

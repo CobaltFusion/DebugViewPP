@@ -25,6 +25,7 @@ namespace WTL { using ATL::CString; };
 #include "LogView.h"
 #include "DBWinReader.h"
 #include "LogSource.h"
+#include "LogSources.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -176,9 +177,9 @@ private:
 	bool m_hide;
 	bool m_tryGlobal;
 	CRunDlg m_runDlg;
-	std::unique_ptr<DBWinReader> m_pLocalReader;
-	std::unique_ptr<DBWinReader> m_pGlobalReader;
-	std::vector<std::unique_ptr<LogSource>> m_pSources;
+	DBWinReader* m_pLocalReader;
+	DBWinReader* m_pGlobalReader;
+	LogSources m_logSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
 	size_t m_initialPrivateBytes;

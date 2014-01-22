@@ -32,16 +32,19 @@ public:
 	void Add(std::unique_ptr<LogSource> source);
 	void Run();
 	void Abort();
+	Lines GetLines();
 
 private:
-	LogSourcesHandles GetWaitHandles() const;
+	LogSourcesHandles GetWaitHandles();
 	void Process(int index);
 
+	boost::mutex m_mutex;
 	std::vector<std::unique_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
 	bool m_end;
 	bool m_sourcesDirty;
 	CircularBuffer m_circularBuffer;
+	LogSourcesHandles m_waitHandles;
 	// make sure the thread is last to initialize
 	boost::thread m_thread;
 };

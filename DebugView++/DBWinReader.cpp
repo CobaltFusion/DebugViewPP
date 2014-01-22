@@ -51,7 +51,7 @@ DBWinReader::~DBWinReader()
 
 bool DBWinReader::AtEnd() const
 {
-	return false;
+	return m_end;
 }
 
 HANDLE DBWinReader::GetHandle() const 

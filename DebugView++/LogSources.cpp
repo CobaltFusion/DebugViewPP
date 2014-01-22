@@ -25,6 +25,7 @@ LogSources::LogSources() :
 	m_sourcesDirty(false),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_circularBuffer(2*1024*1024),
+	m_waitHandles(GetWaitHandles()),
 	m_thread(&LogSources::Run, this)
 {
 }
@@ -37,6 +38,7 @@ LogSources::~LogSources()
 
 void LogSources::Add(std::unique_ptr<LogSource> source)
 {
+	boost::mutex::scoped_lock lock(m_mutex);
 	m_sources.push_back(std::move(source));
 	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
@@ -49,8 +51,9 @@ void LogSources::Abort()
 	m_thread.join();
 }
 
-LogSourcesHandles LogSources::GetWaitHandles() const
+LogSourcesHandles LogSources::GetWaitHandles()
 {
+	boost::mutex::scoped_lock lock(m_mutex);
 	LogSourcesHandles handles;
 	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
 	{
@@ -62,12 +65,13 @@ LogSourcesHandles LogSources::GetWaitHandles() const
 
 void LogSources::Run()
 {
+	return;
+
 	for (;;)
 	{
-		auto handles = GetWaitHandles();
 		for (;;)
 		{
-			auto res = WaitForAnyObject(handles, 1000);
+			auto res = WaitForAnyObject(m_waitHandles, 1000);
 			if (m_end || m_sourcesDirty)
 				break;
 			if (res.signaled)
@@ -75,6 +79,7 @@ void LogSources::Run()
 		}
 		if (m_end)
 			break;
+		m_waitHandles = GetWaitHandles();
 	}
 }
 
@@ -84,6 +89,29 @@ void LogSources::Process(int index)
 	logsource->Notify();
 	if (logsource->AtEnd())
 		m_sources.erase(m_sources.begin() + index);
+}
+
+Lines LogSources::GetLines()
+{
+	if (m_sources.empty())
+		return Lines();
+
+	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
+	Lines lines;
+	for (auto it = m_sources.begin(); it != m_sources.end(); )
+	{
+		Lines pipeLines((*it)->GetLines());
+		Lines lines2;
+		lines2.reserve(lines.size() + pipeLines.size());
+		std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
+		lines.swap(lines2);
+
+		if ((*it)->AtEnd())
+			it = m_sources.erase(it);	// todo: erase an element of the list we're iterating? 
+		else
+			++it;
+	}
+	return lines;
 }
 
 } // namespace debugviewpp 
