@@ -24,10 +24,10 @@ LogSources::LogSources() :
 	m_end(false),
 	m_sourcesDirty(false),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
+	m_circularBuffer(2*1024*1024),
 	m_thread(&LogSources::Run, this)
 {
 }
-
 	
 LogSources::~LogSources()
 {

@@ -21,6 +21,16 @@ CircularBuffer::CircularBuffer(size_t size) :
 {
 }
 
+void CircularBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
+{
+
+}
+
+Line CircularBuffer::GetLine()
+{
+	return Line();
+}
+
 CircularBuffer::~CircularBuffer()
 {
 	delete[] m_pBegin;

@@ -23,6 +23,8 @@ static_assert(sizeof(DbWinBuffer) == 4096, "DBWIN_BUFFER size must be 4096");
 
 struct Line
 {
+	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "");
+
 	double time;
 	FILETIME systemTime;
 	DWORD pid;

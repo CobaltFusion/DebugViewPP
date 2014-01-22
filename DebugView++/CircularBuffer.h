@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "DBWinBuffer.h"
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -15,6 +17,9 @@ class CircularBuffer : boost::noncopyable
 public:
 	explicit CircularBuffer(size_t size);
 	~CircularBuffer();
+
+	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
+	Line GetLine();
 
 private:
 	char* m_pBegin;

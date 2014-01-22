@@ -9,6 +9,7 @@
 
 #include "LogSource.h"
 #include "Win32Lib.h"
+#include "CircularBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -40,7 +41,7 @@ private:
 	Handle m_updateEvent;
 	bool m_end;
 	bool m_sourcesDirty;
-
+	CircularBuffer m_circularBuffer;
 	// make sure the thread is last to initialize
 	boost::thread m_thread;
 };

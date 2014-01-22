@@ -77,12 +77,7 @@ void FileReader::Run()
 
 void FileReader::Add(const std::string& text)
 {
-	Line line;
-	line.time = m_timer.Get();
-	line.systemTime = GetSystemTimeAsFileTime();
-	line.pid = 0;
-	line.message = text;
-	line.processName = boost::filesystem::wpath(m_filename).filename().string();
+	Line line(m_timer.Get(), GetSystemTimeAsFileTime(), 0, boost::filesystem::wpath(m_filename).filename().string(), text);
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_buffer.push_back(line);
 }
@@ -113,7 +108,7 @@ void DBLogReader::Notify()
 
 void DBLogReader::Add(const std::string& data)
 {
-	Line line;
+	Line line = Line();
 	line.systemTime = m_time;
 	line.processName = m_name;
 	ReadLogFileMessage(data, line);
