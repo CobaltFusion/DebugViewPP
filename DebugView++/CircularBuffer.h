@@ -19,7 +19,7 @@ public:
 	~CircularBuffer();
 
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
-	Line GetLine();
+	Lines GetLines();
 
 private:
 	char* m_pBegin;

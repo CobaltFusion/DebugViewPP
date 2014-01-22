@@ -26,9 +26,9 @@ void CircularBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const 
 
 }
 
-Line CircularBuffer::GetLine()
+Lines CircularBuffer::GetLines()
 {
-	return Line();
+	return Lines();
 }
 
 CircularBuffer::~CircularBuffer()
