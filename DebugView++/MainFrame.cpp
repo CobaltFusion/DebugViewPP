@@ -321,6 +321,10 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 
 void CMainFrame::UpdateStatusBar()
 {
+	//auto bla = GetView();	// WTF gebeurd er als je dit toevoegd.
+	CLogView& view = GetView();		
+	if (&view == 0) return;		// Gert-Jan: ik weet niet wat hier gebeurd maar &view is kennelijk een nullptr als je een 3e view toevoegd?
+
 	auto isearch = GetView().GetHighlightText();
 	std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
 	UISetText(ID_DEFAULT_PANE,
