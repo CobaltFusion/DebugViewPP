@@ -2,17 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\DebugView++.vcxproj", "{E37BA0C9-8A2F-4F2E-BBF8-839F3429D3A7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D} = {D087E484-DBC9-4A2E-8368-C1D0E524994D}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DbgMsgSrc", "DbgMsgSrc\DbgMsgSrc.vcxproj", "{722E0592-E026-4D51-87EC-6ACA85B385F4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsnappy", "libsnappy\libsnappy.vcxproj", "{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DebugView++Setup", "DebugView++Setup\DebugView++Setup.wixproj", "{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EasyHookDll", "EasyHook\EasyHookDll\EasyHookDll.vcxproj", "{D087E484-DBC9-4A2E-8368-C1D0E524994D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,20 +77,6 @@ Global
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|x64.ActiveCfg = Release|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|x86.ActiveCfg = Release|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|x86.Build.0 = Release|x86
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|Mixed Platforms.Build.0 = Debug|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|Win32.Build.0 = Debug|Win32
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|x64.ActiveCfg = Debug|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|x64.Build.0 = Debug|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Debug|x86.ActiveCfg = Debug|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|Mixed Platforms.Build.0 = Release|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|Win32.ActiveCfg = Release|Win32
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|Win32.Build.0 = Release|Win32
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|x64.ActiveCfg = Release|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|x64.Build.0 = Release|x64
-		{D087E484-DBC9-4A2E-8368-C1D0E524994D}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
