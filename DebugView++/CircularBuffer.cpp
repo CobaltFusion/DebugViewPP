@@ -13,6 +13,7 @@
 #include "CircularBuffer.h"
 #include "DBWinBuffer.h"
 #include "Win32Lib.h"
+#include "dbgstream.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -24,7 +25,7 @@ namespace debugviewpp {
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Empty Buffer
 // +---+----+--+---+---+---+---+---+ 
 //               R
-//               W  
+//               W
 
 // +---+---+---+---+---+---+---+---+ 
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    1 Bytes in buffer
@@ -36,6 +37,12 @@ namespace debugviewpp {
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    2 Bytes in buffer
 // +---+----+--+---+---+---+---+---+ 
 //               R       W 
+//
+
+// +---+---+---+---+---+---+---+---+ 
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    2 Bytes in buffer
+// +---+----+--+---+---+---+---+---+ 
+//       W                       R
 //
 
 // +---+---+---+---+---+---+---+---+ 
@@ -85,16 +92,16 @@ size_t CircularBuffer::GetFree() const
 
 size_t CircularBuffer::GetCount() const
 {
-	return (m_writeOffset > m_readOffset)
-                ? m_writeOffset-m_readOffset
-                : m_size - (m_readOffset + m_writeOffset);
+	return (m_writeOffset >= m_readOffset)
+                ? m_writeOffset - m_readOffset
+                : (m_size - m_readOffset) + m_writeOffset;
 }
 
 bool CircularBuffer::Full() const
 {
 	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
 	return (maxMessageSize > GetFree());
-	// return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
+	//return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
 }
 
 std::string CircularBuffer::ReadMessage()
@@ -122,6 +129,20 @@ void CircularBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const 
 	WriteMessage(message);
 }
 
+void CircularBuffer::printStats()
+{
+	cdbg << "Full: " << (Full() ? "yes" : "no") << "\n";
+	cdbg << "Empty: " << (Empty() ? "yes" : "no") << "\n";
+	cdbg << "Count: " << GetCount() << "\n";
+
+	printf("size: %d\t", m_size);
+	printf("Full: %s\t",  (Full() ? "yes" : "no"));
+	printf("Empty: %s\t",  (Empty() ? "yes" : "no"));
+	printf("Count: %d\t",  GetCount());
+	printf("m_readOffset: %d\t", m_readOffset);
+	printf("m_writeOffset: %d\n", m_writeOffset);
+}
+
 void CircularBuffer::WaitForReader()
 {
     auto predicate = [this] { return !Full(); };
@@ -143,10 +164,16 @@ Lines CircularBuffer::GetLines()
 	Lines lines;
 	while (!Empty())
 	{
-		Handle handle(Read<HANDLE>());
+		//Handle handle;
+		auto time = Read<double>();
+		auto filetime = Read<FILETIME>();
+		auto processHandle = Read<HANDLE>();
+		auto message = ReadMessage();
 		DWORD pid = 0;			
-		std::string processName;
-		lines.push_back(Line(Read<double>(), Read<FILETIME>(), pid, processName, ReadMessage()));
+		std::string processName = "process";
+		lines.push_back(Line(time, filetime, pid, processName, message));
+		printf("got line\n");
+		printStats();
 	}
 	m_triggerRead.notify_all();
 	return Lines();

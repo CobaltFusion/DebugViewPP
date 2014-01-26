@@ -188,6 +188,7 @@ private:
 	NOTIFYICONDATA m_notifyIconData;
 	LOGFONT m_logfont;
 	std::wstring m_applicationName;
+	FILE* m_stdout;
 };
 
 } // namespace debugviewpp 

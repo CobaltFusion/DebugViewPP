@@ -21,6 +21,7 @@ public:
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 	Lines GetLines();
 	
+	void printStats();
 private:
 
 	inline size_t PtrAdd(size_t value, size_t add) const

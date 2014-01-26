@@ -91,13 +91,14 @@ CMainFrame::CMainFrame() :
 	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
-	m_circularBuffer(2*1024*1024),
+	m_circularBuffer(7000),
 	m_pLocalReader(0),
 	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont())
 {
+//#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
@@ -105,6 +106,43 @@ CMainFrame::CMainFrame() :
 
 	m_notifyIconData.cbSize = 0;
 	SetAutoNewLine(m_autoNewLine);
+
+	//m_circularBuffer.printStats();
+
+	//try {
+	//	for (;;)
+	//	{
+	//		m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test1 message");
+	//	}
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_circularBuffer.printStats();
+
+	//try {
+	//	m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_circularBuffer.printStats();
+
+	//try {
+	//	m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_circularBuffer.printStats();
+
+	//auto lines = m_circularBuffer.GetLines();
+	//for (auto i=lines.begin(); i != lines.end(); ++i)
+	//{
+	//	printf("msg: '%s'\n", i->message.c_str());
+	//}
+
+	//m_circularBuffer.printStats();
+
+	//try {
+	//	m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_circularBuffer.printStats();
 }
 
 CMainFrame::~CMainFrame()
