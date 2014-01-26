@@ -17,27 +17,78 @@
 namespace fusion {
 namespace debugviewpp {
 
+// see http://en.wikipedia.org/wiki/Circular_buffer 
+// the 'Always Keep One Slot Open' strategy is used to distigush between empty and full conditions
+
+// +---+---+---+---+---+---+---+---+ 
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Empty Buffer
+// +---+----+--+---+---+---+---+---+ 
+//               R
+//               W  
+
+// +---+---+---+---+---+---+---+---+ 
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    1 Bytes in buffer
+// +---+----+--+---+---+---+---+---+ 
+//               R   W 
+//
+
+// +---+---+---+---+---+---+---+---+ 
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    2 Bytes in buffer
+// +---+----+--+---+---+---+---+---+ 
+//               R       W 
+//
+
+// +---+---+---+---+---+---+---+---+ 
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Full buffer (1 byte use as 'open slot')
+// +---+---+---+---+---+---+---+---+ 
+//       W       R
+
+
 CircularBuffer::CircularBuffer(size_t size) :
-	m_pBegin(new char[size]),
-	m_pEnd(m_pBegin + size),
-	m_pRead(m_pBegin),
-	m_pWrite(m_pBegin)
+	m_size(GetPowerOfTwo(size)),
+	m_buffer(new char[m_size]),
+	m_pBegin(m_buffer.get()),
+	m_pEnd(m_pBegin + m_size),
+	m_readOffset(0),
+	m_writeOffset(0)
 {
+}
+
+int CircularBuffer::GetPowerOfTwo(int v)
+{
+	v--;	// decrement by one, so if the input is a power of two, we return the input value.
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+	return v;
 }
 	
-bool CircularBuffer::Empty()
+bool CircularBuffer::Empty() const
 {
-	return false;
+	return m_readOffset == m_writeOffset;
 }
 
-bool CircularBuffer::Full()
+Offset CircularBuffer::GetFree() const
+{
+	return (m_readOffset > m_writeOffset)
+                ? m_readOffset
+                : m_size - (m_writeOffset - m_readOffset);
+}
+
+Offset CircularBuffer::GetCount() const
+{
+	return (m_writeOffset > m_readOffset)
+                ? m_writeOffset-m_readOffset
+                : m_size - (m_readOffset + m_writeOffset);
+}
+
+bool CircularBuffer::Full() const
 {
 	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer);
-
-	//	return (m_pWrite >= (m_pEnd-maxMessageSize));	// ! wrong, must wrap at the end of the buffer
-
-	// todo: create either operators or methods to do CircularBuffer arithmetic
-	return false;
+	return (maxMessageSize > GetFree());
 }
 
 const char* CircularBuffer::ReadMessage()
@@ -48,8 +99,8 @@ const char* CircularBuffer::ReadMessage()
 void CircularBuffer::WriteMessage(const char* message)
 {
 	size_t len = strlen(message);
-	std::copy(message, message+len, stdext::checked_array_iterator<char*>(m_pWrite, m_pEnd-m_pWrite));
-	m_pWrite += len;
+	std::copy(message, message+len, stdext::checked_array_iterator<char*>(WritePointer(), m_size-m_writeOffset));
+	m_writeOffset = PtrAdd(m_writeOffset, len);
 }
 
 void CircularBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
@@ -90,7 +141,6 @@ Lines CircularBuffer::GetLines()
 
 CircularBuffer::~CircularBuffer()
 {
-	delete[] m_pBegin;
 }
 
 } // namespace debugviewpp

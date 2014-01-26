@@ -12,6 +12,8 @@
 namespace fusion {
 namespace debugviewpp {
 
+typedef size_t Offset;
+
 class CircularBuffer : boost::noncopyable
 {
 public:
@@ -22,8 +24,25 @@ public:
 	Lines GetLines();
 	
 private:
-	bool Empty();
-	bool Full();
+
+	inline Offset PtrAdd(Offset value, Offset add) const
+	{
+		return ((value + add) & (m_size-1));
+	}
+
+	inline const char* ReadPointer()
+	{
+		return m_buffer.get()+m_readOffset;
+	}
+
+	inline char* WritePointer()
+	{
+		return m_buffer.get()+m_writeOffset;
+	}
+
+	static int GetPowerOfTwo(int size);
+	bool Empty() const;
+	bool Full() const;
 	void WaitForReader();
 
 	template <class T> T Read();
@@ -31,11 +50,15 @@ private:
 
 	template <class T> void Write(T type);
 	void WriteMessage(const char* message);
+	Offset GetFree() const;
+	Offset GetCount() const;
 
+	Offset m_size;
+	std::unique_ptr<char> m_buffer;
 	char* m_pBegin;
 	char* m_pEnd;
-	const char* m_pRead;
-	char* m_pWrite;
+	Offset m_readOffset;
+	Offset m_writeOffset;
 
 	boost::condition_variable m_triggerRead;
 };
@@ -43,17 +66,17 @@ private:
 template <class T> 
 T CircularBuffer::Read()
 {
-	auto pBuffer = (T *) m_pRead;
-	m_pRead += sizeof(T);				// ! wrong, must wrap at the end of the buffer
+	auto pBuffer = (T*) m_buffer.get() + m_readOffset;
+	m_readOffset = PtrAdd(m_readOffset, sizeof(T));
 	return *pBuffer;
 }
 
 template <class T> 
 void CircularBuffer::Write(T value)
 {
-	auto pBuffer = (T *) m_pWrite;
-	*pBuffer = value;					// ! wrong, must wrap at the end of the buffer
-	m_pWrite += sizeof(T);
+	auto pBuffer = (T*) m_buffer.get() + m_writeOffset;
+	*pBuffer = value;
+	m_writeOffset = PtrAdd(m_writeOffset, sizeof(T));
 }
 
 } // namespace debugviewpp 
