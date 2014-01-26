@@ -39,9 +39,14 @@ namespace debugviewpp {
 //
 
 // +---+---+---+---+---+---+---+---+ 
-// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Full buffer (1 byte use as 'open slot')
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Full buffer (1 byte used as 'open slot')
 // +---+---+---+---+---+---+---+---+ 
-//       W       R
+//           W   R
+
+// +---+---+---+---+---+---+---+---+ 
+// | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Full buffer (1 byte used as 'open slot')
+// +---+---+---+---+---+---+---+---+ 
+//   R                           W 
 
 
 CircularBuffer::CircularBuffer(size_t size) :
@@ -71,14 +76,14 @@ bool CircularBuffer::Empty() const
 	return m_readOffset == m_writeOffset;
 }
 
-Offset CircularBuffer::GetFree() const
+size_t CircularBuffer::GetFree() const
 {
-	return (m_readOffset > m_writeOffset)
-                ? m_readOffset
-                : m_size - (m_writeOffset - m_readOffset);
+	return (m_writeOffset < m_readOffset)
+                ? (m_readOffset - m_writeOffset) - 1
+                : (m_size - m_writeOffset) + m_readOffset - 1;
 }
 
-Offset CircularBuffer::GetCount() const
+size_t CircularBuffer::GetCount() const
 {
 	return (m_writeOffset > m_readOffset)
                 ? m_writeOffset-m_readOffset
@@ -87,20 +92,24 @@ Offset CircularBuffer::GetCount() const
 
 bool CircularBuffer::Full() const
 {
-	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer);
+	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
 	return (maxMessageSize > GetFree());
+	// return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
 }
 
-const char* CircularBuffer::ReadMessage()
+std::string CircularBuffer::ReadMessage()
 {
-	return 0;
+	auto pBuffer = m_buffer.get() + m_readOffset;
+	std::string message(pBuffer);
+	m_readOffset = PtrAdd(m_readOffset, message.length()+1);
+	return message;
 }
 
 void CircularBuffer::WriteMessage(const char* message)
 {
-	size_t len = strlen(message);
-	std::copy(message, message+len, stdext::checked_array_iterator<char*>(WritePointer(), m_size-m_writeOffset));
-	m_writeOffset = PtrAdd(m_writeOffset, len);
+	for (size_t i=0; i < strlen(message); ++i)
+		Write(message[i]);
+	Write(char(0));
 }
 
 void CircularBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
@@ -121,7 +130,11 @@ void CircularBuffer::WaitForReader()
 	{
 		boost::mutex waitingLock;
 		boost::unique_lock<boost::mutex> lock(waitingLock);
-		m_triggerRead.timed_wait(lock, boost::posix_time::seconds(1), predicate);
+		bool result = m_triggerRead.timed_wait(lock, boost::posix_time::seconds(1), predicate);
+		if (!result)
+		{
+			throw std::exception("timeout");	// only so I can test without multiple threads
+		}
 	}
 }
 

@@ -12,8 +12,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-typedef size_t Offset;
-
 class CircularBuffer : boost::noncopyable
 {
 public:
@@ -25,7 +23,7 @@ public:
 	
 private:
 
-	inline Offset PtrAdd(Offset value, Offset add) const
+	inline size_t PtrAdd(size_t value, size_t add) const
 	{
 		return ((value + add) & (m_size-1));
 	}
@@ -46,19 +44,19 @@ private:
 	void WaitForReader();
 
 	template <class T> T Read();
-	const char* ReadMessage();
+	std::string ReadMessage();
 
 	template <class T> void Write(T type);
 	void WriteMessage(const char* message);
-	Offset GetFree() const;
-	Offset GetCount() const;
+	size_t GetFree() const;
+	size_t GetCount() const;
 
-	Offset m_size;
+	size_t m_size;
 	std::unique_ptr<char> m_buffer;
 	char* m_pBegin;
 	char* m_pEnd;
-	Offset m_readOffset;
-	Offset m_writeOffset;
+	size_t m_readOffset;
+	size_t m_writeOffset;
 
 	boost::condition_variable m_triggerRead;
 };
