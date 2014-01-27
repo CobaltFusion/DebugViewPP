@@ -22,15 +22,16 @@ public:
 	virtual ~CircularBuffer();
 	size_t Size() const;
 
+	void printStats();
 	virtual bool Empty() const;
 	virtual bool Full() const;
 	virtual size_t GetFree() const;
 	virtual size_t GetCount() const;
 
 	template <class T> T Read();
-	std::string ReadMessage();
+	std::string ReadStringZ();
 	template <class T> void Write(T type);
-	void WriteMessage(const char* message);
+	void WriteStringZ(const char* message);
 
 protected:
 	inline size_t PtrAdd(size_t value, size_t add) const

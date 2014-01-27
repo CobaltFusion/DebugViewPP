@@ -76,6 +76,58 @@ TEST(TestCase, CircularBufferCycle)
 	}
 }
 
+TEST(TestCase, CircularBufferCycleStringZ)
+{
+	size_t testsize = 100;
+    fusion::CircularBuffer buffer(testsize);
+	EXPECT_EQ(128, buffer.Size());
+	
+	for (int j=0; j<1000; ++j)
+	{
+		//std::cout << "Test Cycle Number " << j+1 << std::endl;
+		EXPECT_EQ(true, buffer.Empty());
+		for (size_t i=0; i< 17; ++i)
+		{
+			buffer.WriteStringZ("test");
+		}
+		EXPECT_EQ(false, buffer.Empty());
+
+		for (size_t i=0; i<17; ++i)
+		{
+			auto test = buffer.ReadStringZ();
+			EXPECT_EQ("test", test);
+		}
+		EXPECT_EQ(true, buffer.Empty());
+	}
+}
+
+TEST(TestCase, CircularBufferCycleStringZPrime)
+{
+	size_t testsize = 200;
+    fusion::CircularBuffer buffer(testsize);
+	EXPECT_EQ(256, buffer.Size());
+	
+	for (int j=0; j<500; ++j)
+	{
+		//std::cout << "Test Cycle Number " << j+1 << std::endl;
+		EXPECT_EQ(true, buffer.Empty());
+		for (size_t i=0; i< 17; ++i)
+		{
+			buffer.WriteStringZ("test123");
+		}
+		EXPECT_EQ(false, buffer.Empty());
+
+		for (size_t i=0; i<17; ++i)
+		{
+			auto test123 = buffer.ReadStringZ();
+			EXPECT_EQ("test123", test123);
+		}
+		EXPECT_EQ(true, buffer.Empty());
+	}
+}
+
+// todo: test buffer full blocking condition
+
 int main(int argc, char* argv[])
 {
     testing::InitGoogleTest(&argc, argv);

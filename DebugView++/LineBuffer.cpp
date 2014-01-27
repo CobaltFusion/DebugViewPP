@@ -31,7 +31,7 @@ void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char
 	Write(time);
 	Write(systemTime);
 	Write(handle);
-	WriteMessage(message);
+	WriteStringZ(message);
 }
 
 Lines LineBuffer::GetLines()
@@ -43,7 +43,7 @@ Lines LineBuffer::GetLines()
 		auto time = Read<double>();
 		auto filetime = Read<FILETIME>();
 		auto processHandle = Read<HANDLE>();
-		auto message = ReadMessage();
+		auto message = ReadStringZ();
 		DWORD pid = 0;			
 		std::string processName = "process";
 		lines.push_back(Line(time, filetime, pid, processName, message));
@@ -52,20 +52,6 @@ Lines LineBuffer::GetLines()
 	}
 	m_triggerRead.notify_all();
 	return Lines();
-}
-
-void LineBuffer::printStats()
-{
-	cdbg << "Full: " << (Full() ? "yes" : "no") << "\n";
-	cdbg << "Empty: " << (Empty() ? "yes" : "no") << "\n";
-	cdbg << "Count: " << GetCount() << "\n";
-
-	printf("size: %d\t", m_size);
-	printf("Full: %s\t",  (Full() ? "yes" : "no"));
-	printf("Empty: %s\t",  (Empty() ? "yes" : "no"));
-	printf("Count: %d\t",  GetCount());
-	printf("m_readOffset: %d\t", m_readOffset);
-	printf("m_writeOffset: %d\n", m_writeOffset);
 }
 
 } // namespace debugviewpp

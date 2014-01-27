@@ -20,7 +20,6 @@ class LineBuffer : public CircularBuffer
 public:
 	explicit LineBuffer(size_t size);
 
-	void printStats();
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 	Lines GetLines();
 

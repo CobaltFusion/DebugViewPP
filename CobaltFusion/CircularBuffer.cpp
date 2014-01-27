@@ -9,6 +9,7 @@
 
 #include "stdafx.h"
 #include "CircularBuffer.h"
+#include "dbgstream.h"
 
 namespace fusion {
 
@@ -106,15 +107,17 @@ bool CircularBuffer::Full() const
 	return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
 }
 
-std::string CircularBuffer::ReadMessage()
+std::string CircularBuffer::ReadStringZ()
 {
-	auto pBuffer = m_buffer.get() + m_readOffset;
-	std::string message(pBuffer);
-	m_readOffset = PtrAdd(m_readOffset, message.length()+1);
+	std::string message;
+	while (auto ch = Read<char>())
+	{
+		message.push_back(ch);
+	}
 	return message;
 }
 
-void CircularBuffer::WriteMessage(const char* message)
+void CircularBuffer::WriteStringZ(const char* message)
 {
 	for (size_t i=0; i < strlen(message); ++i)
 		Write(message[i]);
@@ -135,6 +138,20 @@ void CircularBuffer::WaitForReader()
 			throw std::exception("timeout");	// only so I can test without multiple threads
 		}
 	}
+}
+
+void CircularBuffer::printStats()
+{
+	cdbg << "Full: " << (Full() ? "yes" : "no") << "\n";
+	cdbg << "Empty: " << (Empty() ? "yes" : "no") << "\n";
+	cdbg << "Count: " << GetCount() << "\n";
+
+	printf("size: %d\t", m_size);
+	printf("Full: %s\t",  (Full() ? "yes" : "no"));
+	printf("Empty: %s\t",  (Empty() ? "yes" : "no"));
+	printf("Count: %d\t",  GetCount());
+	printf("m_readOffset: %d\t", m_readOffset);
+	printf("m_writeOffset: %d\n", m_writeOffset);
 }
 
 } // namespace fusion

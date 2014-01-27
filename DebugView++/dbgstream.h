@@ -1,3 +1,10 @@
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Repository at: https://github.com/djeedjay/DebugViewPP/
+
 // OutputDebugString as an ostream:
 // cdbg << "Hello " << name << std::endl;
 // wcdbg << L"Hello " << wname << std::endl;
@@ -13,17 +20,14 @@
 // #endif
 
 
-#ifndef BOOSTTESTUI_DBGSTREAM_H
-#define BOOSTTESTUI_DBGSTREAM_H
+#ifndef DBGSTREAM_H
+#define DBGSTREAM_H
 
 #pragma once
-
-// #pragma message("\"Imaging/dbgstream.h\" is deprecated, please use <Fei/dbgstream.h> instead.")
 
 #include <streambuf>
 #include <string>
 #include "windows.h"
-
 
 namespace gj {
 
