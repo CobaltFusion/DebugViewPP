@@ -22,6 +22,16 @@ public:
 	virtual ~CircularBuffer();
 	size_t Size() const;
 
+	virtual bool Empty() const;
+	virtual bool Full() const;
+	virtual size_t GetFree() const;
+	virtual size_t GetCount() const;
+
+	template <class T> T Read();
+	std::string ReadMessage();
+	template <class T> void Write(T type);
+	void WriteMessage(const char* message);
+
 protected:
 	inline size_t PtrAdd(size_t value, size_t add) const
 	{
@@ -39,17 +49,7 @@ protected:
 	}
 
 	static int GetPowerOfTwo(int size);
-	virtual bool Empty() const;
-	virtual bool Full() const;
 	virtual void WaitForReader();
-
-	virtual size_t GetFree() const;
-	virtual size_t GetCount() const;
-
-	template <class T> T Read();
-	std::string ReadMessage();
-	template <class T> void Write(T type);
-	void WriteMessage(const char* message);
 
 	size_t m_size;
 	std::unique_ptr<char> m_buffer;

@@ -23,12 +23,33 @@ TEST(TestCase, Test)
 TEST(TestCase, CircularBufferSize)
 {
     fusion::CircularBuffer buffer(100);
-	EXPECT_EQ(buffer.Size(), 128);
+	EXPECT_EQ(128, buffer.Size());
 
     fusion::CircularBuffer buffer2(2*1024*1024);
-	EXPECT_EQ(buffer2.Size(), 2*1024*1024);
+	EXPECT_EQ(2*1024*1024, buffer2.Size());
 }
 
+TEST(TestCase, CircularBufferLevels)
+{
+	size_t testsize = 100;
+    fusion::CircularBuffer buffer(testsize);
+	
+	EXPECT_EQ(true, buffer.Empty());
+	EXPECT_EQ(false, buffer.Full());
+	for (size_t i=0; i< buffer.Size()-1; ++i)
+	{
+		buffer.Write(char(1));
+	}
+	EXPECT_EQ(false, buffer.Empty());
+	EXPECT_EQ(true, buffer.Full());
+
+	for (size_t i=0; i< buffer.Size()-1; ++i)
+	{
+		buffer.Read<char>();
+	}
+	EXPECT_EQ(true, buffer.Empty());
+	EXPECT_EQ(false, buffer.Full());
+}
 
 int main(int argc, char* argv[])
 {
