@@ -359,10 +359,6 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 
 void CMainFrame::UpdateStatusBar()
 {
-	//auto bla = GetView();	// WTF gebeurd er als je dit toevoegd.
-	CLogView& view = GetView();		
-	if (&view == 0) return;		// Gert-Jan: ik weet niet wat hier gebeurd maar &view is kennelijk een nullptr als je een 3e view toevoegd?
-
 	auto isearch = GetView().GetHighlightText();
 	std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
 	UISetText(ID_DEFAULT_PANE,
@@ -1100,7 +1096,15 @@ CLogView& CMainFrame::GetView(int i)
 
 CLogView& CMainFrame::GetView()
 {
-	return GetView(std::max(0, GetTabCtrl().GetCurSel()));
+    int sel = GetTabCtrl().GetCurSel();
+    if (sel >= GetViewCount())
+    {
+        // if the "+" tab is used to add a tab, GetCurSel() returns the index of the '+' tab,
+        // when 'cancel' is pressed, the current tab remains the '+' tab and GetView(int) would fail
+        // cdbg << "Application Error: GetCurSel returned non-existant tab index: " << sel << "\n";
+        sel = GetViewCount() -1;
+    }
+	return GetView(std::max(0, sel));
 }
 
 bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
