@@ -29,10 +29,11 @@ TEST(TestCase, CircularBufferSize)
 	EXPECT_EQ(2*1024*1024, buffer2.Size());
 }
 
-TEST(TestCase, CircularBufferLevels)
+TEST(TestCase, CircularBufferInitialLevels)
 {
 	size_t testsize = 100;
     fusion::CircularBuffer buffer(testsize);
+	EXPECT_EQ(128, buffer.Size());
 	
 	EXPECT_EQ(true, buffer.Empty());
 	EXPECT_EQ(false, buffer.Full());
@@ -49,6 +50,30 @@ TEST(TestCase, CircularBufferLevels)
 	}
 	EXPECT_EQ(true, buffer.Empty());
 	EXPECT_EQ(false, buffer.Full());
+}
+
+TEST(TestCase, CircularBufferCycle)
+{
+	size_t testsize = 100;
+    fusion::CircularBuffer buffer(testsize);
+	EXPECT_EQ(128, buffer.Size());
+	
+	for (int j=0; j<1500; ++j)
+	{
+		//std::cout << "Test Cycle Number " << j+1 << std::endl;
+		EXPECT_EQ(true, buffer.Empty());
+		for (size_t i=0; i< 17; ++i)
+		{
+			buffer.Write(char(1));
+		}
+		EXPECT_EQ(false, buffer.Empty());
+
+		for (size_t i=0; i<17; ++i)
+		{
+			buffer.Read<char>();
+		}
+		EXPECT_EQ(true, buffer.Empty());
+	}
 }
 
 int main(int argc, char* argv[])
