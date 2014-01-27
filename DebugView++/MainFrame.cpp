@@ -98,7 +98,6 @@ CMainFrame::CMainFrame() :
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont())
 {
-#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
@@ -118,31 +117,31 @@ CMainFrame::CMainFrame() :
 	//catch(std::exception&) { printf(" timeout!\n");}
 	//m_lineBuffer.printStats();
 
-	try {
-		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	}
-	catch(std::exception&) { printf(" timeout!\n");}
-	m_lineBuffer.printStats();
+	//try {
+	//	m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_lineBuffer.printStats();
 
-	try {
-		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	}
-	catch(std::exception&) { printf(" timeout!\n");}
-	m_lineBuffer.printStats();
+	//try {
+	//	m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_lineBuffer.printStats();
 
-	auto lines = m_lineBuffer.GetLines();
-	for (auto i=lines.begin(); i != lines.end(); ++i)
-	{
-		printf("msg: '%s'\n", i->message.c_str());
-	}
+	//auto lines = m_lineBuffer.GetLines();
+	//for (auto i=lines.begin(); i != lines.end(); ++i)
+	//{
+	//	printf("msg: '%s'\n", i->message.c_str());
+	//}
 
-	m_lineBuffer.printStats();
+	//m_lineBuffer.printStats();
 
-	try {
-		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	}
-	catch(std::exception&) { printf(" timeout!\n");}
-	m_lineBuffer.printStats();
+	//try {
+	//	m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	//}
+	//catch(std::exception&) { printf(" timeout!\n");}
+	//m_lineBuffer.printStats();
 }
 
 CMainFrame::~CMainFrame()

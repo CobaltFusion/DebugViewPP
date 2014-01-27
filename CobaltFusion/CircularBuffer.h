@@ -14,13 +14,13 @@
 #include <boost/thread.hpp>
 
 namespace fusion {
-namespace debugviewpp {
 
 class CircularBuffer : boost::noncopyable
 {
 public:
 	explicit CircularBuffer(size_t size);
 	virtual ~CircularBuffer();
+	size_t Size() const;
 
 protected:
 	inline size_t PtrAdd(size_t value, size_t add) const
@@ -77,5 +77,4 @@ void CircularBuffer::Write(T value)
 	m_writeOffset = PtrAdd(m_writeOffset, sizeof(T));
 }
 
-} // namespace debugviewpp 
 } // namespace fusion

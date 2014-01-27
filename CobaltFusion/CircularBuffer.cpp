@@ -11,7 +11,6 @@
 #include "CircularBuffer.h"
 
 namespace fusion {
-namespace debugviewpp {
 
 // see http://en.wikipedia.org/wiki/Circular_buffer 
 // the 'Always Keep One Slot Open' strategy is used to distigush between empty and full conditions
@@ -76,7 +75,13 @@ int CircularBuffer::GetPowerOfTwo(int v)
 	v++;
 	return v;
 }
-	
+
+size_t CircularBuffer::Size() const
+{
+	return m_size;
+}
+
+
 bool CircularBuffer::Empty() const
 {
 	return m_readOffset == m_writeOffset;
@@ -132,6 +137,4 @@ void CircularBuffer::WaitForReader()
 	}
 }
 
-
-} // namespace debugviewpp
 } // namespace fusion
