@@ -9,7 +9,7 @@
 #include "DBWinBuffer.h"
 #include "DBWinReader.h"
 #include "ProcessInfo.h"
-#include "CircularBuffer.h"
+#include "LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -29,10 +29,10 @@ Handle CreateDBWinBufferMapping(bool global)
 	return hMap;
 }
 
-DBWinReader::DBWinReader(CircularBuffer& circularBuffer, bool global) :
+DBWinReader::DBWinReader(LineBuffer& lineBuffer, bool global) :
 	m_autoNewLine(true),
 	m_end(false),
-	m_circularBuffer(circularBuffer),
+	m_lineBuffer(lineBuffer),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
@@ -74,7 +74,7 @@ void DBWinReader::Notify()
 		continue;
 	}
 #endif
-	m_circularBuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, m_dbWinBuffer->data);
+	m_lineBuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, m_dbWinBuffer->data);
 	SetEvent(m_dbWinBufferReady.get());
 }
 

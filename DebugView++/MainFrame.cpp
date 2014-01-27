@@ -91,14 +91,14 @@ CMainFrame::CMainFrame() :
 	m_linkViews(false),
 	m_autoNewLine(false),
 	m_hide(false),
-	m_circularBuffer(7000),
+	m_lineBuffer(7000),
 	m_pLocalReader(0),
 	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont())
 {
-//#define CONSOLE_DEBUG
+#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
@@ -107,42 +107,42 @@ CMainFrame::CMainFrame() :
 	m_notifyIconData.cbSize = 0;
 	SetAutoNewLine(m_autoNewLine);
 
-	//m_circularBuffer.printStats();
+	m_lineBuffer.printStats();
 
 	//try {
 	//	for (;;)
 	//	{
-	//		m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test1 message");
+	//		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test1 message");
 	//	}
 	//}
 	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_circularBuffer.printStats();
+	//m_lineBuffer.printStats();
 
-	//try {
-	//	m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_circularBuffer.printStats();
+	try {
+		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	}
+	catch(std::exception&) { printf(" timeout!\n");}
+	m_lineBuffer.printStats();
 
-	//try {
-	//	m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_circularBuffer.printStats();
+	try {
+		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	}
+	catch(std::exception&) { printf(" timeout!\n");}
+	m_lineBuffer.printStats();
 
-	//auto lines = m_circularBuffer.GetLines();
-	//for (auto i=lines.begin(); i != lines.end(); ++i)
-	//{
-	//	printf("msg: '%s'\n", i->message.c_str());
-	//}
+	auto lines = m_lineBuffer.GetLines();
+	for (auto i=lines.begin(); i != lines.end(); ++i)
+	{
+		printf("msg: '%s'\n", i->message.c_str());
+	}
 
-	//m_circularBuffer.printStats();
+	m_lineBuffer.printStats();
 
-	//try {
-	//	m_circularBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_circularBuffer.printStats();
+	try {
+		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
+	}
+	catch(std::exception&) { printf(" timeout!\n");}
+	m_lineBuffer.printStats();
 }
 
 CMainFrame::~CMainFrame()
@@ -963,7 +963,7 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			auto reader = make_unique<DBWinReader>(m_circularBuffer, false);
+			auto reader = make_unique<DBWinReader>(m_lineBuffer, false);
 			m_pLocalReader = reader.get();
 			m_logSources.Add(std::move(reader));
 		}
@@ -982,7 +982,7 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			auto reader = make_unique<DBWinReader>(m_circularBuffer, true);
+			auto reader = make_unique<DBWinReader>(m_lineBuffer, true);
 			m_pGlobalReader = reader.get();
 			m_logSources.Add(std::move(reader));
 		}

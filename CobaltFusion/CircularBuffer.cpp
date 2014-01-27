@@ -7,13 +7,8 @@
 
 #pragma once
 
-#define _SCL_SECURE_NO_WARNINGS
-
 #include "stdafx.h"
 #include "CircularBuffer.h"
-#include "DBWinBuffer.h"
-#include "Win32Lib.h"
-#include "dbgstream.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -66,6 +61,10 @@ CircularBuffer::CircularBuffer(size_t size) :
 {
 }
 
+CircularBuffer::~CircularBuffer()
+{
+}
+
 int CircularBuffer::GetPowerOfTwo(int v)
 {
 	v--;	// decrement by one, so if the input is a power of two, we return the input value.
@@ -99,9 +98,7 @@ size_t CircularBuffer::GetCount() const
 
 bool CircularBuffer::Full() const
 {
-	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
-	return (maxMessageSize > GetFree());
-	//return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
+	return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
 }
 
 std::string CircularBuffer::ReadMessage()
@@ -117,30 +114,6 @@ void CircularBuffer::WriteMessage(const char* message)
 	for (size_t i=0; i < strlen(message); ++i)
 		Write(message[i]);
 	Write(char(0));
-}
-
-void CircularBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
-{
-	if (Full())
-		WaitForReader();
-	Write(time);
-	Write(systemTime);
-	Write(handle);
-	WriteMessage(message);
-}
-
-void CircularBuffer::printStats()
-{
-	cdbg << "Full: " << (Full() ? "yes" : "no") << "\n";
-	cdbg << "Empty: " << (Empty() ? "yes" : "no") << "\n";
-	cdbg << "Count: " << GetCount() << "\n";
-
-	printf("size: %d\t", m_size);
-	printf("Full: %s\t",  (Full() ? "yes" : "no"));
-	printf("Empty: %s\t",  (Empty() ? "yes" : "no"));
-	printf("Count: %d\t",  GetCount());
-	printf("m_readOffset: %d\t", m_readOffset);
-	printf("m_writeOffset: %d\n", m_writeOffset);
 }
 
 void CircularBuffer::WaitForReader()
@@ -159,29 +132,6 @@ void CircularBuffer::WaitForReader()
 	}
 }
 
-Lines CircularBuffer::GetLines()
-{
-	Lines lines;
-	while (!Empty())
-	{
-		//Handle handle;
-		auto time = Read<double>();
-		auto filetime = Read<FILETIME>();
-		auto processHandle = Read<HANDLE>();
-		auto message = ReadMessage();
-		DWORD pid = 0;			
-		std::string processName = "process";
-		lines.push_back(Line(time, filetime, pid, processName, message));
-		printf("got line\n");
-		printStats();
-	}
-	m_triggerRead.notify_all();
-	return Lines();
-}
-
-CircularBuffer::~CircularBuffer()
-{
-}
 
 } // namespace debugviewpp
 } // namespace fusion

@@ -7,7 +7,11 @@
 
 #pragma once
 
-#include "DBWinBuffer.h"
+#include "windows.h"
+#include "boost/noncopyable.hpp"
+#include <memory>
+#include <string>
+#include <boost/thread.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -16,14 +20,9 @@ class CircularBuffer : boost::noncopyable
 {
 public:
 	explicit CircularBuffer(size_t size);
-	~CircularBuffer();
+	virtual ~CircularBuffer();
 
-	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
-	Lines GetLines();
-	
-	void printStats();
-private:
-
+protected:
 	inline size_t PtrAdd(size_t value, size_t add) const
 	{
 		return ((value + add) & (m_size-1));
@@ -40,17 +39,17 @@ private:
 	}
 
 	static int GetPowerOfTwo(int size);
-	bool Empty() const;
-	bool Full() const;
-	void WaitForReader();
+	virtual bool Empty() const;
+	virtual bool Full() const;
+	virtual void WaitForReader();
+
+	virtual size_t GetFree() const;
+	virtual size_t GetCount() const;
 
 	template <class T> T Read();
 	std::string ReadMessage();
-
 	template <class T> void Write(T type);
 	void WriteMessage(const char* message);
-	size_t GetFree() const;
-	size_t GetCount() const;
 
 	size_t m_size;
 	std::unique_ptr<char> m_buffer;

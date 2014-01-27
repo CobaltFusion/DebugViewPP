@@ -102,13 +102,13 @@
     <ClCompile Include="LogSources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FileIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProcessHandleCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LineBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -215,13 +215,13 @@
     <ClInclude Include="LogSources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ProcessHandleCache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LineBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

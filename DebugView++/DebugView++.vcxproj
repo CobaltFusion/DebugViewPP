@@ -53,7 +53,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\libsnappy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\libsnappy;..\CobaltFusion;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Midl>
@@ -94,7 +94,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Full</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\libsnappy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\libsnappy;..\CobaltFusion;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -139,7 +139,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
-    <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="Colors.cpp" />
     <ClCompile Include="DBWinBuffer.cpp" />
     <ClCompile Include="DBWinReader.cpp" />
@@ -152,6 +151,7 @@
     <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="IndexedStorage.cpp" />
+    <ClCompile Include="LineBuffer.cpp" />
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogFilter.cpp" />
     <ClCompile Include="LogSource.cpp" />
@@ -176,7 +176,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
-    <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="DBWinBuffer.h" />
     <ClInclude Include="DBWinReader.h" />
@@ -190,6 +189,7 @@
     <ClInclude Include="GuiThread.h" />
     <ClInclude Include="hstream.h" />
     <ClInclude Include="IndexedStorage.h" />
+    <ClInclude Include="LineBuffer.h" />
     <ClInclude Include="LogFilter.h" />
     <ClInclude Include="LogSource.h" />
     <ClInclude Include="LogSources.h" />

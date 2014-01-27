@@ -26,7 +26,7 @@ namespace WTL { using ATL::CString; };
 #include "DBWinReader.h"
 #include "LogSource.h"
 #include "LogSources.h"
-#include "CircularBuffer.h"
+#include "LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -165,7 +165,7 @@ private:
 	void AddFileReader(const std::wstring& filename);
 	void AddDBLogReader(const std::wstring& filename);
 
-	CircularBuffer m_circularBuffer;
+	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
