@@ -192,7 +192,7 @@ TEST(TestCase, CircularBufferBufferFullTimeout)
 	}
 	EXPECT_EQ(true, buffer.Empty());
 	EXPECT_EQ(false, buffer.Full());
-	EXPECT_EQ(writeIterations, readInte1rations);
+	EXPECT_EQ(writeIterations, readInterations);
 }
 
 int main(int argc, char* argv[])
