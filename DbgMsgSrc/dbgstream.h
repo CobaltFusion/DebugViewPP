@@ -19,7 +19,6 @@
 // #	define WCDBG wcdbg
 // #endif
 
-
 #ifndef DBGSTREAM_H
 #define DBGSTREAM_H
 
