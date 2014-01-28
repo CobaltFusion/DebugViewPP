@@ -15,6 +15,35 @@
 #        pragma comment(lib, "gtest.lib")
 #endif
 
+
+class TestCircularBuffer : public fusion::CircularBuffer
+{
+public:
+    TestCircularBuffer(size_t size) : fusion::CircularBuffer(size)
+    {
+    }
+
+    virtual bool Full() const
+    {
+        return fusion::CircularBuffer::GetFree() < 10;
+    }
+
+    void BlockingWrite()
+    {
+        if (Full())
+            WaitForReader();
+        WriteStringZ("test123");
+    }
+
+    std::string ReadMessage()
+    {
+        auto message = ReadStringZ();
+        NotifyWriter();
+        return message;
+    }
+};
+
+
 TEST(TestCase, Test)
 {
     EXPECT_EQ(1 + 1, 2);
@@ -126,6 +155,34 @@ TEST(TestCase, CircularBufferCycleStringZPrime)
 	}
 }
 
+TEST(TestCase, CircularBufferBufferFullTimeout)
+{
+    bool gotException = false;
+    int iterations = 0;
+
+	size_t testsize = 100;
+    TestCircularBuffer buffer(testsize);
+	EXPECT_EQ(128, buffer.Size());
+	EXPECT_EQ(true, buffer.Empty());
+    EXPECT_EQ(false, buffer.Full());
+    try {
+	    for (size_t i=0; i< 100; ++i)
+	    {
+            iterations++;
+		    buffer.BlockingWrite();
+            EXPECT_EQ(false, buffer.Empty());
+	    }
+    }
+    catch (std::exception& e)
+    {
+        std::cout << ">> as expected, got exception: " << e.what() << std::endl;
+        gotException = true;
+    }
+    std::cout << "iterations: " << iterations << std::endl;
+    EXPECT_EQ(true, gotException);
+    EXPECT_EQ(true, buffer.Full());
+
+}
 // todo: test buffer full blocking condition
 
 int main(int argc, char* argv[])

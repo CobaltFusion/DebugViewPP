@@ -34,6 +34,9 @@ public:
 	void WriteStringZ(const char* message);
 
 protected:
+
+    void NotifyWriter();
+
 	inline size_t PtrAdd(size_t value, size_t add) const
 	{
 		return ((value + add) & (m_size-1));

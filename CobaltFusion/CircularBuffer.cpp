@@ -140,6 +140,11 @@ void CircularBuffer::WaitForReader()
 	}
 }
 
+void CircularBuffer::NotifyWriter()
+{
+    m_triggerRead.notify_all();
+}
+
 void CircularBuffer::printStats()
 {
 	cdbg << "Full: " << (Full() ? "yes" : "no") << "\n";

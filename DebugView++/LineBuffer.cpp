@@ -50,7 +50,7 @@ Lines LineBuffer::GetLines()
 		printf("got line\n");
 		printStats();
 	}
-	m_triggerRead.notify_all();
+	NotifyWriter();
 	return Lines();
 }
 
