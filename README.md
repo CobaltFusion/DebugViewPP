@@ -118,6 +118,13 @@ This is a Visual Studio 2010 project with the following dependencies (download a
 
 The libraries must be installed in /Libraries and zip.exe installed, add the binary directory to your path.
 
+Build dependencies
+------------------
+- boost: read the install.sh in the boost archive
+- gtest: build Libraries\gtest-1.7.0\msvc\gtest.sln in debug and release mode
+- WTL and zip: decompress the archives and you're done
+
+
 [zip-3.0-setup.exe]: http://downloads.sourceforge.net/gnuwin32/zip-3.0-setup.exe
 [gtest-1.7.0.zip]: https://code.google.com/p/googletest/downloads/detail?name=gtest-1.7.0.zip
 
