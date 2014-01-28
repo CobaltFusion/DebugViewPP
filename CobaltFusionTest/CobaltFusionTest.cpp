@@ -19,49 +19,49 @@
 class TestCircularBuffer : public fusion::CircularBuffer
 {
 public:
-    TestCircularBuffer(size_t size) : fusion::CircularBuffer(size)
-    {
-    }
+	TestCircularBuffer(size_t size) : fusion::CircularBuffer(size)
+	{
+	}
 
-    virtual bool Full() const
-    {
-        return fusion::CircularBuffer::GetFree() < 10;
-    }
+	virtual bool Full() const
+	{
+		return fusion::CircularBuffer::GetFree() < 10;
+	}
 
-    void BlockingWrite()
-    {
-        if (Full())
-            WaitForReader();
-        WriteStringZ("test123");
-    }
+	void TestBlockingWriteString()
+	{
+		if (Full())
+			WaitForReader();
+		WriteStringZ("test123");
+	}
 
-    std::string ReadMessage()
-    {
-        auto message = ReadStringZ();
-        NotifyWriter();
-        return message;
-    }
+	std::string TestReadString()
+	{
+		auto message = ReadStringZ();
+		NotifyWriter();
+		return message;
+	}
 };
 
 
 TEST(TestCase, Test)
 {
-    EXPECT_EQ(1 + 1, 2);
+	EXPECT_EQ(1 + 1, 2);
 }
 
 TEST(TestCase, CircularBufferSize)
 {
-    fusion::CircularBuffer buffer(100);
+	fusion::CircularBuffer buffer(100);
 	EXPECT_EQ(128, buffer.Size());
 
-    fusion::CircularBuffer buffer2(2*1024*1024);
+	fusion::CircularBuffer buffer2(2*1024*1024);
 	EXPECT_EQ(2*1024*1024, buffer2.Size());
 }
 
 TEST(TestCase, CircularBufferInitialLevels)
 {
 	size_t testsize = 100;
-    fusion::CircularBuffer buffer(testsize);
+	fusion::CircularBuffer buffer(testsize);
 	EXPECT_EQ(128, buffer.Size());
 	
 	EXPECT_EQ(true, buffer.Empty());
@@ -84,7 +84,7 @@ TEST(TestCase, CircularBufferInitialLevels)
 TEST(TestCase, CircularBufferCycle)
 {
 	size_t testsize = 100;
-    fusion::CircularBuffer buffer(testsize);
+	fusion::CircularBuffer buffer(testsize);
 	EXPECT_EQ(128, buffer.Size());
 	
 	for (int j=0; j<1500; ++j)
@@ -108,7 +108,7 @@ TEST(TestCase, CircularBufferCycle)
 TEST(TestCase, CircularBufferCycleStringZ)
 {
 	size_t testsize = 100;
-    fusion::CircularBuffer buffer(testsize);
+	fusion::CircularBuffer buffer(testsize);
 	EXPECT_EQ(128, buffer.Size());
 	
 	for (int j=0; j<1000; ++j)
@@ -133,7 +133,7 @@ TEST(TestCase, CircularBufferCycleStringZ)
 TEST(TestCase, CircularBufferCycleStringZPrime)
 {
 	size_t testsize = 200;
-    fusion::CircularBuffer buffer(testsize);
+	fusion::CircularBuffer buffer(testsize);
 	EXPECT_EQ(256, buffer.Size());
 	
 	for (int j=0; j<500; ++j)
@@ -157,37 +157,47 @@ TEST(TestCase, CircularBufferCycleStringZPrime)
 
 TEST(TestCase, CircularBufferBufferFullTimeout)
 {
-    bool gotException = false;
-    int iterations = 0;
-
 	size_t testsize = 100;
-    TestCircularBuffer buffer(testsize);
+	TestCircularBuffer buffer(testsize);
 	EXPECT_EQ(128, buffer.Size());
 	EXPECT_EQ(true, buffer.Empty());
-    EXPECT_EQ(false, buffer.Full());
-    try {
-	    for (size_t i=0; i< 100; ++i)
-	    {
-            iterations++;
-		    buffer.BlockingWrite();
-            EXPECT_EQ(false, buffer.Empty());
-	    }
-    }
-    catch (std::exception& e)
-    {
-        std::cout << ">> as expected, got exception: " << e.what() << std::endl;
-        gotException = true;
-    }
-    std::cout << "iterations: " << iterations << std::endl;
-    EXPECT_EQ(true, gotException);
-    EXPECT_EQ(true, buffer.Full());
+	EXPECT_EQ(false, buffer.Full());
 
+	bool gotException = false;
+	int iterations = 0;
+	int writeIterations = 0;
+	try {
+		for (size_t i=0; i< 100; ++i)
+		{
+			iterations++;
+			buffer.TestBlockingWriteString();
+			writeIterations++;
+			EXPECT_EQ(false, buffer.Empty());
+		}
+	}
+	catch (std::exception& e)
+	{
+		std::cout << ">> as expected, got exception: " << e.what() << std::endl;
+		gotException = true;
+	}
+	std::cout << "iterations: " << iterations << std::endl;
+	EXPECT_EQ(true, gotException);
+	EXPECT_EQ(true, buffer.Full());
+
+	int readInterations = 0;
+	while (!buffer.Empty())
+	{
+		buffer.TestReadString();
+		readInterations++;
+	}
+	EXPECT_EQ(true, buffer.Empty());
+	EXPECT_EQ(false, buffer.Full());
+	EXPECT_EQ(writeIterations, readInte1rations);
 }
-// todo: test buffer full blocking condition
 
 int main(int argc, char* argv[])
 {
-    testing::InitGoogleTest(&argc, argv);
+	testing::InitGoogleTest(&argc, argv);
 
-    return RUN_ALL_TESTS();
+	return RUN_ALL_TESTS();
 }
