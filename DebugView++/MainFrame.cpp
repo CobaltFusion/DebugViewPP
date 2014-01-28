@@ -105,43 +105,6 @@ CMainFrame::CMainFrame() :
 
 	m_notifyIconData.cbSize = 0;
 	SetAutoNewLine(m_autoNewLine);
-
-	m_lineBuffer.printStats();
-
-	//try {
-	//	for (;;)
-	//	{
-	//		m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test1 message");
-	//	}
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_lineBuffer.printStats();
-
-	//try {
-	//	m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_lineBuffer.printStats();
-
-	//try {
-	//	m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_lineBuffer.printStats();
-
-	//auto lines = m_lineBuffer.GetLines();
-	//for (auto i=lines.begin(); i != lines.end(); ++i)
-	//{
-	//	printf("msg: '%s'\n", i->message.c_str());
-	//}
-
-	//m_lineBuffer.printStats();
-
-	//try {
-	//	m_lineBuffer.Add(0, GetSystemTimeAsFileTime(), 0, "test2 message");
-	//}
-	//catch(std::exception&) { printf(" timeout!\n");}
-	//m_lineBuffer.printStats();
 }
 
 CMainFrame::~CMainFrame()

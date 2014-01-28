@@ -22,7 +22,6 @@ public:
 	virtual ~CircularBuffer();
 	size_t Size() const;
 
-	void printStats();
 	virtual bool Empty() const;
 	virtual bool Full() const;
 	virtual size_t GetFree() const;

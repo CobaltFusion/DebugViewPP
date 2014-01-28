@@ -47,8 +47,6 @@ Lines LineBuffer::GetLines()
 		DWORD pid = 0;			
 		std::string processName = "process";
 		lines.push_back(Line(time, filetime, pid, processName, message));
-		printf("got line\n");
-		printStats();
 	}
 	NotifyWriter();
 	return Lines();
