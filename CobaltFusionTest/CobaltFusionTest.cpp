@@ -195,6 +195,30 @@ TEST(TestCase, CircularBufferBufferFullTimeout)
 	EXPECT_EQ(writeIterations, readInterations);
 }
 
+TEST(TestCase, CircularBufferSwapping)
+{
+	size_t testsize = 30;
+	fusion::CircularBuffer buffer(testsize);
+	EXPECT_EQ(32, buffer.Size());
+
+	size_t testsize2 = 60;
+	fusion::CircularBuffer buffer2(testsize2);
+	EXPECT_EQ(64, buffer2.Size());
+
+	buffer.WriteStringZ("test");
+	buffer.WriteStringZ("test");
+	buffer2.WriteStringZ("test");
+
+	EXPECT_EQ(10, buffer.GetCount());
+	EXPECT_EQ(5, buffer2.GetCount());
+
+	buffer.Swap(buffer2);
+
+	EXPECT_EQ(5, buffer.GetCount());
+	EXPECT_EQ(10, buffer2.GetCount());
+
+}
+
 int main(int argc, char* argv[])
 {
 	testing::InitGoogleTest(&argc, argv);

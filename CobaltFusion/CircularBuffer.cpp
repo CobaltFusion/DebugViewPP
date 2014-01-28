@@ -145,6 +145,33 @@ void CircularBuffer::NotifyWriter()
     m_triggerRead.notify_all();
 }
 
+
+void CircularBuffer::Clear()
+{
+	m_readOffset = 0;
+	m_writeOffset = 0;
+}
+
+void CircularBuffer::Swap(CircularBuffer& circularBuffer)
+{
+	auto buffer = std::move(m_buffer);
+	auto size = m_size;
+	auto readOffset = m_readOffset;
+	auto writeOffset = m_writeOffset;
+	AssignBuffer(std::move(circularBuffer.m_buffer), circularBuffer.m_size, circularBuffer.m_readOffset, circularBuffer.m_writeOffset);
+	circularBuffer.AssignBuffer(std::move(buffer), size, readOffset, writeOffset);
+}
+
+void CircularBuffer::AssignBuffer(std::unique_ptr<char> buffer, size_t size, size_t readOffset, size_t writeOffset)
+{
+	m_buffer = std::move(buffer);
+	m_readOffset = readOffset;
+	m_writeOffset = writeOffset;
+	m_size = size;
+	m_pBegin = m_buffer.get();
+	m_pEnd = m_pBegin + m_size;
+}
+
 void CircularBuffer::printStats()
 {
 	cdbg << "Full: " << (Full() ? "yes" : "no") << "\n";

@@ -33,6 +33,8 @@ public:
 	template <class T> void Write(T type);
 	void WriteStringZ(const char* message);
 
+	void Clear();
+	void Swap(CircularBuffer& circularBuffer);
 protected:
 
     void NotifyWriter();
@@ -54,6 +56,9 @@ protected:
 
 	static int GetPowerOfTwo(int size);
 	virtual void WaitForReader();
+
+private:
+	void AssignBuffer(std::unique_ptr<char> buffer, size_t size, size_t readOffset, size_t writeOffset);
 
 	size_t m_size;
 	std::unique_ptr<char> m_buffer;
