@@ -9,7 +9,6 @@
 #include <vector>
 #include "IndexedStorage.h"
 #include "libsnappy.h"
-#include "Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

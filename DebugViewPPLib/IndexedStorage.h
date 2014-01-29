@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "ProcessInfo.h"
 #include <vector>
 
 namespace fusion {

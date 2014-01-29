@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\DebugView++.vcxproj", "{E37BA0C9-8A2F-4F2E-BBF8-839F3429D3A7}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A} = {5E5B7C33-8076-4E21-ADF3-D56C8C28822A}
 		{218AB179-4C19-4264-BD55-DF89A9F321CA} = {218AB179-4C19-4264-BD55-DF89A9F321CA}
 	EndProjectSection
 EndProject
@@ -17,6 +18,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CobaltFusionTest", "CobaltFusionTest\CobaltFusionTest.vcxproj", "{30E249B7-F460-4FD3-9C45-58C55AEF7EF6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{218AB179-4C19-4264-BD55-DF89A9F321CA} = {218AB179-4C19-4264-BD55-DF89A9F321CA}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewPPLib", "DebugViewPPLib\DebugViewPPLib.vcxproj", "{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A} = {B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}
 	EndProjectSection
 EndProject
 Global
@@ -111,6 +117,18 @@ Global
 		{30E249B7-F460-4FD3-9C45-58C55AEF7EF6}.Release|Win32.Build.0 = Release|Win32
 		{30E249B7-F460-4FD3-9C45-58C55AEF7EF6}.Release|x64.ActiveCfg = Release|Win32
 		{30E249B7-F460-4FD3-9C45-58C55AEF7EF6}.Release|x86.ActiveCfg = Release|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Debug|Win32.Build.0 = Debug|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Debug|x64.ActiveCfg = Debug|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Debug|x86.ActiveCfg = Debug|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Release|Win32.ActiveCfg = Release|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Release|Win32.Build.0 = Release|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Release|x64.ActiveCfg = Release|Win32
+		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}.Release|x86.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

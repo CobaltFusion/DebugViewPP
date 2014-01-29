@@ -102,7 +102,6 @@ CMainFrame::CMainFrame() :
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
 #endif
-
 	m_notifyIconData.cbSize = 0;
 	SetAutoNewLine(m_autoNewLine);
 }

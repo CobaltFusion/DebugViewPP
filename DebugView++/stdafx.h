@@ -65,4 +65,4 @@ extern CAppModule _Module;
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
-#include "libsnappy.h"
+#include "DebugViewPPLib.h"
