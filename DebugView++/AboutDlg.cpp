@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "version.h"
-#include "Utilities.h"
 #include "AboutDlg.h"
 
 namespace fusion {

@@ -15,18 +15,9 @@ namespace WTL { using ATL::CString; };
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
 #include "TabbedFrame.h"
-
-#include "Process.h"
-#include "Utilities.h"
-//#include "GuiThread.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
-#include "LogFile.h"
 #include "LogView.h"
-#include "DBWinReader.h"
-#include "LogSource.h"
-#include "LogSources.h"
-#include "LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

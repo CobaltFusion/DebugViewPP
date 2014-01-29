@@ -6,17 +6,14 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "Resource.h"
+#include "MainFrame.h"
+#include "LogView.h"
+
 #include <iomanip>
 #include <array>
 #include <regex>
 #include <boost/algorithm/string.hpp>
-#include "dbgstream.h"
-#include "Win32Lib.h"
-#include "Utilities.h"
-#include "Resource.h"
-#include "Colors.h"
-#include "MainFrame.h"
-#include "LogView.h"
 
 namespace fusion {
 namespace debugviewpp {

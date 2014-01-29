@@ -6,9 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "dbgstream.h"
 #include "resource.h"
-#include "Utilities.h"
 #include "MainFrame.h"
 #include "FindDlg.h"
 

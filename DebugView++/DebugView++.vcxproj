@@ -53,7 +53,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\DebugViewPPLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -140,77 +140,35 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
-    <ClCompile Include="Colors.cpp" />
-    <ClCompile Include="DBWinBuffer.cpp" />
-    <ClCompile Include="DBWinReader.cpp" />
-    <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="DebugView++.cpp" />
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
     <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="LineBuffer.cpp" />
-    <ClCompile Include="LogFile.cpp" />
-    <ClCompile Include="LogFilter.cpp" />
-    <ClCompile Include="LogSource.cpp" />
-    <ClCompile Include="LogSources.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
-    <ClCompile Include="MatchType.cpp" />
     <ClCompile Include="FilterPage.cpp" />
-    <ClCompile Include="PipeReader.cpp" />
-    <ClCompile Include="Process.cpp" />
-    <ClCompile Include="ProcessHandleCache.cpp" />
-    <ClCompile Include="ProcessInfo.cpp" />
-    <ClCompile Include="ProcessReader.cpp" />
     <ClCompile Include="RunDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="FilterType.cpp" />
-    <ClCompile Include="Utilities.cpp" />
-    <ClCompile Include="Win32Lib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
-    <ClInclude Include="Colors.h" />
-    <ClInclude Include="DBWinBuffer.h" />
-    <ClInclude Include="DBWinReader.h" />
-    <ClInclude Include="DBWinWriter.h" />
-    <ClInclude Include="FileIO.h" />
-    <ClInclude Include="FileReader.h" />
-    <ClInclude Include="Filter.h" />
     <ClInclude Include="FilterDlg.h" />
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="GuiThread.h" />
     <ClInclude Include="hstream.h" />
-    <ClInclude Include="LineBuffer.h" />
-    <ClInclude Include="LogFilter.h" />
-    <ClInclude Include="LogSource.h" />
-    <ClInclude Include="LogSources.h" />
     <ClInclude Include="LogView.h" />
-    <ClInclude Include="LogFile.h" />
     <ClInclude Include="MainFrame.h" />
-    <ClInclude Include="MatchType.h" />
     <ClInclude Include="FilterPage.h" />
     <ClInclude Include="OffscreenPaint.h" />
-    <ClInclude Include="PipeReader.h" />
-    <ClInclude Include="Process.h" />
-    <ClInclude Include="ProcessHandleCache.h" />
-    <ClInclude Include="ProcessInfo.h" />
-    <ClInclude Include="ProcessReader.h" />
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunDlg.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="FilterType.h" />
-    <ClInclude Include="Utilities.h" />
     <ClInclude Include="version.h" />
-    <ClInclude Include="Win32Lib.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DebugView++.rc" />

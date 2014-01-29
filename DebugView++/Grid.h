@@ -13,7 +13,6 @@
 #include "PropertyGrid.h"
 #pragma warning(pop)
 #include "PropertyColorItem.h"
-#include "FilterType.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -6,25 +6,18 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <algorithm>
-#include <boost/utility.hpp>
-#include <boost/filesystem.hpp>
-#include "dbgstream.h"
+
 #include "hstream.h"
-#include "Win32Lib.h"
-#include "Process.h"
-#include "PipeReader.h"
-#include "ProcessReader.h"
-#include "FileReader.h"
-#include "Utilities.h"
 #include "Resource.h"
 #include "RunDlg.h"
 #include "FilterDlg.h"
 #include "AboutDlg.h"
 #include "LogView.h"
-#include "ProcessInfo.h"
-#include "FileIO.h"
 #include "MainFrame.h"
+
+#include <algorithm>
+#include <boost/utility.hpp>
+#include <boost/filesystem.hpp>
 
 namespace fusion {
 namespace debugviewpp {

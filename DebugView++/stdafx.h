@@ -52,17 +52,15 @@ extern CAppModule _Module;
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
-#include <boost/utility.hpp>
-#include <boost/thread.hpp>
-
 #include <string>
 #include <vector>
 #include <sstream>
 
 #include <boost/utility.hpp>
+#include <boost/thread.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
-#include "DebugViewPPLib.h"
+#include "../DebugViewPPLib/DebugViewPPLib.h"

@@ -7,11 +7,10 @@
 
 #pragma once
 
-#include <vector>
 #include "OffscreenPaint.h"
-#include "Win32Lib.h"
-#include "LogFile.h"
 #include "FilterDlg.h"
+
+#include <vector>
 
 namespace fusion {
 namespace debugviewpp {

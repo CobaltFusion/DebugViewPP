@@ -12,8 +12,6 @@
 
 #include "Grid.h"
 #include "Resource.h"
-#include "Utilities.h"
-#include "Filter.h"
 
 namespace fusion {
 namespace debugviewpp {

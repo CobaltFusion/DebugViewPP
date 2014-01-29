@@ -71,17 +71,60 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Colors.h" />
+    <ClInclude Include="dbgstream.h" />
+    <ClInclude Include="DBWinBuffer.h" />
+    <ClInclude Include="DBWinReader.h" />
+    <ClInclude Include="DBWinWriter.h" />
     <ClInclude Include="DebugViewPPLib.h" />
+    <ClInclude Include="FileIO.h" />
+    <ClInclude Include="FileReader.h" />
+    <ClInclude Include="Filter.h" />
+    <ClInclude Include="FilterType.h" />
     <ClInclude Include="IndexedStorage.h" />
+    <ClInclude Include="LineBuffer.h" />
+    <ClInclude Include="LogFile.h" />
+    <ClInclude Include="LogFilter.h" />
+    <ClInclude Include="LogSource.h" />
+    <ClInclude Include="LogSources.h" />
+    <ClInclude Include="MatchType.h" />
+    <ClInclude Include="PipeReader.h" />
+    <ClInclude Include="Process.h" />
+    <ClInclude Include="ProcessHandleCache.h" />
+    <ClInclude Include="ProcessInfo.h" />
+    <ClInclude Include="ProcessReader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Win32Lib.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Colors.cpp" />
+    <ClCompile Include="DBWinBuffer.cpp" />
+    <ClCompile Include="DBWinReader.cpp" />
+    <ClCompile Include="DBWinWriter.cpp" />
+    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="FilterType.cpp" />
     <ClCompile Include="IndexedStorage.cpp" />
+    <ClCompile Include="LineBuffer.cpp" />
+    <ClCompile Include="LogFile.cpp" />
+    <ClCompile Include="LogFilter.cpp" />
+    <ClCompile Include="LogSource.cpp" />
+    <ClCompile Include="LogSources.cpp" />
+    <ClCompile Include="MatchType.cpp" />
+    <ClCompile Include="PipeReader.cpp" />
+    <ClCompile Include="Process.cpp" />
+    <ClCompile Include="ProcessHandleCache.cpp" />
+    <ClCompile Include="ProcessInfo.cpp" />
+    <ClCompile Include="ProcessReader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="Win32Lib.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
