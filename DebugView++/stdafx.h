@@ -65,4 +65,5 @@ extern CAppModule _Module;
 
 #include "../DebugViewPPLib/DebugViewPPLib.h"
 
+#define WIN32_LEAN_AND_MEAN
 #include "windows.h"

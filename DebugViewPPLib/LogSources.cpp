@@ -37,14 +37,9 @@ LogSources::~LogSources()
 	Abort();
 }
 
-
 void LogSources::Add(std::unique_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-
-	printf("Add:\n");
-	printf("handle: %x\n", source->GetHandle());
-
 	m_sources.push_back(std::move(source));
 	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
@@ -64,12 +59,10 @@ void LogSources::Abort()
 
 LogSourcesHandles LogSources::GetWaitHandles()
 {
-	printf("GetWaitHandles:\n");
 	boost::mutex::scoped_lock lock(m_mutex);
 	LogSourcesHandles handles;
 	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
 	{
-		printf("handle: %x\n", (*i)->GetHandle());
 		handles.push_back((*i)->GetHandle());
 	}
 	handles.push_back(m_updateEvent.get());
@@ -79,36 +72,27 @@ LogSourcesHandles LogSources::GetWaitHandles()
 
 void LogSources::Listen()
 {
-	printf("Listen...\n");
-	m_waitHandles = GetWaitHandles();
 	for (;;)
 	{
+		m_waitHandles = GetWaitHandles();
 		for (;;)
 		{
 			auto res = WaitForAnyObject(m_waitHandles, INFINITE);
 			if (m_end)
-			{
-				printf("m_end...\n");
 				break;
-			}
 			if (res.signaled)
 				if (res.index == (m_waitHandles.size()-1))
-				{
-					printf("m_updateEvent...\n");
 					break;
-				}
 				else
 					Process(res.index);
 		}
 		if (m_end)
 			break;
-		m_waitHandles = GetWaitHandles();
 	}
 }
 
 void LogSources::Process(int index)
 {
-	printf("Process...\n");
 	auto& logsource = m_sources[index];
 	logsource->Notify();
 	if (logsource->AtEnd())

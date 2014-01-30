@@ -26,9 +26,11 @@
 
 #include <streambuf>
 #include <string>
+
+#define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
-namespace gj {
+namespace dbgstream {
 
 template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allocator<Elem> >
 class basic_debugbuf : public std::basic_streambuf<Elem, Tr>
@@ -101,12 +103,12 @@ typedef basic_nullstream<wchar_t> wnullstream;
 typedef basic_dbgstream<char> dbgstream;
 typedef basic_dbgstream<wchar_t> wdbgstream;
 
-} // namespace gj
+} // namespace dbgstream
 
-__declspec(selectany) gj::nullstream cnull;
-__declspec(selectany) gj::wnullstream wcnull;
+__declspec(selectany) dbgstream::nullstream cnull;
+__declspec(selectany) dbgstream::wnullstream wcnull;
 
-__declspec(selectany) gj::dbgstream cdbg;
-__declspec(selectany) gj::wdbgstream wcdbg;
+__declspec(selectany) dbgstream::dbgstream cdbg;
+__declspec(selectany) dbgstream::wdbgstream wcdbg;
 
-#endif // BOOSTTESTUI_DBGSTREAM_H
+#endif // DBGSTREAM_H

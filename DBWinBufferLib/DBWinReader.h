@@ -29,8 +29,7 @@ struct DBWinMessage
 
 typedef std::vector<DBWinMessage> DBWinMessages;
 
-//typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
-typedef void OnDBWinMessage(double time); //, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
+typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
 
 class DBWinReader : public LogSource
 {

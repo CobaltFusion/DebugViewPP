@@ -82,11 +82,7 @@ void DBWinReader::Notify()
 		continue;
 	}
 #endif
-	printf("RECEIVED: %s!\n", m_dbWinBuffer->data);
-
-	m_onDBWinMessage(1.0);
-	
-	//m_onDBWinMessage(m_timer.Get(), GetSystemTimeAsFileTime(), m_dbWinBuffer->processId, handle, m_dbWinBuffer->data);
+	m_onDBWinMessage(m_timer.Get(), GetSystemTimeAsFileTime(), m_dbWinBuffer->processId, handle, m_dbWinBuffer->data);
 	SetEvent(m_dbWinBufferReady.get());
 }
 

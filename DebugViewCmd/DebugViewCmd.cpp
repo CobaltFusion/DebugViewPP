@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "../DebugView++/version.h"
 
 using namespace fusion;
 using namespace fusion::debugviewpp;
@@ -42,11 +43,13 @@ void Method1()
 	}
 }
 
-void OnMessage(double time) //, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message)
+void OnMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message)
 {
 	static boost::mutex mutex;
 	boost::mutex::scoped_lock lock(mutex);
-	std::cout << time << "\n"; //"\t" << processId << "\t" << message << "\n";
+	Handle hanel(processHandle);
+	std::string processName = Str(ProcessInfo::GetProcessName(processHandle)).str();
+	std::cout << processId << "\t" << processName << "\t" << message << "\n";
 }
 
 void Method2()
@@ -58,22 +61,26 @@ void Method2()
 	//boost::thread t([&]() { Sleep(5000); sources.Abort(); });  // test stopping after 5 seconds
 
 	auto dbwinlistener = make_unique<DBWinReader>(false, false);
-	//connection1 = dbwinlistener->Connect(&OnMessage);			// todo: exception?
+	connection1 = dbwinlistener->Connect(&OnMessage);			// todo: exception?
 	sources.Add(std::move(dbwinlistener));			
+
+	std::cout << "Logging DBWin32 Messages to stdout...\n";
 
 	if (HasGlobalDBWinReaderRights())
 	{
 		auto globalDBbwinlistener = make_unique<DBWinReader>(true, false);
 		connection2 = globalDBbwinlistener->Connect(&OnMessage);
 		sources.Add(std::move(globalDBbwinlistener));
+		std::cout << "Logging Global DBWin32 Messages to stdout...\n";
 	}
 	sources.Listen();
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	std::cout << "DebugViewConsole v" << VERSION_STR << "\n"; 
 	try {
-		Method1();
+		Method2();
 	}
 	catch (std::exception& e)
 	{
