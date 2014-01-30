@@ -57,8 +57,8 @@ void Method2()
 	LogSources sources(false);
 
 	auto dbwinlistener = make_unique<DBWinReader>(false, false);
-	connection1 = dbwinlistener->Connect(&OnMessage);
-	sources.Add(std::move(dbwinlistener));
+	//connection1 = dbwinlistener->Connect(&OnMessage);
+	sources.Add(std::move(dbwinlistener));			// caused exception: WaitForMultipleObjects: invalid handle
 
 	if (HasGlobalDBWinReaderRights())
 	{

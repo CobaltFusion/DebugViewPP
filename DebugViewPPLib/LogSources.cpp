@@ -72,17 +72,22 @@ LogSourcesHandles LogSources::GetWaitHandles()
 
 void LogSources::Listen()
 {
+	m_waitHandles = GetWaitHandles();
 	for (;;)
 	{
 		for (;;)
 		{
-			auto res = WaitForAnyObject(m_waitHandles, 1000);
+			printf("loop...\n");
+			auto res = WaitForAnyObject(m_waitHandles, 2000);
 			if (m_end)
 				break;
 			if (res.signaled)
 				Process(res.index);
 			if (m_sourcesDirty)
+			{
+				printf("m_sourcesDirty...\n");
 				break;
+			}
 		}
 		if (m_end)
 			break;
@@ -92,6 +97,7 @@ void LogSources::Listen()
 
 void LogSources::Process(int index)
 {
+	printf("Process...\n");
 	auto& logsource = m_sources[index];
 	logsource->Notify();
 	if (logsource->AtEnd())
