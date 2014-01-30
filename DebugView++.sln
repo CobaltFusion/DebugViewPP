@@ -36,7 +36,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DBWinBufferLib", "DBWinBuff
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Lib", "Win32Lib\Win32Lib.vcxproj", "{7AA3A43A-F0CD-4BD8-BC04-5A30F7260C38}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewCmd", "DebugViewCmd\DebugViewCmd.vcxproj", "{C824932A-2819-4148-B54F-214D65015C54}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewConsole", "DebugViewConsole\DebugViewConsole.vcxproj", "{C824932A-2819-4148-B54F-214D65015C54}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A} = {5E5B7C33-8076-4E21-ADF3-D56C8C28822A}
 	EndProjectSection

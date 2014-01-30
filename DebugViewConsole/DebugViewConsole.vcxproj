@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C824932A-2819-4148-B54F-214D65015C54}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DebugViewCmd</RootNamespace>
+    <RootNamespace>DebugViewConsole</RootNamespace>
     <ProjectName>DebugViewConsole</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -87,7 +87,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DebugViewCmd.cpp" />
+    <ClCompile Include="DebugViewConsole.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
