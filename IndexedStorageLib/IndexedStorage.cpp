@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <vector>
 #include "IndexedStorage.h"
-#include "libsnappy.h"
+#include "../libsnappy/libsnappy.h"
 
 namespace fusion {
 namespace debugviewpp {

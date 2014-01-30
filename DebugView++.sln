@@ -22,6 +22,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CobaltFusionTest", "CobaltF
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewPPLib", "DebugViewPPLib\DebugViewPPLib.vcxproj", "{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}"
 	ProjectSection(ProjectDependencies) = postProject
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8} = {69756714-C1EB-47AF-B852-FF253D8DDDA8}
 		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A} = {B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}
 		{218AB179-4C19-4264-BD55-DF89A9F321CA} = {218AB179-4C19-4264-BD55-DF89A9F321CA}
 		{140F4AB1-0368-4DE1-8EAE-B7316D1588BB} = {140F4AB1-0368-4DE1-8EAE-B7316D1588BB}
@@ -38,6 +39,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewCmd", "DebugViewCmd\DebugViewCmd.vcxproj", "{C824932A-2819-4148-B54F-214D65015C54}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A} = {5E5B7C33-8076-4E21-ADF3-D56C8C28822A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IndexedStorageLib", "IndexedStorageLib\IndexedStorageLib.vcxproj", "{69756714-C1EB-47AF-B852-FF253D8DDDA8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A} = {B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}
 	EndProjectSection
 EndProject
 Global
@@ -180,6 +186,18 @@ Global
 		{C824932A-2819-4148-B54F-214D65015C54}.Release|Win32.Build.0 = Release|Win32
 		{C824932A-2819-4148-B54F-214D65015C54}.Release|x64.ActiveCfg = Release|Win32
 		{C824932A-2819-4148-B54F-214D65015C54}.Release|x86.ActiveCfg = Release|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Debug|Win32.Build.0 = Debug|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Debug|x64.ActiveCfg = Debug|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Debug|x86.ActiveCfg = Debug|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Release|Win32.ActiveCfg = Release|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Release|Win32.Build.0 = Release|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Release|x64.ActiveCfg = Release|Win32
+		{69756714-C1EB-47AF-B852-FF253D8DDDA8}.Release|x86.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

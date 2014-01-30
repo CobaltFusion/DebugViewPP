@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}</ProjectGuid>
+    <ProjectGuid>{69756714-C1EB-47AF-B852-FF253D8DDDA8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DebugViewPPLib</RootNamespace>
+    <RootNamespace>IndexedStorageLib</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,8 +45,6 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -62,8 +60,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,33 +69,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DebugViewPPLib.h" />
-    <ClInclude Include="FileIO.h" />
-    <ClInclude Include="FileReader.h" />
-    <ClInclude Include="Filter.h" />
-    <ClInclude Include="FilterType.h" />
-    <ClInclude Include="LogFile.h" />
-    <ClInclude Include="LogFilter.h" />
-    <ClInclude Include="LogSources.h" />
-    <ClInclude Include="MatchType.h" />
-    <ClInclude Include="PipeReader.h" />
-    <ClInclude Include="Process.h" />
-    <ClInclude Include="ProcessReader.h" />
+    <ClInclude Include="IndexedStorage.h" />
+    <ClInclude Include="IndexedStorageLib.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="Filter.cpp" />
-    <ClCompile Include="FilterType.cpp" />
-    <ClCompile Include="LogFile.cpp" />
-    <ClCompile Include="LogFilter.cpp" />
-    <ClCompile Include="LogSources.cpp" />
-    <ClCompile Include="MatchType.cpp" />
-    <ClCompile Include="PipeReader.cpp" />
-    <ClCompile Include="Process.cpp" />
-    <ClCompile Include="ProcessReader.cpp" />
+    <ClCompile Include="IndexedStorage.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

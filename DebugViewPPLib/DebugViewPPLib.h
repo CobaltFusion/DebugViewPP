@@ -13,7 +13,6 @@
 #include "FileReader.h"
 #include "Filter.h"
 #include "FilterType.h"
-#include "IndexedStorage.h"
 #include "LogFile.h"
 #include "LogFilter.h"
 #include "LogSources.h"

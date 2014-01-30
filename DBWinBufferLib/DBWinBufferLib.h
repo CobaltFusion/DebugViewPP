@@ -8,6 +8,7 @@
 #pragma once
 
 #include "../Win32Lib/Win32Lib.h"
+#include "../IndexedStorageLib/IndexedStorageLib.h"
 
 #include "Colors.h"
 #include "DBWinBuffer.h"
