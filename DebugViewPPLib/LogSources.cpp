@@ -20,13 +20,16 @@ LogSourceInfo::LogSourceInfo(HANDLE handle, LogSource& logsource) :
 
 }
 
-LogSources::LogSources() : 
+LogSources::LogSources(bool startListening) : 
 	m_end(false),
 	m_sourcesDirty(false),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
-	m_waitHandles(GetWaitHandles()),
-	m_thread(&LogSources::Run, this)
+	m_waitHandles(GetWaitHandles())
 {
+	if (startListening)
+	{
+		m_thread = boost::thread(&LogSources::Listen, this);
+	}
 }
 	
 LogSources::~LogSources()
@@ -41,6 +44,11 @@ void LogSources::Add(std::unique_ptr<LogSource> source)
 	m_sources.push_back(std::move(source));
 	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
+}
+
+std::vector<std::unique_ptr<LogSource>>& LogSources::GetSources()
+{
+	return m_sources;
 }
 
 void LogSources::Abort()
@@ -62,19 +70,19 @@ LogSourcesHandles LogSources::GetWaitHandles()
 	return handles;
 }
 
-void LogSources::Run()
+void LogSources::Listen()
 {
-	return;
-
 	for (;;)
 	{
 		for (;;)
 		{
 			auto res = WaitForAnyObject(m_waitHandles, 1000);
-			if (m_end || m_sourcesDirty)
+			if (m_end)
 				break;
 			if (res.signaled)
 				Process(res.index);
+			if (m_sourcesDirty)
+				break;
 		}
 		if (m_end)
 			break;

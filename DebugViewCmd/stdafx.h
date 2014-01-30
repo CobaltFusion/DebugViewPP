@@ -15,4 +15,4 @@
 #include <atlbase.h>
 #include <atlstr.h>
 
-#include "../DBWinBufferLib/DBWinBufferLib.h"
+#include "../DebugViewPPLib/DebugViewPPLib.h"

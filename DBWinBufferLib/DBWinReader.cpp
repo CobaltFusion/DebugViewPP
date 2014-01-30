@@ -29,26 +29,35 @@ Handle CreateDBWinBufferMapping(bool global)
 	return hMap;
 }
 
-DBWinReader::DBWinReader(LineBuffer& lineBuffer, bool global) :
+DBWinReader::DBWinReader(bool global, bool startlistening) :
 	m_autoNewLine(true),
 	m_end(false),
-	m_lineBuffer(lineBuffer),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
 	m_mappedViewOfFile(m_hBuffer.get(), PAGE_READONLY, 0, 0, sizeof(DbWinBuffer)),
 	m_dbWinBuffer(static_cast<const DbWinBuffer*>(m_mappedViewOfFile.Ptr())),
-	m_thread(&DBWinReader::Run, this),
-	m_handleCacheTime(0.0)
+	m_handleCacheTime(0.0),
+	m_thread(&DBWinReader::Run, this)
 {
 	m_lines.reserve(4000);
 	m_backBuffer.reserve(4000);
 	SetEvent(m_dbWinBufferReady.get());
+
+	//if (startlistening)
+	//{
+	//	m_thread = boost::thread(&DBWinReader::Run, this);
+	//}
 }
 
 DBWinReader::~DBWinReader()
 {
 	Abort();
+}
+
+boost::signals2::connection DBWinReader::Connect(OnDBWinMessage onDBWinMessage)
+{
+	return m_onDBWinMessage.connect(onDBWinMessage);
 }
 
 bool DBWinReader::AtEnd() const
@@ -74,7 +83,8 @@ void DBWinReader::Notify()
 		continue;
 	}
 #endif
-	m_lineBuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, m_dbWinBuffer->data);
+	printf("STRING RECEIVED!\n");
+	m_onDBWinMessage(m_timer.Get(), GetSystemTimeAsFileTime(), m_dbWinBuffer->processId, handle, m_dbWinBuffer->data);
 	SetEvent(m_dbWinBufferReady.get());
 }
 
@@ -121,7 +131,7 @@ void DBWinReader::Run()
 
 void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 {
-	InternalLine line;
+	DBWinMessage line;
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = pid;
@@ -130,10 +140,10 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 	AddLine(line);
 }
 
-void DBWinReader::AddLine(const InternalLine& InternalLine)
+void DBWinReader::AddLine(const DBWinMessage& DBWinMessage)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_lines.push_back(InternalLine);
+	m_lines.push_back(DBWinMessage);
 }
 
 Lines DBWinReader::GetLines()
@@ -146,10 +156,10 @@ Lines DBWinReader::GetLines()
 	return ProcessLines(m_backBuffer);
 }
 
-Lines DBWinReader::ProcessLines(const InternalLines& internalLines)
+Lines DBWinReader::ProcessLines(const DBWinMessages& DBWinMessages)
 {
 	Lines resolvedLines = CheckHandleCache();
-	for (auto i = internalLines.begin(); i != internalLines.end(); ++i)
+	for (auto i = DBWinMessages.begin(); i != DBWinMessages.end(); ++i)
 	{
 		std::string processName; 
 		if (i->handle)

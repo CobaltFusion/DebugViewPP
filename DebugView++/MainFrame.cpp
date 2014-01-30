@@ -917,7 +917,7 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			auto reader = make_unique<DBWinReader>(m_lineBuffer, false);
+			auto reader = make_unique<DBWinReader>(false);
 			m_pLocalReader = reader.get();
 			m_logSources.Add(std::move(reader));
 		}
@@ -936,7 +936,7 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			auto reader = make_unique<DBWinReader>(m_lineBuffer, true);
+			auto reader = make_unique<DBWinReader>(true);
 			m_pGlobalReader = reader.get();
 			m_logSources.Add(std::move(reader));
 		}
@@ -1057,6 +1057,7 @@ CLogView& CMainFrame::GetView()
         // when 'cancel' is pressed, the current tab remains the '+' tab and GetView(int) would fail
         // cdbg << "Application Error: GetCurSel returned non-existant tab index: " << sel << "\n";
         sel = GetViewCount() -1;
+		GetTabCtrl().SetCurSel(sel);
     }
 	return GetView(std::max(0, sel));
 }

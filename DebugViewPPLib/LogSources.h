@@ -24,13 +24,15 @@ typedef std::vector<HANDLE> LogSourcesHandles;
 class LogSources
 {
 public:
-	LogSources();
+	LogSources(bool startListening = false);
 	~LogSources();
 
 	void Add(std::unique_ptr<LogSource> source);
-	void Run();
+	void Listen();
 	void Abort();
 	Lines GetLines();
+
+	std::vector<std::unique_ptr<LogSource>>& GetSources();		//todo: return iterator instead of internal vector
 
 private:
 	LogSourcesHandles GetWaitHandles();

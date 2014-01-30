@@ -13,12 +13,12 @@
 #include "LogSource.h"
 #include "DBWinBuffer.h"
 #include "ProcessHandleCache.h"
-#include "LineBuffer.h"
+#include <boost/signals2.hpp>
 
 namespace fusion {
 namespace debugviewpp {
 
-struct InternalLine
+struct DBWinMessage
 {
 	double time;
 	FILETIME systemTime;
@@ -27,12 +27,14 @@ struct InternalLine
 	HANDLE handle;
 };
 
-typedef std::vector<InternalLine> InternalLines;
+typedef std::vector<DBWinMessage> DBWinMessages;
+
+typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
 
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(LineBuffer& lineBuffer, bool global);
+	explicit DBWinReader(bool global, bool startlistening = true);
 	~DBWinReader();
 
 	virtual bool AtEnd() const;
@@ -42,20 +44,21 @@ public:
 
 	void Abort();
 
+	boost::signals2::connection Connect(OnDBWinMessage onDBWinMessage);
+
 	bool AutoNewLine() const;
 	void AutoNewLine(bool value);
 
 private:
 	void Run();
 	void Add(DWORD pid, const char* text, HANDLE handle);
-	void AddLine(const InternalLine& InternalLine);
-	Lines ProcessLines(const InternalLines& lines);
-	Lines ProcessLine(const Line& internalLine);
+	void AddLine(const DBWinMessage& DBWinMessage);
+	Lines ProcessLines(const DBWinMessages& lines);
+	Lines ProcessLine(const Line& DBWinMessage);
 	Lines CheckHandleCache();
 
-	LineBuffer& m_lineBuffer;
-	InternalLines m_lines;
-	InternalLines m_backBuffer;
+	DBWinMessages m_lines;
+	DBWinMessages m_backBuffer;
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 
@@ -74,6 +77,7 @@ private:
 
 	ProcessHandleCache m_handleCache;
 	boost::thread m_thread;
+	boost::signals2::signal<OnDBWinMessage> m_onDBWinMessage;
 };
 
 } // namespace debugviewpp 
