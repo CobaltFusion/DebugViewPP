@@ -10,10 +10,8 @@
 #include <boost/utility.hpp>
 #include <boost/thread.hpp>
 
-#include "Win32Lib.h"
 #include "LogSource.h"
 #include "DBWinBuffer.h"
-#include "Utilities.h"
 #include "ProcessHandleCache.h"
 #include "LineBuffer.h"
 

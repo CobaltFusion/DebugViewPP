@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include "Win32Lib.h"
 #include "PipeReader.h"
 #include "Process.h"
-#include "DBWinBuffer.h"
 #include <boost/thread.hpp>
 
 namespace fusion {

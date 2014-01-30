@@ -29,4 +29,7 @@
 #include <boost/filesystem.hpp>
 #include "boost/noncopyable.hpp"
 
+#include "../DBWinBufferLib/DBWinBufferLib.h"
+
 #include "windows.h"
+

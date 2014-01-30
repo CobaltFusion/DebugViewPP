@@ -9,7 +9,6 @@
 
 #include "stdafx.h"
 #include "ProcessHandleCache.h"
-#include "Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

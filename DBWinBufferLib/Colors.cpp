@@ -6,7 +6,6 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

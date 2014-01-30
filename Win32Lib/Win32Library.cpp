@@ -97,30 +97,6 @@ void ThrowLastError(const std::wstring& what)
 	ThrowLastError(WideCharToMultiByte(what));
 }
 
-WINDOWPLACEMENT GetWindowPlacement(HWND hwnd)
-{
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(placement);
-	if (!::GetWindowPlacement(hwnd, &placement))
-		ThrowLastError("GetWindowPlacement");
-	return placement;
-}
-
-POINT GetMessagePos()
-{
-	DWORD pos = ::GetMessagePos();
-	POINT pt = { GET_X_LPARAM(pos), GET_Y_LPARAM(pos) };
-	return pt;
-}
-
-POINT GetCursorPos()
-{
-	POINT pos;
-	if (!GetCursorPos(&pos))
-		ThrowLastError("GetCursorPos");
-	return pos;
-}
-
 SYSTEMTIME GetSystemTime()
 {
 	SYSTEMTIME st;
@@ -289,18 +265,6 @@ void* MappedViewOfFile::Ptr()
 const void* MappedViewOfFile::Ptr() const
 {
 	return m_ptr;
-}
-
-ComInitialization::ComInitialization(CoInit init)
-{
-	HRESULT hr = CoInitializeEx(nullptr, init);
-	if (FAILED(hr))
-		throw Win32Error(hr, "CoInitializeEx");
-}
-
-ComInitialization::~ComInitialization()
-{
-	CoUninitialize();
 }
 
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName)

@@ -9,6 +9,7 @@
 
 #include "OffscreenPaint.h"
 #include "FilterDlg.h"
+#include "Win32Support.h"
 
 #include <vector>
 

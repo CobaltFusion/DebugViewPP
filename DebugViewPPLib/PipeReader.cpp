@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "PipeReader.h"
-#include "ProcessInfo.h"
 
 namespace fusion {
 namespace debugviewpp {

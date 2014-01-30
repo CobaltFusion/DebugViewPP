@@ -9,7 +9,6 @@
 
 #include "stdafx.h"
 #include "LineBuffer.h"
-#include "dbgstream.h"
 
 namespace fusion {
 namespace debugviewpp {

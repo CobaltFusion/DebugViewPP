@@ -6,9 +6,6 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32Lib.h"
-#include "Utilities.h"
-#include "Colors.h"
 #include "Filter.h"
 
 namespace fusion {

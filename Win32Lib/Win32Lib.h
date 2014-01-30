@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "CircularBuffer.h"
-#include "dbgstream.h"
+#include "Utilities.h"
+#include "Win32Library.h"
 
-#pragma comment(lib, "cobaltfusion.lib")
+#pragma comment(lib, "Win32Lib.lib")

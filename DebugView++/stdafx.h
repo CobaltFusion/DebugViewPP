@@ -64,3 +64,5 @@ extern CAppModule _Module;
 #include <boost/tokenizer.hpp>
 
 #include "../DebugViewPPLib/DebugViewPPLib.h"
+
+#include "windows.h"

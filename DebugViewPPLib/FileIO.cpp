@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include <istream>
-#include "Win32Lib.h"
 #include "LogFile.h"
 #include "FileIO.h"
 #include <algorithm>

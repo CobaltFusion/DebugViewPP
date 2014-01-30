@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include "LogSource.h"
-#include "Win32Lib.h"
 #include <boost/thread.hpp>
 
 namespace fusion {

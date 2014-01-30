@@ -10,7 +10,6 @@
 #include <iostream>
 #include <vector>
 #include <boost/filesystem.hpp>
-#include "Utilities.h"
 #include "Process.h"
 
 namespace fusion {

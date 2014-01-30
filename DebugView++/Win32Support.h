@@ -7,13 +7,23 @@
 
 #pragma once
 
-#include <iosfwd>
-
 namespace fusion {
-namespace debugviewpp {
 
-std::istream& ReadLogFileMessage(std::istream& is, Line& line);
-bool ReadLogFileMessage(const std::string& data, Line& line);
+class ComInitialization : boost::noncopyable
+{
+public:
+	enum CoInit
+	{
+		ApartmentThreaded = COINIT_APARTMENTTHREADED,
+		Multithreaded = COINIT_MULTITHREADED
+	};
 
-} // namespace debugviewpp 
+	explicit ComInitialization(CoInit init);
+	~ComInitialization();
+};
+
+WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
+POINT GetMessagePos();
+POINT GetCursorPos();
+
 } // namespace fusion

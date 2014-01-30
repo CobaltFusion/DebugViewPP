@@ -7,7 +7,16 @@
 
 #pragma once
 
-#include "CircularBuffer.h"
-#include "dbgstream.h"
+#include "../Win32Lib/Win32Lib.h"
 
-#pragma comment(lib, "cobaltfusion.lib")
+#include "Colors.h"
+#include "DBWinBuffer.h"
+#include "DBWinReader.h"
+
+#include "DBWinWriter.h"
+#include "LineBuffer.h"
+#include "LogSource.h"
+#include "ProcessHandleCache.h"
+#include "ProcessInfo.h"
+
+#pragma comment(lib, "DBWinBufferLib.lib")

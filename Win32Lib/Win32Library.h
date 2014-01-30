@@ -14,13 +14,6 @@
 #include <memory>
 #include <vector>
 
-#include <atlbase.h>
-
-#pragma warning(push, 3)
-#pragma warning(disable: 4996)
-#include <atlapp.h>
-#pragma warning(pop)
-
 namespace fusion {
 
 struct GlobalAllocDeleter
@@ -137,10 +130,6 @@ void ThrowWin32Error(DWORD error, const std::string& what);
 void ThrowLastError(const std::string& what);
 void ThrowLastError(const std::wstring& what);
 
-WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
-POINT GetMessagePos();
-POINT GetCursorPos();
-
 SYSTEMTIME GetSystemTime();
 SYSTEMTIME GetLocalTime();
 FILETIME GetSystemTimeAsFileTime();
@@ -191,18 +180,6 @@ private:
 	void* m_ptr;
 };
 
-class ComInitialization : boost::noncopyable
-{
-public:
-	enum CoInit
-	{
-		ApartmentThreaded = COINIT_APARTMENTTHREADED,
-		Multithreaded = COINIT_MULTITHREADED
-	};
-
-	explicit ComInitialization(CoInit init);
-	~ComInitialization();
-};
 
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName = nullptr);
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName, const wchar_t* defaultValue);

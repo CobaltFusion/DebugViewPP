@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include <boost/filesystem.hpp>
-#include "Utilities.h"
 #include "FileIO.h"
 #include "FileReader.h"
 

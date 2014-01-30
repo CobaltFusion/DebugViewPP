@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include "cobaltfusion.h"
+#include "../CobaltFusion/cobaltfusion.h"
 #include "DBWinBuffer.h"
-#include "win32Lib.h"
-#include "Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
