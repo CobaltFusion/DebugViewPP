@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace fusion {
-namespace debugviewpp {
+namespace indexedstorage {
 
 class VectorStorage
 {
@@ -52,5 +52,5 @@ private:
 	std::vector<std::string> m_storage;
 };
 	
-} // namespace debugviewpp 
+} // namespace indexedstorage 
 } // namespace fusion

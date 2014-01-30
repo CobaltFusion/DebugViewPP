@@ -11,7 +11,7 @@
 #include "../libsnappy/libsnappy.h"
 
 namespace fusion {
-namespace debugviewpp {
+namespace indexedstorage {
 	
 const int blockSize = 400;
 
@@ -149,5 +149,5 @@ std::vector<std::string> SnappyStorage::Decompress(const std::string& value) con
 	return vec;
 }
 
-} // namespace debugviewpp 
+} // namespace indexedstorage 
 } // namespace fusion

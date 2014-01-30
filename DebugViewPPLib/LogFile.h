@@ -49,8 +49,8 @@ public:
 private:
 	std::vector<InternalMessage> m_messages;
 	ProcessInfo m_processInfo;
-	mutable SnappyStorage m_storage;
-//	VectorStorage m_storage;
+	mutable indexedstorage::SnappyStorage m_storage;
+//	indexedstorage::VectorStorage m_storage;
 };
 
 } // namespace debugviewpp 
