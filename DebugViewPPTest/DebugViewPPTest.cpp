@@ -58,16 +58,16 @@ TEST(TestCase, IndexedStorageCompression)
 		v.Add(GetTestString(i));
 
 	size_t m1 = ProcessInfo::GetPrivateBytes();
-	printf("VectorStorage requires: %d bytes\n", m1-m0);
+	size_t required1 = m1-m0;
+	std::cout << "VectorStorage requires: " << required1/1024 << " bK\n";
 
-	for (size_t i=0; i< 20000; ++i)
+	for (size_t i=0; i< 100000; ++i)
 		s.Add(GetTestString(i));
 
 	size_t m2 = ProcessInfo::GetPrivateBytes();
-	printf("SnappyStorage requires: %d bytes\n", m2-m1);
-
-	EXPECT_LT(m1, m2);
-
+	size_t required2 = m2-m1;
+	std::cout << "SnappyStorage requires: " << required2/1024 << " kB (" << (100*required2)/required1 << "%)\n";
+	EXPECT_GT(required1/2, required2) << "Expected a compression ratio below 50%!";
 }
 
 int main(int argc, char* argv[])

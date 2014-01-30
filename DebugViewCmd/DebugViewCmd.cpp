@@ -37,7 +37,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		for (auto i=lines.begin(); i != lines.end(); ++i)
 		{
-			printf("%i\t%s\t%s\n", i->pid, i->processName.c_str(), i->message.c_str());
+			std::cout << i->pid << "\t" << i->processName.c_str() << "\t" << i->message.c_str() << "\n";
 		}
 		Sleep(100);
 	}
