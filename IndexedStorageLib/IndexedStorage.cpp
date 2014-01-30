@@ -85,7 +85,7 @@ int SnappyStorage::Count() const
 
 std::string SnappyStorage::operator[](int i)
 {
-	return std::move(GetString(i));
+	return GetString(i);
 }
 
 int SnappyStorage::GetBlockIndex(int index) const
