@@ -29,7 +29,8 @@ struct DBWinMessage
 
 typedef std::vector<DBWinMessage> DBWinMessages;
 
-typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
+//typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
+typedef void OnDBWinMessage(double time); //, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
 
 class DBWinReader : public LogSource
 {
@@ -44,7 +45,7 @@ public:
 
 	void Abort();
 
-	boost::signals2::connection Connect(OnDBWinMessage onDBWinMessage);
+	boost::signals2::connection Connect(const std::function<OnDBWinMessage>&);
 
 	bool AutoNewLine() const;
 	void AutoNewLine(bool value);

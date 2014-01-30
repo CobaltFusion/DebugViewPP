@@ -37,17 +37,16 @@ DBWinReader::DBWinReader(bool global, bool startlistening) :
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
 	m_mappedViewOfFile(m_hBuffer.get(), PAGE_READONLY, 0, 0, sizeof(DbWinBuffer)),
 	m_dbWinBuffer(static_cast<const DbWinBuffer*>(m_mappedViewOfFile.Ptr())),
-	m_handleCacheTime(0.0),
-	m_thread(&DBWinReader::Run, this)
+	m_handleCacheTime(0.0)
 {
 	m_lines.reserve(4000);
 	m_backBuffer.reserve(4000);
 	SetEvent(m_dbWinBufferReady.get());
 
-	//if (startlistening)
-	//{
-	//	m_thread = boost::thread(&DBWinReader::Run, this);
-	//}
+	if (startlistening)
+	{
+		m_thread = boost::thread(&DBWinReader::Run, this);
+	}
 }
 
 DBWinReader::~DBWinReader()
@@ -55,7 +54,7 @@ DBWinReader::~DBWinReader()
 	Abort();
 }
 
-boost::signals2::connection DBWinReader::Connect(OnDBWinMessage onDBWinMessage)
+boost::signals2::connection DBWinReader::Connect(const std::function<OnDBWinMessage>& onDBWinMessage)
 {
 	return m_onDBWinMessage.connect(onDBWinMessage);
 }
@@ -84,6 +83,9 @@ void DBWinReader::Notify()
 	}
 #endif
 	printf("RECEIVED: %s!\n", m_dbWinBuffer->data);
+
+	m_onDBWinMessage(1.0);
+	
 	//m_onDBWinMessage(m_timer.Get(), GetSystemTimeAsFileTime(), m_dbWinBuffer->processId, handle, m_dbWinBuffer->data);
 	SetEvent(m_dbWinBufferReady.get());
 }
