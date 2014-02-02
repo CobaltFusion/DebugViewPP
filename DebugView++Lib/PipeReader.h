@@ -8,6 +8,8 @@
 #pragma once
 
 #include <boost/utility.hpp>
+#include "Utilities.h"
+#include "LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {

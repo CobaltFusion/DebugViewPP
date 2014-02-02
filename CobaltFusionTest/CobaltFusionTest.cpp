@@ -6,26 +6,26 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "gtest/gtest.h"
+
+#define BOOST_TEST_MODULE CobaltFusionLib Unit Test
+#include <boost/test/unit_test_gui.hpp>
 #include "cobaltfusion.h"
 
-#ifdef _DEBUG
-#        pragma comment(lib, "gtestd.lib")
-#else
-#        pragma comment(lib, "gtest.lib")
-#endif
 
+namespace fusion {
 
-class TestCircularBuffer : public fusion::CircularBuffer
+BOOST_AUTO_TEST_SUITE(ColbaltFusionLib)
+
+class TestCircularBuffer : public CircularBuffer
 {
 public:
-	TestCircularBuffer(size_t size) : fusion::CircularBuffer(size)
+	explicit TestCircularBuffer(size_t size) : CircularBuffer(size)
 	{
 	}
 
 	virtual bool Full() const
 	{
-		return fusion::CircularBuffer::GetFree() < 10;
+		return CircularBuffer::GetFree() < 10;
 	}
 
 	void TestBlockingWriteString()
@@ -43,185 +43,157 @@ public:
 	}
 };
 
-
-TEST(TestCase, Test)
+BOOST_AUTO_TEST_CASE(CircularBufferSize)
 {
-	EXPECT_EQ(1 + 1, 2);
+	CircularBuffer buffer(100);
+	BOOST_CHECK_EQUAL(128, buffer.Size());
+
+	CircularBuffer buffer2(2*1024*1024);
+	BOOST_CHECK_EQUAL(buffer2.Size(), 2*1024*1024);
 }
 
-TEST(TestCase, CircularBufferSize)
-{
-	fusion::CircularBuffer buffer(100);
-	EXPECT_EQ(128, buffer.Size());
-
-	fusion::CircularBuffer buffer2(2*1024*1024);
-	EXPECT_EQ(2*1024*1024, buffer2.Size());
-}
-
-TEST(TestCase, CircularBufferInitialLevels)
+BOOST_AUTO_TEST_CASE(CircularBufferInitialLevels)
 {
 	size_t testsize = 100;
-	fusion::CircularBuffer buffer(testsize);
-	EXPECT_EQ(128, buffer.Size());
+	CircularBuffer buffer(testsize);
+	BOOST_REQUIRE_EQUAL(128, buffer.Size());
 	
-	EXPECT_EQ(true, buffer.Empty());
-	EXPECT_EQ(false, buffer.Full());
-	for (size_t i=0; i< buffer.Size()-1; ++i)
-	{
-		buffer.Write(char(1));
-	}
-	EXPECT_EQ(false, buffer.Empty());
-	EXPECT_EQ(true, buffer.Full());
+	BOOST_CHECK(buffer.Empty());
+	BOOST_CHECK(!buffer.Full());
+	for (size_t i = 0; i < buffer.Size() - 1; ++i)
+		buffer.Write<char>(1);
 
-	for (size_t i=0; i< buffer.Size()-1; ++i)
-	{
+	BOOST_CHECK(!buffer.Empty());
+	BOOST_CHECK(buffer.Full());
+
+	for (size_t i = 0; i < buffer.Size() - 1; ++i)
 		buffer.Read<char>();
-	}
-	EXPECT_EQ(true, buffer.Empty());
-	EXPECT_EQ(false, buffer.Full());
+
+	BOOST_CHECK(buffer.Empty());
+	BOOST_CHECK(!buffer.Full());
 }
 
-TEST(TestCase, CircularBufferCycle)
+BOOST_AUTO_TEST_CASE(CircularBufferCycle)
 {
 	size_t testsize = 100;
-	fusion::CircularBuffer buffer(testsize);
-	EXPECT_EQ(128, buffer.Size());
+	CircularBuffer buffer(testsize);
+	BOOST_REQUIRE_EQUAL(128, buffer.Size());
 	
-	for (int j=0; j<1500; ++j)
+	for (int j = 0; j < 1500; ++j)
 	{
-		//std::cout << "Test Cycle Number " << j+1 << std::endl;
-		EXPECT_EQ(true, buffer.Empty());
-		for (size_t i=0; i< 17; ++i)
-		{
-			buffer.Write(char(1));
-		}
-		EXPECT_EQ(false, buffer.Empty());
+		BOOST_CHECK(buffer.Empty());
+		for (int i = 0; i < 17; ++i)
+			buffer.Write<char>(1);
 
-		for (size_t i=0; i<17; ++i)
-		{
+		BOOST_CHECK(!buffer.Empty());
+
+		for (int i = 0; i < 17; ++i)
 			buffer.Read<char>();
-		}
-		EXPECT_EQ(true, buffer.Empty());
+
+		BOOST_CHECK(buffer.Empty());
 	}
 }
 
-TEST(TestCase, CircularBufferCycleStringZ)
+BOOST_AUTO_TEST_CASE(CircularBufferCycleStringZ)
 {
 	size_t testsize = 100;
-	fusion::CircularBuffer buffer(testsize);
-	EXPECT_EQ(128, buffer.Size());
+	CircularBuffer buffer(testsize);
+	BOOST_CHECK_EQUAL(buffer.Size(), 128);
 	
-	for (int j=0; j<1000; ++j)
+	for (int j = 0; j < 1000; ++j)
 	{
-		//std::cout << "Test Cycle Number " << j+1 << std::endl;
-		EXPECT_EQ(true, buffer.Empty());
-		for (size_t i=0; i< 17; ++i)
-		{
+		BOOST_CHECK(buffer.Empty());
+		for (int i = 0; i < 17; ++i)
 			buffer.WriteStringZ("test");
-		}
-		EXPECT_EQ(false, buffer.Empty());
 
-		for (size_t i=0; i<17; ++i)
-		{
-			auto test = buffer.ReadStringZ();
-			EXPECT_EQ("test", test);
-		}
-		EXPECT_EQ(true, buffer.Empty());
+		BOOST_CHECK(!buffer.Empty());
+
+		for (int i = 0; i < 17; ++i)
+			BOOST_CHECK_EQUAL(buffer.ReadStringZ(), "test");
+
+		BOOST_CHECK(buffer.Empty());
 	}
 }
 
-TEST(TestCase, CircularBufferCycleStringZPrime)
+BOOST_AUTO_TEST_CASE(CircularBufferCycleStringZPrime)
 {
 	size_t testsize = 200;
-	fusion::CircularBuffer buffer(testsize);
-	EXPECT_EQ(256, buffer.Size());
+	CircularBuffer buffer(testsize);
+	BOOST_REQUIRE_EQUAL(256, buffer.Size());
 	
-	for (int j=0; j<500; ++j)
+	for (int j = 0; j < 500; ++j)
 	{
-		//std::cout << "Test Cycle Number " << j+1 << std::endl;
-		EXPECT_EQ(true, buffer.Empty());
-		for (size_t i=0; i< 17; ++i)
-		{
+		BOOST_CHECK(buffer.Empty());
+		for (size_t i = 0; i < 17; ++i)
 			buffer.WriteStringZ("test123");
-		}
-		EXPECT_EQ(false, buffer.Empty());
 
-		for (size_t i=0; i<17; ++i)
-		{
-			auto test123 = buffer.ReadStringZ();
-			EXPECT_EQ("test123", test123);
-		}
-		EXPECT_EQ(true, buffer.Empty());
+		BOOST_CHECK(!buffer.Empty());
+
+		for (int i = 0; i < 17; ++i)
+			BOOST_CHECK_EQUAL(buffer.ReadStringZ(), "test123");
+
+		BOOST_CHECK(buffer.Empty());
 	}
 }
 
-TEST(TestCase, CircularBufferBufferFullTimeout)
+BOOST_AUTO_TEST_CASE(CircularBufferBufferFullTimeout)
 {
 	size_t testsize = 100;
 	TestCircularBuffer buffer(testsize);
-	EXPECT_EQ(128, buffer.Size());
-	EXPECT_EQ(true, buffer.Empty());
-	EXPECT_EQ(false, buffer.Full());
+	BOOST_CHECK_EQUAL(buffer.Size(), 128);
+	BOOST_CHECK(buffer.Empty());
+	BOOST_CHECK(!buffer.Full());
 
-	bool gotException = false;
 	int iterations = 0;
 	int writeIterations = 0;
-	try {
-		for (size_t i=0; i< 100; ++i)
-		{
-			iterations++;
-			buffer.TestBlockingWriteString();
-			writeIterations++;
-			EXPECT_EQ(false, buffer.Empty());
-		}
-	}
-	catch (std::exception& e)
+	BOOST_CHECK_THROW(
 	{
-		std::cout << ">> as expected, got exception: " << e.what() << std::endl;
-		gotException = true;
-	}
-	std::cout << "iterations: " << iterations << std::endl;
-	EXPECT_EQ(true, gotException);
-	EXPECT_EQ(true, buffer.Full());
+		for (int i = 0; i < 100; ++i)
+		{
+			++iterations;
+			buffer.TestBlockingWriteString();
+			++writeIterations;
+			BOOST_CHECK(!buffer.Empty());
+		}
+	}, std::exception);
+
+	BOOST_MESSAGE("iterations: " << iterations);
+	BOOST_CHECK(buffer.Full());
 
 	int readInterations = 0;
 	while (!buffer.Empty())
 	{
 		buffer.TestReadString();
-		readInterations++;
+		++readInterations;
 	}
-	EXPECT_EQ(true, buffer.Empty());
-	EXPECT_EQ(false, buffer.Full());
-	EXPECT_EQ(writeIterations, readInterations);
+	BOOST_CHECK(buffer.Empty());
+	BOOST_CHECK(!buffer.Full());
+	BOOST_CHECK_EQUAL(readInterations, writeIterations);
 }
 
-TEST(TestCase, CircularBufferSwapping)
+BOOST_AUTO_TEST_CASE(CircularBufferSwapping)
 {
 	size_t testsize = 30;
-	fusion::CircularBuffer buffer(testsize);
-	EXPECT_EQ(32, buffer.Size());
+	CircularBuffer buffer(testsize);
+	BOOST_REQUIRE_EQUAL(buffer.Size(), 32);
 
 	size_t testsize2 = 60;
-	fusion::CircularBuffer buffer2(testsize2);
-	EXPECT_EQ(64, buffer2.Size());
+	CircularBuffer buffer2(testsize2);
+	BOOST_REQUIRE_EQUAL(buffer2.Size(), 64);
 
 	buffer.WriteStringZ("test");
 	buffer.WriteStringZ("test");
 	buffer2.WriteStringZ("test");
 
-	EXPECT_EQ(10, buffer.GetCount());
-	EXPECT_EQ(5, buffer2.GetCount());
+	BOOST_REQUIRE_EQUAL(buffer.GetCount(), 10);
+	BOOST_REQUIRE_EQUAL(buffer2.GetCount(), 5);
 
 	buffer.Swap(buffer2);
 
-	EXPECT_EQ(5, buffer.GetCount());
-	EXPECT_EQ(10, buffer2.GetCount());
-
+	BOOST_REQUIRE_EQUAL(buffer.GetCount(), 5);
+	BOOST_REQUIRE_EQUAL(buffer2.GetCount(), 10);
 }
 
-int main(int argc, char* argv[])
-{
-	testing::InitGoogleTest(&argc, argv);
+BOOST_AUTO_TEST_SUITE_END()
 
-	return RUN_ALL_TESTS();
-}
+} // namespace fusion

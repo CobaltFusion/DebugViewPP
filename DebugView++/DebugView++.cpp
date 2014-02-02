@@ -6,11 +6,11 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "resource.h"
-#include "hstream.h"
-#include "MainFrame.h"
-
 #include <boost/algorithm/string.hpp>
+#include "hstream.h"
+#include "DBWinWriter.h"
+#include "resource.h"
+#include "MainFrame.h"
 
 CAppModule _Module;
 

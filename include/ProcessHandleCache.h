@@ -7,21 +7,25 @@
 
 #pragma once
 
+#include <vector>
+#include <map>
+#include "Win32Lib.h"
+
 namespace fusion {
 namespace debugviewpp {
 
-class DBWinWriter
+typedef std::vector<DWORD> Pids;
+
+class ProcessHandleCache
 {
 public:
-	DBWinWriter();
+	~ProcessHandleCache();
 
-	void Write(DWORD pid, const std::string& message);
+	void Add(DWORD pid, Handle handle);
+	Pids Cleanup();
 
 private:
-	Handle m_hBuffer;
-	Handle m_dbWinBufferReady;
-	Handle m_dbWinDataReady;
-	MappedViewOfFile m_dbWinView;
+	std::map<DWORD, Handle> m_cache;
 };
 
 } // namespace debugviewpp 

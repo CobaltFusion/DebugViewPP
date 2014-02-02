@@ -7,11 +7,12 @@
 
 #pragma once
 
+#include <vector>
 #include "OffscreenPaint.h"
 #include "FilterDlg.h"
 #include "Win32Support.h"
-
-#include <vector>
+#include "Win32Lib.h"
+#include "LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {

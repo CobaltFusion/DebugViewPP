@@ -8,11 +8,14 @@
 #pragma once
 
 #include <boost/thread.hpp>
+#include "Win32Lib.h"
+#include "LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-struct LogSourceInfo {
+struct LogSourceInfo
+{
 	LogSourceInfo(HANDLE handle, LogSource& logsource);		
 	HANDLE handle;
 	LogSource& logsource;

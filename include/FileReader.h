@@ -7,9 +7,10 @@
 
 #pragma once
 
+#include <boost/thread.hpp>
 #include "PipeReader.h"
 #include "Process.h"
-#include <boost/thread.hpp>
+#include "Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {

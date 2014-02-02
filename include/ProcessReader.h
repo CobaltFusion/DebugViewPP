@@ -7,23 +7,26 @@
 
 #pragma once
 
-#include <map>
+#include "PipeReader.h"
+#include "Process_.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-typedef std::vector<DWORD> Pids;
-
-class ProcessHandleCache
+class ProcessReader : public LogSource
 {
 public:
-	~ProcessHandleCache();
+	ProcessReader(const std::wstring& pathName, const std::wstring& args);
 
-	void Add(DWORD pid, Handle handle);
-	Pids Cleanup();
+	virtual bool AtEnd() const;
+	virtual HANDLE GetHandle() const;
+	virtual void Notify();
+	virtual Lines GetLines();
 
 private:
-	std::map<DWORD, Handle> m_cache;
+	Process m_process;
+	PipeReader m_stdout;
+	PipeReader m_stderr;
 };
 
 } // namespace debugviewpp 

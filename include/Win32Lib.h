@@ -14,6 +14,8 @@
 #include <memory>
 #include <vector>
 
+#pragma comment(lib, "Win32Lib.lib")
+
 namespace fusion {
 
 struct GlobalAllocDeleter

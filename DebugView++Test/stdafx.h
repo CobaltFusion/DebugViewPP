@@ -7,8 +7,4 @@
 
 #pragma once
 
-#include "../libsnappy/libsnappy.h"
-
-#include "IndexedStorage.h"
-
-#pragma comment(lib, "IndexedStorageLib.lib")
+#include "targetver.h"

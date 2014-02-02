@@ -9,7 +9,7 @@
 
 #define NOMINMAX
 
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 using std::min;
 using std::max;
@@ -62,8 +62,6 @@ extern CAppModule _Module;
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
-
-#include "../DebugViewPPLib/DebugViewPPLib.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"

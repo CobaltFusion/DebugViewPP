@@ -11,9 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{140F4AB1-0368-4DE1-8EAE-B7316D1588BB}</ProjectGuid>
+    <ProjectGuid>{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DBWinBufferLib</RootNamespace>
+    <RootNamespace>DebugViewPPLib</RootNamespace>
+    <ProjectName>DebugView++Lib</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -44,8 +45,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -60,8 +62,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\boost;..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\Libraries\boost;..\Libraries\wtl\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -71,26 +74,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Colors.h" />
-    <ClInclude Include="..\include\DBWinBuffer.h" />
-    <ClInclude Include="..\include\DBWinReader.h" />
-    <ClInclude Include="..\include\DBWinWriter.h" />
-    <ClInclude Include="..\include\LineBuffer.h" />
-    <ClInclude Include="..\include\LogSource.h" />
-    <ClInclude Include="..\include\ProcessHandleCache.h" />
-    <ClInclude Include="..\include\ProcessInfo.h" />
+    <ClInclude Include="..\include\FileIO.h" />
+    <ClInclude Include="..\include\FileReader.h" />
+    <ClInclude Include="..\include\Filter.h" />
+    <ClInclude Include="..\include\FilterType.h" />
+    <ClInclude Include="..\include\LogFile.h" />
+    <ClInclude Include="..\include\LogFilter.h" />
+    <ClInclude Include="..\include\LogSources.h" />
+    <ClInclude Include="..\include\MatchType.h" />
+    <ClInclude Include="..\include\PipeReader.h" />
+    <ClInclude Include="..\include\ProcessReader.h" />
+    <ClInclude Include="..\include\Process_.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Colors.cpp" />
-    <ClCompile Include="DBWinBuffer.cpp" />
-    <ClCompile Include="DBWinReader.cpp" />
-    <ClCompile Include="DBWinWriter.cpp" />
-    <ClCompile Include="LineBuffer.cpp" />
-    <ClCompile Include="LogSource.cpp" />
-    <ClCompile Include="ProcessHandleCache.cpp" />
-    <ClCompile Include="ProcessInfo.cpp" />
+    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="FilterType.cpp" />
+    <ClCompile Include="LogFile.cpp" />
+    <ClCompile Include="LogFilter.cpp" />
+    <ClCompile Include="LogSources.cpp" />
+    <ClCompile Include="MatchType.cpp" />
+    <ClCompile Include="PipeReader.cpp" />
+    <ClCompile Include="Process.cpp" />
+    <ClCompile Include="ProcessReader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

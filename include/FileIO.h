@@ -7,17 +7,14 @@
 
 #pragma once
 
-#include "../Win32Lib/Win32Lib.h"
-#include "../IndexedStorageLib/IndexedStorageLib.h"
-
-#include "Colors.h"
+#include <iosfwd>
 #include "DBWinBuffer.h"
-#include "DBWinReader.h"
 
-#include "DBWinWriter.h"
-#include "LineBuffer.h"
-#include "LogSource.h"
-#include "ProcessHandleCache.h"
-#include "ProcessInfo.h"
+namespace fusion {
+namespace debugviewpp {
 
-#pragma comment(lib, "DBWinBufferLib.lib")
+std::istream& ReadLogFileMessage(std::istream& is, Line& line);
+bool ReadLogFileMessage(const std::string& data, Line& line);
+
+} // namespace debugviewpp 
+} // namespace fusion

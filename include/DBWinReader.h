@@ -9,11 +9,12 @@
 
 #include <boost/utility.hpp>
 #include <boost/thread.hpp>
+#include <boost/signals2.hpp>
 
 #include "LogSource.h"
 #include "DBWinBuffer.h"
 #include "ProcessHandleCache.h"
-#include <boost/signals2.hpp>
+#include "Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

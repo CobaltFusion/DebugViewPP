@@ -7,6 +7,13 @@
 
 #include "stdafx.h"
 
+#include <algorithm>
+#include <boost/utility.hpp>
+#include <boost/filesystem.hpp>
+#include "ProcessReader.h"
+#include "FileReader.h"
+#include "FileIO.h"
+#include "Utilities.h"
 #include "hstream.h"
 #include "Resource.h"
 #include "RunDlg.h"
@@ -15,9 +22,6 @@
 #include "LogView.h"
 #include "MainFrame.h"
 
-#include <algorithm>
-#include <boost/utility.hpp>
-#include <boost/filesystem.hpp>
 
 namespace fusion {
 namespace debugviewpp {

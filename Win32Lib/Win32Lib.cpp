@@ -6,8 +6,8 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32Lib.h"
 #include <vector>
+#include "Win32Lib.h"
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
 

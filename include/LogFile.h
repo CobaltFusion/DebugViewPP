@@ -9,6 +9,9 @@
 
 #include <string>
 #include <vector>
+#include "Colors.h"
+#include "ProcessInfo.h"
+#include "IndexedStorage.h"
 
 namespace fusion {
 namespace debugviewpp {

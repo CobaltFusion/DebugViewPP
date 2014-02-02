@@ -21,4 +21,4 @@
 #include "Process.h"
 #include "ProcessReader.h"
 
-#pragma comment(lib, "DebugViewPPLib.lib")
+#pragma comment(lib, "DebugView++Lib.lib")

@@ -8,9 +8,8 @@
 #pragma once
 
 #include <string>
-#include "windows.h"
-#include "psapi.h"
 #include <map>
+#include <psapi.h>
 
 namespace fusion {
 namespace debugviewpp {

@@ -7,12 +7,12 @@
 
 #include "stdafx.h"
 #include <istream>
-#include "LogFile.h"
-#include "FileIO.h"
 #include <algorithm>
 #include <sstream>
-#include "windows.h"
 #include <boost/lexical_cast.hpp>
+#include "Win32Lib.h"
+#include "LogFile.h"
+#include "FileIO.h"
 
 namespace fusion {
 namespace debugviewpp {

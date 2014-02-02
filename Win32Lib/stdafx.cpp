@@ -1,8 +1,8 @@
-// stdafx.cpp : source file that includes just the standard includes
-// Win32Lib.pch will be the pre-compiled header
-// stdafx.obj will contain the pre-compiled type information
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-
-// TODO: reference any additional headers you need in STDAFX.H
-// and not in this file

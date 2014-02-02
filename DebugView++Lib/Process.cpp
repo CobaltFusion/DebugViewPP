@@ -10,7 +10,8 @@
 #include <iostream>
 #include <vector>
 #include <boost/filesystem.hpp>
-#include "Process.h"
+#include "Win32Lib.h"
+#include "Process_.h"
 
 namespace fusion {
 
@@ -57,24 +58,24 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	HANDLE stdInRd, stdInWr;
 	if (!CreatePipe(&stdInRd, &stdInWr, &saAttr, 0))
 		ThrowLastError("CreatePipe");
-	CHandle stdInRd2(stdInRd);
-	m_stdIn.Attach(stdInWr);
+	Handle stdInRd2(stdInRd);
+	m_stdIn.reset(stdInWr);
 	if (!SetHandleInformation(stdInWr, HANDLE_FLAG_INHERIT, 0))
 		ThrowLastError("SetHandleInformation");
 
 	HANDLE stdOutRd, stdOutWr;
 	if (!CreatePipe(&stdOutRd, &stdOutWr, &saAttr, 0))
 		ThrowLastError("CreatePipe");
-	CHandle stdOutWr2(stdOutWr);
-	m_stdOut.Attach(stdOutRd);
+	Handle stdOutWr2(stdOutWr);
+	m_stdOut.reset(stdOutRd);
 	if (!SetHandleInformation(stdOutRd, HANDLE_FLAG_INHERIT, 0))
 		ThrowLastError("SetHandleInformation");
 
 	HANDLE stdErrRd, stdErrWr;
 	if (!CreatePipe(&stdErrRd, &stdErrWr, &saAttr, 0))
 		ThrowLastError("CreatePipe");
-	CHandle stdErrWr2(stdErrWr);
-	m_stdErr.Attach(stdErrRd);
+	Handle stdErrWr2(stdErrWr);
+	m_stdErr.reset(stdErrRd);
 	if (!SetHandleInformation(stdErrRd, HANDLE_FLAG_INHERIT, 0))
 		ThrowLastError("SetHandleInformation");
 
@@ -94,9 +95,9 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	startupInfo.wShowWindow = SW_HIDE;
 	startupInfo.cbReserved2 = 0;
 	startupInfo.lpReserved2 = nullptr;
-	startupInfo.hStdInput = stdInRd2;
-	startupInfo.hStdOutput = stdOutWr2;
-	startupInfo.hStdError = stdErrWr2;
+	startupInfo.hStdInput = stdInRd2.get();
+	startupInfo.hStdOutput = stdOutWr2.get();
+	startupInfo.hStdError = stdErrWr2.get();
 
 	PROCESS_INFORMATION processInformation;
 
@@ -113,8 +114,8 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 		&processInformation))
 		ThrowLastError("SetHandleInformation");
 
-	m_hProcess.Attach(processInformation.hProcess);
-	m_hThread.Attach(processInformation.hThread);
+	m_hProcess.reset(processInformation.hProcess);
+	m_hThread.reset(processInformation.hThread);
 	m_processId = processInformation.dwProcessId;
 	m_threadId = processInformation.dwThreadId;
 }
@@ -126,27 +127,27 @@ std::wstring Process::GetName() const
 
 HANDLE Process::GetStdIn() const
 {
-	return m_stdIn;
+	return m_stdIn.get();
 }
 
 HANDLE Process::GetStdOut() const
 {
-	return m_stdOut;
+	return m_stdOut.get();
 }
 
 HANDLE Process::GetStdErr() const
 {
-	return m_stdErr;
+	return m_stdErr.get();
 }
 
 HANDLE Process::GetProcessHandle() const
 {
-	return m_hProcess;
+	return m_hProcess.get();
 }
 
 HANDLE Process::GetThreadHandle() const
 {
-	return m_hThread;
+	return m_hThread.get();
 }
 
 unsigned Process::GetProcessId() const
@@ -162,7 +163,7 @@ unsigned Process::GetThreadId() const
 bool Process::IsRunning() const
 {
 	DWORD exitCode;
-	if (!GetExitCodeProcess(m_hProcess, &exitCode))
+	if (!GetExitCodeProcess(m_hProcess.get(), &exitCode))
 		ThrowLastError("process exit");
 
 	return exitCode == STILL_ACTIVE;
@@ -170,7 +171,7 @@ bool Process::IsRunning() const
 
 void Process::Wait() const
 {
-	if (WaitForSingleObject(m_hProcess, INFINITE) != WAIT_OBJECT_0)
+	if (WaitForSingleObject(m_hProcess.get(), INFINITE) != WAIT_OBJECT_0)
 		ThrowLastError("process exit");
 }
 

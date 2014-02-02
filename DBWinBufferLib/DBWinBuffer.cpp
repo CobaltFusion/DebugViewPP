@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "Win32Lib.h"
 #include "DBWinBuffer.h"
 
 namespace fusion {
@@ -18,7 +19,6 @@ Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& proce
 	processName(processName),
 	message(message)
 {
-
 }
 
 bool IsWindowsVistaOrGreater()

@@ -7,13 +7,13 @@
 
 #pragma once
 
+#include <string>
+#include <regex>
+#include <vector>
 #include "MatchType.h"
 #include "FilterType.h"
 
 #include "atlbase.h"
-#include <string>
-#include <regex>
-#include <vector>
 
 namespace fusion {
 namespace debugviewpp {
