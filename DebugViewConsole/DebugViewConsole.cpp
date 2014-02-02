@@ -1,24 +1,33 @@
-// DebugViewCmd.cpp : Defines the entry point for the console application.
-//
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at 
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <iostream>
+#include <vector>
+#include <memory>
+#include "Utilities.h"
+#include "DBWinReader.h"
+#include "ProcessInfo.h"
+#include "LogSources.h"
 #include "../DebugView++/version.h"
 
-using namespace fusion;
-using namespace fusion::debugviewpp;
+namespace fusion {
+namespace debugviewpp {
 
-void Method1()
+void ShowMessages()
 {
 	std::vector<std::unique_ptr<LogSource>> sources;
 	
 	sources.push_back(make_unique<DBWinReader>(false));
 	if (HasGlobalDBWinReaderRights())
-	{
 		sources.push_back(make_unique<DBWinReader>(true));
-	}
 
 	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
-	while (true)
+	for (;;)
 	{
 		Lines lines;
 		for (auto it = sources.begin(); it != sources.end(); )
@@ -76,15 +85,18 @@ void Method2()
 	sources.Listen();
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+} // namespace debugviewpp
+} // namespace fusion
+
+int main(int argc, char* argv[])
+try
 {
 	std::cout << "DebugViewConsole v" << VERSION_STR << "\n"; 
-	try {
-		Method2();
-	}
-	catch (std::exception& e)
-	{
-		MessageBoxA(0, e.what(), "DebugViewCmd caught an exception!", MB_OK);
-	}
+	fusion::debugviewpp::ShowMessages();
 	return 0;
+}
+catch (std::exception& e)
+{
+	std::cerr << "DebugViewCmd error:" << e.what() << std::endl;
+	return 1;
 }

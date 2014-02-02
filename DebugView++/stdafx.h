@@ -9,11 +9,6 @@
 
 #define NOMINMAX
 
-#include <cstdint>
-#include <algorithm>
-using std::min;
-using std::max;
-
 // Change these values to use different versions
 #define WINVER		0x0501
 #define _WIN32_WINNT 0x0501
@@ -22,8 +17,13 @@ using std::max;
 
 #define _WTL_NO_CSTRING
 
-#include <atlbase.h>
+#include <cstdint>
+#include <algorithm>
+using std::min;
+using std::max;
 
+#include "windows.h"
+#include <atlbase.h>
 #pragma warning(push, 3)
 #pragma warning(disable: 4996)
 #include <atlapp.h>
@@ -52,6 +52,7 @@ extern CAppModule _Module;
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
+#ifdef _DEBUG
 #include <string>
 #include <vector>
 #include <sstream>
@@ -62,6 +63,4 @@ extern CAppModule _Module;
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
-
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+#endif

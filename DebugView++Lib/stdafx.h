@@ -12,6 +12,7 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #define NOMINMAX
 
+#ifdef _DEBUG
 #include <string>
 #include <vector>
 #include <sstream>
@@ -28,7 +29,8 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
-#include "boost/noncopyable.hpp"
+#include <boost/noncopyable.hpp>
+#endif
 
 #include "atlbase.h"
 #include "windows.h"

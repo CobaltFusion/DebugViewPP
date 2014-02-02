@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include "dbgstream.h"
 #include "ProcessReader.h"
 #include "FileReader.h"
 #include "FileIO.h"

@@ -11,9 +11,11 @@
 #include <boost/test/unit_test_gui.hpp>
 #include <random>
 
-#include "../IndexedStorageLib/IndexedStorageLib.h"
-#include "../Win32Lib/Win32Lib.h"
-#include "../DBWinBufferLib/DBWinBufferLib.h"
+#include "Utilities.h"
+#include "ProcessInfo.h"
+#include "IndexedStorage.h"
+#include "Win32Lib.h"
+#include "DBWinBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

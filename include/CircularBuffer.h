@@ -7,11 +7,12 @@
 
 #pragma once
 
-#include "windows.h"
-#include "boost/noncopyable.hpp"
 #include <memory>
 #include <string>
+#include <boost/noncopyable.hpp>
 #include <boost/thread.hpp>
+
+#pragma comment(lib, "CobaltFusion.lib")
 
 namespace fusion {
 
@@ -34,23 +35,23 @@ public:
 
 	void Clear();
 	void Swap(CircularBuffer& circularBuffer);
-protected:
 
+protected:
     void NotifyWriter();
 
-	inline size_t PtrAdd(size_t value, size_t add) const
+	size_t PtrAdd(size_t value, size_t add) const
 	{
 		return ((value + add) & (m_size-1));
 	}
 
-	inline const char* ReadPointer()
+	const char* ReadPointer()
 	{
-		return m_buffer.get()+m_readOffset;
+		return m_buffer.get() + m_readOffset;
 	}
 
-	inline char* WritePointer()
+	char* WritePointer()
 	{
-		return m_buffer.get()+m_writeOffset;
+		return m_buffer.get() + m_writeOffset;
 	}
 
 	static int GetPowerOfTwo(int size);

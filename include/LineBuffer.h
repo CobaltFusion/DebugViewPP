@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../CobaltFusion/cobaltfusion.h"
+#include "CircularBuffer.h"
 #include "DBWinBuffer.h"
 
 namespace fusion {

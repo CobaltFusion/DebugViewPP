@@ -11,6 +11,8 @@
 #include <map>
 #include <psapi.h>
 
+#pragma comment(lib, "DBWinBufferLib.lib")
+
 namespace fusion {
 namespace debugviewpp {
 
