@@ -51,6 +51,6 @@
       </Feature>
       <Property Id="ARPPRODUCTICON" Value="DebugViewPP.ico" />
       <UI />
-    <Icon Id="DebugViewPP.ico" SourceFile="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" />
+    <Icon Id="DebugViewPP.ico" SourceFile="$(var.SolutionDir)\DebugView++\res\DebugView++.ico" />
   </Product>
 </Wix>

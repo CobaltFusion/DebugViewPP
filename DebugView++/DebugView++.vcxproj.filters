@@ -117,8 +117,5 @@
     <None Include="Version.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\DebugViewPP.ico">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>
