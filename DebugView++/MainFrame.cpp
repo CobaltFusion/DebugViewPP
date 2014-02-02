@@ -644,7 +644,10 @@ LRESULT CMainFrame::OnChangingTab(NMHDR* pnmh)
 	// The TabCtrl doesn't like the FiltersDialog during its message processing.
 	// The PostMessage triggers the new tab after the TabControl message handling
 	if (nmhdr.iItem2 > 0 && nmhdr.iItem2 == GetViewCount())
+	{
 		PostMessage(WM_COMMAND, ID_FILE_NEWVIEW, (LPARAM)m_hWnd);
+		return TRUE;
+	}
 
 	return FALSE;
 }
@@ -1049,21 +1052,13 @@ int CMainFrame::GetViewCount() const
 
 CLogView& CMainFrame::GetView(int i)
 {
+	assert(i >= 0 && i < GetViewCount());
 	return GetTabCtrl().GetItem(i)->GetView();
 }
 
 CLogView& CMainFrame::GetView()
 {
-    int sel = GetTabCtrl().GetCurSel();
-    if (sel >= GetViewCount())
-    {
-        // if the "+" tab is used to add a tab, GetCurSel() returns the index of the '+' tab,
-        // when 'cancel' is pressed, the current tab remains the '+' tab and GetView(int) would fail
-        // cdbg << "Application Error: GetCurSel returned non-existant tab index: " << sel << "\n";
-        sel = GetViewCount() -1;
-		GetTabCtrl().SetCurSel(sel);
-    }
-	return GetView(std::max(0, sel));
+	return GetView(std::max(0, GetTabCtrl().GetCurSel()));
 }
 
 bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const

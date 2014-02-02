@@ -12,7 +12,7 @@
 
 #include "Grid.h"
 #include "FilterType.h"
-#include "../include/Filter.h"
+#include "Filter.h"
 #include "Resource.h"
 
 namespace fusion {
