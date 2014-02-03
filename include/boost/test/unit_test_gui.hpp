@@ -13,9 +13,9 @@
 #include <iostream>
 #include <iomanip>
 #include <boost/test/unit_test.hpp>
-#if BOOST_VERSION > 105400
-#	include <boost/test/tree/visitor.hpp>
-#endif
+//#if BOOST_VERSION > 105400
+//#	include <boost/test/tree/visitor.hpp>
+//#endif
 #include <boost/test/execution_monitor.hpp>
 #include <boost/test/utils/runtime/cla/named_parameter.hpp>
 #include <boost/test/utils/runtime/cla/parser.hpp>
@@ -26,13 +26,13 @@ namespace boost {
 namespace unit_test {
 namespace gui {
 
-#if BOOST_VERSION <= 105400
+//#if BOOST_VERSION <= 105400
 
 const test_unit_type TUT_ANY = tut_any;
 const test_unit_type TUT_CASE = tut_case;
 const test_unit_type TUT_SUITE = tut_suite;
 
-#endif
+//#endif
 
 class test_suite_access : public test_suite
 {
