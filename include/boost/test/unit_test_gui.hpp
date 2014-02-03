@@ -13,7 +13,8 @@
 #include <iostream>
 #include <iomanip>
 #include <boost/test/unit_test.hpp>
-#if BOOST_VERSION > 105400
+#if BOOST_VERSION > 109900
+// Boost trunk version needs this header:
 #	include <boost/test/tree/visitor.hpp>
 #endif
 #include <boost/test/execution_monitor.hpp>
