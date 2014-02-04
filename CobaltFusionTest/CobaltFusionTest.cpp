@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 
+#pragma warning(disable: 4702 4389)		//ignore signed/unsigned comparision and unreachable code in boost/test
+
 #define BOOST_TEST_MODULE CobaltFusionLib Unit Test
 #include <boost/test/unit_test_gui.hpp>
 #include "CircularBuffer.h"
