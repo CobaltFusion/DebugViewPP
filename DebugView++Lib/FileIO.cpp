@@ -94,7 +94,7 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 	auto col1 = split.GetNext();
 	auto col2 = split.GetNext();
 	auto col3 = split.GetTail();
-	if (!col3.empty() && col3[0] == '[')
+	if (!col3.empty()) // && col3[0] == '[')
 	{
 		std::istringstream is3(col3);
 		char c1, c2, c3;
