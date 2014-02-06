@@ -204,12 +204,13 @@ private:
 	void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void AddProcessFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
 	void OnViewProcessHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewProcessInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewProcessToken(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessTrack(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessOnce(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void AddMessageFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
 	void OnViewFilterHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterToken(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterTrack(UINT uNotifyCode, int nID, CWindow wndCtl);

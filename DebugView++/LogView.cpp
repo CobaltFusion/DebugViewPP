@@ -74,11 +74,12 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_HIGHLIGHT, OnViewProcessHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_INCLUDE, OnViewProcessInclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_EXCLUDE, OnViewProcessExclude)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TOKEN, OnViewProcessToken)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TRACK, OnViewProcessTrack)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_ONCE, OnViewProcessOnce)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_HIGHLIGHT, OnViewFilterHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_INCLUDE, OnViewFilterInclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_EXCLUDE, OnViewFilterExclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TOKEN, OnViewFilterToken)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TRACK, OnViewFilterTrack)
@@ -1007,14 +1008,14 @@ void CLogView::OnViewProcessHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow
 	AddProcessFilter(FilterType::Highlight, GetRandomBackColor());
 }
 
+void CLogView::OnViewProcessInclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Include);
+}
+
 void CLogView::OnViewProcessExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	AddProcessFilter(FilterType::Exclude);
-}
-
-void CLogView::OnViewProcessToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	AddProcessFilter(FilterType::Token, Colors::BackGround, GetRandomTextColor());
 }
 
 void CLogView::OnViewProcessTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1039,6 +1040,11 @@ void CLogView::AddMessageFilter(FilterType::type filterType, COLORREF bgColor, C
 void CLogView::OnViewFilterHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	AddMessageFilter(FilterType::Highlight, GetRandomBackColor());
+}
+
+void CLogView::OnViewFilterInclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddMessageFilter(FilterType::Include);
 }
 
 void CLogView::OnViewFilterExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
