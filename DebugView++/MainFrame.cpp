@@ -913,9 +913,15 @@ void CMainFrame::Pause()
 {
 	SetTitle(L"Paused");
 	if (m_pLocalReader)
+	{
 		m_pLocalReader->Abort();
+		m_pLocalReader = 0;
+	}
 	if (m_pGlobalReader)
+	{
 		m_pGlobalReader->Abort();
+		m_pGlobalReader = 0;
+	}
 }
 
 void CMainFrame::Resume()
