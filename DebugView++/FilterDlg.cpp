@@ -67,7 +67,8 @@ static const FilterType::type MessageFilterTypes[] =
 	FilterType::Token,
 	FilterType::Stop,
 	FilterType::Track,
-	FilterType::Once
+	FilterType::Once,
+	FilterType::Clear,
 };
 
 static const FilterType::type ProcessFilterTypes[] =

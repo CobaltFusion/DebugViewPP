@@ -116,7 +116,6 @@ private:
 
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, const LogFilter& filter = LogFilter());
-	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 
 	void ClearLog();

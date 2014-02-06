@@ -914,10 +914,15 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	return 0;
 }
 
-void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::ClearView()
 {
 	m_firstLine = m_logFile.Count();
 	Clear();
+}
+
+void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	ClearView();
 }
 
 void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1186,6 +1191,12 @@ void CLogView::SetFocusLine(int line)
 
 void CLogView::Add(int line, const Message& msg)
 {
+	if (IsClearMessage(msg))
+	{
+		ClearView();
+		return;
+	}
+
 	if (!IsIncluded(msg))
 		return;
 
@@ -1639,6 +1650,11 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 	}
 
 	return TextColor(m_processColors ? msg.color : Colors::BackGround, Colors::Text);
+}
+
+bool CLogView::IsClearMessage(const Message& msg) const
+{
+	return debugviewpp::MatchFilterType(m_filter.messageFilters, FilterType::Clear, msg.text);
 }
 
 bool CLogView::IsIncluded(const Message& msg)

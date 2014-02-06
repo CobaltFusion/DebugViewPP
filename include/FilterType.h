@@ -24,7 +24,8 @@ struct FilterType
 		Token,
 		Stop,
 		Track,
-		Once
+		Once,
+		Clear
 	};
 };
 

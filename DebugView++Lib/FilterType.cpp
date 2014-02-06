@@ -25,6 +25,7 @@ int FilterTypeToInt(FilterType::type value)
 	FILTER_TYPE(Token) \
 	FILTER_TYPE(Track) \
 	FILTER_TYPE(Stop) \
+	FILTER_TYPE(Clear) \
 	FILTER_TYPE(Once)
 
 FilterType::type IntToFilterType(int value)

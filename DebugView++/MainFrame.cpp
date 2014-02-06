@@ -1069,16 +1069,8 @@ CLogView& CMainFrame::GetView()
 	return GetView(std::max(0, GetTabCtrl().GetCurSel()));
 }
 
-bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
-{
-	return text.find("DBGVIEWCLEAR") != std::string::npos;
-}
-
 void CMainFrame::AddMessage(const Message& message)
 {
-	if (IsDbgViewClearMessage(message.text))
-		return ClearLog();
-
 	int index = m_logFile.Count();
 	m_logFile.Add(message);
 	int views = GetViewCount();

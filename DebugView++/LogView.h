@@ -221,6 +221,7 @@ private:
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
+	void ClearView();
 	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;
@@ -249,6 +250,7 @@ private:
 	bool Find(const std::string& text, int direction);
 	bool FindProcess(int direction);
 	void ApplyFilters();
+	bool IsClearMessage(const Message& msg) const;
 	bool IsIncluded(const Message& msg);
 	bool MatchFilterType(FilterType::type type, const Message& msg) const;
 	TextColor GetTextColor(const Message& msg) const;
