@@ -190,6 +190,10 @@ std::vector<Filter> CFilterPageImpl::GetFilters() const
 void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 {
 	m_filters = filters;
+	if (IsWindow())
+	{
+		UpdateGrid();
+	}
 }
 
 void CFilterPageImpl::UpdateGrid()
