@@ -95,8 +95,10 @@ CMainFrame::CMainFrame() :
 	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
-	m_logfont(GetDefaultLogFont())
+	m_logfont(GetDefaultLogFont()),
+	m_logSources(true)
 {
+#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
@@ -914,12 +916,12 @@ void CMainFrame::Pause()
 	SetTitle(L"Paused");
 	if (m_pLocalReader)
 	{
-		m_pLocalReader->Abort();
+		m_logSources.Remove(m_pLocalReader);		//todo: find a better solution (maybe store an iterator to the m_pLocalReader?)
 		m_pLocalReader = 0;
 	}
 	if (m_pGlobalReader)
 	{
-		m_pGlobalReader->Abort();
+		m_logSources.Remove(m_pGlobalReader);
 		m_pGlobalReader = 0;
 	}
 }

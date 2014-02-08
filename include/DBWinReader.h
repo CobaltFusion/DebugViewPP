@@ -35,7 +35,7 @@ typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, H
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(bool global, bool startlistening = true);
+	explicit DBWinReader(bool global);
 	~DBWinReader();
 
 	virtual bool AtEnd() const;
@@ -51,7 +51,6 @@ public:
 	void AutoNewLine(bool value);
 
 private:
-	void Run();
 	void Add(DWORD pid, const char* text, HANDLE handle);
 	void AddLine(const DBWinMessage& DBWinMessage);
 	Lines ProcessLines(const DBWinMessages& lines);
@@ -77,7 +76,6 @@ private:
 	const DbWinBuffer* m_dbWinBuffer;
 
 	ProcessHandleCache m_handleCache;
-	boost::thread m_thread;
 	boost::signals2::signal<OnDBWinMessage> m_onDBWinMessage;
 };
 

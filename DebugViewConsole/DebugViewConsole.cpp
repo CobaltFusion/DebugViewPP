@@ -69,15 +69,15 @@ void Method2()
 	LogSources sources(false);
 	//boost::thread t([&]() { Sleep(5000); sources.Abort(); });  // test stopping after 5 seconds
 
-	auto dbwinlistener = make_unique<DBWinReader>(false, false);
-	connection1 = dbwinlistener->Connect(&OnMessage);			// todo: exception?
+	auto dbwinlistener = make_unique<DBWinReader>(false);
+	connection1 = dbwinlistener->Connect(&OnMessage);
 	sources.Add(std::move(dbwinlistener));			
 
 	std::cout << "Logging DBWin32 Messages to stdout...\n";
 
 	if (HasGlobalDBWinReaderRights())
 	{
-		auto globalDBbwinlistener = make_unique<DBWinReader>(true, false);
+		auto globalDBbwinlistener = make_unique<DBWinReader>(true);
 		connection2 = globalDBbwinlistener->Connect(&OnMessage);
 		sources.Add(std::move(globalDBbwinlistener));
 		std::cout << "Logging Global DBWin32 Messages to stdout...\n";

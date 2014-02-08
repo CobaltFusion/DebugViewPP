@@ -29,9 +29,8 @@ Handle CreateDBWinBufferMapping(bool global)
 	return hMap;
 }
 
-DBWinReader::DBWinReader(bool global, bool startlistening) :
+DBWinReader::DBWinReader(bool global) :
 	m_autoNewLine(true),
-	m_end(false),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
@@ -42,11 +41,6 @@ DBWinReader::DBWinReader(bool global, bool startlistening) :
 	m_lines.reserve(4000);
 	m_backBuffer.reserve(4000);
 	SetEvent(m_dbWinBufferReady.get());
-
-	if (startlistening)
-	{
-		m_thread = boost::thread(&DBWinReader::Run, this);
-	}
 }
 
 DBWinReader::~DBWinReader()
@@ -61,7 +55,7 @@ boost::signals2::connection DBWinReader::Connect(const std::function<OnDBWinMess
 
 bool DBWinReader::AtEnd() const
 {
-	return m_end;
+	return false;
 }
 
 HANDLE DBWinReader::GetHandle() const 
@@ -82,7 +76,7 @@ void DBWinReader::Notify()
 		continue;
 	}
 #endif
-	m_onDBWinMessage(m_timer.Get(), GetSystemTimeAsFileTime(), m_dbWinBuffer->processId, handle, m_dbWinBuffer->data);
+	Add(m_dbWinBuffer->processId, m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
 }
 
@@ -98,33 +92,6 @@ void DBWinReader::AutoNewLine(bool value)
 
 void DBWinReader::Abort()
 {
-	m_end = true;
-	SetEvent(m_dbWinDataReady.get());	// will this not interfere with other DBWIN listers? There can be only one DBWIN client..
-	m_thread.join();
-}
-
-void DBWinReader::Run()
-{
-	for (;;)
-	{
-		SetEvent(m_dbWinBufferReady.get());
-		WaitForSingleObject(m_dbWinDataReady.get());
-		if (m_end)
-			break;
-
-		HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_dbWinBuffer->processId);
-
-#ifdef OPENPROCESS_DEBUG
-		if (handle == 0)
-		{
-			Win32Error error(GetLastError(), "OpenProcess");
-			std::string s = stringbuilder() << error.what() << " " <<  m_dbWinBuffer->data;
-			Add(m_dbWinBuffer->processId, s.c_str(), handle);
-			continue;
-		}
-#endif
-		Add(m_dbWinBuffer->processId, m_dbWinBuffer->data, handle);
-	}
 }
 
 void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)

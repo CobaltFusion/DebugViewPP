@@ -33,6 +33,8 @@ public:
 	~LogSources();
 
 	void Add(std::unique_ptr<LogSource> source);
+	void Remove(LogSource* logsource);
+
 	void Listen();
 	void Abort();
 	Lines GetLines();

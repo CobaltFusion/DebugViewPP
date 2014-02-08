@@ -43,6 +43,22 @@ void LogSources::Add(std::unique_ptr<LogSource> source)
 	m_sources.push_back(std::move(source));
 	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
+	printf("add...");
+}
+
+void LogSources::Remove(LogSource* logsource)
+{
+	boost::mutex::scoped_lock lock(m_mutex);
+	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
+	{
+		if (i->get() == logsource)
+		{
+			printf("remove...");
+			m_sources.erase(i);
+			SetEvent(m_updateEvent.get());
+			break;
+		}
+	}
 }
 
 std::vector<std::unique_ptr<LogSource>>& LogSources::GetSources()
@@ -63,7 +79,9 @@ LogSourcesHandles LogSources::GetWaitHandles()
 	LogSourcesHandles handles;
 	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
 	{
-		handles.push_back((*i)->GetHandle());
+		auto handle = (*i)->GetHandle();
+		if (handle)
+			handles.push_back(handle);
 	}
 	handles.push_back(m_updateEvent.get());
 
