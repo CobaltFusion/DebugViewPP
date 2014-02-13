@@ -173,8 +173,8 @@ private:
 	bool m_hide;
 	bool m_tryGlobal;
 	CRunDlg m_runDlg;
-	DBWinReader* m_pLocalReader;
-	DBWinReader* m_pGlobalReader;
+	std::shared_ptr<DBWinReader> m_pLocalReader;
+	std::shared_ptr<DBWinReader> m_pGlobalReader;
 	LogSources m_logSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;

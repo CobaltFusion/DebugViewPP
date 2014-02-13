@@ -91,8 +91,6 @@ CMainFrame::CMainFrame() :
 	m_autoNewLine(false),
 	m_hide(false),
 	m_lineBuffer(7000),
-	m_pLocalReader(0),
-	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
@@ -916,13 +914,13 @@ void CMainFrame::Pause()
 	SetTitle(L"Paused");
 	if (m_pLocalReader)
 	{
-		m_logSources.Remove(m_pLocalReader);		//todo: find a better solution (maybe store an iterator to the m_pLocalReader?)
-		m_pLocalReader = 0;
+		m_logSources.Remove(m_pLocalReader);
+		m_pLocalReader.reset();
 	}
 	if (m_pGlobalReader)
 	{
 		m_logSources.Remove(m_pGlobalReader);
-		m_pGlobalReader = 0;
+		m_pGlobalReader.reset();
 	}
 }
 
@@ -934,9 +932,8 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			auto reader = make_unique<DBWinReader>(false);
-			m_pLocalReader = reader.get();
-			m_logSources.Add(std::move(reader));
+			m_pLocalReader = std::make_shared<DBWinReader>(false);
+			m_logSources.Add(m_pLocalReader);
 		}
 		catch (std::exception&)
 		{
@@ -953,9 +950,8 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			auto reader = make_unique<DBWinReader>(true);
-			m_pGlobalReader = reader.get();
-			m_logSources.Add(std::move(reader));
+			m_pGlobalReader = std::make_shared<DBWinReader>(true);
+			m_logSources.Add(m_pGlobalReader);
 		}
 		catch (std::exception&)
 		{

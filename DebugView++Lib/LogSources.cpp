@@ -37,21 +37,25 @@ LogSources::~LogSources()
 	Abort();
 }
 
-void LogSources::Add(std::unique_ptr<LogSource> source)
+void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	m_sources.push_back(std::move(source));
+	m_sources.push_back(source);
 	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
 	printf("add...");
 }
 
-void LogSources::Remove(LogSource* logsource)
+void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
+	//m_sources.erase(logsource
+	//printf("remove...");
+	//SetEvent(m_updateEvent.get());
+
 	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
 	{
-		if (i->get() == logsource)
+		if (i->get() == logsource.get())
 		{
 			printf("remove...");
 			m_sources.erase(i);
@@ -59,11 +63,6 @@ void LogSources::Remove(LogSource* logsource)
 			break;
 		}
 	}
-}
-
-std::vector<std::unique_ptr<LogSource>>& LogSources::GetSources()
-{
-	return m_sources;
 }
 
 void LogSources::Abort()

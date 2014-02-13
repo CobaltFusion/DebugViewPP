@@ -32,21 +32,19 @@ public:
 	LogSources(bool startListening = false);
 	~LogSources();
 
-	void Add(std::unique_ptr<LogSource> source);
-	void Remove(LogSource* logsource);
+	void Add(std::shared_ptr<LogSource> source);
+	void Remove(std::shared_ptr<LogSource> logsource);
 
 	void Listen();
 	void Abort();
 	Lines GetLines();
-
-	std::vector<std::unique_ptr<LogSource>>& GetSources();		//todo: return iterator instead of internal vector
 
 private:
 	LogSourcesHandles GetWaitHandles();
 	void Process(int index);
 
 	boost::mutex m_mutex;
-	std::vector<std::unique_ptr<LogSource>> m_sources;
+	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
 	bool m_end;
 	bool m_sourcesDirty;
