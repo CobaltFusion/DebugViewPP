@@ -43,26 +43,12 @@ void LogSources::Add(std::shared_ptr<LogSource> source)
 	m_sources.push_back(source);
 	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
-	printf("add...");
 }
 
 void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	//m_sources.erase(logsource
-	//printf("remove...");
-	//SetEvent(m_updateEvent.get());
-
-	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
-	{
-		if (i->get() == logsource.get())
-		{
-			printf("remove...");
-			m_sources.erase(i);
-			SetEvent(m_updateEvent.get());
-			break;
-		}
-	}
+	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
 }
 
 void LogSources::Abort()
