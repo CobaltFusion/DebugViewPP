@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 
 	size_t m1 = ProcessInfo::GetPrivateBytes();
 	size_t required1 = m1 - m0;
-	BOOST_MESSAGE("VectorStorage requires: " << required1/1024 << " bK");
+	BOOST_MESSAGE("VectorStorage requires: " << required1/1024 << " kB");
 
 	for (size_t i = 0; i < 100000; ++i)
 		s.Add(GetTestString(i));
