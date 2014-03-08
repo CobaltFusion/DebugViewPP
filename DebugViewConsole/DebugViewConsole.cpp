@@ -10,9 +10,9 @@
 #include <vector>
 #include <memory>
 #include "Win32Lib/utilities.h"
-#include "DBWinReader.h"
-#include "ProcessInfo.h"
-#include "LogSources.h"
+#include "DBWinBufferLib/DBWinReader.h"
+#include "DBWinBufferLib/ProcessInfo.h"
+#include "DebugView++Lib/LogSources.h"
 #include "../DebugView++/version.h"
 
 namespace fusion {

@@ -7,8 +7,8 @@
 
 #include "stdafx.h"
 #include <boost/filesystem.hpp>
-#include "FileIO.h"
-#include "FileReader.h"
+#include "DebugView++Lib/FileIO.h"
+#include "DebugView++Lib/FileReader.h"
 
 namespace fusion {
 namespace debugviewpp {

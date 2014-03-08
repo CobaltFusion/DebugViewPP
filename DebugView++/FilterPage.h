@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "Grid.h"
-#include "FilterType.h"
-#include "Filter.h"
+#include "DebugView++Lib/FilterType.h"
+#include "DebugView++Lib/Filter.h"
 #include "Resource.h"
 
 namespace fusion {

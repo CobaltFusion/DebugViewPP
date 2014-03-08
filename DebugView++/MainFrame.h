@@ -18,7 +18,7 @@ namespace WTL { using ATL::CString; };
 #include "DBWinBufferLib/DBWinBuffer.h"
 #include "DBWinBufferLib/DBWinReader.h"
 #include "DBWinBufferLib/LineBuffer.h"
-#include "LogSources.h"
+#include "DebugView++Lib/LogSources.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
 #include "LogView.h"

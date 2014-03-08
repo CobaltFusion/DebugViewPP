@@ -8,7 +8,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "LogSources.h"
+#include "DebugView++Lib/LogSources.h"
 
 namespace fusion {
 namespace debugviewpp {

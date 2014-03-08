@@ -12,9 +12,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/dbgstream.h"
-#include "ProcessReader.h"
-#include "FileReader.h"
-#include "FileIO.h"
+#include "DebugView++Lib/ProcessReader.h"
+#include "DebugView++Lib/FileReader.h"
+#include "DebugView++Lib/FileIO.h"
 #include "Win32Lib/utilities.h"
 #include "hstream.h"
 #include "Resource.h"

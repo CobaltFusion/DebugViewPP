@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <cassert>
-#include "MatchType.h"
+#include "DebugView++Lib/MatchType.h"
 
 namespace fusion {
 namespace debugviewpp {

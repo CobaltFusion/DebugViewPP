@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <atlstr.h>
 #include "Win32Lib/utilities.h"
-#include "LogFilter.h"
+#include "DebugView++Lib/LogFilter.h"
 #include "Resource.h"
 #include "FilterDlg.h"
 

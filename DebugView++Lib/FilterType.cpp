@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <stdexcept>
-#include "FilterType.h"
+#include "DebugView++Lib/FilterType.h"
 #include "assert.h"
 
 namespace fusion {

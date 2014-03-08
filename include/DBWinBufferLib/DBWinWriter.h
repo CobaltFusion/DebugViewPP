@@ -5,28 +5,28 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
+#include <string>
+#include "Win32Lib/Win32Lib.h"
+
 #pragma once
 
-#include "DebugView++Lib/PipeReader.h"
-#include "DebugView++Lib/Process_.h"
+#pragma comment(lib, "DBWinBufferLib.lib")
 
 namespace fusion {
 namespace debugviewpp {
 
-class ProcessReader : public LogSource
+class DBWinWriter
 {
 public:
-	ProcessReader(const std::wstring& pathName, const std::wstring& args);
+	DBWinWriter();
 
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-	virtual Lines GetLines();
+	void Write(DWORD pid, const std::string& message);
 
 private:
-	Process m_process;
-	PipeReader m_stdout;
-	PipeReader m_stderr;
+	Handle m_hBuffer;
+	Handle m_dbWinBufferReady;
+	Handle m_dbWinDataReady;
+	MappedViewOfFile m_dbWinView;
 };
 
 } // namespace debugviewpp 

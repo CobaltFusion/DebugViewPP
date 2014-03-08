@@ -7,26 +7,22 @@
 
 #pragma once
 
-#include "DebugView++Lib/PipeReader.h"
-#include "DebugView++Lib/Process_.h"
+#include "CobaltFusion/CircularBuffer.h"
+#include "DBWinBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-class ProcessReader : public LogSource
+class LineBuffer : public CircularBuffer
 {
 public:
-	ProcessReader(const std::wstring& pathName, const std::wstring& args);
+	explicit LineBuffer(size_t size);
 
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-	virtual Lines GetLines();
+	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
+	Lines GetLines();
 
-private:
-	Process m_process;
-	PipeReader m_stdout;
-	PipeReader m_stderr;
+protected:
+	virtual bool Full() const;
 };
 
 } // namespace debugviewpp 

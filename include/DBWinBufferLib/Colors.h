@@ -7,15 +7,23 @@
 
 #pragma once
 
-#include "stdafx.h"
-#include "DBWinBufferLib/LogSource.h"
-
 namespace fusion {
 namespace debugviewpp {
 
-LogSource::~LogSource()
-{
-}
+namespace Colors {
+
+extern const COLORREF BackGround;
+extern const COLORREF Text;
+extern const COLORREF Highlight;
+extern const COLORREF Selection;
+extern const COLORREF ItemHighlight;
+extern const COLORREF ItemHighlightText;
+
+} // namespace Colors
+
+COLORREF GetRandomBackColor();
+COLORREF GetRandomTextColor();
+COLORREF GetRandomProcessColor();
 
 } // namespace debugviewpp 
 } // namespace fusion

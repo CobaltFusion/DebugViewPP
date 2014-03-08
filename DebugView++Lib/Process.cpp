@@ -11,7 +11,7 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include "Win32Lib/Win32Lib.h"
-#include "Process_.h"
+#include "DebugView++Lib/Process_.h"
 
 namespace fusion {
 

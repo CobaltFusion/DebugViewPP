@@ -7,26 +7,21 @@
 
 #pragma once
 
-#include "DebugView++Lib/PipeReader.h"
-#include "DebugView++Lib/Process_.h"
+#include "DBWinBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-class ProcessReader : public LogSource
+class LogSource
 {
 public:
-	ProcessReader(const std::wstring& pathName, const std::wstring& args);
 
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-	virtual Lines GetLines();
+	virtual ~LogSource();
+	virtual bool AtEnd() const = 0;
+	virtual HANDLE GetHandle() const = 0;
+	virtual void Notify() = 0;
 
-private:
-	Process m_process;
-	PipeReader m_stdout;
-	PipeReader m_stderr;
+	virtual Lines GetLines() = 0; // remove
 };
 
 } // namespace debugviewpp 

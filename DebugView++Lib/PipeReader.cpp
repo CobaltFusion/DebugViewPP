@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "Win32Lib/Win32Lib.h"
-#include "PipeReader.h"
+#include "DebugView++Lib/PipeReader.h"
 
 namespace fusion {
 namespace debugviewpp {
