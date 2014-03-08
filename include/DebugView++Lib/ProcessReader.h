@@ -8,7 +8,7 @@
 #pragma once
 
 #include "PipeReader.h"
-#include "Process_.h"
+#include "Process.h"
 
 namespace fusion {
 namespace debugviewpp {

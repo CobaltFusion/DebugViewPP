@@ -801,10 +801,13 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	int line = m_logLines[iItem].line;
 	const Message& msg = m_logFile[line];
 
+	auto relativeStartTime = m_logFile[m_firstLine].time;
+	auto relativeTime = msg.time - relativeStartTime;
+
 	switch (column)
 	{
 	case Column::Line: return std::to_string(iItem + 1ULL);
-	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
+	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(relativeTime);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return msg.processName;
 	case Column::Message: return msg.text;
