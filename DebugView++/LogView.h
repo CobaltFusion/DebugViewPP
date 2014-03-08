@@ -11,7 +11,7 @@
 #include "OffscreenPaint.h"
 #include "FilterDlg.h"
 #include "Win32Support.h"
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "LogFile.h"
 
 namespace fusion {

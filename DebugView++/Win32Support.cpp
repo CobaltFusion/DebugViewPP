@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <vector>
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "Win32Support.h"
 
 namespace fusion {

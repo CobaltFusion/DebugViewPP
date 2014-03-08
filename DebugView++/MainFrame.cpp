@@ -15,7 +15,7 @@
 #include "ProcessReader.h"
 #include "FileReader.h"
 #include "FileIO.h"
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 #include "hstream.h"
 #include "Resource.h"
 #include "RunDlg.h"

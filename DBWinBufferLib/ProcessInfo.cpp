@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <array>
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "Colors.h"
 #include "ProcessInfo.h"
 

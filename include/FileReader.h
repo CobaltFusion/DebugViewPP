@@ -10,7 +10,7 @@
 #include <boost/thread.hpp>
 #include "PipeReader.h"
 #include "Process.h"
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {

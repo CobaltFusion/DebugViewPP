@@ -7,8 +7,8 @@
 
 #include "stdafx.h"
 #include "Colors.h"
-#include "Utilities.h"
-#include "Win32Lib.h"
+#include "Win32Lib/utilities.h"
+#include "Win32Lib/Win32Lib.h"
 #include "Filter.h"
 
 namespace fusion {

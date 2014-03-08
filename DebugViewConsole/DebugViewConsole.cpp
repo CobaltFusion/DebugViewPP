@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 #include "DBWinReader.h"
 #include "ProcessInfo.h"
 #include "LogSources.h"

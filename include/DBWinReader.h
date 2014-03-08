@@ -14,7 +14,7 @@
 #include "LogSource.h"
 #include "DBWinBuffer.h"
 #include "ProcessHandleCache.h"
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

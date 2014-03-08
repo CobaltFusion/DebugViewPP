@@ -8,7 +8,7 @@
 #pragma once
 
 #include <boost/thread.hpp>
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "LogSource.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")

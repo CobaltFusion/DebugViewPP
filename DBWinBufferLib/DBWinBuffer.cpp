@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "DBWinBuffer.h"
 
 namespace fusion {

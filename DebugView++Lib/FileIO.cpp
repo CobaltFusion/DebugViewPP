@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "LogFile.h"
 #include "FileIO.h"
 

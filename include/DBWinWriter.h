@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include <string>
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 
 #pragma once
 

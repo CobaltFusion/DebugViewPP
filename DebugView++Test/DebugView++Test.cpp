@@ -11,10 +11,10 @@
 #include <boost/test/unit_test_gui.hpp>
 #include <random>
 
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 #include "ProcessInfo.h"
 #include "IndexedStorage.h"
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "DBWinBuffer.h"
 
 namespace fusion {
