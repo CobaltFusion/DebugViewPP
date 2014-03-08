@@ -9,11 +9,10 @@ Sysinternals DebugView. DebugView++ features:
 - single selfcontaining executable, setup is provided but not required
 - runs without prerequisites on WinXPSP3, Vista and 7/8.x
 - capture both Win32 and Global Win32 messages
-- capture stdin piped messages, allows you to connect any kind of logging
 - tabbed views
 - resolve PID to process name
 - filter by process or message
-- advanced filtering, exclude, track, stop (ability to use regular expressions) 
+- advanced filtering, exclude, track, stop, clear (optionally using regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
 - minimal delay of the traced application, compared to debugview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
@@ -23,20 +22,26 @@ Sysinternals DebugView. DebugView++ features:
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
 
+Bleeding Edge features:
+- Commandline version
+- tailing files (drag an ascii file into debugview to tail it)
+- capture stdin piped messages, allows you to connect any kind of logging
+
+
 Release download
 ----------------
 
-[Zipped executable](http://www.myquest.nl/sites/nullptr/debugview/Release_v1.1.0.2/DebugView++.zip)
+[Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
 
-[Win32 installer](http://www.myquest.nl/sites/nullptr/debugview/Release_v1.1.0.2/DebugView++.msi)
+[Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
 
 Bleeding Edge download 
 ----------------------
 (may not be the git head version, but its close :)
 
-[Zipped executable](http://www.myquest.nl/sites/nullptr/debugview/BleedingEdge/DebugView++.zip)
+[Zipped executable](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++.zip)
 
-[Win32 installer](http://www.myquest.nl/sites/nullptr/debugview/BleedingEdge/DebugView++.msi)
+[Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++.msi)
 
 Documentation
 --------
