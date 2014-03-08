@@ -26,17 +26,16 @@ Sysinternals DebugView. DebugView++ features:
 Release download
 ----------------
 
-[Zipped executable]
-[Win32 installer]
+[Visit GitHub!](www.github.com)
 
-[Zipped executable]: http://http://www.myquest.nl/sites/nullptr/debugview/Release_v1.1.0.2/DebugView++.exe
-[Win32 installer]: http://http://www.myquest.nl/sites/nullptr/debugview/Release_v1.1.0.2/DebugView++.msi
+[Zipped executable](http://http://www.myquest.nl/sites/nullptr/debugview/Release_v1.1.0.2/DebugView++.zip)
+[Win32 installer](http://http://www.myquest.nl/sites/nullptr/debugview/Release_v1.1.0.2/DebugView++.msi)
 
-Bleeding Edge download
+Bleeding Edge download (may not be the git head version, but its close :)
 ----------------------
 
-[bleedingexe]: http://http://www.myquest.nl/sites/nullptr/debugview/BleedingEdge/DebugView++.exe
-[bleedingmsi]: http://http://www.myquest.nl/sites/nullptr/debugview/BleedingEdge/DebugView++.msi
+[Zipped executable](http://http://www.myquest.nl/sites/nullptr/debugview/BleedingEdge/DebugView++.zip)
+[Win32 installer](http://http://www.myquest.nl/sites/nullptr/debugview/BleedingEdge/DebugView++.msi)
 
 Documentation
 --------
