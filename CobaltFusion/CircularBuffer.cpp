@@ -8,8 +8,8 @@
 #pragma once
 
 #include "stdafx.h"
-#include "CircularBuffer.h"
-#include "dbgstream.h"
+#include "CobaltFusion/CircularBuffer.h"
+#include "CobaltFusion/dbgstream.h"
 
 namespace fusion {
 

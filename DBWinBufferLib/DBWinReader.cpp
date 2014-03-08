@@ -6,10 +6,10 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "DBWinBuffer.h"
-#include "DBWinReader.h"
-#include "ProcessInfo.h"
-#include "LineBuffer.h"
+#include "DBWinBufferLib/DBWinBuffer.h"
+#include "DBWinBufferLib/DBWinReader.h"
+#include "DBWinBufferLib/ProcessInfo.h"
+#include "DBWinBufferLib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

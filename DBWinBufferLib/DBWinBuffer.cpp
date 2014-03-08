@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "Win32Lib/Win32Lib.h"
-#include "DBWinBuffer.h"
+#include "DBWinBufferLib/DBWinBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

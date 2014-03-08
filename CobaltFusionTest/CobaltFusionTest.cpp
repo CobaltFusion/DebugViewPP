@@ -11,7 +11,7 @@
 
 #define BOOST_TEST_MODULE CobaltFusionLib Unit Test
 #include <boost/test/unit_test_gui.hpp>
-#include "CircularBuffer.h"
+#include "CobaltFusion/CircularBuffer.h"
 
 
 namespace fusion {

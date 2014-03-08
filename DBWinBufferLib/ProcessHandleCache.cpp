@@ -8,7 +8,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "ProcessHandleCache.h"
+#include "DBWinBufferLib/ProcessHandleCache.h"
 
 namespace fusion {
 namespace debugviewpp {

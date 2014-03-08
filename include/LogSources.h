@@ -9,7 +9,7 @@
 
 #include <boost/thread.hpp>
 #include "Win32Lib/Win32Lib.h"
-#include "LogSource.h"
+#include "DBWinBufferLib/LogSource.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 
