@@ -197,7 +197,7 @@ private:
 	void OnViewScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessColors(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewHideHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnEscapeKey(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFindNext(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFindPrevious(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
