@@ -42,6 +42,7 @@ void DbgMsgTest()
 	OutputDebugStringA("Message 3 with newline\n");
 	OutputDebugStringA("Message with\nembedded newline\n");
 	OutputDebugStringA("Tabs:\t1\t2\t3\t4\t5\t6\tlast\n");
+	OutputDebugStringA("LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
 }
 
 void DbgMsgClearTest()
