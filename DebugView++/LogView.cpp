@@ -66,6 +66,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SEL_CONTROL_SCROLL, OnSelControlAutoScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESSCOLORS, OnViewProcessColors);
 	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnEscapeKey)
@@ -123,6 +124,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_clockTime(false),
 	m_processColors(false),
 	m_autoScrollDown(true),
+	m_selectionControlsAutoScroll(true),
 	m_dirty(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
@@ -468,7 +470,10 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
-	m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
+	if (m_selectionControlsAutoScroll)
+	{
+		m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
+	}
 	SetHighlightText();
 	return 0;
 }
@@ -944,6 +949,11 @@ void CLogView::OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	SetScroll(!GetScroll());
 }
 
+void CLogView::OnSelControlAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SetSelectionControlsAutoScroll(!GetSelectionControlsAutoScroll());
+}
+
 void CLogView::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetClockTime(!GetClockTime());
@@ -1166,6 +1176,16 @@ void CLogView::SetScroll(bool enable)
 	m_autoScrollDown = enable;
 	if (enable)
 		ScrollDown();
+}
+
+bool CLogView::GetSelectionControlsAutoScroll() const
+{
+	return m_selectionControlsAutoScroll;
+}
+
+void CLogView::SetSelectionControlsAutoScroll(bool enable)
+{
+	m_selectionControlsAutoScroll = enable;
 }
 
 void CLogView::Clear()
@@ -1416,8 +1436,11 @@ std::wstring CLogView::GetHighlightText() const
 
 void CLogView::SetHighlightText(const std::wstring& text)
 {
-	m_highlightText = text;
-	Invalidate(false);
+	if (m_highlightText != text)
+	{
+		m_highlightText = text;
+		Invalidate(false);
+	}
 }
 
 template <typename Predicate>
@@ -1480,6 +1503,7 @@ bool CLogView::FindPrevious(const std::wstring& text)
 void CLogView::LoadSettings(CRegKey& reg)
 {
 	SetName(RegGetStringValue(reg));
+	SetSelectionControlsAutoScroll(RegGetDWORDValue(reg, L"SelectionControlsAutoScroll", 1) != 0);
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
 	SetViewProcessColors(RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
 
@@ -1509,6 +1533,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 {
 	UpdateColumnInfo();
 
+	reg.SetDWORDValue(L"SelectionControlsAutoScroll", GetSelectionControlsAutoScroll());
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 	reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
 

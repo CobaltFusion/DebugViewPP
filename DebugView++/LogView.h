@@ -129,6 +129,8 @@ public:
 	void SetFont(HFONT hFont);
 	bool GetScroll() const;
 	void SetScroll(bool enable);
+	bool GetSelectionControlsAutoScroll() const;
+	void SetSelectionControlsAutoScroll(bool enable);
 	void Clear();
 	int GetFocusLine() const;
 	void SetFocusLine(int line);
@@ -195,6 +197,7 @@ private:
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnSelControlAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessColors(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnEscapeKey(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -267,6 +270,7 @@ private:
 	bool m_clockTime;
 	bool m_processColors;
 	bool m_autoScrollDown;
+	bool m_selectionControlsAutoScroll;
 	bool m_dirty;
 	int m_addedLines;
 	std::function<void ()> m_stop;

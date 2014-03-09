@@ -212,6 +212,7 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
 	UISetCheck(ID_VIEW_PROCESSCOLORS, GetView().GetViewProcessColors());
 	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
+	UISetCheck(ID_VIEW_SEL_CONTROL_SCROLL, GetView().GetSelectionControlsAutoScroll());
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 
 	for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
