@@ -3,17 +3,18 @@ Cobalt Fusion presents:
 DebugView++
 ----------
 
-DebugView++ is a viewer for, amoung others, Win32 OutputDebugString based logging in the style of
-Sysinternals DebugView. DebugView++ features:
+DebugView++ is primarily a viewer for Win32 OutputDebugString based logging in the style of
+Sysinternals DebugView. But can also be attached to virtually any other kind of logging.
+
+These are some of its features:
 
 - single selfcontaining executable, setup is provided but not required
 - runs without prerequisites on WinXPSP3, Vista and 7/8.x
 - capture both Win32 and Global Win32 messages
-- capture stdin piped messages, allows you to connect any kind of logging
 - tabbed views
 - resolve PID to process name
 - filter by process or message
-- advanced filtering, exclude, track, stop (ability to use regular expressions) 
+- advanced filtering, exclude, track, stop, clear (optionally using regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
 - minimal delay of the traced application, compared to debugview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
@@ -23,8 +24,28 @@ Sysinternals DebugView. DebugView++ features:
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
 
+Bleeding Edge features:
+- Commandline version
+- tailing files (drag an ascii file into debugview to tail it)
+- capture stdin piped messages, allows you to connect any kind of logging
 
-Download
+
+Release download
+----------------
+
+[Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
+
+[Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
+
+Bleeding Edge download 
+----------------------
+(may not be the git head version, but its close :)
+
+[Zipped executable](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++.zip)
+
+[Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++.msi)
+
+Documentation
 --------
 at http://debugviewpp.wordpress.com/
 
@@ -102,7 +123,7 @@ Other documentation:
 
 **Bookmarks**: bookmarks are view specific and can be placed on a line by clicking left of the line number or Ctrl+F2, press F2 to move to the next bookmark. Bookmarks are temporary, so cannot be saved.
 
-**ClockTime**: when enabled the time is displayed as provided by the system's real-time clock (RTC). Such a timestamp has a 16ms resolution. When disabled the time is displayed as a relative time to the first message, however this timestamp is obtained from the High-Performance Counter (HPC) which typically has a sub-microsecond resolution.
+**ClockTime**: when enabled the time is displayed as provided by the system's real-time clock (RTC). Such a timestamp has a 16ms resolution. When disabled, time is displayed as a relative time to the first message, however this timestamp is obtained from the High-Performance Counter (HPC) which typically has a sub-microsecond resolution.
 
 The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occured, it is the time the message was received by DebugView++. Also there is no quarantee that the time between occurance and reception of messages is constant, *however* in practive this is **pretty** constant :)
 
@@ -112,7 +133,6 @@ How to build
 
 This is a Visual Studio 2010 project with the following dependencies (download and install separately)
 - boost 1.43 or later, tested with: http://sourceforge.net/projects/boost/files/boost/1.55.0/, choose boost_1_55_0.zip
-- googletest 1.7.0, https://code.google.com/p/googletest/downloads/list, choose [gtest-1.7.0.zip]
 - WTL 8.0 or later, tested with: http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
 
@@ -121,12 +141,10 @@ The libraries must be installed in /Libraries and zip.exe installed, add the bin
 Build dependencies
 ------------------
 - boost: read the install.sh in the boost archive
-- gtest: build Libraries\gtest-1.7.0\msvc\gtest.sln in debug and release mode
 - WTL and zip: decompress the archives and you're done
 
 
 [zip-3.0-setup.exe]: http://downloads.sourceforge.net/gnuwin32/zip-3.0-setup.exe
-[gtest-1.7.0.zip]: https://code.google.com/p/googletest/downloads/detail?name=gtest-1.7.0.zip
 
 -= Cobalt Fusion =-
 
