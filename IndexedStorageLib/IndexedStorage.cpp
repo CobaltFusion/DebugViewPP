@@ -102,7 +102,7 @@ std::string SnappyStorage::GetString(int index)
 {
 	int blockId = GetBlockIndex(index);
 	int id = GetRelativeIndex(index);
-        
+		
 	if (blockId == m_writeBlockIndex)
 	{
 		return m_writeList[id];
