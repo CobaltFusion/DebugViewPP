@@ -17,7 +17,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\IndexedStorage.h">
+    <ClInclude Include="..\include\IndexedStorageLib\IndexedStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

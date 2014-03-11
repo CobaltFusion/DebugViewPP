@@ -17,10 +17,10 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Win32Lib.h">
+    <ClInclude Include="..\include\Win32Lib\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Utilities.h">
+    <ClInclude Include="..\include\Win32Lib\Win32Lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <vector>
-#include "LogFile.h"
+#include "DebugView++Lib/LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {

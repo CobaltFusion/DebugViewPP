@@ -71,8 +71,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\CircularBuffer.h" />
-    <ClInclude Include="..\include\dbgstream.h" />
+    <ClInclude Include="..\include\CobaltFusion\CircularBuffer.h" />
+    <ClInclude Include="..\include\CobaltFusion\dbgstream.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
