@@ -91,7 +91,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_BOOKMARKS, OnViewClearBookmarks)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
-	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
+	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP_CATCH(ExceptionHandler)
 

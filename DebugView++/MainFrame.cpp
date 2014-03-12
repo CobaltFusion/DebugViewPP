@@ -144,7 +144,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	AddSimpleReBarBand(hWndCmdBar);
 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE);	 // DrMemory: LEAK 1696 direct bytes 
 	AddSimpleReBarBand(hWndToolBar, nullptr, true);
 	UIAddToolBar(hWndToolBar);
 

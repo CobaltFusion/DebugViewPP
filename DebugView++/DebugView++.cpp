@@ -73,7 +73,7 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	MessageLoop theLoop(_Module);
 
 	int argc;
-	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);		// DrMemory: LEAK 40 direct bytes
 	wchar_t* fileName = nullptr;
 
 	for (int i = 1; i < argc; ++i)
