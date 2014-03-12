@@ -20,6 +20,7 @@
 #include "Resource.h"
 #include "RunDlg.h"
 #include "FilterDlg.h"
+#include "SourceDlg.h"
 #include "AboutDlg.h"
 #include "LogView.h"
 #include "MainFrame.h"
@@ -60,6 +61,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+	COMMAND_ID_HANDLER_EX(ID_SOURCES, OnSources)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
@@ -1017,6 +1019,13 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	GetTabCtrl().Invalidate();
 	GetView().SetName(dlg.GetName());
 	GetView().SetFilters(dlg.GetFilters());
+}
+
+void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CSourceDlg dlg;
+	if (dlg.DoModal() != IDOK)
+		return;
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
