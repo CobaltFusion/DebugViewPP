@@ -48,8 +48,27 @@ void FileReader::Notify()
 	// add a line to CircularBuffer
 }
 
+// todo: Reading support for:
+// ANSI/ASCII
+// UTF-8
+// UTF-16
+// UTF-8 NO BOM ? 
+// UTF-16 NO BOM ?
+// UTF-16 Big Endian
+// UTF-16 Big Endian NO BOM? 
+// Unicode ASCII escaped.
+
+// http://stackoverflow.com/questions/10504044/correctly-reading-a-utf-16-text-file-into-a-string-without-external-libraries
+
 void FileReader::Run()
 {
+	// check a utf-16 file will always contain an even-amount of bytes?
+	// std::wifstream ifs(m_filename, std::ios::binary);
+	// fin.imbue(std::locale(fin.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+	// for(wchar_t c; fin.get(c); ) std::cout << std::showbase << std::hex << c << '\n';
+
+	// decision:
+	
 	std::ifstream ifs(m_filename);
 	if (ifs.is_open())
 	{
