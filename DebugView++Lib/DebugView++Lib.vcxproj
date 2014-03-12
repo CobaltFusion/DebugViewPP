@@ -74,17 +74,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\FileIO.h" />
-    <ClInclude Include="..\include\FileReader.h" />
-    <ClInclude Include="..\include\Filter.h" />
-    <ClInclude Include="..\include\FilterType.h" />
-    <ClInclude Include="..\include\LogFile.h" />
-    <ClInclude Include="..\include\LogFilter.h" />
-    <ClInclude Include="..\include\LogSources.h" />
-    <ClInclude Include="..\include\MatchType.h" />
-    <ClInclude Include="..\include\PipeReader.h" />
-    <ClInclude Include="..\include\ProcessReader.h" />
-    <ClInclude Include="..\include\Process_.h" />
+    <ClInclude Include="..\include\DebugView++Lib\FileIO.h" />
+    <ClInclude Include="..\include\DebugView++Lib\FileReader.h" />
+    <ClInclude Include="..\include\DebugView++Lib\Filter.h" />
+    <ClInclude Include="..\include\DebugView++Lib\FilterType.h" />
+    <ClInclude Include="..\include\DebugView++Lib\LogFile.h" />
+    <ClInclude Include="..\include\DebugView++Lib\LogFilter.h" />
+    <ClInclude Include="..\include\DebugView++Lib\LogSources.h" />
+    <ClInclude Include="..\include\DebugView++Lib\MatchType.h" />
+    <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />
+    <ClInclude Include="..\include\DebugView++Lib\Process.h" />
+    <ClInclude Include="..\include\DebugView++Lib\ProcessReader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

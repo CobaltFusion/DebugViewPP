@@ -121,6 +121,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_logFile(logFile),
 	m_filter(std::move(filter)),
 	m_firstLine(0),
+	m_firstLineTime(0.0),
 	m_clockTime(false),
 	m_processColors(false),
 	m_autoScrollDown(true),
@@ -806,13 +807,10 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	int line = m_logLines[iItem].line;
 	const Message& msg = m_logFile[line];
 
-	auto relativeStartTime = m_logFile[m_firstLine].time;
-	auto relativeTime = msg.time - relativeStartTime;
-
 	switch (column)
 	{
 	case Column::Line: return std::to_string(iItem + 1ULL);
-	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(relativeTime);
+	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(iItem == 0 ? 0.0 : msg.time - m_firstLineTime);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return msg.processName;
 	case Column::Message: return msg.text;
@@ -1227,8 +1225,12 @@ void CLogView::Add(int line, const Message& msg)
 	m_dirty = true;
 	++m_addedLines;
 	int viewline = m_logLines.size();
-
 	m_logLines.push_back(LogLine(line));
+	if (viewline == 0)
+	{
+		m_firstLineTime = msg.time;
+	}
+
 	if (m_autoScrollDown && MatchFilterType(FilterType::Stop, msg))
 	{
 		m_stop = [this, viewline] ()

@@ -12,7 +12,7 @@
 #include "FilterDlg.h"
 #include "Win32Support.h"
 #include "Win32Lib/Win32Lib.h"
-#include "LogFile.h"
+#include "DebugView++Lib/LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -232,6 +232,7 @@ private:
 	int GetTextIndex(int iItem, int xPos);
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	int TextHighlightHitTest(int iItem, const POINT& pt);
+	double GetRelativeTime(int iItem);
 	std::string GetColumnText(int iItem, Column::type column) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
@@ -266,6 +267,7 @@ private:
 	CMyHeaderCtrl m_hdr;
 	std::vector<ColumnInfo> m_columns;
 	int m_firstLine;
+	double m_firstLineTime;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_processColors;

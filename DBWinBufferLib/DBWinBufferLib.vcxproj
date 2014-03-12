@@ -71,14 +71,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Colors.h" />
-    <ClInclude Include="..\include\DBWinBuffer.h" />
-    <ClInclude Include="..\include\DBWinReader.h" />
-    <ClInclude Include="..\include\DBWinWriter.h" />
-    <ClInclude Include="..\include\LineBuffer.h" />
-    <ClInclude Include="..\include\LogSource.h" />
-    <ClInclude Include="..\include\ProcessHandleCache.h" />
-    <ClInclude Include="..\include\ProcessInfo.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\Colors.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\DBWinBuffer.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\DBWinReader.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\DBWinWriter.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\LineBuffer.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\LogSource.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\ProcessHandleCache.h" />
+    <ClInclude Include="..\include\DBWinBufferLib\ProcessInfo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

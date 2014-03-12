@@ -17,28 +17,28 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\LogSource.h">
+    <ClInclude Include="..\include\DBWinBufferLib\LogSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DBWinBuffer.h">
+    <ClInclude Include="..\include\DBWinBufferLib\ProcessHandleCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Colors.h">
+    <ClInclude Include="..\include\DBWinBufferLib\ProcessInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ProcessInfo.h">
+    <ClInclude Include="..\include\DBWinBufferLib\Colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\LineBuffer.h">
+    <ClInclude Include="..\include\DBWinBufferLib\DBWinBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DBWinReader.h">
+    <ClInclude Include="..\include\DBWinBufferLib\DBWinReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ProcessHandleCache.h">
+    <ClInclude Include="..\include\DBWinBufferLib\DBWinWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DBWinWriter.h">
+    <ClInclude Include="..\include\DBWinBufferLib\LineBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

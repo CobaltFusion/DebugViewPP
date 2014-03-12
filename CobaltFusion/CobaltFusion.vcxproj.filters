@@ -17,10 +17,10 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CircularBuffer.h">
+    <ClInclude Include="..\include\CobaltFusion\CircularBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\dbgstream.h">
+    <ClInclude Include="..\include\CobaltFusion\dbgstream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

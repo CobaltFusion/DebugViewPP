@@ -17,37 +17,37 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\FilterType.h">
+    <ClInclude Include="..\include\DebugView++Lib\LogSources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\MatchType.h">
+    <ClInclude Include="..\include\DebugView++Lib\MatchType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Filter.h">
+    <ClInclude Include="..\include\DebugView++Lib\PipeReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\LogFile.h">
+    <ClInclude Include="..\include\DebugView++Lib\Process.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\LogSources.h">
+    <ClInclude Include="..\include\DebugView++Lib\ProcessReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ProcessReader.h">
+    <ClInclude Include="..\include\DebugView++Lib\FileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\PipeReader.h">
+    <ClInclude Include="..\include\DebugView++Lib\FileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\FileReader.h">
+    <ClInclude Include="..\include\DebugView++Lib\Filter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\FileIO.h">
+    <ClInclude Include="..\include\DebugView++Lib\FilterType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\LogFilter.h">
+    <ClInclude Include="..\include\DebugView++Lib\LogFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Process_.h">
+    <ClInclude Include="..\include\DebugView++Lib\LogFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
