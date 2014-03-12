@@ -1192,7 +1192,10 @@ void CLogView::Clear()
 	m_dirty = false;
 	m_logLines.clear();
 	m_highlightText.clear();
-	m_autoScrollDown = true;
+	if (m_selectionControlsAutoScroll)
+	{
+		m_autoScrollDown = true;
+	}
 	ResetFilters();
 }
 
