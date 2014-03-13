@@ -62,16 +62,40 @@ BOOL CSourcesPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.InsertColumn(1, L"Source", LVCFMT_LEFT, 200, 0);
 	m_grid.InsertColumn(2, L"Type", LVCFMT_LEFT, 60, 0);
 	m_grid.InsertColumn(3, L"", LVCFMT_LEFT, 16, 0);
-	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT | PGS_EX_ADDITEMATEND);
+	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT);
 
 	// test
 	int item = m_grid.GetItemCount();
-	auto pFilterProp = PropCreateSimple(L"", L"test");
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	m_grid.SetSubItem(item, 1, pFilterProp);
-	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"×"));
+	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Win32 Messages"));
+	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
 	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
+
+	++item;
+	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Global Win32 Messages"));
+	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
+	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+
+	++item;
+	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"c:\\temp\\somefile.txt"));
+	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"File"));
+	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+
+	++item;
+	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"stdin"));
+	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"Pipe"));
+	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+
+	++item;
+	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"c:\\temp\\adk.exe:stdout"));
+	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"Pipe"));
+	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+
 
 	//UpdateGrid();
 	DlgResize_Init(false);
@@ -88,7 +112,7 @@ LRESULT CSourcesPageImpl::OnAddItem(NMHDR* /*pnmh*/)
 	return 0;
 }
 
-LRESULT CSourcesPageImpl::OnClickItem(NMHDR* pnmh)
+LRESULT CSourcesPageImpl::OnClickItem(NMHDR* /*pnmh*/)
 {
 	//auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
@@ -103,7 +127,7 @@ LRESULT CSourcesPageImpl::OnClickItem(NMHDR* pnmh)
 	return FALSE;
 }
 
-LRESULT CSourcesPageImpl::OnItemChanged(NMHDR* pnmh)
+LRESULT CSourcesPageImpl::OnItemChanged(NMHDR* /*pnmh*/)
 {
 	//auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
