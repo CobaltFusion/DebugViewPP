@@ -20,7 +20,7 @@
 #include "Resource.h"
 #include "RunDlg.h"
 #include "FilterDlg.h"
-#include "SourceDlg.h"
+#include "SourcesDlg.h"
 #include "AboutDlg.h"
 #include "LogView.h"
 #include "MainFrame.h"
@@ -1023,7 +1023,7 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CSourceDlg dlg;
+	CSourcesDlg dlg;
 	if (dlg.DoModal() != IDOK)
 		return;
 }

@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include "FilterPage.h"
+#include "SourcesPage.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
 #include "Filter.h"
@@ -17,16 +17,16 @@
 namespace fusion {
 namespace debugviewpp {
 
-class CSourceDlg :
-	public CDialogImpl<CSourceDlg>,
-	public CDialogResize<CSourceDlg>
+class CSourcesDlg :
+	public CDialogImpl<CSourcesDlg>,
+	public CDialogResize<CSourcesDlg>
 {
 public:
-	CSourceDlg();
+	CSourcesDlg();
 	
 	enum { IDD = IDD_SOURCES };
 
-	BEGIN_DLGRESIZE_MAP(CSourceDlg)
+	BEGIN_DLGRESIZE_MAP(CSourcesDlg)
 		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 	END_DLGRESIZE_MAP()
@@ -39,6 +39,9 @@ public:
 	void ExceptionHandler();
 
 private:
+	CTabCtrl m_tabCtrl;
+	CSourcesPageImpl m_sourcesPage;
+
 	SIZE m_border;
 };
 

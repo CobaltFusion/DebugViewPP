@@ -59,7 +59,7 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-	m_grid.SubclassWindow(GetDlgItem(IDC_GRID));
+	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
 	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
 	m_grid.InsertColumn(1, L"Filter", LVCFMT_LEFT, 200, 0);
 	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 60, 0);

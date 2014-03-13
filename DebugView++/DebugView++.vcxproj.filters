@@ -48,7 +48,10 @@
     <ClCompile Include="Win32Support.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceDlg.cpp">
+    <ClCompile Include="SourcesDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourcesPage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,8 +104,11 @@
     <ClInclude Include="Win32Support.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceDlg.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="SourcesDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourcesPage.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

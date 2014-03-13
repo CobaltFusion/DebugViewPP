@@ -148,7 +148,8 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="RunDlg.cpp" />
-    <ClCompile Include="SourceDlg.cpp" />
+    <ClCompile Include="SourcesPage.cpp" />
+    <ClCompile Include="SourcesDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -169,7 +170,8 @@
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunDlg.h" />
-    <ClInclude Include="SourceDlg.h" />
+    <ClInclude Include="SourcesPage.h" />
+    <ClInclude Include="SourcesDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="Win32Support.h" />
