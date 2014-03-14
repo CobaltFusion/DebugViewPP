@@ -59,7 +59,7 @@ BOOL CSourcesPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_SOURCES_GRID));
 	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
-	m_grid.InsertColumn(1, L"Source", LVCFMT_LEFT, 200, 0);
+	m_grid.InsertColumn(1, L"Source", LVCFMT_LEFT, 336, 0);
 	m_grid.InsertColumn(2, L"Type", LVCFMT_LEFT, 60, 0);
 	m_grid.InsertColumn(3, L"", LVCFMT_LEFT, 16, 0);
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT);
@@ -69,14 +69,14 @@ BOOL CSourcesPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
 	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Win32 Messages"));
 	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
 	m_grid.SelectItem(item);
 
 	++item;
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
 	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Global Win32 Messages"));
 	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
 
 	++item;
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
@@ -112,18 +112,20 @@ LRESULT CSourcesPageImpl::OnAddItem(NMHDR* /*pnmh*/)
 	return 0;
 }
 
-LRESULT CSourcesPageImpl::OnClickItem(NMHDR* /*pnmh*/)
+LRESULT CSourcesPageImpl::OnClickItem(NMHDR* pnmh)
 {
-	//auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
 
-	//int iItem;
-	//int iSubItem;
-	//if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 6)
-	//{
-	//	m_grid.DeleteItem(iItem);
-	//	return TRUE;
-	//}
-
+	int iItem = -1;
+	int iSubItem = -1;
+	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 3)
+	{
+		if (GetSourceType(iItem) != SourceType::System)
+		{
+			m_grid.DeleteItem(iItem);
+			return TRUE;
+		}
+	}
 	return FALSE;
 }
 
@@ -163,44 +165,21 @@ LRESULT CSourcesPageImpl::OnItemChanged(NMHDR* /*pnmh*/)
 	return 0;
 }
 
-bool CSourcesPageImpl::GetFilterEnable(int iItem) const
+bool CSourcesPageImpl::GetSourceEnable(int iItem) const
 {
 	CComVariant val;
 	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 0).GetValue(&val);
 	return val.boolVal != VARIANT_FALSE;
 }
 
-std::wstring CSourcesPageImpl::GetFilterText(int iItem) const
+std::wstring CSourcesPageImpl::GetSourceText(int iItem) const
 {
 	return GetGridItemText(m_grid, iItem, 1);
 }
 
-MatchType::type CSourcesPageImpl::GetMatchType(int iItem) const
+SourceType::type CSourcesPageImpl::GetSourceType(int iItem) const
 {
-	CComVariant val;
-	GetGridItem<CPropertyListItem>(m_grid, iItem, 2).GetValue(&val);
-	return m_matchTypes[val.lVal];
-}
-
-FilterType::type CSourcesPageImpl::GetFilterType(int iItem) const
-{
-	CComVariant val;
-	GetGridItem<CPropertyListItem>(m_grid, iItem, 3).GetValue(&val);
-	return m_filterTypes[val.lVal];
-}
-
-COLORREF CSourcesPageImpl::GetFilterBgColor(int iItem) const
-{
-	CComVariant val;
-	GetGridItem<CPropertyColorItem>(m_grid, iItem, 4).GetValue(&val);
-	return val.lVal;
-}
-
-COLORREF CSourcesPageImpl::GetFilterFgColor(int iItem) const
-{
-	CComVariant val;
-	GetGridItem<CPropertyColorItem>(m_grid, iItem, 5).GetValue(&val);
-	return val.lVal;
+	return StringToSourceType(Str(GetGridItemText(m_grid, iItem, 2)));
 }
 
 std::vector<Filter> CSourcesPageImpl::GetFilters() const
@@ -209,8 +188,8 @@ std::vector<Filter> CSourcesPageImpl::GetFilters() const
 	int n = m_grid.GetItemCount();
 	filters.reserve(n);
 
-	for (int i = 0; i < n; ++i)
-		filters.push_back(Filter(Str(GetFilterText(i)), GetMatchType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
+	//for (int i = 0; i < n; ++i)
+		//filters.push_back(Filter(Str(GetSourceText(i)), GetSourceType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
 
 	return filters;
 }

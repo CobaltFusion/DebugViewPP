@@ -12,6 +12,7 @@
 
 #include "Grid.h"
 #include "DebugView++Lib/FilterType.h"
+#include "DebugView++Lib/SourceType.h"
 #include "DebugView++Lib/Filter.h"
 #include "Resource.h"
 
@@ -42,12 +43,9 @@ public:
 
 private:
 	void AddFilter(const Filter& filter);
-	std::wstring GetFilterText(int iItem) const;
-	MatchType::type GetMatchType(int iItem) const;
-	FilterType::type GetFilterType(int iItem) const;
-	COLORREF GetFilterBgColor(int iItem) const;
-	COLORREF GetFilterFgColor(int iItem) const;
-	bool GetFilterEnable(int iItem) const;
+	bool GetSourceEnable(int iItem) const;
+	std::wstring GetSourceText(int iItem) const;
+	SourceType::type GetSourceType(int iItem) const;
 	void UpdateGrid();
 
 	LRESULT OnAddItem(NMHDR* pnmh);

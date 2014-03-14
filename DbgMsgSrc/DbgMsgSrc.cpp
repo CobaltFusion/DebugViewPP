@@ -93,7 +93,6 @@ void testLongString()
 void Output(const std::string& filename)
 {
 	std::cout << "Buggazer tester, PID: " << GetCurrentProcessId() << "\n";
-	OutputDebugStringA("Output Titan crash log\n");
 	std::fstream fs;
 	fs.open(filename, std::fstream::in);
 
@@ -103,7 +102,7 @@ void Output(const std::string& filename)
 		return;
 	}
 
-	std::cout << "read\n";
+	std::cout << "Reading " << filename << "...\n";
 	std::vector<std::string> lines;
 	std::string line;
 	while (getline(fs, line))

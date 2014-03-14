@@ -54,7 +54,7 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 	m_grid.SetSubItem(item, 4, pBkColor);
 	m_grid.SetSubItem(item, 5, pTxColor);
 	m_grid.SetSubItem(item, 6, PropCreateReadOnlyItem(L"", L"×"));
-	m_grid.SelectItem(item);
+	m_grid.SelectItem(item, 1);
 }
 
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
@@ -201,6 +201,7 @@ void CFilterPageImpl::UpdateGrid()
 	m_grid.DeleteAllItems();
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 		AddFilter(*it);
+	m_grid.SelectItem(0);
 }
 
 } // namespace debugviewpp 
