@@ -3,7 +3,7 @@ Project dependencies
 
 ![DebugView++ Projects](art/DebugViewProjects.png "DebugView++ Projects")
 
-1) PROJECT DebugViewCmd:
+- 1) PROJECT DebugViewCmd:
 CommandLine version of debugview++, 
 enables piping debugview output into another process.
 
@@ -34,9 +34,9 @@ Current state of implementation:
 - class LogSources is now a container and not using the circular buffer yet
 - m_autoNewline should be a per-logsource setting
 
-LogSource::Notify() is called from LogSources::Run 
+- LogSource::Notify() is called from LogSources::Run 
 when WaitForMultipleObjects returns and indicated that the corresponding HANDLE is signaled.
 
-LogSource::Notify() then adds a Line to the circular buffer,
+- LogSource::Notify() then adds a Line to the circular buffer,
 or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 
