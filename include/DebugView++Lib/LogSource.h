@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include "DBWinBuffer.h"
+#include "DebugView++Lib/DBWinBuffer.h"
+#include "DebugView++Lib/SourceType.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -15,13 +16,18 @@ namespace debugviewpp {
 class LogSource
 {
 public:
-
+	LogSource(SourceType::type sourceType);
 	virtual ~LogSource();
+
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
 	virtual void Notify() = 0;
-
 	virtual Lines GetLines() = 0; // remove
+
+	SourceType::type GetSourceType();
+
+private:
+	SourceType::type m_sourceType;
 };
 
 } // namespace debugviewpp 

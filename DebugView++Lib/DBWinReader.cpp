@@ -30,6 +30,7 @@ Handle CreateDBWinBufferMapping(bool global)
 }
 
 DBWinReader::DBWinReader(bool global) :
+	LogSource(SourceType::System),
 	m_autoNewLine(true),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),

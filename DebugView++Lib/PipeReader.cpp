@@ -13,6 +13,7 @@ namespace fusion {
 namespace debugviewpp {
 
 PipeReader::PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName) :
+	LogSource(SourceType::Pipe),
 	m_hPipe(hPipe),
 	m_pid(pid),
 	m_process(processName)

@@ -14,6 +14,7 @@ namespace fusion {
 namespace debugviewpp {
 
 FileReader::FileReader(const std::wstring& filename) :
+	LogSource(SourceType::File),
 	m_end(false),
 	m_filename(filename),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),

@@ -12,6 +12,7 @@ namespace fusion {
 namespace debugviewpp {
 
 ProcessReader::ProcessReader(const std::wstring& pathName, const std::wstring& args) :
+	LogSource(SourceType::Pipe),
 	m_process(pathName, args),
 	m_stdout(m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),
 	m_stderr(m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr")

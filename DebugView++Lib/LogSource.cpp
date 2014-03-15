@@ -13,8 +13,18 @@
 namespace fusion {
 namespace debugviewpp {
 
+LogSource::LogSource(SourceType::type sourceType) : m_sourceType(sourceType)
+{
+
+}
+
 LogSource::~LogSource()
 {
+}
+
+SourceType::type LogSource::GetSourceType()
+{
+	return m_sourceType;
 }
 
 } // namespace debugviewpp 
