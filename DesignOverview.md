@@ -3,27 +3,27 @@ Project dependencies
 
 ![DebugView++ Projects](art/DebugViewProjects.png "DebugView++ Projects")
 
-1. PROJECT DebugViewCmd:
+1. Project **DebugViewCmd**
 CommandLine version of debugview++, 
 enables piping debugview output into another process.
 
-2. PROJECT DebugView:
+2. Project **DebugView**
 Main project, contains all WTL/ UI  specific code
 
-3. PROJECT DebugView++Lib:
+3. Project **DebugView++Lib**
 All infrastructure a 'debugview'-like application needs,
 but nothing UI-related,for example: filters, FileIO, PipeReader, LogSources
 
-4. PROJECT CobaltFusion:
+4. Project **CobaltFusion**
 Anything this is reusable beyond DebugView and has no dependencies other then C++11
 (and boost while we are using vs2010)
 
-5. PROJECT Win32Lib:
+5. Project **Win32Lib**
 This project contains left-overs, it is all Windows specific, 
 but some of it is WTL-related and should be moved into 
 DebugView++/Win32Support.cpp
 
-6. PROJECT IndexedStorageLib:
+6. Project **IndexedStorageLib**
 Contains VectorStorage and SnappyStorage, two
 indexed-string-storage classes
 
