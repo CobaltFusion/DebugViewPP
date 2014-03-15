@@ -14,21 +14,15 @@ Main project, contains all WTL/ UI  specific code
 All infrastructure a 'debugview'-like application needs,
 but nothing UI-related,for example: filters, FileIO, PipeReader, LogSources
 
-4. Project **DBWinBufferLib**
-This project was intended to contain only DBWinBuffer specific code, but because of existing 
-dependencies the LogSource baseclass is now also in here. We should either create a better separation
-or move these sources back into **DebugView++Lib**
-
-5. Project **CobaltFusion**
+4. Project **CobaltFusion**
 Anything that is reusable beyond DebugView and has no dependencies other then C++11
 (and boost while we are using vs2010)
 
-6. Project **Win32Lib**
-This project should contain only low-level helpers and convenience methods on top of the win32 library.
-It is used by **DebugView** and **DBWinBufferLib**
+5. Project **Win32Lib**
+Anything that is reusable beyond DebugView but is win32 specific 
 It now also contains left-overs, of which some might be better moved into DebugView++/Win32Support.cpp
 
-7. Project **IndexedStorageLib**
+6. Project **IndexedStorageLib**
 Contains VectorStorage and SnappyStorage, two
 indexed-string-storage classes
 
