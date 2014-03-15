@@ -3,11 +3,11 @@ Project dependencies
 
 ![DebugView++ Projects](art/DebugViewProjects.png "DebugView++ Projects")
 
-# 1) PROJECT DebugViewCmd:
+### 1) PROJECT DebugViewCmd:
 CommandLine version of debugview++, 
 enables piping debugview output into another process.
 
-# 2) PROJECT DebugView:
+### 2) PROJECT DebugView:
 Main project, contains all WTL/ UI  specific code
 
 # 3) PROJECT DebugView++Lib:
