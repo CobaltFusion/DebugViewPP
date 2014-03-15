@@ -1,7 +1,7 @@
 Project dependencies
 --------------------
 
-![DebugView++ Projects](art\DebugViewProjects.png "DebugView++ Projects")
+![DebugView++ Projects](art/DebugViewProjects.png "DebugView++ Projects")
 
 1) PROJECT DebugViewCmd:
 CommandLine version of debugview++, 
