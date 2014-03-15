@@ -5,17 +5,27 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
+#include <string>
+#include "Win32Lib/Win32Lib.h"
 
-#include "stdafx.h"
-#include "DBWinBufferLib/LogSource.h"
+#pragma once
 
 namespace fusion {
 namespace debugviewpp {
 
-LogSource::~LogSource()
+class DBWinWriter
 {
-}
+public:
+	DBWinWriter();
+
+	void Write(DWORD pid, const std::string& message);
+
+private:
+	Handle m_hBuffer;
+	Handle m_dbWinBufferReady;
+	Handle m_dbWinDataReady;
+	MappedViewOfFile m_dbWinView;
+};
 
 } // namespace debugviewpp 
 } // namespace fusion

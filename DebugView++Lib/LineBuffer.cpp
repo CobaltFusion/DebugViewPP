@@ -8,7 +8,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "DBWinBufferLib/LineBuffer.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

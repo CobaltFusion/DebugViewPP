@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include "hstream.h"
-#include "DBWinBufferLib/DBWinWriter.h"
+#include "DebugView++Lib/DBWinWriter.h"
 #include "resource.h"
 #include "MainFrame.h"
 

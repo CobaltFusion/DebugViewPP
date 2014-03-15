@@ -8,7 +8,7 @@
 #pragma once
 
 #include <iosfwd>
-#include "DBWinBufferLib/DBWinBuffer.h"
+#include "DebugView++Lib/DBWinBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

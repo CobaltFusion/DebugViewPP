@@ -9,8 +9,8 @@
 
 #include <string>
 #include <vector>
-#include "DBWinBufferLib/Colors.h"
-#include "DBWinBufferLib/ProcessInfo.h"
+#include "DebugView++Lib/Colors.h"
+#include "DebugView++Lib/ProcessInfo.h"
 #include "IndexedStorageLib/IndexedStorage.h"
 
 namespace fusion {

@@ -7,9 +7,15 @@
 
 #pragma once
 
-#include "targetver.h"
+#include "stdafx.h"
+#include "DebugView++Lib/LogSource.h"
 
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-#define NOMINMAX
+namespace fusion {
+namespace debugviewpp {
 
-#include "windows.h"
+LogSource::~LogSource()
+{
+}
+
+} // namespace debugviewpp 
+} // namespace fusion

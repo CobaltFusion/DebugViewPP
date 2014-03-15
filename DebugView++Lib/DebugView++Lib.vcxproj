@@ -74,32 +74,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\DebugView++Lib\Colors.h" />
+    <ClInclude Include="..\include\DebugView++Lib\DBWinBuffer.h" />
+    <ClInclude Include="..\include\DebugView++Lib\DBWinReader.h" />
+    <ClInclude Include="..\include\DebugView++Lib\DBWinWriter.h" />
     <ClInclude Include="..\include\DebugView++Lib\FileIO.h" />
     <ClInclude Include="..\include\DebugView++Lib\FileReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\Filter.h" />
     <ClInclude Include="..\include\DebugView++Lib\FilterType.h" />
+    <ClInclude Include="..\include\DebugView++Lib\LineBuffer.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogFile.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogFilter.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogSources.h" />
     <ClInclude Include="..\include\DebugView++Lib\MatchType.h" />
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\Process.h" />
+    <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h" />
+    <ClInclude Include="..\include\DebugView++Lib\ProcessInfo.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\SourceType.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Colors.cpp" />
+    <ClCompile Include="DBWinBuffer.cpp" />
+    <ClCompile Include="DBWinReader.cpp" />
+    <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterType.cpp" />
+    <ClCompile Include="LineBuffer.cpp" />
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogFilter.cpp" />
+    <ClCompile Include="LogSource.cpp" />
     <ClCompile Include="LogSources.cpp" />
     <ClCompile Include="MatchType.cpp" />
     <ClCompile Include="PipeReader.cpp" />
     <ClCompile Include="Process.cpp" />
+    <ClCompile Include="ProcessHandleCache.cpp" />
+    <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="ProcessReader.cpp" />
     <ClCompile Include="SourceType.cpp" />
     <ClCompile Include="stdafx.cpp">

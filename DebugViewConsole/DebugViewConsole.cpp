@@ -10,8 +10,8 @@
 #include <vector>
 #include <memory>
 #include "Win32Lib/utilities.h"
-#include "DBWinBufferLib/DBWinReader.h"
-#include "DBWinBufferLib/ProcessInfo.h"
+#include "DebugView++Lib/DBWinReader.h"
+#include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/LogSources.h"
 #include "../DebugView++/version.h"
 

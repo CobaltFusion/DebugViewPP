@@ -12,10 +12,10 @@
 #include <random>
 
 #include "Win32Lib/utilities.h"
-#include "DBWinBufferLib/ProcessInfo.h"
+#include "DebugView++Lib/ProcessInfo.h"
 #include "IndexedStorageLib/IndexedStorage.h"
 #include "Win32Lib/Win32Lib.h"
-#include "DBWinBufferLib/DBWinBuffer.h"
+#include "DebugView++Lib/DBWinBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

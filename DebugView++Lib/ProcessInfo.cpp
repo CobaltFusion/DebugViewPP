@@ -8,8 +8,8 @@
 #include "stdafx.h"
 #include <array>
 #include "Win32Lib/Win32Lib.h"
-#include "DBWinBufferLib/Colors.h"
-#include "DBWinBufferLib/ProcessInfo.h"
+#include "DebugView++Lib/Colors.h"
+#include "DebugView++Lib/ProcessInfo.h"
 
 #pragma comment(lib, "psapi.lib")
 

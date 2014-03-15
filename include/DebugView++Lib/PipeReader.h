@@ -9,7 +9,7 @@
 
 #include <boost/utility.hpp>
 #include "Win32Lib/utilities.h"
-#include "DBWinBufferLib/LogSource.h"
+#include "DebugView++Lib/LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {

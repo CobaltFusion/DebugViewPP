@@ -6,8 +6,8 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "DBWinBufferLib/DBWinBuffer.h"
-#include "DBWinBufferLib/DBWinWriter.h"
+#include "DebugView++Lib/DBWinBuffer.h"
+#include "DebugView++Lib/DBWinWriter.h"
 
 namespace fusion {
 namespace debugviewpp {

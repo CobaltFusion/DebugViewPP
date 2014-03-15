@@ -9,8 +9,6 @@
 
 #include <vector>
 
-#pragma comment(lib, "DBWinBufferLib.lib")
-
 namespace fusion {
 namespace debugviewpp {
 

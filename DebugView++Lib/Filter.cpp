@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "DBWinBufferLib/Colors.h"
+#include "DebugView++Lib/Colors.h"
 #include "Win32Lib/utilities.h"
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/Filter.h"
