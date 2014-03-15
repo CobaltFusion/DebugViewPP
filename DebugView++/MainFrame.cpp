@@ -1023,9 +1023,15 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CSourcesDlg dlg;
+	CSourcesDlg dlg(m_logSources.Get());
 	if (dlg.DoModal() != IDOK)
 		return;
+
+	auto sources = dlg.GetSourcesToDelete();
+	for (auto it = sources.begin(); it != sources.end(); ++it)
+	{
+		m_logSources.Remove(*it);
+	}
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

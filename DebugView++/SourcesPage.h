@@ -15,6 +15,8 @@
 #include "DebugView++Lib/SourceType.h"
 #include "DebugView++Lib/Filter.h"
 #include "Resource.h"
+#include "DebugView++Lib/LogSources.h"
+
 
 namespace fusion {
 namespace debugviewpp {
@@ -26,8 +28,8 @@ class CSourcesPageImpl :
 public:
 	CSourcesPageImpl();
 
-	std::vector<Filter> GetFilters() const;
-	void SetFilters(const std::vector<Filter>& filters);
+	std::vector<std::shared_ptr<LogSource>> GetSourcesToDelete() const;
+	void SetLogSources(const std::vector<std::shared_ptr<LogSource>>& logsources);
 
 	enum { IDD = IDD_SOURCES_PAGE };
 
@@ -57,7 +59,9 @@ private:
 	const MatchType::type* m_matchTypes;
 	size_t m_matchTypeCount;
 	CPropertyGridCtrl m_grid;
-	std::vector<Filter> m_filters;
+	
+	std::vector<std::shared_ptr<LogSource>> m_logsources;
+	std::vector<std::shared_ptr<LogSource>> m_deleteSources;
 };
 
 class CSourcesPage : public CSourcesPageImpl

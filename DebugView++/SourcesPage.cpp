@@ -64,6 +64,20 @@ BOOL CSourcesPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.InsertColumn(3, L"", LVCFMT_LEFT, 16, 0);
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT);
 
+
+	//for (auto it=m_logsources.begin(); it != m_logsources.end(); ++it)
+	//{
+
+	//	auto type = (*it)->GetSourceType();
+
+	//	int item = m_grid.GetItemCount();
+	//	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+	//	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Win32 Messages"));
+	//	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
+	//	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
+	//}
+	//// test
+
 	// test
 	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
@@ -182,25 +196,18 @@ SourceType::type CSourcesPageImpl::GetSourceType(int iItem) const
 	return StringToSourceType(Str(GetGridItemText(m_grid, iItem, 2)));
 }
 
-std::vector<Filter> CSourcesPageImpl::GetFilters() const
+void CSourcesPageImpl::SetLogSources(const std::vector<std::shared_ptr<LogSource>>& logsources)
 {
-	std::vector<Filter> filters;
-	int n = m_grid.GetItemCount();
-	filters.reserve(n);
-
-	//for (int i = 0; i < n; ++i)
-		//filters.push_back(Filter(Str(GetSourceText(i)), GetSourceType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
-
-	return filters;
-}
-
-void CSourcesPageImpl::SetFilters(const std::vector<Filter>& filters)
-{
-	m_filters = filters;
+	m_logsources = logsources;
 	if (IsWindow())
 	{
 		UpdateGrid();
 	}
+}
+
+std::vector<std::shared_ptr<LogSource>> CSourcesPageImpl::GetSourcesToDelete() const
+{
+	return m_deleteSources;
 }
 
 void CSourcesPageImpl::UpdateGrid()

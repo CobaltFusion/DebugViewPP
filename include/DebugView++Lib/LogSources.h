@@ -39,6 +39,8 @@ public:
 	void Abort();
 	Lines GetLines();
 
+	std::vector<std::shared_ptr<LogSource>> Get();
+
 private:
 	LogSourcesHandles GetWaitHandles();
 	void Process(int index);

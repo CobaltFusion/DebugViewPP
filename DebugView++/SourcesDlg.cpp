@@ -24,8 +24,9 @@ BEGIN_MSG_MAP_TRY(CSourcesDlg)
 	CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CSourcesDlg::CSourcesDlg()
+CSourcesDlg::CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources)
 {
+	m_sourcesPage.SetLogSources(logsources);
 }
 
 void CSourcesDlg::ExceptionHandler()
@@ -67,6 +68,11 @@ void CSourcesDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	EndDialog(nID);
+}
+
+std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToDelete()
+{
+	return m_sourcesPage.GetSourcesToDelete();
 }
 
 } // namespace debugviewpp 

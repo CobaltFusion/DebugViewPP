@@ -20,6 +20,11 @@ LogSourceInfo::LogSourceInfo(HANDLE handle, LogSource& logsource) :
 
 }
 
+std::vector<std::shared_ptr<LogSource>> LogSources::Get()
+{
+	return m_sources;
+}
+
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
 	m_sourcesDirty(false),

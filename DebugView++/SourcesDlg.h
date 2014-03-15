@@ -13,6 +13,7 @@
 #include "PropertyColorItem.h"
 #include "Resource.h"
 #include "Filter.h"
+#include "DebugView++Lib/LogSources.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -22,7 +23,7 @@ class CSourcesDlg :
 	public CDialogResize<CSourcesDlg>
 {
 public:
-	CSourcesDlg();
+	CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources);
 	
 	enum { IDD = IDD_SOURCES };
 
@@ -37,11 +38,11 @@ public:
 
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
+	std::vector<std::shared_ptr<LogSource>> GetSourcesToDelete();
 
 private:
 	CTabCtrl m_tabCtrl;
 	CSourcesPageImpl m_sourcesPage;
-
 	SIZE m_border;
 };
 
