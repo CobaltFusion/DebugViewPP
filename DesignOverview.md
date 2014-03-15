@@ -19,7 +19,7 @@ Anything that is reusable beyond DebugView and has no dependencies other then C+
 (and boost while we are using vs2010)
 
 5. Project **Win32Lib**
-This project should contain only low-level helpers and convenience methods on top of the win32 library.
+Anything that is reusable beyond DebugView but is win32 specific 
 It now also contains left-overs, of which some might be better moved into DebugView++/Win32Support.cpp
 
 6. Project **IndexedStorageLib**
