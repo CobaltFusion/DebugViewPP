@@ -12,19 +12,10 @@
 <XPD:ATTR name="Title" type="string">Untitled</XPD:ATTR>
 <XPD:ATTR name="#OwnedElements" type="integer">5</XPD:ATTR>
 <XPD:OBJ name="OwnedElements[0]" type="UMLModel" guid="F8inmYzPaUOasyCqMw1R6gAA">
-<XPD:ATTR name="Name" type="string">Use Case Model</XPD:ATTR>
-<XPD:ATTR name="StereotypeProfile" type="string">UMLStandard</XPD:ATTR>
-<XPD:ATTR name="StereotypeName" type="string">useCaseModel</XPD:ATTR>
+<XPD:ATTR name="Name" type="string">DebugView Projects Overview</XPD:ATTR>
 <XPD:REF name="Namespace">N3yimLf9EEaFtXwgpQsikgAA</XPD:REF>
-<XPD:ATTR name="#OwnedDiagrams" type="integer">2</XPD:ATTR>
-<XPD:OBJ name="OwnedDiagrams[0]" type="UMLUseCaseDiagram" guid="sBQ8OGtoKEabygazWGQWrQAA">
-<XPD:ATTR name="Name" type="string">Main</XPD:ATTR>
-<XPD:REF name="DiagramOwner">F8inmYzPaUOasyCqMw1R6gAA</XPD:REF>
-<XPD:OBJ name="DiagramView" type="UMLUseCaseDiagramView" guid="2VJNMomcskm5lvP2OMC54QAA">
-<XPD:REF name="Diagram">sBQ8OGtoKEabygazWGQWrQAA</XPD:REF>
-</XPD:OBJ>
-</XPD:OBJ>
-<XPD:OBJ name="OwnedDiagrams[1]" type="UMLClassDiagram" guid="3XSymremkkCIs1/fxAAn5QAA">
+<XPD:ATTR name="#OwnedDiagrams" type="integer">1</XPD:ATTR>
+<XPD:OBJ name="OwnedDiagrams[0]" type="UMLClassDiagram" guid="3XSymremkkCIs1/fxAAn5QAA">
 <XPD:ATTR name="Name" type="string">ClassDiagram1</XPD:ATTR>
 <XPD:REF name="DiagramOwner">F8inmYzPaUOasyCqMw1R6gAA</XPD:REF>
 <XPD:OBJ name="DiagramView" type="UMLClassDiagramView" guid="x3K4eSO6jk6jCrZtyWJx9AAA">
@@ -478,7 +469,7 @@
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
 <XPD:ATTR name="Left" type="integer">488</XPD:ATTR>
-<XPD:ATTR name="Top" type="integer">408</XPD:ATTR>
+<XPD:ATTR name="Top" type="integer">460</XPD:ATTR>
 <XPD:ATTR name="Width" type="integer">476</XPD:ATTR>
 <XPD:ATTR name="Height" type="integer">136</XPD:ATTR>
 <XPD:ATTR name="Text" type="string">- class LogSources is now a container and not using the circular buffer yet
@@ -494,31 +485,36 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:OBJ name="OwnedViews[21]" type="UMLNoteView" guid="HQWTFKS+5kyGJ3ag6nAdhgAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Left" type="integer">488</XPD:ATTR>
-<XPD:ATTR name="Top" type="integer">24</XPD:ATTR>
-<XPD:ATTR name="Width" type="integer">449</XPD:ATTR>
-<XPD:ATTR name="Height" type="integer">368</XPD:ATTR>
-<XPD:ATTR name="Text" type="string">1) PROJECT DebugViewCmd:
+<XPD:ATTR name="Left" type="integer">484</XPD:ATTR>
+<XPD:ATTR name="Top" type="integer">16</XPD:ATTR>
+<XPD:ATTR name="Width" type="integer">539</XPD:ATTR>
+<XPD:ATTR name="Height" type="integer">428</XPD:ATTR>
+<XPD:ATTR name="Text" type="string">1. Project **DebugViewCmd**
 CommandLine version of debugview++, 
 enables piping debugview output into another process.
 
-2) PROJECT DebugView:
+2. Project **DebugView**
 Main project, contains all WTL/ UI  specific code
 
-3) PROJECT DebugView++Lib:
+3. Project **DebugView++Lib**
 All infrastructure a 'debugview'-like application needs,
 but nothing UI-related,for example: filters, FileIO, PipeReader, LogSources
 
-4) PROJECT CobaltFusion:
-Anything this is reusable beyond DebugView and has no dependencies other then C++11
+4. Project **DBWinBufferLib**
+This project was intended to contain only DBWinBuffer specific code, but because of existing 
+dependencies the LogSource baseclass is now also in here. We should either create a better separation
+or move these sources back into **DebugView++Lib**
+
+5. Project **CobaltFusion**
+Anything that is reusable beyond DebugView and has no dependencies other then C++11
 (and boost while we are using vs2010)
 
-5) PROJECT Win32Lib:
-This project contains left-overs, it is all Windows specific, 
-but some of it is WTL-related and should be moved into 
-DebugView++/Win32Support.cpp
+6. Project **Win32Lib**
+This project should contain only low-level helpers and convenience methods on top of the win32 library.
+It is used by **DebugView** and **DBWinBufferLib**
+It now also contains left-overs, of which some might be better moved into DebugView++/Win32Support.cpp
 
-6) PROJECT IndexedStorageLib:
+7. Project **IndexedStorageLib**
 Contains VectorStorage and SnappyStorage, two
 indexed-string-storage classes
 </XPD:ATTR>
@@ -543,9 +539,7 @@ indexed-string-storage classes
 </XPD:OBJ>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[2]" type="UMLModel" guid="RXNR2/W5rEijlmC3ZyeEWgAA">
-<XPD:ATTR name="Name" type="string">Design Model</XPD:ATTR>
-<XPD:ATTR name="StereotypeProfile" type="string">UMLStandard</XPD:ATTR>
-<XPD:ATTR name="StereotypeName" type="string">designModel</XPD:ATTR>
+<XPD:ATTR name="Name" type="string">Debugview classdiagram</XPD:ATTR>
 <XPD:REF name="Namespace">N3yimLf9EEaFtXwgpQsikgAA</XPD:REF>
 <XPD:ATTR name="#OwnedDiagrams" type="integer">1</XPD:ATTR>
 <XPD:OBJ name="OwnedDiagrams[0]" type="UMLClassDiagram" guid="dLFnQgoHn0uWHgW60/tyDwAA">
@@ -2905,12 +2899,12 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
 <XPD:ATTR name="Left" type="integer">780</XPD:ATTR>
 <XPD:ATTR name="Top" type="integer">96</XPD:ATTR>
-<XPD:ATTR name="Width" type="integer">88</XPD:ATTR>
+<XPD:ATTR name="Width" type="integer">92</XPD:ATTR>
 <XPD:ATTR name="Height" type="integer">40</XPD:ATTR>
 <XPD:REF name="Model">trems65S80OXhwrTp7RsLwAA</XPD:REF>
 <XPD:OBJ name="NameCompartment" type="UMLNameCompartmentView" guid="HqUd41kALUah14k4NGJ4swAA">
 <XPD:OBJ name="NameLabel" type="LabelView" guid="WuMfasfGu0qXnkK/0DWpkAAA">
-<XPD:ATTR name="Text" type="string">DebugViewPPLib</XPD:ATTR>
+<XPD:ATTR name="Text" type="string">DebugView++Lib</XPD:ATTR>
 </XPD:OBJ>
 <XPD:OBJ name="StereotypeLabel" type="LabelView" guid="tTPXiMDaKkGfyeuJUulByAAA">
 <XPD:ATTR name="Visible" type="boolean">False</XPD:ATTR>
@@ -2949,7 +2943,7 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:OBJ name="OwnedViews[59]" type="UMLDependencyView" guid="8/Je/nEah06lmhNd2BaxvQAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Points" type="Points">872,65;842,96</XPD:ATTR>
+<XPD:ATTR name="Points" type="Points">873,65;843,96</XPD:ATTR>
 <XPD:REF name="Model">XT2nXhCmZky5yKHOp8aRhgAA</XPD:REF>
 <XPD:REF name="Head">PkDZmDSpGEmj7qyxyzIZUAAA</XPD:REF>
 <XPD:REF name="Tail">NormSlVAbUW+nCaAmjHtrAAA</XPD:REF>
@@ -2975,7 +2969,7 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:OBJ name="OwnedViews[60]" type="UMLDependencyView" guid="he1Ox88h7UG3Pol3F/G+9wAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Points" type="Points">820,135;816,156</XPD:ATTR>
+<XPD:ATTR name="Points" type="Points">821,135;817,156</XPD:ATTR>
 <XPD:REF name="Model">5+UVyjDQfU2JLeoDZGud5wAA</XPD:REF>
 <XPD:REF name="Head">dQjlg2Xyh0COx/1OfYajDQAA</XPD:REF>
 <XPD:REF name="Tail">PkDZmDSpGEmj7qyxyzIZUAAA</XPD:REF>
@@ -3047,7 +3041,7 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:OBJ name="OwnedViews[63]" type="UMLDependencyView" guid="lfXea8UTj0KjEp/+2sVggQAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Points" type="Points">796,64;813,96</XPD:ATTR>
+<XPD:ATTR name="Points" type="Points">796,64;814,96</XPD:ATTR>
 <XPD:REF name="Model">MPX83PPl8Uqq25Gw6Hxy6gAA</XPD:REF>
 <XPD:REF name="Head">PkDZmDSpGEmj7qyxyzIZUAAA</XPD:REF>
 <XPD:REF name="Tail">J5QWgrK/rki5CdYQm7PUjQAA</XPD:REF>
@@ -3145,7 +3139,7 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:OBJ name="OwnedViews[67]" type="UMLDependencyView" guid="Wzjzs8x/k0OSNcXt41dOkgAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Points" type="Points">849,135;965,224</XPD:ATTR>
+<XPD:ATTR name="Points" type="Points">851,135;966,224</XPD:ATTR>
 <XPD:REF name="Model">9e+WGbozuEq1RlaAWHdl4wAA</XPD:REF>
 <XPD:REF name="Head">KlIK5va2m0ic1Oya9WY7cgAA</XPD:REF>
 <XPD:REF name="Tail">PkDZmDSpGEmj7qyxyzIZUAAA</XPD:REF>
@@ -3703,8 +3697,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">DebugView++</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">NormSlVAbUW+nCaAmjHtrAAA</XPD:REF>
-<XPD:REF name="Views[1]">ip0tJ+9TYU+gDkWlAwE7HAAA</XPD:REF>
+<XPD:REF name="Views[0]">ip0tJ+9TYU+gDkWlAwE7HAAA</XPD:REF>
+<XPD:REF name="Views[1]">NormSlVAbUW+nCaAmjHtrAAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">7</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">8L1h6VOS60qesO6WzwatkwAA</XPD:REF>
 <XPD:REF name="ClientDependencies[1]">IgIxm5t+9UaZqWzZUQJtiAAA</XPD:REF>
@@ -3718,8 +3712,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">Win32</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">sf60yBxYzE2msILTYGTUpAAA</XPD:REF>
-<XPD:REF name="Views[1]">VkfbIEOrMkK9jPjtLKqxXAAA</XPD:REF>
+<XPD:REF name="Views[0]">VkfbIEOrMkK9jPjtLKqxXAAA</XPD:REF>
+<XPD:REF name="Views[1]">sf60yBxYzE2msILTYGTUpAAA</XPD:REF>
 <XPD:ATTR name="#SupplierDependencies" type="integer">3</XPD:ATTR>
 <XPD:REF name="SupplierDependencies[0]">8L1h6VOS60qesO6WzwatkwAA</XPD:REF>
 <XPD:REF name="SupplierDependencies[1]">QJ6bjXssBUWP+3iDeVXDUwAA</XPD:REF>
@@ -3729,8 +3723,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">Google Snappy</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">aDAoU1Tph0+w/Af/u7222QAA</XPD:REF>
-<XPD:REF name="Views[1]">bI4vxYWV8ke1ZBN2ZqkHzAAA</XPD:REF>
+<XPD:REF name="Views[0]">bI4vxYWV8ke1ZBN2ZqkHzAAA</XPD:REF>
+<XPD:REF name="Views[1]">aDAoU1Tph0+w/Af/u7222QAA</XPD:REF>
 <XPD:ATTR name="#SupplierDependencies" type="integer">3</XPD:ATTR>
 <XPD:REF name="SupplierDependencies[0]">IgIxm5t+9UaZqWzZUQJtiAAA</XPD:REF>
 <XPD:REF name="SupplierDependencies[1]">SHF07YU9P06bIl2ila8NtgAA</XPD:REF>
@@ -3759,8 +3753,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">boost</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">ir4ytxUdI0C0tx/ah0+0BAAA</XPD:REF>
-<XPD:REF name="Views[1]">2MawgpnmoUG8T2lGGp5T1wAA</XPD:REF>
+<XPD:REF name="Views[0]">2MawgpnmoUG8T2lGGp5T1wAA</XPD:REF>
+<XPD:REF name="Views[1]">ir4ytxUdI0C0tx/ah0+0BAAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">1</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">QJ6bjXssBUWP+3iDeVXDUwAA</XPD:REF>
 <XPD:ATTR name="#SupplierDependencies" type="integer">2</XPD:ATTR>
@@ -4165,8 +4159,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">CobaltFusion</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">1XkG/9yP/EKzP31N+5hjqQAA</XPD:REF>
-<XPD:REF name="Views[1]">PhBbYP40cEmOGqPzbjRuAwAA</XPD:REF>
+<XPD:REF name="Views[0]">PhBbYP40cEmOGqPzbjRuAwAA</XPD:REF>
+<XPD:REF name="Views[1]">1XkG/9yP/EKzP31N+5hjqQAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">2</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">wpIsFqgx0E6PatobNm1cwgAA</XPD:REF>
 <XPD:REF name="ClientDependencies[1]">t0d0LLKFLke1+fpipZmjBwAA</XPD:REF>
@@ -4177,8 +4171,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">Win32Lib</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">5mtUe3sOR0auupxG9qndwgAA</XPD:REF>
-<XPD:REF name="Views[1]">dM56OuE93E+l/CK3G6Sd4wAA</XPD:REF>
+<XPD:REF name="Views[0]">dM56OuE93E+l/CK3G6Sd4wAA</XPD:REF>
+<XPD:REF name="Views[1]">5mtUe3sOR0auupxG9qndwgAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">1</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">g8u00yDuvk60aZCe+JPRVgAA</XPD:REF>
 <XPD:ATTR name="#SupplierDependencies" type="integer">2</XPD:ATTR>
@@ -4189,8 +4183,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">DBWinBufferLib</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">dQjlg2Xyh0COx/1OfYajDQAA</XPD:REF>
-<XPD:REF name="Views[1]">5Og68aFTckW2XDqzcIX46gAA</XPD:REF>
+<XPD:REF name="Views[0]">5Og68aFTckW2XDqzcIX46gAA</XPD:REF>
+<XPD:REF name="Views[1]">dQjlg2Xyh0COx/1OfYajDQAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">2</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">xj5+9nofkUSfkFZLm1hk+wAA</XPD:REF>
 <XPD:REF name="ClientDependencies[1]">ZAWpJbBLckuWlJkctuZxQQAA</XPD:REF>
@@ -4201,8 +4195,8 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:ATTR name="Name" type="string">DebugView++Lib</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">PkDZmDSpGEmj7qyxyzIZUAAA</XPD:REF>
-<XPD:REF name="Views[1]">ZgJAfPbk2keC/EFlNSE2fQAA</XPD:REF>
+<XPD:REF name="Views[0]">ZgJAfPbk2keC/EFlNSE2fQAA</XPD:REF>
+<XPD:REF name="Views[1]">PkDZmDSpGEmj7qyxyzIZUAAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">3</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">5+UVyjDQfU2JLeoDZGud5wAA</XPD:REF>
 <XPD:REF name="ClientDependencies[1]">SHF07YU9P06bIl2ila8NtgAA</XPD:REF>
@@ -4216,14 +4210,14 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:REF name="Client">h2dhJQdOjE6kPBr338D5tQAA</XPD:REF>
 <XPD:REF name="Supplier">8gCaa7ElBEqAMKbKtLUNfwAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">CkRLEINzHkeMJhN7+W7EywAA</XPD:REF>
-<XPD:REF name="Views[1]">i2kDvOEETEan4I+6WQcGigAA</XPD:REF>
-<XPD:REF name="Views[2]">rbdIuvG1wU2SJJwrpI6oVQAA</XPD:REF>
-<XPD:REF name="Views[3]">jvAahUHfdkaN85e13BajvAAA</XPD:REF>
-<XPD:REF name="Views[4]">MI6b2DshCUepJCFSIlV+xgAA</XPD:REF>
-<XPD:REF name="Views[5]">R/UvkoPKS0SU++7b59hrwwAA</XPD:REF>
-<XPD:REF name="Views[6]">iTjR4LooZEC5Zubb+Xc8kQAA</XPD:REF>
-<XPD:REF name="Views[7]">iu3Crw6g/UO/sW67NhCT0AAA</XPD:REF>
+<XPD:REF name="Views[0]">MI6b2DshCUepJCFSIlV+xgAA</XPD:REF>
+<XPD:REF name="Views[1]">R/UvkoPKS0SU++7b59hrwwAA</XPD:REF>
+<XPD:REF name="Views[2]">iTjR4LooZEC5Zubb+Xc8kQAA</XPD:REF>
+<XPD:REF name="Views[3]">iu3Crw6g/UO/sW67NhCT0AAA</XPD:REF>
+<XPD:REF name="Views[4]">CkRLEINzHkeMJhN7+W7EywAA</XPD:REF>
+<XPD:REF name="Views[5]">i2kDvOEETEan4I+6WQcGigAA</XPD:REF>
+<XPD:REF name="Views[6]">rbdIuvG1wU2SJJwrpI6oVQAA</XPD:REF>
+<XPD:REF name="Views[7]">jvAahUHfdkaN85e13BajvAAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[64]" type="UMLDependency" guid="wpIsFqgx0E6PatobNm1cwgAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
@@ -4235,49 +4229,49 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:REF name="Client">h36KZSQTUEuLxH46ytlblAAA</XPD:REF>
 <XPD:REF name="Supplier">trems65S80OXhwrTp7RsLwAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">8/Je/nEah06lmhNd2BaxvQAA</XPD:REF>
-<XPD:REF name="Views[1]">LYR2zr6WsESi+B0WAvXhHgAA</XPD:REF>
-<XPD:REF name="Views[2]">gsYnPr1GYkeXQD9LTqpfowAA</XPD:REF>
-<XPD:REF name="Views[3]">0BoGB/O2HE+LOQmLxPhOUQAA</XPD:REF>
-<XPD:REF name="Views[4]">702tp3yDhkCaONi3YJMSCwAA</XPD:REF>
-<XPD:REF name="Views[5]">ds9rVqohPUaN//PSpC0+CQAA</XPD:REF>
-<XPD:REF name="Views[6]">16eg1PCrz06pRSmWx3DE+AAA</XPD:REF>
-<XPD:REF name="Views[7]">KCfcfDzgwU6tR80S+FF5JwAA</XPD:REF>
+<XPD:REF name="Views[0]">702tp3yDhkCaONi3YJMSCwAA</XPD:REF>
+<XPD:REF name="Views[1]">ds9rVqohPUaN//PSpC0+CQAA</XPD:REF>
+<XPD:REF name="Views[2]">16eg1PCrz06pRSmWx3DE+AAA</XPD:REF>
+<XPD:REF name="Views[3]">KCfcfDzgwU6tR80S+FF5JwAA</XPD:REF>
+<XPD:REF name="Views[4]">8/Je/nEah06lmhNd2BaxvQAA</XPD:REF>
+<XPD:REF name="Views[5]">LYR2zr6WsESi+B0WAvXhHgAA</XPD:REF>
+<XPD:REF name="Views[6]">gsYnPr1GYkeXQD9LTqpfowAA</XPD:REF>
+<XPD:REF name="Views[7]">0BoGB/O2HE+LOQmLxPhOUQAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[66]" type="UMLDependency" guid="5+UVyjDQfU2JLeoDZGud5wAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:REF name="Client">trems65S80OXhwrTp7RsLwAA</XPD:REF>
 <XPD:REF name="Supplier">bI3ymsNejkibPRbghDx2NgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">he1Ox88h7UG3Pol3F/G+9wAA</XPD:REF>
-<XPD:REF name="Views[1]">lQt6hIUv1kSVOpvyFWqTgAAA</XPD:REF>
-<XPD:REF name="Views[2]">Tl2cQNwqrkyycB6rW0ZVMQAA</XPD:REF>
-<XPD:REF name="Views[3]">aZtC8WFcKUG2KELtbRYMMAAA</XPD:REF>
-<XPD:REF name="Views[4]">jteIx9/NNUO5RUmV1CkLVAAA</XPD:REF>
-<XPD:REF name="Views[5]">zXEq7RYZ1ES17XzHM/YHzQAA</XPD:REF>
-<XPD:REF name="Views[6]">6elzO2GUOEiWoSqNuom/WAAA</XPD:REF>
-<XPD:REF name="Views[7]">Ca11b8VCXEWMPd2mh8YgiQAA</XPD:REF>
+<XPD:REF name="Views[0]">jteIx9/NNUO5RUmV1CkLVAAA</XPD:REF>
+<XPD:REF name="Views[1]">zXEq7RYZ1ES17XzHM/YHzQAA</XPD:REF>
+<XPD:REF name="Views[2]">6elzO2GUOEiWoSqNuom/WAAA</XPD:REF>
+<XPD:REF name="Views[3]">Ca11b8VCXEWMPd2mh8YgiQAA</XPD:REF>
+<XPD:REF name="Views[4]">he1Ox88h7UG3Pol3F/G+9wAA</XPD:REF>
+<XPD:REF name="Views[5]">lQt6hIUv1kSVOpvyFWqTgAAA</XPD:REF>
+<XPD:REF name="Views[6]">Tl2cQNwqrkyycB6rW0ZVMQAA</XPD:REF>
+<XPD:REF name="Views[7]">aZtC8WFcKUG2KELtbRYMMAAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[67]" type="UMLDependency" guid="xj5+9nofkUSfkFZLm1hk+wAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:REF name="Client">bI3ymsNejkibPRbghDx2NgAA</XPD:REF>
 <XPD:REF name="Supplier">mp1npwVqk0+rJk89EUyPjwAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">ZpOxcFQwAEGgAac9EHOMPAAA</XPD:REF>
-<XPD:REF name="Views[1]">zkiwARdTAEy4SI17FfQcOgAA</XPD:REF>
-<XPD:REF name="Views[2]">x7BlZwsjNUistmZh11R5+QAA</XPD:REF>
-<XPD:REF name="Views[3]">jCru9tE14U6fB60yUShknQAA</XPD:REF>
-<XPD:REF name="Views[4]">gPwLhauIsU67rkOLmPx2PAAA</XPD:REF>
-<XPD:REF name="Views[5]">Aa4b1+82Pk2t7O4C4gTFMgAA</XPD:REF>
-<XPD:REF name="Views[6]">3PRhxC4JeEOYQNKYkcrT8AAA</XPD:REF>
-<XPD:REF name="Views[7]">pQut0SM1+UyCTlBY8ljcuQAA</XPD:REF>
+<XPD:REF name="Views[0]">gPwLhauIsU67rkOLmPx2PAAA</XPD:REF>
+<XPD:REF name="Views[1]">Aa4b1+82Pk2t7O4C4gTFMgAA</XPD:REF>
+<XPD:REF name="Views[2]">3PRhxC4JeEOYQNKYkcrT8AAA</XPD:REF>
+<XPD:REF name="Views[3]">pQut0SM1+UyCTlBY8ljcuQAA</XPD:REF>
+<XPD:REF name="Views[4]">ZpOxcFQwAEGgAac9EHOMPAAA</XPD:REF>
+<XPD:REF name="Views[5]">zkiwARdTAEy4SI17FfQcOgAA</XPD:REF>
+<XPD:REF name="Views[6]">x7BlZwsjNUistmZh11R5+QAA</XPD:REF>
+<XPD:REF name="Views[7]">jCru9tE14U6fB60yUShknQAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[68]" type="UMLPackage" guid="RxsoKcCPskmD6yRkK03JBwAA">
 <XPD:ATTR name="Name" type="string">DebugViewCmd</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">J5QWgrK/rki5CdYQm7PUjQAA</XPD:REF>
-<XPD:REF name="Views[1]">PDFrmgfi3kqol7wVxJ6FPQAA</XPD:REF>
+<XPD:REF name="Views[0]">PDFrmgfi3kqol7wVxJ6FPQAA</XPD:REF>
+<XPD:REF name="Views[1]">J5QWgrK/rki5CdYQm7PUjQAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">1</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">MPX83PPl8Uqq25Gw6Hxy6gAA</XPD:REF>
 </XPD:OBJ>
@@ -4286,14 +4280,14 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:REF name="Client">RxsoKcCPskmD6yRkK03JBwAA</XPD:REF>
 <XPD:REF name="Supplier">trems65S80OXhwrTp7RsLwAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">lfXea8UTj0KjEp/+2sVggQAA</XPD:REF>
-<XPD:REF name="Views[1]">bsTlNnxmNkCuHxj8rNPo/wAA</XPD:REF>
-<XPD:REF name="Views[2]">3h+OeE4owU6DOkhL+seacAAA</XPD:REF>
-<XPD:REF name="Views[3]">air+9OOpR0yQ79i2AmgwowAA</XPD:REF>
-<XPD:REF name="Views[4]">t+Y48gMHw0yOa1wv1XsF+gAA</XPD:REF>
-<XPD:REF name="Views[5]">Zjqw4DGGwUa5Ft3c4C/gawAA</XPD:REF>
-<XPD:REF name="Views[6]">XqLv3DnUe0S8V3ObtJbmTwAA</XPD:REF>
-<XPD:REF name="Views[7]">x/c8ZGD8qUCFawDx977QfwAA</XPD:REF>
+<XPD:REF name="Views[0]">t+Y48gMHw0yOa1wv1XsF+gAA</XPD:REF>
+<XPD:REF name="Views[1]">Zjqw4DGGwUa5Ft3c4C/gawAA</XPD:REF>
+<XPD:REF name="Views[2]">XqLv3DnUe0S8V3ObtJbmTwAA</XPD:REF>
+<XPD:REF name="Views[3]">x/c8ZGD8qUCFawDx977QfwAA</XPD:REF>
+<XPD:REF name="Views[4]">lfXea8UTj0KjEp/+2sVggQAA</XPD:REF>
+<XPD:REF name="Views[5]">bsTlNnxmNkCuHxj8rNPo/wAA</XPD:REF>
+<XPD:REF name="Views[6]">3h+OeE4owU6DOkhL+seacAAA</XPD:REF>
+<XPD:REF name="Views[7]">air+9OOpR0yQ79i2AmgwowAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[70]" type="UMLDependency" guid="SHF07YU9P06bIl2ila8NtgAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
@@ -4305,35 +4299,35 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:REF name="Client">mp1npwVqk0+rJk89EUyPjwAA</XPD:REF>
 <XPD:REF name="Supplier">nO88nY2lSEmfCXAALDWa9gAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">ABwHHS5K+EmmkNGJjytPWQAA</XPD:REF>
-<XPD:REF name="Views[1]">QysncSj5qk6GBs9uf9TyvgAA</XPD:REF>
-<XPD:REF name="Views[2]">8UoR1U+xD0G9PxPaO5WiEAAA</XPD:REF>
-<XPD:REF name="Views[3]">exu7yEBGXEGN/JRErdzdaAAA</XPD:REF>
-<XPD:REF name="Views[4]">DXY0dkTRtUOeHu/OxLQn+wAA</XPD:REF>
-<XPD:REF name="Views[5]">ICUNWfQCM0CV/p2fmqvRlQAA</XPD:REF>
-<XPD:REF name="Views[6]">NJ1lUwX6RUChfM2/l0ga1gAA</XPD:REF>
-<XPD:REF name="Views[7]">XoMQenajhEykS1nW3aoGvQAA</XPD:REF>
+<XPD:REF name="Views[0]">DXY0dkTRtUOeHu/OxLQn+wAA</XPD:REF>
+<XPD:REF name="Views[1]">ICUNWfQCM0CV/p2fmqvRlQAA</XPD:REF>
+<XPD:REF name="Views[2]">NJ1lUwX6RUChfM2/l0ga1gAA</XPD:REF>
+<XPD:REF name="Views[3]">XoMQenajhEykS1nW3aoGvQAA</XPD:REF>
+<XPD:REF name="Views[4]">ABwHHS5K+EmmkNGJjytPWQAA</XPD:REF>
+<XPD:REF name="Views[5]">QysncSj5qk6GBs9uf9TyvgAA</XPD:REF>
+<XPD:REF name="Views[6]">8UoR1U+xD0G9PxPaO5WiEAAA</XPD:REF>
+<XPD:REF name="Views[7]">exu7yEBGXEGN/JRErdzdaAAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[72]" type="UMLDependency" guid="ZAWpJbBLckuWlJkctuZxQQAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:REF name="Client">bI3ymsNejkibPRbghDx2NgAA</XPD:REF>
 <XPD:REF name="Supplier">h2dhJQdOjE6kPBr338D5tQAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">emJ7uiqg8UOp1qi4TTufGwAA</XPD:REF>
-<XPD:REF name="Views[1]">CnZGzYl+2ku7oHTqKMDmQQAA</XPD:REF>
-<XPD:REF name="Views[2]">U/sHz/QIdESZK69Z6mezaAAA</XPD:REF>
-<XPD:REF name="Views[3]">0Qv+M5zkLk6vJu5eUHdAtwAA</XPD:REF>
-<XPD:REF name="Views[4]">Lh8nNenoWEC2VTH+vnLFaAAA</XPD:REF>
-<XPD:REF name="Views[5]">Wq/INrD9lkKB6VQHfk07jAAA</XPD:REF>
-<XPD:REF name="Views[6]">r2wymMYOoEOZf8OPDEDCZgAA</XPD:REF>
-<XPD:REF name="Views[7]">iDGlJ3KNik+98A/elGhHFgAA</XPD:REF>
+<XPD:REF name="Views[0]">Lh8nNenoWEC2VTH+vnLFaAAA</XPD:REF>
+<XPD:REF name="Views[1]">Wq/INrD9lkKB6VQHfk07jAAA</XPD:REF>
+<XPD:REF name="Views[2]">r2wymMYOoEOZf8OPDEDCZgAA</XPD:REF>
+<XPD:REF name="Views[3]">iDGlJ3KNik+98A/elGhHFgAA</XPD:REF>
+<XPD:REF name="Views[4]">emJ7uiqg8UOp1qi4TTufGwAA</XPD:REF>
+<XPD:REF name="Views[5]">CnZGzYl+2ku7oHTqKMDmQQAA</XPD:REF>
+<XPD:REF name="Views[6]">U/sHz/QIdESZK69Z6mezaAAA</XPD:REF>
+<XPD:REF name="Views[7]">0Qv+M5zkLk6vJu5eUHdAtwAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[73]" type="UMLPackage" guid="PGoufFF+SU6ENHBaKptMOgAA">
 <XPD:ATTR name="Name" type="string">IndexedStorageLib</XPD:ATTR>
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">2</XPD:ATTR>
-<XPD:REF name="Views[0]">KlIK5va2m0ic1Oya9WY7cgAA</XPD:REF>
-<XPD:REF name="Views[1]">waP7+xjyQk2A3NV38BwPowAA</XPD:REF>
+<XPD:REF name="Views[0]">waP7+xjyQk2A3NV38BwPowAA</XPD:REF>
+<XPD:REF name="Views[1]">KlIK5va2m0ic1Oya9WY7cgAA</XPD:REF>
 <XPD:ATTR name="#ClientDependencies" type="integer">1</XPD:ATTR>
 <XPD:REF name="ClientDependencies[0]">Ld7sUTWM1kWKjpz/FjaeegAA</XPD:REF>
 <XPD:ATTR name="#SupplierDependencies" type="integer">1</XPD:ATTR>
@@ -4344,28 +4338,28 @@ or in case of autonewLine = false, into a fixed 8kb buffer of the LogSource
 <XPD:REF name="Client">trems65S80OXhwrTp7RsLwAA</XPD:REF>
 <XPD:REF name="Supplier">PGoufFF+SU6ENHBaKptMOgAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">Wzjzs8x/k0OSNcXt41dOkgAA</XPD:REF>
-<XPD:REF name="Views[1]">l6/w1SqziEOE5Kd/c+KbvwAA</XPD:REF>
-<XPD:REF name="Views[2]">c6U79H2nDkuA1Bi1g4mbRAAA</XPD:REF>
-<XPD:REF name="Views[3]">EG2WGU6D10iTyzaTBAXEdAAA</XPD:REF>
-<XPD:REF name="Views[4]">aGVV/9YVt0K2jtJCV/1KEgAA</XPD:REF>
-<XPD:REF name="Views[5]">Fb2PvDYRAkCOWfcp/YLbUgAA</XPD:REF>
-<XPD:REF name="Views[6]">wuifRcWZTUSdOsROgdgP1AAA</XPD:REF>
-<XPD:REF name="Views[7]">st5r71faDE291YASu13bgwAA</XPD:REF>
+<XPD:REF name="Views[0]">aGVV/9YVt0K2jtJCV/1KEgAA</XPD:REF>
+<XPD:REF name="Views[1]">Fb2PvDYRAkCOWfcp/YLbUgAA</XPD:REF>
+<XPD:REF name="Views[2]">wuifRcWZTUSdOsROgdgP1AAA</XPD:REF>
+<XPD:REF name="Views[3]">st5r71faDE291YASu13bgwAA</XPD:REF>
+<XPD:REF name="Views[4]">Wzjzs8x/k0OSNcXt41dOkgAA</XPD:REF>
+<XPD:REF name="Views[5]">l6/w1SqziEOE5Kd/c+KbvwAA</XPD:REF>
+<XPD:REF name="Views[6]">c6U79H2nDkuA1Bi1g4mbRAAA</XPD:REF>
+<XPD:REF name="Views[7]">EG2WGU6D10iTyzaTBAXEdAAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[75]" type="UMLDependency" guid="Ld7sUTWM1kWKjpz/FjaeegAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
 <XPD:REF name="Client">PGoufFF+SU6ENHBaKptMOgAA</XPD:REF>
 <XPD:REF name="Supplier">BUr9WsPRbEqx6RhmXy4yQAAA</XPD:REF>
 <XPD:ATTR name="#Views" type="integer">8</XPD:ATTR>
-<XPD:REF name="Views[0]">hp7HoUZLwkKHkatD3HgBIAAA</XPD:REF>
-<XPD:REF name="Views[1]">sppPSkAzIUya5Z6R3eBiDwAA</XPD:REF>
-<XPD:REF name="Views[2]">VgAj+Bg2Fkeavv+iKSOLfAAA</XPD:REF>
-<XPD:REF name="Views[3]">TUWOmOVDLEyg3t3plW6PDAAA</XPD:REF>
-<XPD:REF name="Views[4]">f5gDRghdbE+nrncCP+m9uAAA</XPD:REF>
-<XPD:REF name="Views[5]">waUAQcPwlk2iBfEzhLL3OAAA</XPD:REF>
-<XPD:REF name="Views[6]">pqG7wV0NoE6FdcaLwDDMPQAA</XPD:REF>
-<XPD:REF name="Views[7]">j5vP7bQi90Ost8mjdXG2+gAA</XPD:REF>
+<XPD:REF name="Views[0]">f5gDRghdbE+nrncCP+m9uAAA</XPD:REF>
+<XPD:REF name="Views[1]">waUAQcPwlk2iBfEzhLL3OAAA</XPD:REF>
+<XPD:REF name="Views[2]">pqG7wV0NoE6FdcaLwDDMPQAA</XPD:REF>
+<XPD:REF name="Views[3]">j5vP7bQi90Ost8mjdXG2+gAA</XPD:REF>
+<XPD:REF name="Views[4]">hp7HoUZLwkKHkatD3HgBIAAA</XPD:REF>
+<XPD:REF name="Views[5]">sppPSkAzIUya5Z6R3eBiDwAA</XPD:REF>
+<XPD:REF name="Views[6]">VgAj+Bg2Fkeavv+iKSOLfAAA</XPD:REF>
+<XPD:REF name="Views[7]">TUWOmOVDLEyg3t3plW6PDAAA</XPD:REF>
 </XPD:OBJ>
 <XPD:OBJ name="OwnedElements[76]" type="UMLDependency" guid="MxSLQlRuo0SOgGhEAxXneAAA">
 <XPD:REF name="Namespace">RXNR2/W5rEijlmC3ZyeEWgAA</XPD:REF>
