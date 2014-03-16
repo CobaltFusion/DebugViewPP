@@ -1011,12 +1011,19 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 
 void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
 {
-	int item = GetNextItem(-1, LVIS_FOCUSED);
-	if (item < 0)
-		return;
+	std::map<std::string, int> processNames;
+	int item = -1;
+	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+	{
+		const auto& name = m_logFile[m_logLines[item].line].processName;
+		processNames[name] = 0;
+	}
 
-	const auto& name = m_logFile[m_logLines[item].line].processName;
-	m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
+	for (auto it=processNames.begin(); it != processNames.end(); ++it)
+	{
+		const auto& name = it->first;
+		m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
+	}
 	ApplyFilters();
 }
 
