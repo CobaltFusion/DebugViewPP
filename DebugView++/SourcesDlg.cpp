@@ -10,6 +10,7 @@
 #include <atlstr.h>
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogFilter.h"
+#include "DebugView++Lib/LogSource.h"
 #include "Resource.h"
 #include "SourcesDlg.h"
 
@@ -18,15 +19,15 @@ namespace debugviewpp {
 
 BEGIN_MSG_MAP_TRY(CSourcesDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
+	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CSourcesDlg::CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources)
+CSourcesDlg::CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources) : m_logsources(logsources)
 {
-	m_sourcesPage.SetLogSources(logsources);
 }
 
 void CSourcesDlg::ExceptionHandler()
@@ -36,29 +37,71 @@ void CSourcesDlg::ExceptionHandler()
 
 BOOL CSourcesDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-	SetDlgItemText(IDC_NAME, L"test");
+	m_grid.SubclassWindow(GetDlgItem(IDC_SOURCES_GRID));
+	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
+	m_grid.InsertColumn(1, L"Source", LVCFMT_LEFT, 336, 0);
+	m_grid.InsertColumn(2, L"Type", LVCFMT_LEFT, 60, 0);
+	m_grid.InsertColumn(3, L"", LVCFMT_LEFT, 16, 0);
+	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT);
 
-	m_tabCtrl.Attach(GetDlgItem(IDC_TAB));
-	m_tabCtrl.AddItem(L"Sources");
+	for (auto it=m_logsources.begin(); it != m_logsources.end(); ++it)
+	{
+		auto description = (*it)->GetDescription();
+		auto type = (*it)->GetSourceType();
+		auto typeName = WStr(SourceTypeToString(type));
 
-	CRect tabRect;
-	m_tabCtrl.GetWindowRect(&tabRect);
-	m_tabCtrl.AdjustRect(false, &tabRect);
-	m_tabCtrl.ScreenToClient(&tabRect);
-
-	CRect dlgRect;
-	GetClientRect(&dlgRect);
-	m_border.cx = dlgRect.Width() - tabRect.Width();
-	m_border.cy = dlgRect.Height() - tabRect.Height();
-
-	m_sourcesPage.Create(m_tabCtrl, tabRect);
-	m_sourcesPage.MoveWindow(&tabRect);
-	m_sourcesPage.ShowWindow(SW_SHOW);
+		int item = m_grid.GetItemCount();
+		m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", description.c_str()));
+		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", typeName.c_str()));
+		if (type == SourceType::System)
+			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
+		else
+			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+	}
 
 	CenterWindow(GetParent());
 	DlgResize_Init();
 	return TRUE;
 }
+
+LRESULT CSourcesDlg::OnClickItem(NMHDR* pnmh)
+{
+	auto& nmhdr = *reinterpret_cast<NMPROPERTYITEM*>(pnmh);
+
+	int iItem = -1;
+	int iSubItem = -1;
+	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 3)
+	{
+		if (GetSourceType(iItem) != SourceType::System)
+		{
+			m_grid.DeleteItem(iItem);
+			auto source = m_logsources[iItem];
+			m_logsourcesToDelete.push_back(source);
+			m_logsources.erase(m_logsources.begin()+iItem);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+bool CSourcesDlg::GetSourceEnable(int iItem) const
+{
+	CComVariant val;
+	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 0).GetValue(&val);
+	return val.boolVal != VARIANT_FALSE;
+}
+
+std::wstring CSourcesDlg::GetSourceText(int iItem) const
+{
+	return GetGridItemText(m_grid, iItem, 1);
+}
+
+SourceType::type CSourcesDlg::GetSourceType(int iItem) const
+{
+	return StringToSourceType(Str(GetGridItemText(m_grid, iItem, 2)));
+}
+
 
 void CSourcesDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
@@ -72,7 +115,7 @@ void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToDelete()
 {
-	return m_sourcesPage.GetSourcesToDelete();
+	return m_logsourcesToDelete;
 }
 
 } // namespace debugviewpp 

@@ -27,6 +27,7 @@ public:
 	void OnCloseCmd(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 private:
+	CHyperLink m_srclink;
 	CHyperLink m_link;
 };
 

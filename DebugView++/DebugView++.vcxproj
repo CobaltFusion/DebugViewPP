@@ -148,7 +148,6 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="RunDlg.cpp" />
-    <ClCompile Include="SourcesPage.cpp" />
     <ClCompile Include="SourcesDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
