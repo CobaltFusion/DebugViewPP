@@ -24,9 +24,12 @@ public:
 	virtual void Notify() = 0;
 	virtual Lines GetLines() = 0; // remove
 
-	SourceType::type GetSourceType();
+	std::wstring GetDescription() const;
+	void SetDescription(const std::wstring& description);
+	SourceType::type GetSourceType() const;
 
 private:
+	std::wstring m_description;
 	SourceType::type m_sourceType;
 };
 

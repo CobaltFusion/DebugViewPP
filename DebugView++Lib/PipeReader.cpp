@@ -18,6 +18,7 @@ PipeReader::PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName) 
 	m_pid(pid),
 	m_process(processName)
 {
+	SetDescription(wstringbuilder() << L"Piped from " << processName);
 }
 
 HANDLE PipeReader::GetHandle() const

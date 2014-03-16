@@ -22,7 +22,17 @@ LogSource::~LogSource()
 {
 }
 
-SourceType::type LogSource::GetSourceType()
+std::wstring LogSource::GetDescription() const
+{
+	return m_description;
+}
+
+void LogSource::SetDescription(const std::wstring& description)
+{
+	m_description = description;
+}
+
+SourceType::type LogSource::GetSourceType() const
 {
 	return m_sourceType;
 }

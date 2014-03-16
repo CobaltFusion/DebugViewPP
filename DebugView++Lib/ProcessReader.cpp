@@ -17,6 +17,7 @@ ProcessReader::ProcessReader(const std::wstring& pathName, const std::wstring& a
 	m_stdout(m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),
 	m_stderr(m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr")
 {
+	SetDescription(m_process.GetName() + L" stdout/stderr");
 }
 
 HANDLE ProcessReader::GetHandle() const

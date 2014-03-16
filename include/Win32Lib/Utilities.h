@@ -126,6 +126,18 @@ public:
 		return *this;
 	}
 
+	basic_stringbuilder& operator<<(const std::wstring& str)
+	{
+		m_ss << str.c_str();
+		return *this;
+	}
+
+	basic_stringbuilder& operator<<(const std::string& str)
+	{
+		m_ss << str.c_str();
+		return *this;
+	}
+
 	string_type str() const
 	{
 		return m_ss.str();

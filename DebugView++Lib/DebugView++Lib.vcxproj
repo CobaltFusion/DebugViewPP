@@ -85,6 +85,7 @@
     <ClInclude Include="..\include\DebugView++Lib\LineBuffer.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogFile.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogFilter.h" />
+    <ClInclude Include="..\include\DebugView++Lib\LogSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogSources.h" />
     <ClInclude Include="..\include\DebugView++Lib\MatchType.h" />
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />

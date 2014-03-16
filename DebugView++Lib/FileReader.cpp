@@ -21,6 +21,7 @@ FileReader::FileReader(const std::wstring& filename) :
 	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)),
 	m_thread(&FileReader::Run, this)
 {
+	SetDescription(filename);
 }
 
 FileReader::~FileReader()

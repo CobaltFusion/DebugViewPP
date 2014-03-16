@@ -65,51 +65,21 @@ BOOL CSourcesPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT);
 
 
-	//for (auto it=m_logsources.begin(); it != m_logsources.end(); ++it)
-	//{
+	for (auto it=m_logsources.begin(); it != m_logsources.end(); ++it)
+	{
+		auto description = (*it)->GetDescription();
+		auto type = (*it)->GetSourceType();
+		auto typeName = WStr(SourceTypeToString(type));
 
-	//	auto type = (*it)->GetSourceType();
-
-	//	int item = m_grid.GetItemCount();
-	//	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	//	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Win32 Messages"));
-	//	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
-	//	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
-	//}
-	//// test
-
-	// test
-	int item = m_grid.GetItemCount();
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Win32 Messages"));
-	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
-	m_grid.SelectItem(item);
-
-	++item;
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"Global Win32 Messages"));
-	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"System"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
-
-	++item;
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"c:\\temp\\somefile.txt"));
-	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"File"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
-
-	++item;
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"stdin"));
-	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"Pipe"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
-
-	++item;
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
-	m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", L"c:\\temp\\adk.exe:stdout"));
-	m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", L"Pipe"));
-	m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
-
+		int item = m_grid.GetItemCount();
+		m_grid.InsertItem(item, PropCreateCheckButton(L"", true));
+		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", description.c_str()));
+		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", typeName.c_str()));
+		if (type == SourceType::System)
+			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
+		else
+			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+	}
 
 	//UpdateGrid();
 	DlgResize_Init(false);
@@ -137,6 +107,9 @@ LRESULT CSourcesPageImpl::OnClickItem(NMHDR* pnmh)
 		if (GetSourceType(iItem) != SourceType::System)
 		{
 			m_grid.DeleteItem(iItem);
+			auto source = m_logsources[iItem];
+			m_deleteSources.push_back(source);
+			m_logsources.erase(m_logsources.begin()+iItem);
 			return TRUE;
 		}
 	}

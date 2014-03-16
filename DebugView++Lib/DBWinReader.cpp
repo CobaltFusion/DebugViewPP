@@ -39,6 +39,7 @@ DBWinReader::DBWinReader(bool global) :
 	m_dbWinBuffer(static_cast<const DbWinBuffer*>(m_mappedViewOfFile.Ptr())),
 	m_handleCacheTime(0.0)
 {
+	SetDescription(global ? L"Global Win32 Messages" : L"Win32 Messages");
 	m_lines.reserve(4000);
 	m_backBuffer.reserve(4000);
 	SetEvent(m_dbWinBufferReady.get());

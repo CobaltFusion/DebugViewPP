@@ -74,6 +74,9 @@
     <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\DebugView++Lib\LogSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
