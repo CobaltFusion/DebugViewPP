@@ -1219,7 +1219,6 @@ void CLogView::Add(int line, const Message& msg)
 	if (IsClearMessage(msg))
 	{
 		ClearView();
-		return;
 	}
 
 	if (!IsIncluded(msg))
