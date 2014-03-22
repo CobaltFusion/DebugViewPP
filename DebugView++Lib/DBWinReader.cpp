@@ -29,8 +29,8 @@ Handle CreateDBWinBufferMapping(bool global)
 	return hMap;
 }
 
-DBWinReader::DBWinReader(bool global) :
-	LogSource(SourceType::System),
+DBWinReader::DBWinReader(LineBuffer& linebuffer, bool global) :
+	LogSource(SourceType::System, linebuffer),
 	m_autoNewLine(true),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
@@ -48,11 +48,6 @@ DBWinReader::DBWinReader(bool global) :
 DBWinReader::~DBWinReader()
 {
 	Abort();
-}
-
-boost::signals2::connection DBWinReader::Connect(const std::function<OnDBWinMessage>& onDBWinMessage)
-{
-	return m_onDBWinMessage.connect(onDBWinMessage);
 }
 
 bool DBWinReader::AtEnd() const

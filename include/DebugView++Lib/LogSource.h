@@ -13,10 +13,11 @@
 namespace fusion {
 namespace debugviewpp {
 
+class LineBuffer;
 class LogSource
 {
 public:
-	LogSource(SourceType::type sourceType);
+	LogSource(SourceType::type sourceType, LineBuffer& linebuffer);
 	virtual ~LogSource();
 
 	virtual bool AtEnd() const = 0;
@@ -27,8 +28,10 @@ public:
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);
 	SourceType::type GetSourceType() const;
+	LineBuffer& GetLinebuffer() const;
 
 private:
+	LineBuffer& m_linebuffer;
 	std::wstring m_description;
 	SourceType::type m_sourceType;
 };

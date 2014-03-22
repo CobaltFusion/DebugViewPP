@@ -35,7 +35,7 @@ typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, H
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(bool global);
+	explicit DBWinReader(LineBuffer& linebuffer, bool global);
 	~DBWinReader();
 
 	virtual bool AtEnd() const;
@@ -76,7 +76,6 @@ private:
 	const DbWinBuffer* m_dbWinBuffer;
 
 	ProcessHandleCache m_handleCache;
-	boost::signals2::signal<OnDBWinMessage> m_onDBWinMessage;
 };
 
 } // namespace debugviewpp 

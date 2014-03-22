@@ -16,7 +16,7 @@ namespace debugviewpp {
 class ProcessReader : public LogSource
 {
 public:
-	ProcessReader(const std::wstring& pathName, const std::wstring& args);
+	ProcessReader(LineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;

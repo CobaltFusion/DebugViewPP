@@ -376,7 +376,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 
 	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
 	{
-		AddDBLogReader(file);
+		m_logSources.AddDBLogReader(file);
 	}
 	else if (iequals(ext, L".exe"))
 	{
@@ -386,12 +386,12 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
 		cdbg << "Started capturing output of " << Str(file) << "\n";
-		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
+		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
 	else
 	{
 		cdbg << "Started tailing " << Str(file) << "\n";
-		AddFileReader(file);
+		m_logSources.AddFileReader(file);
 	}
 }
 
@@ -769,28 +769,13 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		Load(std::wstring(dlg.m_szFileName));
 }
 
-void CMainFrame::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
-{
-	m_logSources.Add(make_unique<ProcessReader>(pathName, args));
-}
-
-void CMainFrame::AddFileReader(const std::wstring& filename)
-{
-	m_logSources.Add(make_unique<FileReader>(filename));
-}
-
-void CMainFrame::AddDBLogReader(const std::wstring& filename)
-{
-	m_logSources.Add(make_unique<DBLogReader>(filename));
-}
-
 void CMainFrame::Run(const std::wstring& pathName)
 {
 	if (!pathName.empty())
 		m_runDlg.SetPathName(pathName);
 
 	if (m_runDlg.DoModal() == IDOK)
-		AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
+		m_logSources.AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
 }
 
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -840,7 +825,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
 	DWORD pid = GetParentProcessId();
-	m_logSources.Add(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str()));
+	m_logSources.AddPipeReader(pid, hPipe);
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -937,8 +922,7 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			m_pLocalReader = std::make_shared<DBWinReader>(false);
-			m_logSources.Add(m_pLocalReader);
+			m_pLocalReader = m_logSources.AddDBWinReader(false);
 		}
 		catch (std::exception&)
 		{
@@ -955,8 +939,7 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			m_pGlobalReader = std::make_shared<DBWinReader>(true);
-			m_logSources.Add(m_pGlobalReader);
+			m_pGlobalReader = m_logSources.AddDBWinReader(true);
 		}
 		catch (std::exception&)
 		{

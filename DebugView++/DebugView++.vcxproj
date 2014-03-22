@@ -81,11 +81,14 @@
       <AdditionalLibraryDirectories>..\Libraries\boost\lib\;$(Outdir)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Message>Create release zip</Message>
-      <Command>zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
+      <Command>
+      </Command>
       <Message>Update version numbers</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>

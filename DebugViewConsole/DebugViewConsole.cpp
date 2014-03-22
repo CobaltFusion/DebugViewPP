@@ -13,6 +13,7 @@
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
 
 namespace fusion {
@@ -22,9 +23,11 @@ void ShowMessages()
 {
 	std::vector<std::unique_ptr<LogSource>> sources;
 	
-	sources.push_back(make_unique<DBWinReader>(false));
+	LineBuffer buffer(64*1024);
+
+	sources.push_back(make_unique<DBWinReader>(buffer, false));
 	if (HasGlobalDBWinReaderRights())
-		sources.push_back(make_unique<DBWinReader>(true));
+		sources.push_back(make_unique<DBWinReader>(buffer, true));
 
 	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
 	for (;;)
@@ -61,29 +64,28 @@ void OnMessage(double time, FILETIME systemTime, DWORD processId, HANDLE process
 	std::cout << processId << "\t" << processName << "\t" << message << "\n";
 }
 
-void Method2()
-{
-	boost::signals2::connection connection1;
-	boost::signals2::connection connection2;
-
-	LogSources sources(false);
-	//boost::thread t([&]() { Sleep(5000); sources.Abort(); });  // test stopping after 5 seconds
-
-	auto dbwinlistener = make_unique<DBWinReader>(false);
-	connection1 = dbwinlistener->Connect(&OnMessage);
-	sources.Add(std::move(dbwinlistener));			
-
-	std::cout << "Logging DBWin32 Messages to stdout...\n";
-
-	if (HasGlobalDBWinReaderRights())
-	{
-		auto globalDBbwinlistener = make_unique<DBWinReader>(true);
-		connection2 = globalDBbwinlistener->Connect(&OnMessage);
-		sources.Add(std::move(globalDBbwinlistener));
-		std::cout << "Logging Global DBWin32 Messages to stdout...\n";
-	}
-	sources.Listen();
-}
+//void Method2()
+//{
+//	boost::signals2::connection connection1;
+//	boost::signals2::connection connection2;
+//	LineBuffer buffer(64*1024);
+//
+//	LogSources sources(false);
+//	//boost::thread t([&]() { Sleep(5000); sources.Abort(); });  // test stopping after 5 seconds
+//
+//	auto dbwinlistener = sources.AddDBWinReader(buffer, false);
+//	connection1 = dbwinlistener->Connect(&OnMessage);
+//
+//	std::cout << "Logging DBWin32 Messages to stdout...\n";
+//
+//	if (HasGlobalDBWinReaderRights())
+//	{
+//		auto globalDBbwinlistener = sources.AddDBWinReader(buffer, true);
+//		connection2 = globalDBbwinlistener->Connect(&OnMessage);
+//		std::cout << "Logging Global DBWin32 Messages to stdout...\n";
+//	}
+//	sources.Listen();
+//}
 
 } // namespace debugviewpp
 } // namespace fusion

@@ -157,9 +157,6 @@ private:
 	void SetTitle(const std::wstring& title = L"");
 	void HandleDroppedFile(const std::wstring& file);
 	void Run(const std::wstring& pathName = L"");
-	void AddProcessReader(const std::wstring& pathName, const std::wstring& args);
-	void AddFileReader(const std::wstring& filename);
-	void AddDBLogReader(const std::wstring& filename);
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;

@@ -6,16 +6,16 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "ProcessReader.h"
+#include "DebugView++Lib/ProcessReader.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-ProcessReader::ProcessReader(const std::wstring& pathName, const std::wstring& args) :
-	LogSource(SourceType::Pipe),
+ProcessReader::ProcessReader(LineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
+	LogSource(SourceType::Pipe, linebuffer),
 	m_process(pathName, args),
-	m_stdout(m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),
-	m_stderr(m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr")
+	m_stdout(linebuffer, m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),
+	m_stderr(linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr")
 {
 	SetDescription(m_process.GetName() + L" stdout/stderr");
 }

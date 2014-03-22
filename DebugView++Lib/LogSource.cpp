@@ -9,11 +9,13 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/LogSource.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-LogSource::LogSource(SourceType::type sourceType) : m_sourceType(sourceType)
+LogSource::LogSource(SourceType::type sourceType, LineBuffer& linebuffer) : 
+	m_sourceType(sourceType), m_linebuffer(linebuffer)
 {
 
 }
@@ -36,6 +38,12 @@ SourceType::type LogSource::GetSourceType() const
 {
 	return m_sourceType;
 }
+
+LineBuffer& LogSource::GetLinebuffer() const
+{
+	return m_linebuffer;
+}
+
 
 } // namespace debugviewpp 
 } // namespace fusion

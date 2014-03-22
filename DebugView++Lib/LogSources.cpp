@@ -9,6 +9,12 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/ProcessReader.h"
+#include "DebugView++Lib/PipeReader.h"
+#include "DebugView++Lib/FileReader.h"
+#include "DebugView++Lib/DBWinReader.h"
+#include "DebugView++Lib/ProcessInfo.h"
+#include "Win32Lib/utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -29,7 +35,8 @@ LogSources::LogSources(bool startListening) :
 	m_end(false),
 	m_sourcesDirty(false),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
-	m_waitHandles(GetWaitHandles())
+	m_waitHandles(GetWaitHandles()),
+	m_linebuffer(64*1024)
 {
 	if (startListening)
 	{
@@ -128,6 +135,41 @@ Lines LogSources::GetLines()
 			++it;
 	}
 	return lines;
+}
+
+std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
+{
+	auto dbwinreader = std::make_shared<DBWinReader>(m_linebuffer, global);
+	Add(dbwinreader);
+	return dbwinreader;
+}
+
+std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
+{
+	auto processReader = std::make_shared<ProcessReader>(m_linebuffer, pathName, args);
+	Add(processReader);
+	return processReader;
+}
+
+std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
+{
+	auto filereader = std::make_shared<FileReader>(m_linebuffer, filename);
+	Add(filereader);
+	return filereader;
+}
+
+std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
+{
+	auto dblogreader = std::make_shared<DBLogReader>(m_linebuffer, filename);
+	Add(dblogreader);
+	return dblogreader;
+}
+
+std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
+{
+	auto processName = Str(ProcessInfo::GetProcessNameByPid(pid)).str();
+	auto pipeReader = std::make_shared<PipeReader>(m_linebuffer, hPipe, pid, processName);
+	return pipeReader;
 }
 
 } // namespace debugviewpp 

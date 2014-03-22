@@ -13,8 +13,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-FileReader::FileReader(const std::wstring& filename) :
-	LogSource(SourceType::File),
+FileReader::FileReader(LineBuffer& linebuffer, const std::wstring& filename) :
+	LogSource(SourceType::File, linebuffer),
 	m_end(false),
 	m_filename(filename),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
@@ -110,8 +110,8 @@ Lines FileReader::GetLines()
 	return lines;
 }
 
-DBLogReader::DBLogReader(const std::wstring& filename) : 
-	FileReader(filename),
+DBLogReader::DBLogReader(LineBuffer& linebuffer, const std::wstring& filename) : 
+	FileReader(linebuffer, filename),
 	m_time(GetSystemTimeAsFileTime())
 {
 }

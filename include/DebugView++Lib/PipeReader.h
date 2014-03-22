@@ -19,7 +19,7 @@ class PipeReader :
 	public LogSource
 {
 public:
-	PipeReader(HANDLE hPipe, DWORD pid, const std::string& processName);
+	PipeReader(LineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName);
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
