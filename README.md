@@ -37,11 +37,9 @@ Download Release v1.2
 [Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
 
-Older release for reference only, please report issue after testing v1.2 first.
-----------------
+Older release v1.1 for reference only, please report issues after testing v1.2 first.
 
 [Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
-
 [Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
 
 
