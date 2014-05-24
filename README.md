@@ -32,7 +32,7 @@ New features in v1.2
 Download Latest
 ----------------
 
-[DebugView v1.2 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
+[DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 
 [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
