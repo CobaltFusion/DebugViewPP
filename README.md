@@ -29,18 +29,18 @@ New features in v1.2
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
 
-Download Release v1.2
+Download Latest
 ----------------
 
-[Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
+[DebugView v1.2 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 
-[Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
+[DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
 
-Older release v1.1 for reference only, please report issues after testing v1.2 first.
+Older v1.1 for reference only, please report issues after testing v1.2 first.
 
-[Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
-[Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
+[DebugView v1.1 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
+[DebugView v1.1 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
 
 
 Documentation
