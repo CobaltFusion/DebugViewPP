@@ -51,13 +51,15 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 {
 	using namespace indexedstorage;
 
-	size_t testSize = 10000;
-	auto testMax = testSize - 1;
+	// the memory allocator will mess up test results is < 64 kb is allocated
+	// make sure SnappyStorage allocates at least ~500kb for reproducable results
+	
+	// this test is indicative only, on average the SnappyStorage should allocate at most 50% of memory compared to a normal vector.
+	// since GetTestString returns an overly simpe-to-compress string, it will appear to perform insanely good.
 
-	std::default_random_engine generator;
-	std::uniform_int_distribution<int> distribution(0, testMax);
-	SnappyStorage s;
+	size_t testSize = 100000;	
 	VectorStorage v;
+	SnappyStorage s;
 
 	size_t m0 = ProcessInfo::GetPrivateBytes();
 
@@ -65,16 +67,17 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 		v.Add(GetTestString(i));
 
 	size_t m1 = ProcessInfo::GetPrivateBytes();
-	size_t required1 = m1 - m0;
-	BOOST_MESSAGE("VectorStorage requires: " << required1/1024 << " kB");
+	size_t usedByVector = m1 - m0;
+	BOOST_MESSAGE("VectorStorage requires: " << usedByVector/1024 << " kB");
 
-	for (size_t i = 0; i < 100000; ++i)
+	for (size_t i = 0; i < testSize; ++i)
 		s.Add(GetTestString(i));
 
 	size_t m2 = ProcessInfo::GetPrivateBytes();
-	size_t required2 = m2 - m1;
-	BOOST_MESSAGE("SnappyStorage requires: " << required2/1024 << " kB (" << (100*required2)/required1 << "%)");
-	BOOST_REQUIRE_GT(0.50*required1, required2);
+	size_t usedBySnappy = m2 - m1;
+
+	BOOST_MESSAGE("SnappyStorage requires: " << usedBySnappy/1024 << " kB (" << (100*usedBySnappy)/usedByVector << "%)");
+	BOOST_REQUIRE_GT(0.50*usedByVector, usedBySnappy);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
