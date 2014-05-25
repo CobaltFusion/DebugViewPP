@@ -54,21 +54,19 @@ public:
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 
 private:
-	LogSourcesHandles GetWaitHandles();
-	void Process(int index);
+	LogSourcesHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
+	std::vector<std::shared_ptr<LogSource>> GetSources();
+	void Process(std::shared_ptr<LogSource>);
 	void Add(std::shared_ptr<LogSource> source);
 
 	boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
 	bool m_end;
-	bool m_sourcesDirty;
-	LogSourcesHandles m_waitHandles;
-	// make sure the thread is last to initialize
-	boost::thread m_thread;
-
 	LineBuffer m_linebuffer;
 
+	// make sure the thread is last to initialize
+	boost::thread m_thread;
 };
 
 } // namespace debugviewpp 

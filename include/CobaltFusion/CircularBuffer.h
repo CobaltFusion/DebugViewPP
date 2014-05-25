@@ -55,7 +55,8 @@ protected:
 	}
 
 	static int GetPowerOfTwo(int size);
-	virtual void WaitForReader();
+	void WaitForReader();
+	virtual void WaitForReaderTimeout();
 
 private:
 	void AssignBuffer(std::unique_ptr<char> buffer, size_t size, size_t readOffset, size_t writeOffset);

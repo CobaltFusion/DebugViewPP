@@ -135,9 +135,14 @@ void CircularBuffer::WaitForReader()
 		bool result = m_triggerRead.timed_wait(lock, boost::posix_time::seconds(1), predicate);
 		if (!result)
 		{
-			throw std::exception("timeout");	// only so I can test without multiple threads
+			WaitForReaderTimeout();
 		}
 	}
+}
+
+void CircularBuffer::WaitForReaderTimeout()
+{
+	// this method is overridden in a singlethreaded unittest
 }
 
 void CircularBuffer::NotifyWriter()

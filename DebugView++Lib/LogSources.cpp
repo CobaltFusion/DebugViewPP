@@ -16,6 +16,11 @@
 #include "DebugView++Lib/ProcessInfo.h"
 #include "Win32Lib/utilities.h"
 
+// class Logsources heeft vector<LogSource> en start in zijn constructor een thread voor LogSources::Listen()
+// - Listen() vraagt GetHandle() aan elke LogSource in m_sources en roept Notify() op de LogSource waarvan de handle gesignaled wordt.
+// - the LogSource::Notify leest input en schrijft deze naar de linebuffer die hij bij constructie gekregen heeft.
+// 
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -33,9 +38,7 @@ std::vector<std::shared_ptr<LogSource>> LogSources::Get()
 
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
-	m_sourcesDirty(false),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
-	m_waitHandles(GetWaitHandles()),
 	m_linebuffer(64*1024)
 {
 	if (startListening)
@@ -53,7 +56,6 @@ void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_sources.push_back(source);
-	m_sourcesDirty = true;
 	SetEvent(m_updateEvent.get());
 }
 
@@ -70,51 +72,68 @@ void LogSources::Abort()
 	m_thread.join();
 }
 
-LogSourcesHandles LogSources::GetWaitHandles()
+LogSourcesHandles LogSources::GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const
 {
-	boost::mutex::scoped_lock lock(m_mutex);
 	LogSourcesHandles handles;
-	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
+	for (auto i = logsources.begin(); i != logsources.end(); i++)
 	{
 		auto handle = (*i)->GetHandle();
 		if (handle)
 			handles.push_back(handle);
 	}
-	handles.push_back(m_updateEvent.get());
-
 	return handles;
+}
+
+std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
+{
+	boost::mutex::scoped_lock lock(m_mutex);
+	return m_sources;
 }
 
 void LogSources::Listen()
 {
 	for (;;)
 	{
-		m_waitHandles = GetWaitHandles();
+		auto sources = GetSources();
+		auto waitHandles = GetWaitHandles(sources);
+		auto updateEventIndex = waitHandles.size(); 
+		waitHandles.push_back(m_updateEvent.get());
+
 		for (;;)
 		{
-			auto res = WaitForAnyObject(m_waitHandles, INFINITE);
+			auto res = WaitForAnyObject(waitHandles, INFINITE);
 			if (m_end)
 				break;
 			if (res.signaled)
-				if (res.index == (m_waitHandles.size()-1))
+				if (res.index == updateEventIndex)
 					break;
 				else
-					Process(res.index);
+				{
+					auto logsource = sources[res.index];
+					Process(logsource);
+				}
 		}
 		if (m_end)
 			break;
 	}
 }
 
-void LogSources::Process(int index)
+void LogSources::Process(std::shared_ptr<LogSource> logsource)
 {
-	auto& logsource = m_sources[index];
 	logsource->Notify();
 	if (logsource->AtEnd())
-		m_sources.erase(m_sources.begin() + index);
+	{
+		Remove(logsource);
+	}
 }
 
+#ifdef ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
 Lines LogSources::GetLines()
+{
+	return m_linebuffer.GetLines();
+}
+#else
+Lines LogSources::GetLines()			// depricated, remove
 {
 	if (m_sources.empty())
 		return Lines();
@@ -136,7 +155,7 @@ Lines LogSources::GetLines()
 	}
 	return lines;
 }
-
+#endif
 std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
 {
 	auto dbwinreader = std::make_shared<DBWinReader>(m_linebuffer, global);

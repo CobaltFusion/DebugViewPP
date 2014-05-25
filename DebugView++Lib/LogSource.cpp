@@ -39,11 +39,10 @@ SourceType::type LogSource::GetSourceType() const
 	return m_sourceType;
 }
 
-LineBuffer& LogSource::GetLinebuffer() const
+void LogSource::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
 {
-	return m_linebuffer;
+	m_linebuffer.Add(time, systemTime, handle, message);
 }
-
 
 } // namespace debugviewpp 
 } // namespace fusion

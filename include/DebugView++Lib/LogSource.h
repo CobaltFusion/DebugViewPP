@@ -10,6 +10,8 @@
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/SourceType.h"
 
+//#define ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -23,12 +25,12 @@ public:
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
 	virtual void Notify() = 0;
-	virtual Lines GetLines() = 0; // remove
+	virtual Lines GetLines() = 0;		// replaced by LogSources::GetLines(), remove once circular buffer is completed
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);
 	SourceType::type GetSourceType() const;
-	LineBuffer& GetLinebuffer() const;
+	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 
 private:
 	LineBuffer& m_linebuffer;

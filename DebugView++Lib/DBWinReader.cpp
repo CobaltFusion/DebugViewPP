@@ -91,6 +91,14 @@ void DBWinReader::Abort()
 {
 }
 
+#ifdef ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
+void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
+{
+	LogSource::Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, text);
+}
+
+#else
+
 void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 {
 	DBWinMessage line;
@@ -101,14 +109,15 @@ void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 	line.message = text;
 	AddLine(line);
 }
+#endif
 
-void DBWinReader::AddLine(const DBWinMessage& DBWinMessage)
+void DBWinReader::AddLine(const DBWinMessage& DBWinMessage)		// depricated, remove
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_lines.push_back(DBWinMessage);
 }
 
-Lines DBWinReader::GetLines()
+Lines DBWinReader::GetLines()									// depricated, remove
 {
 	m_backBuffer.clear();
 	{
