@@ -24,26 +24,24 @@ These are some of its features:
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
 
-Bleeding Edge features:
+New features in v1.2
 - Commandline version
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
 
-
-Release download
+Download Latest
 ----------------
 
-[Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
+[DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 
-[Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
+[DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
-Bleeding Edge download 
-----------------------
-(may not be the git head version, but its close :)
 
-[Zipped executable](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++.zip)
+Older v1.1 for reference only, please report issues after testing v1.2 first.
 
-[Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++.msi)
+[DebugView v1.1 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
+[DebugView v1.1 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
+
 
 Documentation
 --------
