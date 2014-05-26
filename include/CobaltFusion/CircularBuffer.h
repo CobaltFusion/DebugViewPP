@@ -61,8 +61,8 @@ protected:
 private:
 	void AssignBuffer(std::unique_ptr<char> buffer, size_t size, size_t readOffset, size_t writeOffset);
 
-	size_t m_size;
-	std::unique_ptr<char> m_buffer;
+	size_t m_size;						// important: m_buffer must be initialized after m_size
+	std::unique_ptr<char> m_buffer;		//
 	char* m_pBegin;
 	char* m_pEnd;
 	size_t m_readOffset;

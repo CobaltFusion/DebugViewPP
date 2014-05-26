@@ -13,12 +13,16 @@
 namespace fusion {
 namespace debugviewpp {
 
-LineBuffer::LineBuffer(size_t size) : CircularBuffer(size)
+const size_t maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
+const size_t minBufferSize = 10 * maxMessageSize;
+
+LineBuffer::LineBuffer(size_t size) : CircularBuffer(std::max(size,minBufferSize))
 {
 }
 
 bool LineBuffer::Full() const
 {
+	std::cerr << "buffersize: " << CircularBuffer::GetCount() << "/" << CircularBuffer::Size() << "\n";
 	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
 	return (maxMessageSize > GetFree());
 }
@@ -48,7 +52,7 @@ Lines LineBuffer::GetLines()
 		lines.push_back(Line(time, filetime, pid, processName, message));
 	}
 	NotifyWriter();
-	return Lines();
+	return lines;
 }
 
 } // namespace debugviewpp

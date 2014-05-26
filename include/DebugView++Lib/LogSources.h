@@ -22,6 +22,7 @@ class ProcessReader;
 class FileReader;
 class DBLogReader;
 class PipeReader;
+class TestSource;
 
 struct LogSourceInfo
 {
@@ -45,19 +46,19 @@ public:
 	void Abort();
 	Lines GetLines();
 
-	std::vector<std::shared_ptr<LogSource>> Get();
+	std::vector<std::shared_ptr<LogSource>> GetSources();
 
 	std::shared_ptr<DBWinReader> AddDBWinReader(bool global);
 	std::shared_ptr<ProcessReader> AddProcessReader(const std::wstring& pathName, const std::wstring& args);
 	std::shared_ptr<FileReader> AddFileReader(const std::wstring& filename);
 	std::shared_ptr<DBLogReader> AddDBLogReader(const std::wstring& filename);
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
+	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
 
 private:
-	LogSourcesHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
-	std::vector<std::shared_ptr<LogSource>> GetSources();
-	void Process(std::shared_ptr<LogSource>);
 	void Add(std::shared_ptr<LogSource> source);
+	LogSourcesHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
+	void Process(std::shared_ptr<LogSource>);
 
 	boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;

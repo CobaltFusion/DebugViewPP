@@ -13,6 +13,7 @@
 #include "DebugView++Lib/PipeReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/DBWinReader.h"
+#include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "Win32Lib/utilities.h"
 
@@ -31,8 +32,9 @@ LogSourceInfo::LogSourceInfo(HANDLE handle, LogSource& logsource) :
 
 }
 
-std::vector<std::shared_ptr<LogSource>> LogSources::Get()
+std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
 {
+	boost::mutex::scoped_lock lock(m_mutex);
 	return m_sources;
 }
 
@@ -82,12 +84,6 @@ LogSourcesHandles LogSources::GetWaitHandles(std::vector<std::shared_ptr<LogSour
 			handles.push_back(handle);
 	}
 	return handles;
-}
-
-std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
-{
-	boost::mutex::scoped_lock lock(m_mutex);
-	return m_sources;
 }
 
 void LogSources::Listen()
@@ -162,6 +158,14 @@ std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
 	Add(dbwinreader);
 	return dbwinreader;
 }
+
+std::shared_ptr<TestSource> LogSources::AddTestSource()
+{
+	auto testsource = std::make_shared<TestSource>(m_linebuffer);
+	Add(testsource);
+	return testsource;
+}
+
 
 std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {

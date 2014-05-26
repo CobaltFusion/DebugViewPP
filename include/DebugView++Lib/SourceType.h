@@ -14,7 +14,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-struct SourceType
+struct SourceType		// the SourceType is for UI indication
 {
 	enum type
 	{

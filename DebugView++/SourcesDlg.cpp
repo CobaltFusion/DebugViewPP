@@ -77,7 +77,7 @@ LRESULT CSourcesDlg::OnClickItem(NMHDR* pnmh)
 		{
 			m_grid.DeleteItem(iItem);
 			auto source = m_logsources[iItem];
-			m_logsourcesToDelete.push_back(source);
+			m_logsourcesToRemove.push_back(source);
 			m_logsources.erase(m_logsources.begin()+iItem);
 			return TRUE;
 		}
@@ -113,9 +113,9 @@ void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
-std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToDelete()
+std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToRemove()
 {
-	return m_logsourcesToDelete;
+	return m_logsourcesToRemove;
 }
 
 } // namespace debugviewpp 

@@ -40,7 +40,7 @@ public:
 	
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
-	std::vector<std::shared_ptr<LogSource>> GetSourcesToDelete();
+	std::vector<std::shared_ptr<LogSource>> GetSourcesToRemove();
 
 private:
 	bool GetSourceEnable(int iItem) const;
@@ -49,7 +49,7 @@ private:
 
 	CPropertyGridCtrl m_grid;
 	std::vector<std::shared_ptr<LogSource>> m_logsources;
-	std::vector<std::shared_ptr<LogSource>> m_logsourcesToDelete;
+	std::vector<std::shared_ptr<LogSource>> m_logsourcesToRemove;
 };
 
 } // namespace debugviewpp 
