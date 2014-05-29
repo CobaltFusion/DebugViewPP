@@ -20,10 +20,33 @@ public:
 
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 	Lines GetLines();
-
-protected:
-	virtual bool Full() const;
+private:
+	template <class T> T Read();
+	template <class T> void Write(T value);
 };
+
+template <class T> 
+T LineBuffer::Read()
+{
+	T value;
+	auto p = (char*) &value;
+	for (int i=0; i<sizeof(T); ++i)
+		*p = CircularBuffer::Read();
+	return value;
+}
+
+template <class T> 
+void LineBuffer::Write(T value)
+{
+	auto p = (char*) &value;
+	//std::cerr << "  store " << sizeof(T) << " bytes.\n";
+	for (int i=0; i<sizeof(T); ++i)
+	{
+		if (Full())
+			WaitForReader();
+		CircularBuffer::Write(p[i]);
+	}
+}
 
 } // namespace debugviewpp 
 } // namespace fusion

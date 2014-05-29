@@ -18,6 +18,7 @@
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/TestSource.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -27,6 +28,34 @@ BOOST_AUTO_TEST_SUITE(DebugViewPlusPlusLib)
 std::string GetTestString(int i)
 {
 	return stringbuilder() << "BB_TEST_ABCDEFGHI_EE_" << i;
+}
+
+class TestLineBuffer : public LineBuffer
+{
+public:
+	TestLineBuffer(size_t size) : LineBuffer(size) {}
+
+	void WaitForReaderTimeout()
+	{
+		throw std::exception("read timeout");
+	}
+};
+
+BOOST_AUTO_TEST_CASE(LineBufferTest)
+{
+	TestLineBuffer buffer(500);
+	Timer timer;
+
+	for (int j=0; j< 1000; ++j)
+	{
+		for (int i=0; i<17; ++i)
+		{
+			buffer.Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "test");
+		}
+
+		auto lines = buffer.GetLines();
+		BOOST_REQUIRE_EQUAL(lines.size(), 17);
+	}
 }
 
 //BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)

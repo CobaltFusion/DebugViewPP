@@ -28,9 +28,9 @@ public:
 	virtual size_t GetFree() const;
 	virtual size_t GetCount() const;
 
-	template <class T> T Read();
+	char Read();
 	std::string ReadStringZ();
-	template <class T> void Write(T type);
+	void Write(char c);
 	void WriteStringZ(const char* message);
 
 	void Clear();
@@ -39,19 +39,29 @@ public:
 protected:
     void NotifyWriter();
 
-	size_t PtrAdd(size_t value, size_t add) const
+	size_t NextPosition(size_t offset) const
 	{
-		return ((value + add) & (m_size-1));
+		return offset+1 == m_size ? 0 : offset+1;
 	}
 
-	const char* ReadPointer()
+	const char* ReadPointer() const
 	{
 		return m_buffer.get() + m_readOffset;
 	}
 
-	char* WritePointer()
+	char* WritePointer() const
 	{
 		return m_buffer.get() + m_writeOffset;
+	}
+
+	void IncreaseReadPointer()
+	{
+		m_readOffset = NextPosition(m_readOffset);
+	}
+
+	void IncreaseWritePointer()
+	{
+		m_writeOffset = NextPosition(m_writeOffset);
 	}
 
 	static int GetPowerOfTwo(int size);
@@ -63,28 +73,11 @@ private:
 
 	size_t m_size;						// important: m_buffer must be initialized after m_size
 	std::unique_ptr<char> m_buffer;		//
-	char* m_pBegin;
-	char* m_pEnd;
 	size_t m_readOffset;
 	size_t m_writeOffset;
-
 	boost::condition_variable m_triggerRead;
 };
 
-template <class T> 
-T CircularBuffer::Read()
-{
-	auto pBuffer = (T*) m_buffer.get() + m_readOffset;
-	m_readOffset = PtrAdd(m_readOffset, sizeof(T));
-	return *pBuffer;
-}
 
-template <class T> 
-void CircularBuffer::Write(T value)
-{
-	auto pBuffer = (T*) m_buffer.get() + m_writeOffset;
-	*pBuffer = value;
-	m_writeOffset = PtrAdd(m_writeOffset, sizeof(T));
-}
 
 } // namespace fusion

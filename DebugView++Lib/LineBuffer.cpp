@@ -13,24 +13,12 @@
 namespace fusion {
 namespace debugviewpp {
 
-const size_t maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
-const size_t minBufferSize = 10 * maxMessageSize;
-
-LineBuffer::LineBuffer(size_t size) : CircularBuffer(std::max(size,minBufferSize))
+LineBuffer::LineBuffer(size_t size) : CircularBuffer(size)
 {
-}
-
-bool LineBuffer::Full() const
-{
-	std::cerr << "buffersize: " << CircularBuffer::GetCount() << "/" << CircularBuffer::Size() << "\n";
-	const long maxMessageSize = sizeof(double) + sizeof(FILETIME) + sizeof(HANDLE) + sizeof(DbWinBuffer) + 1;
-	return (maxMessageSize > GetFree());
 }
 
 void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
 {
-	if (Full())
-		WaitForReader();
 	Write(time);
 	Write(systemTime);
 	Write(handle);

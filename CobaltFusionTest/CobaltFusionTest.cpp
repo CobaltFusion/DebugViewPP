@@ -69,13 +69,13 @@ BOOST_AUTO_TEST_CASE(CircularBufferInitialLevels)
 	BOOST_CHECK(buffer.Empty());
 	BOOST_CHECK(!buffer.Full());
 	for (size_t i = 0; i < buffer.Size() - 1; ++i)
-		buffer.Write<char>(1);
+		buffer.Write(1);
 
 	BOOST_CHECK(!buffer.Empty());
 	BOOST_CHECK(buffer.Full());
 
 	for (size_t i = 0; i < buffer.Size() - 1; ++i)
-		buffer.Read<char>();
+		buffer.Read();
 
 	BOOST_CHECK(buffer.Empty());
 	BOOST_CHECK(!buffer.Full());
@@ -91,12 +91,12 @@ BOOST_AUTO_TEST_CASE(CircularBufferCycle)
 	{
 		BOOST_CHECK(buffer.Empty());
 		for (int i = 0; i < 17; ++i)
-			buffer.Write<char>(1);
+			buffer.Write(1);
 
 		BOOST_CHECK(!buffer.Empty());
 
 		for (int i = 0; i < 17; ++i)
-			buffer.Read<char>();
+			buffer.Read();
 
 		BOOST_CHECK(buffer.Empty());
 	}

@@ -52,10 +52,8 @@ namespace fusion {
 
 
 CircularBuffer::CircularBuffer(size_t size) :
-	m_size(GetPowerOfTwo(size)),
-	m_buffer(new char[m_size]),
-	m_pBegin(m_buffer.get()),
-	m_pEnd(m_pBegin + m_size),
+	m_size(size),
+	m_buffer(new char[size]),
 	m_readOffset(0),
 	m_writeOffset(0)
 {
@@ -82,7 +80,6 @@ size_t CircularBuffer::Size() const
 	return m_size;
 }
 
-
 bool CircularBuffer::Empty() const
 {
 	return m_readOffset == m_writeOffset;
@@ -104,13 +101,15 @@ size_t CircularBuffer::GetCount() const
 
 bool CircularBuffer::Full() const
 {
-	return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
+	//std::cerr << "full: " << m_writeOffset << " ?= " << m_readOffset;
+	//std::cerr << "full: " << NextPosition(m_writeOffset) << " ?= " << m_readOffset;
+	return NextPosition(m_writeOffset) == m_readOffset; // actually full
 }
 
 std::string CircularBuffer::ReadStringZ()
 {
 	std::string message;
-	while (auto ch = Read<char>())
+	while (auto ch = Read())
 	{
 		message.push_back(ch);
 	}
@@ -121,7 +120,7 @@ void CircularBuffer::WriteStringZ(const char* message)
 {
 	for (size_t i=0; i < strlen(message); ++i)
 		Write(message[i]);
-	Write(char(0));
+	Write(0);
 }
 
 void CircularBuffer::WaitForReader()
@@ -173,8 +172,20 @@ void CircularBuffer::AssignBuffer(std::unique_ptr<char> buffer, size_t size, siz
 	m_readOffset = readOffset;
 	m_writeOffset = writeOffset;
 	m_size = size;
-	m_pBegin = m_buffer.get();
-	m_pEnd = m_pBegin + m_size;
+}
+
+char CircularBuffer::Read()
+{
+	auto result = *ReadPointer();
+	IncreaseReadPointer();
+	return result;
+}
+
+void CircularBuffer::Write(char value)
+{
+	//std::cerr << "  " << m_writeOffset << " = " << unsigned int(unsigned char(value)) << "\n";
+	*WritePointer() = value;
+	IncreaseWritePointer();
 }
 
 } // namespace fusion
