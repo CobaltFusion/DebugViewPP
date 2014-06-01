@@ -17,7 +17,7 @@ class ILineBuffer
 {
 public:
 	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message) = 0;
-	virtual Lines GetLines() = 0;
+	virtual InputLines GetLines() = 0;
 };
 
 class LineBuffer : public CircularBuffer, public ILineBuffer
@@ -27,7 +27,7 @@ public:
 	virtual ~LineBuffer() {}
 
 	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
-	virtual Lines GetLines();
+	virtual InputLines GetLines();
 private:
 	template <class T> T Read();
 	template <class T> void Write(T value);

@@ -144,7 +144,19 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 #ifdef ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
 Lines LogSources::GetLines()
 {
-	return m_linebuffer.GetLines();
+	auto inputLines = m_linebuffer.GetLines();
+
+	Lines lines;
+	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
+	{
+		auto inputLine = *it;
+		auto pid = GetProcessId(inputLine.handle);
+		auto processName = Str(ProcessInfo::GetProcessName(inputLine.handle));
+		Handle processHandle(inputLine.handle);
+		m_handleCache.Add(pid, std::move(processHandle));
+		lines.push_back(Line(inputLine.time, inputLine.systemTime, pid, processName, inputLine.message));
+	}
+	return lines;
 }
 #else
 Lines LogSources::GetLines()			// depricated, remove

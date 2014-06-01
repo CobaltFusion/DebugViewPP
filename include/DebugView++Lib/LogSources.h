@@ -69,6 +69,7 @@ private:
 	Handle m_updateEvent;
 	bool m_end;
 	VectorLineBuffer m_linebuffer;
+	ProcessHandleCache m_handleCache;
 
 	// make sure the thread is last to initialize
 	boost::thread m_thread;

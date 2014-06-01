@@ -25,18 +25,16 @@ void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char
 	WriteStringZ(message);
 }
 
-Lines LineBuffer::GetLines()
+InputLines LineBuffer::GetLines()
 {
-	Lines lines;
+	InputLines lines;
 	while (!Empty())
 	{
-		auto _time = Read<double>();
-		FILETIME _systemTime = Read<FILETIME>();
-		HANDLE _processHandle = Read<HANDLE>();
-		auto _message = ReadStringZ();
-		DWORD pid = GetProcessId(_processHandle);		
-		std::string processName = "process";
-		lines.push_back(Line(_time, _systemTime, pid, processName, _message));
+		auto time = Read<double>();
+		FILETIME systemTime = Read<FILETIME>();
+		HANDLE processHandle = Read<HANDLE>();
+		auto message = ReadStringZ();
+		lines.push_back(InputLine(time, systemTime, processHandle, message));
 	}
 	NotifyWriter();
 	return lines;

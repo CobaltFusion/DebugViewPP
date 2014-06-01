@@ -15,14 +15,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-VecLine::VecLine(double time, FILETIME systemTime, HANDLE handle, const std::string& message) :
-	time(time),
-	systemTime(systemTime),
-	handle(handle),
-	message(message)
-{
-}
-
 // unused argument to allow this class to be a drop-in replacement for LineBuffer
 VectorLineBuffer::VectorLineBuffer(size_t) 
 {
@@ -31,10 +23,10 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(VecLine(time, systemTime, handle, message));
+	m_buffer.push_back(InputLine(time, systemTime, handle, message));
 }
 
-Lines VectorLineBuffer::GetLines()
+InputLines VectorLineBuffer::GetLines()
 {
 	// the swap trick used here is very important to unblock the calling process asap.
 	m_backingBuffer.clear();
@@ -42,22 +34,7 @@ Lines VectorLineBuffer::GetLines()
 		boost::unique_lock<boost::mutex> lock(m_linesMutex);
 		m_buffer.swap(m_backingBuffer);
 	}
-	return ProcessLines(m_backingBuffer);
-}
-
-Lines VectorLineBuffer::ProcessLines(std::vector<VecLine>& lines)
-{
-	Lines result;
-	for (auto i = lines.begin(); i != lines.end(); ++i)
-	{
-		auto& line = *i;
-		auto pid = GetProcessId(line.handle);
-		auto processName = Str(ProcessInfo::GetProcessName(line.handle));
-		Handle processHandle(line.handle);
-		m_handleCache.Add(pid, std::move(processHandle));
-		result.push_back(Line(line.time, line.systemTime, pid, processName, line.message));
-	}
-	return result;
+	return m_backingBuffer;
 }
 
 } // namespace debugviewpp
