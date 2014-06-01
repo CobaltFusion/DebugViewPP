@@ -130,6 +130,7 @@ private:
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
+	void SetModifiedMark(int tabindex, bool modified);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);

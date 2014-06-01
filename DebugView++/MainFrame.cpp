@@ -355,8 +355,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 	{
 		if (GetView(i).EndUpdate() > 0 && GetTabCtrl().GetCurSel() != i)
 		{
-//			GetTabCtrl().GetItem(i)->SetHighlighted(true);
-			GetTabCtrl().GetItem(i)->SetText((GetView(i).GetName() + L"*").c_str());
+			SetModifiedMark(i, true);
 			GetTabCtrl().UpdateLayout();
 			GetTabCtrl().Invalidate();
 		}
@@ -668,8 +667,7 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 
 	if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
 	{
-//		GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(false);
-		GetTabCtrl().GetItem(nmhdr.iItem2)->SetText(GetView(nmhdr.iItem2).GetName().c_str());
+		SetModifiedMark(nmhdr.iItem2, false);
 	}
 
 	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
@@ -681,6 +679,17 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 	GetView(nmhdr.iItem2).SetFocusLine(line);
 	
 	return 0;
+}
+
+void CMainFrame::SetModifiedMark(int tabindex, bool modified)
+{
+	auto name = GetView(tabindex).GetName();
+	if (modified)
+	{
+		name += L"*";
+	}
+	//GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
+	GetTabCtrl().GetItem(tabindex)->SetText(name.c_str());
 }
 
 LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
@@ -857,7 +866,12 @@ void CMainFrame::ClearLog()
 	m_logFile.Clear();
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
+	{
 		GetView(i).Clear();
+		SetModifiedMark(i, false);
+		GetTabCtrl().UpdateLayout();
+		GetTabCtrl().Invalidate();
+	}
 }
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
