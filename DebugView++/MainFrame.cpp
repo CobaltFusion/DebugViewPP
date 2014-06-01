@@ -322,8 +322,6 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 
 void CMainFrame::UpdateStatusBar()
 {
-	//todo: statusbar flickers, update only what is dirty, see also http://www.catch22.net/tuts/flicker-free-drawing
-
 	auto isearch = GetView().GetHighlightText();
 	std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
 	UISetText(ID_DEFAULT_PANE,
@@ -340,6 +338,9 @@ void CMainFrame::UpdateStatusBar()
 
 void CMainFrame::ProcessLines(const Lines& lines)
 {
+	if (lines.empty())
+		return;
+
 	if (m_logFile.Empty() && !lines.empty())
 		m_timeOffset = lines[0].time;
 
