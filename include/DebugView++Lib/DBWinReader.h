@@ -47,11 +47,6 @@ public:
 
 	void Abort();
 
-	boost::signals2::connection Connect(const std::function<OnDBWinMessage>&);
-
-	bool AutoNewLine() const;
-	void AutoNewLine(bool value);
-
 private:
 	void Add(DWORD pid, const char* text, HANDLE handle);
 	void AddLine(const DBWinMessage& DBWinMessage);
@@ -64,7 +59,6 @@ private:
 	mutable boost::mutex m_linesMutex;
 	Timer m_timer;
 
-	bool m_autoNewLine;
 	bool m_end;
 	Handle m_hBuffer;
 	Handle m_dbWinBufferReady;

@@ -90,7 +90,6 @@ CMainFrame::CMainFrame() :
 	m_filterNr(0),
 	m_findDlg(*this),
 	m_linkViews(false),
-	m_autoNewLine(false),
 	m_hide(false),
 	m_lineBuffer(7000),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
@@ -104,7 +103,6 @@ CMainFrame::CMainFrame() :
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
 #endif
 	m_notifyIconData.cbSize = 0;
-	SetAutoNewLine(m_autoNewLine);
 }
 
 CMainFrame::~CMainFrame()
@@ -221,7 +219,7 @@ void CMainFrame::UpdateUI()
 		UISetCheck(id, GetView().IsColumnViewed(id));
 
 	UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
-	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_autoNewLine);
+	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_logSources.GetAutoNewLine());
 	UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
 	UISetCheck(ID_OPTIONS_HIDE, m_hide);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
@@ -559,7 +557,7 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"Height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
 	reg.SetDWORDValue(L"LinkViews", m_linkViews);
-	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+	reg.SetDWORDValue(L"AutoNewLine", m_logSources.GetAutoNewLine());
 	reg.SetDWORDValue(L"AlwaysOnTop", GetAlwaysOnTop());
 	reg.SetDWORDValue(L"Hide", m_hide);
 
@@ -590,16 +588,12 @@ void CMainFrame::SaveSettings()
 
 bool CMainFrame::GetAutoNewLine() const
 {
-	return m_autoNewLine;
+	return m_logSources.GetAutoNewLine();
 }
 
 void CMainFrame::SetAutoNewLine(bool value)
 {
-	if (m_pLocalReader)
-		m_pLocalReader->AutoNewLine(value);
-	if (m_pGlobalReader)
-		m_pGlobalReader->AutoNewLine(value);
-	m_autoNewLine = value;
+	m_logSources.SetAutoNewLine(value);
 }
 
 void CMainFrame::FindNext(const std::wstring& text)

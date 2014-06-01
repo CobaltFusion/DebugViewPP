@@ -31,7 +31,6 @@ Handle CreateDBWinBufferMapping(bool global)
 
 DBWinReader::DBWinReader(ILineBuffer& linebuffer, bool global) :
 	LogSource(SourceType::System, linebuffer),
-	m_autoNewLine(true),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
@@ -75,16 +74,6 @@ void DBWinReader::Notify()
 #endif
 	Add(m_dbWinBuffer->processId, m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
-}
-
-bool DBWinReader::AutoNewLine() const
-{
-	return m_autoNewLine;
-}
-
-void DBWinReader::AutoNewLine(bool value)
-{
-	m_autoNewLine = value;
 }
 
 void DBWinReader::Abort()
@@ -181,7 +170,7 @@ Lines DBWinReader::ProcessLine(const Line& line)
 	{
 		m_lineBuffers.erase(line.pid);
 	}
-	else if (m_autoNewLine || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	else if (GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
 	{
 		outputLine.message = std::move(message);
 		message.clear();

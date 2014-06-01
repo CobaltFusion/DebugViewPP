@@ -43,6 +43,9 @@ public:
 
 	void Remove(std::shared_ptr<LogSource> logsource);
 
+	void SetAutoNewLine(bool value);
+	bool GetAutoNewLine() const;
+
 	void Listen();
 	void Abort();
 	Lines GetLines();
@@ -60,7 +63,7 @@ private:
 	void Add(std::shared_ptr<LogSource> source);
 	LogSourcesHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
 	void Process(std::shared_ptr<LogSource>);
-
+	bool m_autoNewLine;
 	boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;

@@ -169,7 +169,6 @@ private:
 	CFindDlg m_findDlg;
 	HFont m_hFont;
 	bool m_linkViews;
-	bool m_autoNewLine;
 	bool m_hide;
 	bool m_tryGlobal;
 	CRunDlg m_runDlg;

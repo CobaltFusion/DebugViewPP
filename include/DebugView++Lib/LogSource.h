@@ -21,6 +21,10 @@ class LogSource
 public:
 	LogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
 	virtual ~LogSource();
+	
+	void SetLineBuffer(ILineBuffer& linebuffer);
+	void SetAutoNewLine(bool value);
+	bool GetAutoNewLine() const;
 
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
@@ -33,6 +37,7 @@ public:
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 
 private:
+	bool m_autoNewLine;
 	ILineBuffer& m_linebuffer;
 	std::wstring m_description;
 	SourceType::type m_sourceType;

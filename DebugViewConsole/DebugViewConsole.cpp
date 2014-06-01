@@ -64,29 +64,6 @@ void OnMessage(double time, FILETIME systemTime, DWORD processId, HANDLE process
 	std::cout << processId << "\t" << processName << "\t" << message << "\n";
 }
 
-//void Method2()
-//{
-//	boost::signals2::connection connection1;
-//	boost::signals2::connection connection2;
-//	LineBuffer buffer(64*1024);
-//
-//	LogSources sources(false);
-//	//boost::thread t([&]() { Sleep(5000); sources.Abort(); });  // test stopping after 5 seconds
-//
-//	auto dbwinlistener = sources.AddDBWinReader(buffer, false);
-//	connection1 = dbwinlistener->Connect(&OnMessage);
-//
-//	std::cout << "Logging DBWin32 Messages to stdout...\n";
-//
-//	if (HasGlobalDBWinReaderRights())
-//	{
-//		auto globalDBbwinlistener = sources.AddDBWinReader(buffer, true);
-//		connection2 = globalDBbwinlistener->Connect(&OnMessage);
-//		std::cout << "Logging Global DBWin32 Messages to stdout...\n";
-//	}
-//	sources.Listen();
-//}
-
 } // namespace debugviewpp
 } // namespace fusion
 

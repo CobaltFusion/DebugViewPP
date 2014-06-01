@@ -24,6 +24,21 @@ LogSource::~LogSource()
 {
 }
 
+void LogSource::SetLineBuffer(ILineBuffer& linebuffer)
+{
+	m_linebuffer = linebuffer;
+}
+
+void LogSource::SetAutoNewLine(bool value)
+{
+	m_autoNewLine = value;
+}
+
+bool LogSource::GetAutoNewLine() const
+{
+	return m_autoNewLine;
+}
+
 std::wstring LogSource::GetDescription() const
 {
 	return m_description;
