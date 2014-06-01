@@ -10,7 +10,7 @@
 #include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/SourceType.h"
 
-#define ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
+//#define ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
 
 namespace fusion {
 namespace debugviewpp {
