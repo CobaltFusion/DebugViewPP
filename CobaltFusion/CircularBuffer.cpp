@@ -176,9 +176,10 @@ void CircularBuffer::AssignBuffer(std::unique_ptr<char> buffer, size_t size, siz
 
 char CircularBuffer::Read()
 {
-	auto result = *ReadPointer();
+	auto value = *ReadPointer();
+	//std::cerr << "  " << m_readOffset << " = " << unsigned int(unsigned char(value)) << "\n";
 	IncreaseReadPointer();
-	return result;
+	return value;
 }
 
 void CircularBuffer::Write(char value)

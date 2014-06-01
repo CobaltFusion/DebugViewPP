@@ -16,6 +16,8 @@
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "Win32Lib/utilities.h"
+#include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/VectorLineBuffer.h"
 
 // class Logsources heeft vector<LogSource> en start in zijn constructor een thread voor LogSources::Listen()
 // - Listen() vraagt GetHandle() aan elke LogSource in m_sources en roept Notify() op de LogSource waarvan de handle gesignaled wordt.

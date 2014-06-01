@@ -30,14 +30,13 @@ Lines LineBuffer::GetLines()
 	Lines lines;
 	while (!Empty())
 	{
-		//Handle handle;
-		auto time = Read<double>();
-		auto filetime = Read<FILETIME>();
-		auto processHandle = Read<HANDLE>();
-		auto message = ReadStringZ();
-		DWORD pid = 0;			
+		auto _time = Read<double>();
+		FILETIME _systemTime = Read<FILETIME>();
+		HANDLE _processHandle = Read<HANDLE>();
+		auto _message = ReadStringZ();
+		DWORD pid = GetProcessId(_processHandle);		
 		std::string processName = "process";
-		lines.push_back(Line(time, filetime, pid, processName, message));
+		lines.push_back(Line(_time, _systemTime, pid, processName, _message));
 	}
 	NotifyWriter();
 	return lines;

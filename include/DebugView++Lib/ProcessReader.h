@@ -13,10 +13,12 @@
 namespace fusion {
 namespace debugviewpp {
 
+class ILineBuffer;
+
 class ProcessReader : public LogSource
 {
 public:
-	ProcessReader(LineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
+	ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;

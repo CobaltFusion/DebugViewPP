@@ -14,12 +14,14 @@
 namespace fusion {
 namespace debugviewpp {
 
+class ILineBuffer;
+
 class PipeReader :
 	boost::noncopyable,
 	public LogSource
 {
 public:
-	PipeReader(LineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName);
+	PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName);
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;

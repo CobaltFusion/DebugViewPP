@@ -7,14 +7,24 @@
 
 #pragma once
 
-#include <iosfwd>
-#include "DebugView++Lib/Line.h"
+#include <string>
+#include "Win32Lib/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-std::istream& ReadLogFileMessage(std::istream& is, Line& line);
-bool ReadLogFileMessage(const std::string& data, Line& line);
+struct Line
+{
+	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "");
+
+	double time;
+	FILETIME systemTime;
+	DWORD pid;
+	std::string processName;
+	std::string message;
+};
+
+typedef std::vector<Line> Lines;
 
 } // namespace debugviewpp 
 } // namespace fusion

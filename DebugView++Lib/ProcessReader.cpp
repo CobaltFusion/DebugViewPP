@@ -7,11 +7,12 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/ProcessReader.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-ProcessReader::ProcessReader(LineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
+ProcessReader::ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
 	LogSource(SourceType::Pipe, linebuffer),
 	m_process(pathName, args),
 	m_stdout(linebuffer, m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),

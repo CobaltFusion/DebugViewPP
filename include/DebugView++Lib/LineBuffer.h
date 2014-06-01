@@ -8,18 +8,26 @@
 #pragma once
 
 #include "CobaltFusion/CircularBuffer.h"
-#include "DBWinBuffer.h"
+#include "Line.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-class LineBuffer : public CircularBuffer
+class ILineBuffer
+{
+public:
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message) = 0;
+	virtual Lines GetLines() = 0;
+};
+
+class LineBuffer : public CircularBuffer, public ILineBuffer
 {
 public:
 	explicit LineBuffer(size_t size);
+	virtual ~LineBuffer() {}
 
-	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
-	Lines GetLines();
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
+	virtual Lines GetLines();
 private:
 	template <class T> T Read();
 	template <class T> void Write(T value);
@@ -31,7 +39,7 @@ T LineBuffer::Read()
 	T value;
 	auto p = (char*) &value;
 	for (int i=0; i<sizeof(T); ++i)
-		*p = CircularBuffer::Read();
+		p[i] = CircularBuffer::Read();
 	return value;
 }
 

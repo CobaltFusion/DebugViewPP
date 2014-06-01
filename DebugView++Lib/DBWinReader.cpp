@@ -29,7 +29,7 @@ Handle CreateDBWinBufferMapping(bool global)
 	return hMap;
 }
 
-DBWinReader::DBWinReader(LineBuffer& linebuffer, bool global) :
+DBWinReader::DBWinReader(ILineBuffer& linebuffer, bool global) :
 	LogSource(SourceType::System, linebuffer),
 	m_autoNewLine(true),
 	m_hBuffer(CreateDBWinBufferMapping(global)),

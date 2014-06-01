@@ -164,9 +164,15 @@ void EndlessTest()
 
 void SeparateProcessTest()
 {
+	std::cerr << "SeparateProcessTest\n";
 	for (;;)
 	{
-		ShellExecute(0, L"open", L"BugGazerTester.exe", L"-n", nullptr, SW_HIDE);
+		auto result = (int) ShellExecute(0, L"open", L"DbgMsgSrc.exe", L"-n", nullptr, SW_HIDE);
+		if (result <= 32)
+		{
+			std::cerr << "error starting DbgMsgSrc.exe\n";
+			break;
+		}
 		Sleep(100);
 	}
 }

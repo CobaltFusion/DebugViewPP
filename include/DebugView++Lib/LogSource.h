@@ -7,19 +7,19 @@
 
 #pragma once
 
-#include "DebugView++Lib/DBWinBuffer.h"
+#include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/SourceType.h"
 
-//#define ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
+#define ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
 
 namespace fusion {
 namespace debugviewpp {
 
-class LineBuffer;
+class ILineBuffer;
 class LogSource
 {
 public:
-	LogSource(SourceType::type sourceType, LineBuffer& linebuffer);
+	LogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
 	virtual ~LogSource();
 
 	virtual bool AtEnd() const = 0;
@@ -33,7 +33,7 @@ public:
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 
 private:
-	LineBuffer& m_linebuffer;
+	ILineBuffer& m_linebuffer;
 	std::wstring m_description;
 	SourceType::type m_sourceType;
 };

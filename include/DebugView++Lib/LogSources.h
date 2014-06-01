@@ -11,6 +11,7 @@
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/VectorLineBuffer.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 
@@ -64,7 +65,7 @@ private:
 	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
 	bool m_end;
-	LineBuffer m_linebuffer;
+	VectorLineBuffer m_linebuffer;
 
 	// make sure the thread is last to initialize
 	boost::thread m_thread;

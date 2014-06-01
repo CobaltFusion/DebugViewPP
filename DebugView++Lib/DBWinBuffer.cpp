@@ -12,15 +12,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message) :
-	time(time),
-	systemTime(systemTime),
-	pid(pid),
-	processName(processName),
-	message(message)
-{
-}
-
 bool IsWindowsVistaOrGreater()
 {
 	OSVERSIONINFO osvi = {0};

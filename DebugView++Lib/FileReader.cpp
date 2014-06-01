@@ -9,11 +9,12 @@
 #include <boost/filesystem.hpp>
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/FileReader.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-FileReader::FileReader(LineBuffer& linebuffer, const std::wstring& filename) :
+FileReader::FileReader(ILineBuffer& linebuffer, const std::wstring& filename) :
 	LogSource(SourceType::File, linebuffer),
 	m_end(false),
 	m_filename(filename),
@@ -110,7 +111,7 @@ Lines FileReader::GetLines()
 	return lines;
 }
 
-DBLogReader::DBLogReader(LineBuffer& linebuffer, const std::wstring& filename) : 
+DBLogReader::DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename) : 
 	FileReader(linebuffer, filename),
 	m_time(GetSystemTimeAsFileTime())
 {

@@ -5,16 +5,21 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
-
-#include <iosfwd>
+#include "stdafx.h"
+#include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/Line.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-std::istream& ReadLogFileMessage(std::istream& is, Line& line);
-bool ReadLogFileMessage(const std::string& data, Line& line);
+Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message) :
+	time(time),
+	systemTime(systemTime),
+	pid(pid),
+	processName(processName),
+	message(message)
+{
+}
 
 } // namespace debugviewpp 
 } // namespace fusion

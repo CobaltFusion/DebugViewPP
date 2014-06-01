@@ -34,27 +34,58 @@ class TestLineBuffer : public LineBuffer
 {
 public:
 	TestLineBuffer(size_t size) : LineBuffer(size) {}
+	virtual ~TestLineBuffer() {}
 
-	void WaitForReaderTimeout()
+	virtual void WaitForReaderTimeout()
 	{
 		throw std::exception("read timeout");
 	}
 };
 
-BOOST_AUTO_TEST_CASE(LineBufferTest)
+BOOST_AUTO_TEST_CASE(LineBufferTest1)
+{
+	TestLineBuffer buffer(32);
+	
+	FILETIME ft;
+	ft.dwLowDateTime = 42;
+	ft.dwHighDateTime = 43;
+	buffer.Add(42.0, ft, 0, "test");
+
+	auto lines = buffer.GetLines();
+	auto line = lines[0];
+	BOOST_REQUIRE_EQUAL(line.time, 42.0);
+	BOOST_REQUIRE_EQUAL(line.systemTime.dwLowDateTime, 42);
+	BOOST_REQUIRE_EQUAL(line.systemTime.dwHighDateTime, 43);
+	BOOST_REQUIRE(buffer.Empty());
+}
+
+BOOST_AUTO_TEST_CASE(LineBufferTest2)
 {
 	TestLineBuffer buffer(500);
 	Timer timer;
 
 	for (int j=0; j< 1000; ++j)
 	{
+		//BOOST_MESSAGE("j: " << j << "\n");
+
 		for (int i=0; i<17; ++i)
 		{
-			buffer.Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "test");
+			//BOOST_MESSAGE("i: " << i << "\n");
+			FILETIME ft;
+			ft.dwLowDateTime = 43;
+			ft.dwHighDateTime = 44;
+			buffer.Add(42.0, ft, 0, "test");
 		}
 
 		auto lines = buffer.GetLines();
 		BOOST_REQUIRE_EQUAL(lines.size(), 17);
+		for (auto it = lines.begin(); it != lines.end(); ++it)
+		{
+			auto line = *it;
+			BOOST_REQUIRE_EQUAL(line.time, 42.0);
+			BOOST_REQUIRE_EQUAL(line.systemTime.dwLowDateTime, 43);
+			BOOST_REQUIRE_EQUAL(line.systemTime.dwHighDateTime, 44);
+		}
 	}
 }
 
@@ -137,7 +168,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 		BOOST_MESSAGE("line: " << line.message);
 	}
 
-	const int testsize = 10000;
+	const int testsize = 1000;
 	BOOST_MESSAGE("Write " << testsize << " lines...");
 	for (int i=0; i < testsize; ++i)
 	{

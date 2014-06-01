@@ -19,6 +19,8 @@
 namespace fusion {
 namespace debugviewpp {
 
+class ILineBuffer;
+
 struct DBWinMessage
 {
 	double time;
@@ -35,7 +37,7 @@ typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, H
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(LineBuffer& linebuffer, bool global);
+	explicit DBWinReader(ILineBuffer& linebuffer, bool global);
 	~DBWinReader();
 
 	virtual bool AtEnd() const;

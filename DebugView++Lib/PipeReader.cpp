@@ -8,11 +8,12 @@
 #include "stdafx.h"
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/PipeReader.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-PipeReader::PipeReader(LineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName) :
+PipeReader::PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName) :
 	LogSource(SourceType::Pipe, linebuffer),
 	m_hPipe(hPipe),
 	m_pid(pid),

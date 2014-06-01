@@ -15,10 +15,12 @@
 namespace fusion {
 namespace debugviewpp {
 
+class ILineBuffer;
+
 class FileReader : public LogSource
 {
 public:
-	explicit FileReader(LineBuffer& linebuffer, const std::wstring& filename);
+	explicit FileReader(ILineBuffer& linebuffer, const std::wstring& filename);
     ~FileReader();
 
 	virtual bool AtEnd() const;
@@ -44,10 +46,12 @@ private:
 	boost::thread m_thread;
 };
 
+class ILineBuffer;
+
 class DBLogReader : public FileReader
 {
 public:
-	explicit DBLogReader(LineBuffer& linebuffer, const std::wstring& filename);
+	explicit DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename);
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 

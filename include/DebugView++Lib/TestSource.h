@@ -19,10 +19,12 @@
 namespace fusion {
 namespace debugviewpp {
 
+class ILineBuffer;
+
 class TestSource : public LogSource
 {
 public:
-	explicit TestSource(LineBuffer& linebuffer);
+	explicit TestSource(ILineBuffer& linebuffer);
 	~TestSource();
 
 	virtual bool AtEnd() const;

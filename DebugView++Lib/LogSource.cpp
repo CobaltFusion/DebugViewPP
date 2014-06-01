@@ -14,7 +14,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-LogSource::LogSource(SourceType::type sourceType, LineBuffer& linebuffer) : 
+LogSource::LogSource(SourceType::type sourceType, ILineBuffer& linebuffer) : 
 	m_sourceType(sourceType), m_linebuffer(linebuffer)
 {
 
