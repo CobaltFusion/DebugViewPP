@@ -52,9 +52,9 @@ Lines VectorLineBuffer::ProcessLines(std::vector<VecLine>& lines)
 	{
 		auto& line = *i;
 		auto pid = GetProcessId(line.handle);
-		m_handleCache.Add(pid, Handle(line.handle));
-
 		auto processName = Str(ProcessInfo::GetProcessName(line.handle));
+		Handle processHandle(line.handle);
+		m_handleCache.Add(pid, std::move(processHandle));
 		result.push_back(Line(line.time, line.systemTime, pid, processName, line.message));
 	}
 	return result;
