@@ -12,11 +12,13 @@
 namespace fusion {
 namespace debugviewpp {
 
-InputLine::InputLine(double time, FILETIME systemTime, HANDLE handle, const std::string& message) :
+InputLine::InputLine(double time, FILETIME systemTime, HANDLE handle, LineType::type type, const std::string& message, LogSource* logsource) :
 	time(time),
 	systemTime(systemTime),
 	handle(handle),
-	message(message)
+	type(type),
+	message(message),
+	logsource(logsource)
 {
 }
 

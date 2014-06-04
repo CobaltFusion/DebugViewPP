@@ -12,6 +12,7 @@
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
+#include "DebugView++Lib/NewlineFilter.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 
@@ -70,6 +71,7 @@ private:
 	bool m_end;
 	VectorLineBuffer m_linebuffer;
 	ProcessHandleCache m_handleCache;
+	NewlineFilter m_newlineFilter;
 
 	// make sure the thread is last to initialize
 	boost::thread m_thread;

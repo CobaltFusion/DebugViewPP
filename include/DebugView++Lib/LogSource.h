@@ -30,6 +30,7 @@ public:
 	virtual HANDLE GetHandle() const = 0;
 	virtual void Notify() = 0;
 	virtual Lines GetLines() = 0;		// replaced by LogSources::GetLines(), remove once circular buffer is completed
+	virtual std::wstring GetProcessName(HANDLE handle) const;
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);

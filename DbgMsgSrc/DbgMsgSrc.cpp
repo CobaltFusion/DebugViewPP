@@ -41,7 +41,13 @@ void DbgMsgTest()
 	OutputDebugStringA("Message 2 without newline");
 	OutputDebugStringA("Message 3 with newline\n");
 	OutputDebugStringA("Message with\nembedded newline\n");
-	OutputDebugStringA("Tabs:\t1\t2\t3\t4\t5\t6\tlast\n");
+	OutputDebugStringA("This should look like a table in a non-proportionally spaced font like 'Courier'");
+	OutputDebugStringA("Colomn1\tColomn2\tColomn3\tColomn4\tColomn5");
+	OutputDebugStringA("1\t\t2\t\t3\t\t4\t\t5");
+	OutputDebugStringA("A\t\tB\t\tC\t\tD\t\tE");
+	OutputDebugStringA("11\t\t12\t\t13\t\t14\t\t15");
+	OutputDebugStringA("\t\t22\t\t23A\t\t24\t\t25");
+	OutputDebugStringA("\t\t\t\t33\t\t34\t\t35");
 	OutputDebugStringA("LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
 }
 

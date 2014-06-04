@@ -13,10 +13,12 @@
 namespace fusion {
 namespace debugviewpp {
 
+class LogSource;
+
 class ILineBuffer
 {
 public:
-	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message) = 0;
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource) = 0;
 	virtual InputLines GetLines() = 0;
 };
 
@@ -26,7 +28,7 @@ public:
 	explicit LineBuffer(size_t size);
 	virtual ~LineBuffer() {}
 
-	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource);
 	virtual InputLines GetLines();
 private:
 	template <class T> T Read();

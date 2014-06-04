@@ -89,6 +89,7 @@
     <ClInclude Include="..\include\DebugView++Lib\LogSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\LogSources.h" />
     <ClInclude Include="..\include\DebugView++Lib\MatchType.h" />
+    <ClInclude Include="..\include\DebugView++Lib\NewlineFilter.h" />
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\Process.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h" />
@@ -116,6 +117,7 @@
     <ClCompile Include="LogSource.cpp" />
     <ClCompile Include="LogSources.cpp" />
     <ClCompile Include="MatchType.cpp" />
+    <ClCompile Include="NewlineFilter.cpp" />
     <ClCompile Include="PipeReader.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessHandleCache.cpp" />

@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/ProcessInfo.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -56,7 +57,12 @@ SourceType::type LogSource::GetSourceType() const
 
 void LogSource::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
 {
-	m_linebuffer.Add(time, systemTime, handle, message);
+	m_linebuffer.Add(time, systemTime, handle, message, this);
+}
+
+std::wstring LogSource::GetProcessName(HANDLE handle) const
+{
+	return ProcessInfo::GetProcessName(handle);
 }
 
 } // namespace debugviewpp 

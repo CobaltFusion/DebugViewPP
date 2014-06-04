@@ -17,12 +17,13 @@ LineBuffer::LineBuffer(size_t size) : CircularBuffer(size)
 {
 }
 
-void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
+void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource)
 {
 	Write(time);
 	Write(systemTime);
 	Write(handle);
 	WriteStringZ(message);
+	Write(logsource);
 }
 
 InputLines LineBuffer::GetLines()
@@ -34,7 +35,8 @@ InputLines LineBuffer::GetLines()
 		FILETIME systemTime = Read<FILETIME>();
 		HANDLE processHandle = Read<HANDLE>();
 		auto message = ReadStringZ();
-		lines.push_back(InputLine(time, systemTime, processHandle, message));
+		auto logsource = Read<LogSource*>();
+		lines.push_back(InputLine(time, systemTime, processHandle, LineType::Normal, message, logsource));
 	}
 	NotifyWriter();
 	return lines;

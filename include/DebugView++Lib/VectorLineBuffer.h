@@ -19,7 +19,7 @@ class VectorLineBuffer : public ILineBuffer
 public:
 	explicit VectorLineBuffer(size_t size);
 
-	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
+	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource);
 	InputLines GetLines();
 private:
 	boost::mutex m_linesMutex;

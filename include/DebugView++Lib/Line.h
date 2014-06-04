@@ -13,15 +13,30 @@
 namespace fusion {
 namespace debugviewpp {
 
+class LogSource;
+
+struct LineType
+{
+	enum type
+	{
+		Normal,
+		Flush
+	};
+};
+
 struct InputLine		// remove existing Line struct and rename "InputLine" to "Line"
 {
-	InputLine(double time = 0.0, FILETIME systemTime = FILETIME(), HANDLE handle = nullptr, const std::string& message = "");
+	InputLine(double time = 0.0, FILETIME systemTime = FILETIME(), HANDLE handle = nullptr, LineType::type type = LineType::Normal, const std::string& message = "", LogSource* logsource = nullptr);
 
 	double time;
 	FILETIME systemTime;
 	HANDLE handle;
 	std::string message;
+	LineType::type type;
+	LogSource* logsource;
 };
+
+//todo: move extra fields from InputLine into Line !! different fields are used at different times during lifetime of Line
 
 typedef std::vector<InputLine> InputLines;
 

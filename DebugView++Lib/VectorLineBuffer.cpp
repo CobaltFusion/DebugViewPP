@@ -20,10 +20,10 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 {
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(InputLine(time, systemTime, handle, message));
+	m_buffer.push_back(InputLine(time, systemTime, handle, LineType::Normal, message, logsource));
 }
 
 InputLines VectorLineBuffer::GetLines()
