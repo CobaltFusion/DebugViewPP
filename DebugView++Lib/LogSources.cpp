@@ -141,7 +141,7 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 	}
 }
 
-#ifdef ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
+#ifdef USE_NEW_LOGSOURCE_PATH
 Lines LogSources::GetLines()
 {
 	auto inputLines = m_newlineFilter.Process(m_linebuffer.GetLines());

@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "CobaltFusion/CircularBuffer.h"
 #include "LineBuffer.h"
 #include "ProcessHandleCache.h"
 

@@ -80,7 +80,7 @@ void DBWinReader::Abort()
 {
 }
 
-#ifdef ENABLE_EXPERIMENTAL_CIRCULAR_BUFFER
+#ifdef USE_NEW_LOGSOURCE_PATH
 void DBWinReader::Add(DWORD pid, const char* text, HANDLE handle)
 {
 	LogSource::Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, text);

@@ -21,47 +21,20 @@ namespace debugviewpp {
 
 void ShowMessages()
 {
-	std::vector<std::unique_ptr<LogSource>> sources;
-	
-	LineBuffer buffer(64*1024);
-
-	sources.push_back(make_unique<DBWinReader>(buffer, false));
+	LogSources sources(true);
+	sources.AddDBWinReader(false);
 	if (HasGlobalDBWinReaderRights())
-		sources.push_back(make_unique<DBWinReader>(buffer, true));
+		sources.AddDBWinReader(true);
 
-	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
 	for (;;)
 	{
-		Lines lines;
-		for (auto it = sources.begin(); it != sources.end(); )
-		{
-			Lines pipeLines((*it)->GetLines());
-			Lines lines2;
-			lines2.reserve(lines.size() + pipeLines.size());
-			std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
-			lines.swap(lines2);
-
-			if ((*it)->AtEnd())
-				it = sources.erase(it);
-			else
-				++it;
-		}
-
+		auto lines = sources.GetLines();
 		for (auto i=lines.begin(); i != lines.end(); ++i)
 		{
 			std::cout << i->pid << "\t" << i->processName.c_str() << "\t" << i->message.c_str() << "\n";
 		}
 		Sleep(100);
 	}
-}
-
-void OnMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message)
-{
-	static boost::mutex mutex;
-	boost::mutex::scoped_lock lock(mutex);
-	Handle hanel(processHandle);
-	std::string processName = Str(ProcessInfo::GetProcessName(processHandle)).str();
-	std::cout << processId << "\t" << processName << "\t" << message << "\n";
 }
 
 } // namespace debugviewpp
