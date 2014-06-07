@@ -55,19 +55,14 @@ SourceType::type LogSource::GetSourceType() const
 	return m_sourceType;
 }
 
-void LogSource::Add(double time, FILETIME systemTime, HANDLE handle, const char* message)
+void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource)
 {
-	m_linebuffer.Add(time, systemTime, handle, message, this);
+	m_linebuffer.Add(time, systemTime, pid, processName, message, logsource);
 }
 
 void LogSource::Add(const char* message, HANDLE handle)
 {
 	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, message, this);
-}
-
-void LogSource::Add(const std::string& message, HANDLE handle)
-{
-	Add(message.c_str(), handle);
 }
 
 std::string LogSource::GetProcessName(HANDLE handle) const

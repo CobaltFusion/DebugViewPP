@@ -34,10 +34,9 @@ public:
 	void SetDescription(const std::wstring& description);
 	SourceType::type GetSourceType() const;
 	void Add(const char* message, HANDLE handle = 0);
-	void Add(const std::string& message, HANDLE handle = 0);
 
 	// only used when reading from files
-	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
+	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource);
 
 private:
 	bool m_autoNewLine;

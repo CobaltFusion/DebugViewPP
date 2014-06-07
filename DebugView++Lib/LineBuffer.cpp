@@ -28,7 +28,7 @@ LineBuffer::LineBuffer(size_t size) : CircularBuffer(size)
 
 void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource)
 {
-	Write(LineType::DBWinMessage);
+	Write<unsigned char>(LineType::DBWinMessage);
 	Write(time);
 	Write(systemTime);
 	Write(handle);
@@ -70,6 +70,7 @@ Lines LineBuffer::GetLines()
 			auto logsource = Read<LogSource*>();
 			lines.push_back(Line(time, systemTime, processId, processName, message, logsource));
 		}
+		//DumpStats();
 	}
 	NotifyWriter();
 	return lines;

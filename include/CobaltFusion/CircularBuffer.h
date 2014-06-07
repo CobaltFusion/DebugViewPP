@@ -35,6 +35,7 @@ public:
 
 	void Clear();
 	void Swap(CircularBuffer& circularBuffer);
+	void DumpStats();
 
 protected:
     void NotifyWriter();

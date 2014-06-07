@@ -40,6 +40,7 @@ private:
 template <class T> 
 T LineBuffer::Read()
 {
+	//std::cerr << "  read  " << sizeof(T) << " bytes.\n";
 	T value;
 	auto p = (char*) &value;
 	for (int i=0; i<sizeof(T); ++i)

@@ -177,11 +177,9 @@ BOOST_AUTO_TEST_CASE(CircularBufferSwapping)
 {
 	size_t testsize = 30;
 	CircularBuffer buffer(testsize);
-	BOOST_REQUIRE_EQUAL(buffer.Size(), 32);
 
 	size_t testsize2 = 60;
 	CircularBuffer buffer2(testsize2);
-	BOOST_REQUIRE_EQUAL(buffer2.Size(), 64);
 
 	buffer.WriteStringZ("test");
 	buffer.WriteStringZ("test");

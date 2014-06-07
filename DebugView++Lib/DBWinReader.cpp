@@ -65,7 +65,7 @@ void DBWinReader::Notify()
 	{
 		Win32Error error(GetLastError(), "OpenProcess");
 		std::string s = stringbuilder() << error.what() << ", data: " <<  m_dbWinBuffer->data << " (pid: " << m_dbWinBuffer->processId << ")";
-		LogSource::Add(s);
+		LogSource::Add(s.c_str());
 	}
 //#endif
 	LogSource::Add(m_dbWinBuffer->data, handle);

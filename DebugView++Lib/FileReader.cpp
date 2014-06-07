@@ -66,7 +66,8 @@ void FileReader::ReadUntilEof()
 	if (!m_ifstream.eof()) 
 	{
 		// Some error other then EOF occured
-		Add("Stopped tailing " + m_filename);
+		std::string msg = "Stopped tailing " + m_filename;
+		Add(msg.c_str());
 		m_end = true;
 	}
 	else
@@ -77,7 +78,7 @@ void FileReader::ReadUntilEof()
 
 void FileReader::AddLine(const std::string line)
 {
-	Add(line);
+	Add(line.c_str());
 }
 
 std::string FileReader::GetProcessName(HANDLE /*handle*/) const
@@ -114,7 +115,7 @@ void DBLogReader::AddLine(const std::string data)
 {
 	Line line;
 	ReadLogFileMessage(data, line);
-	Add(line.message);
+	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str(), this);
 }
 
 

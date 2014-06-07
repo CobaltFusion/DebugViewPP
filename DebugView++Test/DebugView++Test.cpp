@@ -38,13 +38,13 @@ public:
 
 	virtual void WaitForReaderTimeout()
 	{
-		throw std::exception("read timeout");
+		throw std::exception("WaitForReader timeout");
 	}
 };
 
 BOOST_AUTO_TEST_CASE(LineBufferTest1)
 {
-	TestLineBuffer buffer(32);
+	TestLineBuffer buffer(64);
 	
 	FILETIME ft;
 	ft.dwLowDateTime = 42;
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 
 BOOST_AUTO_TEST_CASE(LineBufferTest2)
 {
-	TestLineBuffer buffer(500);
+	TestLineBuffer buffer(600);
 	Timer timer;
 
 	for (int j=0; j< 1000; ++j)
@@ -149,12 +149,14 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	LogSources logsources(false);
 	auto logsource = logsources.AddTestSource();
 
+	Timer timer;
+
 	BOOST_MESSAGE("add line");
-	logsource->Add(0, "TEST1");
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", nullptr);
 	BOOST_MESSAGE("add line");
-	logsource->Add(0, "TEST2");
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", nullptr);
 	BOOST_MESSAGE("add line");
-	logsource->Add(0, "TEST3\n");
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", nullptr);
 	BOOST_MESSAGE("3 lines added.");
 
 	auto lines = logsources.GetLines();
@@ -172,7 +174,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	BOOST_MESSAGE("Write " << testsize << " lines...");
 	for (int i=0; i < testsize; ++i)
 	{
-		logsource->Add(0, "TESTSTRING 1234\n");
+		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n", nullptr);
 	}
 
 	auto morelines = logsources.GetLines();
