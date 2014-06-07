@@ -13,8 +13,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-std::istream& ReadLogFileMessage(std::istream& is, InputLine& line);
-bool ReadLogFileMessage(const std::string& data, InputLine& line);
+std::istream& ReadLogFileMessage(std::istream& is, Line& line);
+bool ReadLogFileMessage(const std::string& data, Line& line);
 
 } // namespace debugviewpp 
 } // namespace fusion

@@ -47,9 +47,9 @@ void LineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* pr
 	Write(logsource);
 }
 
-InputLines LineBuffer::GetLines()
+Lines LineBuffer::GetLines()
 {
-	InputLines lines;
+	Lines lines;
 	while (!Empty())
 	{
 		auto type = (LineType::type) Read<unsigned char>();
@@ -60,7 +60,7 @@ InputLines LineBuffer::GetLines()
 			HANDLE processHandle = Read<HANDLE>();
 			auto message = ReadStringZ();
 			auto logsource = Read<LogSource*>();
-			lines.push_back(InputLine(time, systemTime, processHandle, message, logsource));
+			lines.push_back(Line(time, systemTime, processHandle, message, logsource));
 		}
 		else
 		{
@@ -68,7 +68,7 @@ InputLines LineBuffer::GetLines()
 			auto processName = ReadStringZ();
 			auto message = ReadStringZ();
 			auto logsource = Read<LogSource*>();
-			lines.push_back(InputLine(time, systemTime, processId, processName, message, logsource));
+			lines.push_back(Line(time, systemTime, processId, processName, message, logsource));
 		}
 	}
 	NotifyWriter();

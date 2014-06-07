@@ -42,7 +42,7 @@ public:
 
 	void Listen();
 	void Abort();
-	InputLines GetLines();
+	Lines GetLines();
 
 	std::vector<std::shared_ptr<LogSource>> GetSources();
 

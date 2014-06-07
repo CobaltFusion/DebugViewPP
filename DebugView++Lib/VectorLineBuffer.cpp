@@ -23,16 +23,16 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(InputLine(time, systemTime, handle, message, logsource));
+	m_buffer.push_back(Line(time, systemTime, handle, message, logsource));
 }
 
 void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(InputLine(time, systemTime, pid, processName, message, logsource));
+	m_buffer.push_back(Line(time, systemTime, pid, processName, message, logsource));
 }
 
-InputLines VectorLineBuffer::GetLines()
+Lines VectorLineBuffer::GetLines()
 {
 	// the swap trick used here is very important to unblock the calling process asap.
 	m_backingBuffer.clear();

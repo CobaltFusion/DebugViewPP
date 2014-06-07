@@ -20,11 +20,11 @@ public:
 
 	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource);
 	virtual void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource);
-	InputLines GetLines();
+	Lines GetLines();
 private:
 	boost::mutex m_linesMutex;
-	InputLines m_buffer;
-	InputLines m_backingBuffer;
+	Lines m_buffer;
+	Lines m_backingBuffer;
 };
 
 

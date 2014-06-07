@@ -112,7 +112,7 @@ DBLogReader::DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename) 
 
 void DBLogReader::AddLine(const std::string data)
 {
-	InputLine line;
+	Line line;
 	ReadLogFileMessage(data, line);
 	Add(line.message);
 }

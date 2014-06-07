@@ -19,9 +19,9 @@ namespace debugviewpp {
 class NewlineFilter {
 public:
 	NewlineFilter();
-	InputLines Process(const InputLines& inputlines);
-	InputLines Process(const InputLine& line);
-	void FlushLinesFromTerminatedProcesses(InputLines& inputlines);
+	Lines Process(const Lines& inputlines);
+	Lines Process(const Line& line);
+	void FlushLinesFromTerminatedProcesses(Lines& inputlines);
 
 	double m_handleCacheTime;
 	std::map<DWORD, std::string> m_lineBuffers;

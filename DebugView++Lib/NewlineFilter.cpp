@@ -19,9 +19,9 @@ NewlineFilter::NewlineFilter() :
 {
 }
 
-InputLines NewlineFilter::Process(const InputLines& inputlines)
+Lines NewlineFilter::Process(const Lines& inputlines)
 {
-	InputLines lines;
+	Lines lines;
 	for (auto i = inputlines.begin(); i != inputlines.end(); ++i)
 	{
 		auto processedLines = Process(*i);
@@ -34,14 +34,14 @@ InputLines NewlineFilter::Process(const InputLines& inputlines)
 	return lines;
 }
 
-InputLines NewlineFilter::Process(const InputLine& line)
+Lines NewlineFilter::Process(const Line& line)
 {
-	InputLines lines;
+	Lines lines;
 	lines.push_back(line);
 	return lines;
 }
 
-void NewlineFilter::FlushLinesFromTerminatedProcesses(InputLines& lines)
+void NewlineFilter::FlushLinesFromTerminatedProcesses(Lines& lines)
 {
 	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
 		return;
@@ -53,8 +53,8 @@ void NewlineFilter::FlushLinesFromTerminatedProcesses(InputLines& lines)
 		if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 		{
 			if (!m_lineBuffers[pid].empty())
-				lines.push_back(InputLine(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<flush>", m_lineBuffers[pid], nullptr));		// todo: messagetimestamp makes no sence, and can be out of order, maybe create a Loopback LogSource?
-			lines.push_back(InputLine(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<terminated>", m_lineBuffers[pid], nullptr));		
+				lines.push_back(Line(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<flush>", m_lineBuffers[pid], nullptr));		// todo: messagetimestamp makes no sence, and can be out of order, maybe create a Loopback LogSource?
+			lines.push_back(Line(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<terminated>", m_lineBuffers[pid], nullptr));		
 			m_lineBuffers.erase(pid);
 		}
 	}

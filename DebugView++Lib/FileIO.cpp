@@ -78,7 +78,7 @@ bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft
 	return true;
 }
 
-std::istream& ReadLogFileMessage(std::istream& is, InputLine& line)
+std::istream& ReadLogFileMessage(std::istream& is, Line& line)
 {
 	std::string data;
 	if (!std::getline(is, data))
@@ -88,7 +88,7 @@ std::istream& ReadLogFileMessage(std::istream& is, InputLine& line)
 	return is;
 }
 
-bool ReadLogFileMessage(const std::string& data, InputLine& line)
+bool ReadLogFileMessage(const std::string& data, Line& line)
 {
 	TabSplitter split(data);
 	auto col1 = split.GetNext();

@@ -15,10 +15,10 @@ namespace debugviewpp {
 
 class LogSource;
 
-struct InputLine
+struct Line
 {
-	InputLine(double time, FILETIME systemTime, HANDLE handle, const std::string& message, LogSource* logsource);
-	InputLine(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "", LogSource* logsource = nullptr);
+	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, LogSource* logsource);
+	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "", LogSource* logsource = nullptr);
 
 	double time;
 	FILETIME systemTime;
@@ -29,7 +29,7 @@ struct InputLine
 	LogSource* logsource;
 };
 
-typedef std::vector<InputLine> InputLines;
+typedef std::vector<Line> Lines;
 
 } // namespace debugviewpp 
 } // namespace fusion

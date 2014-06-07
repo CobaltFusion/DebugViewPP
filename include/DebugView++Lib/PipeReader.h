@@ -26,10 +26,10 @@ public:
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual InputLines GetLines();		// todo: depricated, remove
+	virtual Lines GetLines();		// todo: depricated, remove
 
 private:
-	InputLine MakeLine(const std::string& text) const;
+	Line MakeLine(const std::string& text) const;
 
 	HANDLE m_hPipe;
 	DWORD m_pid;

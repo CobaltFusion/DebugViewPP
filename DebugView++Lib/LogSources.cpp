@@ -134,11 +134,11 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 	}
 }
 
-InputLines LogSources::GetLines()
+Lines LogSources::GetLines()
 {
 	auto inputLines = m_newlineFilter.Process(m_linebuffer.GetLines());
 
-	InputLines lines;
+	Lines lines;
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
 	{
 		auto inputLine = *it;

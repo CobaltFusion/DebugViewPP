@@ -36,10 +36,10 @@ bool ProcessReader::AtEnd() const
 	return m_stdout.AtEnd() && m_stderr.AtEnd();
 }
 
-InputLines ProcessReader::GetLines()
+Lines ProcessReader::GetLines()
 {
-	InputLines lines(m_stdout.GetLines());
-	InputLines stderrLines(m_stderr.GetLines());
+	Lines lines(m_stdout.GetLines());
+	Lines stderrLines(m_stderr.GetLines());
 	lines.insert(lines.end(), stderrLines.begin(), stderrLines.end());
 	return lines;
 }
