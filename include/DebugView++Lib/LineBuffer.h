@@ -19,6 +19,7 @@ class ILineBuffer
 {
 public:
 	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource) = 0;
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource) = 0;
 	virtual InputLines GetLines() = 0;
 };
 
@@ -29,6 +30,7 @@ public:
 	virtual ~LineBuffer() {}
 
 	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource);
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource);
 	virtual InputLines GetLines();
 private:
 	template <class T> T Read();

@@ -21,7 +21,7 @@ public:
 	NewlineFilter();
 	InputLines Process(const InputLines& inputlines);
 	InputLines Process(const InputLine& line);
-	InputLines FlushLinesFromTerminatedProcesses();
+	void FlushLinesFromTerminatedProcesses(InputLines& inputlines);
 
 	double m_handleCacheTime;
 	std::map<DWORD, std::string> m_lineBuffers;

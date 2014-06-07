@@ -27,13 +27,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-LogSourceInfo::LogSourceInfo(HANDLE handle, LogSource& logsource) :
-	handle(handle), 
-	logsource(logsource)
-{
-
-}
-
 std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
 {
 	boost::mutex::scoped_lock lock(m_mutex);
@@ -141,27 +134,27 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 	}
 }
 
-Lines LogSources::GetLines()
+InputLines LogSources::GetLines()
 {
 	auto inputLines = m_newlineFilter.Process(m_linebuffer.GetLines());
 
-	Lines lines;
+	InputLines lines;
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
 	{
 		auto inputLine = *it;
-		auto pid = GetProcessId(inputLine.handle);
-
-		std::string processName = "<unknown>";
+		inputLine.pid = GetProcessId(inputLine.handle);
 		if (inputLine.logsource != nullptr)
 		{
-			processName = Str(inputLine.logsource->GetProcessName(inputLine.handle)).str();
+			inputLine.processName = Str(inputLine.logsource->GetProcessName(inputLine.handle)).str();
 		}
+		
 		if (inputLine.handle != INVALID_HANDLE_VALUE)
 		{
 			Handle processHandle(inputLine.handle);
-			m_handleCache.Add(pid, std::move(processHandle));
+			m_handleCache.Add(inputLine.pid, std::move(processHandle));
+			inputLine.handle = 0;
 		}
-		lines.push_back(Line(inputLine.time, inputLine.systemTime, pid, processName, inputLine.message));
+		lines.push_back(inputLine);
 	}
 	return lines;
 }

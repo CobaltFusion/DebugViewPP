@@ -18,7 +18,8 @@ class VectorLineBuffer : public ILineBuffer
 public:
 	explicit VectorLineBuffer(size_t size);
 
-	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource);
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource);
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource);
 	InputLines GetLines();
 private:
 	boost::mutex m_linesMutex;

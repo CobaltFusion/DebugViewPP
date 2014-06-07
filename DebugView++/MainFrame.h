@@ -98,7 +98,7 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
-	void ProcessLines(const Lines& lines);
+	void ProcessLines(const InputLines& lines);
 
 	std::wstring GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const;
 	SelectionInfo GetLogFileRange() const;

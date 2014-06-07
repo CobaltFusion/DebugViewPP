@@ -28,7 +28,7 @@ public:
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
 	virtual void Notify() = 0;
-	virtual std::wstring GetProcessName(HANDLE handle) const;
+	virtual std::string GetProcessName(HANDLE handle) const;
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);

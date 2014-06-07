@@ -27,14 +27,6 @@ class DBLogReader;
 class PipeReader;
 class TestSource;
 
-struct LogSourceInfo
-{
-	LogSourceInfo(HANDLE handle, LogSource& logsource);		
-	HANDLE handle;
-	LogSource& logsource;
-};
-
-typedef std::vector<LogSourceInfo> LogSourcesVector;
 typedef std::vector<HANDLE> LogSourcesHandles;
 
 class LogSources
@@ -50,7 +42,7 @@ public:
 
 	void Listen();
 	void Abort();
-	Lines GetLines();
+	InputLines GetLines();
 
 	std::vector<std::shared_ptr<LogSource>> GetSources();
 

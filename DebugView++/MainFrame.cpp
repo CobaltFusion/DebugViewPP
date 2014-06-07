@@ -334,7 +334,7 @@ void CMainFrame::UpdateStatusBar()
 	UISetText(ID_MEMORY_PANE, FormatBytes(memoryUsage).c_str());
 }
 
-void CMainFrame::ProcessLines(const Lines& lines)
+void CMainFrame::ProcessLines(const InputLines& lines)
 {
 	if (lines.empty())
 		return;
@@ -819,7 +819,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 	Pause();
 	ClearLog();
 
-	Line line;
+	InputLine line;
 	line.processName = name;
 	line.systemTime = fileTime;
 	while (ReadLogFileMessage(file, line))

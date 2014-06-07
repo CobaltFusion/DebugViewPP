@@ -10,6 +10,7 @@
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/Line.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -79,9 +80,9 @@ void FileReader::AddLine(const std::string line)
 	Add(line);
 }
 
-std::wstring FileReader::GetProcessName(HANDLE /*handle*/) const
+std::string FileReader::GetProcessName(HANDLE /*handle*/) const
 {
-	return WStr(m_filenameOnly).str();
+	return m_filenameOnly;
 }
 
 
@@ -105,16 +106,13 @@ std::wstring FileReader::GetProcessName(HANDLE /*handle*/) const
 
 
 DBLogReader::DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename) : 
-	FileReader(linebuffer, filename),
-	m_time(GetSystemTimeAsFileTime())
+	FileReader(linebuffer, filename)
 {
 }
 
 void DBLogReader::AddLine(const std::string data)
 {
-	Line line;
-	line.systemTime = m_time;
-	line.processName = m_name;
+	InputLine line;
 	ReadLogFileMessage(data, line);
 	Add(line.message);
 }

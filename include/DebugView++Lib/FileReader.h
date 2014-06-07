@@ -26,7 +26,7 @@ public:
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 	virtual void AddLine(const std::string line);
-	virtual std::wstring GetProcessName(HANDLE handle) const;
+	virtual std::string GetProcessName(HANDLE handle) const;
 
 protected:
 	std::string m_filename;	
@@ -47,8 +47,6 @@ class DBLogReader : public FileReader
 public:
 	explicit DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename);
 	virtual void AddLine(const std::string data);
-private:
-	FILETIME m_time;
 };
 
 } // namespace debugviewpp 

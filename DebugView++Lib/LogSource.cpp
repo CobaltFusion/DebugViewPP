@@ -70,9 +70,9 @@ void LogSource::Add(const std::string& message, HANDLE handle)
 	Add(message.c_str(), handle);
 }
 
-std::wstring LogSource::GetProcessName(HANDLE handle) const
+std::string LogSource::GetProcessName(HANDLE handle) const
 {
-	return ProcessInfo::GetProcessName(handle);
+	return Str(ProcessInfo::GetProcessName(handle)).str();
 }
 
 } // namespace debugviewpp 

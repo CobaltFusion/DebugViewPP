@@ -21,11 +21,6 @@ NewlineFilter::NewlineFilter() :
 
 InputLines NewlineFilter::Process(const InputLines& inputlines)
 {
-	// important: flush the terminated processes before processing new lines
-	// because some new lines may also be from terminated processes, but they
-	// must not be flushed yet.
-	auto flushedLines = FlushLinesFromTerminatedProcesses();
-
 	InputLines lines;
 	for (auto i = inputlines.begin(); i != inputlines.end(); ++i)
 	{
@@ -35,6 +30,7 @@ InputLines NewlineFilter::Process(const InputLines& inputlines)
 			lines.push_back(*i);
 		}
 	}
+	FlushLinesFromTerminatedProcesses(lines);
 	return lines;
 }
 
@@ -45,12 +41,11 @@ InputLines NewlineFilter::Process(const InputLine& line)
 	return lines;
 }
 
-InputLines NewlineFilter::FlushLinesFromTerminatedProcesses()
+void NewlineFilter::FlushLinesFromTerminatedProcesses(InputLines& lines)
 {
 	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
-		return InputLines();
+		return;
 
-	InputLines lines;
 	auto removedPIDMap = m_handleCache.CleanupMap();
 	for (auto i = removedPIDMap.begin(); i != removedPIDMap.end(); i++)
 	{
@@ -58,12 +53,12 @@ InputLines NewlineFilter::FlushLinesFromTerminatedProcesses()
 		if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 		{
 			if (!m_lineBuffers[pid].empty())
-				lines.push_back(InputLine(m_timer.Get(), GetSystemTimeAsFileTime(), i->second, LineType::Flush, m_lineBuffers[pid], 0));
+				lines.push_back(InputLine(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<flush>", m_lineBuffers[pid], nullptr));		// todo: messagetimestamp makes no sence, and can be out of order, maybe create a Loopback LogSource?
+			lines.push_back(InputLine(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<terminated>", m_lineBuffers[pid], nullptr));		
 			m_lineBuffers.erase(pid);
 		}
 	}
 	m_handleCacheTime = m_timer.Get();
-	return lines;
 }
 
 } // namespace debugviewpp 

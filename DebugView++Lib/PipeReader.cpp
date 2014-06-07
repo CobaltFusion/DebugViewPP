@@ -32,9 +32,9 @@ void PipeReader::Notify()
 	// add a lines using LogSource::Add
 }
 
-Line PipeReader::MakeLine(const std::string& text) const
+InputLine PipeReader::MakeLine(const std::string& text) const
 {
-	Line line;
+	InputLine line;
 	line.time = m_timer.Get();
 	line.systemTime = GetSystemTimeAsFileTime();
 	line.pid = m_pid;
@@ -48,9 +48,9 @@ bool PipeReader::AtEnd() const
 	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
 }
 
-Lines PipeReader::GetLines()	// depricated, never called
+InputLines PipeReader::GetLines()	// depricated, never called
 {
-	Lines lines;
+	InputLines lines;
 	char buf[4096];
 	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf);
 

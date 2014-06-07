@@ -15,41 +15,21 @@ namespace debugviewpp {
 
 class LogSource;
 
-struct LineType
+struct InputLine
 {
-	enum type
-	{
-		Normal,
-		Flush
-	};
-};
-
-struct InputLine		// remove existing Line struct and rename "InputLine" to "Line"
-{
-	InputLine(double time = 0.0, FILETIME systemTime = FILETIME(), HANDLE handle = nullptr, LineType::type type = LineType::Normal, const std::string& message = "", LogSource* logsource = nullptr);
+	InputLine(double time, FILETIME systemTime, HANDLE handle, const std::string& message, LogSource* logsource);
+	InputLine(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "", LogSource* logsource = nullptr);
 
 	double time;
 	FILETIME systemTime;
 	HANDLE handle;
+	DWORD pid;
+	std::string processName;
 	std::string message;
-	LineType::type type;
 	LogSource* logsource;
 };
 
 typedef std::vector<InputLine> InputLines;
-
-struct Line
-{
-	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "");
-
-	double time;
-	FILETIME systemTime;
-	DWORD pid;
-	std::string processName;
-	std::string message;
-};
-
-typedef std::vector<Line> Lines;
 
 } // namespace debugviewpp 
 } // namespace fusion
