@@ -24,12 +24,12 @@ PipeReader::PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const s
 
 HANDLE PipeReader::GetHandle() const
 {
-	return 0;	// todo::implement
+	return 0;	// todo::implement, maybe add a timer? 
 }
 
 void PipeReader::Notify()
 {
-	// add a line to CircularBuffer
+	// add a lines using LogSource::Add
 }
 
 Line PipeReader::MakeLine(const std::string& text) const
@@ -48,7 +48,7 @@ bool PipeReader::AtEnd() const
 	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
 }
 
-Lines PipeReader::GetLines()
+Lines PipeReader::GetLines()	// depricated, never called
 {
 	Lines lines;
 	char buf[4096];

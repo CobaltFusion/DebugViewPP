@@ -30,11 +30,6 @@ public:
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual Lines GetLines();
-
-	void Add(HANDLE handle, const char* text);
-private:
-	Timer m_timer;
 };
 
 } // namespace debugviewpp 

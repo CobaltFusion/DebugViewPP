@@ -10,7 +10,6 @@
 #include <boost/thread.hpp>
 #include "PipeReader.h"
 #include "Process.h"
-#include "Win32Lib/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -26,37 +25,29 @@ public:
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual Lines GetLines();
+	virtual void AddLine(const std::string line);
+	virtual std::wstring GetProcessName(HANDLE handle) const;
 
 protected:
-	virtual void Add(const std::string& line);
-	Timer m_timer;
-
-	boost::mutex m_linesMutex;
-	Lines m_buffer;
-	std::wstring m_filename;	
+	std::string m_filename;	
 	std::string m_name;	
 
 private:
-	void Run();
+	void ReadUntilEof();
     void Abort();
 
     bool m_end;
 	ChangeNotificationHandle m_handle;
-	boost::thread m_thread;
+	std::ifstream m_ifstream;
+	std::string m_filenameOnly;
 };
-
-class ILineBuffer;
 
 class DBLogReader : public FileReader
 {
 public:
 	explicit DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename);
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-
+	virtual void AddLine(const std::string data);
 private:
-	virtual void Add(const std::string& line);
 	FILETIME m_time;
 };
 

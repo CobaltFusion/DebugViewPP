@@ -43,35 +43,17 @@ public:
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual Lines GetLines();
-
-	void Abort();
+	void Abort();			//todo: can't abort be made private?
 
 private:
-	void Add(DWORD pid, const char* text, HANDLE handle);
-	void AddLine(const DBWinMessage& DBWinMessage);
-	Lines ProcessLines(const DBWinMessages& lines);
-	Lines ProcessLine(const Line& DBWinMessage);
-	Lines CheckHandleCache();
-
-	DBWinMessages m_lines;
-	DBWinMessages m_backBuffer;
-	mutable boost::mutex m_linesMutex;
-	Timer m_timer;
-
 	bool m_end;
 	Handle m_hBuffer;
 	Handle m_dbWinBufferReady;
 	Handle m_dbWinDataReady;
 	
-	double m_handleCacheTime;
-	std::map<DWORD, std::string> m_lineBuffers;
-
 	// make sure the thread is last to initialize
 	MappedViewOfFile m_mappedViewOfFile;
 	const DbWinBuffer* m_dbWinBuffer;
-
-	ProcessHandleCache m_handleCache;
 };
 
 } // namespace debugviewpp 

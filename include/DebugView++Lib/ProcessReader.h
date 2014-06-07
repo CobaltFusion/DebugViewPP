@@ -23,7 +23,7 @@ public:
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual Lines GetLines();
+	virtual Lines GetLines();		// todo: depricated, remove
 
 private:
 	Process m_process;

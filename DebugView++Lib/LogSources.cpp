@@ -141,7 +141,6 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 	}
 }
 
-#ifdef USE_NEW_LOGSOURCE_PATH
 Lines LogSources::GetLines()
 {
 	auto inputLines = m_newlineFilter.Process(m_linebuffer.GetLines());
@@ -166,30 +165,7 @@ Lines LogSources::GetLines()
 	}
 	return lines;
 }
-#else
-Lines LogSources::GetLines()			// depricated, remove
-{
-	if (m_sources.empty())
-		return Lines();
 
-	auto pred = [](const Line& a, const Line& b) { return a.time < b.time; };
-	Lines lines;
-	for (auto it = m_sources.begin(); it != m_sources.end(); )
-	{
-		Lines pipeLines((*it)->GetLines());
-		Lines lines2;
-		lines2.reserve(lines.size() + pipeLines.size());
-		std::merge(lines.begin(), lines.end(), pipeLines.begin(), pipeLines.end(), std::back_inserter(lines2), pred);
-		lines.swap(lines2);
-
-		if ((*it)->AtEnd())
-			it = m_sources.erase(it);	// todo: erase an element of the list we're iterating? 
-		else
-			++it;
-	}
-	return lines;
-}
-#endif
 std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
 {
 	auto dbwinreader = std::make_shared<DBWinReader>(m_linebuffer, global);

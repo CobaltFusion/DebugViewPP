@@ -36,8 +36,6 @@ struct InputLine		// remove existing Line struct and rename "InputLine" to "Line
 	LogSource* logsource;
 };
 
-//todo: move extra fields from InputLine into Line !! different fields are used at different times during lifetime of Line
-
 typedef std::vector<InputLine> InputLines;
 
 struct Line

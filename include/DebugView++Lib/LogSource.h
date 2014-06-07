@@ -9,8 +9,7 @@
 
 #include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/SourceType.h"
-
-//#define USE_NEW_LOGSOURCE_PATH
+#include "Win32Lib/utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -29,12 +28,15 @@ public:
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
 	virtual void Notify() = 0;
-	virtual Lines GetLines() = 0;		// replaced by LogSources::GetLines(), remove once circular buffer is completed
 	virtual std::wstring GetProcessName(HANDLE handle) const;
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);
 	SourceType::type GetSourceType() const;
+	void Add(const char* message, HANDLE handle = 0);
+	void Add(const std::string& message, HANDLE handle = 0);
+
+	// only used when reading from files
 	void Add(double time, FILETIME systemTime, HANDLE handle, const char* message);
 
 private:
@@ -42,6 +44,7 @@ private:
 	ILineBuffer& m_linebuffer;
 	std::wstring m_description;
 	SourceType::type m_sourceType;
+	Timer m_timer;
 };
 
 } // namespace debugviewpp 

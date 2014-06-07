@@ -35,15 +35,6 @@ void TestSource::Notify()
 {
 }
 
-Lines TestSource::GetLines()									// depricated, remove
-{
-	return Lines();
-}
-
-void TestSource::Add(HANDLE handle, const char* text)
-{
-	LogSource::Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, text);
-}
 
 } // namespace debugviewpp 
 } // namespace fusion
