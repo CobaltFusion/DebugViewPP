@@ -47,12 +47,8 @@ BOOST_AUTO_TEST_CASE(HandleTest)
 	HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	Handle handle(rawHandle);
 	{ 
-		BOOST_MESSAGE("rawHandle: " << rawHandle);
-		BOOST_MESSAGE("handle: " << handle.get());
 		BOOST_REQUIRE_EQUAL(handle.get(), rawHandle);
 		Handle handle1(std::move(handle));
-		BOOST_MESSAGE("handle: " << handle.get());
-		BOOST_MESSAGE("handle1: " << handle1.get());
 		BOOST_REQUIRE_EQUAL(handle.get(), HANDLE(0));
 		BOOST_REQUIRE_EQUAL(handle1.get(), rawHandle);
 		{
@@ -73,24 +69,14 @@ BOOST_AUTO_TEST_CASE(HandleTest)
 			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(0));
 			BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(0));
 		}
+		// this scope ensures having a Handle leave scope that had its guts ripped out by std::move 
+		// will not cause nullpointers or exections
 	}
-
 }
 
 BOOST_AUTO_TEST_CASE(LineBufferTest1)
 {
 	TestLineBuffer buffer(64);
-
-	HANDLE rawHandle = 0; //::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
-	Handle handle(rawHandle);
-	{ 
-		BOOST_MESSAGE("rawHandle: " << rawHandle);
-		BOOST_MESSAGE("handle: " << handle.get());
-		Handle handle1(std::move(handle));
-		BOOST_MESSAGE("handle: " << handle.get());
-		BOOST_MESSAGE("handle1: " << handle1.get());
-	}	
-	BOOST_MESSAGE("done.");
 	FILETIME ft;
 	ft.dwLowDateTime = 42;
 	ft.dwHighDateTime = 43;
@@ -197,11 +183,11 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	Timer timer;
 
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", nullptr);
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", logsource.get());
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", nullptr);
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", logsource.get());
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", nullptr);
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", logsource.get());
 	BOOST_MESSAGE("3 lines added.");
 
 	auto lines = logsources.GetLines();
