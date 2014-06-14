@@ -10,6 +10,7 @@
 #include <boost/utility.hpp>
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogSource.h"
+#include <boost/thread.hpp>
 
 namespace fusion {
 namespace debugviewpp {
