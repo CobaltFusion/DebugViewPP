@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/NewlineFilter.h"
+#include "DebugView++Lib/LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -49,7 +50,7 @@ Lines NewlineFilter::Process(const Line& line)
 	{
 		m_lineBuffers.erase(line.pid);
 	}
-	else if (message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	else if (outputLine.logsource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
 	{
 		outputLine.message = message;
 		message.clear();
@@ -75,7 +76,7 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcesses(PIDMap terminatedProcesse
 			}
 			m_lineBuffers.erase(pid);
 		}
-		lines.push_back(Line(0.0, FILETIME(), pid, "<debug>", "<terminated>", nullptr));
+		lines.push_back(Line(0.0, FILETIME(), pid, "<terminated>", "", nullptr));
 	}
 	return lines;
 }

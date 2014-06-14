@@ -181,19 +181,12 @@ Lines LogSources::GetLines()
 			inputLine.handle = 0;
 		}
 
-		if (inputLine.logsource->GetAutoNewLine())
+		// since a line can contain multiple newlines, processing 1 line can output
+		// multiple lines, in this case the timestamp for each line is the same.
+		auto processedLines = m_newlineFilter.Process(inputLine);
+		for (auto it = processedLines.begin(); it != processedLines.end(); ++it )
 		{
-			// since a line can contain multiple newlines, processing 1 line can output
-			// multiple lines, in this case the timestamp for each line is the same.
-			auto processedLines = m_newlineFilter.Process(inputLine);
-			for (auto it = processedLines.begin(); it != processedLines.end(); ++it )
-			{
-				lines.push_back(*it);
-			}
-		}
-		else
-		{
-			lines.push_back(inputLine);
+			lines.push_back(*it);
 		}
 	}
 	return lines;
