@@ -494,7 +494,7 @@ bool CMainFrame::LoadSettings()
 		SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
 	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
-	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
+	m_logSources.SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
 	SetAlwaysOnTop(RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
 
 	m_applicationName = RegGetStringValue(reg, L"ApplicationName", L"DebugView++");
@@ -584,16 +584,6 @@ void CMainFrame::SaveSettings()
 	auto colors = ColorDialog::GetCustomColors();
 	for (int i = 0; i < 16; ++i)
 		regColors.SetDWORDValue(WStr(wstringbuilder() << L"Color" << i), colors[i]);
-}
-
-bool CMainFrame::GetAutoNewLine() const
-{
-	return m_logSources.GetAutoNewLine();
-}
-
-void CMainFrame::SetAutoNewLine(bool value)
-{
-	m_logSources.SetAutoNewLine(value);
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
@@ -880,7 +870,7 @@ void CMainFrame::OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	SetAutoNewLine(!GetAutoNewLine());
+	m_logSources.SetAutoNewLine(!m_logSources.GetAutoNewLine());
 }
 
 void CMainFrame::OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -964,8 +954,6 @@ void CMainFrame::Resume()
 		}
 	}
 
-	SetAutoNewLine(GetAutoNewLine());
-	
 	std::wstring title = L"Paused";
 	if (m_pLocalReader && m_pGlobalReader)
 	{

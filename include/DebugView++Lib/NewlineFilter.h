@@ -19,15 +19,9 @@ namespace debugviewpp {
 class NewlineFilter {
 public:
 	NewlineFilter();
-	Lines Process(const Lines& inputlines);
 	Lines Process(const Line& line);
-	void FlushLinesFromTerminatedProcesses(Lines& inputlines);
-
-	double m_handleCacheTime;
+	Lines FlushLinesFromTerminatedProcesses(PIDMap terminatedProcessesMap);
 	std::map<DWORD, std::string> m_lineBuffers;
-
-	ProcessHandleCache m_handleCache;
-	Timer m_timer;
 };
 
 } // namespace debugviewpp 

@@ -21,21 +21,24 @@ public:
 	LogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
 	virtual ~LogSource();
 	
-	void SetLineBuffer(ILineBuffer& linebuffer);
-	void SetAutoNewLine(bool value);
-	bool GetAutoNewLine() const;
-
+	virtual void SetAutoNewLine(bool value);
+	virtual bool GetAutoNewLine() const;
 	virtual bool AtEnd() const = 0;
 	virtual HANDLE GetHandle() const = 0;
 	virtual void Notify() = 0;
-	virtual std::string GetProcessName(HANDLE handle) const;
+	virtual std::string GetProcessName(const Line& line) const;
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);
 	SourceType::type GetSourceType() const;
+
+	// for DBWIN messages
 	void Add(const char* message, HANDLE handle = 0);
 
-	// only used when reading from files
+	// for Loopback message 
+	void Add(DWORD pid, const char* processName, const char* message, LogSource* logsource);
+
+	// used when reading from files
 	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource);
 
 private:

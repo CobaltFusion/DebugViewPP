@@ -12,53 +12,72 @@
 namespace fusion {
 namespace debugviewpp {
 
-const double g_handleCacheTimeout = 15.0; //seconds
-
-NewlineFilter::NewlineFilter() :
-	m_handleCacheTime(0.0)
+NewlineFilter::NewlineFilter()
 {
-}
-
-Lines NewlineFilter::Process(const Lines& inputlines)
-{
-	Lines lines;
-	for (auto i = inputlines.begin(); i != inputlines.end(); ++i)
-	{
-		auto processedLines = Process(*i);
-		for (auto i = processedLines.begin(); i != processedLines.end(); ++i)
-		{
-			lines.push_back(*i);
-		}
-	}
-	FlushLinesFromTerminatedProcesses(lines);
-	return lines;
 }
 
 Lines NewlineFilter::Process(const Line& line)
 {
 	Lines lines;
-	lines.push_back(line);
+	if (m_lineBuffers.find(line.pid) == m_lineBuffers.end())
+	{
+		std::string message;
+		message.reserve(4000);
+		m_lineBuffers[line.pid] = std::move(message);
+	}
+	std::string& message = m_lineBuffers[line.pid];
+
+	Line outputLine = line;
+	for (auto i = line.message.begin(); i != line.message.end(); i++)
+	{
+		if (*i == '\r')
+			continue;
+
+		if (*i == '\n')
+		{
+			outputLine.message = message;
+			message.clear();
+			lines.push_back(outputLine);
+		}
+		else
+		{
+			message.push_back(char(*i));
+		}
+	}
+
+	if (message.empty())
+	{
+		m_lineBuffers.erase(line.pid);
+	}
+	else if (message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	{
+		outputLine.message = message;
+		message.clear();
+		lines.push_back(outputLine);
+	}
 	return lines;
 }
 
-void NewlineFilter::FlushLinesFromTerminatedProcesses(Lines& lines)
+Lines NewlineFilter::FlushLinesFromTerminatedProcesses(PIDMap terminatedProcessesMap)
 {
-	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
-		return;
+	Lines lines;
+	//lines.push_back(Line(0.0, FILETIME(), 0, "<debug>", "<newline cache checked>", nullptr));
 
-	auto removedPIDMap = m_handleCache.CleanupMap();
-	for (auto i = removedPIDMap.begin(); i != removedPIDMap.end(); i++)
+	for (auto i = terminatedProcessesMap.begin(); i != terminatedProcessesMap.end(); i++)
 	{
 		DWORD pid = i->first;
 		if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 		{
 			if (!m_lineBuffers[pid].empty())
-				lines.push_back(Line(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<flush>", m_lineBuffers[pid], nullptr));		// todo: messagetimestamp makes no sence, and can be out of order, maybe create a Loopback LogSource?
-			lines.push_back(Line(m_timer.Get(), GetSystemTimeAsFileTime(), pid, "<terminated>", m_lineBuffers[pid], nullptr));		
+			{
+				// timestamp not filled, this will be done by the loopback source
+				lines.push_back(Line(0.0, FILETIME(), pid, "<flush>", m_lineBuffers[pid], nullptr));
+			}
 			m_lineBuffers.erase(pid);
 		}
+		lines.push_back(Line(0.0, FILETIME(), pid, "<debug>", "<terminated>", nullptr));
 	}
-	m_handleCacheTime = m_timer.Get();
+	return lines;
 }
 
 } // namespace debugviewpp 

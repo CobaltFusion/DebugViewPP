@@ -26,8 +26,9 @@ class FileReader;
 class DBLogReader;
 class PipeReader;
 class TestSource;
+class Loopback;
 
-typedef std::vector<HANDLE> LogSourcesHandles;
+typedef std::vector<HANDLE> LogSourceHandles;
 
 class LogSources
 {
@@ -55,16 +56,21 @@ public:
 
 private:
 	void Add(std::shared_ptr<LogSource> source);
-	LogSourcesHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
+	LogSourceHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
 	void Process(std::shared_ptr<LogSource>);
+	void CheckForTerminatedProcesses();
+
 	bool m_autoNewLine;
 	boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
 	bool m_end;
-	LineBuffer m_linebuffer;				// Replace with LineBuffer (which is circular) once it is finished, currently buggy...
+	VectorLineBuffer m_linebuffer;				// Replace with LineBuffer (which is circular) once it is finished, currently buggy...
 	ProcessHandleCache m_handleCache;
 	NewlineFilter m_newlineFilter;
+	std::shared_ptr<Loopback> m_loopback;
+	Timer m_timer;
+	double m_handleCacheTime;
 
 	// make sure the thread is last to initialize
 	boost::thread m_thread;

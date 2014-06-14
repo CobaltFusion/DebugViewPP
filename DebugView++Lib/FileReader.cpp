@@ -27,7 +27,7 @@ FileReader::FileReader(ILineBuffer& linebuffer, const std::wstring& filename) :
 	SetDescription(filename);
 	if (m_ifstream.is_open())
 	{
-		ReadUntilEof();
+		ReadUntilEof();			// todo: this will deadlock with large files, because it is called on the UI thread, and the a polling UI timer also reads the circular buffer
 		m_end = false;
 	}
 }
@@ -62,7 +62,7 @@ void FileReader::ReadUntilEof()
 {
 	std::string line;
 	while (std::getline(m_ifstream, line))
-		Add(line.c_str());
+		AddLine(line);
 	if (!m_ifstream.eof()) 
 	{
 		// Some error other then EOF occured
@@ -76,16 +76,15 @@ void FileReader::ReadUntilEof()
 	}
 }
 
-void FileReader::AddLine(const std::string line)
+void FileReader::AddLine(const std::string& line)
 {
 	Add(line.c_str());
 }
 
-std::string FileReader::GetProcessName(HANDLE /*handle*/) const
+std::string FileReader::GetProcessName(const Line& /*line*/) const
 {
 	return m_filenameOnly;
 }
-
 
 // todo: Reading support for more filetypes, maybe not, who logs in unicode anyway?
 // posepone until we have a valid usecase
@@ -111,7 +110,7 @@ DBLogReader::DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename) 
 {
 }
 
-void DBLogReader::AddLine(const std::string data)
+void DBLogReader::AddLine(const std::string& data)
 {
 	Line line;
 	ReadLogFileMessage(data, line);

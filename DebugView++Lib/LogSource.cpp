@@ -25,11 +25,6 @@ LogSource::~LogSource()
 {
 }
 
-void LogSource::SetLineBuffer(ILineBuffer& linebuffer)
-{
-	m_linebuffer = linebuffer;
-}
-
 void LogSource::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
@@ -60,14 +55,19 @@ void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const char* pro
 	m_linebuffer.Add(time, systemTime, pid, processName, message, logsource);
 }
 
+void LogSource::Add(DWORD pid, const char* processName, const char* message, LogSource* logsource)
+{
+	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), pid, processName, message, logsource);
+}
+
 void LogSource::Add(const char* message, HANDLE handle)
 {
 	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, message, this);
 }
 
-std::string LogSource::GetProcessName(HANDLE handle) const
+std::string LogSource::GetProcessName(const Line& line) const
 {
-	return Str(ProcessInfo::GetProcessName(handle)).str();
+	return Str(ProcessInfo::GetProcessName(line.handle)).str();
 }
 
 } // namespace debugviewpp 

@@ -24,14 +24,14 @@ Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& m
 Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, LogSource* logsource) :
 	time(time),
 	systemTime(systemTime),
-	handle(INVALID_HANDLE_VALUE),
+	handle(0),		// dont use INVALID_HANDLE_VALUE, as it is in fact a valid pseudo handle to your own process
 	pid(pid),
 	processName(processName),
 	message(message),
 	logsource(logsource)
 {
 }
-	
+
 
 } // namespace debugviewpp 
 } // namespace fusion

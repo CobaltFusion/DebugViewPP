@@ -110,8 +110,6 @@ private:
 	bool IsPaused() const;
 	void Pause();
 	void Resume();
-	bool GetAutoNewLine() const;
-	void SetAutoNewLine(bool value);
 	bool GetAlwaysOnTop() const;
 	void SetAlwaysOnTop(bool value);
 

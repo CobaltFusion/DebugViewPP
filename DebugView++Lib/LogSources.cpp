@@ -18,6 +18,7 @@
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
+#include "DebugView++Lib/Loopback.h"
 
 // class Logsources heeft vector<LogSource> en start in zijn constructor een thread voor LogSources::Listen()
 // - Listen() vraagt GetHandle() aan elke LogSource in m_sources en roept Notify() op de LogSource waarvan de handle gesignaled wordt.
@@ -26,6 +27,8 @@
 
 namespace fusion {
 namespace debugviewpp {
+
+const double g_handleCacheTimeout = 5.0; //seconds
 
 std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
 {
@@ -37,8 +40,11 @@ LogSources::LogSources(bool startListening) :
 	m_end(false),
 	m_autoNewLine(false),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
-	m_linebuffer(64*1024)
+	m_linebuffer(64*1024),
+	m_loopback(std::make_shared<Loopback>(m_linebuffer)),
+	m_handleCacheTime(0.0)
 {
+	Add(m_loopback);
 	if (startListening)
 	{
 		m_thread = boost::thread(&LogSources::Listen, this);
@@ -66,10 +72,9 @@ void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
-	for (auto i = m_sources.begin(); i != m_sources.end(); i++)
+	for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
 	{
-		auto source = *i;
-		source->SetAutoNewLine(value);
+		(*i)->SetAutoNewLine(value);
 	}
 }
 
@@ -85,9 +90,9 @@ void LogSources::Abort()
 	m_thread.join();
 }
 
-LogSourcesHandles LogSources::GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const
+LogSourceHandles LogSources::GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const
 {
-	LogSourcesHandles handles;
+	LogSourceHandles handles;
 	for (auto i = logsources.begin(); i != logsources.end(); i++)
 	{
 		auto handle = (*i)->GetHandle();
@@ -134,27 +139,62 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 	}
 }
 
+void LogSources::CheckForTerminatedProcesses()
+{
+	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
+		return;
+	
+	// add messages to inputLines would mess up the timestamp-order
+	// instead put them in the m_loopback buffer for processing.
+
+	auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcesses(m_handleCache.CleanupMap());
+	for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it )
+	{
+		Line& line = *it;
+		m_loopback->AddMessage(line.pid, line.processName.c_str(), line.message.c_str());
+	}
+	if (!flushedLines.empty())
+		m_loopback->Signal();
+	m_handleCacheTime = m_timer.Get();
+}
+
 Lines LogSources::GetLines()
 {
-	auto inputLines = m_newlineFilter.Process(m_linebuffer.GetLines());
+	CheckForTerminatedProcesses();
 
+	auto inputLines = m_linebuffer.GetLines();
 	Lines lines;
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
 	{
 		auto inputLine = *it;
-		inputLine.pid = GetProcessId(inputLine.handle);
+
+		// let the logsource decide how to create processname
 		if (inputLine.logsource != nullptr)
 		{
-			inputLine.processName = Str(inputLine.logsource->GetProcessName(inputLine.handle)).str();
+			inputLine.processName = inputLine.logsource->GetProcessName(inputLine);
 		}
 		
-		if (inputLine.handle != INVALID_HANDLE_VALUE)
+		if (inputLine.handle != 0)
 		{
-			Handle processHandle(inputLine.handle);
-			m_handleCache.Add(inputLine.pid, std::move(processHandle));
+			inputLine.pid = GetProcessId(inputLine.handle);
+			m_handleCache.Add(inputLine.pid, std::move(Handle(inputLine.handle)));
 			inputLine.handle = 0;
 		}
-		lines.push_back(inputLine);
+
+		if (inputLine.logsource->GetAutoNewLine())
+		{
+			// since a line can contain multiple newlines, processing 1 line can output
+			// multiple lines, in this case the timestamp for each line is the same.
+			auto processedLines = m_newlineFilter.Process(inputLine);
+			for (auto it = processedLines.begin(); it != processedLines.end(); ++it )
+			{
+				lines.push_back(*it);
+			}
+		}
+		else
+		{
+			lines.push_back(inputLine);
+		}
 	}
 	return lines;
 }
@@ -162,7 +202,6 @@ Lines LogSources::GetLines()
 std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
 {
 	auto dbwinreader = std::make_shared<DBWinReader>(m_linebuffer, global);
-	dbwinreader->SetAutoNewLine(m_autoNewLine);
 	Add(dbwinreader);
 	return dbwinreader;
 }
@@ -177,7 +216,6 @@ std::shared_ptr<TestSource> LogSources::AddTestSource()
 std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
 	auto processReader = std::make_shared<ProcessReader>(m_linebuffer, pathName, args);
-	processReader->SetAutoNewLine(m_autoNewLine);
 	Add(processReader);
 	return processReader;
 }
@@ -185,7 +223,6 @@ std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& 
 std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
 {
 	auto filereader = std::make_shared<FileReader>(m_linebuffer, filename);
-	filereader->SetAutoNewLine(m_autoNewLine);
 	Add(filereader);
 	return filereader;
 }
@@ -193,7 +230,6 @@ std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filena
 std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
 {
 	auto dblogreader = std::make_shared<DBLogReader>(m_linebuffer, filename);
-	dblogreader->SetAutoNewLine(m_autoNewLine);
 	Add(dblogreader);
 	return dblogreader;
 }
@@ -202,7 +238,6 @@ std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 {
 	auto processName = Str(ProcessInfo::GetProcessNameByPid(pid)).str();
 	auto pipeReader = std::make_shared<PipeReader>(m_linebuffer, hPipe, pid, processName);
-	pipeReader->SetAutoNewLine(m_autoNewLine);
 	return pipeReader;
 }
 
