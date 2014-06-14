@@ -185,16 +185,21 @@ void SeparateProcessTest()
 
 void CoutCerrTest()
 {
-    std::cout << "Message on cout 1\n";
-    std::cout << "Message on cout 2\n";
-    std::cerr << "Message on cerr 1\n";
-    std::cerr << "Message on cerr 2\n";
-    std::cout << "Message on cout 3\n";
-    std::cerr << "Message on cerr 3\n";
-    std::cout << "Message on cout 4\n";
-    std::cerr << "Message on cerr 4\n";
-    std::cout << "Message on cout 5\n";
-    std::cerr << "Message on cerr 5\n";
+	for (int i=1; i <= 5; ++i)
+	{
+		std::cout << "========= cycle " << i << "/5 ========\n";
+		std::cout << "Message on cout 1\n";
+		std::cout << "Message on cout 2\n";
+		std::cerr << "Message on cerr 1\n";
+		std::cerr << "Message on cerr 2\n";
+		std::cout << "Message on cout 3\n";
+		std::cerr << "Message on cerr 3\n";
+		std::cout << "Message on cout 4\n";
+		std::cerr << "Message on cerr 4\n";
+		std::cout << "Message on cout 5\n";
+		std::cerr << "Message on cerr 5\n";
+		Sleep(2000);
+	}
 }
 
 void PrintUsage()

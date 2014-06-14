@@ -16,6 +16,8 @@ Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& m
 	time(time),
 	systemTime(systemTime),
 	handle(handle),
+	pid(0),
+	processName(""),
 	message(message),
 	logsource(logsource)
 {

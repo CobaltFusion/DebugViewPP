@@ -9,26 +9,24 @@
 
 #include <boost/utility.hpp>
 #include "Win32Lib/utilities.h"
-#include "LogSource.h"
-#include "PassiveLogSource.h"
+#include "DebugView++Lib/LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
 
-class PipeReader : public PassiveLogSource
+class PassiveLogSource : public LogSource
 {
 public:
-	PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName);
+	PassiveLogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
 
-	virtual bool AtEnd() const;
-	virtual void AddLines();
+	virtual void Wakeup();
+	virtual HANDLE GetHandle() const;
+	virtual void Notify();
+	virtual void AddLines() = 0;
 private:
-	HANDLE m_hPipe;
-	DWORD m_pid;
-	std::string m_process;
-	std::string m_buffer;
+	Handle m_handle;
 	boost::mutex m_mutex;
 };
 

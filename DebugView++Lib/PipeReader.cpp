@@ -14,7 +14,7 @@ namespace fusion {
 namespace debugviewpp {
 
 PipeReader::PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName) :
-	LogSource(SourceType::Pipe, linebuffer),
+	PassiveLogSource(SourceType::Pipe, linebuffer),
 	m_hPipe(hPipe),
 	m_pid(pid),
 	m_process(processName)
@@ -22,35 +22,13 @@ PipeReader::PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const s
 	SetDescription(wstringbuilder() << L"Piped from " << processName);
 }
 
-HANDLE PipeReader::GetHandle() const
-{
-	return 0;	// todo::implement, maybe add a timer? 
-}
-
-void PipeReader::Notify()
-{
-	// add a lines using LogSource::Add
-}
-
-Line PipeReader::MakeLine(const std::string& text) const
-{
-	Line line;
-	line.time = m_timer.Get();
-	line.systemTime = GetSystemTimeAsFileTime();
-	line.pid = m_pid;
-	line.processName = m_process;
-	line.message = text;
-	return line;
-}
-
 bool PipeReader::AtEnd() const
 {
 	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
 }
 
-Lines PipeReader::GetLines()	// depricated, never called
+void PipeReader::AddLines()
 {
-	Lines lines;
 	char buf[4096];
 	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf);
 
@@ -68,7 +46,7 @@ Lines PipeReader::GetLines()	// depricated, never called
 		{
 			if (*p == '\0' || *p == '\n' || p - begin > 4000)
 			{
-				lines.push_back(MakeLine(std::string(begin, p)));
+				Add(m_pid, m_process.c_str(), std::string(begin, p).c_str(), this);
 				begin = p + 1;
 			}
 			++p;
@@ -76,7 +54,6 @@ Lines PipeReader::GetLines()	// depricated, never called
 		start = std::copy(begin, end, buf);
 	}
 	m_buffer = std::string(buf, start);
-	return lines;
 }
 
 } // namespace debugviewpp 

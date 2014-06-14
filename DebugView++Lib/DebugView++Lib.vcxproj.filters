@@ -92,6 +92,9 @@
     <ClInclude Include="..\include\DebugView++Lib\Loopback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\DebugView++Lib\PassiveLogSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -170,6 +173,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Loopback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PassiveLogSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

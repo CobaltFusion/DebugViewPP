@@ -91,6 +91,7 @@
     <ClInclude Include="..\include\DebugView++Lib\Loopback.h" />
     <ClInclude Include="..\include\DebugView++Lib\MatchType.h" />
     <ClInclude Include="..\include\DebugView++Lib\NewlineFilter.h" />
+    <ClInclude Include="..\include\DebugView++Lib\PassiveLogSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\Process.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="Loopback.cpp" />
     <ClCompile Include="MatchType.cpp" />
     <ClCompile Include="NewlineFilter.cpp" />
+    <ClCompile Include="PassiveLogSource.cpp" />
     <ClCompile Include="PipeReader.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessHandleCache.cpp" />

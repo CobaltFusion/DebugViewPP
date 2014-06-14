@@ -35,6 +35,11 @@ bool LogSource::GetAutoNewLine() const
 	return m_autoNewLine;
 }
 
+void LogSource::Wakeup()
+{
+	// override if polling is needed
+}
+
 std::wstring LogSource::GetDescription() const
 {
 	return m_description;
@@ -65,9 +70,12 @@ void LogSource::Add(const char* message, HANDLE handle)
 	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, message, this);
 }
 
-std::string LogSource::GetProcessName(const Line& line) const
+void LogSource::PreProcess(Line& line) const
 {
-	return Str(ProcessInfo::GetProcessName(line.handle)).str();
+	if (line.handle != 0)
+	{
+		line.processName = Str(ProcessInfo::GetProcessName(line.handle)).str();
+	}
 }
 
 } // namespace debugviewpp 

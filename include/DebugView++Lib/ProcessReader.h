@@ -8,6 +8,7 @@
 #pragma once
 
 #include "PipeReader.h"
+#include "PassiveLogSource.h"
 #include "Process.h"
 
 namespace fusion {
@@ -15,16 +16,13 @@ namespace debugviewpp {
 
 class ILineBuffer;
 
-class ProcessReader : public LogSource
+class ProcessReader : public PassiveLogSource
 {
 public:
 	ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
 
 	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-	virtual Lines GetLines();		// todo: depricated, remove
-
+	virtual void AddLines();
 private:
 	Process m_process;
 	PipeReader m_stdout;

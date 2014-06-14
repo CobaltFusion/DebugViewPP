@@ -135,6 +135,8 @@ void LogSources::Process(std::shared_ptr<LogSource> logsource)
 	logsource->Notify();
 	if (logsource->AtEnd())
 	{
+		std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
+		m_loopback->Add(Str(msg).str().c_str(), 0);
 		Remove(logsource);
 	}
 }
@@ -160,6 +162,12 @@ void LogSources::CheckForTerminatedProcesses()
 
 Lines LogSources::GetLines()
 {
+	// Wake up poll'd logsources
+	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+	{
+		(*it)->Wakeup();
+	}
+
 	CheckForTerminatedProcesses();
 
 	auto inputLines = m_linebuffer.GetLines();
@@ -171,7 +179,7 @@ Lines LogSources::GetLines()
 		// let the logsource decide how to create processname
 		if (inputLine.logsource != nullptr)
 		{
-			inputLine.processName = inputLine.logsource->GetProcessName(inputLine);
+			inputLine.logsource->PreProcess(inputLine);
 		}
 		
 		if (inputLine.handle != 0)

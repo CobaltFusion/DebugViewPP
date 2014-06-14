@@ -81,9 +81,9 @@ void FileReader::AddLine(const std::string& line)
 	Add(line.c_str());
 }
 
-std::string FileReader::GetProcessName(const Line& /*line*/) const
+void  FileReader::PreProcess(Line& line) const
 {
-	return m_filenameOnly;
+	line.processName = m_filenameOnly;
 }
 
 // todo: Reading support for more filetypes, maybe not, who logs in unicode anyway?

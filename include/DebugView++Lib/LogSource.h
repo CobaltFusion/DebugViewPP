@@ -15,7 +15,7 @@ namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
-class LogSource
+class LogSource : boost::noncopyable
 {
 public:
 	LogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
@@ -23,10 +23,23 @@ public:
 	
 	virtual void SetAutoNewLine(bool value);
 	virtual bool GetAutoNewLine() const;
+
+	// called regularly, a Logsource can poll status of inputs and set an event here
+	// use only if the LogSource does not have a handle to wait for.
+	virtual void Wakeup();
+
+	// return when true is returned, the Logsource is removed at destroyed
 	virtual bool AtEnd() const = 0;
+
+	// return a handle to wait for, Notify() is called when the handle is signaled
 	virtual HANDLE GetHandle() const = 0;
+	
+	// only when nofity is called LogSource::Add may be used to add lines to the LineBuffer
 	virtual void Notify() = 0;
-	virtual std::string GetProcessName(const Line& line) const;
+
+	// called for each line before it is added to the view,
+	// typically used to modify the processname for non-dbwin logsources
+	virtual void PreProcess(Line& line) const;
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);

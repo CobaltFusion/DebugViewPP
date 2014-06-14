@@ -26,7 +26,7 @@ public:
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 	virtual void AddLine(const std::string& line);
-	virtual std::string GetProcessName(const Line& line) const;
+	virtual void PreProcess(Line& line) const;
 
 protected:
 	std::string m_filename;	
