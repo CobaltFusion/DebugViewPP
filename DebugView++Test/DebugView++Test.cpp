@@ -120,8 +120,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2)
 	}
 }
 
-//BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
-void testDisabled2()
+BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 {
 	using namespace indexedstorage;
 
@@ -141,8 +140,7 @@ void testDisabled2()
 	}
 }
 
-//BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
-void testDisabled()
+BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 {
 	using namespace indexedstorage;
 

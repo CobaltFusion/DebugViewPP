@@ -48,14 +48,15 @@ void LineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* pr
 
 Lines LineBuffer::GetLines()
 {
+	//DumpStats();
 	Lines lines;
 	while (!Empty())
 	{
 		auto type = (LineType::type) Read<unsigned char>();
-		auto time = Read<double>();
-		FILETIME systemTime = Read<FILETIME>();
 		if (type == LineType::DBWinMessage)
 		{
+			auto time = Read<double>();
+			FILETIME systemTime = Read<FILETIME>();
 			HANDLE processHandle = Read<HANDLE>();
 			auto message = ReadStringZ();
 			auto logsource = Read<LogSource*>();
@@ -67,7 +68,7 @@ Lines LineBuffer::GetLines()
 			auto processName = ReadStringZ();
 			auto message = ReadStringZ();
 			auto logsource = Read<LogSource*>();
-			lines.push_back(Line(time, systemTime, processId, processName, message, logsource));
+			lines.push_back(Line(0.0, FILETIME(), processId, processName, message, logsource));
 		}
 		//DumpStats();
 	}
