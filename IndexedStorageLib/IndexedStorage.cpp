@@ -23,6 +23,7 @@ bool VectorStorage::Empty() const
 void VectorStorage::Clear()
 {
 	m_storage.clear();
+	m_storage.shrink_to_fit();
 }
 
 int VectorStorage::Add(const std::string& value)
@@ -55,11 +56,14 @@ bool SnappyStorage::Empty() const
 void SnappyStorage::Clear()
 {
 	m_storage.clear();
+	m_storage.shrink_to_fit();
 
 	m_readList.clear();
+	m_readList.shrink_to_fit();
 	m_readBlockIndex = -1;
 
 	m_writeList.clear();
+	m_writeList.shrink_to_fit();
 	m_writeBlockIndex = 0;
 }
 
