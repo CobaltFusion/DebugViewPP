@@ -29,6 +29,12 @@ New features in v1.2
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
 
+Coming up (implemented in head version)
+
+- Redesign of the monitoring code, more flexible and efficient, enable use of any
+  collection as line-buffer (preparation for circular buffer implementation)
+- fixed issues #132, #140
+
 Download Latest
 ----------------
 
