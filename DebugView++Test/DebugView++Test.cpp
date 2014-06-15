@@ -173,6 +173,8 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 	BOOST_REQUIRE_GT(0.50*usedByVector, usedBySnappy);
 }
 
+// execute as:
+// "DebugView++Test.exe" --log_level=test_suite --run_test=*/LogSourcesTest
 BOOST_AUTO_TEST_CASE(LogSourcesTest)
 {
 	LogSources logsources(false);

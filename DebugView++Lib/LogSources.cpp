@@ -30,15 +30,9 @@ namespace debugviewpp {
 
 const double g_handleCacheTimeout = 5.0; //seconds
 
-std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
-{
-	boost::mutex::scoped_lock lock(m_mutex);
-	return m_sources;
-}
-
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
-	m_autoNewLine(false),
+	m_autoNewLine(true),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_linebuffer(64*1024),
 	m_loopback(std::make_shared<Loopback>(m_linebuffer)),
@@ -67,6 +61,19 @@ void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
+}
+
+std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
+{
+	std::vector<std::shared_ptr<LogSource>> sources;
+	boost::mutex::scoped_lock lock(m_mutex);
+	for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
+	{
+		if ((*i) == m_loopback)
+			continue;				
+		sources.push_back(*i);
+	}
+	return sources;
 }
 
 void LogSources::SetAutoNewLine(bool value)

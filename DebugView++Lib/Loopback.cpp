@@ -24,6 +24,7 @@ Loopback::Loopback(ILineBuffer& linebuffer) :
 	LogSource(SourceType::System, linebuffer),
 	m_handle(CreateEvent(NULL, TRUE, FALSE, L"LoopbackEvent"))
 {
+	SetDescription(L"Loopback");
 }
 
 Loopback::~Loopback()
