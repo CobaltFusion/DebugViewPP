@@ -69,6 +69,7 @@ static const FilterType::type MessageFilterTypes[] =
 	FilterType::Track,
 	FilterType::Once,
 	FilterType::Clear,
+	FilterType::Beep
 };
 
 static const FilterType::type ProcessFilterTypes[] =
@@ -78,7 +79,8 @@ static const FilterType::type ProcessFilterTypes[] =
 	FilterType::Highlight,
 	FilterType::Stop,
 	FilterType::Track,
-	FilterType::Once
+	FilterType::Once,
+	FilterType::Beep
 };
 
 static const MatchType::type MatchTypes[] =

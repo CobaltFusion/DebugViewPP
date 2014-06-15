@@ -1228,6 +1228,12 @@ void CLogView::Add(int line, const Message& msg)
 	if (!IsIncluded(msg))
 		return;
 
+	if (IsBeepMessage(msg))
+	{
+		//Beep(1000, 200);
+		MessageBeep(0xFFFFFFFF);	// A simple beep. If the sound card is not available, the sound is generated using the speaker.
+	}
+
 	m_dirty = true;
 	++m_addedLines;
 	int viewline = m_logLines.size();
@@ -1697,7 +1703,14 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 
 bool CLogView::IsClearMessage(const Message& msg) const
 {
-	return debugviewpp::MatchFilterType(m_filter.messageFilters, FilterType::Clear, msg.text);
+	using debugviewpp::MatchFilterType;
+	return MatchFilterType(m_filter.messageFilters, FilterType::Clear, msg.text);
+}
+
+bool CLogView::IsBeepMessage(const Message& msg) const
+{
+	using debugviewpp::MatchFilterType;
+	return MatchFilterType(m_filter.messageFilters, FilterType::Beep, msg.text) || MatchFilterType(m_filter.processFilters, FilterType::Beep, msg.text);
 }
 
 bool CLogView::IsIncluded(const Message& msg)

@@ -255,6 +255,7 @@ private:
 	bool FindProcess(int direction);
 	void ApplyFilters();
 	bool IsClearMessage(const Message& msg) const;
+	bool IsBeepMessage(const Message& msg) const;
 	bool IsIncluded(const Message& msg);
 	bool MatchFilterType(FilterType::type type, const Message& msg) const;
 	TextColor GetTextColor(const Message& msg) const;

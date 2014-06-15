@@ -25,7 +25,8 @@ struct FilterType
 		Stop,
 		Track,
 		Once,
-		Clear
+		Clear,
+		Beep
 	};
 };
 

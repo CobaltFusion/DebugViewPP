@@ -26,7 +26,8 @@ int FilterTypeToInt(FilterType::type value)
 	FILTER_TYPE(Track) \
 	FILTER_TYPE(Stop) \
 	FILTER_TYPE(Clear) \
-	FILTER_TYPE(Once)
+	FILTER_TYPE(Once) \
+	FILTER_TYPE(Beep)
 
 FilterType::type IntToFilterType(int value)
 {
