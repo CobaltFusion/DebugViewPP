@@ -34,12 +34,6 @@ FileReader::FileReader(ILineBuffer& linebuffer, const std::wstring& filename) :
 
 FileReader::~FileReader()
 {
-	Abort();
-}
-
-void FileReader::Abort()
-{
-	m_end = true;
 }
 
 bool FileReader::AtEnd() const

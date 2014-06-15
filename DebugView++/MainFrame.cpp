@@ -901,12 +901,12 @@ void CMainFrame::Pause()
 	SetTitle(L"Paused");
 	if (m_pLocalReader)
 	{
-		m_logSources.Remove(m_pLocalReader);
+		m_pLocalReader->Abort();
 		m_pLocalReader.reset();
 	}
 	if (m_pGlobalReader)
 	{
-		m_logSources.Remove(m_pGlobalReader);
+		m_pGlobalReader->Abort();
 		m_pGlobalReader.reset();
 	}
 }
@@ -961,7 +961,7 @@ void CMainFrame::Resume()
 	{
 		title = L"Capture Win32";
 	} 
-	else if (m_pLocalReader)
+	else if (m_pGlobalReader)
 	{
 		title = L"Capture Global Win32";
 	}
@@ -983,7 +983,10 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	if (m_pLocalReader && m_tryGlobal)
 		Resume();
 	else
+	{
 		m_pGlobalReader->Abort();
+		m_pGlobalReader.reset();
+	}
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

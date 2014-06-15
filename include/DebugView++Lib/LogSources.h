@@ -36,15 +36,13 @@ public:
 	LogSources(bool startListening = false);
 	~LogSources();
 
-	void Remove(std::shared_ptr<LogSource> logsource);
-
 	void SetAutoNewLine(bool value);
 	bool GetAutoNewLine() const;
 
 	void Listen();
 	void Abort();
 	Lines GetLines();
-
+	void Remove(std::shared_ptr<LogSource> logsource);
 	std::vector<std::shared_ptr<LogSource>> GetSources();
 
 	std::shared_ptr<DBWinReader> AddDBWinReader(bool global);
@@ -57,7 +55,6 @@ public:
 private:
 	void Add(std::shared_ptr<LogSource> source);
 	LogSourceHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
-	void Process(std::shared_ptr<LogSource>);
 	void CheckForTerminatedProcesses();
 
 	bool m_autoNewLine;

@@ -21,7 +21,6 @@ class PassiveLogSource : public LogSource
 {
 public:
 	PassiveLogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
-
 	virtual void Wakeup();
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();

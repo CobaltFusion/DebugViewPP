@@ -20,6 +20,7 @@ class ProcessReader : public PassiveLogSource
 {
 public:
 	ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
+	virtual ~ProcessReader();
 
 	virtual bool AtEnd() const;
 	virtual void AddLines();

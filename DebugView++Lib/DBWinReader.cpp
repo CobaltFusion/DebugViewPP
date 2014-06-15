@@ -43,12 +43,6 @@ DBWinReader::DBWinReader(ILineBuffer& linebuffer, bool global) :
 
 DBWinReader::~DBWinReader()
 {
-	Abort();
-}
-
-bool DBWinReader::AtEnd() const
-{
-	return false;
 }
 
 HANDLE DBWinReader::GetHandle() const 
@@ -74,6 +68,8 @@ void DBWinReader::Notify()
 
 void DBWinReader::Abort()
 {
+	LogSource::Abort();
+	SetEvent(m_dbWinDataReady.get());
 }
 
 } // namespace debugviewpp 

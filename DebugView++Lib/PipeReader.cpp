@@ -22,6 +22,11 @@ PipeReader::PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const s
 	SetDescription(wstringbuilder() << L"Piped from " << processName);
 }
 
+PipeReader::~PipeReader()
+{
+
+}
+
 bool PipeReader::AtEnd() const
 {
 	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;

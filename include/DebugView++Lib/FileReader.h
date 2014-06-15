@@ -20,7 +20,7 @@ class FileReader : public LogSource
 {
 public:
 	explicit FileReader(ILineBuffer& linebuffer, const std::wstring& filename);
-    ~FileReader();
+    virtual ~FileReader();
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
@@ -34,8 +34,6 @@ protected:
 
 private:
 	void ReadUntilEof();
-    void Abort();
-
     bool m_end;
 	ChangeNotificationHandle m_handle;
 	std::ifstream m_ifstream;

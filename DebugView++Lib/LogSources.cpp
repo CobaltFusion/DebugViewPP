@@ -59,6 +59,8 @@ void LogSources::Add(std::shared_ptr<LogSource> source)
 
 void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
+	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
+	m_loopback->Add(Str(msg).str().c_str(), 0);
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
 }
@@ -113,8 +115,7 @@ void LogSources::Listen()
 {
 	for (;;)
 	{
-		auto sources = GetSources();
-		auto waitHandles = GetWaitHandles(sources);
+		auto waitHandles = GetWaitHandles(m_sources);
 		auto updateEventIndex = waitHandles.size(); 
 		waitHandles.push_back(m_updateEvent.get());
 
@@ -128,23 +129,18 @@ void LogSources::Listen()
 					break;
 				else
 				{
-					auto logsource = sources[res.index];
-					Process(logsource);
+					auto logsource = m_sources[res.index];
+					if (logsource->AtEnd())
+					{
+						Remove(logsource);
+						break;
+					}
+					else
+						logsource->Notify();
 				}
 		}
 		if (m_end)
 			break;
-	}
-}
-
-void LogSources::Process(std::shared_ptr<LogSource> logsource)
-{
-	logsource->Notify();
-	if (logsource->AtEnd())
-	{
-		std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
-		m_loopback->Add(Str(msg).str().c_str(), 0);
-		Remove(logsource);
 	}
 }
 

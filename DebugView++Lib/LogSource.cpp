@@ -18,13 +18,18 @@ namespace debugviewpp {
 LogSource::LogSource(SourceType::type sourceType, ILineBuffer& linebuffer) : 
 	m_sourceType(sourceType), 
 	m_linebuffer(linebuffer),
-	m_autoNewLine(true)
+	m_autoNewLine(true),
+	m_end(false)
 {
-
 }
 
 LogSource::~LogSource()
 {
+}
+
+bool LogSource::AtEnd() const
+{
+	return m_end;
 }
 
 void LogSource::SetAutoNewLine(bool value)
@@ -78,6 +83,11 @@ void LogSource::PreProcess(Line& line) const
 	{
 		line.processName = Str(ProcessInfo::GetProcessName(line.handle)).str();
 	}
+}
+
+void LogSource::Abort()
+{
+	m_end = true;
 }
 
 } // namespace debugviewpp 

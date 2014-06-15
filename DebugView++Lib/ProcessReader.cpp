@@ -22,6 +22,10 @@ ProcessReader::ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathNa
 	SetDescription(m_process.GetName() + L" stdout/stderr");
 }
 
+ProcessReader::~ProcessReader()
+{
+}
+
 bool ProcessReader::AtEnd() const
 {
 	return m_stdout.AtEnd() && m_stderr.AtEnd();

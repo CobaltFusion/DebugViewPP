@@ -170,8 +170,6 @@ private:
 	bool m_hide;
 	bool m_tryGlobal;
 	CRunDlg m_runDlg;
-	std::shared_ptr<DBWinReader> m_pLocalReader;
-	std::shared_ptr<DBWinReader> m_pGlobalReader;
 	LogSources m_logSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
@@ -180,6 +178,8 @@ private:
 	LOGFONT m_logfont;
 	std::wstring m_applicationName;
 	FILE* m_stdout;
+	std::shared_ptr<DBWinReader> m_pLocalReader;
+	std::shared_ptr<DBWinReader> m_pGlobalReader;
 };
 
 } // namespace debugviewpp 

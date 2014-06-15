@@ -28,8 +28,10 @@ public:
 	// use only if the LogSource does not have a handle to wait for.
 	virtual void Wakeup();
 
-	// return when true is returned, the Logsource is removed at destroyed
-	virtual bool AtEnd() const = 0;
+	virtual void Abort();
+
+	// return when true is returned, the Logsource is removed from LogSources and usually the means it leave scope
+	virtual bool AtEnd() const;
 
 	// return a handle to wait for, Notify() is called when the handle is signaled
 	virtual HANDLE GetHandle() const = 0;
@@ -60,6 +62,7 @@ private:
 	std::wstring m_description;
 	SourceType::type m_sourceType;
 	Timer m_timer;
+	bool m_end;
 };
 
 } // namespace debugviewpp 

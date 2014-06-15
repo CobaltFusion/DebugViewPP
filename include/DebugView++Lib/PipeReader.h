@@ -21,6 +21,7 @@ class PipeReader : public PassiveLogSource
 {
 public:
 	PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName);
+	virtual ~PipeReader();
 
 	virtual bool AtEnd() const;
 	virtual void AddLines();

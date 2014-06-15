@@ -38,20 +38,16 @@ class DBWinReader : public LogSource
 {
 public:
 	explicit DBWinReader(ILineBuffer& linebuffer, bool global);
-	~DBWinReader();
-
-	virtual bool AtEnd() const;
+	virtual ~DBWinReader();
+	virtual void Abort();
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	void Abort();			//todo: can't abort be made private?
 
 private:
 	bool m_end;
 	Handle m_hBuffer;
 	Handle m_dbWinBufferReady;
 	Handle m_dbWinDataReady;
-	
-	// make sure the thread is last to initialize
 	MappedViewOfFile m_mappedViewOfFile;
 	const DbWinBuffer* m_dbWinBuffer;
 };
