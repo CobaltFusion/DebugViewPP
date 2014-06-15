@@ -35,7 +35,7 @@ Coming up (implemented in head version)
   collection as line-buffer (preparation for circular buffer implementation)
 - fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
 - add beep-filter for monitoring without seeing the screen
-
+- fixed un-pause problem
 
 Download Latest
 ----------------
