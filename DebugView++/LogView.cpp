@@ -987,9 +987,6 @@ bool CLogView::FindProcess(int direction)
 		return false;
 
 	auto processName = m_logFile[m_logLines[begin].line].processName;
-
-	// Internal Compiler Error on VC2010:
-//	int line = FindLine([processName, this](const LogLine& line) { return boost::iequals(m_logFile[line.line].processName, processName); }, direction);
 	int line = FindLine([processName, this](const LogLine& line) { return m_logFile[line.line].processName == processName; }, direction);
 	if (line < 0 || line == begin)
 		return false;
@@ -1677,13 +1674,19 @@ bool FilterSupportsColor(FilterType::type value)
 
 TextColor CLogView::GetTextColor(const Message& msg) const
 {
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	auto messageFilters = m_filter.messageFilters;
+	std::sort(messageFilters.begin(), messageFilters.end());
+
+	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
 		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	auto processFilters = m_filter.processFilters;
+	std::sort(processFilters.begin(), processFilters.end());
+
+	for (auto it = processFilters.begin(); it != processFilters.end(); ++it)
 	{
 		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.processName, it->re))
 			return TextColor(it->bgColor, it->fgColor);

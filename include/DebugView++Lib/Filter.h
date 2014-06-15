@@ -31,6 +31,11 @@ struct Filter
 	COLORREF fgColor;
 	bool enable;
 	int matchCount;
+
+	// sort highlight filters to the front
+    bool operator<( const Filter& /*value*/ ) const { 
+		return filterType == FilterType::Highlight;
+    }
 };
 
 struct LogFilter

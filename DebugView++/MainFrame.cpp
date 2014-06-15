@@ -87,7 +87,7 @@ LOGFONT& GetDefaultLogFont()
 
 CMainFrame::CMainFrame() :
 	m_timeOffset(0),
-	m_filterNr(0),
+	m_filterNr(1),
 	m_findDlg(*this),
 	m_linkViews(false),
 	m_hide(false),
@@ -599,7 +599,7 @@ void CMainFrame::FindPrevious(const std::wstring& text)
 void CMainFrame::AddFilterView()
 {
 	++m_filterNr;
-	CFilterDlg dlg(wstringbuilder() << L"Filter " << m_filterNr);
+	CFilterDlg dlg(wstringbuilder() << L"View " << m_filterNr);
 	if (dlg.DoModal() != IDOK)
 		return;
 
