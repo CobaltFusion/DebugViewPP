@@ -358,8 +358,6 @@ void CMainFrame::ProcessLines(const Lines& lines)
 			GetTabCtrl().Invalidate();
 		}
 	}
-
-	UpdateStatusBar();
 }
 
 void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
