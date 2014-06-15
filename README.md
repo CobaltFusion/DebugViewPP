@@ -36,7 +36,9 @@ Coming up (implemented in head version)
 - fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
 - add beep-filter for monitoring without seeing the screen
 - fixed un-pause problem
-
+- Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
+  for a very long time)
+ 
 Download Latest
 ----------------
 
