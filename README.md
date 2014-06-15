@@ -33,7 +33,9 @@ Coming up (implemented in head version)
 
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as line-buffer (preparation for circular buffer implementation)
-- fixed issues #132, #140
+- fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
+- add beep-filter for monitoring without seeing the screen
+
 
 Download Latest
 ----------------
