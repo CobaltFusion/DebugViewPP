@@ -80,6 +80,7 @@
     <ClInclude Include="..\include\DebugView++Lib\DBWinWriter.h" />
     <ClInclude Include="..\include\DebugView++Lib\FileIO.h" />
     <ClInclude Include="..\include\DebugView++Lib\FileReader.h" />
+    <ClInclude Include="..\include\DebugView++Lib\FileWriter.h" />
     <ClInclude Include="..\include\DebugView++Lib\Filter.h" />
     <ClInclude Include="..\include\DebugView++Lib\FilterType.h" />
     <ClInclude Include="..\include\DebugView++Lib\Line.h" />
@@ -110,6 +111,7 @@
     <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="FileWriter.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterType.cpp" />
     <ClCompile Include="Line.cpp" />
