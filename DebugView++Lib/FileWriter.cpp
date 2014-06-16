@@ -16,12 +16,17 @@ namespace debugviewpp {
 FileWriter::FileWriter(const std::wstring& filename) :
 	m_filename(filename)
 {
+	m_thread = boost::thread(&FileWriter::Process, this);
 }
 
 FileWriter::~FileWriter()
 {
 }
 
+void FileWriter::Process()
+{
+
+}
 
 } // namespace debugviewpp 
 } // namespace fusion

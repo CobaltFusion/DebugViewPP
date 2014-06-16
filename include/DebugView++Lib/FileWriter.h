@@ -19,7 +19,12 @@ public:
     ~FileWriter();
 
 private:
-	std::wstring m_filename;	
+	void Process();
+	
+	std::wstring m_filename;
+	std::ofstream m_ofstream;
+
+	boost::thread m_thread;
 };
 
 } // namespace debugviewpp 
