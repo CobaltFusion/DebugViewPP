@@ -31,6 +31,17 @@ namespace debugviewpp {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
+std::wstring GetPersonalPath()
+{
+	std::wstring path;
+	wchar_t szPath[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
+	{
+		path = szPath;
+	}
+	return path;
+
+}
 void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
 {
 	m_pView = pView;
@@ -96,6 +107,7 @@ CMainFrame::CMainFrame() :
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
 	m_logSources(true)
+	// ,m_logWriter(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile)
 {
 //#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
@@ -704,13 +716,6 @@ LRESULT CMainFrame::OnDeleteTab(NMHDR* pnmh)
 void CMainFrame::OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	AddFilterView();
-}
-
-std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
-{
-	uint64_t hi = ft.dwHighDateTime;
-	uint64_t lo = ft.dwLowDateTime;
-	return os << ((hi << 32) | lo);
 }
 
 void CMainFrame::SaveLogFile(const std::wstring& fileName)

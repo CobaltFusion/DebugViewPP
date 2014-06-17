@@ -19,6 +19,7 @@ namespace WTL { using ATL::CString; };
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/FileWriter.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
 #include "LogView.h"
@@ -163,6 +164,7 @@ private:
 	UINT_PTR m_timer;
 	double m_timeOffset;
 	LogFile m_logFile;
+	FileWriter m_logWriter;
 	int m_filterNr;
 	CFindDlg m_findDlg;
 	HFont m_hFont;

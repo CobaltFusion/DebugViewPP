@@ -8,14 +8,17 @@
 #pragma once
 
 #include <boost/thread.hpp>
+#include "LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {
 
+std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
+
 class FileWriter
 {
 public:
-	explicit FileWriter(const std::wstring& filename);
+	explicit FileWriter(const std::wstring& filename, LogFile& logfile);
     ~FileWriter();
 
 private:
@@ -23,6 +26,7 @@ private:
 	
 	std::wstring m_filename;
 	std::ofstream m_ofstream;
+	LogFile& m_logfile;
 
 	boost::thread m_thread;
 };
