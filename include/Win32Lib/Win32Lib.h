@@ -18,6 +18,15 @@
 
 namespace fusion {
 
+struct LocalAllocDeleter
+{
+	typedef HLOCAL pointer;
+
+	void operator()(pointer p) const;
+};
+
+typedef std::unique_ptr<void, LocalAllocDeleter> HLOCAL;
+
 struct GlobalAllocDeleter
 {
 	typedef HGLOBAL pointer;

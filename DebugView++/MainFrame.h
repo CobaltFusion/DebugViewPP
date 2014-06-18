@@ -76,6 +76,7 @@ public:
 		UPDATE_ELEMENT(ID_MEMORY_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
+	void SetLogging();
 	void Load(const std::wstring& fileName);
 	void Load(HANDLE hFile);
 	void Load(std::istream& is, const std::string& name, FILETIME fileTime);
@@ -165,7 +166,7 @@ private:
 	UINT_PTR m_timer;
 	double m_timeOffset;
 	LogFile m_logFile;
-	FileWriter m_logWriter;
+	std::unique_ptr<FileWriter> m_logWriter;
 	int m_filterNr;
 	CFindDlg m_findDlg;
 	HFont m_hFont;

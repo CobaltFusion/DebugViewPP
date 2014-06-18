@@ -21,7 +21,7 @@ FileReader::FileReader(ILineBuffer& linebuffer, const std::wstring& filename) :
 	m_filename(Str(filename).str()),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
 	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)),
-	m_ifstream(m_filename),
+	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().string()),
 	m_initialized(false)
 {

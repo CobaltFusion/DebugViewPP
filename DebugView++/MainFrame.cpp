@@ -25,7 +25,6 @@
 #include "LogView.h"
 #include "MainFrame.h"
 
-
 namespace fusion {
 namespace debugviewpp {
 
@@ -107,8 +106,7 @@ CMainFrame::CMainFrame() :
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
-	m_logSources(true),
-	m_logWriter(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile)
+	m_logSources(true)
 {
 //#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
@@ -123,6 +121,11 @@ CMainFrame::~CMainFrame()
 #ifdef CONSOLE_DEBUG
 	fclose(m_stdout);
 #endif
+}
+
+void CMainFrame::SetLogging()
+{
+	m_logWriter = make_unique<FileWriter>(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile);
 }
 
 void CMainFrame::ExceptionHandler()
@@ -380,6 +383,8 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
+	Pause();
+	SetTitle(L"Monitoring File(s)");
 	using boost::algorithm::iequals;
 	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
 

@@ -13,6 +13,12 @@
 
 namespace fusion {
 
+void LocalAllocDeleter::operator()(pointer p) const
+{
+	if (p != nullptr)
+		LocalFree(p);
+}
+
 void GlobalAllocDeleter::operator()(pointer p) const
 {
 	if (p != nullptr)

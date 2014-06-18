@@ -70,10 +70,12 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	if (hPipe && IsDBWinViewerActive())
 		return ForwardMessagesFromPipe(hPipe);
 
+	fusion::debugviewpp::CMainFrame wndMain;
 	MessageLoop theLoop(_Module);
 
 	int argc;
-	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);		// DrMemory: LEAK 40 direct bytes
+	HLOCAL args(CommandLineToArgvW(GetCommandLineW(), &argc));
+	auto argv = (wchar_t**) args.get();
 	wchar_t* fileName = nullptr;
 
 	for (int i = 1; i < argc; ++i)
@@ -81,6 +83,10 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 		if (boost::iequals(argv[i], L"/min"))
 		{
 			cmdShow = SW_MINIMIZE;
+		}
+		else if (boost::iequals(argv[i], L"/log"))
+		{
+			wndMain.SetLogging();
 		}
 		else if (argv[i][0] != '/')
 		{
@@ -90,7 +96,6 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 		}
 	}
 
-	fusion::debugviewpp::CMainFrame wndMain;
 	if (wndMain.CreateEx() == nullptr)
 		ThrowLastError(L"Main window creation failed!");
 

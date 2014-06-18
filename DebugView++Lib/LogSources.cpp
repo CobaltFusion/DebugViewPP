@@ -135,6 +135,10 @@ void LogSources::Listen()
 				}
 				else
 				{
+					if (size_t(res.index) >= m_sources.size())
+					{
+						assert(!"res.index out of range");
+					}
 					auto logsource = m_sources[res.index];
 					if (logsource->AtEnd())
 					{
