@@ -20,7 +20,7 @@ FileReader::FileReader(ILineBuffer& linebuffer, const std::wstring& filename) :
 	m_end(true),
 	m_filename(Str(filename).str()),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
-	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)),
+	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe use FILE_NOTIFY_CHANGE_LAST_WRITE ?
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().string()),
 	m_initialized(false)
@@ -42,7 +42,7 @@ void FileReader::Initialize()
 
 	if (m_ifstream.is_open())
 	{
-		ReadUntilEof();			// todo: this will deadlock with large files, because it is called on the UI thread, and the a polling UI timer also reads the circular buffer
+		ReadUntilEof();
 		m_end = false;
 	}
 }
@@ -86,7 +86,7 @@ void FileReader::AddLine(const std::string& line)
 	Add(line.c_str());
 }
 
-void  FileReader::PreProcess(Line& line) const
+void FileReader::PreProcess(Line& line) const
 {
 	line.processName = m_filenameOnly;
 }
@@ -122,6 +122,10 @@ void DBLogReader::AddLine(const std::string& data)
 	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str(), this);
 }
 
+void DBLogReader::PreProcess(Line& line) const
+{
+	// do nothing
+}
 
 } // namespace debugviewpp 
 } // namespace fusion
