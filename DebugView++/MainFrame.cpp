@@ -107,8 +107,8 @@ CMainFrame::CMainFrame() :
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
-	m_logSources(true)
-	//, m_logWriter(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile)
+	m_logSources(true),
+	m_logWriter(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile)
 {
 //#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
