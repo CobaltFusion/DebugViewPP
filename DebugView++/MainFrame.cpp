@@ -66,6 +66,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
 	COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
+	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)	
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
@@ -107,7 +108,7 @@ CMainFrame::CMainFrame() :
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
 	m_logSources(true)
-	// ,m_logWriter(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile)
+	//, m_logWriter(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile)
 {
 //#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
@@ -823,6 +824,11 @@ void CMainFrame::CapturePipe(HANDLE hPipe)
 {
 	DWORD pid = GetParentProcessId();
 	m_logSources.AddPipeReader(pid, hPipe);
+}
+
+void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	PostMessage(WM_CLOSE);
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

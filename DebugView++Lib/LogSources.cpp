@@ -126,7 +126,13 @@ void LogSources::Listen()
 				break;
 			if (res.signaled)
 				if (res.index == updateEventIndex)
+				{
+					for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+					{
+						(*it)->Initialize();
+					}
 					break;
+				}
 				else
 				{
 					auto logsource = m_sources[res.index];
@@ -242,6 +248,7 @@ std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 {
 	auto processName = Str(ProcessInfo::GetProcessNameByPid(pid)).str();
 	auto pipeReader = std::make_shared<PipeReader>(m_linebuffer, hPipe, pid, processName);
+	Add(pipeReader);
 	return pipeReader;
 }
 

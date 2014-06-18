@@ -22,11 +22,12 @@ public:
 	explicit FileReader(ILineBuffer& linebuffer, const std::wstring& filename);
     virtual ~FileReader();
 
+	virtual void Initialize();
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual void AddLine(const std::string& line);
 	virtual void PreProcess(Line& line) const;
+	virtual void AddLine(const std::string& line);
 
 protected:
 	std::string m_filename;	
@@ -38,13 +39,14 @@ private:
 	ChangeNotificationHandle m_handle;
 	std::ifstream m_ifstream;
 	std::string m_filenameOnly;
+	bool m_initialized;
 };
 
 class DBLogReader : public FileReader
 {
 public:
 	explicit DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename);
-	virtual void AddLine(const std::string& data);
+	virtual void AddLine(const std::string& line);
 };
 
 } // namespace debugviewpp 

@@ -24,6 +24,10 @@ public:
 	virtual void SetAutoNewLine(bool value);
 	virtual bool GetAutoNewLine() const;
 
+	// maybe called multiple times, the derived class are responsible for 
+	// actually executing code once if needed.
+	virtual void Initialize() {}
+
 	// called regularly, a Logsource can poll status of inputs and set an event here
 	// use only if the LogSource does not have a handle to wait for.
 	virtual void Wakeup();
