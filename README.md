@@ -40,7 +40,6 @@ Coming up (implemented in head version)
   for a very long time)
 - continious logging to file commandline option
 - tailing our own logfiles over samba network
-- 
  
 Download Latest
 ----------------
