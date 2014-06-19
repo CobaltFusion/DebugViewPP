@@ -38,6 +38,9 @@ Coming up (implemented in head version)
 - fixed un-pause problem
 - Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
+- continious logging to file commandline option
+- tailing our own logfiles over samba network
+- 
  
 Download Latest
 ----------------
@@ -107,6 +110,7 @@ just type any word or part of a word to match.
 - token: only the matching expression will be highlighted using the specified foreground and background colors
 - track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched 
 - stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only of autoscroll is on, think of a stop-filter as a one-shot track filter
+- beep: a standard windows beep (configurable in config panel->sounds) is played 
 
 *Practical uses*:
 
@@ -133,7 +137,7 @@ Other documentation:
 
 **ClockTime**: when enabled the time is displayed as provided by the system's real-time clock (RTC). Such a timestamp has a 16ms resolution. When disabled, time is displayed as a relative time to the first message, however this timestamp is obtained from the High-Performance Counter (HPC) which typically has a sub-microsecond resolution.
 
-The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occured, it is the time the message was received by DebugView++. Also there is no quarantee that the time between occurance and reception of messages is constant, *however* in practive this is **pretty** constant :)
+The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occured, it is the time the message was received by DebugView++. Also there is no quarantee that the time between occurance and reception of messages is constant, *however* in practice this is **pretty** constant :)
 
 
 How to build
