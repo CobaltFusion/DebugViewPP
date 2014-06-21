@@ -111,6 +111,11 @@ LogSourceHandles LogSources::GetWaitHandles(std::vector<std::shared_ptr<LogSourc
 	return handles;
 }
 
+void LogSources::Reset()
+{
+	m_timer.Reset();
+}
+
 void LogSources::Listen()
 {
 	for (;;)

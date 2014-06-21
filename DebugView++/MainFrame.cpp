@@ -97,7 +97,6 @@ LOGFONT& GetDefaultLogFont()
 }
 
 CMainFrame::CMainFrame() :
-	m_timeOffset(0),
 	m_filterNr(1),
 	m_findDlg(*this),
 	m_linkViews(false),
@@ -355,15 +354,12 @@ void CMainFrame::ProcessLines(const Lines& lines)
 	if (lines.empty())
 		return;
 
-	if (m_logFile.Empty() && !lines.empty())
-		m_timeOffset = lines[0].time;
-
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
 		GetView(i).BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->processName, it->message));
+		AddMessage(Message(it->time, it->systemTime, it->pid, it->processName, it->message));
 
 	for (int i = 0; i < views; ++i)
 	{
@@ -862,6 +858,7 @@ void CMainFrame::ClearLog()
 {
 	// First Clear LogFile such that views reset their m_firstLine:
 	m_logFile.Clear();
+	m_logSources.Reset();
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
 	{

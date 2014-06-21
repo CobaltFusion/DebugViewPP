@@ -263,12 +263,13 @@ public:
 	Timer();
 
 	void Reset();
-	double Get() const;
+	double Get();
 
 private:
 	long long GetTicks() const;
 
 	double m_timerUnit;
+	bool m_init;
 	long long m_offset;
 };
 

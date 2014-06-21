@@ -39,6 +39,7 @@ public:
 	void SetAutoNewLine(bool value);
 	bool GetAutoNewLine() const;
 
+	void Reset();
 	void Listen();
 	void Abort();
 	Lines GetLines();

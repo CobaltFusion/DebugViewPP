@@ -164,7 +164,6 @@ private:
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
-	double m_timeOffset;
 	LogFile m_logFile;
 	std::unique_ptr<FileWriter> m_logWriter;
 	int m_filterNr;

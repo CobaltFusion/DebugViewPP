@@ -59,6 +59,7 @@ std::wstring GetExceptionMessage()
 
 Timer::Timer() :
 	m_offset(0),
+	m_init(false),
 	m_timerUnit(0.0)
 {
 	LARGE_INTEGER li;
@@ -70,12 +71,19 @@ Timer::Timer() :
 
 void Timer::Reset()
 {
-	m_offset = GetTicks();
+	m_offset = 0;
+	m_init = false;
 }
 
-double Timer::Get() const
+double Timer::Get()
 {
-	return (GetTicks() - m_offset)*m_timerUnit;
+	auto ticks = GetTicks();
+	if (!m_init)
+	{
+		m_offset = ticks;
+		m_init = true;
+	}
+	return (ticks - m_offset)*m_timerUnit;
 }
 
 long long Timer::GetTicks() const
