@@ -94,6 +94,7 @@
     <ClInclude Include="..\include\DebugView++Lib\NewlineFilter.h" />
     <ClInclude Include="..\include\DebugView++Lib\PassiveLogSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />
+    <ClInclude Include="..\include\DebugView++Lib\PolledLogSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\Process.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessInfo.h" />
@@ -125,6 +126,7 @@
     <ClCompile Include="NewlineFilter.cpp" />
     <ClCompile Include="PassiveLogSource.cpp" />
     <ClCompile Include="PipeReader.cpp" />
+    <ClCompile Include="PolledLogSource.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessHandleCache.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />

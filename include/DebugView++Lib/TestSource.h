@@ -9,7 +9,6 @@
 
 #include <boost/utility.hpp>
 #include <boost/thread.hpp>
-#include <boost/signals2.hpp>
 
 #include "LogSource.h"
 #include "DBWinBuffer.h"
