@@ -20,6 +20,7 @@ PipeReader::PipeReader(Timer& timer, ILineBuffer& linebuffer, HANDLE hPipe, DWOR
 	m_process(processName)
 {
 	SetDescription(wstringbuilder() << L"Piped from " << processName);
+	StartThread();
 }
 
 PipeReader::~PipeReader()

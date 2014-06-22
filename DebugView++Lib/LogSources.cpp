@@ -99,18 +99,6 @@ void LogSources::Abort()
 	m_thread.join();
 }
 
-LogSourceHandles LogSources::GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const
-{
-	LogSourceHandles handles;
-	for (auto i = logsources.begin(); i != logsources.end(); i++)
-	{
-		auto handle = (*i)->GetHandle();
-		if (handle)
-			handles.push_back(handle);
-	}
-	return handles;
-}
-
 void LogSources::Reset()
 {
 	m_timer.Reset();
@@ -120,7 +108,18 @@ void LogSources::Listen()
 {
 	for (;;)
 	{
-		auto waitHandles = GetWaitHandles(m_sources);
+		std::vector<HANDLE> waitHandles;
+		std::vector<std::shared_ptr<LogSource>> sources;
+		for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+		{
+			auto source = *it;
+			HANDLE handle = source->GetHandle();
+			if (handle != INVALID_HANDLE_VALUE)
+			{
+				waitHandles.push_back(handle);
+				sources.push_back(source);
+			}
+		}
 		auto updateEventIndex = waitHandles.size(); 
 		waitHandles.push_back(m_updateEvent.get());
 
@@ -132,9 +131,9 @@ void LogSources::Listen()
 			if (res.signaled)
 				if (res.index == updateEventIndex)
 				{
-					for (auto it = m_sources.begin(); it != m_sources.end(); ++it)		//todo: move to start of pollthread?
+					for (auto it = m_sources.begin(); it != m_sources.end(); ++it)		
 					{
-						(*it)->Initialize();
+						(*it)->Initialize(); //todo: find a better way to do this.
 					}
 					break;
 				}

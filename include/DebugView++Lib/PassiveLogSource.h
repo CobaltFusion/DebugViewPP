@@ -38,7 +38,7 @@ public:
 	virtual void Poll() {}
 	void AddMessage(DWORD pid, const char* processName, const char* message);
 	void Signal();
-
+	void StartThread();
 private:
 	void Abort();
 	void Loop();

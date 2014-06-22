@@ -20,6 +20,7 @@ ProcessReader::ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::w
 	m_stderr(timer, linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr", 0)
 {
 	SetDescription(m_process.GetName() + L" stdout/stderr");
+	StartThread();
 }
 
 ProcessReader::~ProcessReader()

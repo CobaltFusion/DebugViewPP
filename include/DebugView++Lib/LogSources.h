@@ -55,7 +55,6 @@ public:
 
 private:
 	void Add(std::shared_ptr<LogSource> source);
-	LogSourceHandles GetWaitHandles(std::vector<std::shared_ptr<LogSource>>& logsources) const;
 	void CheckForTerminatedProcesses();
 
 	bool m_autoNewLine;
