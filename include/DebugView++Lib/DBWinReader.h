@@ -37,7 +37,7 @@ typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, H
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(ILineBuffer& linebuffer, bool global);
+	explicit DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global);
 	virtual ~DBWinReader();
 	virtual void Abort();
 	virtual HANDLE GetHandle() const;

@@ -8,45 +8,21 @@
 #pragma once
 
 #include <boost/utility.hpp>
-#include <boost/thread.hpp>
-#include <boost/signals2.hpp>
-
-#include "LogSource.h"
+#include "DebugView++Lib/PassiveLogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
 
-struct LoopLine
-{
-	LoopLine(DWORD pid, const std::string& processName, const std::string& message, LogSource* logsource);
-	DWORD pid;
-	std::string processName;
-	std::string message;
-	LogSource* logsource;
-};
-
-class Loopback : public LogSource
+class Loopback : public PassiveLogSource
 {
 public:
-	explicit Loopback(ILineBuffer& linebuffer);
+	explicit Loopback(Timer& timer, ILineBuffer& linebuffer);
 	~Loopback();
 
 	virtual bool GetAutoNewLine() const;
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
 	virtual void PreProcess(Line& line) const;
-
-	void AddMessage(DWORD pid, const char* processName, const char* message);
-	void Signal();
-private:
-	void CheckForLines();
-
-	std::vector<LoopLine> m_lines;
-	Handle m_handle;
-	boost::mutex m_mutex;
 };
 
 } // namespace debugviewpp 

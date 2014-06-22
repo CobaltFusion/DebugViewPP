@@ -20,11 +20,13 @@ class ILineBuffer;
 class PipeReader : public PassiveLogSource
 {
 public:
-	PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName);
+	PipeReader(Timer& timer, ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName, long pollFrequency);
 	virtual ~PipeReader();
 
 	virtual bool AtEnd() const;
-	virtual void AddLines();
+	virtual void Poll();
+	void Poll(PassiveLogSource& logsource);
+
 private:
 	HANDLE m_hPipe;
 	DWORD m_pid;

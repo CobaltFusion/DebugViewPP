@@ -19,7 +19,7 @@ class ILineBuffer;
 class FileReader : public LogSource
 {
 public:
-	explicit FileReader(ILineBuffer& linebuffer, const std::wstring& filename);
+	explicit FileReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename);
     virtual ~FileReader();
 
 	virtual void Initialize();
@@ -45,7 +45,7 @@ private:
 class DBLogReader : public FileReader
 {
 public:
-	explicit DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename);
+	explicit DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename);
 	virtual void AddLine(const std::string& line);
 	virtual void PreProcess(Line& line) const;
 };

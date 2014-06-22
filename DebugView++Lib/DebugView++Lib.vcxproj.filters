@@ -98,9 +98,6 @@
     <ClInclude Include="..\include\DebugView++Lib\FileWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugView++Lib\PolledLogSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -185,9 +182,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PolledLogSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

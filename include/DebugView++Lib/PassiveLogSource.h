@@ -8,26 +8,46 @@
 #pragma once
 
 #include <boost/utility.hpp>
-#include "Win32Lib/utilities.h"
-#include "DebugView++Lib/LogSource.h"
 #include <boost/thread.hpp>
+#include <boost/signals2.hpp>
+
+#include "LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
 
+struct PollLine
+{
+	PollLine(DWORD pid, const std::string& processName, const std::string& message, LogSource* logsource);
+	DWORD pid;
+	std::string processName;
+	std::string message;
+	LogSource* logsource;
+};
+
 class PassiveLogSource : public LogSource
 {
 public:
-	PassiveLogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
-	virtual void Wakeup();
+	explicit PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency);
+	~PassiveLogSource();
+	
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual void AddLines() = 0;
+	virtual void Poll() {}
+	void AddMessage(DWORD pid, const char* processName, const char* message);
+	void Signal();
+
 private:
+	void Abort();
+	void Loop();
+
+	std::vector<PollLine> m_lines;
 	Handle m_handle;
 	boost::mutex m_mutex;
+	long m_microsecondInterval;
+	boost::thread m_thread;
 };
 
 } // namespace debugviewpp 

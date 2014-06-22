@@ -18,7 +18,7 @@ class ILineBuffer;
 class LogSource : boost::noncopyable
 {
 public:
-	LogSource(SourceType::type sourceType, ILineBuffer& linebuffer);
+	LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
 	virtual ~LogSource();
 	
 	virtual void SetAutoNewLine(bool value);
@@ -27,10 +27,6 @@ public:
 	// maybe called multiple times, the derived class are responsible for 
 	// actually executing code once if needed.
 	virtual void Initialize() {}
-
-	// called regularly, a Logsource can poll status of inputs and set an event here
-	// use only if the LogSource does not have a handle to wait for.
-	virtual void Wakeup();
 
 	virtual void Abort();
 
@@ -49,6 +45,7 @@ public:
 
 	std::wstring GetDescription() const;
 	void SetDescription(const std::wstring& description);
+
 	SourceType::type GetSourceType() const;
 
 	// for DBWIN messages
@@ -65,7 +62,7 @@ private:
 	ILineBuffer& m_linebuffer;
 	std::wstring m_description;
 	SourceType::type m_sourceType;
-	Timer m_timer;
+	Timer& m_timer;
 	bool m_end;
 };
 

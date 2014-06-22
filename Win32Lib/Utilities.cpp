@@ -78,6 +78,7 @@ void Timer::Reset()
 double Timer::Get()
 {
 	auto ticks = GetTicks();
+	boost::mutex::scoped_lock lock(m_mutex);
 	if (!m_init)
 	{
 		m_offset = ticks;

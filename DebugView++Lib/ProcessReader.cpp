@@ -13,11 +13,11 @@
 namespace fusion {
 namespace debugviewpp {
 
-ProcessReader::ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
-	PassiveLogSource(SourceType::Pipe, linebuffer),
+ProcessReader::ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
+	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
 	m_process(pathName, args),
-	m_stdout(linebuffer, m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),
-	m_stderr(linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr")
+	m_stdout(timer, linebuffer, m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout", 0),
+	m_stderr(timer, linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr", 0)
 {
 	SetDescription(m_process.GetName() + L" stdout/stderr");
 }
@@ -31,10 +31,10 @@ bool ProcessReader::AtEnd() const
 	return m_stdout.AtEnd() && m_stderr.AtEnd();
 }
 
-void ProcessReader::AddLines()
+void ProcessReader::Poll()
 {
-	m_stdout.AddLines();
-	m_stderr.AddLines();
+	m_stdout.Poll(*this);
+	m_stderr.Poll(*this);
 }
 
 } // namespace debugviewpp 

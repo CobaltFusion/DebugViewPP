@@ -35,7 +35,7 @@ LogSources::LogSources(bool startListening) :
 	m_autoNewLine(true),
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_linebuffer(64*1024),
-	m_loopback(std::make_shared<Loopback>(m_linebuffer)),
+	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_handleCacheTime(0.0)
 {
 	Add(m_loopback);
@@ -60,7 +60,7 @@ void LogSources::Add(std::shared_ptr<LogSource> source)
 void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
 	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
-	m_loopback->Add(Str(msg).str().c_str(), 0);
+	m_loopback->AddMessage(0, "", Str(msg).str().c_str());
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
 }
@@ -132,7 +132,7 @@ void LogSources::Listen()
 			if (res.signaled)
 				if (res.index == updateEventIndex)
 				{
-					for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+					for (auto it = m_sources.begin(); it != m_sources.end(); ++it)		//todo: move to start of pollthread?
 					{
 						(*it)->Initialize();
 					}
@@ -180,12 +180,6 @@ void LogSources::CheckForTerminatedProcesses()
 
 Lines LogSources::GetLines()
 {
-	// Wake up poll'd logsources
-	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
-	{
-		(*it)->Wakeup();
-	}
-
 	CheckForTerminatedProcesses();
 
 	auto inputLines = m_linebuffer.GetLines();
@@ -220,35 +214,35 @@ Lines LogSources::GetLines()
 
 std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
 {
-	auto dbwinreader = std::make_shared<DBWinReader>(m_linebuffer, global);
+	auto dbwinreader = std::make_shared<DBWinReader>(m_timer, m_linebuffer, global);
 	Add(dbwinreader);
 	return dbwinreader;
 }
 
 std::shared_ptr<TestSource> LogSources::AddTestSource()
 {
-	auto testsource = std::make_shared<TestSource>(m_linebuffer);
+	auto testsource = std::make_shared<TestSource>(m_timer, m_linebuffer);
 	Add(testsource);
 	return testsource;
 }
 
 std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
-	auto processReader = std::make_shared<ProcessReader>(m_linebuffer, pathName, args);
+	auto processReader = std::make_shared<ProcessReader>(m_timer, m_linebuffer, pathName, args);
 	Add(processReader);
 	return processReader;
 }
 
 std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
 {
-	auto filereader = std::make_shared<FileReader>(m_linebuffer, filename);
+	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, filename);
 	Add(filereader);
 	return filereader;
 }
 
 std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
 {
-	auto dblogreader = std::make_shared<DBLogReader>(m_linebuffer, filename);
+	auto dblogreader = std::make_shared<DBLogReader>(m_timer, m_linebuffer, filename);
 	Add(dblogreader);
 	return dblogreader;
 }
@@ -256,7 +250,7 @@ std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& file
 std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 {
 	auto processName = Str(ProcessInfo::GetProcessNameByPid(pid)).str();
-	auto pipeReader = std::make_shared<PipeReader>(m_linebuffer, hPipe, pid, processName);
+	auto pipeReader = std::make_shared<PipeReader>(m_timer, m_linebuffer, hPipe, pid, processName, 40);
 	Add(pipeReader);
 	return pipeReader;
 }

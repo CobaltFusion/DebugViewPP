@@ -268,7 +268,6 @@ private:
 	CMyHeaderCtrl m_hdr;
 	std::vector<ColumnInfo> m_columns;
 	int m_firstLine;
-	double m_firstLineTime;
 	std::vector<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_processColors;

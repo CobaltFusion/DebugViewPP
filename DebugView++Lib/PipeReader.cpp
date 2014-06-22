@@ -13,8 +13,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-PipeReader::PipeReader(ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName) :
-	PassiveLogSource(SourceType::Pipe, linebuffer),
+PipeReader::PipeReader(Timer& timer, ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName, long pollFrequency) :
+	PassiveLogSource(timer, SourceType::Pipe, linebuffer, pollFrequency),
 	m_hPipe(hPipe),
 	m_pid(pid),
 	m_process(processName)
@@ -32,16 +32,21 @@ bool PipeReader::AtEnd() const
 	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
 }
 
-void PipeReader::AddLines()
+void PipeReader::Poll()
+{
+	Poll(*this);
+}
+
+void PipeReader::Poll(PassiveLogSource& logsource)
 {
 	char buf[4096];
 	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf);
 
-	DWORD avail;
+	DWORD avail = 0;
 	while (PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, &avail, nullptr) && avail > 0)
 	{
 		DWORD size = buf + sizeof(buf) - start;
-		DWORD read;
+		DWORD read = 0;
 		ReadFile(m_hPipe, start, size, &read, nullptr);
 
 		char* begin = buf;
@@ -51,7 +56,7 @@ void PipeReader::AddLines()
 		{
 			if (*p == '\0' || *p == '\n' || p - begin > 4000)
 			{
-				Add(m_pid, m_process.c_str(), std::string(begin, p).c_str(), this);
+				logsource.AddMessage(m_pid, m_process.c_str(), std::string(begin, p).c_str());
 				begin = p + 1;
 			}
 			++p;

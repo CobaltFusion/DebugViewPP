@@ -374,6 +374,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 {
+	//todo: filtering is still done on the UI thread, see CLogView::Add
 	ProcessLines(m_logSources.GetLines());
 }
 

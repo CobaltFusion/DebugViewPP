@@ -23,7 +23,7 @@ class ILineBuffer;
 class TestSource : public LogSource
 {
 public:
-	explicit TestSource(ILineBuffer& linebuffer);
+	explicit TestSource(Timer& timer, ILineBuffer& linebuffer);
 	~TestSource();
 
 	virtual bool AtEnd() const;

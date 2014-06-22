@@ -15,7 +15,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-LogSource::LogSource(SourceType::type sourceType, ILineBuffer& linebuffer) : 
+LogSource::LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer) : 
+	m_timer(timer),
 	m_sourceType(sourceType), 
 	m_linebuffer(linebuffer),
 	m_autoNewLine(true),
@@ -40,11 +41,6 @@ void LogSource::SetAutoNewLine(bool value)
 bool LogSource::GetAutoNewLine() const
 {
 	return m_autoNewLine;
-}
-
-void LogSource::Wakeup()
-{
-	// override if polling is needed
 }
 
 std::wstring LogSource::GetDescription() const

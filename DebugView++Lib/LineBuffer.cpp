@@ -18,8 +18,7 @@ struct LineType
 	enum type
 	{
 		DBWinMessage,		// process handle is available
-		Logfile,			// time, system, pid and processname are available
-		Loopback			// pid and processname are available
+		Loopback,			// time, system, pid and processname are available
 	};
 };
 
@@ -40,6 +39,8 @@ void LineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char
 void LineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource)
 {
 	Write<unsigned char>(LineType::Loopback);
+	Write(time);
+	Write(systemTime);
 	Write(pid);
 	WriteStringZ(processName);
 	WriteStringZ(message);
@@ -64,11 +65,13 @@ Lines LineBuffer::GetLines()
 		}
 		else
 		{
+			auto time = Read<double>();
+			FILETIME systemTime = Read<FILETIME>();
 			DWORD processId = Read<DWORD>();
 			auto processName = ReadStringZ();
 			auto message = ReadStringZ();
 			auto logsource = Read<LogSource*>();
-			lines.push_back(Line(0.0, FILETIME(), processId, processName, message, logsource));
+			lines.push_back(Line(time, systemTime, processId, processName, message, logsource));
 		}
 		//DumpStats();
 	}

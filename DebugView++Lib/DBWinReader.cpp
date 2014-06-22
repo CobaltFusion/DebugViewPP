@@ -29,8 +29,8 @@ Handle CreateDBWinBufferMapping(bool global)
 	return hMap;
 }
 
-DBWinReader::DBWinReader(ILineBuffer& linebuffer, bool global) :
-	LogSource(SourceType::System, linebuffer),
+DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
+	LogSource(timer, SourceType::System, linebuffer),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
 	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
 	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),

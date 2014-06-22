@@ -11,6 +11,7 @@
 #include <sstream>
 #include <cmath>
 #include <boost/date_time/local_time/local_time.hpp> 
+#include <boost/thread.hpp>
 
 #include <atlbase.h>
 #include <atlwin.h>
@@ -271,6 +272,7 @@ private:
 	double m_timerUnit;
 	bool m_init;
 	long long m_offset;
+	boost::mutex m_mutex;
 };
 
 template <typename T>

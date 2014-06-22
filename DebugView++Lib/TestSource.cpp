@@ -12,8 +12,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-TestSource::TestSource(ILineBuffer& linebuffer) :
-	LogSource(SourceType::System, linebuffer)
+TestSource::TestSource(Timer& timer, ILineBuffer& linebuffer) :
+	LogSource(timer, SourceType::System, linebuffer)
 {
 }
 

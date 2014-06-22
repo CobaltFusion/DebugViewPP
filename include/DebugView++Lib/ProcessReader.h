@@ -19,12 +19,13 @@ class ILineBuffer;
 class ProcessReader : public PassiveLogSource
 {
 public:
-	ProcessReader(ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
+	ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
 	virtual ~ProcessReader();
 
 	virtual bool AtEnd() const;
-	virtual void AddLines();
 private:
+	virtual void Poll();
+
 	Process m_process;
 	PipeReader m_stdout;
 	PipeReader m_stderr;

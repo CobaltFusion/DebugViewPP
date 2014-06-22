@@ -15,8 +15,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-FileReader::FileReader(ILineBuffer& linebuffer, const std::wstring& filename) :
-	LogSource(SourceType::File, linebuffer),
+FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) :
+	LogSource(timer, SourceType::File, linebuffer),
 	m_end(true),
 	m_filename(Str(filename).str()),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
@@ -110,8 +110,8 @@ void FileReader::PreProcess(Line& line) const
 // for(wchar_t c; fin.get(c); ) std::cout << std::showbase << std::hex << c << '\n';
 
 
-DBLogReader::DBLogReader(ILineBuffer& linebuffer, const std::wstring& filename) : 
-	FileReader(linebuffer, filename)
+DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) : 
+	FileReader(timer, linebuffer, filename)
 {
 }
 
