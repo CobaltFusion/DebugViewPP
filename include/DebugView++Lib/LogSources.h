@@ -52,7 +52,7 @@ public:
 	std::shared_ptr<DBLogReader> AddDBLogReader(const std::wstring& filename);
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
-
+	void AddMessage(const std::string& message);
 private:
 	void Add(std::shared_ptr<LogSource> source);
 	void CheckForTerminatedProcesses();

@@ -50,6 +50,12 @@ LogSources::~LogSources()
 	Abort();
 }
 
+void LogSources::AddMessage(const std::string& message)
+{
+	m_loopback->AddMessage(0, "loopback", message.c_str());
+}
+
+
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
@@ -110,18 +116,30 @@ void LogSources::Listen()
 	{
 		std::vector<HANDLE> waitHandles;
 		std::vector<std::shared_ptr<LogSource>> sources;
-		for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
 		{
-			auto source = *it;
-			HANDLE handle = source->GetHandle();
-			if (handle != INVALID_HANDLE_VALUE)
+			boost::mutex::scoped_lock lock(m_mutex);
+			for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
 			{
-				waitHandles.push_back(handle);
-				sources.push_back(source);
+				auto source = *it;
+				HANDLE handle = source->GetHandle();
+				if (handle != INVALID_HANDLE_VALUE)
+				{
+					waitHandles.push_back(handle);
+					sources.push_back(source);
+				}
 			}
 		}
 		auto updateEventIndex = waitHandles.size(); 
 		waitHandles.push_back(m_updateEvent.get());
+
+		//for (auto i=0u; i < waitHandles.size(); ++i)
+		//{
+		//	if (i < sources.size())
+		//	{
+		//		std::cout << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
+		//	}
+		//	std::cout << std::endl;
+		//}
 
 		for (;;)
 		{
@@ -129,9 +147,11 @@ void LogSources::Listen()
 			if (m_end)
 				break;
 			if (res.signaled)
-				if (res.index == updateEventIndex)
+			{
+				int index = res.index - WAIT_OBJECT_0;
+				if (index == updateEventIndex)
 				{
-					for (auto it = m_sources.begin(); it != m_sources.end(); ++it)		
+					for (auto it = sources.begin(); it != sources.end(); ++it)		
 					{
 						(*it)->Initialize(); //todo: find a better way to do this.
 					}
@@ -139,19 +159,23 @@ void LogSources::Listen()
 				}
 				else
 				{
-					if (size_t(res.index) >= m_sources.size())
+					if (index >= (int)sources.size())
 					{
 						assert(!"res.index out of range");
 					}
-					auto logsource = m_sources[res.index];
+					auto logsource = sources[index];
 					if (logsource->AtEnd())
 					{
 						Remove(logsource);
 						break;
 					}
 					else
+					{
+						//std::cout << " notifing [" << logsource->GetHandle() << "] " << Str(logsource->GetDescription()).c_str() << std::endl;
 						logsource->Notify();
+					}
 				}
+			}
 		}
 		if (m_end)
 			break;
