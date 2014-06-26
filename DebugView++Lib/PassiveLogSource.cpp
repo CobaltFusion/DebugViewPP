@@ -52,6 +52,7 @@ void PassiveLogSource::Abort()
 
 void PassiveLogSource::Loop()
 {
+	std::cout << " # Start loop " << m_handle.get() << std::endl;
 	for(;;)
 	{
 		Poll();
@@ -70,6 +71,7 @@ HANDLE PassiveLogSource::GetHandle() const
 
 void PassiveLogSource::Notify()
 {
+	std::cout << " # Notify " << m_handle.get() << std::endl;
 	boost::mutex::scoped_lock lock(m_mutex);
 	for (auto i = m_lines.cbegin(); i != m_lines.cend(); ++i)
 	{
@@ -82,6 +84,7 @@ void PassiveLogSource::Notify()
 
 void PassiveLogSource::AddMessage(DWORD pid, const char* processName, const char* message)
 {
+	std::cout << " # AddMessage " << m_handle.get() << std::endl;
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_lines.push_back(PollLine(pid, processName, message, this));
 }
@@ -91,6 +94,7 @@ void PassiveLogSource::Signal()
 	boost::mutex::scoped_lock lock(m_mutex);
 	if (!m_lines.empty())
 	{
+		std::cout << " # Signal " << m_handle.get() << std::endl;
 		SetEvent(m_handle.get());
 	}
 }

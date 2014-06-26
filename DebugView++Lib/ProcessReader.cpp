@@ -34,6 +34,7 @@ bool ProcessReader::AtEnd() const
 
 void ProcessReader::Poll()
 {
+	std::cout << " # ProcessReader::Poll()\n";
 	m_stdout.Poll(*this);
 	m_stderr.Poll(*this);
 }

@@ -53,12 +53,13 @@ LogSources::~LogSources()
 void LogSources::AddMessage(const std::string& message)
 {
 	m_loopback->AddMessage(0, "loopback", message.c_str());
+	m_loopback->Signal();
 }
-
 
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
+	//std::cout << " Signal m_updateEvent (" << m_updateEvent.get() << ")" << std::endl;
 	m_sources.push_back(source);
 	SetEvent(m_updateEvent.get());
 }
@@ -110,8 +111,14 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
+bool isSignalled(HANDLE handle)
+{
+  return WaitForSingleObjectEx(handle, 0, true) != WAIT_TIMEOUT;
+}
+
 void LogSources::Listen()
 {
+	Sleep(1000);
 	for (;;)
 	{
 		std::vector<HANDLE> waitHandles;
@@ -132,15 +139,15 @@ void LogSources::Listen()
 		auto updateEventIndex = waitHandles.size(); 
 		waitHandles.push_back(m_updateEvent.get());
 
-		//for (auto i=0u; i < waitHandles.size(); ++i)
-		//{
-		//	if (i < sources.size())
-		//	{
-		//		std::cout << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
-		//	}
-		//	std::cout << std::endl;
-		//}
-
+		for (auto i=0u; i < waitHandles.size(); ++i)
+		{
+			std::cout << "windex: " << i << ", " << waitHandles[i] << " == ";
+			if (i < sources.size())
+			{
+				std::cout << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
+			}
+			std::cout << std::endl;
+		}
 		for (;;)
 		{
 			auto res = WaitForAnyObject(waitHandles, INFINITE);
@@ -151,6 +158,7 @@ void LogSources::Listen()
 				int index = res.index - WAIT_OBJECT_0;
 				if (index == updateEventIndex)
 				{
+					std::cout << "updateEventIndex" << std::endl;
 					for (auto it = sources.begin(); it != sources.end(); ++it)		
 					{
 						(*it)->Initialize(); //todo: find a better way to do this.
@@ -171,7 +179,7 @@ void LogSources::Listen()
 					}
 					else
 					{
-						//std::cout << " notifing [" << logsource->GetHandle() << "] " << Str(logsource->GetDescription()).c_str() << std::endl;
+						std::cout << " notifing [" << logsource->GetHandle() << "] " << Str(logsource->GetDescription()).c_str() << std::endl;
 						logsource->Notify();
 					}
 				}

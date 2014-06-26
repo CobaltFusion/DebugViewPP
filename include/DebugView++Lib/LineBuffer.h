@@ -40,7 +40,7 @@ private:
 template <class T> 
 T LineBuffer::Read()
 {
-	//std::cout << "  read  " << sizeof(T) << " bytes.\n";
+	//std::cout << "  read  " << sizeof(T) << " bytes." << std::endl;
 	T value;
 	auto p = (char*) &value;
 	for (int i=0; i<sizeof(T); ++i)
@@ -52,7 +52,7 @@ template <class T>
 void LineBuffer::Write(T value)
 {
 	auto p = (char*) &value;
-	//std::cout << "  store " << sizeof(T) << " bytes.\n";
+	//std::cout << "  store " << sizeof(T) << " bytes." << std::endl;
 	for (int i=0; i<sizeof(T); ++i)
 	{
 		if (Full())

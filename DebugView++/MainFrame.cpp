@@ -107,7 +107,7 @@ CMainFrame::CMainFrame() :
 	m_logfont(GetDefaultLogFont()),
 	m_logSources(true)
 {
-//#define CONSOLE_DEBUG
+#define CONSOLE_DEBUG
 #ifdef CONSOLE_DEBUG
 	AllocConsole();
 	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
@@ -913,7 +913,7 @@ bool CMainFrame::IsPaused() const
 void CMainFrame::Pause()
 {
 	SetTitle(L"Paused");
-	//m_logSources.AddMessage("<paused>");
+	m_logSources.AddMessage("<paused>");
 	if (m_pLocalReader)
 	{
 		m_pLocalReader->Abort();

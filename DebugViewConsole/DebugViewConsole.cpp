@@ -43,12 +43,12 @@ void ShowMessages()
 int main(int argc, char* argv[])
 try
 {
-	std::cout << "DebugViewConsole v" << VERSION_STR << "\n"; 
+	std::cout << "DebugViewConsole v" << VERSION_STR << std::endl;
 	fusion::debugviewpp::ShowMessages();
 	return 0;
 }
 catch (std::exception& e)
 {
-	std::cerr << "DebugViewCmd error:" << e.what() << std::endl;
+	std::cerr << "DebugViewConsole error:" << e.what() << std::endl;
 	return 1;
 }
