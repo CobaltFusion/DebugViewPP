@@ -28,6 +28,10 @@ bool Loopback::GetAutoNewLine() const
 
 void Loopback::PreProcess(Line& line) const
 {
+	if (line.message.empty())
+	{
+		line.message = "\n";
+	}
 }
 
 } // namespace debugviewpp 

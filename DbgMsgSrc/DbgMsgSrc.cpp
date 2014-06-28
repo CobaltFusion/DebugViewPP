@@ -202,6 +202,13 @@ void CoutCerrTest()
 	}
 }
 
+void CoutCerrTest2()
+{
+	std::cout << "One message on cout with newline\n";
+	//std::cerr << "One message on cerr with newline\n";
+}
+
+
 void PrintUsage()
 {
 	std::cout <<
@@ -330,6 +337,11 @@ int main(int argc, char* argv[])
 		else if (arg == "-A")
 		{
 			CoutCerrTest();
+			return 0;
+		}
+		else if (arg == "-B")
+		{
+			CoutCerrTest2();
 			return 0;
 		}
 		else
