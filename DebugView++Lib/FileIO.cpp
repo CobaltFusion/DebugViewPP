@@ -211,7 +211,7 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 				if (!ReadLocalTime(col2, line.systemTime))      // try HH:MM:SS
 					ReadTime(col2, line.time);					// otherwise assume relative time: S.mmmmmm
 
-	if (!col3.empty() && col3[0] == '[')
+	if (!col3.empty() && col3[0] == '[')						// messages from processes are preceeded by [pid], but kernel messages do not have a prefix
 	{
 		std::istringstream is3(col3);
 		char c1, c2, c3;
@@ -225,7 +225,7 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 bool ReadLogFileMessage(const std::string& data, Line& line)
 {
 	TabSplitter split(data);
-	split.GetNext();	// ignore colomn 0
+	split.GetNext();	// ignore colomn 1
 	line.time = boost::lexical_cast<double>(split.GetNext());
 	line.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(split.GetNext()));
 	line.pid = boost::lexical_cast<DWORD>(split.GetNext());
