@@ -221,6 +221,13 @@ void PrintUsage()
 		"  -w Send OutputDebugStringA 'WithoutNewLine'\n"
 		"  -n Send OutputDebugStringA 'WithNewLine\\n'\n"
 		"  -e Send empty OutputDebugStringA message (does not trigger DBwinMutex!)\n"
+		// about -4: 
+		// we cannot guarantee what happens if 1x OutputDebugStringA is send
+		// the process might already be gone be time we handle the message
+		// however, if 2 messages are send, the process is guarenteed to be alive
+		// at least after receiving the first message but before setting the m_dbWinBufferReady flag..
+		// (because before setting the flag the traced process is still waiting for the flag)
+		// this means sending 2 messages and dieing ASAP afterwards is the worst-case we can still handle reliablely.
 		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n"
 		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
 		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"

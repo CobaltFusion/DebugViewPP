@@ -20,7 +20,7 @@ class NewlineFilter {
 public:
 	NewlineFilter();
 	Lines Process(const Line& line);
-	Lines FlushLinesFromTerminatedProcesses(PIDMap terminatedProcessesMap);
+	Lines FlushLinesFromTerminatedProcesses(const PIDMap& terminatedProcessesMap);
 	std::map<DWORD, std::string> m_lineBuffers;
 };
 

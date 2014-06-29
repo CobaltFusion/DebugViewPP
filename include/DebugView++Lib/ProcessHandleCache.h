@@ -15,7 +15,7 @@ namespace fusion {
 namespace debugviewpp {
 
 typedef std::vector<DWORD> Pids;
-typedef std::map<DWORD, HANDLE> PIDMap;
+typedef std::map<DWORD, Handle> PIDMap;
 
 class ProcessHandleCache
 {

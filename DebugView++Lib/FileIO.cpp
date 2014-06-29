@@ -55,8 +55,6 @@ FILETIME MakeFileTime(uint64_t t)
 
 bool ReadTime(const std::string& s, double& time)
 {
-	if (boost::contains(s, ":"))
-		return false;
 	std::istringstream is(s);
 	return is >> time && is.eof();
 }
@@ -106,7 +104,8 @@ FileType::type IdentifyFile(std::string filename)
 	return FileType::AsciiText;
 }
 
-bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft)
+// read localtime in format "hh:mm:ss tt" (AM/PM postfix)
+bool ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft)
 {
 	std::istringstream is(text);
 	WORD h, m, s;
@@ -116,20 +115,43 @@ bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft
 	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
 		h += 12;
 
-	SYSTEMTIME st = FileTimeToSystemTime(ftRef);
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
 	st.wHour = h;
 	st.wMinute = m;
 	st.wSecond = s;
 	st.wMilliseconds = 0;
 	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
 	return true;
 }
 
-bool ReadLocalTime(const std::string& text, FILETIME& ft)
+// read localtime in format "hh:mm:ss.ms tt" (AM/PM postfix)
+bool ReadLocalTimeUSRegionMs(const std::string& text, FILETIME& ft)
 {
 	std::istringstream is(text);
 	WORD h, m, s, ms;
 	char c1, c2, p1, p2, d1;
+	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
+		return false;
+	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+		h += 12;
+
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = ms;
+	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return true;
+}
+
+// read localtime in format "HH:mm:ss.ms"
+bool ReadLocalTimeMs(const std::string& text, FILETIME& ft)
+{
+	std::istringstream is(text);
+	WORD h, m, s, ms;
+	char c1, c2, d1;
 	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
 		return false;
 
@@ -143,6 +165,24 @@ bool ReadLocalTime(const std::string& text, FILETIME& ft)
 	return true;
 }
 
+// read localtime in format "HH:mm:ss"
+bool ReadLocalTime(const std::string& text, FILETIME& ft)
+{
+	std::istringstream is(text);
+	WORD h, m, s;
+	char c1, c2;
+	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
+		return false;
+
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = 0;
+	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return true;
+}
 
 std::istream& ReadLogFileMessage(std::istream& is, Line& line)
 {
@@ -161,8 +201,15 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 	auto col2 = split.GetNext();
 	auto col3 = split.GetTail();
 
-	if (!ReadTime(col2, line.time))
-		ReadLocalTime(col2, line.systemTime);
+	// depending on regional settings Sysinternals debugview logs time differently.
+	// we support the four most common formats
+	// 'hh:MM:SS.mmm tt', 'hh:MM:SS tt', 'HH:MM:SS.mmm' and 'HH:MM:SS' 
+
+	if (!ReadLocalTimeUSRegionMs(col2,line.systemTime))			// try hh:MM:SS.mmm tt
+		if (!ReadLocalTimeUSRegion(col2,line.systemTime))		// try hh:MM:SS tt
+			if (!ReadLocalTimeMs(col2, line.systemTime))		// try HH:MM:SS.mmm
+				if (!ReadLocalTime(col2, line.systemTime))      // try HH:MM:SS
+					ReadTime(col2, line.time);					// otherwise assume relative time: S.mmmmmm
 
 	if (!col3.empty() && col3[0] == '[')
 	{

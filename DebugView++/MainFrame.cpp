@@ -385,21 +385,23 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	using boost::algorithm::iequals;
 	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
 
+	std::string msg;
 	if (iequals(ext, L".exe"))
 	{
-		cdbg << "Started capturing output of " << Str(file) << "\n";
+		msg = stringbuilder() << "Started capturing output of " << Str(file) << "\n";
 		Run(file);
 	}
 	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
-		cdbg << "Started capturing output of " << Str(file) << "\n";
+		msg = stringbuilder() << "Started capturing output of " << Str(file) << "\n";
 		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
 	else
 	{
 		auto reader = m_logSources.AddDBLogReader(file);
-		cdbg << "Started tailing " << Str(file) << " identified as '" << FileTypeToString(reader->GetFileType()) << "'\n";
+		msg = stringbuilder() << "Started tailing " << Str(file) << " identified as '" << FileTypeToString(reader->GetFileType()) << "'\n";
 	}
+	m_logSources.AddMessage(msg);
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)

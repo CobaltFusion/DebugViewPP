@@ -9,6 +9,7 @@
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/LogSource.h"
+#include "DebugView++Lib/ProcessInfo.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -59,14 +60,13 @@ Lines NewlineFilter::Process(const Line& line)
 	return lines;
 }
 
-Lines NewlineFilter::FlushLinesFromTerminatedProcesses(PIDMap terminatedProcessesMap)
+Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PIDMap& terminatedProcessesMap)
 {
 	Lines lines;
-	//lines.push_back(Line(0.0, FILETIME(), 0, "<debug>", "<newline cache checked>", nullptr));
-
 	for (auto i = terminatedProcessesMap.begin(); i != terminatedProcessesMap.end(); i++)
 	{
 		DWORD pid = i->first;
+		HANDLE handle = i->second.get();
 		if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 		{
 			if (!m_lineBuffers[pid].empty())
@@ -76,7 +76,8 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcesses(PIDMap terminatedProcesse
 			}
 			m_lineBuffers.erase(pid);
 		}
-		lines.push_back(Line(0.0, FILETIME(), pid, "<terminated>", "", nullptr));
+		auto processName = ProcessInfo::GetProcessName(handle);
+		lines.push_back(Line(0.0, FILETIME(), pid, Str(processName).str(), "<process terminated>", nullptr));
 	}
 	return lines;
 }

@@ -52,7 +52,7 @@ PIDMap ProcessHandleCache::CleanupMap()
 		if (result == FALSE || exitcode != STILL_ACTIVE)
 		{
 			DWORD pid = i->first;
-			removePids[pid] = i->second.get();
+			removePids[pid] = std::move(i->second);
 		}
 	}
 
