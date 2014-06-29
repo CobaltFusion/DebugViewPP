@@ -10,6 +10,7 @@
 #include <boost/thread.hpp>
 #include "PipeReader.h"
 #include "Process.h"
+#include "FileIO.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -32,6 +33,7 @@ public:
 protected:
 	std::string m_filename;	
 	std::string m_name;	
+	FileType::type m_fileType;
 
 private:
 	void ReadUntilEof();
@@ -48,6 +50,7 @@ public:
 	explicit DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename);
 	virtual void AddLine(const std::string& line);
 	virtual void PreProcess(Line& line) const;
+	FileType::type GetFileType() const;
 };
 
 } // namespace debugviewpp 

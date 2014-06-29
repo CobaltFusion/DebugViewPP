@@ -23,6 +23,8 @@ public:
 
 private:
 	void Process();
+	void OpenDBLogFile(std::string filename);
+	void WriteLine(double time, FILETIME filetime, DWORD pid, const std::string& processName, const std::string& message);
 	
 	std::wstring m_filename;
 	std::ofstream m_ofstream;

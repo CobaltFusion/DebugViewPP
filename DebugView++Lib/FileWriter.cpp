@@ -17,14 +17,24 @@ namespace debugviewpp {
 
 FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
 	m_filename(filename),
-	m_logfile(logfile),
-	m_ofstream(filename, std::ios::app)
+	m_logfile(logfile)
 {
+	OpenDBLogFile(Str(filename).str());
 	m_thread = boost::thread(&FileWriter::Process, this);
 }
 
 FileWriter::~FileWriter()
 {
+}
+
+void FileWriter::OpenDBLogFile(std::string filename)
+{
+	bool newLogFile = !FileExists(filename.c_str());
+	m_ofstream.open(filename, std::ofstream::app);
+	if (newLogFile)
+	{
+		WriteLine(0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification);
+	}
 }
 
 std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
@@ -45,19 +55,21 @@ void FileWriter::Process()
 		{
 			auto msg = m_logfile[writeIndex];
 			writeIndex++;
-			
-			m_ofstream <<
-				msg.time << '\t' <<
-				msg.systemTime << '\t'<<
-				msg.processId << '\t'<<
-				msg.processName << '\t'<<
-				msg.text << '\n';
-
-			// write message
+			WriteLine(msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
 		}
 		m_ofstream.flush();
 		Sleep(1000);
 	}
+}
+
+void FileWriter::WriteLine(double time, FILETIME filetime, DWORD pid, const std::string& processName, const std::string& message)
+{
+	m_ofstream <<
+		time << '\t' <<
+		filetime << '\t'<<
+		pid << '\t'<<
+		processName << '\t'<<
+		message << '\t\r\n';
 }
 
 } // namespace debugviewpp 

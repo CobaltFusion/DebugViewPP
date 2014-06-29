@@ -385,11 +385,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	using boost::algorithm::iequals;
 	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
 
-	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
-	{
-		m_logSources.AddDBLogReader(file);
-	}
-	else if (iequals(ext, L".exe"))
+	if (iequals(ext, L".exe"))
 	{
 		cdbg << "Started capturing output of " << Str(file) << "\n";
 		Run(file);
@@ -401,8 +397,8 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	}
 	else
 	{
-		cdbg << "Started tailing " << Str(file) << "\n";
-		m_logSources.AddFileReader(file);
+		auto reader = m_logSources.AddDBLogReader(file);
+		cdbg << "Started tailing " << Str(file) << " identified as '" << FileTypeToString(reader->GetFileType()) << "'\n";
 	}
 }
 
@@ -775,7 +771,10 @@ void CMainFrame::Run(const std::wstring& pathName)
 		m_runDlg.SetPathName(pathName);
 
 	if (m_runDlg.DoModal() == IDOK)
-		m_logSources.AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
+	{
+		//m_logSources.AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
+		m_logSources.AddProcessReader(L"D:\\project\\DebugViewPP\\Debug\\DbgMsgSrc.exe", L"-B");
+	}
 }
 
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -852,7 +851,7 @@ void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save DebugView text";
 	if (dlg.DoModal() == IDOK)
-		SaveViewFile(fileName);
+		SaveViewFile(dlg.m_szFileName);
 }
 
 void CMainFrame::ClearLog()

@@ -23,7 +23,8 @@ FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring
 	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe use FILE_NOTIFY_CHANGE_LAST_WRITE ?
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().string()),
-	m_initialized(false)
+	m_initialized(false),
+	m_fileType(IdentifyFile(m_filename))
 {
 	SetDescription(filename);
 }
@@ -115,10 +116,25 @@ DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstri
 {
 }
 
+FileType::type DBLogReader::GetFileType() const
+{
+	return m_fileType;
+}
+
 void DBLogReader::AddLine(const std::string& data)
 {
 	Line line;
-	ReadLogFileMessage(data, line);
+	switch (m_fileType)
+	{
+	case FileType::AsciiText:
+		return FileReader::AddLine(data);
+	case FileType::Sysinternals:
+		ReadSysInternalsLogFileMessage(data, line);
+		break;
+	default:
+		ReadLogFileMessage(data, line);
+		break;
+	}
 	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str(), this);
 }
 
