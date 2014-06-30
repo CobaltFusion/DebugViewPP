@@ -12,9 +12,6 @@
 #include "Win32Lib/utilities.h"
 #include "CobaltFusion/dbgstream.h"
 
-#define COUT std::cout
-//std::cout / cnull
-
 namespace fusion {
 namespace debugviewpp {
 

@@ -61,6 +61,7 @@ private:
 	bool m_autoNewLine;
 	boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;
+	std::vector<std::shared_ptr<LogSource>> m_trash;
 	Handle m_updateEvent;
 	bool m_end;
 	VectorLineBuffer m_linebuffer;				// Replace with LineBuffer (which is circular) once it is finished, currently buggy...

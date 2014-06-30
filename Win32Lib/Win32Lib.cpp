@@ -217,7 +217,7 @@ WaitResult::WaitResult(bool signaled, int index) :
 
 WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSeconds)
 {
-	auto rc = ::WaitForMultipleObjects(handles.size(), &handles[0], FALSE, milliSeconds);
+	auto rc = ::WaitForMultipleObjects(handles.size(), handles.data(), FALSE, milliSeconds);
 	if (rc == WAIT_TIMEOUT)
 		return WaitResult(false);
 	if (rc == WAIT_FAILED)

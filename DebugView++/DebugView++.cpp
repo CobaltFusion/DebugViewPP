@@ -130,7 +130,7 @@ try
 	ATLASSERT(SUCCEEDED(hRes));
 	hRes;
 
-	#define CONSOLE_DEBUG
+	//#define CONSOLE_DEBUG
 	#ifdef CONSOLE_DEBUG
 		FILE* standardOut;
 		AllocConsole();

@@ -766,8 +766,7 @@ void CMainFrame::Run(const std::wstring& pathName)
 
 	if (m_runDlg.DoModal() == IDOK)
 	{
-		//m_logSources.AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
-		m_logSources.AddProcessReader(L"D:\\project\\DebugViewPP\\Debug\\DbgMsgSrc.exe", L"-B");
+		m_logSources.AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
 	}
 }
 

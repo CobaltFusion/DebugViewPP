@@ -59,7 +59,6 @@ void LogSources::AddMessage(const std::string& message)
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	COUT << " Signal m_updateEvent (" << m_updateEvent.get() << ")" << std::endl;
 	m_sources.push_back(source);
 	SetEvent(m_updateEvent.get());
 }
@@ -73,9 +72,9 @@ void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 {
 	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
-	COUT << Str(msg).str().c_str() << std::endl;
 	m_loopback->AddMessage(0, "", Str(msg).str().c_str());
 	boost::mutex::scoped_lock lock(m_mutex);
+	m_trash.push_back(logsource);		// todo: fix logsource lifetime (should be extented until all message have been Processed())
 	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
 }
 
@@ -118,11 +117,6 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
-bool isSignalled(HANDLE handle)
-{
-  return WaitForSingleObjectEx(handle, 0, true) != WAIT_TIMEOUT;
-}
-
 void LogSources::Listen()
 {
 	for (;;)
@@ -144,27 +138,10 @@ void LogSources::Listen()
 		}
 		auto updateEventIndex = waitHandles.size(); 
 		waitHandles.push_back(m_updateEvent.get());
-
-		for (auto i=0u; i < waitHandles.size(); ++i)
-		{
-			COUT << "windex: " << i << ", " << waitHandles[i] << " == ";
-			if (i < sources.size())
-			{
-				COUT << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
-				COUT << ", get(): " << sources[i].get();
-			}
-            else
-            {
-                COUT << "<update event>";
-            }
-			COUT << std::endl;
-		}
 		for (;;)
 		{
             m_loopback->Signal();
 			auto res = WaitForAnyObject(waitHandles, INFINITE);
-
-            COUT << "res.index" << res.index << std::endl;
 
 			if (m_end)
 				break;
@@ -173,7 +150,6 @@ void LogSources::Listen()
 				int index = res.index - WAIT_OBJECT_0;
 				if (index == updateEventIndex)
 				{
-					COUT << "updateEventIndex" << std::endl;
 					for (auto it = sources.begin(); it != sources.end(); ++it)		
 					{
 						(*it)->Initialize(); //todo: find a better way to do this.
@@ -187,10 +163,7 @@ void LogSources::Listen()
 						assert(!"res.index out of range");
 					}
 					auto logsource = sources[index];
-					COUT << "got source: " << logsource.get() << std::endl;
-					COUT << " notifing [" << logsource->GetHandle() << "] " << Str(logsource->GetDescription()).c_str() << std::endl;
 					logsource->Notify();
-
 					if (logsource->AtEnd())
 					{
 						InternalRemove(logsource);
@@ -232,9 +205,6 @@ Lines LogSources::GetLines()
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
 	{
 		auto inputLine = *it;
-
-        COUT << "msg: " << inputLine.message << std::endl;
-
 		// let the logsource decide how to create processname
 		if (inputLine.logsource != nullptr)
 		{

@@ -23,7 +23,7 @@ PollLine::PollLine(DWORD pid, const std::string& processName, const std::string&
 PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency) :
 	LogSource(timer, sourceType, linebuffer),
 	m_microsecondInterval(0),
-	m_handle(CreateEvent(NULL, FALSE, FALSE, L"PassiveLogSourceEvent"))
+	m_handle(CreateEvent(NULL, FALSE, FALSE, NULL))
 {
 	if (pollFrequency > 0)
 	{
@@ -33,7 +33,7 @@ PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, IL
 
 PassiveLogSource::~PassiveLogSource()
 {
-    COUT << " # ~PassiveLogSource()" << std::endl;
+    std::cout << " # ~PassiveLogSource()" << std::endl;
 }
 
 void PassiveLogSource::StartThread()
@@ -52,7 +52,6 @@ void PassiveLogSource::Abort()
 
 void PassiveLogSource::Loop()
 {
-	COUT << " # Start loop " << m_handle.get() << std::endl;
 	for(;;)
 	{
 		Poll();
@@ -71,13 +70,6 @@ HANDLE PassiveLogSource::GetHandle() const
 
 void PassiveLogSource::Notify()
 {
-	COUT << " # Notify (" << Str(this->GetDescription()).str().c_str() << "): " << m_handle.get() << std::endl;
-
-    if (m_lines.empty())
-    {
-        COUT << "   # Notify called, but no lines to process!" << std::endl;
-    }
-
 	boost::mutex::scoped_lock lock(m_mutex);
 	for (auto i = m_lines.cbegin(); i != m_lines.cend(); ++i)
 	{
@@ -89,7 +81,6 @@ void PassiveLogSource::Notify()
 
 void PassiveLogSource::AddMessage(DWORD pid, const char* processName, const char* message)
 {
-    COUT << " # AddMessage (" << Str(this->GetDescription()).str().c_str() << "): " << m_handle.get() << ", " << message << std::endl;
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_lines.push_back(PollLine(pid, processName, message, this));
 }
@@ -98,11 +89,7 @@ void PassiveLogSource::Signal()
 {
 	boost::mutex::scoped_lock lock(m_mutex);
 	if (!m_lines.empty())
-	{
-        HANDLE handle = m_handle.get();
-		COUT << " # Signal " << handle << std::endl;
-		SetEvent(handle);
-	}
+		SetEvent(m_handle.get());
 }
 
 } // namespace debugviewpp 
