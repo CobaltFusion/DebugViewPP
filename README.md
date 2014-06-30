@@ -29,7 +29,7 @@ New features in v1.2
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
 
-Coming up (implemented in head version)
+Coming up (implemented in bleeding-egde version)
 
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as line-buffer (preparation for circular buffer implementation)
@@ -38,21 +38,31 @@ Coming up (implemented in head version)
 - fixed un-pause problem
 - Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
-- continious logging to file commandline option
+- continuous logging to file commandline option
 - tailing our own logfiles over samba network
- 
-Download Latest
+- support for reading and tailing Sysinternals Debugview logfiles (four common formats)
+  + this supports the usecase of using Sysinternals Debugview to capture Kernal message and 
+    streaming them to DebugView++ by tailing the logfile.
+
+Download Stable release
+-----------------------
+
++ [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
++ [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
+
+Download Bleeding Edge 
+----------------------
+
++ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.3/DebugView++.zip)
++ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.3/DebugView++.msi)
+
+
+Download Older
 ----------------
-
-[DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
-
-[DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
-
-
 Older v1.1 for reference only, please report issues after testing v1.2 first.
 
-[DebugView v1.1 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
-[DebugView v1.1 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
++ [DebugView v1.1 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
++ [DebugView v1.1 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
 
 
 Documentation
