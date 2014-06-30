@@ -47,22 +47,22 @@ Coming up (implemented in bleeding-egde version)
 Download Latest
 ----------------
 
-[DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
-[DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
++ [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
++ [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
 Download Bleeding Edge 
 ----------------------
 
-[DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.3/DebugView++.zip)
-[DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.3/DebugView++.msi)
++ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.3/DebugView++.zip)
++ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.3/DebugView++.msi)
 
 
 Download Older
 ----------------
 Older v1.1 for reference only, please report issues after testing v1.2 first.
 
-[DebugView v1.1 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
-[DebugView v1.1 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
++ [DebugView v1.1 Zipped executable](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.zip)
++ [DebugView v1.1 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.1.0.2/DebugView++.msi)
 
 
 Documentation
