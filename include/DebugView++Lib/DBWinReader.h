@@ -39,7 +39,6 @@ class DBWinReader : public LogSource
 public:
 	explicit DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global);
 	virtual ~DBWinReader();
-	virtual void Abort();
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 

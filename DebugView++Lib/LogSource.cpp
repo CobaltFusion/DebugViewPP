@@ -26,6 +26,7 @@ LogSource::LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& lin
 
 LogSource::~LogSource()
 {
+	COUT << "~LogSource()" << std::endl;
 }
 
 bool LogSource::AtEnd() const

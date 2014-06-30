@@ -38,7 +38,7 @@ LogSources::LogSources(bool startListening) :
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_handleCacheTime(0.0)
 {
-	Add(m_loopback);
+	m_sources.push_back(m_loopback);
 	if (startListening)
 	{
 		m_thread = boost::thread(&LogSources::Listen, this);
@@ -59,14 +59,21 @@ void LogSources::AddMessage(const std::string& message)
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	//std::cout << " Signal m_updateEvent (" << m_updateEvent.get() << ")" << std::endl;
+	COUT << " Signal m_updateEvent (" << m_updateEvent.get() << ")" << std::endl;
 	m_sources.push_back(source);
 	SetEvent(m_updateEvent.get());
 }
 
 void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
+	InternalRemove(logsource);
+	SetEvent(m_updateEvent.get());
+}
+
+void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
+{
 	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
+	COUT << Str(msg).str().c_str() << std::endl;
 	m_loopback->AddMessage(0, "", Str(msg).str().c_str());
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
@@ -118,7 +125,6 @@ bool isSignalled(HANDLE handle)
 
 void LogSources::Listen()
 {
-	Sleep(1000);
 	for (;;)
 	{
 		std::vector<HANDLE> waitHandles;
@@ -141,23 +147,24 @@ void LogSources::Listen()
 
 		for (auto i=0u; i < waitHandles.size(); ++i)
 		{
-			std::cout << "windex: " << i << ", " << waitHandles[i] << " == ";
+			COUT << "windex: " << i << ", " << waitHandles[i] << " == ";
 			if (i < sources.size())
 			{
-				std::cout << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
+				COUT << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
+				COUT << ", get(): " << sources[i].get();
 			}
             else
             {
-                std::cout << "<update event>";
+                COUT << "<update event>";
             }
-			std::cout << std::endl;
+			COUT << std::endl;
 		}
 		for (;;)
 		{
             m_loopback->Signal();
 			auto res = WaitForAnyObject(waitHandles, INFINITE);
 
-            std::cout << "res.index" << res.index << std::endl;
+            COUT << "res.index" << res.index << std::endl;
 
 			if (m_end)
 				break;
@@ -166,7 +173,7 @@ void LogSources::Listen()
 				int index = res.index - WAIT_OBJECT_0;
 				if (index == updateEventIndex)
 				{
-					std::cout << "updateEventIndex" << std::endl;
+					COUT << "updateEventIndex" << std::endl;
 					for (auto it = sources.begin(); it != sources.end(); ++it)		
 					{
 						(*it)->Initialize(); //todo: find a better way to do this.
@@ -180,15 +187,14 @@ void LogSources::Listen()
 						assert(!"res.index out of range");
 					}
 					auto logsource = sources[index];
+					COUT << "got source: " << logsource.get() << std::endl;
+					COUT << " notifing [" << logsource->GetHandle() << "] " << Str(logsource->GetDescription()).c_str() << std::endl;
+					logsource->Notify();
+
 					if (logsource->AtEnd())
 					{
-						Remove(logsource);
+						InternalRemove(logsource);
 						break;
-					}
-					else
-					{
-						std::cout << " notifing [" << logsource->GetHandle() << "] " << Str(logsource->GetDescription()).c_str() << std::endl;
-						logsource->Notify();
 					}
 				}
 			}
@@ -227,7 +233,7 @@ Lines LogSources::GetLines()
 	{
 		auto inputLine = *it;
 
-        std::cout << "msg: " << inputLine.message << std::endl;
+        COUT << "msg: " << inputLine.message << std::endl;
 
 		// let the logsource decide how to create processname
 		if (inputLine.logsource != nullptr)

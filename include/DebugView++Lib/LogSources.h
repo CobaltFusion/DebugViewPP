@@ -44,6 +44,7 @@ public:
 	void Abort();
 	Lines GetLines();
 	void Remove(std::shared_ptr<LogSource> logsource);
+	void InternalRemove(std::shared_ptr<LogSource> logsource);
 	std::vector<std::shared_ptr<LogSource>> GetSources();
 
 	std::shared_ptr<DBWinReader> AddDBWinReader(bool global);

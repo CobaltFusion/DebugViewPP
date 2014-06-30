@@ -66,11 +66,5 @@ void DBWinReader::Notify()
 	SetEvent(m_dbWinBufferReady.get());
 }
 
-void DBWinReader::Abort()
-{
-	LogSource::Abort();
-	SetEvent(m_dbWinDataReady.get());
-}
-
 } // namespace debugviewpp 
 } // namespace fusion

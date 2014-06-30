@@ -130,10 +130,21 @@ try
 	ATLASSERT(SUCCEEDED(hRes));
 	hRes;
 
+	#define CONSOLE_DEBUG
+	#ifdef CONSOLE_DEBUG
+		FILE* standardOut;
+		AllocConsole();
+		freopen_s(&standardOut, "CONOUT$", "wb", stdout);
+		std::cout.clear();
+	#endif
+
 	int nRet = fusion::debugviewpp::Run(lpstrCmdLine, nCmdShow);
 
-	_Module.Term();
+	#ifdef CONSOLE_DEBUG
+		fclose(standardOut);
+	#endif
 
+	_Module.Term();
 	return nRet;
 }
 catch (std::exception& e)

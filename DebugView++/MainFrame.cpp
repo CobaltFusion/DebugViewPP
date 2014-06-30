@@ -107,19 +107,11 @@ CMainFrame::CMainFrame() :
 	m_logfont(GetDefaultLogFont()),
 	m_logSources(true)
 {
-#define CONSOLE_DEBUG
-#ifdef CONSOLE_DEBUG
-	AllocConsole();
-	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
-#endif
 	m_notifyIconData.cbSize = 0;
 }
 
 CMainFrame::~CMainFrame()
 {
-#ifdef CONSOLE_DEBUG
-	fclose(m_stdout);
-#endif
 }
 
 void CMainFrame::SetLogging()
@@ -917,12 +909,12 @@ void CMainFrame::Pause()
 	m_logSources.AddMessage("<paused>");
 	if (m_pLocalReader)
 	{
-		m_pLocalReader->Abort();
+		m_logSources.Remove(m_pLocalReader);
 		m_pLocalReader.reset();
 	}
 	if (m_pGlobalReader)
 	{
-		m_pGlobalReader->Abort();
+		m_logSources.Remove(m_pGlobalReader);
 		m_pGlobalReader.reset();
 	}
 }
