@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <vector>
+#include <iostream>
 #include "Win32Lib/Win32Lib.h"
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege

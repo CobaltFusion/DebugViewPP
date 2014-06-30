@@ -6,10 +6,11 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <istream>
+#include <fstream>
 #include <algorithm>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"

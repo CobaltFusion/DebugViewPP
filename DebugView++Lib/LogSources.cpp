@@ -146,11 +146,19 @@ void LogSources::Listen()
 			{
 				std::cout << "sindex: " << i << ", " << sources[i]->GetHandle() << " == " << Str(sources[i]->GetDescription()).c_str();
 			}
+            else
+            {
+                std::cout << "<update event>";
+            }
 			std::cout << std::endl;
 		}
 		for (;;)
 		{
+            m_loopback->Signal();
 			auto res = WaitForAnyObject(waitHandles, INFINITE);
+
+            std::cout << "res.index" << res.index << std::endl;
+
 			if (m_end)
 				break;
 			if (res.signaled)
@@ -218,6 +226,8 @@ Lines LogSources::GetLines()
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
 	{
 		auto inputLine = *it;
+
+        std::cout << "msg: " << inputLine.message << std::endl;
 
 		// let the logsource decide how to create processname
 		if (inputLine.logsource != nullptr)
