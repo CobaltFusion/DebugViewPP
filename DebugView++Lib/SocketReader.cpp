@@ -59,25 +59,58 @@ void SocketReader::Loop()
 
 	for(;;)
 	{
-		boost::array<char, 5000> buf;
+		boost::array<unsigned char, 5000> buf;
 		size_t len = socket.read_some(boost::asio::buffer(buf), error);
 		if (error == boost::asio::error::eof)
 			break; // Connection closed cleanly by peer.
 		else if (error)
 			throw boost::system::system_error(error); // Some other error.
 
-		std::cout << "msg of " << len << " bytes." << std::endl;
-		for(int i=0; i<len; ++i)
+		std::string testmsg;
+
+		std::cout << "recv " << len << " bytes: ";
+		for(size_t i=0; i<len; ++i)
 		{
-			std::cout << "0x" << std::hex << std::uppercase << (int)buf[i] << " ";
+			std::cout << "0x" << std::hex << std::uppercase << (unsigned int)buf[i] << " ";
 		}
 		std::cout << std::endl;
 
-		
+		size_t i=0;
+		unsigned int command = buf[i++];
+		command += buf[i++] << 8;
+		command += buf[i++] << 16;
+		command += buf[i++] << 24;
+		switch (command)
+		{
+			case 0:
+				// keepalife
+				std::cout << "*keepalive*" << std::endl;
+				Add(0, "debugview", "*keepalive*\n", this);
+				break;
+			default:
+				{
+				// msg
+
+					std::string msg = stringbuilder() << "[" << len << "] ";
+					for (; i<len; ++i)
+					{
+						char c = (char) buf[i];
+						std::cout << i << ": [0x" << std::hex << std::uppercase << (unsigned int)buf[i] << "] " << c << std::endl;
+						if (c >=32 && c <128)
+							msg.push_back(c);
+					}
+					msg.push_back('\n');
+					Add(0, "debugview", msg.c_str(), this);
+					
+					//std::string msg((char*)&buf[i+16]);
+					//std::cout << "Msg: " << msg << std::endl;
+				}
+				break;
+		}	
+			
 		if (AtEnd())
 			break;
-		// sub 16ms sleep, depends on available hardware for accuracy
-		boost::this_thread::sleep(boost::posix_time::microseconds(GetMicrosecondInterval()));
+		Signal();
 	}
 }
 

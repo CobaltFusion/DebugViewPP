@@ -239,6 +239,7 @@ void PrintUsage()
 
 int main(int argc, char* argv[])
 {
+	std::cout << "DbgMsgSrc, pid: " << GetCurrentProcessId() << std::endl;
 	//OutputDebugStringA("ping");
 	//return 0;
 
