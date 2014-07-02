@@ -48,6 +48,8 @@ std::string GetString(Buffer::const_iterator& it)
 	return value;
 }
 
+#define HEX(x) std::setfill('0') << std::setw(2) << std::hex << std::uppercase << unsigned int(x) << std::setw(0)
+
 void SocketReader::Loop()
 {
 	using namespace boost::asio;
@@ -101,50 +103,59 @@ void SocketReader::Loop()
         switch (command)
 		{
 			case 0:
-				// keepalife
+				// keepalive
 				//std::cout << "*keepalive*" << std::endl;
 				//Add(0, "debugview", "*keepalive*\n", this);
 				break;
 			case 0x7fffffff:
 				// init reply 1
-				Add(0, "debugview", "*reply 1*\n", this);
+				Add(0, "dbgview.exe", "*reply 1*\n", this);
 				break;
 			case 0x0023ae93:
 				// init reply 2
-				Add(0, "debugview", "*reply 2*\n", this);
+				Add(0, "dbgview.exe", "*reply 2*\n", this);
 				break;
 			default:
 				{
+					std::cout << "command: ";
+					for (int i=0; i<4; ++i)
+						std::cout << HEX(buf[i]) << " ";
+
     				// msg
-		            unsigned int lineNr = GetDWORD(buf.cbegin() + 4); //	 we dont need the linenumbers, but they could serve as an integrety check during debugging
+		            unsigned int lineNr = GetDWORD(buf.cbegin() + 4); //	 we dont need the linenumbers, but they serve as an integrity check during debugging
+					std::cout << "line " << lineNr;
 
                     if (len < 17)       // unknown msg
-                        break;
+					{
+						std::cout << " unknown line" << std::endl;
+						continue;
+					}
+					std::cout << std::endl;
 
-					auto it = buf.cbegin() + 25;
-                    std::string pid = "pid: " + GetString(it);
-					it++;
-					auto msgIter = it;
-					std::string msg = stringbuilder() << lineNr << " (" << len << ") " + GetString(msgIter);
+					unsigned char c1, c2;
+					DWORD pid = 0;
+					std::string msg, flags;
+					std::string input((char*)&(buf[24]));
+					std::istringstream is(input);
 
+					if (!((is >> c1 >> pid >> c2 >> msg) && c1 == 0x1 && c2 == 0x2))
+					{
+						msg = "<error parsing>";
+					}
+
+					auto it = buf.cbegin();
 					while(it != buf.cend())
-						std::cout << std::hex << std::uppercase << std::setfill('.') << std::setw(2) << (unsigned int) *it++ << std::left << " ";
-
-                    unsigned char flags = buf[len-1];
-                    bool newline = (flags & 1) != 0;
-
-					msg += stringbuilder() << " " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << unsigned int(flags) << std::left << " ";
-                    if (newline)
-                        msg += " <1>";
-                    else
-                        msg += " <0>";
+					{
+						unsigned char c = *it++;
+						std::cout << HEX(c) << " ";
+						if (c == 0)
+							std::cout << std::endl;
+					}
 
                     std::cout << std::endl;
 					msg.push_back('\n');
-                    Add(0, pid.c_str(), msg.c_str(), this);
-					
-					//std::string msg((char*)&buf[i+16]);
-					//std::cout << "Msg: " << msg << std::endl;
+					msg += " (" + flags + ")";
+                    Add(pid, "dbgview.exe", msg.c_str(), this);
 				}
 				break;
 		}	
