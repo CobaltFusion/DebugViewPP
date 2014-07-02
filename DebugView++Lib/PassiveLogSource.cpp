@@ -44,6 +44,11 @@ void PassiveLogSource::StartThread()
 	}
 }
 
+long PassiveLogSource::GetMicrosecondInterval() const
+{
+	return m_microsecondInterval;
+}
+
 void PassiveLogSource::Abort()
 {
 	LogSource::Abort();

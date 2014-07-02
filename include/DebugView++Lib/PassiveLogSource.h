@@ -39,6 +39,8 @@ public:
 	void AddMessage(DWORD pid, const char* processName, const char* message);
 	void Signal();
 	void StartThread();
+
+	long GetMicrosecondInterval() const;
 private:
 	void Abort();
 	void Loop();

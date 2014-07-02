@@ -19,13 +19,14 @@ class ILineBuffer;
 class SocketReader : public PassiveLogSource
 {
 public:
-	SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
+	SocketReader(Timer& timer, ILineBuffer& linebuffer);
 	virtual ~SocketReader();
 
-	virtual bool AtEnd() const;
+	virtual void Abort();
 private:
 	virtual void Poll();
-
+	void Loop();
+	boost::thread m_thread;
 };
 
 } // namespace debugviewpp 

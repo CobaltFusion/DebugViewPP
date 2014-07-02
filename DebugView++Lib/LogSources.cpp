@@ -19,6 +19,7 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/Loopback.h"
+#include "DebugView++Lib/SocketReader.h"
 
 // class Logsources heeft vector<LogSource> en start in zijn constructor een thread voor LogSources::Listen()
 // - Listen() vraagt GetHandle() aan elke LogSource in m_sources en roept Notify() op de LogSource waarvan de handle gesignaled wordt.
@@ -39,6 +40,10 @@ LogSources::LogSources(bool startListening) :
 	m_handleCacheTime(0.0)
 {
 	m_sources.push_back(m_loopback);
+
+	auto socket = std::make_shared<SocketReader>(m_timer, m_linebuffer);		// testing socket
+	m_sources.push_back(socket);
+
 	if (startListening)
 	{
 		m_thread = boost::thread(&LogSources::Listen, this);
