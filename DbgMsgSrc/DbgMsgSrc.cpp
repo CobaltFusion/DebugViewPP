@@ -283,38 +283,38 @@ int main(int argc, char* argv[])
 		}
 		else if (arg == "-w")
 		{
-			std::cout << "Send OutputDebugStringA 'WithoutNewLine'\n";
+			std::cout << "Send OutputDebugStringA 'WithoutNewLine ' (15 bytes)\n";
 			OutputDebugStringA("WithoutNewLine ");
 			return 0;
 		}
 		else if (arg == "-n")
 		{
-			std::cout << "Send OutputDebugStringA 'WithNewLine\\n'\n";
+			std::cout << "Send OutputDebugStringA 'WithNewLine\\n' (12 bytes)\n";
 			OutputDebugStringA("WithNewLine\n");
 			return 0;
 		}
 		else if (arg == "-e")
 		{
-			std::cout << "Send empty OutputDebugStringA message\n";
+			std::cout << "Send empty OutputDebugStringA message (0 bytes)\n";
 			OutputDebugStringA("");			//empty message
 			return 0;
 		}
 		else if (arg == "-4")
 		{
-			std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n'\n";
+			std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n (24 bytes)'\n";
 			OutputDebugStringA("WithNewLine\n");
 			OutputDebugStringA("WithNewLine\n");
 			return 0;
 		}
 		else if (arg == "-5")
 		{
-			std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n'\n";
+			std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n' (6 bytes)\n";
 			OutputDebugStringA("1\n2\n3\n");
 			return 0;
 		}
 		else if (arg == "-6")
 		{
-			std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n";
+			std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages (6 bytes)\n";
 			OutputDebugStringA("1 ");
 			OutputDebugStringA("2 ");
 			OutputDebugStringA("3\n");
