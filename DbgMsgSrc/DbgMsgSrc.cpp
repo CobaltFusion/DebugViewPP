@@ -51,6 +51,14 @@ void DbgMsgTest()
 	OutputDebugStringA("LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
 }
 
+void SocketTest()
+{
+	OutputDebugStringA("1");
+	OutputDebugStringA("22");
+	OutputDebugStringA("333");
+	OutputDebugStringA("4444");
+}
+
 void DbgMsgClearTest()
 {
 	char buffer[200];
@@ -350,6 +358,11 @@ int main(int argc, char* argv[])
 		else if (arg == "-B")
 		{
 			CoutCerrTest2();
+			return 0;
+		}
+		else if (arg == "-C")
+		{
+			SocketTest();
 			return 0;
 		}
 		else

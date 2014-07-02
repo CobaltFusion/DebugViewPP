@@ -28,6 +28,26 @@ SocketReader::~SocketReader()
 {
 }
 
+typedef std::vector<unsigned char> Buffer;
+
+
+DWORD GetDWORD(Buffer::const_iterator& it)
+{
+	DWORD value = *(it++);
+	value += *(it++) << 8;
+	value += *(it++) << 16;
+	value += *(it++) << 24;
+	return value;
+}
+
+std::string GetString(Buffer::const_iterator& it)
+{
+	std::string value;
+	while((*it) >= 10)
+		value.push_back(*(it++));
+	return value;
+}
+
 void SocketReader::Loop()
 {
 	using namespace boost::asio;
@@ -59,8 +79,10 @@ void SocketReader::Loop()
 
 	for(;;)
 	{
-		boost::array<unsigned char, 5000> buf;
+		std::vector<unsigned char> buf(5000);
+
 		size_t len = socket.read_some(boost::asio::buffer(buf), error);
+		buf.resize(len);
 		if (error == boost::asio::error::eof)
 			break; // Connection closed cleanly by peer.
 		else if (error)
@@ -75,57 +97,43 @@ void SocketReader::Loop()
 		//}
 		//std::cout << std::endl;
 
-		size_t i=0;
-		unsigned int command = buf[i++];
-		command += buf[i++] << 8;
-		command += buf[i++] << 16;
-		command += buf[i++] << 24;
-
-        // 40 6B E8 BB 
-        // EE 95 CF 1 
-        // 72 33 45 26 
-        // 8A 1 0 0 1 37 33 35 36 2 20 57 69 74 68 4E 65 77 4C 69 6E 65 0 69
-        // E0 1C C8 BC EE 95 CF 1 29 5A 8F 26 8A 1 0 0 1 36 34 38 38 2 20 57 69 74 68 4E 65 77 4C 69 6E 65 0 69
-        
+		unsigned int command = GetDWORD(buf.cbegin());
         switch (command)
 		{
 			case 0:
 				// keepalife
-				std::cout << "*keepalive*" << std::endl;
-				Add(0, "debugview", "*keepalive*\n", this);
+				//std::cout << "*keepalive*" << std::endl;
+				//Add(0, "debugview", "*keepalive*\n", this);
+				break;
+			case 0x7fffffff:
+				// init reply 1
+				Add(0, "debugview", "*reply 1*\n", this);
+				break;
+			case 0x0023ae93:
+				// init reply 2
+				Add(0, "debugview", "*reply 2*\n", this);
 				break;
 			default:
 				{
     				// msg
-
-		            unsigned int lineNr = buf[i++];
-		            lineNr += buf[i++] << 8;
-		            lineNr += buf[i++] << 16;
-		            lineNr += buf[i++] << 24;
+		            unsigned int lineNr = GetDWORD(buf.cbegin() + 4); //	 we dont need the linenumbers, but they could serve as an integrety check during debugging
 
                     if (len < 17)       // unknown msg
                         break;
-                    i += 17;
 
-                    std::string pid = "pid: ";
-                    for (;buf[i] != 2;)
-                    {
-                        pid.push_back(buf[i++]);
-                    }
+					auto it = buf.cbegin() + 25;
+                    std::string pid = "pid: " + GetString(it);
+					it++;
+					auto msgIter = it;
+					std::string msg = stringbuilder() << lineNr << " (" << len << ") " + GetString(msgIter);
 
-					std::string msg = stringbuilder() << lineNr << " (" << len << ") ";
-					for (; i<len-1; ++i)
-					{
-						char c = (char) buf[i];
-						std::cout << std::hex << std::uppercase << (unsigned int)buf[i] << " ";
-						if (c >=32 && c <128)
-							msg.push_back(c);
-					}
+					while(it != buf.cend())
+						std::cout << std::hex << std::uppercase << std::setfill('.') << std::setw(2) << (unsigned int) *it++ << std::left << " ";
 
-                    unsigned char flags = buf[len];
+                    unsigned char flags = buf[len-1];
                     bool newline = (flags & 1) != 0;
 
-                    msg += stringbuilder() << " " << std::hex << std::uppercase << unsigned int(flags) << " ";
+					msg += stringbuilder() << " " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << unsigned int(flags) << std::left << " ";
                     if (newline)
                         msg += " <1>";
                     else
