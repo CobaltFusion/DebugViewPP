@@ -68,19 +68,26 @@ void SocketReader::Loop()
 
 		std::string testmsg;
 
-		std::cout << "recv " << len << " bytes: ";
-		for(size_t i=0; i<len; ++i)
-		{
-			std::cout << "0x" << std::hex << std::uppercase << (unsigned int)buf[i] << " ";
-		}
-		std::cout << std::endl;
+		//std::cout << "recv " << len << " bytes: ";
+		//for(size_t i=0; i<len; ++i)
+		//{
+		//	std::cout << "0x" << std::hex << std::uppercase << (unsigned int)buf[i] << " ";
+		//}
+		//std::cout << std::endl;
 
 		size_t i=0;
 		unsigned int command = buf[i++];
 		command += buf[i++] << 8;
 		command += buf[i++] << 16;
 		command += buf[i++] << 24;
-		switch (command)
+
+        // 40 6B E8 BB 
+        // EE 95 CF 1 
+        // 72 33 45 26 
+        // 8A 1 0 0 1 37 33 35 36 2 20 57 69 74 68 4E 65 77 4C 69 6E 65 0 69
+        // E0 1C C8 BC EE 95 CF 1 29 5A 8F 26 8A 1 0 0 1 36 34 38 38 2 20 57 69 74 68 4E 65 77 4C 69 6E 65 0 69
+        
+        switch (command)
 		{
 			case 0:
 				// keepalife
@@ -89,18 +96,44 @@ void SocketReader::Loop()
 				break;
 			default:
 				{
-				// msg
+    				// msg
 
-					std::string msg = stringbuilder() << "[" << len << "] ";
-					for (; i<len; ++i)
+		            unsigned int lineNr = buf[i++];
+		            lineNr += buf[i++] << 8;
+		            lineNr += buf[i++] << 16;
+		            lineNr += buf[i++] << 24;
+
+                    if (len < 17)       // unknown msg
+                        break;
+                    i += 17;
+
+                    std::string pid = "pid: ";
+                    for (;buf[i] != 2;)
+                    {
+                        pid.push_back(buf[i++]);
+                    }
+
+					std::string msg = stringbuilder() << lineNr << " (" << len << ") ";
+					for (; i<len-1; ++i)
 					{
 						char c = (char) buf[i];
-						std::cout << i << ": [0x" << std::hex << std::uppercase << (unsigned int)buf[i] << "] " << c << std::endl;
+						std::cout << std::hex << std::uppercase << (unsigned int)buf[i] << " ";
 						if (c >=32 && c <128)
 							msg.push_back(c);
 					}
+
+                    unsigned char flags = buf[len];
+                    bool newline = (flags & 1) != 0;
+
+                    msg += stringbuilder() << " " << std::hex << std::uppercase << unsigned int(flags) << " ";
+                    if (newline)
+                        msg += " <1>";
+                    else
+                        msg += " <0>";
+
+                    std::cout << std::endl;
 					msg.push_back('\n');
-					Add(0, "debugview", msg.c_str(), this);
+                    Add(0, pid.c_str(), msg.c_str(), this);
 					
 					//std::string msg((char*)&buf[i+16]);
 					//std::cout << "Msg: " << msg << std::endl;
