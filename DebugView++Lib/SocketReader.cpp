@@ -11,7 +11,6 @@
 #include "DebugView++Lib/LineBuffer.h"
 
 #include <boost/asio.hpp> 
-#include <boost/array.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -28,78 +27,80 @@ SocketReader::~SocketReader()
 {
 }
 
-typedef std::vector<unsigned char> Buffer;
-
-
-DWORD GetDWORD(Buffer::const_iterator& it)
-{
-	DWORD value = *(it++);
-	value += *(it++) << 8;
-	value += *(it++) << 16;
-	value += *(it++) << 24;
-	return value;
-}
-
-std::string GetString(Buffer::const_iterator& it)
-{
-	std::string value;
-	while((*it) >= 10)
-		value.push_back(*(it++));
-	return value;
-}
-
 #define HEX(x) std::setfill('0') << std::setw(2) << std::hex << std::uppercase << unsigned int(x) << std::setw(0)
+
+std::vector<unsigned char> Read(boost::asio::ip::tcp::iostream& is, size_t amount)
+{
+	if (amount < 1)
+		return std::vector<unsigned char>();
+	std::vector<unsigned char> buffer(amount);
+	is.read((char*)buffer.data(), amount);
+	return buffer;
+}
+
+std::vector<unsigned char> ReadRemaining(boost::asio::ip::tcp::iostream& is)
+{
+	std::vector<unsigned char> buffer(10000);
+	auto len = is.readsome((char*)buffer.data(), buffer.size());
+	buffer.resize(unsigned int(len));
+	return buffer;
+}
 
 void SocketReader::Loop()
 {
 	using namespace boost::asio;
-	io_service io_service; 
-	ip::tcp::resolver resolver(io_service);
-	ip::tcp::socket socket(io_service); 
+	//io_service io_service; 
+	//ip::tcp::resolver resolver(io_service);
+	//ip::tcp::socket socket(io_service); 
 
-	ip::tcp::resolver::query localAgent("127.0.0.1", "2020"); 
-	auto endpoint_iterator = resolver.resolve(localAgent);
-	ip::tcp::resolver::iterator end;
-	boost::system::error_code error = boost::asio::error::host_not_found;
+	//ip::tcp::resolver::query localAgent("127.0.0.1", "2020"); 
+	//auto endpoint_iterator = resolver.resolve(localAgent);
+	//ip::tcp::resolver::iterator end;
+	//boost::system::error_code error = boost::asio::error::host_not_found;
 
-    while (error && endpoint_iterator != end)
+ //   while (error && endpoint_iterator != end)
+ //   {
+ //     socket.close();
+ //     socket.connect(*endpoint_iterator++, error);
+ //   }
+ //   if (error)
+ //     throw boost::system::system_error(error);
+
+	ip::tcp::iostream is("127.0.0.1", "2020");		// much shorter, but not direct socket access.
+	//boost::iostreams:: stream<asio_stream_device> is(socket);
+
+    if (!is)
     {
-      socket.close();
-      socket.connect(*endpoint_iterator++, error);
+      std::cout << "Unable to connect: " << is.error().message() << std::endl;
+      return;
     }
-    if (error)
-      throw boost::system::system_error(error);
-
+	
 	boost::array<unsigned char, 20> startBuf = { 
 		0x24, 0x00, 0x05, 0x83,
 		0x04, 0x00, 0x05, 0x83,
 		0x08, 0x00, 0x05, 0x83,
 		0x28, 0x00, 0x05, 0x83, //  (reponse: 90 ae 23 00 00 00 00 00)
 		0x18, 0x00, 0x05, 0x83  //  (reponse: 00 00 00 00)	
-	} ;
-	socket.write_some(boost::asio::buffer(startBuf), error);
+	};
+
+	is.write((char*)startBuf.data(), startBuf.size());
+	if (!is)
+	{
+		std::cout << "Unable to connect: " << is.error().message() << std::endl;
+		Add(0, "dbgview.exe", "<error sending init command>\n", this);
+	}
 
 	for(;;)
 	{
-		std::vector<unsigned char> buf(5000);
+		is.clear();
+		auto command = Read<DWORD>(is);
+		if (!is)
+		{
+			Add(0, "dbgview.exe", "<error parsing command>\n", this);
+			break;
+		}
 
-		size_t len = socket.read_some(boost::asio::buffer(buf), error);
-		buf.resize(len);
-		if (error == boost::asio::error::eof)
-			break; // Connection closed cleanly by peer.
-		else if (error)
-			throw boost::system::system_error(error); // Some other error.
-
-		std::string testmsg;
-
-		//std::cout << "recv " << len << " bytes: ";
-		//for(size_t i=0; i<len; ++i)
-		//{
-		//	std::cout << "0x" << std::hex << std::uppercase << (unsigned int)buf[i] << " ";
-		//}
-		//std::cout << std::endl;
-
-		unsigned int command = GetDWORD(buf.cbegin());
+		bool multilineMessage = false;
         switch (command)
 		{
 			case 0:
@@ -115,34 +116,74 @@ void SocketReader::Loop()
 				// init reply 2
 				Add(0, "dbgview.exe", "*reply 2*\n", this);
 				break;
-			default:
+			case 0x80:
+				multilineMessage = true;
+				std::cout << "multilineMessage<true>" << std::endl;
+			case 0x28:
 				{
-					std::cout << "command: ";
-					for (int i=0; i<4; ++i)
-						std::cout << HEX(buf[i]) << " ";
-
-    				// msg
-		            unsigned int lineNr = GetDWORD(buf.cbegin() + 4); //	 we dont need the linenumbers, but they serve as an integrity check during debugging
-					std::cout << "line " << lineNr;
-
-                    if (len < 17)       // unknown msg
-					{
-						std::cout << " unknown line" << std::endl;
-						continue;
-					}
-					std::cout << std::endl;
-
-					unsigned char c1, c2;
+					std::cout << "command: " << HEX(command) << std::endl;
 					DWORD pid = 0;
 					std::string msg, flags;
-					std::string input((char*)&(buf[24]));
-					std::istringstream is(input);
-
-					if (!((is >> c1 >> pid >> c2 >> msg) && c1 == 0x1 && c2 == 0x2))
+					for(;;)
 					{
-						msg = "<error parsing>";
-					}
+						std::cout << "==== next === " << std::endl;
+						msg.clear();
+						flags.clear();
+						
+						unsigned int lineNr = Read<DWORD>(is);
 
+						if (is.eof())
+						{
+							std::cout << " is has eof!" << std::endl;
+						}
+
+						if (is.fail())
+						{
+							std::cout << " is has failed!" << std::endl;
+						}
+						if (!is)
+						{
+							std::cout << " is false!" << std::endl;
+						}
+
+						if (!is)
+						{
+							Add(0, "dbgview.exe", "<end of messagecollection>\n", this);
+							break;
+						}
+
+						auto ufo = Read(is, 16);	// yet to decode timestamp
+
+						unsigned char c1, c2;
+						if (!((is >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
+						{
+							Add(0, "dbgview.exe", "<error parsing pid>\n", this);
+							break;
+						}
+						std::getline(is, msg, '\0'); 
+						std::cout << "lineNr: " << lineNr << " msg: " << msg.c_str() << std::endl;
+
+
+						msg.push_back('\n');
+						Add(pid, "dbgview.exe", msg.c_str(), this);
+						
+						if (multilineMessage)
+							std::getline(is, flags, '\0'); 
+						else
+						{
+							auto ufo = Read(is, 1);	 //flags?
+							std::cout << "multilineMessage == false, stopping..." << std::endl;
+
+							break;
+						}
+					}
+					std::cout << "==== end of messages === " << std::endl;
+				}
+				break;
+			default:
+				{
+					std::cout << "unknown command: " << HEX(command) << std::endl;
+					auto buf = ReadRemaining(is);
 					auto it = buf.cbegin();
 					while(it != buf.cend())
 					{
@@ -151,18 +192,13 @@ void SocketReader::Loop()
 						if (c == 0)
 							std::cout << std::endl;
 					}
-
-                    std::cout << std::endl;
-					msg.push_back('\n');
-					msg += " (" + flags + ")";
-                    Add(pid, "dbgview.exe", msg.c_str(), this);
+					std::cout << std::endl;
 				}
 				break;
 		}	
-			
+		Signal();
 		if (AtEnd())
 			break;
-		Signal();
 	}
 }
 

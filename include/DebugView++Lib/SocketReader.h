@@ -10,11 +10,20 @@
 #include "PipeReader.h"
 #include "PassiveLogSource.h"
 #include "Process.h"
+#include <boost/asio.hpp> 
 
 namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
+
+template<typename T> 
+T Read(boost::asio::ip::tcp::iostream& is)
+{
+	T t = T();
+	is.read((char*) &t, sizeof(T));
+	return t;
+}
 
 class SocketReader : public PassiveLogSource
 {
@@ -23,6 +32,7 @@ public:
 	virtual ~SocketReader();
 
 	virtual void Abort();
+
 private:
 	virtual void Poll();
 	void Loop();

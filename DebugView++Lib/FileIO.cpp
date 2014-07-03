@@ -87,17 +87,27 @@ FileType::type IdentifyFile(std::string filename)
 	if (!std::getline(is, line))
 		return FileType::Unknown;
 
+	// first we check for our own header
 	auto marker = g_debugViewPPIdentification + "\t\r";
 	if (boost::ends_with(line, marker))
 	{
 		return FileType::DebugViewPP;
 	}
 
+	// if the extention is .txt (and we did not find our own header)
+	// we say it is an ascii-file.
 	auto str = filename;
 	boost::to_lower(str);
 	if (boost::ends_with(str, ".txt"))
 		return FileType::AsciiText;
 
+	// to test for sysinternals debugview-logfiles, we need to check the second line 
+	// since the first line contains the computer-name in some cases (depending on how it was saved)
+	// logfiles with only one line are not that interesting anyway.
+	if (!std::getline(is, line))		
+		return FileType::AsciiText;
+
+	// if the second line contains 3 tabs characters, we say it's a sysinternals debugview-logfile 
 	auto tabs = std::count(line.begin(), line.end(), '\t');
 	if (tabs == 3)
 		return FileType::Sysinternals;
