@@ -17,8 +17,8 @@ namespace debugviewpp {
 
 class ILineBuffer;
 
-template<typename T> 
-T Read(boost::asio::ip::tcp::iostream& is)
+template<typename T, class S> 
+T Read(S& is)
 {
 	T t = T();
 	is.read((char*) &t, sizeof(T));

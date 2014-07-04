@@ -38,6 +38,15 @@ std::vector<unsigned char> Read(boost::asio::ip::tcp::iostream& is, size_t amoun
 	return buffer;
 }
 
+std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
+{
+	if (amount < 1)
+		return std::vector<unsigned char>();
+	std::vector<unsigned char> buffer(amount);
+	is.read((char*)buffer.data(), amount);
+	return buffer;
+}
+
 std::vector<unsigned char> ReadRemaining(boost::asio::ip::tcp::iostream& is)
 {
 	std::vector<unsigned char> buffer(10000);
@@ -46,28 +55,24 @@ std::vector<unsigned char> ReadRemaining(boost::asio::ip::tcp::iostream& is)
 	return buffer;
 }
 
+void DebugRemains(boost::asio::ip::tcp::iostream& is)
+{
+	auto buf = ReadRemaining(is);
+	auto it = buf.cbegin();
+	while(it != buf.cend())
+	{
+		unsigned char c = *it++;
+		std::cout << HEX(c) << " ";
+		if (c == 0)
+			std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
+
 void SocketReader::Loop()
 {
 	using namespace boost::asio;
-	//io_service io_service; 
-	//ip::tcp::resolver resolver(io_service);
-	//ip::tcp::socket socket(io_service); 
-
-	//ip::tcp::resolver::query localAgent("127.0.0.1", "2020"); 
-	//auto endpoint_iterator = resolver.resolve(localAgent);
-	//ip::tcp::resolver::iterator end;
-	//boost::system::error_code error = boost::asio::error::host_not_found;
-
- //   while (error && endpoint_iterator != end)
- //   {
- //     socket.close();
- //     socket.connect(*endpoint_iterator++, error);
- //   }
- //   if (error)
- //     throw boost::system::system_error(error);
-
 	ip::tcp::iostream is("127.0.0.1", "2020");		// much shorter, but not direct socket access.
-	//boost::iostreams:: stream<asio_stream_device> is(socket);
 
     if (!is)
     {
@@ -86,116 +91,66 @@ void SocketReader::Loop()
 	is.write((char*)startBuf.data(), startBuf.size());
 	if (!is)
 	{
-		std::cout << "Unable to connect: " << is.error().message() << std::endl;
 		Add(0, "dbgview.exe", "<error sending init command>\n", this);
 	}
+
+	auto initReply1 = Read<DWORD>(is);	// 0x7fffffff
+	auto initReply2 = Read<DWORD>(is);	// 0x0023ae93
 
 	for(;;)
 	{
 		is.clear();
-		auto command = Read<DWORD>(is);
-		if (!is)
+		auto messageLength = Read<DWORD>(is);
+		
+		if (!is || messageLength >= 0x7fffffff)
 		{
-			Add(0, "dbgview.exe", "<error parsing command>\n", this);
+			Add(0, "dbgview.exe", "<error parsing messageLength>\n", this);
 			break;
 		}
 
-		bool multilineMessage = false;
-        switch (command)
+		if (messageLength == 0)	// keep alive
+			continue;
+
+		std::vector<char> buffer(messageLength);
+		is.read(reinterpret_cast<char*>(buffer.data()), messageLength);
+		std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
+		ss.write(buffer.data(), buffer.size());
+
+		DWORD pid = 0;
+		std::string msg, flags;
+		for(;;)
 		{
-			case 0:
-				// keepalive
-				//std::cout << "*keepalive*" << std::endl;
-				//Add(0, "debugview", "*keepalive*\n", this);
-				break;
-			case 0x7fffffff:
-				// init reply 1
-				Add(0, "dbgview.exe", "*reply 1*\n", this);
-				break;
-			case 0x0023ae93:
-				// init reply 2
-				Add(0, "dbgview.exe", "*reply 2*\n", this);
-				break;
-			//case 0x80:
-				multilineMessage = true;
-				std::cout << "multilineMessage<true>" << std::endl;
-			//case 0x28:
-				{
-					std::cout << "command: " << HEX(command) << std::endl;
-					DWORD pid = 0;
-					std::string msg, flags;
-					for(;;)
-					{
-						std::cout << "==== next === " << std::endl;
-						msg.clear();
-						flags.clear();
+			msg.clear();
+			flags.clear();
 						
-						unsigned int lineNr = Read<DWORD>(is);
-
-						if (is.eof())
-						{
-							std::cout << " is has eof!" << std::endl;
-						}
-
-						if (is.fail())
-						{
-							std::cout << " is has failed!" << std::endl;
-						}
-						if (!is)
-						{
-							std::cout << " is false!" << std::endl;
-						}
-
-						if (!is)
-						{
-							Add(0, "dbgview.exe", "<end of messagecollection>\n", this);
-							break;
-						}
-
-						auto ufo = Read(is, 16);	// yet to decode timestamp
-
-						unsigned char c1, c2;
-						if (!((is >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
-						{
-							Add(0, "dbgview.exe", "<error parsing pid>\n", this);
-							break;
-						}
-						std::getline(is, msg, '\0'); 
-						std::cout << "lineNr: " << lineNr << " msg: " << msg.c_str() << std::endl;
-
-
-						msg.push_back('\n');
-						Add(pid, "dbgview.exe", msg.c_str(), this);
-						
-						if (multilineMessage)
-							std::getline(is, flags, '\0'); 
-						else
-						{
-							auto ufo = Read(is, 1);	 //flags?
-							std::cout << "multilineMessage == false, stopping..." << std::endl;
-
-							break;
-						}
-					}
-					std::cout << "==== end of messages === " << std::endl;
-				}
+			unsigned int lineNr = Read<DWORD>(ss);
+			if (!ss)
 				break;
-			default:
-				{
-					std::cout << "unknown command: " << HEX(command) << std::endl;
-					auto buf = ReadRemaining(is);
-					auto it = buf.cbegin();
-					while(it != buf.cend())
-					{
-						unsigned char c = *it++;
-						std::cout << HEX(c) << " ";
-						if (c == 0)
-							std::cout << std::endl;
-					}
-					std::cout << std::endl;
-				}
+			
+			auto ufo = Read(ss, 16);	// yet to decode timestamp
+
+			unsigned char c1, c2;
+			if (!((ss >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
+			{
+				Add(0, "dbgview.exe", "<error parsing pid>\n", this);
 				break;
-		}	
+			}
+			Read(ss, 1);	// discard one leading space
+			std::getline(ss, msg, '\0'); 
+
+			msg.push_back('\n');
+			Add(pid, "dbgview.exe", msg.c_str(), this);
+
+			// strangely, messages are always send in multiples of 4 bytes.
+			// this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.
+			auto pos = (size_t) ss.tellg();
+			auto remainder = pos % 4;
+			if (remainder > 0)
+			{
+				auto trashBytes = 4 - remainder;
+				Read(ss, trashBytes);	// discard trailing trash 
+			}
+		}
 		Signal();
 		if (AtEnd())
 			break;
