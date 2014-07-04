@@ -57,6 +57,9 @@ void SocketTest()
 	OutputDebugStringA("22");
 	OutputDebugStringA("333");
 	OutputDebugStringA("4444");
+	OutputDebugStringA("55555");
+	OutputDebugStringA("666666");
+	OutputDebugStringA("1010101010");
 }
 
 void DbgMsgClearTest()

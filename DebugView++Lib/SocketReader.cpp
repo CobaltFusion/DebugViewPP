@@ -116,10 +116,10 @@ void SocketReader::Loop()
 				// init reply 2
 				Add(0, "dbgview.exe", "*reply 2*\n", this);
 				break;
-			case 0x80:
+			//case 0x80:
 				multilineMessage = true;
 				std::cout << "multilineMessage<true>" << std::endl;
-			case 0x28:
+			//case 0x28:
 				{
 					std::cout << "command: " << HEX(command) << std::endl;
 					DWORD pid = 0;
