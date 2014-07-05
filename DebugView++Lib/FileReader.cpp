@@ -7,111 +7,140 @@
 
 #include "stdafx.h"
 #include <boost/filesystem.hpp>
-#include "FileIO.h"
-#include "FileReader.h"
+#include "DebugView++Lib/FileIO.h"
+#include "DebugView++Lib/FileReader.h"
+#include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/Line.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-FileReader::FileReader(const std::wstring& filename) :
-	m_end(false),
-	m_filename(filename),
+FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) :
+	LogSource(timer, SourceType::File, linebuffer),
+	m_end(true),
+	m_filename(Str(filename).str()),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
-	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)),
-	m_thread(&FileReader::Run, this)
+	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe use FILE_NOTIFY_CHANGE_LAST_WRITE ?
+	m_ifstream(m_filename, std::ios::in),
+	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().string()),
+	m_initialized(false),
+	m_fileType(IdentifyFile(m_filename))
 {
+	SetDescription(filename);
 }
 
 FileReader::~FileReader()
 {
-	Abort();
 }
 
-void FileReader::Abort()
+void FileReader::Initialize()
 {
-	m_end = true;
-	m_thread.join();
+	if (m_initialized)
+	{
+		return;
+	}
+	m_initialized = true;
+
+	if (m_ifstream.is_open())
+	{
+		ReadUntilEof();
+		m_end = false;
+	}
 }
 
 bool FileReader::AtEnd() const
 {
-	return false;
+	return m_end;
 }
 
 HANDLE FileReader::GetHandle() const
 {
-	return 0;	// todo::implement
+	return m_handle.get();
 }
 
 void FileReader::Notify()
 {
-	// add a line to CircularBuffer
+	ReadUntilEof();
+	FindNextChangeNotification(m_handle.get());
 }
 
-void FileReader::Run()
+void FileReader::ReadUntilEof()
 {
-	std::ifstream ifs(m_filename);
-	if (ifs.is_open())
+	std::string line;
+	while (std::getline(m_ifstream, line))
+		AddLine(line);
+	if (!m_ifstream.eof()) 
 	{
-		std::string line;
-		for (;;)
-		{
-			while (std::getline(ifs, line)) 
-				Add(line);
-			if (!ifs.eof()) 
-			{
-				// Some error other then EOF occured
-				break; 
-			}
-			ifs.clear(); // clear EOF condition
-			bool signalled = WaitForSingleObject(m_handle.get(), 1000);
-			if (m_end)
-				break;
-			if (signalled)
-				FindNextChangeNotification(m_handle.get());
-		}
+		// Some error other then EOF occured
+		std::string msg = "Stopped tailing " + m_filename;
+		Add(msg.c_str());
+		m_end = true;
 	}
-	Add(stringbuilder() << "Stopped tailing " << Str(m_filename));
+	else
+	{
+		m_ifstream.clear(); // clear EOF condition
+	}
 }
 
-void FileReader::Add(const std::string& text)
+void FileReader::AddLine(const std::string& line)
 {
-	Line line(m_timer.Get(), GetSystemTimeAsFileTime(), 0, boost::filesystem::wpath(m_filename).filename().string(), text);
-	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(line);
+	Add(line.c_str());
 }
 
-Lines FileReader::GetLines()
+void FileReader::PreProcess(Line& line) const
 {
-	Lines lines;
-	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.swap(lines);
-	return lines;
+	line.processName = m_filenameOnly;
 }
 
-DBLogReader::DBLogReader(const std::wstring& filename) : 
-	FileReader(filename),
-	m_time(GetSystemTimeAsFileTime())
+// todo: Reading support for more filetypes, maybe not, who logs in unicode anyway?
+// posepone until we have a valid usecase
+// ANSI/ASCII
+// UTF-8
+// UTF-16
+// UTF-8 NO BOM ? 
+// UTF-16 NO BOM ?
+// UTF-16 Big Endian
+// UTF-16 Big Endian NO BOM? 
+// Unicode ASCII escaped.
+
+// http://stackoverflow.com/questions/10504044/correctly-reading-a-utf-16-text-file-into-a-string-without-external-libraries
+
+// check a utf-16 file will always contain an even-amount of bytes?
+// std::wifstream ifs(m_filename, std::ios::binary);
+// fin.imbue(std::locale(fin.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+// for(wchar_t c; fin.get(c); ) std::cout << std::showbase << std::hex << c << '\n';
+
+
+DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) : 
+	FileReader(timer, linebuffer, filename)
 {
 }
 
-HANDLE DBLogReader::GetHandle() const
+FileType::type DBLogReader::GetFileType() const
 {
-	return 0;	// todo::implement
+	return m_fileType;
 }
 
-void DBLogReader::Notify()
+void DBLogReader::AddLine(const std::string& data)
 {
-	// add a line to CircularBuffer
+	Line line;
+	switch (m_fileType)
+	{
+	case FileType::AsciiText:
+		return FileReader::AddLine(data);
+	case FileType::Sysinternals:
+		ReadSysInternalsLogFileMessage(data, line);
+		break;
+	default:
+		ReadLogFileMessage(data, line);
+		break;
+	}
+	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str(), this);
 }
 
-void DBLogReader::Add(const std::string& data)
+void DBLogReader::PreProcess(Line& line) const
 {
-	Line line = Line();
-	line.systemTime = m_time;
-	line.processName = m_name;
-	ReadLogFileMessage(data, line);
-	m_buffer.push_back(line);
+	// do nothing
 }
 
 } // namespace debugviewpp 

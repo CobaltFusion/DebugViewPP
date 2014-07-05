@@ -11,11 +11,14 @@
 #include <boost/test/unit_test_gui.hpp>
 #include <random>
 
-#include "Utilities.h"
-#include "ProcessInfo.h"
-#include "IndexedStorage.h"
-#include "Win32Lib.h"
-#include "DBWinBuffer.h"
+#include "Win32Lib/utilities.h"
+#include "DebugView++Lib/ProcessInfo.h"
+#include "IndexedStorageLib/IndexedStorage.h"
+#include "Win32Lib/Win32Lib.h"
+#include "DebugView++Lib/DBWinBuffer.h"
+#include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/TestSource.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -25,6 +28,96 @@ BOOST_AUTO_TEST_SUITE(DebugViewPlusPlusLib)
 std::string GetTestString(int i)
 {
 	return stringbuilder() << "BB_TEST_ABCDEFGHI_EE_" << i;
+}
+
+class TestLineBuffer : public LineBuffer
+{
+public:
+	TestLineBuffer(size_t size) : LineBuffer(size) {}
+	virtual ~TestLineBuffer() {}
+
+	virtual void WaitForReaderTimeout()
+	{
+		throw std::exception("WaitForReader timeout");
+	}
+};
+
+BOOST_AUTO_TEST_CASE(HandleTest)
+{
+	HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+	Handle handle(rawHandle);
+	{ 
+		BOOST_REQUIRE_EQUAL(handle.get(), rawHandle);
+		Handle handle1(std::move(handle));
+		BOOST_REQUIRE_EQUAL(handle.get(), HANDLE(0));
+		BOOST_REQUIRE_EQUAL(handle1.get(), rawHandle);
+		{
+			Handle handle2(std::move(handle1));
+			handle2.release();
+			BOOST_REQUIRE_EQUAL(handle2.get(), HANDLE(0));
+		}
+		BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(0));
+	}
+
+	{
+		Handle handle1;
+		{
+			HANDLE zero = 0;
+			Handle zeroHandle(zero);
+			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(0));
+			handle1 = std::move(zeroHandle);
+			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(0));
+			BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(0));
+		}
+		// this scope ensures having a Handle leave scope that had its guts ripped out by std::move 
+		// will not cause nullpointers or exections
+	}
+}
+
+BOOST_AUTO_TEST_CASE(LineBufferTest1)
+{
+	TestLineBuffer buffer(64);
+	FILETIME ft;
+	ft.dwLowDateTime = 42;
+	ft.dwHighDateTime = 43;
+	buffer.Add(42.0, ft, 0, "test", nullptr);
+
+	auto lines = buffer.GetLines();
+	auto line = lines[0];
+	BOOST_REQUIRE_EQUAL(line.time, 42.0);
+	BOOST_REQUIRE_EQUAL(line.systemTime.dwLowDateTime, 42);
+	BOOST_REQUIRE_EQUAL(line.systemTime.dwHighDateTime, 43);
+	BOOST_REQUIRE(buffer.Empty());
+}
+
+BOOST_AUTO_TEST_CASE(LineBufferTest2)
+{
+	TestLineBuffer buffer(600);
+	Timer timer;
+
+	for (int j=0; j< 1000; ++j)
+	{
+		//BOOST_MESSAGE("j: " << j << "\n");
+
+		for (int i=0; i<17; ++i)
+		{
+			//BOOST_MESSAGE("i: " << i << "\n");
+			FILETIME ft;
+			ft.dwLowDateTime = 43;
+			ft.dwHighDateTime = 44;
+			buffer.Add(42.0, ft, 0, "test", nullptr);
+		}
+
+		auto lines = buffer.GetLines();
+		BOOST_REQUIRE_EQUAL(lines.size(), 17);
+		for (auto it = lines.begin(); it != lines.end(); ++it)
+		{
+			auto line = *it;
+			BOOST_REQUIRE_EQUAL(line.time, 42.0);
+			BOOST_REQUIRE_EQUAL(line.systemTime.dwLowDateTime, 43);
+			BOOST_REQUIRE_EQUAL(line.systemTime.dwHighDateTime, 44);
+		}
+	}
 }
 
 BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
@@ -51,13 +144,15 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 {
 	using namespace indexedstorage;
 
-	size_t testSize = 10000;
-	auto testMax = testSize - 1;
+	// the memory allocator will mess up test results is < 64 kb is allocated
+	// make sure SnappyStorage allocates at least ~500kb for reproducable results
+	
+	// this test is indicative only, on average the SnappyStorage should allocate at most 50% of memory compared to a normal vector.
+	// since GetTestString returns an overly simpe-to-compress string, it will appear to perform insanely good.
 
-	std::default_random_engine generator;
-	std::uniform_int_distribution<int> distribution(0, testMax);
-	SnappyStorage s;
+	size_t testSize = 100000;	
 	VectorStorage v;
+	SnappyStorage s;
 
 	size_t m0 = ProcessInfo::GetPrivateBytes();
 
@@ -65,17 +160,59 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 		v.Add(GetTestString(i));
 
 	size_t m1 = ProcessInfo::GetPrivateBytes();
-	size_t required1 = m1 - m0;
-	BOOST_MESSAGE("VectorStorage requires: " << required1/1024 << " bK");
+	size_t usedByVector = m1 - m0;
+	BOOST_MESSAGE("VectorStorage requires: " << usedByVector/1024 << " kB");
 
-	for (size_t i = 0; i < 100000; ++i)
+	for (size_t i = 0; i < testSize; ++i)
 		s.Add(GetTestString(i));
 
 	size_t m2 = ProcessInfo::GetPrivateBytes();
-	size_t required2 = m2 - m1;
-	BOOST_MESSAGE("SnappyStorage requires: " << required2/1024 << " kB (" << (100*required2)/required1 << "%)");
-	BOOST_REQUIRE_GT(0.50*required1, required2);
+	size_t usedBySnappy = m2 - m1;
+
+	BOOST_MESSAGE("SnappyStorage requires: " << usedBySnappy/1024 << " kB (" << (100*usedBySnappy)/usedByVector << "%)");
+	BOOST_REQUIRE_GT(0.50*usedByVector, usedBySnappy);
 }
+
+// execute as:
+// "DebugView++Test.exe" --log_level=test_suite --run_test=*/LogSourcesTest
+BOOST_AUTO_TEST_CASE(LogSourcesTest)
+{
+	LogSources logsources(false);
+	auto logsource = logsources.AddTestSource();
+
+	Timer timer;
+
+	BOOST_MESSAGE("add line");
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", logsource.get());
+	BOOST_MESSAGE("add line");
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", logsource.get());
+	BOOST_MESSAGE("add line");
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", logsource.get());
+	BOOST_MESSAGE("3 lines added.");
+
+	auto lines = logsources.GetLines();
+	BOOST_MESSAGE("received: " << lines.size() << " lines.");
+
+	BOOST_REQUIRE_EQUAL(lines.size(), 3);
+
+	for (auto it = lines.begin(); it != lines.end(); ++it)
+	{
+		auto line = *it;
+		BOOST_MESSAGE("line: " << line.message);
+	}
+
+	const int testsize = 1000;
+	BOOST_MESSAGE("Write " << testsize << " lines...");
+	for (int i=0; i < testsize; ++i)
+	{
+		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n", nullptr);
+	}
+
+	auto morelines = logsources.GetLines();
+	BOOST_MESSAGE("received: " << morelines.size() << " lines.");
+	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -11,8 +11,8 @@
 #include "OffscreenPaint.h"
 #include "FilterDlg.h"
 #include "Win32Support.h"
-#include "Win32Lib.h"
-#include "LogFile.h"
+#include "Win32Lib/Win32Lib.h"
+#include "DebugView++Lib/LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -129,6 +129,8 @@ public:
 	void SetFont(HFONT hFont);
 	bool GetScroll() const;
 	void SetScroll(bool enable);
+	bool GetSelectionControlsAutoScroll() const;
+	void SetSelectionControlsAutoScroll(bool enable);
 	void Clear();
 	int GetFocusLine() const;
 	void SetFocusLine(int line);
@@ -195,21 +197,23 @@ private:
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnSelControlAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessColors(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewHideHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnEscapeKey(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFindNext(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFindPrevious(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void AddProcessFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
 	void OnViewProcessHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewProcessInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewProcessToken(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessTrack(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessOnce(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void AddMessageFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
 	void OnViewFilterHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilterInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterToken(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilterTrack(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -220,6 +224,7 @@ private:
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
+	void ClearView();
 	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;
@@ -227,6 +232,7 @@ private:
 	int GetTextIndex(int iItem, int xPos);
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	int TextHighlightHitTest(int iItem, const POINT& pt);
+	double GetRelativeTime(int iItem);
 	std::string GetColumnText(int iItem, Column::type column) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
@@ -248,6 +254,8 @@ private:
 	bool Find(const std::string& text, int direction);
 	bool FindProcess(int direction);
 	void ApplyFilters();
+	bool IsClearMessage(const Message& msg) const;
+	bool IsBeepMessage(const Message& msg) const;
 	bool IsIncluded(const Message& msg);
 	bool MatchFilterType(FilterType::type type, const Message& msg) const;
 	TextColor GetTextColor(const Message& msg) const;
@@ -264,6 +272,7 @@ private:
 	bool m_clockTime;
 	bool m_processColors;
 	bool m_autoScrollDown;
+	bool m_selectionControlsAutoScroll;
 	bool m_dirty;
 	int m_addedLines;
 	std::function<void ()> m_stop;

@@ -11,25 +11,36 @@
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include "dbgstream.h"
-#include "ProcessReader.h"
-#include "FileReader.h"
-#include "FileIO.h"
-#include "Utilities.h"
+#include "CobaltFusion/dbgstream.h"
+#include "DebugView++Lib/ProcessReader.h"
+#include "DebugView++Lib/FileReader.h"
+#include "DebugView++Lib/FileIO.h"
+#include "Win32Lib/utilities.h"
 #include "hstream.h"
 #include "Resource.h"
 #include "RunDlg.h"
 #include "FilterDlg.h"
+#include "SourcesDlg.h"
 #include "AboutDlg.h"
 #include "LogView.h"
 #include "MainFrame.h"
-
 
 namespace fusion {
 namespace debugviewpp {
 
 const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
 
+std::wstring GetPersonalPath()
+{
+	std::wstring path;
+	wchar_t szPath[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
+	{
+		path = szPath;
+	}
+	return path;
+
+}
 void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
 {
 	m_pView = pView;
@@ -54,12 +65,14 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
 	COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
+	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)	
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+	COMMAND_ID_HANDLER_EX(ID_SOURCES, OnSources)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
@@ -84,32 +97,26 @@ LOGFONT& GetDefaultLogFont()
 }
 
 CMainFrame::CMainFrame() :
-	m_timeOffset(0),
-	m_filterNr(0),
+	m_filterNr(1),
 	m_findDlg(*this),
 	m_linkViews(false),
-	m_autoNewLine(false),
 	m_hide(false),
 	m_lineBuffer(7000),
-	m_pLocalReader(0),
-	m_pGlobalReader(0),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
-	m_logfont(GetDefaultLogFont())
+	m_logfont(GetDefaultLogFont()),
+	m_logSources(true)
 {
-#ifdef CONSOLE_DEBUG
-	AllocConsole();
-	freopen_s(&m_stdout, "CONOUT$", "wb", stdout);
-#endif
 	m_notifyIconData.cbSize = 0;
-	SetAutoNewLine(m_autoNewLine);
 }
 
 CMainFrame::~CMainFrame()
 {
-#ifdef CONSOLE_DEBUG
-	fclose(m_stdout);
-#endif
+}
+
+void CMainFrame::SetLogging()
+{
+	m_logWriter = make_unique<FileWriter>(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile);
 }
 
 void CMainFrame::ExceptionHandler()
@@ -144,7 +151,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	AddSimpleReBarBand(hWndCmdBar);
 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE);	 // DrMemory: LEAK 1696 direct bytes 
 	AddSimpleReBarBand(hWndToolBar, nullptr, true);
 	UIAddToolBar(hWndToolBar);
 
@@ -212,13 +219,14 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
 	UISetCheck(ID_VIEW_PROCESSCOLORS, GetView().GetViewProcessColors());
 	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
+	UISetCheck(ID_VIEW_SEL_CONTROL_SCROLL, GetView().GetSelectionControlsAutoScroll());
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 
 	for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
 		UISetCheck(id, GetView().IsColumnViewed(id));
 
 	UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
-	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_autoNewLine);
+	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_logSources.GetAutoNewLine());
 	UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
 	UISetCheck(ID_OPTIONS_HIDE, m_hide);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
@@ -335,59 +343,57 @@ void CMainFrame::UpdateStatusBar()
 
 void CMainFrame::ProcessLines(const Lines& lines)
 {
-	if (m_logFile.Empty() && !lines.empty())
-		m_timeOffset = lines[0].time;
+	if (lines.empty())
+		return;
 
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
 		GetView(i).BeginUpdate();
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->time - m_timeOffset, it->systemTime, it->pid, it->processName, it->message));
+		AddMessage(Message(it->time, it->systemTime, it->pid, it->processName, it->message));
 
 	for (int i = 0; i < views; ++i)
 	{
 		if (GetView(i).EndUpdate() > 0 && GetTabCtrl().GetCurSel() != i)
 		{
-//			GetTabCtrl().GetItem(i)->SetHighlighted(true);
-			GetTabCtrl().GetItem(i)->SetText((GetView(i).GetName() + L"*").c_str());
+			SetModifiedMark(i, true);
 			GetTabCtrl().UpdateLayout();
 			GetTabCtrl().Invalidate();
 		}
 	}
-
-	UpdateStatusBar();
 }
 
 void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 {
+	//todo: filtering is still done on the UI thread, see CLogView::Add
 	ProcessLines(m_logSources.GetLines());
 }
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
+	Pause();
+	SetTitle(L"Monitoring File(s)");
 	using boost::algorithm::iequals;
 	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
 
-	if (iequals(ext, L".dblog") || iequals(ext, L".log"))
+	std::string msg;
+	if (iequals(ext, L".exe"))
 	{
-		AddDBLogReader(file);
-	}
-	else if (iequals(ext, L".exe"))
-	{
-		cdbg << "Started capturing output of " << Str(file) << "\n";
+		msg = stringbuilder() << "Started capturing output of " << Str(file) << "\n";
 		Run(file);
 	}
 	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
-		cdbg << "Started capturing output of " << Str(file) << "\n";
-		AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
+		msg = stringbuilder() << "Started capturing output of " << Str(file) << "\n";
+		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
 	else
 	{
-		cdbg << "Started tailing " << Str(file) << "\n";
-		AddFileReader(file);
+		auto reader = m_logSources.AddDBLogReader(file);
+		msg = stringbuilder() << "Started tailing " << Str(file) << " identified as '" << FileTypeToString(reader->GetFileType()) << "'\n";
 	}
+	m_logSources.AddMessage(msg);
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -491,7 +497,7 @@ bool CMainFrame::LoadSettings()
 		SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
 	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
-	SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
+	m_logSources.SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
 	SetAlwaysOnTop(RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
 
 	m_applicationName = RegGetStringValue(reg, L"ApplicationName", L"DebugView++");
@@ -554,7 +560,7 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"Height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
 	reg.SetDWORDValue(L"LinkViews", m_linkViews);
-	reg.SetDWORDValue(L"AutoNewLine", m_autoNewLine);
+	reg.SetDWORDValue(L"AutoNewLine", m_logSources.GetAutoNewLine());
 	reg.SetDWORDValue(L"AlwaysOnTop", GetAlwaysOnTop());
 	reg.SetDWORDValue(L"Hide", m_hide);
 
@@ -583,20 +589,6 @@ void CMainFrame::SaveSettings()
 		regColors.SetDWORDValue(WStr(wstringbuilder() << L"Color" << i), colors[i]);
 }
 
-bool CMainFrame::GetAutoNewLine() const
-{
-	return m_autoNewLine;
-}
-
-void CMainFrame::SetAutoNewLine(bool value)
-{
-	if (m_pLocalReader)
-		m_pLocalReader->AutoNewLine(value);
-	if (m_pGlobalReader)
-		m_pGlobalReader->AutoNewLine(value);
-	m_autoNewLine = value;
-}
-
 void CMainFrame::FindNext(const std::wstring& text)
 {
 	if (!GetView().FindNext(text))
@@ -612,7 +604,7 @@ void CMainFrame::FindPrevious(const std::wstring& text)
 void CMainFrame::AddFilterView()
 {
 	++m_filterNr;
-	CFilterDlg dlg(wstringbuilder() << L"Filter " << m_filterNr);
+	CFilterDlg dlg(wstringbuilder() << L"View " << m_filterNr);
 	if (dlg.DoModal() != IDOK)
 		return;
 
@@ -662,8 +654,7 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 
 	if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
 	{
-//		GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(false);
-		GetTabCtrl().GetItem(nmhdr.iItem2)->SetText(GetView(nmhdr.iItem2).GetName().c_str());
+		SetModifiedMark(nmhdr.iItem2, false);
 	}
 
 	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
@@ -675,6 +666,17 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 	GetView(nmhdr.iItem2).SetFocusLine(line);
 	
 	return 0;
+}
+
+void CMainFrame::SetModifiedMark(int tabindex, bool modified)
+{
+	auto name = GetView(tabindex).GetName();
+	if (modified)
+	{
+		name += L"*";
+	}
+	//GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
+	GetTabCtrl().GetItem(tabindex)->SetText(name.c_str());
 }
 
 LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
@@ -707,13 +709,6 @@ LRESULT CMainFrame::OnDeleteTab(NMHDR* pnmh)
 void CMainFrame::OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	AddFilterView();
-}
-
-std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
-{
-	uint64_t hi = ft.dwHighDateTime;
-	uint64_t lo = ft.dwLowDateTime;
-	return os << ((hi << 32) | lo);
 }
 
 void CMainFrame::SaveLogFile(const std::wstring& fileName)
@@ -764,28 +759,15 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		Load(std::wstring(dlg.m_szFileName));
 }
 
-void CMainFrame::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
-{
-	m_logSources.Add(make_unique<ProcessReader>(pathName, args));
-}
-
-void CMainFrame::AddFileReader(const std::wstring& filename)
-{
-	m_logSources.Add(make_unique<FileReader>(filename));
-}
-
-void CMainFrame::AddDBLogReader(const std::wstring& filename)
-{
-	m_logSources.Add(make_unique<DBLogReader>(filename));
-}
-
 void CMainFrame::Run(const std::wstring& pathName)
 {
 	if (!pathName.empty())
 		m_runDlg.SetPathName(pathName);
 
 	if (m_runDlg.DoModal() == IDOK)
-		AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
+	{
+		m_logSources.AddProcessReader(m_runDlg.GetPathName(), m_runDlg.GetArguments());
+	}
 }
 
 void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -835,7 +817,12 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
 	DWORD pid = GetParentProcessId();
-	m_logSources.Add(make_unique<PipeReader>(hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str()));
+	m_logSources.AddPipeReader(pid, hPipe);
+}
+
+void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	PostMessage(WM_CLOSE);
 }
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -857,16 +844,22 @@ void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save DebugView text";
 	if (dlg.DoModal() == IDOK)
-		SaveViewFile(fileName);
+		SaveViewFile(dlg.m_szFileName);
 }
 
 void CMainFrame::ClearLog()
 {
 	// First Clear LogFile such that views reset their m_firstLine:
 	m_logFile.Clear();
+	m_logSources.Reset();
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
+	{
 		GetView(i).Clear();
+		SetModifiedMark(i, false);
+		GetTabCtrl().UpdateLayout();
+		GetTabCtrl().Invalidate();
+	}
 }
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -881,7 +874,7 @@ void CMainFrame::OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	SetAutoNewLine(!GetAutoNewLine());
+	m_logSources.SetAutoNewLine(!m_logSources.GetAutoNewLine());
 }
 
 void CMainFrame::OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -912,10 +905,17 @@ bool CMainFrame::IsPaused() const
 void CMainFrame::Pause()
 {
 	SetTitle(L"Paused");
+	m_logSources.AddMessage("<paused>");
 	if (m_pLocalReader)
-		m_pLocalReader->Abort();
+	{
+		m_logSources.Remove(m_pLocalReader);
+		m_pLocalReader.reset();
+	}
 	if (m_pGlobalReader)
-		m_pGlobalReader->Abort();
+	{
+		m_logSources.Remove(m_pGlobalReader);
+		m_pGlobalReader.reset();
+	}
 }
 
 void CMainFrame::Resume()
@@ -926,9 +926,7 @@ void CMainFrame::Resume()
 	{
 		try 
 		{
-			auto reader = make_unique<DBWinReader>(false);
-			m_pLocalReader = reader.get();
-			m_logSources.Add(std::move(reader));
+			m_pLocalReader = m_logSources.AddDBWinReader(false);
 		}
 		catch (std::exception&)
 		{
@@ -945,9 +943,7 @@ void CMainFrame::Resume()
 	{
 		try
 		{
-			auto reader = make_unique<DBWinReader>(true);
-			m_pGlobalReader = reader.get();
-			m_logSources.Add(std::move(reader));
+			m_pGlobalReader = m_logSources.AddDBWinReader(true);
 		}
 		catch (std::exception&)
 		{
@@ -963,8 +959,6 @@ void CMainFrame::Resume()
 		}
 	}
 
-	SetAutoNewLine(GetAutoNewLine());
-	
 	std::wstring title = L"Paused";
 	if (m_pLocalReader && m_pGlobalReader)
 	{
@@ -974,7 +968,7 @@ void CMainFrame::Resume()
 	{
 		title = L"Capture Win32";
 	} 
-	else if (m_pLocalReader)
+	else if (m_pGlobalReader)
 	{
 		title = L"Capture Global Win32";
 	}
@@ -996,7 +990,10 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	if (m_pLocalReader && m_tryGlobal)
 		Resume();
 	else
+	{
 		m_pGlobalReader->Abort();
+		m_pGlobalReader.reset();
+	}
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1012,6 +1009,19 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	GetTabCtrl().Invalidate();
 	GetView().SetName(dlg.GetName());
 	GetView().SetFilters(dlg.GetFilters());
+}
+
+void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CSourcesDlg dlg(m_logSources.GetSources());
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	auto sources = dlg.GetSourcesToRemove();
+	for (auto it = sources.begin(); it != sources.end(); ++it)
+	{
+		m_logSources.Remove(*it);
+	}
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1063,16 +1073,8 @@ CLogView& CMainFrame::GetView()
 	return GetView(std::max(0, GetTabCtrl().GetCurSel()));
 }
 
-bool CMainFrame::IsDbgViewClearMessage(const std::string& text) const
-{
-	return text.find("DBGVIEWCLEAR") != std::string::npos;
-}
-
 void CMainFrame::AddMessage(const Message& message)
 {
-	if (IsDbgViewClearMessage(message.text))
-		return ClearLog();
-
 	int index = m_logFile.Count();
 	m_logFile.Add(message);
 	int views = GetViewCount();

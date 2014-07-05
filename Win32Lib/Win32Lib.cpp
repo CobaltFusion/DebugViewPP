@@ -7,11 +7,18 @@
 
 #include "stdafx.h"
 #include <vector>
-#include "Win32Lib.h"
+#include <iostream>
+#include "Win32Lib/Win32Lib.h"
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
 
 namespace fusion {
+
+void LocalAllocDeleter::operator()(pointer p) const
+{
+	if (p != nullptr)
+		LocalFree(p);
+}
 
 void GlobalAllocDeleter::operator()(pointer p) const
 {
@@ -210,7 +217,7 @@ WaitResult::WaitResult(bool signaled, int index) :
 
 WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSeconds)
 {
-	auto rc = ::WaitForMultipleObjects(handles.size(), &handles[0], FALSE, milliSeconds);
+	auto rc = ::WaitForMultipleObjects(handles.size(), handles.data(), FALSE, milliSeconds);
 	if (rc == WAIT_TIMEOUT)
 		return WaitResult(false);
 	if (rc == WAIT_FAILED)

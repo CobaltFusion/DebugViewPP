@@ -15,10 +15,11 @@ namespace WTL { using ATL::CString; };
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
 #include "TabbedFrame.h"
-#include "DBWinBuffer.h"
-#include "DBWinReader.h"
-#include "LineBuffer.h"
-#include "LogSources.h"
+#include "DebugView++Lib/DBWinBuffer.h"
+#include "DebugView++Lib/DBWinReader.h"
+#include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/FileWriter.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
 #include "LogView.h"
@@ -56,6 +57,7 @@ public:
 		UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+		UPDATE_ELEMENT(ID_VIEW_SEL_CONTROL_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_VIEW_PROCESSCOLORS, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_BOOKMARK, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
@@ -74,6 +76,7 @@ public:
 		UPDATE_ELEMENT(ID_MEMORY_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
+	void SetLogging();
 	void Load(const std::wstring& fileName);
 	void Load(HANDLE hFile);
 	void Load(std::istream& is, const std::string& name, FILETIME fileTime);
@@ -109,14 +112,11 @@ private:
 	bool IsPaused() const;
 	void Pause();
 	void Resume();
-	bool GetAutoNewLine() const;
-	void SetAutoNewLine(bool value);
 	bool GetAlwaysOnTop() const;
 	void SetAlwaysOnTop(bool value);
 
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, const LogFilter& filter = LogFilter());
-	bool IsDbgViewClearMessage(const std::string& text) const;
 	void AddMessage(const Message& message);
 
 	void ClearLog();
@@ -130,12 +130,14 @@ private:
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
+	void SetModifiedMark(int tabindex, bool modified);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	LRESULT OnDeleteTab(NMHDR* pnmh);
 	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -147,6 +149,7 @@ private:
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
 	int GetViewCount() const;
@@ -156,26 +159,20 @@ private:
 	void SetTitle(const std::wstring& title = L"");
 	void HandleDroppedFile(const std::wstring& file);
 	void Run(const std::wstring& pathName = L"");
-	void AddProcessReader(const std::wstring& pathName, const std::wstring& args);
-	void AddFileReader(const std::wstring& filename);
-	void AddDBLogReader(const std::wstring& filename);
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;
 	UINT_PTR m_timer;
-	double m_timeOffset;
 	LogFile m_logFile;
+	std::unique_ptr<FileWriter> m_logWriter;
 	int m_filterNr;
 	CFindDlg m_findDlg;
 	HFont m_hFont;
 	bool m_linkViews;
-	bool m_autoNewLine;
 	bool m_hide;
 	bool m_tryGlobal;
 	CRunDlg m_runDlg;
-	DBWinReader* m_pLocalReader;
-	DBWinReader* m_pGlobalReader;
 	LogSources m_logSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
@@ -183,7 +180,8 @@ private:
 	NOTIFYICONDATA m_notifyIconData;
 	LOGFONT m_logfont;
 	std::wstring m_applicationName;
-	FILE* m_stdout;
+	std::shared_ptr<DBWinReader> m_pLocalReader;
+	std::shared_ptr<DBWinReader> m_pGlobalReader;
 };
 
 } // namespace debugviewpp 

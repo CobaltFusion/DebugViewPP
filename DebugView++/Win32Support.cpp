@@ -7,14 +7,14 @@
 
 #include "stdafx.h"
 #include <vector>
-#include "Win32Lib.h"
+#include "Win32Lib/Win32Lib.h"
 #include "Win32Support.h"
 
 namespace fusion {
 
 ComInitialization::ComInitialization(CoInit init)
 {
-	HRESULT hr = CoInitializeEx(nullptr, init);
+	HRESULT hr = CoInitializeEx(nullptr, init);		//DrMemory: LEAK 264 direct bytes
 	if (FAILED(hr))
 		throw Win32Error(hr, "CoInitializeEx");
 }

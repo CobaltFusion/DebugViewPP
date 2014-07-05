@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 #include "resource.h"
 #include "version.h"
 #include "AboutDlg.h"
@@ -17,6 +17,7 @@ namespace debugviewpp {
 BOOL CAboutDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	CenterWindow(GetParent());
+	m_srclink.SubclassWindow(GetDlgItem(IDC_DEBUGVIEW_SRC_URL));
 	m_link.SubclassWindow(GetDlgItem(IDC_DEBUGVIEW_URL));
 	int version[4] = { VERSION };
 	SetDlgItemText(IDC_VERSION, WStr(wstringbuilder() << L"DebugView++ V" << version[0] << L"." << version[1] << L"." << version[2] << L"." << version[3]));

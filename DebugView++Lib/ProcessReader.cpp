@@ -6,26 +6,25 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "ProcessReader.h"
+#include "DebugView++Lib/PassiveLogSource.h"
+#include "DebugView++Lib/ProcessReader.h"
+#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-ProcessReader::ProcessReader(const std::wstring& pathName, const std::wstring& args) :
+ProcessReader::ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
+	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
 	m_process(pathName, args),
-	m_stdout(m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout"),
-	m_stderr(m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr")
+	m_stdout(timer, linebuffer, m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout", 0),
+	m_stderr(timer, linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr", 0)
 {
+	SetDescription(m_process.GetName() + L" stdout/stderr");
+	StartThread();
 }
 
-HANDLE ProcessReader::GetHandle() const
+ProcessReader::~ProcessReader()
 {
-	return 0;	// todo::implement
-}
-
-void ProcessReader::Notify()
-{
-	// add a line to CircularBuffer
 }
 
 bool ProcessReader::AtEnd() const
@@ -33,12 +32,10 @@ bool ProcessReader::AtEnd() const
 	return m_stdout.AtEnd() && m_stderr.AtEnd();
 }
 
-Lines ProcessReader::GetLines()
+void ProcessReader::Poll()
 {
-	Lines lines(m_stdout.GetLines());
-	Lines stderrLines(m_stderr.GetLines());
-	lines.insert(lines.end(), stderrLines.begin(), stderrLines.end());
-	return lines;
+	m_stdout.Poll(*this);
+	m_stderr.Poll(*this);
 }
 
 } // namespace debugviewpp 

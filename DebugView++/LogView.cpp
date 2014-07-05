@@ -66,19 +66,21 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SEL_CONTROL_SCROLL, OnSelControlAutoScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESSCOLORS, OnViewProcessColors);
-	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnViewHideHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnEscapeKey)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_NEXT, OnViewFindNext)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND_PREVIOUS, OnViewFindPrevious)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_HIGHLIGHT, OnViewProcessHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_INCLUDE, OnViewProcessInclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_EXCLUDE, OnViewProcessExclude)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TOKEN, OnViewProcessToken)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TRACK, OnViewProcessTrack)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_ONCE, OnViewProcessOnce)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_HIGHLIGHT, OnViewFilterHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_INCLUDE, OnViewFilterInclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_EXCLUDE, OnViewFilterExclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TOKEN, OnViewFilterToken)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TRACK, OnViewFilterTrack)
@@ -89,7 +91,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_BOOKMARKS, OnViewClearBookmarks)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
-	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)
+	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP_CATCH(ExceptionHandler)
 
@@ -122,6 +124,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_clockTime(false),
 	m_processColors(false),
 	m_autoScrollDown(true),
+	m_selectionControlsAutoScroll(true),
 	m_dirty(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
@@ -467,7 +470,11 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
-	m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
+	if (m_selectionControlsAutoScroll)
+	{
+		m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
+	}
+	SetHighlightText();
 	return 0;
 }
 
@@ -802,7 +809,7 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	switch (column)
 	{
 	case Column::Line: return std::to_string(iItem + 1ULL);
-	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
+	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(iItem == 0 ? 0.0 : msg.time);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return msg.processName;
 	case Column::Message: return msg.text;
@@ -913,10 +920,15 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	return 0;
 }
 
-void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::ClearView()
 {
 	m_firstLine = m_logFile.Count();
 	Clear();
+}
+
+void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	ClearView();
 }
 
 void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -934,6 +946,11 @@ void CLogView::OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	SetScroll(!GetScroll());
 }
 
+void CLogView::OnSelControlAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	SetSelectionControlsAutoScroll(!GetSelectionControlsAutoScroll());
+}
+
 void CLogView::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetClockTime(!GetClockTime());
@@ -944,7 +961,7 @@ void CLogView::OnViewProcessColors(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 	SetViewProcessColors(!GetViewProcessColors());
 }
 
-void CLogView::OnViewHideHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::OnEscapeKey(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetHighlightText();
 	StopScrolling();
@@ -969,9 +986,6 @@ bool CLogView::FindProcess(int direction)
 		return false;
 
 	auto processName = m_logFile[m_logLines[begin].line].processName;
-
-	// Internal Compiler Error on VC2010:
-//	int line = FindLine([processName, this](const LogLine& line) { return boost::iequals(m_logFile[line.line].processName, processName); }, direction);
 	int line = FindLine([processName, this](const LogLine& line) { return m_logFile[line.line].processName == processName; }, direction);
 	if (line < 0 || line == begin)
 		return false;
@@ -993,12 +1007,19 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 
 void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
 {
-	int item = GetNextItem(-1, LVIS_FOCUSED);
-	if (item < 0)
-		return;
+	std::map<std::string, int> processNames;
+	int item = -1;
+	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+	{
+		const auto& name = m_logFile[m_logLines[item].line].processName;
+		processNames[name] = 0;
+	}
 
-	const auto& name = m_logFile[m_logLines[item].line].processName;
-	m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
+	for (auto it=processNames.begin(); it != processNames.end(); ++it)
+	{
+		const auto& name = it->first;
+		m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
+	}
 	ApplyFilters();
 }
 
@@ -1007,14 +1028,14 @@ void CLogView::OnViewProcessHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow
 	AddProcessFilter(FilterType::Highlight, GetRandomBackColor());
 }
 
+void CLogView::OnViewProcessInclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddProcessFilter(FilterType::Include);
+}
+
 void CLogView::OnViewProcessExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	AddProcessFilter(FilterType::Exclude);
-}
-
-void CLogView::OnViewProcessToken(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
-{
-	AddProcessFilter(FilterType::Token, Colors::BackGround, GetRandomTextColor());
 }
 
 void CLogView::OnViewProcessTrack(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1039,6 +1060,11 @@ void CLogView::AddMessageFilter(FilterType::type filterType, COLORREF bgColor, C
 void CLogView::OnViewFilterHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	AddMessageFilter(FilterType::Highlight, GetRandomBackColor());
+}
+
+void CLogView::OnViewFilterInclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	AddMessageFilter(FilterType::Include);
 }
 
 void CLogView::OnViewFilterExclude(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1153,13 +1179,26 @@ void CLogView::SetScroll(bool enable)
 		ScrollDown();
 }
 
+bool CLogView::GetSelectionControlsAutoScroll() const
+{
+	return m_selectionControlsAutoScroll;
+}
+
+void CLogView::SetSelectionControlsAutoScroll(bool enable)
+{
+	m_selectionControlsAutoScroll = enable;
+}
+
 void CLogView::Clear()
 {
 	SetItemCount(0);
 	m_dirty = false;
 	m_logLines.clear();
 	m_highlightText.clear();
-	m_autoScrollDown = true;
+	if (m_selectionControlsAutoScroll)
+	{
+		m_autoScrollDown = true;
+	}
 	ResetFilters();
 }
 
@@ -1180,14 +1219,25 @@ void CLogView::SetFocusLine(int line)
 
 void CLogView::Add(int line, const Message& msg)
 {
+	if (IsClearMessage(msg))
+	{
+		ClearView();
+	}
+
 	if (!IsIncluded(msg))
 		return;
+
+	if (IsBeepMessage(msg))
+	{
+		//Beep(1000, 200);
+		MessageBeep(0xFFFFFFFF);	// A simple beep. If the sound card is not available, the sound is generated using the speaker.
+	}
 
 	m_dirty = true;
 	++m_addedLines;
 	int viewline = m_logLines.size();
-
 	m_logLines.push_back(LogLine(line));
+
 	if (m_autoScrollDown && MatchFilterType(FilterType::Stop, msg))
 	{
 		m_stop = [this, viewline] ()
@@ -1395,8 +1445,11 @@ std::wstring CLogView::GetHighlightText() const
 
 void CLogView::SetHighlightText(const std::wstring& text)
 {
-	m_highlightText = text;
-	Invalidate(false);
+	if (m_highlightText != text)
+	{
+		m_highlightText = text;
+		Invalidate(false);
+	}
 }
 
 template <typename Predicate>
@@ -1459,6 +1512,7 @@ bool CLogView::FindPrevious(const std::wstring& text)
 void CLogView::LoadSettings(CRegKey& reg)
 {
 	SetName(RegGetStringValue(reg));
+	SetSelectionControlsAutoScroll(RegGetDWORDValue(reg, L"SelectionControlsAutoScroll", 1) != 0);
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
 	SetViewProcessColors(RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
 
@@ -1488,6 +1542,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 {
 	UpdateColumnInfo();
 
+	reg.SetDWORDValue(L"SelectionControlsAutoScroll", GetSelectionControlsAutoScroll());
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 	reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
 
@@ -1620,19 +1675,37 @@ bool FilterSupportsColor(FilterType::type value)
 
 TextColor CLogView::GetTextColor(const Message& msg) const
 {
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	auto messageFilters = m_filter.messageFilters;
+	std::sort(messageFilters.begin(), messageFilters.end());
+
+	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
 		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	auto processFilters = m_filter.processFilters;
+	std::sort(processFilters.begin(), processFilters.end());
+
+	for (auto it = processFilters.begin(); it != processFilters.end(); ++it)
 	{
 		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.processName, it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
 	return TextColor(m_processColors ? msg.color : Colors::BackGround, Colors::Text);
+}
+
+bool CLogView::IsClearMessage(const Message& msg) const
+{
+	using debugviewpp::MatchFilterType;
+	return MatchFilterType(m_filter.messageFilters, FilterType::Clear, msg.text);
+}
+
+bool CLogView::IsBeepMessage(const Message& msg) const
+{
+	using debugviewpp::MatchFilterType;
+	return MatchFilterType(m_filter.messageFilters, FilterType::Beep, msg.text) || MatchFilterType(m_filter.processFilters, FilterType::Beep, msg.text);
 }
 
 bool CLogView::IsIncluded(const Message& msg)

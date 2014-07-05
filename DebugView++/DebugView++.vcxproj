@@ -41,6 +41,7 @@
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -81,12 +82,16 @@
       <AdditionalLibraryDirectories>..\Libraries\boost\lib\;$(Outdir)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Message>Create release zip</Message>
-      <Command>zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetPath)</Command>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
-      <Message>Update version numbers</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,6 +153,7 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="RunDlg.cpp" />
+    <ClCompile Include="SourcesDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -168,6 +174,8 @@
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunDlg.h" />
+    <ClInclude Include="SourcesPage.h" />
+    <ClInclude Include="SourcesDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="Win32Support.h" />

@@ -13,7 +13,7 @@
 #pragma warning(push, 3)
 #include <boost/property_tree/json_parser.hpp>
 #pragma warning(pop)
-#include "LogFilter.h"
+#include "DebugView++Lib/LogFilter.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -6,13 +6,14 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <istream>
+#include <fstream>
 #include <algorithm>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
-#include "Win32Lib.h"
-#include "LogFile.h"
-#include "FileIO.h"
+#include <boost/algorithm/string.hpp>
+#include "Win32Lib/Win32Lib.h"
+#include "DebugView++Lib/LogFile.h"
+#include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -59,7 +60,63 @@ bool ReadTime(const std::string& s, double& time)
 	return is >> time && is.eof();
 }
 
-bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft)
+bool FileExists(const char *filename)
+{
+	std::ifstream ifile(filename);
+	return ifile.is_open();
+}
+
+std::string FileTypeToString(FileType::type value)
+{
+	switch (value)
+	{
+	case FileType::DebugViewPP:
+		return "DebugView++ Logfile";
+	case FileType::Sysinternals:
+		return "Sysinternals Debugview Logfile";
+	default:
+		break;
+	}
+	return "Ascii text file";
+}
+
+FileType::type IdentifyFile(std::string filename)
+{
+	std::ifstream is(filename, std::ios::in);
+	std::string line;
+	if (!std::getline(is, line))
+		return FileType::Unknown;
+
+	// first we check for our own header
+	auto marker = g_debugViewPPIdentification + "\t\r";
+	if (boost::ends_with(line, marker))
+	{
+		return FileType::DebugViewPP;
+	}
+
+	// if the extention is .txt (and we did not find our own header)
+	// we say it is an ascii-file.
+	auto str = filename;
+	boost::to_lower(str);
+	if (boost::ends_with(str, ".txt"))
+		return FileType::AsciiText;
+
+	// to test for sysinternals debugview-logfiles, we need to check the second line 
+	// since the first line contains the computer-name in some cases (depending on how it was saved)
+	// logfiles with only one line are not that interesting anyway.
+	if (!std::getline(is, line))		
+		return FileType::AsciiText;
+
+	// if the second line contains 3 tabs characters, we say it's a sysinternals debugview-logfile 
+	auto tabs = std::count(line.begin(), line.end(), '\t');
+	if (tabs == 3)
+		return FileType::Sysinternals;
+
+	return FileType::AsciiText;
+}
+
+// read localtime in format "hh:mm:ss tt" (AM/PM postfix)
+bool ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft)
 {
 	std::istringstream is(text);
 	WORD h, m, s;
@@ -69,12 +126,72 @@ bool ReadSystemTime(const std::string& text, const FILETIME& ftRef, FILETIME& ft
 	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
 		h += 12;
 
-	SYSTEMTIME st = FileTimeToSystemTime(ftRef);
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
 	st.wHour = h;
 	st.wMinute = m;
 	st.wSecond = s;
 	st.wMilliseconds = 0;
 	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return true;
+}
+
+// read localtime in format "hh:mm:ss.ms tt" (AM/PM postfix)
+bool ReadLocalTimeUSRegionMs(const std::string& text, FILETIME& ft)
+{
+	std::istringstream is(text);
+	WORD h, m, s, ms;
+	char c1, c2, p1, p2, d1;
+	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
+		return false;
+	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+		h += 12;
+
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = ms;
+	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return true;
+}
+
+// read localtime in format "HH:mm:ss.ms"
+bool ReadLocalTimeMs(const std::string& text, FILETIME& ft)
+{
+	std::istringstream is(text);
+	WORD h, m, s, ms;
+	char c1, c2, d1;
+	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
+		return false;
+
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = ms;
+	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return true;
+}
+
+// read localtime in format "HH:mm:ss"
+bool ReadLocalTime(const std::string& text, FILETIME& ft)
+{
+	std::istringstream is(text);
+	WORD h, m, s;
+	char c1, c2;
+	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
+		return false;
+
+	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = 0;
+	ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
 	return true;
 }
 
@@ -88,33 +205,46 @@ std::istream& ReadLogFileMessage(std::istream& is, Line& line)
 	return is;
 }
 
-bool ReadLogFileMessage(const std::string& data, Line& line)
+bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 {
 	TabSplitter split(data);
 	auto col1 = split.GetNext();
 	auto col2 = split.GetNext();
 	auto col3 = split.GetTail();
-	if (!col3.empty() && col3[0] == '[')
+
+	// depending on regional settings Sysinternals debugview logs time differently.
+	// we support the four most common formats
+	// 'hh:MM:SS.mmm tt', 'hh:MM:SS tt', 'HH:MM:SS.mmm' and 'HH:MM:SS' 
+
+	if (!ReadLocalTimeUSRegionMs(col2,line.systemTime))			// try hh:MM:SS.mmm tt
+		if (!ReadLocalTimeUSRegion(col2,line.systemTime))		// try hh:MM:SS tt
+			if (!ReadLocalTimeMs(col2, line.systemTime))		// try HH:MM:SS.mmm
+				if (!ReadLocalTime(col2, line.systemTime))      // try HH:MM:SS
+					ReadTime(col2, line.time);					// otherwise assume relative time: S.mmmmmm
+
+	if (!col3.empty() && col3[0] == '[')						// messages from processes are preceeded by [pid], but kernel messages do not have a prefix
 	{
 		std::istringstream is3(col3);
 		char c1, c2, c3;
 		if (is3 >> std::noskipws >> c1 >> line.pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, line.message))
-		{
-			if (!ReadTime(col2, line.time))
-				ReadSystemTime(col2, line.systemTime, line.systemTime);
-		}
-		else
-		{
-			line.time = boost::lexical_cast<double>(col1);
-			line.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(col2));
-			line.pid = boost::lexical_cast<DWORD>(split.GetNext());
-			line.processName = split.GetNext();
-			line.message = split.GetTail();
-		}
+			return true;
 	}
-
+	line.message = split.GetTail();
 	return true;
 }
+
+bool ReadLogFileMessage(const std::string& data, Line& line)
+{
+	TabSplitter split(data);
+	split.GetNext();	// ignore colomn 1
+	line.time = boost::lexical_cast<double>(split.GetNext());
+	line.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(split.GetNext()));
+	line.pid = boost::lexical_cast<DWORD>(split.GetNext());
+	line.processName = split.GetNext();
+	line.message = split.GetTail();
+	return true;
+}
+
 
 } // namespace debugviewpp 
 } // namespace fusion

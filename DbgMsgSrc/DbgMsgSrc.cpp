@@ -41,7 +41,25 @@ void DbgMsgTest()
 	OutputDebugStringA("Message 2 without newline");
 	OutputDebugStringA("Message 3 with newline\n");
 	OutputDebugStringA("Message with\nembedded newline\n");
-	OutputDebugStringA("Tabs:\t1\t2\t3\t4\t5\t6\tlast\n");
+	OutputDebugStringA("This should look like a table in a non-proportionally spaced font like 'Courier'");
+	OutputDebugStringA("Colomn1\tColomn2\tColomn3\tColomn4\tColomn5");
+	OutputDebugStringA("1\t\t2\t\t3\t\t4\t\t5");
+	OutputDebugStringA("A\t\tB\t\tC\t\tD\t\tE");
+	OutputDebugStringA("11\t\t12\t\t13\t\t14\t\t15");
+	OutputDebugStringA("\t\t22\t\t23A\t\t24\t\t25");
+	OutputDebugStringA("\t\t\t\t33\t\t34\t\t35");
+	OutputDebugStringA("LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
+}
+
+void SocketTest()
+{
+	OutputDebugStringA("1");
+	OutputDebugStringA("22");
+	OutputDebugStringA("333");
+	OutputDebugStringA("4444");
+	OutputDebugStringA("55555");
+	OutputDebugStringA("666666");
+	OutputDebugStringA("1010101010");
 }
 
 void DbgMsgClearTest()
@@ -92,7 +110,6 @@ void testLongString()
 void Output(const std::string& filename)
 {
 	std::cout << "Buggazer tester, PID: " << GetCurrentProcessId() << "\n";
-	OutputDebugStringA("Output Titan crash log\n");
 	std::fstream fs;
 	fs.open(filename, std::fstream::in);
 
@@ -102,7 +119,7 @@ void Output(const std::string& filename)
 		return;
 	}
 
-	std::cout << "read\n";
+	std::cout << "Reading " << filename << "...\n";
 	std::vector<std::string> lines;
 	std::string line;
 	while (getline(fs, line))
@@ -164,26 +181,44 @@ void EndlessTest()
 
 void SeparateProcessTest()
 {
+	std::cerr << "SeparateProcessTest\n";
 	for (;;)
 	{
-		ShellExecute(0, L"open", L"BugGazerTester.exe", L"-n", nullptr, SW_HIDE);
+		auto result = (int) ShellExecute(0, L"open", L"DbgMsgSrc.exe", L"-n", nullptr, SW_HIDE);
+		if (result <= 32)
+		{
+			std::cerr << "error starting DbgMsgSrc.exe\n";
+			break;
+		}
 		Sleep(100);
 	}
 }
 
 void CoutCerrTest()
 {
-    std::cout << "Message on cout 1\n";
-    std::cout << "Message on cout 2\n";
-    std::cerr << "Message on cerr 1\n";
-    std::cerr << "Message on cerr 2\n";
-    std::cout << "Message on cout 3\n";
-    std::cerr << "Message on cerr 3\n";
-    std::cout << "Message on cout 4\n";
-    std::cerr << "Message on cerr 4\n";
-    std::cout << "Message on cout 5\n";
-    std::cerr << "Message on cerr 5\n";
+	for (int i=1; i <= 5; ++i)
+	{
+		std::cout << "========= cycle " << i << "/5 ========\n";
+		std::cout << "Message on cout 1\n";
+		std::cout << "Message on cout 2\n";
+		std::cerr << "Message on cerr 1\n";
+		std::cerr << "Message on cerr 2\n";
+		std::cout << "Message on cout 3\n";
+		std::cerr << "Message on cerr 3\n";
+		std::cout << "Message on cout 4\n";
+		std::cerr << "Message on cerr 4\n";
+		std::cout << "Message on cout 5\n";
+		std::cerr << "Message on cerr 5\n";
+		Sleep(2000);
+	}
 }
+
+void CoutCerrTest2()
+{
+	std::cout << "One message on cout with newline\n";
+	//std::cerr << "One message on cerr with newline\n";
+}
+
 
 void PrintUsage()
 {
@@ -197,6 +232,13 @@ void PrintUsage()
 		"  -w Send OutputDebugStringA 'WithoutNewLine'\n"
 		"  -n Send OutputDebugStringA 'WithNewLine\\n'\n"
 		"  -e Send empty OutputDebugStringA message (does not trigger DBwinMutex!)\n"
+		// about -4: 
+		// we cannot guarantee what happens if 1x OutputDebugStringA is send
+		// the process might already be gone be time we handle the message
+		// however, if 2 messages are send, the process is guarenteed to be alive
+		// at least after receiving the first message but before setting the m_dbWinBufferReady flag..
+		// (because before setting the flag the traced process is still waiting for the flag)
+		// this means sending 2 messages and dieing ASAP afterwards is the worst-case we can still handle reliablely.
 		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n"
 		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
 		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
@@ -208,6 +250,7 @@ void PrintUsage()
 
 int main(int argc, char* argv[])
 {
+	std::cout << "DbgMsgSrc, pid: " << GetCurrentProcessId() << std::endl;
 	//OutputDebugStringA("ping");
 	//return 0;
 
@@ -252,38 +295,38 @@ int main(int argc, char* argv[])
 		}
 		else if (arg == "-w")
 		{
-			std::cout << "Send OutputDebugStringA 'WithoutNewLine'\n";
+			std::cout << "Send OutputDebugStringA 'WithoutNewLine ' (15 bytes)\n";
 			OutputDebugStringA("WithoutNewLine ");
 			return 0;
 		}
 		else if (arg == "-n")
 		{
-			std::cout << "Send OutputDebugStringA 'WithNewLine\\n'\n";
+			std::cout << "Send OutputDebugStringA 'WithNewLine\\n' (12 bytes)\n";
 			OutputDebugStringA("WithNewLine\n");
 			return 0;
 		}
 		else if (arg == "-e")
 		{
-			std::cout << "Send empty OutputDebugStringA message\n";
+			std::cout << "Send empty OutputDebugStringA message (0 bytes)\n";
 			OutputDebugStringA("");			//empty message
 			return 0;
 		}
 		else if (arg == "-4")
 		{
-			std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n'\n";
+			std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n (24 bytes)'\n";
 			OutputDebugStringA("WithNewLine\n");
 			OutputDebugStringA("WithNewLine\n");
 			return 0;
 		}
 		else if (arg == "-5")
 		{
-			std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n'\n";
+			std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n' (6 bytes)\n";
 			OutputDebugStringA("1\n2\n3\n");
 			return 0;
 		}
 		else if (arg == "-6")
 		{
-			std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n";
+			std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages (6 bytes)\n";
 			OutputDebugStringA("1 ");
 			OutputDebugStringA("2 ");
 			OutputDebugStringA("3\n");
@@ -313,6 +356,16 @@ int main(int argc, char* argv[])
 		else if (arg == "-A")
 		{
 			CoutCerrTest();
+			return 0;
+		}
+		else if (arg == "-B")
+		{
+			CoutCerrTest2();
+			return 0;
+		}
+		else if (arg == "-C")
+		{
+			SocketTest();
 			return 0;
 		}
 		else

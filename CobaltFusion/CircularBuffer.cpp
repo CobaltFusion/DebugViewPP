@@ -8,8 +8,8 @@
 #pragma once
 
 #include "stdafx.h"
-#include "CircularBuffer.h"
-#include "dbgstream.h"
+#include "CobaltFusion/CircularBuffer.h"
+#include "CobaltFusion/dbgstream.h"
 
 namespace fusion {
 
@@ -52,10 +52,8 @@ namespace fusion {
 
 
 CircularBuffer::CircularBuffer(size_t size) :
-	m_size(GetPowerOfTwo(size)),
-	m_buffer(new char[m_size]),
-	m_pBegin(m_buffer.get()),
-	m_pEnd(m_pBegin + m_size),
+	m_size(size),
+	m_buffer(new char[size]),
 	m_readOffset(0),
 	m_writeOffset(0)
 {
@@ -82,7 +80,6 @@ size_t CircularBuffer::Size() const
 	return m_size;
 }
 
-
 bool CircularBuffer::Empty() const
 {
 	return m_readOffset == m_writeOffset;
@@ -104,24 +101,30 @@ size_t CircularBuffer::GetCount() const
 
 bool CircularBuffer::Full() const
 {
-	return PtrAdd(m_writeOffset, 1) == m_readOffset; // actually full
+	//std::cerr << "full: " << NextPosition(m_writeOffset) << " ?= " << m_readOffset << "\n"
+	return NextPosition(m_writeOffset) == m_readOffset; // actually full
 }
 
 std::string CircularBuffer::ReadStringZ()
 {
+	//std::cerr << "  ReadStringZ\n";
+
 	std::string message;
-	while (auto ch = Read<char>())
+	while (auto ch = Read())
 	{
 		message.push_back(ch);
 	}
+	//std::cerr << "  ReadStringZ done\n";
 	return message;
 }
 
 void CircularBuffer::WriteStringZ(const char* message)
 {
+	//std::cerr << "  WriteStringZ\n";
 	for (size_t i=0; i < strlen(message); ++i)
 		Write(message[i]);
-	Write(char(0));
+	Write(0);
+	//std::cerr << "  WriteStringZ done\n";
 }
 
 void CircularBuffer::WaitForReader()
@@ -135,9 +138,14 @@ void CircularBuffer::WaitForReader()
 		bool result = m_triggerRead.timed_wait(lock, boost::posix_time::seconds(1), predicate);
 		if (!result)
 		{
-			throw std::exception("timeout");	// only so I can test without multiple threads
+			WaitForReaderTimeout();
 		}
 	}
+}
+
+void CircularBuffer::WaitForReaderTimeout()
+{
+	// this method is overridden in a singlethreaded unittest
 }
 
 void CircularBuffer::NotifyWriter()
@@ -168,8 +176,33 @@ void CircularBuffer::AssignBuffer(std::unique_ptr<char> buffer, size_t size, siz
 	m_readOffset = readOffset;
 	m_writeOffset = writeOffset;
 	m_size = size;
-	m_pBegin = m_buffer.get();
-	m_pEnd = m_pBegin + m_size;
+}
+
+char CircularBuffer::Read()
+{
+	if (Empty())
+	{
+		throw std::exception("Read from empty buffer!");
+	}
+	auto value = *ReadPointer();
+	//std::cerr << "  " << m_readOffset << " => " << unsigned int(unsigned char(value)) << "\n";
+	IncreaseReadPointer();
+	return value;
+}
+
+void CircularBuffer::Write(char value)
+{
+	//std::cerr << "  " << m_writeOffset << " <= " << unsigned int(unsigned char(value)) << "\n";
+	*WritePointer() = value;
+	IncreaseWritePointer();
+}
+
+void CircularBuffer::DumpStats()
+{
+	std::cerr << "  m_readOffset:  " << m_readOffset << "\n";
+	std::cerr << "  m_writeOffset: " << m_writeOffset << "\n";
+	std::cerr << "  Empty: " << (Empty() ? "true" : "false") << "\n";
+	std::cerr << "  Full:  " << (Full() ? "true" : "false") << "\n";
 }
 
 } // namespace fusion

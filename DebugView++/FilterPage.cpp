@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 #include "Resource.h"
 #include "FilterPage.h"
 
@@ -54,12 +54,12 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 	m_grid.SetSubItem(item, 4, pBkColor);
 	m_grid.SetSubItem(item, 5, pTxColor);
 	m_grid.SetSubItem(item, 6, PropCreateReadOnlyItem(L"", L"×"));
-	m_grid.SelectItem(item);
+	m_grid.SelectItem(item, 1);
 }
 
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-	m_grid.SubclassWindow(GetDlgItem(IDC_GRID));
+	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
 	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
 	m_grid.InsertColumn(1, L"Filter", LVCFMT_LEFT, 200, 0);
 	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 60, 0);
@@ -190,6 +190,10 @@ std::vector<Filter> CFilterPageImpl::GetFilters() const
 void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 {
 	m_filters = filters;
+	if (IsWindow())
+	{
+		UpdateGrid();
+	}
 }
 
 void CFilterPageImpl::UpdateGrid()
@@ -197,6 +201,7 @@ void CFilterPageImpl::UpdateGrid()
 	m_grid.DeleteAllItems();
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 		AddFilter(*it);
+	m_grid.SelectItem(0);
 }
 
 } // namespace debugviewpp 

@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <string>
 #include <atlstr.h>
-#include "Utilities.h"
+#include "Win32Lib/utilities.h"
 
 namespace fusion {
 
@@ -59,6 +59,7 @@ std::wstring GetExceptionMessage()
 
 Timer::Timer() :
 	m_offset(0),
+	m_init(false),
 	m_timerUnit(0.0)
 {
 	LARGE_INTEGER li;
@@ -68,14 +69,43 @@ Timer::Timer() :
 	m_timerUnit = 1./li.QuadPart;
 }
 
-void Timer::Reset()
+Timer::Timer(LONGLONG quadPart) :
+	m_offset(0),
+	m_init(false),
+	m_timerUnit(0.0)
 {
-	m_offset = GetTicks();
+	if (quadPart== 0)
+		throw std::runtime_error("QueryPerformanceCounter value invalid (0)!");
+	m_timerUnit = 1./quadPart;
 }
 
-double Timer::Get() const
+void Timer::Reset()
 {
-	return (GetTicks() - m_offset)*m_timerUnit;
+	m_offset = 0;
+	m_init = false;
+}
+
+double Timer::Get(long long ticks)
+{
+	boost::mutex::scoped_lock lock(m_mutex);
+	if (!m_init)
+	{
+		m_offset = ticks;
+		m_init = true;
+	}
+	return (ticks - m_offset)*m_timerUnit;			// todo: this is very very wrong, m_timerUnit of the source (ticks) should be used!
+}
+
+double Timer::Get()
+{
+	auto ticks = GetTicks();
+	boost::mutex::scoped_lock lock(m_mutex);
+	if (!m_init)
+	{
+		m_offset = ticks;
+		m_init = true;
+	}
+	return (ticks - m_offset)*m_timerUnit;
 }
 
 long long Timer::GetTicks() const

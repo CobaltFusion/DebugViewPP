@@ -8,8 +8,8 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include <atlstr.h>
-#include "Utilities.h"
-#include "LogFilter.h"
+#include "Win32Lib/utilities.h"
+#include "DebugView++Lib/LogFilter.h"
 #include "Resource.h"
 #include "FilterDlg.h"
 
@@ -67,7 +67,9 @@ static const FilterType::type MessageFilterTypes[] =
 	FilterType::Token,
 	FilterType::Stop,
 	FilterType::Track,
-	FilterType::Once
+	FilterType::Once,
+	FilterType::Clear,
+	FilterType::Beep
 };
 
 static const FilterType::type ProcessFilterTypes[] =
@@ -77,7 +79,8 @@ static const FilterType::type ProcessFilterTypes[] =
 	FilterType::Highlight,
 	FilterType::Stop,
 	FilterType::Track,
-	FilterType::Once
+	FilterType::Once,
+	FilterType::Beep
 };
 
 static const MatchType::type MatchTypes[] =

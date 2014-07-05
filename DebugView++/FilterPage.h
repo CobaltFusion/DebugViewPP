@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "Grid.h"
-#include "FilterType.h"
-#include "Filter.h"
+#include "DebugView++Lib/FilterType.h"
+#include "DebugView++Lib/Filter.h"
 #include "Resource.h"
 
 namespace fusion {
@@ -31,7 +31,7 @@ public:
 	enum { IDD = IDD_FILTER_PAGE };
 
 	BEGIN_DLGRESIZE_MAP(CFilterPageImpl)
-		DLGRESIZE_CONTROL(IDC_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
+		DLGRESIZE_CONTROL(IDC_FILTER_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);

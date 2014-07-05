@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include <stdexcept>
-#include "FilterType.h"
+#include "DebugView++Lib/FilterType.h"
 #include "assert.h"
 
 namespace fusion {
@@ -25,7 +25,9 @@ int FilterTypeToInt(FilterType::type value)
 	FILTER_TYPE(Token) \
 	FILTER_TYPE(Track) \
 	FILTER_TYPE(Stop) \
-	FILTER_TYPE(Once)
+	FILTER_TYPE(Clear) \
+	FILTER_TYPE(Once) \
+	FILTER_TYPE(Beep)
 
 FilterType::type IntToFilterType(int value)
 {
