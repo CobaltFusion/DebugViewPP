@@ -9,6 +9,7 @@
 #include "DebugView++Lib/PassiveLogSource.h"
 #include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/LineBuffer.h"
+#include "Win32Lib/Win32Lib.h"
 
 #include <boost/asio.hpp> 
 
@@ -38,35 +39,44 @@ std::vector<unsigned char> Read(boost::asio::ip::tcp::iostream& is, size_t amoun
 	return buffer;
 }
 
-std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
+void DebugVector(std::vector<unsigned char> buffer)
+{
+	for (size_t i=0; i< buffer.size(); ++i)
+	{
+		std::cout << HEX(buffer[i]) << " ";
+		if ((i != 0) && ((i & 15) == 0))
+			std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+std::vector<unsigned char> Read(std::stringstream& is, size_t amount, bool debug = false)
 {
 	if (amount < 1)
 		return std::vector<unsigned char>();
 	std::vector<unsigned char> buffer(amount);
 	is.read((char*)buffer.data(), amount);
+
+	if (debug)	// todo remove this code when we're sure we've got the dbgview protocol down
+		DebugVector(buffer);
 	return buffer;
 }
 
-std::vector<unsigned char> ReadRemaining(boost::asio::ip::tcp::iostream& is)
+std::wstring FormatDateTime2(const SYSTEMTIME& systemTime)
 {
-	std::vector<unsigned char> buffer(10000);
-	auto len = is.readsome((char*)buffer.data(), buffer.size());
-	buffer.resize(unsigned int(len));
-	return buffer;
-}
+	int size = GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
+	size += GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
+	std::vector<wchar_t> buf(size);
 
-void DebugRemains(boost::asio::ip::tcp::iostream& is)
+	int offset = GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data(), size);
+	buf[offset - 1] = ' ';
+	GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data() + offset, size);
+	return std::wstring(buf.data(), size - 1);
+
+}
+std::wstring FormatDateTime2(const FILETIME& fileTime)
 {
-	auto buf = ReadRemaining(is);
-	auto it = buf.cbegin();
-	while(it != buf.cend())
-	{
-		unsigned char c = *it++;
-		std::cout << HEX(c) << " ";
-		if (c == 0)
-			std::cout << std::endl;
-	}
-	std::cout << std::endl;
+	return FormatDateTime2(FileTimeToSystemTime(FileTimeToLocalFileTime(fileTime)));
 }
 
 void SocketReader::Loop()
@@ -84,8 +94,8 @@ void SocketReader::Loop()
 		0x24, 0x00, 0x05, 0x83,
 		0x04, 0x00, 0x05, 0x83,
 		0x08, 0x00, 0x05, 0x83,
-		0x28, 0x00, 0x05, 0x83, //  (reponse: 90 ae 23 00 00 00 00 00)
-		0x18, 0x00, 0x05, 0x83  //  (reponse: 00 00 00 00)	
+		0x28, 0x00, 0x05, 0x83,
+		0x18, 0x00, 0x05, 0x83 
 	};
 
 	is.write((char*)startBuf.data(), startBuf.size());
@@ -94,8 +104,10 @@ void SocketReader::Loop()
 		Add(0, "dbgview.exe", "<error sending init command>\n", this);
 	}
 
-	auto initReply1 = Read<DWORD>(is);	// 0x7fffffff
-	auto initReply2 = Read<DWORD>(is);	// 0x0023ae93
+	Read<DWORD>(is);					// 0x7fffffff		// Init reply
+	auto qpFrequency = Read<DWORD>(is);	// 0x0023ae93		// QueryPerformanceFrequency
+
+	Timer timer(qpFrequency);
 
 	for(;;)
 	{
@@ -111,6 +123,9 @@ void SocketReader::Loop()
 		if (messageLength == 0)	// keep alive
 			continue;
 
+		// dont read from the tcp::iostream directly,
+		// instead use read() to receive the complete message.
+		// this allows us to use ss.tellg() to determine the amount of trash bytes.
 		std::vector<char> buffer(messageLength);
 		is.read(reinterpret_cast<char*>(buffer.data()), messageLength);
 		std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
@@ -127,7 +142,9 @@ void SocketReader::Loop()
 			if (!ss)
 				break;
 			
-			auto ufo = Read(ss, 16);	// yet to decode timestamp
+			auto filetime = Read<FILETIME>(ss);
+			auto qpcTime = Read<long long>(ss);
+			auto time = timer.Get(qpcTime);
 
 			unsigned char c1, c2;
 			if (!((ss >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
@@ -139,7 +156,7 @@ void SocketReader::Loop()
 			std::getline(ss, msg, '\0'); 
 
 			msg.push_back('\n');
-			Add(pid, "dbgview.exe", msg.c_str(), this);
+			Add(time, filetime, pid, "dbgview.exe", msg.c_str(), this);
 
 			// strangely, messages are always send in multiples of 4 bytes.
 			// this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.

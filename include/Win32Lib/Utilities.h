@@ -262,8 +262,10 @@ class Timer
 {
 public:
 	Timer();
+	Timer(LONGLONG quadPart);
 
 	void Reset();
+	double Get(long long ticks);
 	double Get();
 
 private:
