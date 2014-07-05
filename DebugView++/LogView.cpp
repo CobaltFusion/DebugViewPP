@@ -65,8 +65,8 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SCOLL_STOP, OnSelControlAutoScroll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewAutoScroll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SCOLL_STOP, OnViewAutoScrollStop)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESSCOLORS, OnViewProcessColors);
 	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnEscapeKey)
@@ -957,12 +957,12 @@ void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	Copy();
 }
 
-void CLogView::OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::OnViewAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	SetScroll(!GetScroll());
+	SetAutoScroll(!GetAutoScroll());
 }
 
-void CLogView::OnSelControlAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::OnViewAutoScrollStop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	SetAutoScrollStop(!GetAutoScrollStop());
 }
@@ -1183,12 +1183,12 @@ void CLogView::SetFont(HFONT hFont)
 	SendMessage(WM_WINDOWPOSCHANGED, 0, reinterpret_cast<LPARAM>(&wp));
 }
 
-bool CLogView::GetScroll() const
+bool CLogView::GetAutoScroll() const
 {
 	return m_autoScrollDown;
 }
 
-void CLogView::SetScroll(bool enable)
+void CLogView::SetAutoScroll(bool enable)
 {
 	m_autoScrollDown = enable;
 	if (enable)

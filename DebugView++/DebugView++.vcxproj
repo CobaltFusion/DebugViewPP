@@ -149,6 +149,7 @@
     <ClCompile Include="FilterDlg.cpp" />
     <ClCompile Include="FindDlg.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="HistoryDlg.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="FilterPage.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="GuiThread.h" />
+    <ClInclude Include="HistoryDlg.h" />
     <ClInclude Include="hstream.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="MainFrame.h" />

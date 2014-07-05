@@ -19,6 +19,7 @@
 #include "hstream.h"
 #include "Resource.h"
 #include "RunDlg.h"
+#include "HistoryDlg.h"
 #include "FilterDlg.h"
 #include "SourcesDlg.h"
 #include "AboutDlg.h"
@@ -70,6 +71,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
+	COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
 	COMMAND_ID_HANDLER_EX(ID_SOURCES, OnSources)
@@ -218,7 +220,7 @@ void CMainFrame::UpdateUI()
 
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
 	UISetCheck(ID_VIEW_PROCESSCOLORS, GetView().GetViewProcessColors());
-	UISetCheck(ID_VIEW_SCROLL, GetView().GetScroll());
+	UISetCheck(ID_VIEW_SCROLL, GetView().GetAutoScroll());
 	UISetCheck(ID_VIEW_SCOLL_STOP, GetView().GetAutoScrollStop());
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 
@@ -988,12 +990,21 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	m_tryGlobal = !m_pGlobalReader;
 	
 	if (m_pLocalReader && m_tryGlobal)
+	{
 		Resume();
+	}
 	else
 	{
 		m_pGlobalReader->Abort();
 		m_pGlobalReader.reset();
 	}
+}
+
+void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CHistoryDlg dlg(m_logFile.GetHistorySize(), m_logFile.GetHistorySize() == 0);
+	if (dlg.DoModal() == IDOK)
+		m_logFile.SetHistorySize(dlg.GetHistorySize());
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

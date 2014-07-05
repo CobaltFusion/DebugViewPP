@@ -30,6 +30,18 @@ struct Message
 
 class LogFile
 {
+public:
+	LogFile();
+
+	bool Empty() const;
+	void Clear();
+	void Add(const Message& msg);
+	int Count() const;
+	Message operator[](int i) const;
+	int GetHistorySize() const;
+	void SetHistorySize(int size);
+
+private:
 	struct InternalMessage
 	{
 		InternalMessage(double time, FILETIME systemTime, DWORD uid) :
@@ -42,18 +54,11 @@ class LogFile
 		DWORD uid;
 	};
 
-public:
-	bool Empty() const;
-	void Clear();
-	void Add(const Message& msg);
-	int Count() const;
-	Message operator[](int i) const;
-
-private:
 	std::vector<InternalMessage> m_messages;
 	ProcessInfo m_processInfo;
 	mutable indexedstorage::SnappyStorage m_storage;
 //	indexedstorage::VectorStorage m_storage;
+	int m_historySize;
 };
 
 } // namespace debugviewpp 

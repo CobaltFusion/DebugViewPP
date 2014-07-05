@@ -128,8 +128,8 @@ public:
 	std::wstring GetName() const;
 	void SetName(const std::wstring& name);
 	void SetFont(HFONT hFont);
-	bool GetScroll() const;
-	void SetScroll(bool enable);
+	bool GetAutoScroll() const;
+	void SetAutoScroll(bool enable);
 	bool GetAutoScrollStop() const;
 	void SetAutoScrollStop(bool enable);
 	void Clear();
@@ -197,8 +197,8 @@ private:
 	void OnViewClear(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnSelControlAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewAutoScrollStop(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessColors(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnEscapeKey(UINT uNotifyCode, int nID, CWindow wndCtl);

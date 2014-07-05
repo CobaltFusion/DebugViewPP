@@ -17,6 +17,11 @@ Message::Message(double time, FILETIME systemTime, DWORD pid, const std::string 
 {
 }
 
+LogFile::LogFile() :
+	m_historySize(0)
+{
+}
+
 bool LogFile::Empty() const
 {
 	return m_messages.empty();
@@ -47,6 +52,16 @@ Message LogFile::operator[](int i) const
 	auto msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
 	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i], props.color);
+}
+
+int LogFile::GetHistorySize() const
+{
+	return m_historySize;
+}
+
+void LogFile::SetHistorySize(int size)
+{
+	m_historySize = size;
 }
 
 } // namespace debugviewpp 

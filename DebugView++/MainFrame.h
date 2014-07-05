@@ -140,13 +140,14 @@ private:
 	void OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAlwaysOnTop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
