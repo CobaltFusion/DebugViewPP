@@ -12,6 +12,8 @@
 #include "resource.h"
 #include "MainFrame.h"
 
+//#define CONSOLE_DEBUG
+
 CAppModule _Module;
 
 namespace fusion {
@@ -73,26 +75,24 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	fusion::debugviewpp::CMainFrame wndMain;
 	MessageLoop theLoop(_Module);
 
-	int argc;
-	HLOCAL args(CommandLineToArgvW(GetCommandLineW(), &argc));
-	auto argv = (wchar_t**) args.get();
-	wchar_t* fileName = nullptr;
+	auto args = GetCommandLineArguments();
+	std::wstring fileName;
 
-	for (int i = 1; i < argc; ++i)
+	for (size_t i = 1; i < args.size(); ++i)
 	{
-		if (boost::iequals(argv[i], L"/min"))
+		if (boost::iequals(args[i], L"/min"))
 		{
 			cmdShow = SW_MINIMIZE;
 		}
-		else if (boost::iequals(argv[i], L"/log"))
+		else if (boost::iequals(args[i], L"/log"))
 		{
 			wndMain.SetLogging();
 		}
-		else if (argv[i][0] != '/')
+		else if (args[i][0] != '/')
 		{
-			if (fileName)
+			if (!fileName.empty())
 				throw std::runtime_error("Duplicate filename");
-			fileName = argv[i];
+			fileName = args[i];
 		}
 	}
 
@@ -100,7 +100,7 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 		ThrowLastError(L"Main window creation failed!");
 
 	wndMain.ShowWindow(cmdShow);
-	if (fileName)
+	if (!fileName.empty())
 		wndMain.Load(fileName);
 	else if (hFile)
 		wndMain.Load(hFile);
@@ -130,19 +130,18 @@ try
 	ATLASSERT(SUCCEEDED(hRes));
 	hRes;
 
-	#define CONSOLE_DEBUG
-	#ifdef CONSOLE_DEBUG
-		FILE* standardOut;
-		AllocConsole();
-		freopen_s(&standardOut, "CONOUT$", "wb", stdout);
-		std::cout.clear();
-	#endif
+#ifdef CONSOLE_DEBUG
+	FILE* standardOut;
+	AllocConsole();
+	freopen_s(&standardOut, "CONOUT$", "wb", stdout);
+	std::cout.clear();
+#endif
 
 	int nRet = fusion::debugviewpp::Run(lpstrCmdLine, nCmdShow);
 
-	#ifdef CONSOLE_DEBUG
-		fclose(standardOut);
-	#endif
+#ifdef CONSOLE_DEBUG
+	fclose(standardOut);
+#endif
 
 	_Module.Term();
 	return nRet;

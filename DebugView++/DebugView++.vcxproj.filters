@@ -104,9 +104,6 @@
     <ClInclude Include="SourcesDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourcesPage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DebugView++.rc">

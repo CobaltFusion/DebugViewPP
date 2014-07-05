@@ -66,7 +66,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewScroll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SEL_CONTROL_SCROLL, OnSelControlAutoScroll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SCOLL_STOP, OnSelControlAutoScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESSCOLORS, OnViewProcessColors);
 	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnEscapeKey)
@@ -124,7 +124,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_clockTime(false),
 	m_processColors(false),
 	m_autoScrollDown(true),
-	m_selectionControlsAutoScroll(true),
+	m_autoScrollStop(true),
 	m_dirty(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
@@ -209,6 +209,8 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
 	m_columns.push_back(MakeColumn(Column::Line, L"Line", LVCFMT_RIGHT, 60));
+	m_columns.push_back(MakeColumn(Column::Date, L"Date", LVCFMT_RIGHT, 90));
+	m_columns.back().enable = false; // Default no Date column
 	m_columns.push_back(MakeColumn(Column::Time, L"Time", LVCFMT_RIGHT, 90));
 	m_columns.push_back(MakeColumn(Column::Pid, L"PID", LVCFMT_RIGHT, 60));
 	m_columns.push_back(MakeColumn(Column::Process, L"Process", LVCFMT_LEFT, 140));
@@ -470,10 +472,9 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
-	if (m_selectionControlsAutoScroll)
-	{
+	if (m_autoScrollStop)
 		m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
-	}
+
 	SetHighlightText();
 	return 0;
 }
@@ -683,6 +684,7 @@ ItemData CLogView::GetItemData(int iItem) const
 {
 	ItemData data;
 	data.text[Column::Line] = GetItemWText(iItem, ColumnToSubItem(Column::Line));
+	data.text[Column::Date] = GetItemWText(iItem, ColumnToSubItem(Column::Date));
 	data.text[Column::Time] = GetItemWText(iItem, ColumnToSubItem(Column::Time));
 	data.text[Column::Pid] = GetItemWText(iItem, ColumnToSubItem(Column::Pid));
 	data.text[Column::Process] = GetItemWText(iItem, ColumnToSubItem(Column::Process));
@@ -789,6 +791,19 @@ std::string GetTimeText(double time)
 	return stringbuilder() << std::fixed << std::setprecision(6) << time;
 }
 
+std::string GetDateText(const SYSTEMTIME& st)
+{
+	int size = GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, nullptr, nullptr, 0);
+	std::vector<char> buf(size);
+	GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, nullptr, buf.data(), size);
+	return std::string(buf.data(), size - 1);
+}
+
+std::string GetDateText(const FILETIME& ft)
+{
+	return GetDateText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
+}
+
 std::string GetTimeText(const SYSTEMTIME& st)
 {
 	char buf[32];
@@ -809,7 +824,8 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	switch (column)
 	{
 	case Column::Line: return std::to_string(iItem + 1ULL);
-	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(iItem == 0 ? 0.0 : msg.time);
+	case Column::Date: return GetDateText(msg.systemTime);
+	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(iItem == 0 ? 0.0 : msg.time); // ???
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return msg.processName;
 	case Column::Message: return msg.text;
@@ -948,7 +964,7 @@ void CLogView::OnViewScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CLogView::OnSelControlAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	SetSelectionControlsAutoScroll(!GetSelectionControlsAutoScroll());
+	SetAutoScrollStop(!GetAutoScrollStop());
 }
 
 void CLogView::OnViewTime(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1179,14 +1195,14 @@ void CLogView::SetScroll(bool enable)
 		ScrollDown();
 }
 
-bool CLogView::GetSelectionControlsAutoScroll() const
+bool CLogView::GetAutoScrollStop() const
 {
-	return m_selectionControlsAutoScroll;
+	return m_autoScrollStop;
 }
 
-void CLogView::SetSelectionControlsAutoScroll(bool enable)
+void CLogView::SetAutoScrollStop(bool enable)
 {
-	m_selectionControlsAutoScroll = enable;
+	m_autoScrollStop = enable;
 }
 
 void CLogView::Clear()
@@ -1195,10 +1211,9 @@ void CLogView::Clear()
 	m_dirty = false;
 	m_logLines.clear();
 	m_highlightText.clear();
-	if (m_selectionControlsAutoScroll)
-	{
+	if (m_autoScrollStop)
 		m_autoScrollDown = true;
-	}
+
 	ResetFilters();
 }
 
@@ -1512,7 +1527,7 @@ bool CLogView::FindPrevious(const std::wstring& text)
 void CLogView::LoadSettings(CRegKey& reg)
 {
 	SetName(RegGetStringValue(reg));
-	SetSelectionControlsAutoScroll(RegGetDWORDValue(reg, L"SelectionControlsAutoScroll", 1) != 0);
+	SetAutoScrollStop(RegGetDWORDValue(reg, L"AutoScrollStop", 1) != 0);
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
 	SetViewProcessColors(RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
 
@@ -1542,7 +1557,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 {
 	UpdateColumnInfo();
 
-	reg.SetDWORDValue(L"SelectionControlsAutoScroll", GetSelectionControlsAutoScroll());
+	reg.SetDWORDValue(L"AutoScrollStop", GetAutoScrollStop());
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 	reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
 
