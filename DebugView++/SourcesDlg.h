@@ -23,8 +23,8 @@ class CSourcesDlg :
 	public CDialogResize<CSourcesDlg>
 {
 public:
-	CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources);
-	
+	explicit CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources);
+
 	enum { IDD = IDD_SOURCES };
 
 	BEGIN_DLGRESIZE_MAP(CSourcesDlg)

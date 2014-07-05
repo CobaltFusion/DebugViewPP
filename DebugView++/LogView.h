@@ -55,11 +55,26 @@ struct LogLine
 	int line;
 };
 
+struct Column
+{
+	enum type
+	{
+		Bookmark = 0,
+		Line,
+		Date,
+		Time,
+		Pid,
+		Process,
+		Message,
+		Count
+	};
+};
+
 struct ItemData
 {
 	ItemData();
 
-	std::wstring text[6];
+	std::wstring text[Column::Count];
 	TextColor color;
 	std::vector<Highlight> highlights;
 };
@@ -92,20 +107,6 @@ public:
 	}
 };
 
-struct Column
-{
-	enum type
-	{
-		Bookmark = 0,
-		Line,
-		Time,
-		Pid,
-		Process,
-		Message,
-		Count
-	};
-};
-
 class CLogView :
 	public CWindowImpl<CLogView, CListViewCtrl,
 		CWinTraitsOR<
@@ -129,8 +130,8 @@ public:
 	void SetFont(HFONT hFont);
 	bool GetScroll() const;
 	void SetScroll(bool enable);
-	bool GetSelectionControlsAutoScroll() const;
-	void SetSelectionControlsAutoScroll(bool enable);
+	bool GetAutoScrollStop() const;
+	void SetAutoScrollStop(bool enable);
 	void Clear();
 	int GetFocusLine() const;
 	void SetFocusLine(int line);
@@ -272,7 +273,7 @@ private:
 	bool m_clockTime;
 	bool m_processColors;
 	bool m_autoScrollDown;
-	bool m_selectionControlsAutoScroll;
+	bool m_autoScrollStop;
 	bool m_dirty;
 	int m_addedLines;
 	std::function<void ()> m_stop;

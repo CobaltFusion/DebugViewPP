@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <vector>
 #include <iostream>
+#include <shellapi.h>
 #include "Win32Lib/Win32Lib.h"
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
@@ -363,6 +364,14 @@ ULONG_PTR GetParentProcessId()
 	if (NtQueryInformationProcess && NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
 		return pbi[5];
 	return (ULONG_PTR)-1;
+}
+
+std::vector<std::wstring> GetCommandLineArguments()
+{
+	int argc;
+	HLocal args(CommandLineToArgvW(GetCommandLineW(), &argc));
+	auto argv = static_cast<const wchar_t**>(args.get());
+	return std::vector<std::wstring>(argv, argv + argc);
 }
 
 } // namespace fusion

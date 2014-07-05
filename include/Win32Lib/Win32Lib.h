@@ -25,7 +25,7 @@ struct LocalAllocDeleter
 	void operator()(pointer p) const;
 };
 
-typedef std::unique_ptr<void, LocalAllocDeleter> HLOCAL;
+typedef std::unique_ptr<void, LocalAllocDeleter> HLocal;
 
 struct GlobalAllocDeleter
 {
@@ -199,6 +199,6 @@ DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName = nullptr);
 DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue);
 
 ULONG_PTR GetParentProcessId();
-
+std::vector<std::wstring> GetCommandLineArguments();
 
 } // namespace fusion
