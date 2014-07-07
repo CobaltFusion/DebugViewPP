@@ -27,7 +27,7 @@ namespace boost {
 namespace unit_test {
 namespace gui {
 
-#if BOOST_VERSION <= 105400
+#if BOOST_VERSION <= 105500
 
 const test_unit_type TUT_ANY = tut_any;
 const test_unit_type TUT_CASE = tut_case;
