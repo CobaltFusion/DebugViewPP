@@ -36,6 +36,8 @@ public:
 	bool Empty() const;
 	void Clear();
 	void Add(const Message& msg);
+	int BeginIndex() const;
+	int EndIndex() const;
 	int Count() const;
 	Message operator[](int i) const;
 	int GetHistorySize() const;

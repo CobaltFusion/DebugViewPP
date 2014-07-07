@@ -42,6 +42,16 @@ void LogFile::Add(const Message& msg)
 	m_storage.Add(msg.text);
 }
 
+int LogFile::BeginIndex() const
+{
+	return 0;
+}
+
+int LogFile::EndIndex() const
+{
+	return m_messages.size();
+}
+
 int LogFile::Count() const
 {
 	return m_messages.size();
@@ -49,7 +59,7 @@ int LogFile::Count() const
 
 Message LogFile::operator[](int i) const
 {
-	auto msg = m_messages[i];
+	auto& msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
 	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i], props.color);
 }
