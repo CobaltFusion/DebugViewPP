@@ -13,13 +13,13 @@
 #include "DebugView++Lib/PipeReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/DBWinReader.h"
+#include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/Loopback.h"
-#include "DebugView++Lib/SocketReader.h"
 
 // class Logsources heeft vector<LogSource> en start in zijn constructor een thread voor LogSources::Listen()
 // - Listen() vraagt GetHandle() aan elke LogSource in m_sources en roept Notify() op de LogSource waarvan de handle gesignaled wordt.
@@ -40,14 +40,8 @@ LogSources::LogSources(bool startListening) :
 	m_handleCacheTime(0.0)
 {
 	m_sources.push_back(m_loopback);
-
-	auto socket = std::make_shared<SocketReader>(m_timer, m_linebuffer);		// testing socket
-	m_sources.push_back(socket);
-
 	if (startListening)
-	{
 		m_thread = boost::thread(&LogSources::Listen, this);
-	}
 }
 	
 LogSources::~LogSources()
@@ -57,7 +51,7 @@ LogSources::~LogSources()
 
 void LogSources::AddMessage(const std::string& message)
 {
-	m_loopback->AddMessage(0, "loopback", message.c_str());
+	m_loopback->AddMessage(0, "[internal]", message.c_str());
 	m_loopback->Signal();
 }
 
@@ -79,8 +73,16 @@ void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
 	m_loopback->AddMessage(0, "", Str(msg).str().c_str());
 	boost::mutex::scoped_lock lock(m_mutex);
-	m_trash.push_back(logsource);		// todo: fix logsource lifetime (should be extented until all message have been Processed())
+
+	// logsource lifetime needs to last until all message have been processed by LogSources::GetLines())
+	// todo: create better solution, problem: the raw logsource pointers in struct Line !
+	m_trash.push_back(logsource);
 	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
+}
+
+void LogSources::FlushTrash()
+{
+	m_trash.clear();
 }
 
 std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
@@ -275,6 +277,13 @@ std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 	auto pipeReader = std::make_shared<PipeReader>(m_timer, m_linebuffer, hPipe, pid, processName, 40);
 	Add(pipeReader);
 	return pipeReader;
+}
+
+std::shared_ptr<DbgviewReader> LogSources::AddDbgviewReader(const std::string& hostname)
+{
+	auto dbgviewreader = std::make_shared<DbgviewReader>(m_timer, m_linebuffer, hostname);
+	Add(dbgviewreader);
+	return dbgviewreader;
 }
 
 } // namespace debugviewpp 

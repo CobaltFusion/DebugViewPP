@@ -368,7 +368,9 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 {
-	//todo: filtering is still done on the UI thread, see CLogView::Add
+	// filtering is still done on the UI thread, see CLogView::Add
+	// design decision: only change this if it becomes a problem, because it introduces extra thread 
+	// and thus complexity. Do that only if it solves a problem.
 	ProcessLines(m_logSources.GetLines());
 }
 
@@ -918,6 +920,8 @@ void CMainFrame::Pause()
 		m_logSources.Remove(m_pGlobalReader);
 		m_pGlobalReader.reset();
 	}
+
+	m_logSources.FlushTrash();	//todo: remove
 }
 
 void CMainFrame::Resume()
@@ -929,6 +933,7 @@ void CMainFrame::Resume()
 		try 
 		{
 			m_pLocalReader = m_logSources.AddDBWinReader(false);
+			m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
 		}
 		catch (std::exception&)
 		{

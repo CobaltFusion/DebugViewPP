@@ -28,6 +28,7 @@ namespace fusion {
 namespace debugviewpp {
 
 struct SelectionInfo;
+class DbgviewReader;
 
 class CLogViewTabItem : public CTabViewTabItem
 {
@@ -184,6 +185,7 @@ private:
 	std::wstring m_applicationName;
 	std::shared_ptr<DBWinReader> m_pLocalReader;
 	std::shared_ptr<DBWinReader> m_pGlobalReader;
+	std::shared_ptr<DbgviewReader> m_pDbgviewReader;
 };
 
 } // namespace debugviewpp 
