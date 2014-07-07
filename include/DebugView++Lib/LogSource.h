@@ -19,7 +19,7 @@ class ILineBuffer;
 class LogSource : boost::noncopyable
 {
 public:
-	LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
+	explicit LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
 	virtual ~LogSource();
 	
 	virtual void SetAutoNewLine(bool value);

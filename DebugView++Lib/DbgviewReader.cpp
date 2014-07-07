@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/PassiveLogSource.h"
-#include "DebugView++Lib/SocketReader.h"
+#include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "Win32Lib/Win32Lib.h"
 
@@ -16,21 +16,21 @@
 namespace fusion {
 namespace debugviewpp {
 
-SocketReader::SocketReader(Timer& timer, ILineBuffer& linebuffer) :
-	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40)
-{
-	SetDescription(L"socket");
+const std::string g_sysinternalsDebugViewAgentPort = "2020";
 
-	m_thread = boost::thread(&SocketReader::Loop, this);
+DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname) :
+	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
+	m_hostname(hostname)
+{
+	SetDescription(wstringbuilder() << "Dbgview Agent at " << m_hostname);
+	m_thread = boost::thread(&DbgviewReader::Loop, this);
 }
 
-SocketReader::~SocketReader()
+DbgviewReader::~DbgviewReader()
 {
 }
 
-#define HEX(x) std::setfill('0') << std::setw(2) << std::hex << std::uppercase << unsigned int(x) << std::setw(0)
-
-std::vector<unsigned char> Read(boost::asio::ip::tcp::iostream& is, size_t amount)
+std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 {
 	if (amount < 1)
 		return std::vector<unsigned char>();
@@ -39,57 +39,11 @@ std::vector<unsigned char> Read(boost::asio::ip::tcp::iostream& is, size_t amoun
 	return buffer;
 }
 
-void DebugVector(std::vector<unsigned char> buffer)
-{
-	for (size_t i=0; i< buffer.size(); ++i)
-	{
-		std::cout << HEX(buffer[i]) << " ";
-		if ((i != 0) && ((i & 15) == 0))
-			std::cout << std::endl;
-	}
-	std::cout << std::endl;
-}
-
-std::vector<unsigned char> Read(std::stringstream& is, size_t amount, bool debug = false)
-{
-	if (amount < 1)
-		return std::vector<unsigned char>();
-	std::vector<unsigned char> buffer(amount);
-	is.read((char*)buffer.data(), amount);
-
-	if (debug)	// todo remove this code when we're sure we've got the dbgview protocol down
-		DebugVector(buffer);
-	return buffer;
-}
-
-std::wstring FormatDateTime2(const SYSTEMTIME& systemTime)
-{
-	int size = GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
-	size += GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, nullptr, 0);
-	std::vector<wchar_t> buf(size);
-
-	int offset = GetDateFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data(), size);
-	buf[offset - 1] = ' ';
-	GetTimeFormat(LOCALE_USER_DEFAULT, 0, &systemTime, nullptr, buf.data() + offset, size);
-	return std::wstring(buf.data(), size - 1);
-
-}
-std::wstring FormatDateTime2(const FILETIME& fileTime)
-{
-	return FormatDateTime2(FileTimeToSystemTime(FileTimeToLocalFileTime(fileTime)));
-}
-
-void SocketReader::Loop()
+void DbgviewReader::Loop()
 {
 	using namespace boost::asio;
-	ip::tcp::iostream is("127.0.0.1", "2020");		// much shorter, but not direct socket access.
+	ip::tcp::iostream is(m_hostname, g_sysinternalsDebugViewAgentPort);
 
-    if (!is)
-    {
-      std::cout << "Unable to connect: " << is.error().message() << std::endl;
-      return;
-    }
-	
 	boost::array<unsigned char, 20> startBuf = { 
 		0x24, 0x00, 0x05, 0x83,
 		0x04, 0x00, 0x05, 0x83,
@@ -101,13 +55,25 @@ void SocketReader::Loop()
 	is.write((char*)startBuf.data(), startBuf.size());
 	if (!is)
 	{
-		Add(0, "dbgview.exe", "<error sending init command>\n", this);
+		Add(0, "[internal]", "<error sending init command>\n", this);
 	}
 
 	Read<DWORD>(is);					// 0x7fffffff		// Init reply
 	auto qpFrequency = Read<DWORD>(is);	// 0x0023ae93		// QueryPerformanceFrequency
 
+    if (!is || qpFrequency == 0)
+    {
+      std::string msg = stringbuilder() << "Unable to connect to " << Str(GetDescription()).str().c_str() << ", " << is.error().message();
+	  Add(0, "[internal]", msg.c_str(), this);
+	  Signal();
+      return;
+    }
+
 	Timer timer(qpFrequency);
+
+	std::string msg = stringbuilder() << "Connected to " << Str(GetDescription()).str().c_str();
+	Add(0, "[internal]", msg.c_str(), this);
+	Signal();
 
 	for(;;)
 	{
@@ -117,6 +83,7 @@ void SocketReader::Loop()
 		if (!is || messageLength >= 0x7fffffff)
 		{
 			Add(0, "dbgview.exe", "<error parsing messageLength>\n", this);
+			Signal();
 			break;
 		}
 
@@ -174,19 +141,10 @@ void SocketReader::Loop()
 	}
 }
 
-void SocketReader::Abort()
+void DbgviewReader::Abort()
 {
 	LogSource::Abort();
 	m_thread.join();
-}
-
-void SocketReader::Poll()
-{
-	// http://stackoverflow.com/questions/15126277/boost-tcp-socket-with-shared-ptr-c
-	// http://www.boost.org/doc/libs/1_47_0/doc/html/boost_asio/examples.html#boost_asio.examples.http_server
-	// http://www.boost.org/doc/libs/1_47_0/doc/html/boost_asio/example/iostreams/http_client.cpp
-	// http://www.boost.org/doc/libs/1_46_0/doc/html/boost_asio/example/timeouts/blocking_tcp_client.cpp
-
 }
 
 } // namespace debugviewpp 

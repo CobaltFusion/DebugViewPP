@@ -28,6 +28,7 @@ namespace fusion {
 namespace debugviewpp {
 
 struct SelectionInfo;
+class DbgviewReader;
 
 class CLogViewTabItem : public CTabViewTabItem
 {
@@ -148,6 +149,7 @@ private:
 	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
@@ -184,6 +186,7 @@ private:
 	std::wstring m_applicationName;
 	std::shared_ptr<DBWinReader> m_pLocalReader;
 	std::shared_ptr<DBWinReader> m_pGlobalReader;
+	std::shared_ptr<DbgviewReader> m_pDbgviewReader;
 };
 
 } // namespace debugviewpp 

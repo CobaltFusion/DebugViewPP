@@ -98,7 +98,7 @@
     <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessInfo.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessReader.h" />
-    <ClInclude Include="..\include\DebugView++Lib\SocketReader.h" />
+    <ClInclude Include="..\include\DebugView++Lib\DbgviewReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\SourceType.h" />
     <ClInclude Include="..\include\DebugView++Lib\TestSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\VectorLineBuffer.h" />
@@ -130,7 +130,7 @@
     <ClCompile Include="ProcessHandleCache.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="ProcessReader.cpp" />
-    <ClCompile Include="SocketReader.cpp" />
+    <ClCompile Include="DbgviewReader.cpp" />
     <ClCompile Include="SourceType.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
