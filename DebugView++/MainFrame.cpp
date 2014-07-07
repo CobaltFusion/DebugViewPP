@@ -6,6 +6,8 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "MainFrame.h"
+
 
 #include <algorithm>
 #include <boost/utility.hpp>
@@ -24,7 +26,6 @@
 #include "SourcesDlg.h"
 #include "AboutDlg.h"
 #include "LogView.h"
-#include "MainFrame.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -72,6 +73,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
 	COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
+	COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
 	COMMAND_ID_HANDLER_EX(ID_SOURCES, OnSources)
@@ -933,7 +935,6 @@ void CMainFrame::Resume()
 		try 
 		{
 			m_pLocalReader = m_logSources.AddDBWinReader(false);
-			m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
 		}
 		catch (std::exception&)
 		{
@@ -1012,6 +1013,14 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		m_logFile.SetHistorySize(dlg.GetHistorySize());
 }
 
+void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	//m_logSources.Remove(std::dynamic_pointer_cast<LogSource>(m_pDbgviewReader));		//todo: why does this not compile? does m_pDbgviewReader become const??
+	m_pDbgviewReader.reset();
+	m_logSources.FlushTrash();
+	m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
+}
+
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	int tabIdx = GetTabCtrl().GetCurSel();
@@ -1038,6 +1047,7 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	{
 		m_logSources.Remove(*it);
 	}
+	m_logSources.FlushTrash();	//todo: remove
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
