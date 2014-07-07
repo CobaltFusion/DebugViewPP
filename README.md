@@ -54,8 +54,8 @@ Download Stable release
 Download Bleeding Edge 
 ----------------------
 
-+ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++7July.zip)
-+ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++7Juli.msi)
++ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp7-7.zip)
++ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp7-7.msi)
 
 
 Download Older
