@@ -98,7 +98,7 @@
     <ClInclude Include="..\include\DebugView++Lib\FileWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugView++Lib\SocketReader.h">
+    <ClInclude Include="..\include\DebugView++Lib\DbgviewReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -187,7 +187,7 @@
     <ClCompile Include="FileWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SocketReader.cpp">
+    <ClCompile Include="DbgviewReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -25,17 +25,17 @@ T Read(S& is)
 	return t;
 }
 
-class SocketReader : public PassiveLogSource
+class DbgviewReader : public PassiveLogSource
 {
 public:
-	SocketReader(Timer& timer, ILineBuffer& linebuffer);
-	virtual ~SocketReader();
+	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
+	virtual ~DbgviewReader();
 
 	virtual void Abort();
 
 private:
-	virtual void Poll();
 	void Loop();
+	std::string m_hostname;
 	boost::thread m_thread;
 };
 

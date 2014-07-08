@@ -27,6 +27,7 @@ class DBLogReader;
 class PipeReader;
 class TestSource;
 class Loopback;
+class DbgviewReader;
 
 typedef std::vector<HANDLE> LogSourceHandles;
 
@@ -35,6 +36,8 @@ class LogSources
 public:
 	LogSources(bool startListening = false);
 	~LogSources();
+
+	void FlushTrash();
 
 	void SetAutoNewLine(bool value);
 	bool GetAutoNewLine() const;
@@ -51,6 +54,7 @@ public:
 	std::shared_ptr<ProcessReader> AddProcessReader(const std::wstring& pathName, const std::wstring& args);
 	std::shared_ptr<FileReader> AddFileReader(const std::wstring& filename);
 	std::shared_ptr<DBLogReader> AddDBLogReader(const std::wstring& filename);
+	std::shared_ptr<DbgviewReader> AddDbgviewReader(const std::string& hostname);
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);
