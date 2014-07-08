@@ -205,6 +205,7 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
 
+	SetExtendedListViewStyle(GetWndExStyle(0));
 	m_hdr.SubclassWindow(GetHeader());
 
 	m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
