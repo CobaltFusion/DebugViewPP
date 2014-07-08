@@ -224,10 +224,15 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 
 	if (!col3.empty() && col3[0] == '[')						// messages from processes are preceeded by [pid], but kernel messages do not have a prefix
 	{
+		line.processName = "[unavailable]";
 		std::istringstream is3(col3);
 		char c1, c2, c3;
 		if (is3 >> std::noskipws >> c1 >> line.pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, line.message))
 			return true;
+	}
+	else
+	{
+		line.processName = "[kernel]";
 	}
 	line.message = split.GetTail();
 	return true;
