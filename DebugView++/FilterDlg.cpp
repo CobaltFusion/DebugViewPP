@@ -11,6 +11,7 @@
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "Resource.h"
+#include "RegExDlg.h"
 #include "FilterDlg.h"
 
 namespace fusion {
@@ -51,6 +52,7 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	MSG_WM_SIZE(OnSize)
 	COMMAND_ID_HANDLER_EX(IDC_FILTER_SAVE, OnSave)
 	COMMAND_ID_HANDLER_EX(IDC_FILTER_LOAD, OnLoad)
+	COMMAND_ID_HANDLER_EX(IDC_FILTER_REGEX, OnRegEx)
 	COMMAND_ID_HANDLER_EX(IDC_FILTER_REMOVEALL, OnClearAll)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
@@ -245,6 +247,12 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	auto procFilters = m_processPage.GetFilters();
 	procFilters.insert(procFilters.end(), data.filter.processFilters.begin(), data.filter.processFilters.end());
 	m_processPage.SetFilters(procFilters);
+}
+
+void CFilterDlg::OnRegEx(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CRegExDlg dlg;
+	dlg.DoModal();
 }
 
 void CFilterDlg::OnClearAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

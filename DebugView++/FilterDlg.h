@@ -33,6 +33,7 @@ public:
 		DLGRESIZE_CONTROL(IDC_TAB, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 		DLGRESIZE_CONTROL(IDC_FILTER_SAVE, DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDC_FILTER_LOAD, DLSZ_MOVE_Y)
+		DLGRESIZE_CONTROL(IDC_FILTER_REGEX, DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDC_FILTER_REMOVEALL, DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
@@ -44,6 +45,7 @@ public:
 
 	void OnSave(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 	void OnLoad(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
+	void OnRegEx(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 	void OnClearAll(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);

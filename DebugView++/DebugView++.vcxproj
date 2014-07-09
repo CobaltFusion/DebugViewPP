@@ -153,6 +153,7 @@
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="FilterPage.cpp" />
+    <ClCompile Include="RegExDlg.cpp" />
     <ClCompile Include="RunDlg.cpp" />
     <ClCompile Include="SourcesDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -174,6 +175,7 @@
     <ClInclude Include="FilterPage.h" />
     <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="PropertyColorItem.h" />
+    <ClInclude Include="RegExDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunDlg.h" />
     <ClInclude Include="SourcesDlg.h" />
