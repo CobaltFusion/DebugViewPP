@@ -28,7 +28,7 @@ T Read(S& is)
 class DbgviewReader : public PassiveLogSource
 {
 public:
-	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
+	explicit DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
 	virtual ~DbgviewReader();
 
 	virtual void Abort();
@@ -36,6 +36,8 @@ public:
 private:
 	void Loop();
 	std::string m_hostname;
+	boost::asio::ip::tcp::iostream m_iostream;
+
 	boost::thread m_thread;
 };
 

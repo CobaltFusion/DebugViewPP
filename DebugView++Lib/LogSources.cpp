@@ -71,8 +71,9 @@ void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 {
 	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
-	m_loopback->AddMessage(0, "", Str(msg).str().c_str());
+	m_loopback->AddMessage(0, "[internal]", Str(msg).str().c_str());
 	boost::mutex::scoped_lock lock(m_mutex);
+	logsource->Abort();
 
 	// logsource lifetime needs to last until all message have been processed by LogSources::GetLines())
 	// todo: create better solution, problem: the raw logsource pointers in struct Line !
@@ -141,8 +142,10 @@ void LogSources::Listen()
 					waitHandles.push_back(handle);
 					sources.push_back(source);
 				}
+				source->Initialize();	//todo: find a better way to do this?
 			}
 		}
+
 		auto updateEventIndex = waitHandles.size(); 
 		waitHandles.push_back(m_updateEvent.get());
 		for (;;)
@@ -156,13 +159,7 @@ void LogSources::Listen()
 			{
 				int index = res.index - WAIT_OBJECT_0;
 				if (index == updateEventIndex)
-				{
-					for (auto it = sources.begin(); it != sources.end(); ++it)		
-					{
-						(*it)->Initialize(); //todo: find a better way to do this.
-					}
 					break;
-				}
 				else
 				{
 					if (index >= (int)sources.size())

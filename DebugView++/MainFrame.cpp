@@ -1001,7 +1001,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	}
 	else
 	{
-		m_pGlobalReader->Abort();
+		m_logSources.Remove(m_pGlobalReader);
 		m_pGlobalReader.reset();
 	}
 }
@@ -1015,10 +1015,15 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	//m_logSources.Remove(std::dynamic_pointer_cast<LogSource>(m_pDbgviewReader));		//todo: why does this not compile? does m_pDbgviewReader become const??
-	m_pDbgviewReader.reset();
+	if (!m_pDbgviewReader)
+		m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
+	else
+	{
+		//auto t = std::dynamic_pointer_cast<LogSource>(m_pDbgviewReader);
+		//m_logSources.Remove(m_pDbgviewReader); //std::dynamic_pointer_cast<LogSource>(m_pDbgviewReader));		//todo: why does this not compile? does m_pDbgviewReader become const??
+		m_pDbgviewReader.reset();
+	}
 	m_logSources.FlushTrash();
-	m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
