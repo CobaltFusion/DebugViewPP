@@ -44,6 +44,7 @@ Coming up (implemented in bleeding-egde version)
   + this supports the usecase of using Sysinternals Debugview to capture Kernal message and 
     streaming them to DebugView++ by tailing the logfile.
 
+
 Download Stable release
 -----------------------
 
@@ -53,8 +54,8 @@ Download Stable release
 Download Bleeding Edge 
 ----------------------
 
-+ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++1July.zip)
-+ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++1Juli.msi)
++ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp7-7.zip)
++ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp7-7.msi)
 
 
 Download Older

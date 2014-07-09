@@ -223,7 +223,7 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_VIEW_TIME, GetView().GetClockTime());
 	UISetCheck(ID_VIEW_PROCESSCOLORS, GetView().GetViewProcessColors());
 	UISetCheck(ID_VIEW_SCROLL, GetView().GetAutoScroll());
-	UISetCheck(ID_VIEW_SCOLL_STOP, GetView().GetAutoScrollStop());
+	UISetCheck(ID_VIEW_SCROLL_STOP, GetView().GetAutoScrollStop());
 	UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 
 	for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
@@ -359,7 +359,7 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 	for (int i = 0; i < views; ++i)
 	{
-		if (GetView(i).EndUpdate() > 0 && GetTabCtrl().GetCurSel() != i)
+		if (GetView(i).EndUpdate() && GetTabCtrl().GetCurSel() != i)
 		{
 			SetModifiedMark(i, true);
 			GetTabCtrl().UpdateLayout();
@@ -1106,11 +1106,12 @@ CLogView& CMainFrame::GetView()
 
 void CMainFrame::AddMessage(const Message& message)
 {
-	int index = m_logFile.Count();
+	int beginIndex = m_logFile.BeginIndex();
+	int index = m_logFile.EndIndex();
 	m_logFile.Add(message);
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
-		GetView(i).Add(index, message);
+		GetView(i).Add(beginIndex, index, message);
 }
 
 } // namespace debugviewpp 

@@ -93,7 +93,7 @@ double Timer::Get(long long ticks)
 		m_offset = ticks;
 		m_init = true;
 	}
-	return (ticks - m_offset)*m_timerUnit;			// todo: this is very very wrong, m_timerUnit of the source (ticks) should be used!
+	return (ticks - m_offset)*m_timerUnit;
 }
 
 double Timer::Get()

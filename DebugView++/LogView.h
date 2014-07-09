@@ -8,6 +8,7 @@
 #pragma once
 
 #include <vector>
+#include <deque>
 #include "OffscreenPaint.h"
 #include "FilterDlg.h"
 #include "Win32Support.h"
@@ -135,9 +136,9 @@ public:
 	void Clear();
 	int GetFocusLine() const;
 	void SetFocusLine(int line);
-	void Add(int line, const Message& msg);
+	void Add(int beginIndex, int line, const Message& msg);
 	void BeginUpdate();
-	int EndUpdate();
+	bool EndUpdate();
 	void ClearSelection();
 	void StopTracking();
 	void StopScrolling();
@@ -269,13 +270,13 @@ private:
 	CMyHeaderCtrl m_hdr;
 	std::vector<ColumnInfo> m_columns;
 	int m_firstLine;
-	std::vector<LogLine> m_logLines;
+	std::deque<LogLine> m_logLines;
 	bool m_clockTime;
 	bool m_processColors;
 	bool m_autoScrollDown;
 	bool m_autoScrollStop;
 	bool m_dirty;
-	int m_addedLines;
+	bool m_changed;
 	std::function<void ()> m_stop;
 	std::function<bool ()> m_track;
 	HIcon m_hBookmarkIcon;

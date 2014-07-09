@@ -66,7 +66,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewAutoScroll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_SCOLL_STOP, OnViewAutoScrollStop)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL_STOP, OnViewAutoScrollStop)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESSCOLORS, OnViewProcessColors);
 	COMMAND_ID_HANDLER_EX(ID_VIEW_HIDE_HIGHLIGHT, OnEscapeKey)
@@ -205,6 +205,7 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
 
+	SetExtendedListViewStyle(GetWndExStyle(0));
 	m_hdr.SubclassWindow(GetHeader());
 
 	m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
@@ -825,7 +826,7 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	{
 	case Column::Line: return std::to_string(iItem + 1ULL);
 	case Column::Date: return GetDateText(msg.systemTime);
-	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(iItem == 0 ? 0.0 : msg.time); // ???
+	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return msg.processName;
 	case Column::Message: return msg.text;
@@ -1232,24 +1233,24 @@ void CLogView::SetFocusLine(int line)
 	ScrollToIndex(it - m_logLines.begin() - 1, false);
 }
 
-void CLogView::Add(int line, const Message& msg)
+void CLogView::Add(int beginIndex, int line, const Message& msg)
 {
 	if (IsClearMessage(msg))
-	{
 		ClearView();
-	}
 
 	if (!IsIncluded(msg))
 		return;
 
 	if (IsBeepMessage(msg))
-	{
-		//Beep(1000, 200);
 		MessageBeep(0xFFFFFFFF);	// A simple beep. If the sound card is not available, the sound is generated using the speaker.
-	}
 
 	m_dirty = true;
-	++m_addedLines;
+	m_changed = true;
+	auto it = m_logLines.begin();
+	while (it != m_logLines.end() && it->line < beginIndex)
+		++it;
+	m_logLines.erase(m_logLines.begin(), it);
+
 	int viewline = m_logLines.size();
 	m_logLines.push_back(LogLine(line));
 
@@ -1275,10 +1276,10 @@ void CLogView::Add(int line, const Message& msg)
 
 void CLogView::BeginUpdate()
 {
-	m_addedLines = 0;
+	m_changed = false;
 }
 
-int CLogView::EndUpdate()
+bool CLogView::EndUpdate()
 {
 	if (m_dirty)
 	{
@@ -1302,7 +1303,7 @@ int CLogView::EndUpdate()
 			StopTracking();
 		}
 	}
-	return m_addedLines;
+	return m_changed;
 }
 
 void CLogView::StopTracking()
@@ -1642,8 +1643,8 @@ void CLogView::ApplyFilters()
 	auto bookmarks = GetBookmarks();
 	auto itBookmark = bookmarks.begin();
 
-	std::vector<LogLine> logLines;
-	logLines.reserve(m_logLines.size());
+	std::deque<LogLine> logLines;
+//	logLines.reserve(m_logLines.size());
 	int count = m_logFile.Count();
 	int line = m_firstLine;
 	int item = 0;
