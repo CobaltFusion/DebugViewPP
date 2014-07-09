@@ -73,6 +73,7 @@ void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 	std::wstring msg = wstringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.";
 	m_loopback->AddMessage(0, "[internal]", Str(msg).str().c_str());
 	boost::mutex::scoped_lock lock(m_mutex);
+	logsource->Abort();
 
 	// logsource lifetime needs to last until all message have been processed by LogSources::GetLines())
 	// todo: create better solution, problem: the raw logsource pointers in struct Line !

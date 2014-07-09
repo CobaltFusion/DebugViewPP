@@ -41,8 +41,8 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 
 void DbgviewReader::Loop()
 {
-	using namespace boost::asio;
-	ip::tcp::iostream is(m_hostname, g_sysinternalsDebugViewAgentPort);
+	m_iostream.connect(m_hostname, g_sysinternalsDebugViewAgentPort);
+	const char* processName = "[tcp]";
 
 	boost::array<unsigned char, 20> startBuf = { 
 		0x24, 0x00, 0x05, 0x83,
@@ -52,18 +52,18 @@ void DbgviewReader::Loop()
 		0x18, 0x00, 0x05, 0x83 
 	};
 
-	is.write((char*)startBuf.data(), startBuf.size());
-	if (!is)
+	m_iostream.write((char*)startBuf.data(), startBuf.size());
+	if (!m_iostream)
 	{
 		Add(0, "[internal]", "<error sending init command>\n", this);
 	}
 
-	Read<DWORD>(is);					// 0x7fffffff		// Init reply
-	auto qpFrequency = Read<DWORD>(is);	// 0x0023ae93		// QueryPerformanceFrequency
+	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply
+	auto qpFrequency = Read<DWORD>(m_iostream);	// 0x0023ae93		// QueryPerformanceFrequency
 
-    if (!is || qpFrequency == 0)
+    if (!m_iostream || qpFrequency == 0)
     {
-      std::string msg = stringbuilder() << "Unable to connect to " << Str(GetDescription()).str().c_str() << ", " << is.error().message();
+      std::string msg = stringbuilder() << "Unable to connect to " << Str(GetDescription()).str().c_str() << ", " << m_iostream.error().message();
 	  Add(0, "[internal]", msg.c_str(), this);
 	  Signal();
       return;
@@ -77,12 +77,12 @@ void DbgviewReader::Loop()
 
 	for(;;)
 	{
-		is.clear();
-		auto messageLength = Read<DWORD>(is);
+		m_iostream.clear();
+		auto messageLength = Read<DWORD>(m_iostream);
 		
-		if (!is || messageLength >= 0x7fffffff)
+		if (!m_iostream || messageLength >= 0x7fffffff)
 		{
-			Add(0, "dbgview.exe", "<error parsing messageLength>\n", this);
+			Add(0, processName, "<error parsing messageLength>\n", this);
 			Signal();
 			break;
 		}
@@ -94,7 +94,7 @@ void DbgviewReader::Loop()
 		// instead use read() to receive the complete message.
 		// this allows us to use ss.tellg() to determine the amount of trash bytes.
 		std::vector<char> buffer(messageLength);
-		is.read(reinterpret_cast<char*>(buffer.data()), messageLength);
+		m_iostream.read(reinterpret_cast<char*>(buffer.data()), messageLength);
 		std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
 		ss.write(buffer.data(), buffer.size());
 
@@ -116,24 +116,20 @@ void DbgviewReader::Loop()
 			unsigned char c1, c2;
 			if (!((ss >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
 			{
-				Add(0, "dbgview.exe", "<error parsing pid>\n", this);
+				Add(0, processName, "<error parsing pid>\n", this);
 				break;
 			}
 			Read(ss, 1);	// discard one leading space
 			std::getline(ss, msg, '\0'); 
 
 			msg.push_back('\n');
-			Add(time, filetime, pid, "dbgview.exe", msg.c_str(), this);
+			Add(time, filetime, pid, processName, msg.c_str(), this);
 
 			// strangely, messages are always send in multiples of 4 bytes.
 			// this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.
-			auto pos = (size_t) ss.tellg();
-			auto remainder = pos % 4;
+			auto remainder = ((size_t) ss.tellg()) % 4;
 			if (remainder > 0)
-			{
-				auto trashBytes = 4 - remainder;
-				Read(ss, trashBytes);	// discard trailing trash 
-			}
+				Read(ss, 4 - remainder);
 		}
 		Signal();
 		if (AtEnd())
@@ -143,6 +139,7 @@ void DbgviewReader::Loop()
 
 void DbgviewReader::Abort()
 {
+	m_iostream.close();
 	LogSource::Abort();
 	m_thread.join();
 }
