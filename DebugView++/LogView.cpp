@@ -1532,17 +1532,21 @@ void CLogView::LoadSettings(CRegKey& reg)
 	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
 	SetViewProcessColors(RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
 
+	std::vector<ColumnInfo> columns;
 	for (int i = 0; i < Column::Count; ++i)
 	{
 		CRegKey regColumn;
 		if (regColumn.Open(reg, WStr(wstringbuilder() << L"Columns\\Column" << i)) != ERROR_SUCCESS)
 			break;
 
-		auto& column = m_columns[i];
+		ColumnInfo column = m_columns[i];
 		column.enable = RegGetDWORDValue(regColumn, L"Enable", column.enable) != 0;
 		column.column.cx = RegGetDWORDValue(regColumn, L"Width", column.column.cx);
 		column.column.iOrder = RegGetDWORDValue(regColumn, L"Order", column.column.iOrder);
+		columns.push_back(column);
 	}
+	if (columns.size() == m_columns.size())
+		m_columns.swap(columns);
 
 	CRegKey regFilters;
 	if (regFilters.Open(reg, L"MessageFilters") == ERROR_SUCCESS)
