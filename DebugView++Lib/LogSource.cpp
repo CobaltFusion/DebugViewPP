@@ -58,19 +58,19 @@ SourceType::type LogSource::GetSourceType() const
 	return m_sourceType;
 }
 
-void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource)
+void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource)
 {
 	m_linebuffer.Add(time, systemTime, pid, processName, message, logsource);
 }
 
-void LogSource::Add(DWORD pid, const char* processName, const char* message, LogSource* logsource)
+void LogSource::Add(DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource)
 {
 	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), pid, processName, message, logsource);
 }
 
 void LogSource::Add(const char* message, HANDLE handle)
 {
-	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, message, this);
+	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, message, shared_from_this());
 }
 
 void LogSource::PreProcess(Line& line) const

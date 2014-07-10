@@ -54,14 +54,14 @@ void DBWinReader::Notify()
 {
 	HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_dbWinBuffer->processId);
 
-//#ifdef OPENPROCESS_DEBUG
+#ifdef OPENPROCESS_DEBUG
 	if (handle == 0)
 	{
 		Win32Error error(GetLastError(), "OpenProcess");
 		std::string s = stringbuilder() << error.what() << ", data: " <<  m_dbWinBuffer->data << " (pid: " << m_dbWinBuffer->processId << ")";
 		LogSource::Add(s.c_str());
 	}
-//#endif
+#endif
 	LogSource::Add(m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
 }

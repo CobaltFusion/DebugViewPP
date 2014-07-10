@@ -116,7 +116,6 @@
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterType.cpp" />
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="LineBuffer.cpp" />
     <ClCompile Include="LogFile.cpp" />
     <ClCompile Include="LogFilter.cpp" />
     <ClCompile Include="LogSource.cpp" />

@@ -17,16 +17,15 @@ class LogSource;
 
 struct Line
 {
-	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, LogSource* logsource);
-	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "", LogSource* logsource = nullptr);
-
+	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, std::shared_ptr<LogSource> logsource);
+	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "", std::shared_ptr<LogSource> logsource = std::shared_ptr<LogSource>());
 	double time;
 	FILETIME systemTime;
 	HANDLE handle;
 	DWORD pid;
 	std::string processName;
 	std::string message;
-	LogSource* logsource;
+	std::shared_ptr<LogSource> logsource;
 };
 
 typedef std::vector<Line> Lines;

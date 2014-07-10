@@ -20,13 +20,13 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 {
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, LogSource* logsource)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, std::shared_ptr<LogSource> logsource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_buffer.push_back(Line(time, systemTime, handle, message, logsource));
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_buffer.push_back(Line(time, systemTime, pid, processName, message, logsource));
@@ -41,6 +41,11 @@ Lines VectorLineBuffer::GetLines()
 		m_buffer.swap(m_backingBuffer);
 	}
 	return m_backingBuffer;
+}
+
+bool VectorLineBuffer::Empty() const
+{
+	return m_buffer.empty();
 }
 
 } // namespace debugviewpp

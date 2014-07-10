@@ -20,11 +20,11 @@ class ILineBuffer;
 
 struct PollLine
 {
-	PollLine(DWORD pid, const std::string& processName, const std::string& message, LogSource* logsource);
+	PollLine(DWORD pid, const std::string& processName, const std::string& message, std::shared_ptr<LogSource> logsource);
 	DWORD pid;
 	std::string processName;
 	std::string message;
-	LogSource* logsource;
+	std::shared_ptr<LogSource> logsource;
 };
 
 class PassiveLogSource : public LogSource

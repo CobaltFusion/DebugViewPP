@@ -135,7 +135,7 @@ void DBLogReader::AddLine(const std::string& data)
 		ReadLogFileMessage(data, line);
 		break;
 	}
-	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str(), this);
+	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str(), shared_from_this());
 }
 
 void DBLogReader::PreProcess(Line& line) const

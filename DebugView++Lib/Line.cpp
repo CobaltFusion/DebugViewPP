@@ -12,7 +12,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, LogSource* logsource) :
+Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, std::shared_ptr<LogSource> logsource) :
 	time(time),
 	systemTime(systemTime),
 	handle(handle),
@@ -23,7 +23,7 @@ Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& m
 {
 }
 
-Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, LogSource* logsource) :
+Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, std::shared_ptr<LogSource> logsource) :
 	time(time),
 	systemTime(systemTime),
 	handle(0),		// dont use INVALID_HANDLE_VALUE, as it is in fact a valid pseudo handle to your own process

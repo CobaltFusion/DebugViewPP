@@ -17,8 +17,9 @@
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/TestSource.h"
-#include "DebugView++Lib/LineBuffer.h"
+#include "DebugView++Lib/VectorLineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -183,11 +184,11 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	Timer timer;
 
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", logsource.get());
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", logsource);
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", logsource.get());
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", logsource);
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", logsource.get());
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", logsource);
 	BOOST_MESSAGE("3 lines added.");
 
 	auto lines = logsources.GetLines();
@@ -205,7 +206,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	BOOST_MESSAGE("Write " << testsize << " lines...");
 	for (int i=0; i < testsize; ++i)
 	{
-		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n", nullptr);
+		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n", logsource);
 	}
 
 	auto morelines = logsources.GetLines();

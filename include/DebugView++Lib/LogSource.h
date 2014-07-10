@@ -16,7 +16,7 @@ namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
-class LogSource : boost::noncopyable
+class LogSource : public boost::noncopyable, public std::enable_shared_from_this<LogSource>
 {
 public:
 	explicit LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
@@ -53,10 +53,10 @@ public:
 	void Add(const char* message, HANDLE handle = 0);
 
 	// for Loopback message 
-	void Add(DWORD pid, const char* processName, const char* message, LogSource* logsource);
+	void Add(DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource);
 
 	// used when reading from files
-	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, LogSource* logsource);
+	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource);
 
 private:
 	bool m_autoNewLine;
