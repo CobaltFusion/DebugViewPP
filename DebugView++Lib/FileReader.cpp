@@ -121,8 +121,29 @@ void FileReader::PreProcess(Line& line) const
 
 
 DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) : 
-	FileReader(timer, linebuffer, filename)
+	FileReader(timer, linebuffer, filename),
+	m_firstline(true)
 {
+}
+
+double GetDifference(FILETIME ft1, FILETIME ft2)
+{
+	return (*((ULONGLONG*)&ft2) - *((ULONGLONG*)&ft1))/10000000.0;
+}
+
+void DBLogReader::GetRelativeTime(Line& line)
+{
+	if (line.time != 0.0)
+		return;
+
+	if (m_firstline)
+	{
+		m_firstline = false;
+		m_firstFiletime = line.systemTime;
+		return;
+	}
+
+	line.time = GetDifference(m_firstFiletime, line.systemTime);
 }
 
 void DBLogReader::AddLine(const std::string& data)
@@ -134,6 +155,7 @@ void DBLogReader::AddLine(const std::string& data)
 		return FileReader::AddLine(data);
 	case FileType::Sysinternals:
 		ReadSysInternalsLogFileMessage(data, line);
+		GetRelativeTime(line);
 		break;
 	default:
 		ReadLogFileMessage(data, line);
