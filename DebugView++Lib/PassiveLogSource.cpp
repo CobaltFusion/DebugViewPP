@@ -75,11 +75,13 @@ HANDLE PassiveLogSource::GetHandle() const
 
 void PassiveLogSource::Notify()
 {
+	//m_backLines.clear(); //todo:: swap
+
 	boost::mutex::scoped_lock lock(m_mutex);
 	for (auto i = m_lines.cbegin(); i != m_lines.cend(); ++i)
 	{
 		auto line = *i;
-		Add(line.pid, line.processName.c_str(), line.message.c_str(), shared_from_this());
+		Add(line.pid, line.processName.c_str(), line.message.c_str());
 	}
 	m_lines.clear();
 }
@@ -88,6 +90,12 @@ void PassiveLogSource::AddMessage(DWORD pid, const char* processName, const char
 {
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_lines.push_back(PollLine(pid, processName, message, shared_from_this()));
+}
+
+void PassiveLogSource::AddMessage(const std::string& message)
+{
+	boost::mutex::scoped_lock lock(m_mutex);
+	m_lines.push_back(PollLine(0, "[internal]", message.c_str(), shared_from_this()));
 }
 
 void PassiveLogSource::Signal()

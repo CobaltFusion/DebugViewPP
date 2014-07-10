@@ -36,7 +36,11 @@ public:
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 	virtual void Poll() {}
+
+	// in contrast to the LogSource::Add methdods, these methods are de-coupled so they 
+	// can be used to add messages from any thread. The typical use-cause are messages from the UI thread.
 	void AddMessage(DWORD pid, const char* processName, const char* message);
+	void AddMessage(const std::string& message);
 	void Signal();
 	void StartThread();
 
@@ -46,6 +50,7 @@ private:
 	void Loop();
 
 	std::vector<PollLine> m_lines;
+	std::vector<PollLine> m_backingLines;
 	Handle m_handle;
 	boost::mutex m_mutex;
 	long m_microsecondInterval;

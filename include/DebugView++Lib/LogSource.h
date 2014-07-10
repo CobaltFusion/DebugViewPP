@@ -52,11 +52,14 @@ public:
 	// for DBWIN messages
 	void Add(const char* message, HANDLE handle = 0);
 
-	// for Loopback message 
-	void Add(DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource);
+	// for Loopback messages
+	void Add(DWORD pid, const char* processName, const char* message);
 
 	// used when reading from files
-	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource);
+	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message);
+
+	// used by PassiveLogsources writing internal status messages
+	void Add(const std::string& message);
 
 private:
 	bool m_autoNewLine;

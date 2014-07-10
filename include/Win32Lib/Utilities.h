@@ -129,7 +129,7 @@ public:
 
 	basic_stringbuilder& operator<<(const std::wstring& str)
 	{
-		m_ss << str.c_str();
+		m_ss << Str(str).str().c_str();
 		return *this;
 	}
 

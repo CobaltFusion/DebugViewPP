@@ -53,26 +53,18 @@ void DbgviewReader::Loop()
 	};
 
 	m_iostream.write((char*)startBuf.data(), startBuf.size());
-	if (!m_iostream)
-	{
-		Add(0, "[internal]", "<error sending init command>\n", shared_from_this());
-	}
-
 	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply
 	auto qpFrequency = Read<DWORD>(m_iostream);	// 0x0023ae93		// QueryPerformanceFrequency
 
     if (!m_iostream || qpFrequency == 0)
     {
-      std::string msg = stringbuilder() << "Unable to connect to " << Str(GetDescription()).str().c_str() << ", " << m_iostream.error().message();
-	  Add(0, "[internal]", msg.c_str(), shared_from_this());
+	  Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
 	  Signal();
       return;
     }
 
 	Timer timer(qpFrequency);
-
-	std::string msg = stringbuilder() << "Connected to " << Str(GetDescription()).str().c_str();
-	Add(0, "[internal]", msg.c_str(), shared_from_this());
+	Add(stringbuilder() << "Connected to " << GetDescription());
 	Signal();
 
 	for(;;)
@@ -82,15 +74,14 @@ void DbgviewReader::Loop()
 		
 		if (m_iostream.eof())
 		{
-			std::string msg = stringbuilder() << "Connected to " << Str(GetDescription()).str().c_str() << " closed.";
-			Add(0, "[internal]", msg.c_str(), shared_from_this());
+			Add(stringbuilder() << "Connected to " << GetDescription() << " closed.");
 			LogSource::Abort();
 			break;
 		}
 
 		if (!m_iostream || messageLength >= 0x7fffffff)
 		{
-			Add(0, processName, "<error parsing messageLength>\n", shared_from_this());
+			Add(0, processName, "<error parsing messageLength>\n");
 			Signal();
 			break;
 		}
@@ -124,14 +115,14 @@ void DbgviewReader::Loop()
 			unsigned char c1, c2;
 			if (!((ss >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
 			{
-				Add(0, processName, "<error parsing pid>\n", shared_from_this());
+				Add(0, processName, "<error parsing pid>\n");
 				break;
 			}
 			Read(ss, 1);	// discard one leading space
 			std::getline(ss, msg, '\0'); 
 
 			msg.push_back('\n');
-			Add(time, filetime, pid, processName, msg.c_str(), shared_from_this());
+			Add(time, filetime, pid, processName, msg.c_str());
 
 			// strangely, messages are always send in multiples of 4 bytes.
 			// this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.

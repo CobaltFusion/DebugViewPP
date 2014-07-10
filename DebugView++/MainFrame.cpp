@@ -383,23 +383,21 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	using boost::algorithm::iequals;
 	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
 
-	std::string msg;
 	if (iequals(ext, L".exe"))
 	{
-		msg = stringbuilder() << "Started capturing output of " << Str(file) << "\n";
+		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
 		Run(file);
 	}
 	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
-		msg = stringbuilder() << "Started capturing output of " << Str(file) << "\n";
+		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
 		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
 	}
 	else
 	{
-		auto reader = m_logSources.AddDBLogReader(file);
-		msg = stringbuilder() << "Started tailing " << Str(file) << " identified as '" << FileTypeToString(reader->GetFileType()) << "'\n";
+		m_logSources.AddMessage(stringbuilder() << "Started tailing " << file << " identified as '" << FileTypeToString(IdentifyFile(Str(file))) << "'\n");
+		m_logSources.AddDBLogReader(file);
 	}
-	m_logSources.AddMessage(msg);
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
@@ -922,8 +920,6 @@ void CMainFrame::Pause()
 		m_logSources.Remove(m_pGlobalReader);
 		m_pGlobalReader.reset();
 	}
-
-	m_logSources.FlushTrash();	//todo: remove
 }
 
 void CMainFrame::Resume()
@@ -1022,7 +1018,6 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 		m_logSources.Remove(m_pDbgviewReader);
 		m_pDbgviewReader.reset();
 	}
-	m_logSources.FlushTrash();
 }
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1051,7 +1046,6 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	{
 		m_logSources.Remove(*it);
 	}
-	m_logSources.FlushTrash();	//todo: remove
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

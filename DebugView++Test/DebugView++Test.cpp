@@ -184,11 +184,11 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	Timer timer;
 
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1", logsource);
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1");
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2", logsource);
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2");
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3", logsource);
+	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3");
 	BOOST_MESSAGE("3 lines added.");
 
 	auto lines = logsources.GetLines();
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	BOOST_MESSAGE("Write " << testsize << " lines...");
 	for (int i=0; i < testsize; ++i)
 	{
-		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n", logsource);
+		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
 	}
 
 	auto morelines = logsources.GetLines();
