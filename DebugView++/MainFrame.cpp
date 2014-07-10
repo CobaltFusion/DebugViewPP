@@ -8,13 +8,13 @@
 #include "stdafx.h"
 #include "MainFrame.h"
 
-
 #include <algorithm>
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/dbgstream.h"
 #include "DebugView++Lib/ProcessReader.h"
+#include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "Win32Lib/utilities.h"
@@ -30,7 +30,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-const unsigned int msOnTimerPeriod = 40;	// 25 frames/second intentionally near what the human eye can still perceive
+const unsigned int msOnTimerPeriod = 40;	// 40ms -> 25 frames/second intentionally near what the human eye can still perceive
 
 std::wstring GetPersonalPath()
 {
@@ -1019,8 +1019,7 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 		m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
 	else
 	{
-		//auto t = std::dynamic_pointer_cast<LogSource>(m_pDbgviewReader);
-		//m_logSources.Remove(m_pDbgviewReader); //std::dynamic_pointer_cast<LogSource>(m_pDbgviewReader));		//todo: why does this not compile? does m_pDbgviewReader become const??
+		m_logSources.Remove(m_pDbgviewReader);
 		m_pDbgviewReader.reset();
 	}
 	m_logSources.FlushTrash();

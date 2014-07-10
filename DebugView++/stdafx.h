@@ -22,7 +22,11 @@
 using std::min;
 using std::max;
 
+#include <boost/asio.hpp> // must be included _before_ windows.h
+
 #include "windows.h"
+#include "ShellApi.h"
+
 #include <atlbase.h>
 #pragma warning(push, 3)
 #pragma warning(disable: 4996)
