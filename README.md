@@ -32,7 +32,7 @@ New features in v1.2
 Coming up (implemented in bleeding-egde version)
 
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
-  collection as line-buffer (preparation for circular buffer implementation)
+  collection as linebuffer
 - fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
 - add beep-filter for monitoring without seeing the screen
 - fixed un-pause problem
@@ -43,7 +43,7 @@ Coming up (implemented in bleeding-egde version)
 - support for reading and tailing Sysinternals Debugview logfiles (four common formats)
   + this supports the usecase of using Sysinternals Debugview to capture Kernal message and 
     streaming them to DebugView++ by tailing the logfile.
-
+- implemented tailing overwritten/skrinking logfiles
 
 Download Stable release
 -----------------------
@@ -51,12 +51,11 @@ Download Stable release
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
-Download Bleeding Edge 
+Download Bleeding Edge !! Updated on July 11 2014
 ----------------------
 
-+ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp7-7.zip)
-+ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp7-7.msi)
-
++ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp11july.zip)
++ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugViewpp11july.msi)
 
 Download Older
 ----------------
