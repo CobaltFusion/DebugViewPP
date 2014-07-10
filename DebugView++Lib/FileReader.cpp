@@ -69,16 +69,25 @@ void FileReader::ReadUntilEof()
 	std::string line;
 	while (std::getline(m_ifstream, line))
 		AddLine(line);
-	if (!m_ifstream.eof()) 
+
+	if (m_ifstream.eof()) 
 	{
-		// Some error other then EOF occured
-		std::string msg = "Stopped tailing " + m_filename;
-		Add(msg.c_str());
-		m_end = true;
+		m_ifstream.clear(); // clear EOF condition
+
+		// resync to end of file, even it the file shrunk
+		auto lastReadPosition = m_ifstream.tellg();
+		m_ifstream.seekg(0, m_ifstream.end);
+		auto length = m_ifstream.tellg();
+		if (length > lastReadPosition)
+			m_ifstream.seekg(lastReadPosition);
+		else if (length != lastReadPosition)
+			Add(stringbuilder() << "file shrank, resynced at offset " << length);
 	}
 	else
 	{
-		m_ifstream.clear(); // clear EOF condition
+		// Some error other then EOF occured
+		Add("Stopped tailing " + m_filename);
+		m_end = true;
 	}
 }
 
@@ -116,11 +125,6 @@ DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstri
 {
 }
 
-FileType::type DBLogReader::GetFileType() const
-{
-	return m_fileType;
-}
-
 void DBLogReader::AddLine(const std::string& data)
 {
 	Line line;
@@ -136,11 +140,6 @@ void DBLogReader::AddLine(const std::string& data)
 		break;
 	}
 	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str());
-}
-
-void DBLogReader::PreProcess(Line& line) const
-{
-	// do nothing
 }
 
 } // namespace debugviewpp 

@@ -49,8 +49,6 @@ class DBLogReader : public FileReader
 public:
 	explicit DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename);
 	virtual void AddLine(const std::string& line);
-	virtual void PreProcess(Line& line) const;
-	FileType::type GetFileType() const;
 };
 
 } // namespace debugviewpp 
