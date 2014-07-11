@@ -36,6 +36,7 @@ public:
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 	virtual void Poll() {}
+	virtual void Abort();
 
 	// in contrast to the LogSource::Add methdods, these methods are de-coupled so they 
 	// can be used to add messages from any thread. The typical use-cause are messages from the UI thread.
@@ -46,7 +47,6 @@ public:
 
 	long GetMicrosecondInterval() const;
 private:
-	void Abort();
 	void Loop();
 
 	std::vector<PollLine> m_lines;

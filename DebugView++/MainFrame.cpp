@@ -391,13 +391,10 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
 		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
-		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C " << file);
+		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C \"" << file << "\"");
 	}
 	else
-	{
-		m_logSources.AddMessage(stringbuilder() << "Started tailing " << file << " identified as '" << FileTypeToString(IdentifyFile(Str(file))) << "'\n");
 		m_logSources.AddDBLogReader(file);
-	}
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)

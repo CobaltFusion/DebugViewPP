@@ -61,7 +61,7 @@ void PassiveLogSource::Loop()
 	{
 		Poll();
 		Signal();
-		if (AtEnd())
+		if (LogSource::AtEnd())
 			break;
 		// sub 16ms sleep, depends on available hardware for accuracy
 		boost::this_thread::sleep(boost::posix_time::microseconds(m_microsecondInterval));

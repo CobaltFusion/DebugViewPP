@@ -15,16 +15,16 @@
 namespace fusion {
 namespace debugviewpp {
 
-FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) :
+FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) :
 	LogSource(timer, SourceType::File, linebuffer),
 	m_end(true),
 	m_filename(Str(filename).str()),
+	m_fileType(filetype),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
 	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe use FILE_NOTIFY_CHANGE_LAST_WRITE ?
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().string()),
-	m_initialized(false),
-	m_fileType(IdentifyFile(m_filename))
+	m_initialized(false)
 {
 	SetDescription(filename);
 }
@@ -120,8 +120,8 @@ void FileReader::PreProcess(Line& line) const
 // for(wchar_t c; fin.get(c); ) std::cout << std::showbase << std::hex << c << '\n';
 
 
-DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& filename) : 
-	FileReader(timer, linebuffer, filename),
+DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) : 
+	FileReader(timer, linebuffer, filetype, filename),
 	m_firstline(true)
 {
 }
@@ -151,6 +151,7 @@ void DBLogReader::AddLine(const std::string& data)
 	Line line;
 	switch (m_fileType)
 	{
+	case FileType::Unknown:
 	case FileType::AsciiText:
 		return FileReader::AddLine(data);
 	case FileType::Sysinternals:

@@ -247,14 +247,22 @@ std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& 
 
 std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
 {
-	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, filename);
+	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, IdentifyFile(Str(filename)), filename);
 	Add(filereader);
 	return filereader;
 }
 
 std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
 {
-	auto dblogreader = std::make_shared<DBLogReader>(m_timer, m_linebuffer, filename);
+	auto filetype = IdentifyFile(Str(filename));
+	if (filetype == FileType::Unknown)
+	{
+		AddMessage(stringbuilder() << "Unable to open '" << filename <<"'\n");
+		return std::shared_ptr<DBLogReader>();
+	}
+	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
+
+	auto dblogreader = std::make_shared<DBLogReader>(m_timer, m_linebuffer, filetype, filename);
 	Add(dblogreader);
 	return dblogreader;
 }

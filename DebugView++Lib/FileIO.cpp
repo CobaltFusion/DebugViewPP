@@ -107,9 +107,10 @@ FileType::type IdentifyFile(std::string filename)
 	if (!std::getline(is, line))		
 		return FileType::AsciiText;
 
-	// if the second line contains 3 tabs characters, we say it's a sysinternals debugview-logfile 
+	// if the second line contains 2 or 3 tabs characters, we say it's a sysinternals debugview-logfile 
+	// why some sysinternals debugview-logfile have an empty extra colomn is unknown.
 	auto tabs = std::count(line.begin(), line.end(), '\t');
-	if (tabs == 3)
+	if (tabs == 2 || tabs == 3)
 		return FileType::Sysinternals;
 
 	return FileType::AsciiText;

@@ -30,6 +30,8 @@ PipeReader::~PipeReader()
 
 bool PipeReader::AtEnd() const
 {
+	if (LogSource::AtEnd())
+		return true;
 	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
 }
 
