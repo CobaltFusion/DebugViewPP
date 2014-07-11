@@ -56,12 +56,12 @@ void DbgviewReader::Loop()
 	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply
 	auto qpFrequency = Read<DWORD>(m_iostream);	// 0x0023ae93		// QueryPerformanceFrequency
 
-    if (!m_iostream || qpFrequency == 0)
-    {
+	if (!m_iostream || qpFrequency == 0)
+	{
 	  Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
 	  Signal();
-      return;
-    }
+	  return;
+	}
 
 	Timer timer(qpFrequency);
 	Add(stringbuilder() << "Connected to " << GetDescription());
