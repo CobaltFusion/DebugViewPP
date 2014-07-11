@@ -14,6 +14,7 @@
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
+#include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "Win32Lib/utilities.h"
@@ -39,6 +40,8 @@ LogSources::LogSources(bool startListening) :
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_handleCacheTime(0.0)
 {
+	//Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "127.0.0.1", "dns")); // test receiving UDP message (works nice!)
+
 	m_sources.push_back(m_loopback);
 	if (startListening)
 		m_thread = boost::thread(&LogSources::Listen, this);
@@ -141,7 +144,7 @@ void LogSources::Listen()
 		waitHandles.push_back(m_updateEvent.get());
 		for (;;)
 		{
-            m_loopback->Signal();
+			m_loopback->Signal();
 			auto res = WaitForAnyObject(waitHandles, INFINITE);
 
 			if (m_end)
