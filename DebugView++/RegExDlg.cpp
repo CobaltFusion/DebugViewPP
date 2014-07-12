@@ -33,7 +33,7 @@ BOOL CRegExDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 
 void CRegExDlg::OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	EndDialog(nID);
+	ShowWindow(SW_HIDE);
 }
 
 } // namespace debugviewpp 
