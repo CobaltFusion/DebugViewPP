@@ -11,6 +11,7 @@
 
 #include "FilterPage.h"
 #include "PropertyColorItem.h"
+#include "RegExDlg.h"
 #include "Resource.h"
 #include "Filter.h"
 
@@ -58,6 +59,7 @@ private:
 	CTabCtrl m_tabCtrl;
 	CFilterPage m_messagePage;
 	CFilterPage m_processPage;
+	CRegExDlg m_regExDlg;
 	SIZE m_border;
 
 	std::wstring m_name;

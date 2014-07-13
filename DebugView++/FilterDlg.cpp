@@ -11,7 +11,6 @@
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "Resource.h"
-#include "RegExDlg.h"
 #include "FilterDlg.h"
 
 namespace fusion {
@@ -142,6 +141,9 @@ BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_processPage.MoveWindow(&tabRect);
 	m_processPage.ShowWindow(SW_HIDE);
 
+	m_regExDlg.Create(*this, 0);
+	m_regExDlg.ShowWindow(SW_HIDE);
+
 	CenterWindow(GetParent());
 	DlgResize_Init();
 
@@ -251,8 +253,7 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 
 void CFilterDlg::OnRegEx(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CRegExDlg dlg;
-	dlg.DoModal();
+	m_regExDlg.ShowWindow(SW_SHOW);
 }
 
 void CFilterDlg::OnClearAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
