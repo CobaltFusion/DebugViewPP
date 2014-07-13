@@ -41,8 +41,6 @@ Coming up (implemented in bleeding-egde version)
 - continuous logging to file commandline option
 - tailing our own logfiles over samba network
 - support for reading and tailing Sysinternals Debugview logfiles (four common formats)
-  + this supports the usecase of using Sysinternals Debugview to capture Kernal message and 
-    streaming them to DebugView++ by tailing the logfile.
 - implemented tailing overwritten/skrinking logfiles
 
 Download Stable release
@@ -133,7 +131,10 @@ Now you can monitor the filtered view, and when your event occurs, select a line
 Other documentation:
 --------------------
 
-**Auto scroll**: scrolls down to new incoming lines automatically; autoscroll is turned on automatically when the last line in the view is selected.
+**Auto Scroll**: scrolls down to new incoming lines automatically
+
+**Auto Scroll Stop**: If enabled 'auto scroll' is turned on when the last line in the view is selected, and also
+turned off if any other line is selected.
 
 **Bookmarks**: bookmarks are view specific and can be placed on a line by clicking left of the line number or Ctrl+F2, press F2 to move to the next bookmark. Bookmarks are temporary, so cannot be saved.
 
