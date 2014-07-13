@@ -50,7 +50,7 @@ private:
 	void Loop();
 
 	std::vector<PollLine> m_lines;
-	std::vector<PollLine> m_backingLines;
+	std::vector<PollLine> m_backBuffer;
 	Handle m_handle;
 	boost::mutex m_mutex;
 	long m_microsecondInterval;

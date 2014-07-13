@@ -27,11 +27,10 @@ void CRegExDlg::ExceptionHandler()
 BOOL CRegExDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	CenterWindow(GetParent());
-
 	return TRUE;
 }
 
-void CRegExDlg::OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
+void CRegExDlg::OnClose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	ShowWindow(SW_HIDE);
 }

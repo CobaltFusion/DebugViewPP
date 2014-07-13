@@ -11,6 +11,7 @@
 #include "DebugView++Lib/FileWriter.h"
 #include "CobaltFusion/dbgstream.h"
 #include "Win32Lib/utilities.h"
+#include <boost/algorithm/string.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -62,14 +63,15 @@ void FileWriter::Process()
 	}
 }
 
-void FileWriter::WriteLine(double time, FILETIME filetime, DWORD pid, const std::string& processName, const std::string& message)
+void FileWriter::WriteLine(double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message)
 {
+	boost::trim_if(message, boost::is_any_of(" \r\n\t")); 
 	m_ofstream <<
-		time << '\t' <<
-		filetime << '\t'<<
-		pid << '\t'<<
-		processName << '\t'<<
-		message << '\t\r\n';
+		time << "\t" <<
+		filetime << "\t"<<
+		pid << "\t" <<
+		processName << "\t" <<
+		message << "\n";
 }
 
 } // namespace debugviewpp 
