@@ -88,8 +88,9 @@ FileType::type IdentifyFile(std::string filename)
 		return FileType::Unknown;
 
 	// first we check for our own header
-	auto marker = g_debugViewPPIdentification + "\t\r";
-	if (boost::ends_with(line, marker))
+	auto trimmed = boost::trim_copy_if(line, boost::is_any_of(" \r\n\t"));
+	auto marker = g_debugViewPPIdentification;
+	if (boost::ends_with(trimmed, marker))
 	{
 		return FileType::DebugViewPP;
 	}
@@ -242,7 +243,6 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 bool ReadLogFileMessage(const std::string& data, Line& line)
 {
 	TabSplitter split(data);
-	split.GetNext();	// ignore colomn 1
 	line.time = boost::lexical_cast<double>(split.GetNext());
 	line.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(split.GetNext()));
 	line.pid = boost::lexical_cast<DWORD>(split.GetNext());
