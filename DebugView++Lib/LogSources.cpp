@@ -40,7 +40,7 @@ LogSources::LogSources(bool startListening) :
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_handleCacheTime(0.0)
 {
-	//Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "127.0.0.1", "dns")); // test receiving UDP message (works nice!)
+	Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "127.0.0.1", "2999")); // test receiving UDP messages
 
 	m_sources.push_back(m_loopback);
 	if (startListening)

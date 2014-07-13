@@ -39,9 +39,9 @@ void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std
 	ss.write(m_RecvBuffer.data(), bytes_transferred);
 
 	std::string addr = m_remote_endpoint.address().to_string();
-	std::string msg = addr + ": ";
 	for(;;)
 	{
+		std::string msg;
 		std::getline(ss, msg, '\0'); 
 		if (!msg.empty())
 		{
