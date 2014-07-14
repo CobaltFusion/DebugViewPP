@@ -75,15 +75,18 @@ HANDLE PassiveLogSource::GetHandle() const
 
 void PassiveLogSource::Notify()
 {
-	//m_backLines.clear(); //todo:: swap
+	// this swap is essential for efficiency.
+	{
+		boost::mutex::scoped_lock lock(m_mutex);
+		m_lines.swap(m_backBuffer);
+	}
 
-	boost::mutex::scoped_lock lock(m_mutex);
-	for (auto i = m_lines.cbegin(); i != m_lines.cend(); ++i)
+	for (auto i = m_backBuffer.cbegin(); i != m_backBuffer.cend(); ++i)
 	{
 		auto line = *i;
 		Add(line.pid, line.processName.c_str(), line.message.c_str());
 	}
-	m_lines.clear();
+	m_backBuffer.clear();
 }
 
 void PassiveLogSource::AddMessage(DWORD pid, const char* processName, const char* message)

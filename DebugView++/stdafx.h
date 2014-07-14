@@ -16,6 +16,8 @@
 #define _RICHEDIT_VER	0x0100
 
 #define _WTL_NO_CSTRING
+#define _CRT_NON_CONFORMING_SWPRINTFS
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <cstdint>
 #include <algorithm>
@@ -28,10 +30,10 @@ using std::max;
 #include "ShellApi.h"
 
 #include <atlbase.h>
-#pragma warning(push, 3)
-#pragma warning(disable: 4996)
 #include <atlapp.h>
-#pragma warning(pop)
+
+#undef _CRT_NON_CONFORMING_SWPRINTFS
+#undef _CRT_SECURE_NO_WARNINGS
 
 #include <atlwin.h>
 #include <atlcrack.h>
@@ -43,6 +45,9 @@ using std::max;
 #include <atldlgs.h>
 #include <atlmisc.h>
 #include <atlstr.h>
+
+#undef _CRT_NON_CONFORMING_SWPRINTFS
+
 
 extern CAppModule _Module;
 

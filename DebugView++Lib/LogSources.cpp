@@ -21,10 +21,12 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/Loopback.h"
+#include <boost/algorithm/string.hpp>
 
-// class Logsources heeft vector<LogSource> en start in zijn constructor een thread voor LogSources::Listen()
-// - Listen() vraagt GetHandle() aan elke LogSource in m_sources en roept Notify() op de LogSource waarvan de handle gesignaled wordt.
-// - the LogSource::Notify leest input en schrijft deze naar de linebuffer die hij bij constructie gekregen heeft.
+
+// class Logsources has a vector<LogSource> and start a thread for LogSources::Listen()
+// - Listen() exectues every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
+// - LogSource::Notify reads input en writes to linebuffer (passed at construction)
 // 
 
 namespace fusion {
@@ -40,7 +42,13 @@ LogSources::LogSources(bool startListening) :
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_handleCacheTime(0.0)
 {
-	//Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "127.0.0.1", "dns")); // test receiving UDP message (works nice!)
+	try {
+		Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "127.0.0.1", "2999")); // test receiving UDP messages
+	}
+	catch (std::exception&)
+	{
+		AddMessage("UDP port 2999 already in use");
+	}
 
 	m_sources.push_back(m_loopback);
 	if (startListening)
@@ -221,6 +229,9 @@ Lines LogSources::GetLines()
 		auto processedLines = m_newlineFilter.Process(inputLine);
 		for (auto it = processedLines.begin(); it != processedLines.end(); ++it )
 		{
+			auto& line = *it;
+			const char* whitespace = " \r\n\t";
+			boost::trim_if(line.message, boost::is_any_of(whitespace));
 			lines.push_back(*it);
 		}
 	}

@@ -138,7 +138,6 @@ void DBLogReader::GetRelativeTime(Line& line)
 
 	if (m_firstline)
 	{
-		m_firstline = false;
 		m_firstFiletime = line.systemTime;
 		return;
 	}
@@ -158,11 +157,19 @@ void DBLogReader::AddLine(const std::string& data)
 		ReadSysInternalsLogFileMessage(data, line);
 		GetRelativeTime(line);
 		break;
-	default:
+	case FileType::DebugViewPP:
+		if (m_firstline) 
+		{
+			m_firstline = false;
+			return;
+		}
 		ReadLogFileMessage(data, line);
 		break;
+	default:
+		assert(false);
 	}
 	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str());
+	m_firstline = false;
 }
 
 } // namespace debugviewpp 

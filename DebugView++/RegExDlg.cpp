@@ -27,7 +27,6 @@ void CRegExDlg::ExceptionHandler()
 BOOL CRegExDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	CenterWindow(GetParent());
-
 	return TRUE;
 }
 
