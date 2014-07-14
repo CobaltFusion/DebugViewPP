@@ -39,8 +39,12 @@ public:
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
+	LRESULT OnDrag(NMHDR* phdr);
+	void OnMouseMove(UINT nFlags, CPoint point);
+	void OnLButtonUp(UINT nFlags, CPoint point);
 
 private:
+	void InsertFilter(int item, const Filter& filter);
 	void AddFilter(const Filter& filter);
 	std::wstring GetFilterText(int iItem) const;
 	MatchType::type GetMatchType(int iItem) const;
@@ -48,7 +52,8 @@ private:
 	COLORREF GetFilterBgColor(int iItem) const;
 	COLORREF GetFilterFgColor(int iItem) const;
 	bool GetFilterEnable(int iItem) const;
-	void UpdateGrid();
+	Filter GetFilter(int item) const;
+	void UpdateGrid(int focus = 0);
 
 	LRESULT OnAddItem(NMHDR* pnmh);
 	LRESULT OnClickItem(NMHDR* pnmh);
@@ -60,6 +65,8 @@ private:
 	size_t m_matchTypeCount;
 	CPropertyGridCtrl m_grid;
 	std::vector<Filter> m_filters;
+	CImageList m_dragImage;
+	int m_dragItem;
 };
 
 class CFilterPage : public CFilterPageImpl

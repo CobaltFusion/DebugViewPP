@@ -22,6 +22,9 @@ CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t fil
 BEGIN_MSG_MAP_TRY(CFilterPageImpl)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
+	MSG_WM_MOUSEMOVE(OnMouseMove)
+	MSG_WM_LBUTTONUP(OnLButtonUp)
+	NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnDrag)
 	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_ITEMCHANGED, OnItemChanged)
@@ -34,7 +37,7 @@ void CFilterPageImpl::ExceptionHandler()
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
-void CFilterPageImpl::AddFilter(const Filter& filter)
+void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 {
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
 	pFilterProp->SetBkColor(filter.bgColor);
@@ -46,7 +49,6 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
 	pTxColor->SetEnabled(filter.filterType != FilterType::Exclude);
 
-	int item = m_grid.GetItemCount();
 	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 1, pFilterProp);
 	m_grid.SetSubItem(item, 2, CreateEnumTypeItem(L"", m_matchTypes, m_matchTypeCount, filter.matchType));
@@ -55,6 +57,11 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 	m_grid.SetSubItem(item, 5, pTxColor);
 	m_grid.SetSubItem(item, 6, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item, 1);
+}
+
+void CFilterPageImpl::AddFilter(const Filter& filter)
+{
+	InsertFilter(m_grid.GetItemCount(), filter);
 }
 
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
@@ -78,9 +85,63 @@ void CFilterPageImpl::OnDestroy()
 {
 }
 
+LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
+{
+	NMLISTVIEW& lv = *reinterpret_cast<NMLISTVIEW*>(phdr);
+
+	if (lv.iItem < 0 || lv.iItem >= static_cast<int>(m_filters.size()))
+		return 0;
+
+	m_dragItem = lv.iItem;
+	POINT pt = { 0 };
+	m_dragImage = m_grid.CreateDragImage(lv.iItem, &pt);
+
+	RECT rect = { 0 };
+	m_grid.GetItemRect(lv.iItem, &rect, LVIR_LABEL);
+	m_dragImage.BeginDrag(0, lv.ptAction.x - rect.left, lv.ptAction.y - rect.top);
+
+	m_grid.ClientToScreen(&pt);
+	m_dragImage.DragEnter(nullptr, pt);
+
+	SetCapture();
+	return 0;
+}
+
+void CFilterPageImpl::OnMouseMove(UINT /*nFlags*/, CPoint point)
+{
+	if (!m_dragImage.IsNull())
+	{
+		ClientToScreen(&point);
+		m_dragImage.DragMove(point);
+	}
+}
+
+void CFilterPageImpl::OnLButtonUp(UINT /*nFlags*/, CPoint point)
+{
+	if (!m_dragImage.IsNull())
+	{
+		m_dragImage.DragLeave(*this);
+		m_dragImage.EndDrag();
+		ReleaseCapture();
+		m_dragImage.Destroy();
+
+		UINT flags = 0;
+		int item = std::min<int>(m_grid.HitTest(point, &flags), m_filters.size() - 1);
+		if (item >= 0 && item < static_cast<int>(m_filters.size()))
+		{
+			auto filter = GetFilter(m_dragItem);
+			m_grid.DeleteItem(m_dragItem);
+			InsertFilter(item, filter);
+		}
+	}
+}
+
 LRESULT CFilterPageImpl::OnAddItem(NMHDR* /*pnmh*/)
 {
-	AddFilter(Filter());
+	Filter filter;
+	AddFilter(filter);
+	m_filters.push_back(filter);
+
 	return 0;
 }
 
@@ -93,6 +154,7 @@ LRESULT CFilterPageImpl::OnClickItem(NMHDR* pnmh)
 	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 6)
 	{
 		m_grid.DeleteItem(iItem);
+		m_filters.erase(m_filters.begin() + iItem);
 		return TRUE;
 	}
 
@@ -175,6 +237,11 @@ COLORREF CFilterPageImpl::GetFilterFgColor(int iItem) const
 	return val.lVal;
 }
 
+Filter CFilterPageImpl::GetFilter(int item) const
+{
+	return Filter(Str(GetFilterText(item)), GetMatchType(item), GetFilterType(item), GetFilterBgColor(item), GetFilterFgColor(item), GetFilterEnable(item));
+}
+
 std::vector<Filter> CFilterPageImpl::GetFilters() const
 {
 	std::vector<Filter> filters;
@@ -196,12 +263,12 @@ void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 	}
 }
 
-void CFilterPageImpl::UpdateGrid()
+void CFilterPageImpl::UpdateGrid(int focus)
 {
 	m_grid.DeleteAllItems();
 	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 		AddFilter(*it);
-	m_grid.SelectItem(0);
+	m_grid.SelectItem(focus);
 }
 
 } // namespace debugviewpp 

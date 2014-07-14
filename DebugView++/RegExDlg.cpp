@@ -31,7 +31,7 @@ BOOL CRegExDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	return TRUE;
 }
 
-void CRegExDlg::OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
+void CRegExDlg::OnClose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	ShowWindow(SW_HIDE);
 }
