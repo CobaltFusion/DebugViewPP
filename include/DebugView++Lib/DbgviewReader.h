@@ -25,6 +25,12 @@ T Read(S& is)
 	return t;
 }
 
+template<typename T, class S> 
+void Write(S& is, T t)
+{
+	is.write((char*) &t, sizeof(T));
+}
+
 class DbgviewReader : public PassiveLogSource
 {
 public:

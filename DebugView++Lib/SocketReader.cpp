@@ -45,8 +45,8 @@ void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std
 		std::getline(ss, msg, '\0'); 
 		if (!msg.empty())
 		{
-			msg = addr + ": " + msg + "\n";
-			std::string port = stringbuilder() << "[UDP " << m_port << "]";
+			msg.push_back('\n');
+			std::string port = stringbuilder() << "[UDP " << addr << ":" << m_port << "]";
 			Add(0, port.c_str(), msg.c_str());
 			Signal();
 		}

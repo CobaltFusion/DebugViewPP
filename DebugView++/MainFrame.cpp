@@ -1009,7 +1009,7 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (!m_pDbgviewReader)
-		m_pDbgviewReader = m_logSources.AddDbgviewReader("localhost");
+		m_pDbgviewReader = m_logSources.AddDbgviewReader("127.0.0.1");
 	else
 	{
 		m_logSources.Remove(m_pDbgviewReader);

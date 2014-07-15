@@ -39,6 +39,9 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 	return buffer;
 }
 
+const char g_colomnOneMark = 1;
+const char g_colomnTwoMark = 2;
+
 void DbgviewReader::Loop()
 {
 	m_iostream.connect(m_hostname, g_sysinternalsDebugViewAgentPort);
@@ -55,6 +58,18 @@ void DbgviewReader::Loop()
 	m_iostream.write((char*)startBuf.data(), startBuf.size());
 	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply
 	auto qpFrequency = Read<DWORD>(m_iostream);	// 0x0023ae93		// QueryPerformanceFrequency
+
+	boost::array<unsigned char, 4> kernelDisabled = { 0x04, 0x00, 0x05, 0x83 };
+	boost::array<unsigned char, 4> kernelEnabled = { 0x00, 0x00, 0x05, 0x83 };
+	m_iostream.write((char*)kernelEnabled.data(), kernelEnabled.size());
+
+	boost::array<unsigned char, 4> win32Disabled = { 0x1c, 0x00, 0x05, 0x83 };
+	boost::array<unsigned char, 4> win32Enabled = { 0x18, 0x00, 0x05, 0x83 };
+	m_iostream.write((char*)win32Disabled.data(), win32Disabled.size());
+
+	boost::array<unsigned char, 4> passThroughDisabled = { 0x14, 0x00, 0x05, 0x83 };
+	boost::array<unsigned char, 4> passThroughEnabled = { 0x10, 0x00, 0x05, 0x83 };
+	m_iostream.write((char*)passThroughDisabled.data(), passThroughDisabled.size());
 
 	if (!m_iostream || qpFrequency == 0)
 	{
@@ -112,13 +127,17 @@ void DbgviewReader::Loop()
 			auto qpcTime = Read<long long>(ss);
 			auto time = timer.Get(qpcTime);
 
-			unsigned char c1, c2;
-			if (!((ss >> c1 >> pid >> c2) && c1 == 0x1 && c2 == 0x2))
+			if (buffer[20] == g_colomnOneMark)
 			{
-				Add(0, processName, "<error parsing pid>\n");
-				break;
+				unsigned char c1, c2;
+				if (!((ss >> c1 >> pid >> c2) && c1 == g_colomnOneMark && c2 == g_colomnTwoMark))
+				{
+					Add(0, processName, "<error parsing pid>\n");
+					break;
+				}
+				Read(ss, 1);	// discard one leading space
 			}
-			Read(ss, 1);	// discard one leading space
+
 			std::getline(ss, msg, '\0'); 
 
 			msg.push_back('\n');
