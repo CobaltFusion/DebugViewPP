@@ -49,7 +49,7 @@ Download Stable release
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
-Download Bleeding Edge !! Updated on July 14 2014 (receive UDP test)
+Download Bleeding Edge !! Updated on July 15 2014 (fixed kernel messages)
 ----------------------
 
 + [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++15_july.zip)
