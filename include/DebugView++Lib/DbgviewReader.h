@@ -28,7 +28,10 @@ T Read(S& is)
 template<typename T, class S> 
 void Write(S& is, T t)
 {
-	is.write((char*) &t, sizeof(T));
+	std::vector<unsigned char> buffer;
+	for (int i=0; i<sizeof(T); ++i)
+		buffer.push_back((t >> (i*8)) & 0xff);
+	is.write((char*) buffer.data(), buffer.size());
 }
 
 class DbgviewReader : public PassiveLogSource

@@ -39,37 +39,39 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 	return buffer;
 }
 
-const char g_colomnOneMark = 1;
-const char g_colomnTwoMark = 2;
+
+
+struct Magic
+{
+	enum type
+	{
+		colomnOneMark = 1,
+		colomnTwoMark = 2,
+		base = 0x83050000,
+		captureKernelEnable = base + 0,
+		captureKernelDisable = base + 4,
+		captureWin32Enable = base + 0x18,
+		captureWin32Disable = base + 0x1c,
+		passThroughEnable = base + 0x10,
+		passThroughDisable = base + 0x14,
+		requestQueryPerformanceFrequency = base + 0x28
+	};
+};
 
 void DbgviewReader::Loop()
 {
 	m_iostream.connect(m_hostname, g_sysinternalsDebugViewAgentPort);
 	const char* processName = "[tcp]";
 
-	boost::array<unsigned char, 20> startBuf = { 
-		0x24, 0x00, 0x05, 0x83,
-		0x04, 0x00, 0x05, 0x83,
-		0x08, 0x00, 0x05, 0x83,
-		0x28, 0x00, 0x05, 0x83,
-		0x18, 0x00, 0x05, 0x83 
-	};
+	// unknown command (dbgview sends it after connect)
+	Write<DWORD>(m_iostream, Magic::base + 0x24);
+	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply ?
 
-	m_iostream.write((char*)startBuf.data(), startBuf.size());
-	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply
-	auto qpFrequency = Read<DWORD>(m_iostream);	// 0x0023ae93		// QueryPerformanceFrequency
+	// unknown command (dbgview sends it after connect, but without it all seems fine too)
+	//Write<DWORD>(m_iostream, Magic::base + 0x08);	
 
-	boost::array<unsigned char, 4> kernelDisabled = { 0x04, 0x00, 0x05, 0x83 };
-	boost::array<unsigned char, 4> kernelEnabled = { 0x00, 0x00, 0x05, 0x83 };
-	m_iostream.write((char*)kernelEnabled.data(), kernelEnabled.size());
-
-	boost::array<unsigned char, 4> win32Disabled = { 0x1c, 0x00, 0x05, 0x83 };
-	boost::array<unsigned char, 4> win32Enabled = { 0x18, 0x00, 0x05, 0x83 };
-	m_iostream.write((char*)win32Disabled.data(), win32Disabled.size());
-
-	boost::array<unsigned char, 4> passThroughDisabled = { 0x14, 0x00, 0x05, 0x83 };
-	boost::array<unsigned char, 4> passThroughEnabled = { 0x10, 0x00, 0x05, 0x83 };
-	m_iostream.write((char*)passThroughDisabled.data(), passThroughDisabled.size());
+	Write<DWORD>(m_iostream, Magic::requestQueryPerformanceFrequency);
+	auto qpFrequency = Read<DWORD>(m_iostream);		// 0x0023ae93
 
 	if (!m_iostream || qpFrequency == 0)
 	{
@@ -77,6 +79,10 @@ void DbgviewReader::Loop()
 	  Signal();
 	  return;
 	}
+
+	Write<DWORD>(m_iostream, Magic::captureKernelEnable);
+	Write<DWORD>(m_iostream, Magic::captureWin32Disable);
+	Write<DWORD>(m_iostream, Magic::passThroughDisable);
 
 	Timer timer(qpFrequency);
 	Add(stringbuilder() << "Connected to " << GetDescription());
@@ -127,10 +133,10 @@ void DbgviewReader::Loop()
 			auto qpcTime = Read<long long>(ss);
 			auto time = timer.Get(qpcTime);
 
-			if (buffer[20] == g_colomnOneMark)
+			if (buffer[20] == Magic::colomnOneMark)
 			{
 				unsigned char c1, c2;
-				if (!((ss >> c1 >> pid >> c2) && c1 == g_colomnOneMark && c2 == g_colomnTwoMark))
+				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::colomnOneMark && c2 == Magic::colomnTwoMark))
 				{
 					Add(0, processName, "<error parsing pid>\n");
 					break;
