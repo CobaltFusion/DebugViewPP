@@ -48,13 +48,17 @@ struct Magic
 		colomnOneMark = 1,
 		colomnTwoMark = 2,
 		base = 0x83050000,
-		captureKernelEnable = base + 0,
-		captureKernelDisable = base + 4,
-		captureWin32Enable = base + 0x18,
-		captureWin32Disable = base + 0x1c,
-		passThroughEnable = base + 0x10,
-		passThroughDisable = base + 0x14,
-		requestQueryPerformanceFrequency = base + 0x28
+		captureKernelEnable = base + 0x00,				// 0
+		captureKernelDisable = base + 0x04,				// 1
+		unknown1 = base + 0x08,							// 2 
+		unknown2 = base + 0x0C,							// 3 
+		passThroughEnable = base + 0x10,				// 4
+		passThroughDisable = base + 0x14,				// 5
+		captureWin32Enable = base + 0x18,				// 6
+		captureWin32Disable = base + 0x1c,				// 7
+		unknown3 = base + 0x20,							// 8 
+		requestUnknown = base + 0x24,					// 9 
+		requestQueryPerformanceFrequency = base + 0x28	// A
 	};
 };
 
@@ -63,11 +67,12 @@ void DbgviewReader::Loop()
 	m_iostream.connect(m_hostname, g_sysinternalsDebugViewAgentPort);
 	const char* processName = "[tcp]";
 
-	// unknown command (dbgview sends it after connect)
-	Write<DWORD>(m_iostream, Magic::base + 0x24);
-	Read<DWORD>(m_iostream);					// 0x7fffffff		// Init reply ?
+	// unknown command (dbgview sends it after connect, it gets a 4 byte answer 0x7fffffff)
+	//Write<DWORD>(m_iostream, Magic::base + 0x24);	
+	//Read<DWORD>(m_iostream);					// 0x7fffffff
 
 	// unknown command (dbgview sends it after connect, but without it all seems fine too)
+	// maybe 0x08 turns something on, and 0x0C turns it off? (following the logic of the enums)
 	//Write<DWORD>(m_iostream, Magic::base + 0x08);	
 
 	Write<DWORD>(m_iostream, Magic::requestQueryPerformanceFrequency);
