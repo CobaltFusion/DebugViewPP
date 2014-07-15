@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "Win32Lib/utilities.h"
+#include "CobaltFusion/dbgstream.h"
 #include "Resource.h"
 #include "FilterPage.h"
 
@@ -49,8 +50,8 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
 	pTxColor->SetEnabled(filter.filterType != FilterType::Exclude);
 
-	m_grid.InsertItem(item, PropCreateCheckButton(L"", filter.enable));
-	m_grid.SetSubItem(item, 1, pFilterProp);
+	m_grid.InsertItem(item, pFilterProp);
+	m_grid.SetSubItem(item, 1, PropCreateCheckButton(L"", filter.enable));
 	m_grid.SetSubItem(item, 2, CreateEnumTypeItem(L"", m_matchTypes, m_matchTypeCount, filter.matchType));
 	m_grid.SetSubItem(item, 3, CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType));
 	m_grid.SetSubItem(item, 4, pBkColor);
@@ -67,13 +68,13 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
-	m_grid.InsertColumn(0, L"", LVCFMT_LEFT, 32, 0);
-	m_grid.InsertColumn(1, L"Filter", LVCFMT_LEFT, 200, 0);
-	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 60, 0);
-	m_grid.InsertColumn(3, L"Type", LVCFMT_LEFT, 60, 0);
-	m_grid.InsertColumn(4, L"Bg", LVCFMT_LEFT, 24, 0);
-	m_grid.InsertColumn(5, L"Fg", LVCFMT_LEFT, 24, 0);
-	m_grid.InsertColumn(6, L"", LVCFMT_LEFT, 16, 0);
+	m_grid.InsertColumn(0, L"Filter", LVCFMT_LEFT, 200, 0, -1, 1);
+	m_grid.InsertColumn(1, L"", LVCFMT_LEFT, 32, 0, -1, 0);
+	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 60, 0, -1, 2);
+	m_grid.InsertColumn(3, L"Type", LVCFMT_LEFT, 60, 0, -1, 3);
+	m_grid.InsertColumn(4, L"Bg", LVCFMT_LEFT, 24, 0, -1, 4);
+	m_grid.InsertColumn(5, L"Fg", LVCFMT_LEFT, 24, 0, -1, 5);
+	m_grid.InsertColumn(6, L"", LVCFMT_LEFT, 16, 0, -1, 6);
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT | PGS_EX_ADDITEMATEND);
 
 	UpdateGrid();
@@ -97,12 +98,9 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
 	m_dragImage = m_grid.CreateDragImage(lv.iItem, &pt);
 
 	RECT rect = { 0 };
-	m_grid.GetItemRect(lv.iItem, &rect, LVIR_LABEL);
+	m_grid.GetItemRect(lv.iItem, &rect, LVIR_BOUNDS);
 	m_dragImage.BeginDrag(0, lv.ptAction.x - rect.left, lv.ptAction.y - rect.top);
-
-	m_grid.ClientToScreen(&pt);
-	m_dragImage.DragEnter(nullptr, pt);
-
+	m_dragImage.DragEnter(*this, lv.ptAction);
 	SetCapture();
 	return 0;
 }
@@ -111,7 +109,6 @@ void CFilterPageImpl::OnMouseMove(UINT /*nFlags*/, CPoint point)
 {
 	if (!m_dragImage.IsNull())
 	{
-		ClientToScreen(&point);
 		m_dragImage.DragMove(point);
 	}
 }
@@ -181,7 +178,7 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	if (iSubItem == 4)
 	{
 		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
-		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
+		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 0));
 		edit.SetBkColor(color.GetColor());
 		return TRUE;
 	}
@@ -189,7 +186,7 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	if (iSubItem == 5)
 	{
 		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
-		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 1));
+		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 0));
 		edit.SetTextColor(color.GetColor());
 		return TRUE;
 	}
@@ -200,13 +197,13 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 bool CFilterPageImpl::GetFilterEnable(int iItem) const
 {
 	CComVariant val;
-	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 0).GetValue(&val);
+	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 1).GetValue(&val);
 	return val.boolVal != VARIANT_FALSE;
 }
 
 std::wstring CFilterPageImpl::GetFilterText(int iItem) const
 {
-	return GetGridItemText(m_grid, iItem, 1);
+	return GetGridItemText(m_grid, iItem, 0);
 }
 
 MatchType::type CFilterPageImpl::GetMatchType(int iItem) const

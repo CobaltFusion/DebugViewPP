@@ -578,20 +578,39 @@ public:
       }
    }
 
+   void _GetSubItem0Rect(int iItem, RECT* pRect) const
+   {
+      GetItemRect(iItem, pRect, LVIR_BOUNDS);
+      int count = GetHeader().GetItemCount();
+	  ATLASSERT(count < 100);
+      int order[100];
+      GetColumnOrderArray(count, order);
+      for (int i = 0; i < count && order[i] != 0; ++i)
+      {
+         RECT rect;
+         GetSubItemRect(iItem, order[i], LVIR_BOUNDS, &rect);
+		 pRect->left = std::max(pRect->left, rect.right);
+      }
+	  pRect->right = pRect->left + GetColumnWidth(0);
+   }
+
    void _GetSubItemRect(int iItem, int iSubItem, RECT* pRect) const
    {
       if( iSubItem == 0 && _IsAppendActionItem(iItem) ) {
          GetItemRect(iItem, pRect, LVIR_BOUNDS);
       }
       else if( iSubItem == 0 ) {
+         _GetSubItem0Rect(iItem, pRect);
+#if 0
          GetItemRect(iItem, pRect, LVIR_BOUNDS);
          if( m_nColumns > 1 ) {
             RECT rcSecondColumn = { 0 };
             GetSubItemRect(iItem, 1, LVIR_BOUNDS, &rcSecondColumn);
             pRect->right = rcSecondColumn.left - 1;
          }
+#endif
       }
-      else {
+	  else {
          GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS, pRect);
       }
    }
