@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "Win32Lib/utilities.h"
-#include "CobaltFusion/dbgstream.h"
 #include "Resource.h"
 #include "FilterPage.h"
 
@@ -102,6 +101,7 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
 	m_dragImage.BeginDrag(0, lv.ptAction.x - rect.left, lv.ptAction.y - rect.top);
 	m_dragImage.DragEnter(*this, lv.ptAction);
 	SetCapture();
+	m_dragCursor.reset(new ScopedCursor(LoadCursor(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDC_DRAGDROP))));
 	return 0;
 }
 
@@ -121,6 +121,7 @@ void CFilterPageImpl::OnLButtonUp(UINT /*nFlags*/, CPoint point)
 		m_dragImage.EndDrag();
 		ReleaseCapture();
 		m_dragImage.Destroy();
+		m_dragCursor.reset();
 
 		UINT flags = 0;
 		int item = std::min<int>(m_grid.HitTest(point, &flags), m_filters.size() - 1);

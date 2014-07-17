@@ -135,5 +135,8 @@
     <None Include="Version.rc2">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\DragDrop.cur">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

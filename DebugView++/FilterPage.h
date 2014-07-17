@@ -67,6 +67,7 @@ private:
 	std::vector<Filter> m_filters;
 	CImageList m_dragImage;
 	int m_dragItem;
+	std::unique_ptr<ScopedCursor> m_dragCursor;
 };
 
 class CFilterPage : public CFilterPageImpl
