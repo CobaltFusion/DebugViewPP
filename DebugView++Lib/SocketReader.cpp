@@ -68,6 +68,7 @@ void SocketReader::StartReceive()
 
 void SocketReader::Loop()
 {
+	m_socket.set_option(udp::socket::reuse_address(true));	// does work, why? 2 instances should be able to receive the same message (udp _broadcast_)
 	StartReceive();
 	Add(stringbuilder() << GetDescription() << "\n");
 	Signal();

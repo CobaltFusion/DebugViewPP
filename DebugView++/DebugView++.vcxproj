@@ -155,6 +155,7 @@
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="RegExDlg.cpp" />
     <ClCompile Include="RunDlg.cpp" />
+    <ClCompile Include="SourceDlg.cpp" />
     <ClCompile Include="SourcesDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -178,6 +179,7 @@
     <ClInclude Include="RegExDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunDlg.h" />
+    <ClInclude Include="SourceDlg.h" />
     <ClInclude Include="SourcesDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h" />

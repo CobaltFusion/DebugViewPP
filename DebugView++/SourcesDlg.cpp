@@ -12,6 +12,7 @@
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
 #include "Resource.h"
+#include "SourceDlg.h"
 #include "SourcesDlg.h"
 
 namespace fusion {
@@ -22,6 +23,7 @@ BEGIN_MSG_MAP_TRY(CSourcesDlg)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
+	COMMAND_ID_HANDLER_EX(IDADD, OnAdd)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
@@ -105,12 +107,20 @@ SourceType::type CSourcesDlg::GetSourceType(int iItem) const
 
 void CSourcesDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
+	m_logsourcesToRemove.clear();
 	EndDialog(nID);
 }
 
 void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	EndDialog(nID);
+}
+
+void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
+{
+	CSourceDlg dlg;
+	if (dlg.DoModal() != IDOK)
+		return;
 }
 
 std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToRemove()
