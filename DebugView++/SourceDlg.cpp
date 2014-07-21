@@ -25,11 +25,7 @@ BEGIN_MSG_MAP_TRY(CSourceDlg)
 	CHAIN_MSG_MAP(CDialogResize<CSourceDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CSourceDlg::CSourceDlg()
-{
-}
-
-CSourceDlg::CSourceDlg(std::shared_ptr<LogSource> logsource) : m_logsource(logsource)
+CSourceDlg::CSourceDlg(const std::shared_ptr<LogSource>& pLogSource) : m_pLogSource(pLogSource)
 {
 }
 

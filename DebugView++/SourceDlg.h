@@ -9,10 +9,7 @@
 
 #include <vector>
 
-#include "Grid.h"
-#include "PropertyColorItem.h"
 #include "Resource.h"
-#include "Filter.h"
 #include "DebugView++Lib/LogSource.h"
 
 namespace fusion {
@@ -23,8 +20,7 @@ class CSourceDlg :
 	public CDialogResize<CSourceDlg>
 {
 public:
-	explicit CSourceDlg();
-	explicit CSourceDlg(std::shared_ptr<LogSource> logsource);
+	explicit CSourceDlg(const std::shared_ptr<LogSource>& pLogSource = nullptr);
 
 	enum { IDD = IDD_SOURCE };
 
@@ -41,7 +37,7 @@ public:
 	void ExceptionHandler();
 
 private:
-	std::shared_ptr<LogSource> m_logsource;
+	std::shared_ptr<LogSource> m_pLogSource;
 };
 
 } // namespace debugviewpp 

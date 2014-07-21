@@ -116,7 +116,7 @@ void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
-void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
+void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	CSourceDlg dlg;
 	if (dlg.DoModal() != IDOK)
