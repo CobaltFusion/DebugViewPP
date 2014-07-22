@@ -43,11 +43,13 @@ LogSources::LogSources(bool startListening) :
 	m_handleCacheTime(0.0)
 {
 	//try {
-	//	Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "127.0.0.1", "2999")); // test receiving UDP messages
+	//	Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "0.0.0.0", 2999)); // test receiving UDP messages
 	//}
-	//catch (std::exception&)
+	//catch (std::exception& e)
 	//{
 	//	AddMessage("UDP port 2999 already in use");
+	//	std::string test = e.what();
+	//	AddMessage(test);
 	//}
 
 	m_sources.push_back(m_loopback);

@@ -18,12 +18,17 @@ namespace debugviewpp {
 
 using namespace boost::asio::ip;
 
-SocketReader::SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname, const std::string& port) :
+SocketReader::SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname, int port) :
 	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
 	m_hostname(hostname),
 	m_port(port),
-	m_socket(m_ioservice, udp::endpoint(udp::v4(), 2999))
+	m_socket(m_ioservice)
 {
+	udp::endpoint listen_endpoint(address::from_string(hostname.c_str()), port);
+	m_socket.open(listen_endpoint.protocol());
+	m_socket.set_option(udp::socket::reuse_address(true));
+	m_socket.bind(listen_endpoint);
+
 	SetDescription(wstringbuilder() << "Listing socket at UDP port '" << m_port << "'");
 	m_thread = boost::thread(&SocketReader::Loop, this);
 }
@@ -58,17 +63,13 @@ void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std
 
 void SocketReader::StartReceive()
 {
-	m_socket.async_receive_from(
-		boost::asio::buffer(m_RecvBuffer), m_remote_endpoint,
-		boost::bind(&SocketReader::ReceiveUDPMessage, this,
-		  boost::asio::placeholders::error,
-		  boost::asio::placeholders::bytes_transferred)
+	m_socket.async_receive_from(boost::asio::buffer(m_RecvBuffer), m_remote_endpoint,
+			boost::bind(&SocketReader::ReceiveUDPMessage, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
 	);    
 }
 
 void SocketReader::Loop()
 {
-	m_socket.set_option(udp::socket::reuse_address(true));	// does work, why? 2 instances should be able to receive the same message (udp _broadcast_)
 	StartReceive();
 	Add(stringbuilder() << GetDescription() << "\n");
 	Signal();
