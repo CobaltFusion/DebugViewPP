@@ -27,9 +27,6 @@
 #include "AboutDlg.h"
 #include "LogView.h"
 
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include <boost/interprocess/sync/named_mutex.hpp>
-
 namespace fusion {
 namespace debugviewpp {
 
@@ -491,6 +488,9 @@ const wchar_t* RegistryPath = L"Software\\Cobalt Fusion\\DebugView++";
 
 bool CMainFrame::LoadSettings()
 {
+	auto mutex = CreateMutex(nullptr, false, L"Local\\DebugView++");
+	MutexLock lock(mutex.get());
+
 	DWORD x, y, cx, cy;
 	CRegKey reg;
 	reg.Create(HKEY_CURRENT_USER, RegistryPath);
@@ -554,9 +554,8 @@ bool CMainFrame::LoadSettings()
 
 void CMainFrame::SaveSettings()
 {
-	using namespace boost::interprocess;
-	named_mutex mutex(boost::interprocess::open_or_create, "DebugViewPPConfigurationLock");
-	scoped_lock<named_mutex> lock(mutex);
+	auto mutex = CreateMutex(nullptr, false, L"Local\\DebugView++");
+	MutexLock lock(mutex.get());
 
 	auto placement = fusion::GetWindowPlacement(*this);
 
