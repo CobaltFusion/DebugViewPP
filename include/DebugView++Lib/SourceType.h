@@ -20,7 +20,10 @@ struct SourceType		// the SourceType is for UI indication
 	{
 		System,
 		Pipe,
-		File
+		File,
+		UDP_Socket,
+		TCP_Socket,
+		Debugview_Agent
 	};
 };
 

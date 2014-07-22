@@ -27,6 +27,9 @@
 #include "AboutDlg.h"
 #include "LogView.h"
 
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/interprocess/sync/named_mutex.hpp>
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -551,6 +554,10 @@ bool CMainFrame::LoadSettings()
 
 void CMainFrame::SaveSettings()
 {
+	using namespace boost::interprocess;
+	named_mutex mutex(boost::interprocess::open_or_create, "DebugViewPPConfigurationLock");
+	scoped_lock<named_mutex> lock(mutex);
+
 	auto placement = fusion::GetWindowPlacement(*this);
 
 	CRegKey reg;

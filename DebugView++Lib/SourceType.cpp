@@ -13,6 +13,18 @@
 namespace fusion {
 namespace debugviewpp {
 
+std::string RemoveSpaces(std::string value)
+{
+	boost::replace_all(value, " ", "_");
+	return value;
+}
+
+std::string RestoreSpaces(std::string value)
+{
+	boost::replace_all(value, "_", " ");
+	return value;
+}
+
 int SourceTypeToInt(SourceType::type value)
 {
 	return value;
@@ -21,7 +33,10 @@ int SourceTypeToInt(SourceType::type value)
 #define SOURCE_TYPES \
 	SOURCE_TYPE(System) \
 	SOURCE_TYPE(File) \
-	SOURCE_TYPE(Pipe)
+	SOURCE_TYPE(Pipe) \
+	SOURCE_TYPE(UDP_Socket) \
+	SOURCE_TYPE(TCP_Socket) \
+	SOURCE_TYPE(Debugview_Agent)
 
 SourceType::type IntToSourceType(int value)
 {
@@ -38,7 +53,7 @@ SourceType::type IntToSourceType(int value)
 
 std::string SourceTypeToString(SourceType::type value)
 {
-#define SOURCE_TYPE(f) case SourceType::f: return #f;
+#define SOURCE_TYPE(f) case SourceType::f: return RestoreSpaces(#f);
 	switch (value)
 	{
 	SOURCE_TYPES
@@ -64,7 +79,7 @@ const wchar_t* EnumToWCharPtr(SourceType::type value)
 
 SourceType::type StringToSourceType(const std::string& s)
 {
-#define SOURCE_TYPE(f) if (s == #f) return SourceType::f;
+#define SOURCE_TYPE(f) if (RemoveSpaces(s) == #f) return SourceType::f;
 	SOURCE_TYPES
 #undef SOURCE_TYPE
 
