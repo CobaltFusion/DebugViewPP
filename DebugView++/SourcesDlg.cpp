@@ -121,6 +121,7 @@ void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	CSourceDlg dlg;
 	if (dlg.DoModal() != IDOK)
 		return;
+	cdbg << "add: " << dlg.GetAddress().c_str() << ":" << dlg.GetPort() << std::endl;
 }
 
 std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToRemove()

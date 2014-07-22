@@ -35,9 +35,12 @@ public:
 	
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
-
+	std::wstring GetAddress() { return m_address; }
+	int GetPort() { return m_port; }
 private:
 	std::shared_ptr<LogSource> m_pLogSource;
+	int m_port;
+	std::wstring m_address;
 };
 
 } // namespace debugviewpp 
