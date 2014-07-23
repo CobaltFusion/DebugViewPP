@@ -1049,6 +1049,25 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	{
 		m_logSources.Remove(*it);
 	}
+	auto addsources = dlg.GetSourcesToAdd();
+	for (auto it = addsources.begin(); it != addsources.end(); ++it)
+	{
+		switch(it->sourcetype)
+		{
+		case SourceType::Debugview_Agent:
+			m_logSources.AddDbgviewReader(Str(it->address));
+			break;
+		case SourceType::UDP_Socket:
+			m_logSources.AddUDPReader(Str(it->address), it->port);
+			break;
+		case SourceType::TCP_Socket:
+			// implement
+			break;
+		default:
+			// do nothing
+			break;
+		}
+	}
 }
 
 void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

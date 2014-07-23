@@ -28,6 +28,11 @@ BEGIN_MSG_MAP_TRY(CSourcesDlg)
 	CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
+SourceInfo::SourceInfo(std::wstring name, SourceType::type sourcetype, std::wstring address, int port)
+: name(name), sourcetype(sourcetype), address(address), port(port)
+{
+}
+
 CSourcesDlg::CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources) : m_logsources(logsources)
 {
 }
@@ -121,12 +126,17 @@ void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	CSourceDlg dlg;
 	if (dlg.DoModal() != IDOK)
 		return;
-	cdbg << "add: " << dlg.GetAddress().c_str() << ":" << dlg.GetPort() << std::endl;
+	m_logsourcesToAdd.push_back(SourceInfo(dlg.GetName(), dlg.GetSourceType(), dlg.GetAddress(), dlg.GetPort()));
 }
 
 std::vector<std::shared_ptr<LogSource>> CSourcesDlg::GetSourcesToRemove()
 {
 	return m_logsourcesToRemove;
+}
+
+std::vector<SourceInfo> CSourcesDlg::GetSourcesToAdd()
+{
+	return m_logsourcesToAdd;
 }
 
 } // namespace debugviewpp 

@@ -18,6 +18,15 @@
 namespace fusion {
 namespace debugviewpp {
 
+struct SourceInfo
+{
+	SourceInfo(std::wstring name, SourceType::type sourcetype, std::wstring address, int port);
+	std::wstring name;
+	std::wstring address;
+	int port;
+	SourceType::type sourcetype;
+};
+
 class CSourcesDlg :
 	public CDialogImpl<CSourcesDlg>,
 	public CDialogResize<CSourcesDlg>
@@ -43,6 +52,7 @@ public:
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
 	std::vector<std::shared_ptr<LogSource>> GetSourcesToRemove();
+	std::vector<SourceInfo> GetSourcesToAdd();
 
 private:
 	bool GetSourceEnable(int iItem) const;
@@ -52,6 +62,8 @@ private:
 	CPropertyGridCtrl m_grid;
 	std::vector<std::shared_ptr<LogSource>> m_logsources;
 	std::vector<std::shared_ptr<LogSource>> m_logsourcesToRemove;
+	std::vector<SourceInfo> m_logsourcesToAdd;
+	
 };
 
 } // namespace debugviewpp 

@@ -294,8 +294,17 @@ std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 std::shared_ptr<DbgviewReader> LogSources::AddDbgviewReader(const std::string& hostname)
 {
 	auto dbgviewreader = std::make_shared<DbgviewReader>(m_timer, m_linebuffer, hostname);
+	m_loopback->AddMessage(stringbuilder() << "Source '" << dbgviewreader->GetDescription() << "' was added.");
 	Add(dbgviewreader);
 	return dbgviewreader;
+}
+
+std::shared_ptr<SocketReader> LogSources::AddUDPReader(const std::string& hostname, int port)
+{
+	auto socketreader = std::make_shared<SocketReader>(m_timer, m_linebuffer, hostname, port);
+	m_loopback->AddMessage(stringbuilder() << "Source '" << socketreader->GetDescription() << "' was added.");
+	Add(socketreader);
+	return socketreader;
 }
 
 } // namespace debugviewpp 
