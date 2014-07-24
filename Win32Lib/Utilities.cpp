@@ -14,8 +14,7 @@ namespace fusion {
 
 void ScopedCursorDeleter::operator()(pointer p) const
 {
-	if (p != nullptr)
-		SetCursor(p);
+	SetCursor(p);
 }
 
 ScopedCursor::ScopedCursor(HCURSOR hCursor) :
