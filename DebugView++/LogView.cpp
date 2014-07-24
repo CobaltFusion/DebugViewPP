@@ -1438,7 +1438,7 @@ void CLogView::Copy()
 	{
 		int item = -1;
 		while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-			ss << GetItemText(item) << "\n";
+			ss << GetItemText(item) << "\r\n";
 	}
 	const std::string& str = ss.str();
 
