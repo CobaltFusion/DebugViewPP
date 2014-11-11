@@ -34,7 +34,7 @@ Coming up (implemented in bleeding-egde version)
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
 - fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
-- add beep-filter for monitoring without seeing the screen
+- add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
 - fixed un-pause problem
 - Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
