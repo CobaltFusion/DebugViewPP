@@ -13,6 +13,7 @@
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
+#include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -1584,9 +1585,10 @@ void CLogView::SaveSettings(CRegKey& reg)
 		SaveFilterSettings(m_filter.processFilters, regFilters);
 }
 
-void CLogView::Save(const std::wstring& fileName) const
+void CLogView::Save(const std::wstring& filename) const
 {
-	std::ofstream file(fileName);
+	std::ofstream file;
+	OpenLogFile(file, Str(filename));
 
 	int lines = GetItemCount();
 	for (int i = 0; i < lines; ++i)
@@ -1594,7 +1596,7 @@ void CLogView::Save(const std::wstring& fileName) const
 
 	file.close();
 	if (!file)
-		ThrowLastError(fileName);
+		ThrowLastError(filename);
 }
 
 LogFilter CLogView::GetFilters() const

@@ -18,21 +18,12 @@
 namespace fusion {
 namespace debugviewpp {
 
-struct SourceInfo
-{
-	SourceInfo(std::wstring name, SourceType::type sourcetype, std::wstring address, int port);
-	std::wstring name;
-	std::wstring address;
-	int port;
-	SourceType::type sourcetype;
-};
-
 class CSourcesDlg :
 	public CDialogImpl<CSourcesDlg>,
 	public CDialogResize<CSourcesDlg>
 {
 public:
-	explicit CSourcesDlg(std::vector<std::shared_ptr<LogSource>> logsources);
+	explicit CSourcesDlg(std::vector<SourceInfo> sourceInfos);
 
 	enum { IDD = IDD_SOURCES };
 
@@ -51,18 +42,16 @@ public:
 	
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
-	std::vector<std::shared_ptr<LogSource>> GetSourcesToRemove();
-	std::vector<SourceInfo> GetSourcesToAdd();
+	std::vector<SourceInfo> GetSourceInfos();
 
 private:
 	bool GetSourceEnable(int iItem) const;
 	std::wstring GetSourceText(int iItem) const;
 	SourceType::type GetSourceType(int iItem) const;
+	void UpdateGrid();
 
 	CPropertyGridCtrl m_grid;
-	std::vector<std::shared_ptr<LogSource>> m_logsources;
-	std::vector<std::shared_ptr<LogSource>> m_logsourcesToRemove;
-	std::vector<SourceInfo> m_logsourcesToAdd;
+	std::vector<SourceInfo> m_sourceInfos;
 	
 };
 

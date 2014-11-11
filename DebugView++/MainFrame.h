@@ -163,6 +163,7 @@ private:
 	void SetTitle(const std::wstring& title = L"");
 	void HandleDroppedFile(const std::wstring& file);
 	void Run(const std::wstring& pathName = L"");
+	void AddLogSource(const SourceInfo& info);
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
@@ -187,6 +188,7 @@ private:
 	std::shared_ptr<DBWinReader> m_pLocalReader;
 	std::shared_ptr<DBWinReader> m_pGlobalReader;
 	std::shared_ptr<DbgviewReader> m_pDbgviewReader;
+	std::vector<SourceInfo> m_sourceInfos;
 };
 
 } // namespace debugviewpp 

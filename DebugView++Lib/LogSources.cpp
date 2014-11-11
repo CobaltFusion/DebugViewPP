@@ -73,7 +73,7 @@ void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 
 void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 {
-	m_loopback->AddMessage(stringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.");
+	AddMessage(stringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.");
 	boost::mutex::scoped_lock lock(m_mutex);
 	logsource->Abort();
 

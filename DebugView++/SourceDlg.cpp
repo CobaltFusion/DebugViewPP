@@ -52,7 +52,7 @@ void CSourceDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CSourceDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	m_name = GetDlgItemInt(IDC_NAME);
+	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
 	m_port = GetDlgItemInt(IDC_PORT);
 	m_address = fusion::GetDlgItemText(*this, IDC_IPADDRESS);
 	m_sourcetype = StringToSourceType(Str(fusion::GetDlgItemText(*this, IDC_TYPE)));

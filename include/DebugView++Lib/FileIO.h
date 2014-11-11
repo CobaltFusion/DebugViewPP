@@ -37,5 +37,10 @@ std::istream& ReadLogFileMessage(std::istream& is, Line& line);
 bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line);
 bool ReadLogFileMessage(const std::string& data, Line& line);
 
+std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
+
+void OpenLogFile(std::ofstream& ofstream, std::string filename);
+void WriteLogFileMessage(std::ofstream& ofstream, double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message);
+
 } // namespace debugviewpp 
 } // namespace fusion
