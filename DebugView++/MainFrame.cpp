@@ -403,9 +403,9 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 
 	if (DragQueryFile(hDropInfo, 0xFFFFFFFF, nullptr, 0) == 1)
 	{
-		std::vector<wchar_t> fileName(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
-		if (DragQueryFile(hDropInfo, 0, fileName.data(), fileName.size()))
-			HandleDroppedFile(std::wstring(fileName.data()));
+		std::vector<wchar_t> filename(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
+		if (DragQueryFile(hDropInfo, 0, filename.data(), filename.size()))
+			HandleDroppedFile(std::wstring(filename.data()));
 	}
 }
 
@@ -718,44 +718,40 @@ void CMainFrame::OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	AddFilterView();
 }
 
-void CMainFrame::SaveLogFile(const std::wstring& fileName)
+void CMainFrame::SaveLogFile(const std::wstring& filename)
 {
-	UISetText(0, WStr(wstringbuilder() << "Saving " << fileName));
+	UISetText(0, WStr(wstringbuilder() << "Saving " << filename));
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	std::ofstream fs(fileName);
+	std::ofstream fs;
+	OpenLogFile(fs, Str(filename));
 	int count = m_logFile.Count();
 	for (int i = 0; i < count; ++i)
 	{
 		auto msg = m_logFile[i];
-		fs <<
-			msg.time << '\t' <<
-			msg.systemTime << '\t'<<
-			msg.processId << '\t'<<
-			msg.processName << '\t'<<
-			msg.text << '\n';
+		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
 	}
 	fs.close();
 	if (!fs)
-		ThrowLastError(fileName);
+		ThrowLastError(filename);
 
-	m_logFileName = fileName;
+	m_logFileName = filename;
 	UpdateStatusBar();
 }
 
-void CMainFrame::SaveViewFile(const std::wstring& fileName)
+void CMainFrame::SaveViewFile(const std::wstring& filename)
 {
-	UISetText(0, WStr(wstringbuilder() << "Saving " << fileName));
+	UISetText(0, WStr(wstringbuilder() << "Saving " << filename));
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
-	GetView().Save(fileName);
-	m_txtFileName = fileName;
+	GetView().Save(filename);
+	m_txtFileName = filename;
 	UpdateStatusBar();
 }
 
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
-	CFileDialog dlg(true, L".dblog", fileName.c_str(), OFN_FILEMUSTEXIST,
+	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
+	CFileDialog dlg(true, L".dblog", filename.c_str(), OFN_FILEMUSTEXIST,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"DebugView Log Files (*.log)\0*.log\0"
 		L"All Files (*.*)\0*.*\0\0",
@@ -782,16 +778,16 @@ void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	Run();
 }
 
-void CMainFrame::Load(const std::wstring& fileName)
+void CMainFrame::Load(const std::wstring& filename)
 {
-	std::ifstream file(fileName);
+	std::ifstream file(filename);
 	if (!file)
-		ThrowLastError(fileName);
+		ThrowLastError(filename);
 
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
-	GetFileAttributesEx(fileName.c_str(), GetFileExInfoStandard, &fileInfo);
-	Load(file, boost::filesystem::wpath(fileName).filename().string(), fileInfo.ftCreationTime);
-	SetTitle(fileName);
+	GetFileAttributesEx(filename.c_str(), GetFileExInfoStandard, &fileInfo);
+	Load(file, boost::filesystem::wpath(filename).filename().string(), fileInfo.ftCreationTime);
+	SetTitle(filename);
 }
 
 void CMainFrame::SetTitle(const std::wstring& title)
@@ -834,8 +830,8 @@ void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
-	CFileDialog dlg(false, L".dblog", fileName.c_str(), OFN_OVERWRITEPROMPT,
+	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
+	CFileDialog dlg(false, L".dblog", filename.c_str(), OFN_OVERWRITEPROMPT,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"All Files (*.*)\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
@@ -846,8 +842,8 @@ void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 
 void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring fileName = !m_txtFileName.empty() ? m_txtFileName : L"DebugView.txt";
-	CFileDialog dlg(false, L".txt", fileName.c_str(), OFN_OVERWRITEPROMPT, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
+	std::wstring filename = !m_txtFileName.empty() ? m_txtFileName : L"DebugView.txt";
+	CFileDialog dlg(false, L".txt", filename.c_str(), OFN_OVERWRITEPROMPT, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save DebugView text";
 	if (dlg.DoModal() == IDOK)
@@ -1040,14 +1036,49 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CSourcesDlg dlg(m_logSources.GetSources());
+	CSourcesDlg dlg(m_sourceInfos);
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	auto sources = dlg.GetSourcesToRemove();
-	for (auto it = sources.begin(); it != sources.end(); ++it)
+	auto sourceInfos = dlg.GetSourceInfos();
+	auto it = sourceInfos.begin();
+	while (it != sourceInfos.end())
 	{
-		m_logSources.Remove(*it);
+		auto& info = (*it);
+		if (info.logsource != nullptr)
+			if (info.remove || info.enabled == false)
+				m_logSources.Remove(info.logsource);
+
+		if (info.remove)
+		{
+			it = sourceInfos.erase(it);
+			continue;
+		}
+		if (info.enabled && info.logsource == nullptr)
+		{
+			AddLogSource(info);
+		}
+		++it;
+	}
+	m_sourceInfos = sourceInfos;
+}
+
+void CMainFrame::AddLogSource(const SourceInfo& info)
+{
+	switch(info.type)
+	{
+	case SourceType::Debugview_Agent:
+		m_logSources.AddDbgviewReader(Str(info.address));
+		break;
+	case SourceType::UDP_Socket:
+		m_logSources.AddUDPReader(Str(info.address), info.port);
+		break;
+	case SourceType::TCP_Socket:
+		// implement
+		break;
+	default:
+		// do nothing
+		break;
 	}
 }
 

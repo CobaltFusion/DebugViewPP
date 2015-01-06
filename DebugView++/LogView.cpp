@@ -13,6 +13,7 @@
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
+#include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -1438,7 +1439,7 @@ void CLogView::Copy()
 	{
 		int item = -1;
 		while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-			ss << GetItemText(item) << "\n";
+			ss << GetItemText(item) << "\r\n";
 	}
 	const std::string& str = ss.str();
 
@@ -1471,6 +1472,7 @@ void CLogView::SetHighlightText(const std::wstring& text)
 template <typename Predicate>
 int CLogView::FindLine(Predicate pred, int direction) const
 {
+	SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
@@ -1583,9 +1585,10 @@ void CLogView::SaveSettings(CRegKey& reg)
 		SaveFilterSettings(m_filter.processFilters, regFilters);
 }
 
-void CLogView::Save(const std::wstring& fileName) const
+void CLogView::Save(const std::wstring& filename) const
 {
-	std::ofstream file(fileName);
+	std::ofstream file;
+	OpenLogFile(file, Str(filename));
 
 	int lines = GetItemCount();
 	for (int i = 0; i < lines; ++i)
@@ -1593,7 +1596,7 @@ void CLogView::Save(const std::wstring& fileName) const
 
 	file.close();
 	if (!file)
-		ThrowLastError(fileName);
+		ThrowLastError(filename);
 }
 
 LogFilter CLogView::GetFilters() const

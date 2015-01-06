@@ -14,6 +14,8 @@
 namespace fusion {
 namespace debugviewpp {
 
+class LogSource;
+
 struct SourceType		// the SourceType is for UI indication
 {
 	enum type
@@ -25,6 +27,21 @@ struct SourceType		// the SourceType is for UI indication
 		TCP_Socket,
 		Debugview_Agent
 	};
+};
+
+struct SourceInfo
+{
+	SourceInfo(std::wstring description, SourceType::type sourcetype);
+	SourceInfo(std::wstring description, SourceType::type sourcetype, std::wstring address, int port);
+	SourceInfo(std::wstring description, SourceType::type sourcetype, std::wstring address, int port, std::shared_ptr<LogSource> logsource);
+
+	bool enabled;
+	std::wstring description;
+	SourceType::type type;
+	std::wstring address;
+	int port;
+	std::shared_ptr<LogSource> logsource;
+	bool remove;
 };
 
 int SourceTypeToInt(SourceType::type value);

@@ -37,6 +37,10 @@ void CSourceDlg::ExceptionHandler()
 BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	CenterWindow(GetParent());
+	m_combo = GetDlgItem(IDC_TYPE);
+	m_combo.AddString(WStr(SourceTypeToString(SourceType::UDP_Socket)));
+	m_combo.AddString(WStr(SourceTypeToString(SourceType::TCP_Socket)));
+	m_combo.AddString(WStr(SourceTypeToString(SourceType::Debugview_Agent)));
 	DlgResize_Init();
 	return TRUE;
 }
@@ -48,6 +52,10 @@ void CSourceDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CSourceDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
+	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
+	m_port = GetDlgItemInt(IDC_PORT);
+	m_address = fusion::GetDlgItemText(*this, IDC_IPADDRESS);
+	m_sourcetype = StringToSourceType(Str(fusion::GetDlgItemText(*this, IDC_TYPE)));
 	EndDialog(nID);
 }
 

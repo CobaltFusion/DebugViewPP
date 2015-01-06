@@ -28,6 +28,7 @@ class PipeReader;
 class TestSource;
 class Loopback;
 class DbgviewReader;
+class SocketReader;
 
 typedef std::vector<HANDLE> LogSourceHandles;
 
@@ -53,6 +54,7 @@ public:
 	std::shared_ptr<FileReader> AddFileReader(const std::wstring& filename);
 	std::shared_ptr<DBLogReader> AddDBLogReader(const std::wstring& filename);
 	std::shared_ptr<DbgviewReader> AddDbgviewReader(const std::string& hostname);
+	std::shared_ptr<SocketReader> AddUDPReader(const std::string& hostname, int port);
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);

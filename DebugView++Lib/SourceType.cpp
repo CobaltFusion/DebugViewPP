@@ -8,10 +8,26 @@
 #include "stdafx.h"
 #include <stdexcept>
 #include "DebugView++Lib/SourceType.h"
+#include "DebugView++Lib/LogSource.h"
 #include "assert.h"
 
 namespace fusion {
 namespace debugviewpp {
+
+SourceInfo::SourceInfo(std::wstring description, SourceType::type type)
+: enabled(false), description(description), type(type), remove(false)
+{
+}
+
+SourceInfo::SourceInfo(std::wstring description, SourceType::type type, std::wstring address, int port)
+: enabled(false), description(description), type(type), address(address), port(port), remove(false)
+{
+}
+
+SourceInfo::SourceInfo(std::wstring description, SourceType::type type, std::wstring address, int port, std::shared_ptr<LogSource> logsource)
+: enabled(true), description(description), type(type), address(address), port(port), logsource(logsource), remove(false)
+{
+}
 
 std::string RemoveSpaces(std::string value)
 {

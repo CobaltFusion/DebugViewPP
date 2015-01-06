@@ -251,6 +251,33 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 	return true;
 }
 
+std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
+{
+	uint64_t hi = ft.dwHighDateTime;
+	uint64_t lo = ft.dwLowDateTime;
+	return os << ((hi << 32) | lo);
+}
+
+void OpenLogFile(std::ofstream& ofstream, std::string filename)
+{
+	bool newLogFile = !FileExists(filename.c_str());
+	ofstream.open(filename, std::ofstream::app);
+	if (newLogFile)
+	{
+		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification);
+	}
+}
+
+void WriteLogFileMessage(std::ofstream& ofstream, double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message)
+{
+	boost::trim_if(message, boost::is_any_of(" \r\n\t")); 
+	ofstream <<
+		time << "\t" <<
+		filetime << "\t"<<
+		pid << "\t" <<
+		processName << "\t" <<
+		message << "\n";
+}
 
 } // namespace debugviewpp 
 } // namespace fusion

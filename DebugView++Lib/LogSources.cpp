@@ -42,16 +42,6 @@ LogSources::LogSources(bool startListening) :
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_handleCacheTime(0.0)
 {
-	//try {
-	//	Add(std::make_shared<SocketReader>(m_timer, m_linebuffer, "0.0.0.0", 2999)); // test receiving UDP messages
-	//}
-	//catch (std::exception& e)
-	//{
-	//	AddMessage("UDP port 2999 already in use");
-	//	std::string test = e.what();
-	//	AddMessage(test);
-	//}
-
 	m_sources.push_back(m_loopback);
 	if (startListening)
 		m_thread = boost::thread(&LogSources::Listen, this);
@@ -83,7 +73,7 @@ void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 
 void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 {
-	m_loopback->AddMessage(stringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.");
+	AddMessage(stringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.");
 	boost::mutex::scoped_lock lock(m_mutex);
 	logsource->Abort();
 
@@ -294,8 +284,17 @@ std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 std::shared_ptr<DbgviewReader> LogSources::AddDbgviewReader(const std::string& hostname)
 {
 	auto dbgviewreader = std::make_shared<DbgviewReader>(m_timer, m_linebuffer, hostname);
+	m_loopback->AddMessage(stringbuilder() << "Source '" << dbgviewreader->GetDescription() << "' was added.");
 	Add(dbgviewreader);
 	return dbgviewreader;
+}
+
+std::shared_ptr<SocketReader> LogSources::AddUDPReader(const std::string& hostname, int port)
+{
+	auto socketreader = std::make_shared<SocketReader>(m_timer, m_linebuffer, hostname, port);
+	m_loopback->AddMessage(stringbuilder() << "Source '" << socketreader->GetDescription() << "' was added.");
+	Add(socketreader);
+	return socketreader;
 }
 
 } // namespace debugviewpp 
