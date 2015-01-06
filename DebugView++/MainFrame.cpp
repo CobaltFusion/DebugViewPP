@@ -58,6 +58,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
+	MSG_WM_MOUSEWHEEL(OnMouseWheel)
 	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_SYSCOMMAND(OnSysCommand)
 	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
@@ -376,6 +377,16 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	ProcessLines(m_logSources.GetLines());
 }
 
+bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	int size = LogFontSizeToPointSize(m_logfont.lfHeight) * std::pow(1.25, zDelta / WHEEL_DELTA);
+	size = std::max(size, 4);
+	size = std::min(size, 24);
+	m_logfont.lfHeight = LogFontSizeFromPointSize(size);
+	SetLogFont();
+	return true;
+}
+
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
 	Pause();
@@ -486,6 +497,16 @@ LRESULT CMainFrame::OnScClose(UINT, INT, HWND)
 
 const wchar_t* RegistryPath = L"Software\\Cobalt Fusion\\DebugView++";
 
+int CMainFrame::LogFontSizeFromPointSize(int fontSize)
+{
+	return -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
+}
+
+int CMainFrame::LogFontSizeToPointSize(int logFontSize)
+{
+	return -MulDiv(logFontSize, 72, GetDeviceCaps(GetDC(), LOGPIXELSY));
+}
+
 bool CMainFrame::LoadSettings()
 {
 	auto mutex = CreateMutex(nullptr, false, L"Local\\DebugView++");
@@ -513,10 +534,10 @@ bool CMainFrame::LoadSettings()
 	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
-		LOGFONT lf = {0};
+		LOGFONT lf = { 0 };
 		m_logfont = lf;
 		std::copy(fontName.begin(), fontName.end(), m_logfont.lfFaceName);
-		m_logfont.lfHeight = -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
+		m_logfont.lfHeight = LogFontSizeFromPointSize(fontSize);
 		SetLogFont();
 	}
 
@@ -572,7 +593,7 @@ void CMainFrame::SaveSettings()
 	reg.SetDWORDValue(L"Hide", m_hide);
 
 	reg.SetStringValue(L"FontName", m_logfont.lfFaceName);
-	reg.SetDWORDValue(L"FontSize", -MulDiv(m_logfont.lfHeight, 72, GetDeviceCaps(GetDC(), LOGPIXELSY)));
+	reg.SetDWORDValue(L"FontSize", LogFontSizeToPointSize(m_logfont.lfHeight));
 
 	reg.RecurseDeleteKey(L"Views");
 

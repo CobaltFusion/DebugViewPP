@@ -102,7 +102,11 @@ private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	void OnTimer(UINT_PTR nIDEvent);
+	bool OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void ProcessLines(const Lines& lines);
+
+	int LogFontSizeFromPointSize(int fontSize);
+	int LogFontSizeToPointSize(int logFontSize);
 
 	std::wstring GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const;
 	SelectionInfo GetLogFileRange() const;
