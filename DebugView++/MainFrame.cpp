@@ -377,12 +377,12 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 	ProcessLines(m_logSources.GetLines());
 }
 
-bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint /*pt*/)
 {
 	if ((nFlags & MK_CONTROL) == 0)
 		return false;
 
-	int size = LogFontSizeToPointSize(m_logfont.lfHeight) * std::pow(1.25, zDelta / WHEEL_DELTA);
+	int size = static_cast<int>(LogFontSizeToPointSize(m_logfont.lfHeight) * std::pow(1.15, zDelta / WHEEL_DELTA) + 0.5);
 	size = std::max(size, 4);
 	size = std::min(size, 24);
 	m_logfont.lfHeight = LogFontSizeFromPointSize(size);
