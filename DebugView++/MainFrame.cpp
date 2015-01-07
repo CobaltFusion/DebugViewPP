@@ -379,6 +379,9 @@ void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
 
 bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
+	if ((nFlags & MK_CONTROL) == 0)
+		return false;
+
 	int size = LogFontSizeToPointSize(m_logfont.lfHeight) * std::pow(1.25, zDelta / WHEEL_DELTA);
 	size = std::max(size, 4);
 	size = std::min(size, 24);
