@@ -155,6 +155,7 @@ The libraries must be installed in /Libraries and zip.exe installed, add the bin
 
 Build dependencies
 ------------------
+- WiX Toolset: install the latest binary from http://wixtoolset.org/
 - boost: read the install.sh in the boost archive
 - WTL and zip: decompress the archives and you're done
 
