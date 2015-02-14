@@ -27,7 +27,8 @@ public:
 	virtual bool Full() const;
 	virtual size_t GetFree() const;
 	virtual size_t GetCount() const;
-
+	
+	// Performance can be improved by doing block-operations, for example using a Duff-device
 	char Read();
 	std::string ReadStringZ();
 	void Write(char c);

@@ -284,6 +284,7 @@ private:
 	HCURSOR m_hBeamCursor;
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
+	bool m_dragging;
 };
 
 } // namespace debugviewpp 

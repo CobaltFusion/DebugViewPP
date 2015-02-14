@@ -130,7 +130,8 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
 	m_dragStart(0, 0),
-	m_dragEnd(0, 0)
+	m_dragEnd(0, 0),
+	m_dragging(false)
 {
 }
 
@@ -390,9 +391,11 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	m_dragEnd = CPoint();
 	ReleaseCapture();
 	Invalidate();
-	if ((info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message)
+
+	if ((m_dragging == false) || (info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message) 
 		return;
 
+	m_dragging = false;
 	int begin = GetTextIndex(info.iItem, x1);
 	int end = GetTextIndex(info.iItem, x2);
 	SetHighlightText(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)).substr(begin, end - begin));
@@ -932,6 +935,7 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	StopTracking();
 
 	SetCapture();
+	m_dragging = true; 
 	m_dragStart = nmhdr.ptAction;
 	m_dragEnd = nmhdr.ptAction;
 
