@@ -44,21 +44,21 @@ void ShowMessages()
 int main(int argc, char* argv[])
 try
 {
-	using namespace boost::asio::ip;
-	boost::asio::io_service io_service;
-	udp::resolver resolver(io_service);
-	udp::resolver::query query(udp::v4(), "255.255.255.255", "2999");
-	udp::endpoint receiver_endpoint = *resolver.resolve(query);
-	
-	udp::socket socket(io_service);
-    socket.open(udp::v4());
-
-	// enable broadcast
-	boost::asio::socket_base::broadcast option(true);
-	socket.set_option(option);
-
 	if (argc >1)
 	{
+		// send a UDP test-message (used only for debugging)
+		using namespace boost::asio::ip;
+		boost::asio::io_service io_service;
+		udp::resolver resolver(io_service);
+		udp::resolver::query query(udp::v4(), "255.255.255.255", "2999");
+		udp::endpoint receiver_endpoint = *resolver.resolve(query);
+		udp::socket socket(io_service);
+		socket.open(udp::v4());
+
+		// enable broadcast
+		boost::asio::socket_base::broadcast option(true);
+		socket.set_option(option);
+
 		std::string msg = argv[1];
 		std::cout << msg << std::endl;
 		socket.send_to(boost::asio::buffer(msg), receiver_endpoint);
@@ -66,12 +66,19 @@ try
 	else
 	{
 		std::cout << "DebugViewConsole v" << VERSION_STR << std::endl;
+		std::cout << "Listinging for Outputdebugstring messages..." << std::endl;
+
 		fusion::debugviewpp::ShowMessages();
 	}
 	return 0;
 }
 catch (std::exception& e)
 {
-	std::cerr << "DebugViewConsole error:" << e.what() << std::endl;
+	std::cerr << "Unexpected error occurred in " << e.what() << std::endl;
+	std::string message(e.what());
+	if (message.find("CreateDBWinBufferMapping") != std::string::npos)
+	{
+		std::cerr << "Another DebugView++ (or simular application) might be running. " << std::endl;
+	}
 	return 1;
 }

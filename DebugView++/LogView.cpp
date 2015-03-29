@@ -392,7 +392,7 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	ReleaseCapture();
 	Invalidate();
 
-	if ((m_dragging == false) || (info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message) 
+	if (!m_dragging || (info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message) 
 		return;
 
 	m_dragging = false;
@@ -564,9 +564,12 @@ void ExtTextOut(HDC hdc, const POINT& pt, const RECT& rect, const std::wstring& 
 void AddEllipsis(HDC hdc, std::wstring& text, int width)
 {
 	static const std::wstring ellipsis(L"...");
-	int pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.size()).cx);
+	int pos = GetTextOffset(hdc, text, width);
 	if (pos >= 0 && pos < static_cast<int>(text.size()))
+	{
+		pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.size()).cx);
 		text = text.substr(0, pos) + ellipsis;
+	}
 }
 
 void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highlight)
@@ -845,7 +848,9 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 	if ((item.mask & LVIF_TEXT) == 0 || item.iItem >= static_cast<int>(m_logLines.size()))
 		return 0;
 
-	CopyItemText(GetColumnText(item.iItem, SubItemToColumn(item.iSubItem)), item.pszText, item.cchTextMax);
+	m_dispInfoText = WStr(GetColumnText(item.iItem, SubItemToColumn(item.iSubItem))).str();
+	item.pszText = const_cast<wchar_t*>(m_dispInfoText.c_str());
+//	CopyItemText(GetColumnText(item.iItem, SubItemToColumn(item.iSubItem)), item.pszText, item.cchTextMax);
 	return 0;
 }
 

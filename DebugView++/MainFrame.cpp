@@ -268,7 +268,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(floor_to<int>(seconds), L"second");
 
-	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
+	static const wchar_t* units[] = { L"s", L"ms", L"Âµs", L"ns", nullptr };
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -960,7 +960,7 @@ void CMainFrame::Resume()
 			MessageBox(
 				L"Unable to capture Win32 Messages.\n"
 				L"\n"
-				L"Another DebugView++ (or simular application) might be running.\n",
+				L"Another DebugView++ (or similar application) might be running.\n",
 				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			return;
 		}
