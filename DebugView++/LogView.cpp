@@ -1591,15 +1591,19 @@ void CLogView::SaveSettings(CRegKey& reg)
 
 void CLogView::Save(const std::wstring& filename) const
 {
-	std::ofstream file;
-	OpenLogFile(file, Str(filename));
+	std::ofstream fs;
+	OpenLogFile(fs, Str(filename));
 
 	int lines = GetItemCount();
 	for (int i = 0; i < lines; ++i)
-		file << GetItemText(i) << "\n";
+	{
+		int line = m_logLines[i].line;
+		const Message& msg = m_logFile[line];
+		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
+	}
 
-	file.close();
-	if (!file)
+	fs.close();
+	if (!fs)
 		ThrowLastError(filename);
 }
 
