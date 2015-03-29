@@ -110,11 +110,12 @@ bool LogSources::GetAutoNewLine() const
 void LogSources::Abort()
 {
 	m_end = true;
-
-	boost::mutex::scoped_lock lock(m_mutex);
-	for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
 	{
-		(*i)->Abort();
+		boost::mutex::scoped_lock lock(m_mutex);
+		for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
+		{
+			(*i)->Abort();
+		}
 	}
 	SetEvent(m_updateEvent.get());
 	m_thread.join();
