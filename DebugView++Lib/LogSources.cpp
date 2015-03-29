@@ -125,6 +125,9 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
+// default behaviour: 
+// LogSources starts with 1 logsource, the loopback source
+// At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
 	for (;;)
