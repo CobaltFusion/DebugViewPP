@@ -854,22 +854,24 @@ void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
+	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"AllMessagesInMemory.dblog";
 	CFileDialog dlg(false, L".dblog", filename.c_str(), OFN_OVERWRITEPROMPT,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"All Files (*.*)\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Save DebugView++ Log";
+	dlg.m_ofn.lpstrTitle = L"Save all messages in memory buffer";
 	if (dlg.DoModal() == IDOK)
 		SaveLogFile(dlg.m_szFileName);
 }
 
 void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring filename = !m_txtFileName.empty() ? m_txtFileName : L"DebugView.txt";
-	CFileDialog dlg(false, L".txt", filename.c_str(), OFN_OVERWRITEPROMPT, L"Text Files (*.txt)\0*.txt\0All Files\0*.*\0\0", 0);
+	std::wstring filename = !m_txtFileName.empty() ? m_txtFileName : L"MessagesInTheCurrentView.dblog";
+	CFileDialog dlg(false, L".dblog", filename.c_str(), OFN_OVERWRITEPROMPT,
+		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
+		L"All Files (*.*)\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
-	dlg.m_ofn.lpstrTitle = L"Save DebugView text";
+	dlg.m_ofn.lpstrTitle = L"Save the messages in the current view";
 	if (dlg.DoModal() == IDOK)
 		SaveViewFile(dlg.m_szFileName);
 }
