@@ -285,6 +285,7 @@ private:
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
 	bool m_dragging;
+	std::wstring m_dispInfoText;
 };
 
 } // namespace debugviewpp 
