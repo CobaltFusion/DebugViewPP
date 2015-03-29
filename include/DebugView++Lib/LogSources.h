@@ -67,7 +67,7 @@ private:
 	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Handle m_updateEvent;
 	bool m_end;
-	VectorLineBuffer m_linebuffer;				// Replace with LineBuffer (which is circular) once it is finished, currently buggy...
+	VectorLineBuffer m_linebuffer;
 	ProcessHandleCache m_handleCache;
 	NewlineFilter m_newlineFilter;
 	std::shared_ptr<Loopback> m_loopback;
