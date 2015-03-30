@@ -117,7 +117,7 @@ just type any word or part of a word to match.
 - highlight: lines containing a matching expression will be highlighted using the specified foreground and background colors
 - token: only the matching expression will be highlighted using the specified foreground and background colors
 - track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched 
-- stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only of autoscroll is on, think of a stop-filter as a one-shot track filter
+- stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only if autoscroll is on, think of a stop-filter as a single-shot track filter
 - beep: a standard windows beep (configurable in config panel->sounds) is played 
 
 *Practical uses*:
