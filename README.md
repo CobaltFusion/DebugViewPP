@@ -112,7 +112,7 @@ All filters support regular expressions, if you are not familliar with regular e
 just type any word or part of a word to match.
 
 - include: if an include filter is added only lines containing a matching expression will be included.
-- exclude: lines containing a matching expression will be excluded from the view, excluded always takes precedence over include.
+- exclude: lines containing a matching expression will be excluded from the view, excluding always takes precedence over including
 - once: only the first line containing a matching expression will be included, this resets automatically at 'clear view'. 
 - highlight: lines containing a matching expression will be highlighted using the specified foreground and background colors
 - token: only the matching expression will be highlighted using the specified foreground and background colors
