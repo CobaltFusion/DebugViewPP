@@ -29,7 +29,7 @@ New features in v1.2
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
 
-Coming up (implemented in bleeding-egde version)
+Coming up (implemented in bleeding-egde version 1.3)
 
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
@@ -42,6 +42,14 @@ Coming up (implemented in bleeding-egde version)
 - tailing our own logfiles over samba network
 - support for reading and tailing Sysinternals Debugview logfiles (four common formats)
 - implemented tailing overwritten/skrinking logfiles
+
+Coming up / Working on (on the head version in GIT)
+
+- Fixed several minor UI bugs
+- Dbgview agent client mode allowing logging of kernel messages
+- added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
+- Better logging to files 
+- History (memory consumption) limits
 
 Download Stable release
 -----------------------
