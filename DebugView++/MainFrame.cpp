@@ -85,7 +85,6 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
 	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
-	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGING, OnChangingTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
@@ -174,7 +173,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
-	GetTabCtrl().InsertItem(0, L"+");
 	AddFilterView(L"View");
 	HideTabControl();
 
@@ -648,9 +646,12 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 	pView->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 	pView->SetFont(m_hFont.get());
 
-	int newIndex = GetTabCtrl().GetItemCount() - 1;
-	GetTabCtrl().InsertItem(newIndex, name.c_str());
-	GetTabCtrl().GetItem(newIndex)->SetView(pView);
+	auto pItem = make_unique<CLogViewTabItem>();
+	pItem->SetText(name.c_str());
+	pItem->SetView(pView);
+
+	int newIndex = GetTabCtrl().GetItemCount();
+	GetTabCtrl().InsertItem(newIndex, pItem.release());
 	GetTabCtrl().SetCurSel(newIndex);
 	ShowTabControl();
 }
@@ -662,21 +663,6 @@ LRESULT CMainFrame::OnBeginTabDrag(NMHDR* pnmh)
 	return nmhdr.iItem >= GetViewCount();
 }
 
-LRESULT CMainFrame::OnChangingTab(NMHDR* pnmh)
-{
-	auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
-
-	// The TabCtrl doesn't like the FiltersDialog during its message processing.
-	// The PostMessage triggers the new tab after the TabControl message handling
-	if (nmhdr.iItem2 > 0 && nmhdr.iItem2 == GetViewCount())
-	{
-		PostMessage(WM_COMMAND, ID_FILE_NEWVIEW, (LPARAM)m_hWnd);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 {
 	SetMsgHandled(false);
@@ -684,9 +670,7 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 
 	if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
-	{
 		SetModifiedMark(nmhdr.iItem2, false);
-	}
 
 	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
 		nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() ||
@@ -703,10 +687,9 @@ void CMainFrame::SetModifiedMark(int tabindex, bool modified)
 {
 	auto name = GetView(tabindex).GetName();
 	if (modified)
-	{
 		name += L"*";
-	}
-	//GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
+
+//	GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
 	GetTabCtrl().GetItem(tabindex)->SetText(name.c_str());
 }
 
@@ -1141,7 +1124,7 @@ void CMainFrame::OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 int CMainFrame::GetViewCount() const
 {
-	return const_cast<CMainFrame&>(*this).GetTabCtrl().GetItemCount() - 1;
+	return const_cast<CMainFrame&>(*this).GetTabCtrl().GetItemCount();
 }
 
 CLogView& CMainFrame::GetView(int i)
