@@ -27,6 +27,12 @@ ProcessReader::~ProcessReader()
 {
 }
 
+void ProcessReader::Abort()
+{
+	AddMessage(m_process.GetProcessId(), Str(m_process.GetName()).c_str(), "<process terminated>");
+	PassiveLogSource::Abort();
+}
+
 bool ProcessReader::AtEnd() const
 {
 	return m_stdout.AtEnd() && m_stderr.AtEnd();

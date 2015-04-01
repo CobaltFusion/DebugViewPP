@@ -29,7 +29,7 @@ New features in v1.2
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
 
-Coming up (implemented in bleeding-egde version)
+Coming up (implemented in bleeding-egde version 1.3)
 
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
@@ -42,6 +42,14 @@ Coming up (implemented in bleeding-egde version)
 - tailing our own logfiles over samba network
 - support for reading and tailing Sysinternals Debugview logfiles (four common formats)
 - implemented tailing overwritten/skrinking logfiles
+
+Coming up / Working on (on the head version in GIT)
+
+- Fixed several minor UI bugs
+- Dbgview agent client mode allowing logging of kernel messages
+- added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
+- Better logging to files 
+- History (memory consumption) limits
 
 Download Stable release
 -----------------------
@@ -104,12 +112,12 @@ All filters support regular expressions, if you are not familliar with regular e
 just type any word or part of a word to match.
 
 - include: if an include filter is added only lines containing a matching expression will be included.
-- exclude: lines containing a matching expression will be excluded from the view, excluded always takes precedence over include.
+- exclude: lines containing a matching expression will be excluded from the view, excluding always takes precedence over including
 - once: only the first line containing a matching expression will be included, this resets automatically at 'clear view'. 
 - highlight: lines containing a matching expression will be highlighted using the specified foreground and background colors
 - token: only the matching expression will be highlighted using the specified foreground and background colors
 - track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched 
-- stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only of autoscroll is on, think of a stop-filter as a one-shot track filter
+- stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only if autoscroll is on, think of a stop-filter as a single-shot track filter
 - beep: a standard windows beep (configurable in config panel->sounds) is played 
 
 *Practical uses*:

@@ -48,7 +48,7 @@ void DbgMsgTest()
 	OutputDebugStringA("11\t\t12\t\t13\t\t14\t\t15");
 	OutputDebugStringA("\t\t22\t\t23A\t\t24\t\t25");
 	OutputDebugStringA("\t\t\t\t33\t\t34\t\t35");
-	OutputDebugStringA("LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
+	OutputDebugStringA("2LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
 }
 
 void SocketTest()

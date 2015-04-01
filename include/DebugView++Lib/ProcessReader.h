@@ -22,6 +22,7 @@ public:
 	ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
 	virtual ~ProcessReader();
 
+	virtual void Abort();
 	virtual bool AtEnd() const;
 private:
 	virtual void Poll();

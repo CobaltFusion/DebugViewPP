@@ -39,7 +39,7 @@ public:
 	virtual void Abort();
 
 	// in contrast to the LogSource::Add methdods, these methods are de-coupled so they 
-	// can be used to add messages from any thread. The typical use-cause are messages from the UI thread.
+	// can be used to add messages from any thread. The typical use-case are messages from the UI thread.
 	void AddMessage(DWORD pid, const char* processName, const char* message);
 	void AddMessage(const std::string& message);
 	void Signal();

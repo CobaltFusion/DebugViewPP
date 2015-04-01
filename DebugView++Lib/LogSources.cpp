@@ -111,8 +111,10 @@ void LogSources::Abort()
 {
 	m_end = true;
 
-	boost::mutex::scoped_lock lock(m_mutex);
-	for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
+	boost::unique_lock<boost::mutex> lock(m_mutex);
+	auto sources = m_sources;
+	lock.unlock();
+	for (auto i = sources.begin(); i != sources.end(); ++i)
 	{
 		(*i)->Abort();
 	}
@@ -125,6 +127,9 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
+// default behaviour: 
+// LogSources starts with 1 logsource, the loopback source
+// At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
 	for (;;)
