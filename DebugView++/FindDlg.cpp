@@ -43,14 +43,6 @@ void CFindDlg::OnDestroy()
 	pLoop->RemoveMessageFilter(this);
 }
 
-void CFindDlg::OnGetMinMaxInfo(MINMAXINFO* pInfo)
-{
-	RECT rect;
-	GetWindowRect(&rect);
-	pInfo->ptMinTrackSize.x = 300;
-	pInfo->ptMinTrackSize.y = pInfo->ptMaxTrackSize.y = rect.bottom - rect.top;
-}
-
 void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
 	m_mainFrame.FindNext(fusion::GetDlgItemText(*this, IDC_TEXT));
@@ -59,11 +51,6 @@ void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
 	m_mainFrame.FindPrevious(fusion::GetDlgItemText(*this, IDC_TEXT));
-}
-
-void CFindDlg::OnClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
-{
-	ShowWindow(SW_HIDE);
 }
 
 } // namespace debugviewpp 

@@ -27,7 +27,6 @@ public:
 	BEGIN_MSG_MAP(CFindDlg)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_DESTROY(OnDestroy)
-		MSG_WM_GETMINMAXINFO(OnGetMinMaxInfo)
 		COMMAND_ID_HANDLER_EX(IDOK, OnNext)
 		COMMAND_ID_HANDLER_EX(IDC_NEXT, OnNext)
 		COMMAND_ID_HANDLER_EX(IDC_PREVIOUS, OnPrevious)
@@ -49,11 +48,9 @@ public:
 	int OnCreate(CREATESTRUCT* pCreate);
 	void OnDestroy();
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
-	void OnGetMinMaxInfo(MINMAXINFO* pInfo);
 	void OnTextChange(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
 	void OnPrevious(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
 	void OnNext(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
-	void OnClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
 
 private:
 	CMainFrame& m_mainFrame;
