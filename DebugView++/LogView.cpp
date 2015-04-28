@@ -18,6 +18,29 @@
 namespace fusion {
 namespace debugviewpp {
 
+template <typename CharT>
+std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tabsize = 4)
+{
+	std::basic_string<CharT> result;
+	result.reserve(s.size() + 3*tabsize);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == CharT('\t'))
+		{
+			do
+			{
+				result.push_back(CharT(' '));
+			}
+			while (result.size() % tabsize != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
+}
+
 SelectionInfo::SelectionInfo() :
 	beginLine(0), endLine(0), count(0)
 {
@@ -398,7 +421,7 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	m_dragging = false;
 	int begin = GetTextIndex(info.iItem, x1);
 	int end = GetTextIndex(info.iItem, x2);
-	SetHighlightText(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)).substr(begin, end - begin));
+	SetHighlightText(TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message))).substr(begin, end - begin));
 }
 
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
@@ -433,7 +456,7 @@ int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
 	auto rect = GetSubItemRect(0, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
-	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));
+	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
 	int index = GetTextOffset(dc, text, xPos - x0);
 	if (index < 0)
 		return xPos > x0 ? text.size() : 0;
@@ -448,7 +471,7 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
-	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));
+	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
 
 	int begin = nFit;
 	while (begin > 0)
@@ -664,28 +687,6 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 		return;
 	RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
 	dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16)/2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
-}
-
-std::string TabsToSpaces(const std::string& s, int tabsize = 4)
-{
-	std::string result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == '\t')
-		{
-			do
-			{
-				result.push_back(' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
 }
 
 ItemData CLogView::GetItemData(int iItem) const
