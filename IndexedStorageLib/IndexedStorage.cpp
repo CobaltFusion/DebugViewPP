@@ -37,7 +37,7 @@ size_t VectorStorage::Count() const
 	return m_storage.size();
 }
 
-std::string VectorStorage::operator[](int i) const
+std::string VectorStorage::operator[](size_t i) const
 {
 	return m_storage[i];
 }

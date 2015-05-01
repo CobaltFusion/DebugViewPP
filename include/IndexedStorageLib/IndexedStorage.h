@@ -22,7 +22,7 @@ public:
 	void Clear();
 	size_t Add(const std::string& value);
 	size_t Count() const;
-	std::string operator[](int i) const;
+	std::string operator[](size_t i) const;
 
 private:
 	std::vector<std::string> m_storage;
