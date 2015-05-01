@@ -42,34 +42,34 @@ void LogFile::Add(const Message& msg)
 	m_storage.Add(msg.text);
 }
 
-int LogFile::BeginIndex() const
+size_t LogFile::BeginIndex() const
 {
 	return 0;
 }
 
-int LogFile::EndIndex() const
+size_t LogFile::EndIndex() const
 {
 	return m_messages.size();
 }
 
-int LogFile::Count() const
+size_t LogFile::Count() const
 {
 	return m_messages.size();
 }
 
-Message LogFile::operator[](int i) const
+Message LogFile::operator[](size_t i) const
 {
 	auto& msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
 	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i], props.color);
 }
 
-int LogFile::GetHistorySize() const
+size_t LogFile::GetHistorySize() const
 {
 	return m_historySize;
 }
 
-void LogFile::SetHistorySize(int size)
+void LogFile::SetHistorySize(size_t size)
 {
 	m_historySize = size;
 }

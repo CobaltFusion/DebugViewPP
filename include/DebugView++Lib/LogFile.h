@@ -36,12 +36,12 @@ public:
 	bool Empty() const;
 	void Clear();
 	void Add(const Message& msg);
-	int BeginIndex() const;
-	int EndIndex() const;
-	int Count() const;
-	Message operator[](int i) const;
-	int GetHistorySize() const;
-	void SetHistorySize(int size);
+	size_t BeginIndex() const;
+	size_t EndIndex() const;
+	size_t Count() const;
+	Message operator[](size_t i) const;
+	size_t GetHistorySize() const;
+	void SetHistorySize(size_t size);
 
 private:
 	struct InternalMessage
@@ -60,7 +60,7 @@ private:
 	ProcessInfo m_processInfo;
 	mutable indexedstorage::SnappyStorage m_storage;
 //	indexedstorage::VectorStorage m_storage;
-	int m_historySize;
+	size_t m_historySize;
 };
 
 } // namespace debugviewpp 
