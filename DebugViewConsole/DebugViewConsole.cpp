@@ -29,6 +29,7 @@ struct Settings
 	bool pid;
 	bool processName;
 	bool autonewline;
+	bool flush;
 };
 
 std::string GetTimeText(double time)
@@ -76,31 +77,20 @@ void ShowMessages(Settings settings)
 	if (HasGlobalDBWinReaderRights())
 		sources.AddDBWinReader(true);
 
+	sources.SetAutoNewLine(settings.autonewline);
+
 	std::string separator = settings.tabs ? "\t" : " ";
 	for (;;)
 	{
 		auto lines = sources.GetLines();
 		for (auto i=lines.begin(); i != lines.end(); ++i)
 		{
-			std::string message = i->message.c_str();
-			boost::trim(message);
-			if (settings.autonewline)
-			{
-				std::vector<std::string> lines;
-				boost::split(lines, message , boost::is_any_of("\n\r"));
-				for (auto it = lines.begin(); it != lines.end(); ++it)
-				{
-					std::string part = *it;
-					boost::trim(part);
-					OutputDetails(settings, *i);
-					std::cout << "[start] " << *it << " [end] \n";
-				}
-			}
-			else
-			{
-				OutputDetails(settings, *i);
-				std::cout << separator << i->message.c_str() << "\n";
-			}   
+			OutputDetails(settings, *i);
+			std::cout << separator << i->message.c_str() << "\n";
+		}
+		if (settings.flush)
+		{
+			std::cout.flush();
 		}
 		Sleep(100);
 	}
@@ -144,6 +134,7 @@ try
 		std::cout << "-p: add PID (process ID)\n";
 		std::cout << "-n: add process name\n";
 		std::cout << "-a: auto-newline (\\n's in the message will split the message into multiple lines)\n";
+		std::cout << "-f: flush\n";
 		std::cout << "-v: verbose output\n";
 		exit(0);
 	}
@@ -184,6 +175,11 @@ try
 	{
 		if (verbose) std::cout << "-a: auto-newline (\\n's in the message will split the message into multiple lines)\n";
 		settings.autonewline = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-f"))
+	{
+		if (verbose) std::cout << "-f: auto flush (write to disk more often)\n";
+		settings.flush = true;
 	}
 
 	if (cmdOptionExists(argv, argv+argc, "-u"))
