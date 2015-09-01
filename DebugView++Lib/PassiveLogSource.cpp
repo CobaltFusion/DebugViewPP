@@ -33,7 +33,6 @@ PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, IL
 
 PassiveLogSource::~PassiveLogSource()
 {
-    std::cout << " # ~PassiveLogSource()" << std::endl;
 }
 
 void PassiveLogSource::StartThread()

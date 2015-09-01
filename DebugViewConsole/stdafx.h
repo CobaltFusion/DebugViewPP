@@ -13,3 +13,5 @@
 
 #include <atlbase.h>
 #include <atlstr.h>
+
+#pragma warning(disable : 4503 4512 4996)	// boost warnings we cannot work around

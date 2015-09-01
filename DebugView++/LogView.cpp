@@ -1716,7 +1716,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 
 	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))
+		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(TabsToSpaces(msg.text), it->re))
 			return TextColor(it->bgColor, it->fgColor);
 	}
 

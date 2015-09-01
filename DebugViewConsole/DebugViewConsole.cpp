@@ -16,23 +16,91 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
 #include <boost/asio.hpp> 
+#include <boost/algorithm/string.hpp>
 
 namespace fusion {
 namespace debugviewpp {
 
-void ShowMessages()
+struct Settings
+{
+	bool timestamp;
+	bool performanceCounter;
+	bool tabs;
+	bool pid;
+	bool processName;
+	bool autonewline;
+};
+
+std::string GetTimeText(double time)
+{
+	return stringbuilder() << std::fixed << std::setprecision(6) << time;
+}
+
+std::string GetTimeText(const SYSTEMTIME& st)
+{
+	char buf[32];
+	sprintf_s(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	return buf;
+}
+
+std::string GetTimeText(const FILETIME& ft)
+{
+	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
+}
+
+void OutputDetails(Settings settings, const Line& line)
+{
+	std::string separator = settings.tabs ? "\t" : " ";
+	if (settings.timestamp) 
+	{
+		std::cout << GetTimeText(line.systemTime) << separator;
+	}
+	if (settings.performanceCounter) 
+	{
+		std::cout << GetTimeText(line.time) << separator;
+	}
+	if (settings.pid) 
+	{
+		std::cout << line.pid << separator;
+	}
+	if (settings.processName) 
+	{
+		std::cout << line.processName.c_str() << separator;
+	}
+}
+
+void ShowMessages(Settings settings)
 {
 	LogSources sources(true);
 	sources.AddDBWinReader(false);
 	if (HasGlobalDBWinReaderRights())
 		sources.AddDBWinReader(true);
 
+	std::string separator = settings.tabs ? "\t" : " ";
 	for (;;)
 	{
 		auto lines = sources.GetLines();
 		for (auto i=lines.begin(); i != lines.end(); ++i)
 		{
-			std::cout << i->pid << "\t" << i->processName.c_str() << "\t" << i->message.c_str() << "\n";
+			std::string message = i->message.c_str();
+			boost::trim(message);
+			if (settings.autonewline)
+			{
+				std::vector<std::string> lines;
+				boost::split(lines, message , boost::is_any_of("\n\r"));
+				for (auto it = lines.begin(); it != lines.end(); ++it)
+				{
+					std::string part = *it;
+					boost::trim(part);
+					OutputDetails(settings, *i);
+					std::cout << "[start] " << *it << " [end] \n";
+				}
+			}
+			else
+			{
+				OutputDetails(settings, *i);
+				std::cout << separator << i->message.c_str() << "\n";
+			}   
 		}
 		Sleep(100);
 	}
@@ -41,12 +109,86 @@ void ShowMessages()
 } // namespace debugviewpp
 } // namespace fusion
 
+#include <algorithm>
+
+char* getCmdOption(char ** begin, char ** end, const std::string& option)
+{
+	char ** itr = std::find(begin, end, option);
+	if (itr != end && ++itr != end)
+	{
+		return *itr;
+	}
+	return 0;
+}
+
+bool cmdOptionExists(char** begin, char** end, const std::string& option)
+{
+	return std::find(begin, end, option) != end;
+}
+
 int main(int argc, char* argv[])
 try
 {
-	if (argc >1)
+	using namespace fusion::debugviewpp;
+
+	Settings settings = {0};
+	std::cout << "DebugViewConsole v" << VERSION_STR << std::endl;
+	settings.timestamp = false;
+	if (cmdOptionExists(argv, argv+argc, "-h") || cmdOptionExists(argv, argv+argc, "--help"))
 	{
-		// send a UDP test-message (used only for debugging)
+		std::cout << "-h: this help message\n";
+		std::cout << "-u: send a UDP test-message (used only for debugging)\n";
+		std::cout << "-s: prefix messages with system time\n";
+		std::cout << "-q: prefix message with high-precision (<1us) offset (from QueryPerformanceCounter)\n";
+		std::cout << "-t: tab-separated output\n";
+		std::cout << "-p: add PID (process ID)\n";
+		std::cout << "-n: add process name\n";
+		std::cout << "-a: auto-newline (\\n's in the message will split the message into multiple lines)\n";
+		std::cout << "-v: verbose output\n";
+		exit(0);
+	}
+
+	bool verbose = false;
+	if (cmdOptionExists(argv, argv+argc, "-v"))
+	{
+		if (verbose) std::cout << "-s: verbose output\n";
+		verbose = true;
+	}
+
+	if (cmdOptionExists(argv, argv+argc, "-s"))
+	{
+		if (verbose) std::cout << "-s: including systemtime\n";
+		settings.timestamp = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-q"))
+	{
+		if (verbose) std::cout << "-q: including relative high-precision offset\n";
+		settings.performanceCounter = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-t"))
+	{
+		if (verbose) std::cout << "-t: output tab-separated output\n";
+		settings.tabs = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-p"))
+	{
+		if (verbose) std::cout << "-p: add PID (process ID)\n";
+		settings.pid = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-n"))
+	{
+		if (verbose) std::cout << "-n: add process name\n";
+		settings.processName = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-a"))
+	{
+		if (verbose) std::cout << "-a: auto-newline (\\n's in the message will split the message into multiple lines)\n";
+		settings.autonewline = true;
+	}
+
+	if (cmdOptionExists(argv, argv+argc, "-u"))
+	{
+		if (verbose) std::cout << "Send UDP test message...\n";
 		using namespace boost::asio::ip;
 		boost::asio::io_service io_service;
 		udp::resolver resolver(io_service);
@@ -65,16 +207,14 @@ try
 	}
 	else
 	{
-		std::cout << "DebugViewConsole v" << VERSION_STR << std::endl;
-		std::cout << "Listinging for Outputdebugstring messages..." << std::endl;
-
-		fusion::debugviewpp::ShowMessages();
+		std::cout << "Listining for OutputDebugString messages..." << std::endl;
+		ShowMessages(settings);
 	}
 	return 0;
 }
 catch (std::exception& e)
 {
-	std::cerr << "Unexpected error occurred in " << e.what() << std::endl;
+	std::cerr << "Unexpected error occurred: " << e.what() << std::endl;
 	std::string message(e.what());
 	if (message.find("CreateDBWinBufferMapping") != std::string::npos)
 	{
