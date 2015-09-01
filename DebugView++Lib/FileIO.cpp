@@ -70,14 +70,18 @@ std::string FileTypeToString(FileType::type value)
 {
 	switch (value)
 	{
-	case FileType::DebugViewPP:
-		return "DebugView++ Logfile";
+	case FileType::DebugViewPP1:
+		return "DebugView++ Logfile v1";
+	case FileType::DebugViewPP2:
+		return "DebugView++ Logfile v2";
 	case FileType::Sysinternals:
 		return "Sysinternals Debugview Logfile";
+	case FileType::AsciiText:
+		return "Ascii text file";
 	default:
 		break;
 	}
-	return "Ascii text file";
+	return "Unimplemented file type";
 }
 
 FileType::type IdentifyFile(std::string filename)
@@ -89,10 +93,13 @@ FileType::type IdentifyFile(std::string filename)
 
 	// first we check for our own header
 	auto trimmed = boost::trim_copy_if(line, boost::is_any_of(" \r\n\t"));
-	auto marker = g_debugViewPPIdentification;
-	if (boost::ends_with(trimmed, marker))
+	if (boost::ends_with(trimmed, g_debugViewPPIdentification1))
 	{
-		return FileType::DebugViewPP;
+		return FileType::DebugViewPP1;
+	}
+	if (boost::ends_with(trimmed, g_debugViewPPIdentification2))
+	{
+		return FileType::DebugViewPP2;
 	}
 
 	// if the extention is .txt (and we did not find our own header)
@@ -264,7 +271,9 @@ void OpenLogFile(std::ofstream& ofstream, std::string filename)
 	ofstream.open(filename, std::ofstream::app);
 	if (newLogFile)
 	{
-		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification);
+		// intentionally maintain the same amount of colomns, so it is always easy to parse by csv import tools
+		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification2);
+		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", "TZ");
 	}
 }
 

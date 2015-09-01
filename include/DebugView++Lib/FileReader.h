@@ -31,8 +31,8 @@ public:
 	virtual void AddLine(const std::string& line);
 
 protected:
-	std::string m_filename;	
-	std::string m_name;	
+	std::string m_filename;
+	std::string m_name;
 	FileType::type m_fileType;
 
 private:
@@ -51,7 +51,8 @@ public:
 	virtual void AddLine(const std::string& line);
 private:
 	void GetRelativeTime(Line& line);
-	bool m_firstline;
+	FILETIME CorrectForTimezone(FILETIME value) const;
+	long m_linenumber;
 	FILETIME m_firstFiletime;
 };
 

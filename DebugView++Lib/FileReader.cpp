@@ -122,7 +122,7 @@ void FileReader::PreProcess(Line& line) const
 
 DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) : 
 	FileReader(timer, linebuffer, filetype, filename),
-	m_firstline(true)
+	m_linenumber(0)
 {
 }
 
@@ -131,12 +131,14 @@ double GetDifference(FILETIME ft1, FILETIME ft2)
 	return (*((ULONGLONG*)&ft2) - *((ULONGLONG*)&ft1))/10000000.0;
 }
 
+// used to create a relative time from the systemtime when only systemtime is stored in Sysinternals DbgView files.
+// the reverse (creating system-time from relative times) makes no sense.
 void DBLogReader::GetRelativeTime(Line& line)
 {
-	if (line.time != 0.0)
+	if (line.time != 0.0)		// if relative time is already filled in do nothing
 		return;
 
-	if (m_firstline)
+	if (m_linenumber == 1)
 	{
 		m_firstFiletime = line.systemTime;
 		return;
@@ -145,8 +147,15 @@ void DBLogReader::GetRelativeTime(Line& line)
 	line.time = GetDifference(m_firstFiletime, line.systemTime);
 }
 
+FILETIME DBLogReader::CorrectForTimezone(FILETIME value) const
+{
+	// do correction
+	return value;
+}
+
 void DBLogReader::AddLine(const std::string& data)
 {
+	++m_linenumber;
 	Line line;
 	switch (m_fileType)
 	{
@@ -157,10 +166,10 @@ void DBLogReader::AddLine(const std::string& data)
 		ReadSysInternalsLogFileMessage(data, line);
 		GetRelativeTime(line);
 		break;
-	case FileType::DebugViewPP:
-		if (m_firstline) 
+	case FileType::DebugViewPP1:
+	case FileType::DebugViewPP2:
+		if (m_linenumber == 1)	// ignore the header line
 		{
-			m_firstline = false;
 			return;
 		}
 		ReadLogFileMessage(data, line);
@@ -168,8 +177,23 @@ void DBLogReader::AddLine(const std::string& data)
 	default:
 		assert(false);
 	}
+
+	if (m_fileType == FileType::DebugViewPP2)
+	{
+		if (m_linenumber == 2)
+		{
+			// read timezone
+			std::string timezone = "##TZ LINE## " + line.message;
+			//Add(line.time, line.systemTime, line.pid, line.processName.c_str(), timezone.c_str());
+			return;
+		}
+		else
+		{
+			line.systemTime = CorrectForTimezone(line.systemTime);
+		}
+	}
+
 	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str());
-	m_firstline = false;
 }
 
 } // namespace debugviewpp 
