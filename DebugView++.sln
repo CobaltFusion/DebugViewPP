@@ -35,6 +35,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewConsole", "DebugViewConsole\DebugViewConsole.vcxproj", "{C824932A-2819-4148-B54F-214D65015C54}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A} = {5E5B7C33-8076-4E21-ADF3-D56C8C28822A}
+		{E37BA0C9-8A2F-4F2E-BBF8-839F3429D3A7} = {E37BA0C9-8A2F-4F2E-BBF8-839F3429D3A7}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IndexedStorageLib", "IndexedStorageLib\IndexedStorageLib.vcxproj", "{69756714-C1EB-47AF-B852-FF253D8DDDA8}"
