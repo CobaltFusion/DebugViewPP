@@ -30,6 +30,7 @@ struct Settings
 	bool processName;
 	bool autonewline;
 	bool flush;
+	bool linenumber;
 };
 
 std::string GetTimeText(double time)
@@ -83,8 +84,14 @@ void ShowMessages(Settings settings)
 	for (;;)
 	{
 		auto lines = sources.GetLines();
+		int linenumber = 0;
 		for (auto i=lines.begin(); i != lines.end(); ++i)
 		{
+			if (settings.linenumber)
+			{
+				++linenumber;
+				std::cout << std::setw(5) << std::setfill('0') << linenumber << std::setfill(' ') << separator;
+			}
 			OutputDetails(settings, *i);
 			std::cout << separator << i->message.c_str() << "\n";
 		}
@@ -127,13 +134,14 @@ try
 	if (cmdOptionExists(argv, argv+argc, "-h") || cmdOptionExists(argv, argv+argc, "--help"))
 	{
 		std::cout << "-h: this help message\n";
-		std::cout << "-u: send a UDP test-message (used only for debugging)\n";
+		//std::cout << "-u: send a UDP test-message (used only for debugging)\n";
+		std::cout << "-l: prefix line number\n";
 		std::cout << "-s: prefix messages with system time\n";
 		std::cout << "-q: prefix message with high-precision (<1us) offset (from QueryPerformanceCounter)\n";
 		std::cout << "-t: tab-separated output\n";
 		std::cout << "-p: add PID (process ID)\n";
 		std::cout << "-n: add process name\n";
-		std::cout << "-a: auto-newline (\\n's in the message will split the message into multiple lines)\n";
+		std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
 		std::cout << "-f: flush\n";
 		std::cout << "-v: verbose output\n";
 		exit(0);
@@ -144,6 +152,12 @@ try
 	{
 		if (verbose) std::cout << "-s: verbose output\n";
 		verbose = true;
+	}
+
+	if (cmdOptionExists(argv, argv+argc, "-l"))
+	{
+		if (verbose) std::cout << "-l: prefix line number\n";
+		settings.linenumber = true;
 	}
 
 	if (cmdOptionExists(argv, argv+argc, "-s"))
@@ -173,7 +187,7 @@ try
 	}
 	if (cmdOptionExists(argv, argv+argc, "-a"))
 	{
-		if (verbose) std::cout << "-a: auto-newline (\\n's in the message will split the message into multiple lines)\n";
+		if (verbose) std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
 		settings.autonewline = true;
 	}
 	if (cmdOptionExists(argv, argv+argc, "-f"))

@@ -631,6 +631,28 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	return highlights;
 }
 
+std::string TabsToSpaces(const std::string& s, int tabsize = 4)
+{
+	std::string result;
+	result.reserve(s.size() + 3*tabsize);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == '\t')
+		{
+			do
+			{
+				result.push_back(' ');
+			}
+			while (result.size() % tabsize != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
+}
+
 void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const Highlight& selection)
 {
 	InsertHighlight(highlights, selection);
@@ -664,28 +686,6 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 		return;
 	RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
 	dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16)/2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
-}
-
-std::string TabsToSpaces(const std::string& s, int tabsize = 4)
-{
-	std::string result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == '\t')
-		{
-			do
-			{
-				result.push_back(' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
 }
 
 ItemData CLogView::GetItemData(int iItem) const
@@ -1673,7 +1673,7 @@ void CLogView::ApplyFilters()
 	{
 		if (IsIncluded(m_logFile[line]))
 		{
-			logLines.push_back(LogLine(line));
+			logLines.emplace_back(LogLine(line));
 			if (itBookmark != bookmarks.end() && *itBookmark == line)
 			{
 				logLines.back().bookmark = true;
