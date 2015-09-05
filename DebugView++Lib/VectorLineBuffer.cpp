@@ -32,6 +32,8 @@ void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const ch
 	m_buffer.push_back(Line(time, systemTime, pid, processName, message, logsource));
 }
 
+// TODO: performance improvement: return a 'const Lines&' here so the vector is not copied!!
+// m_backingBuffer can not be moved since it is a member variabele and only rvalues can be moved.
 Lines VectorLineBuffer::GetLines()
 {
 	// the swap trick used here is very important to unblock the calling process asap.

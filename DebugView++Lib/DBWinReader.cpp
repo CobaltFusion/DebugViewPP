@@ -62,6 +62,7 @@ void DBWinReader::Notify()
 		LogSource::Add(s.c_str());
 	}
 #endif
+	// todo: possible performance improvement: is GetSystemTimeAsFileTime the fastest way to get the clocktime from the RTC?
 	LogSource::Add(m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
 }

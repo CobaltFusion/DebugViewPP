@@ -51,7 +51,6 @@ public:
 	virtual void AddLine(const std::string& line);
 private:
 	void GetRelativeTime(Line& line);
-	FILETIME CorrectForTimezone(FILETIME value) const;
 	long m_linenumber;
 	FILETIME m_firstFiletime;
 };

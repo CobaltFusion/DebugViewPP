@@ -20,7 +20,7 @@ FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
 	m_filename(filename),
 	m_logfile(logfile)
 {
-	OpenLogFile(m_ofstream, Str(filename).str());
+	OpenLogFile(m_ofstream, Str(filename).str(), false);	// false == append
 	m_thread = boost::thread(&FileWriter::Process, this);
 }
 

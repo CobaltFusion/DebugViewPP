@@ -147,12 +147,6 @@ void DBLogReader::GetRelativeTime(Line& line)
 	line.time = GetDifference(m_firstFiletime, line.systemTime);
 }
 
-FILETIME DBLogReader::CorrectForTimezone(FILETIME value) const
-{
-	// do correction
-	return value;
-}
-
 void DBLogReader::AddLine(const std::string& data)
 {
 	++m_linenumber;
@@ -176,21 +170,6 @@ void DBLogReader::AddLine(const std::string& data)
 		break;
 	default:
 		assert(false);
-	}
-
-	if (m_fileType == FileType::DebugViewPP2)
-	{
-		if (m_linenumber == 2)
-		{
-			// read timezone
-			std::string timezone = "##TZ LINE## " + line.message;
-			//Add(line.time, line.systemTime, line.pid, line.processName.c_str(), timezone.c_str());
-			return;
-		}
-		else
-		{
-			line.systemTime = CorrectForTimezone(line.systemTime);
-		}
 	}
 
 	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str());

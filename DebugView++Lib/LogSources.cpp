@@ -234,7 +234,7 @@ Lines LogSources::GetLines()
 		{
 			auto& line = *it;
 			const char* whitespace = " \r\n\t";
-			boost::trim_if(line.message, boost::is_any_of(whitespace));
+			boost::trim_right_if(line.message, boost::is_any_of(whitespace));
 			lines.push_back(*it);
 		}
 	}
