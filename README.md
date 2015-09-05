@@ -60,8 +60,8 @@ Download Stable release
 Download Bleeding Edge !! Updated on September 5, 2015 (bugfixes and added console options)
 ----------------------
 
-+ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
-+ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
 
 Documentation
 --------
