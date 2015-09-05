@@ -121,7 +121,6 @@ void testLongString()
 
 void Output(const std::string& filename)
 {
-	std::cout << "Buggazer tester, PID: " << GetCurrentProcessId() << "\n";
 	std::fstream fs;
 	fs.open(filename, std::fstream::in);
 

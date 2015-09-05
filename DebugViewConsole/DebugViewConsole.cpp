@@ -214,7 +214,7 @@ catch (std::exception& e)
 	std::string message(e.what());
 	if (message.find("CreateDBWinBufferMapping") != std::string::npos)
 	{
-		std::cerr << "Another DebugView++ (or simular application) might be running. " << std::endl;
+		std::cerr << "Another DebugView++ (or similar application) might be running. " << std::endl;
 	}
 	return 1;
 }
