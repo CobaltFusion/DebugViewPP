@@ -421,6 +421,50 @@ void CLogView::DeleteItem(DELETEITEMSTRUCT* lParam)
 	COwnerDraw<CLogView>::DeleteItem(lParam);
 }
 
+std::wstring TabsToSpaces(const std::wstring& s, int tabsize = 4)
+{
+	std::wstring result;
+	result.reserve(s.size() + 3*tabsize);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == '\t')
+		{
+			do
+			{
+				result.push_back(' ');
+			}
+			while (result.size() % tabsize != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
+}
+
+std::string TabsToSpaces(const std::string& s, int tabsize = 4)
+{
+	std::string result;
+	result.reserve(s.size() + 3*tabsize);
+	for (auto it = s.begin(); it != s.end(); ++it)
+	{
+		if (*it == '\t')
+		{
+			do
+			{
+				result.push_back(' ');
+			}
+			while (result.size() % tabsize != 0);
+		}
+		else
+		{
+			result.push_back(*it);
+		}
+	}
+	return result;
+}
+
 int CLogView::GetTextIndex(int iItem, int xPos)
 {
 	CClientDC dc(*this);
@@ -433,7 +477,7 @@ int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
 	auto rect = GetSubItemRect(0, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
-	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));
+	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
 	int index = GetTextOffset(dc, text, xPos - x0);
 	if (index < 0)
 		return xPos > x0 ? text.size() : 0;
@@ -448,7 +492,7 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
-	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));
+	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
 
 	int begin = nFit;
 	while (begin > 0)
@@ -631,28 +675,6 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	return highlights;
 }
 
-std::string TabsToSpaces(const std::string& s, int tabsize = 4)
-{
-	std::string result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == '\t')
-		{
-			do
-			{
-				result.push_back(' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
-}
-
 void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const Highlight& selection)
 {
 	InsertHighlight(highlights, selection);
@@ -714,7 +736,7 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 
 	int begin = GetTextIndex(dc, iItem, x1);
 	int end = GetTextIndex(dc, iItem, x2);
-	return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::Text));	
+	return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::Text));
 }
 
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
