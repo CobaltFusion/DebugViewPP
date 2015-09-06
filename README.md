@@ -161,10 +161,9 @@ Build dependencies
 - boost: see the install.sh in the boost archive
       - open developer command line
       - boostrap.bat
-      - ./b2
-      - bjam
       - ./b2 link=static
       - bjam --build-type=complete
+      - ./b2 install --prefix=D:\project\DebugViewPP2015\Libraries\boost
 - WTL and zip: decompress the archives and you're done
 
 
