@@ -23,15 +23,13 @@ These are some of its features:
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
-- Commandline version
+- commandline version
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
-- Redesign of the monitoring code, more flexible and efficient, enable use of any
+- redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
-- fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
 - add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
-- fixed un-pause problem
-- Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
+- clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
 - continuous logging to file commandline option
 - tailing our own logfiles over samba network
