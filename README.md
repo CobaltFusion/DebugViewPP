@@ -23,14 +23,9 @@ These are some of its features:
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
-
-New features in v1.2
 - Commandline version
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
-
-Coming up (implemented in bleeding-egde version 1.3)
-
 - Redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
 - fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
@@ -40,28 +35,30 @@ Coming up (implemented in bleeding-egde version 1.3)
   for a very long time)
 - continuous logging to file commandline option
 - tailing our own logfiles over samba network
-- support for reading and tailing Sysinternals Debugview logfiles (four common formats)
+- support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-Coming up / Working on (on the head version in GIT)
+New in 1.4:
 
 - Fixed several minor UI bugs
 - Dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
 - Better logging to files 
 - History (memory consumption) limits
+- fixed highligting in lines containing tabs
+- timezone independent and human readable timestamps in the logfiles
 
-Download Stable release
+Download latest release !! Updated on September 5, 2015 (bugfixes and added console options)
 -----------------------
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
+
+Download Older (stable) version
+-------------------------------
 
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
-Download Bleeding Edge !! Updated on September 5, 2015 (bugfixes and added console options)
-----------------------
-
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
 
 Documentation
 --------
