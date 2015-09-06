@@ -163,7 +163,13 @@ The libraries must be installed in /Libraries and zip.exe installed, add the bin
 Build dependencies
 ------------------
 - WiX Toolset: install the latest binary from http://wixtoolset.org/
-- boost: see the install.sh in the boost archive, quick start: open developer command line, bootstrap.bat, ./b2, bjam, done.
+- boost: see the install.sh in the boost archive
+      - open developer command line
+      - boostrap.bat
+      - ./b2
+      - bjam
+      - ./b2 link=static
+      - bjam --build-type=complete
 - WTL and zip: decompress the archives and you're done
 
 
