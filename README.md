@@ -159,11 +159,12 @@ Build dependencies
 ------------------
 - WiX Toolset: install the latest binary from http://wixtoolset.org/
 - boost: see the install.sh in the boost archive
-      - open developer command line
-      - boostrap.bat
-      - ./b2 link=static
-      - bjam --build-type=complete
-      - ./b2 install --prefix=D:\project\DebugViewPP2015\Libraries\boost
+    - install visual studio 201x (now testing 2015)
+    - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
+    - unzip boost_1_59_0.zip to D:\project\DebugViewPP2015\Libraries\boost_1_59_0
+    - cd D:\project\DebugViewPP2015\Libraries\boost_1_59_0
+    - run D:\project\DebugViewPP2015\Libraries\boost_1_59_0\bootstrap.bat
+    - b2.exe --prefix=C:\Project\DebugViewPP2015\Libraries\boost --build-type=complete stage install (~45 minutes)
 - WTL and zip: decompress the archives and you're done
 
 
