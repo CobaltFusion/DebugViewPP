@@ -44,7 +44,7 @@ New in 1.4:
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
 - Better logging to files 
 - History (memory consumption) limits
-- fixed highligting in lines containing tabs
+- fixed highlighting in lines containing tabs
 - timezone independent and human readable timestamps in the logfiles
 
 Download latest release !! Updated on September 5, 2015 (bugfixes and added console options)
