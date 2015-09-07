@@ -166,6 +166,7 @@ Build dependencies
     - cd D:\project\DebugViewPP2015\Libraries\boost_1_59_0
     - run D:\project\DebugViewPP2015\Libraries\boost_1_59_0\bootstrap.bat
     - b2.exe --prefix=C:\Project\DebugViewPP2015\Libraries\boost --build-type=complete stage install (~45 minutes)
+    - for some reason I have to copy \Libraries\boost_1_59_0\stage\lib\*.* to \Libraries\boost\lib\*.* to get the vc140-mt-sgd libraries.
 - WTL and zip: decompress the archives and you're done
 
 
