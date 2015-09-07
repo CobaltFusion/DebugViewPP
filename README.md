@@ -38,6 +38,7 @@ These are some of its features:
 
 New in 1.4:
 
+- Added console version (DebugViewConsole.exe) for use without UI
 - Fixed several minor UI bugs
 - Dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
