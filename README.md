@@ -23,45 +23,41 @@ These are some of its features:
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
-
-New features in v1.2
-- Commandline version
+- commandline version
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
-
-Coming up (implemented in bleeding-egde version 1.3)
-
-- Redesign of the monitoring code, more flexible and efficient, enable use of any
+- redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
-- fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
 - add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
-- fixed un-pause problem
-- Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
+- clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
 - continuous logging to file commandline option
 - tailing our own logfiles over samba network
-- support for reading and tailing Sysinternals Debugview logfiles (four common formats)
+- support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-Coming up / Working on (on the head version in GIT)
+New in 1.4:
 
+- Added console version (DebugViewConsole.exe) for use without UI
 - Fixed several minor UI bugs
 - Dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
 - Better logging to files 
 - History (memory consumption) limits
+- fixed highlighting in lines containing tabs
+- timezone independent and human readable timestamps in the logfiles
 
-Download Stable release
+Download latest release !! Updated on September 5, 2015 (bugfixes and added console options)
 -----------------------
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
+
+Download Older (stable) version
+-------------------------------
 
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
-Download Bleeding Edge !! Updated on September 5, 2015 (bugfixes and added console options)
-----------------------
-
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
 
 Documentation
 --------
@@ -163,7 +159,14 @@ The libraries must be installed in /Libraries and zip.exe installed, add the bin
 Build dependencies
 ------------------
 - WiX Toolset: install the latest binary from http://wixtoolset.org/
-- boost: read the install.sh in the boost archive
+- boost: see the install.sh in the boost archive
+    - install visual studio 201x (now testing 2015)
+    - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
+    - unzip boost_1_59_0.zip to D:\project\DebugViewPP2015\Libraries\boost_1_59_0
+    - cd D:\project\DebugViewPP2015\Libraries\boost_1_59_0
+    - run D:\project\DebugViewPP2015\Libraries\boost_1_59_0\bootstrap.bat
+    - b2.exe --prefix=C:\Project\DebugViewPP2015\Libraries\boost --build-type=complete stage install (~45 minutes)
+    - for some reason I have to copy \Libraries\boost_1_59_0\stage\lib\*.* to \Libraries\boost\lib\*.* to get the vc140-mt-sgd libraries.
 - WTL and zip: decompress the archives and you're done
 
 
