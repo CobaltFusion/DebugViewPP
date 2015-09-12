@@ -153,7 +153,10 @@ void LogSources::Listen()
 					waitHandles.push_back(handle);
 					sources.push_back(source);
 				}
-				source->Initialize();	//todo: find a better way to do this?
+				// TODO: currenly only FileReader::Initialize uses this to start reading from the file only after 'LogSources::Listen()' is called.
+				// I dont remember why this was introduced, if there is a requirement to postpone reading from source until LogSources::Listen() is called 
+				// (instead of after creation of the Logsource) the SocketReader should probably also do that.
+				source->Initialize();
 			}
 		}
 
