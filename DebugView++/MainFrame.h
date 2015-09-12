@@ -40,6 +40,25 @@ private:
 	 std::shared_ptr<CLogView> m_pView;
 };
 
+class CMultiPaneStatusBarCtrlFlickerFree :
+	public CMultiPaneStatusBarCtrlImpl<CMultiPaneStatusBarCtrlFlickerFree>,
+	public COffscreenPaint<CMultiPaneStatusBarCtrlFlickerFree>
+{
+public:
+	DECLARE_WND_SUPERCLASS(nullptr, CMultiPaneStatusBarCtrlImpl<CMultiPaneStatusBarCtrlFlickerFree>::GetWndClassName())  
+
+	BEGIN_MSG_MAP(CMultiPaneStatusBarCtrlFlickerFree)
+		CHAIN_MSG_MAP(COffscreenPaint<CMultiPaneStatusBarCtrlFlickerFree>)
+	END_MSG_MAP()
+
+	void DoPaint(CDCHandle dc, const RECT& rcClip) override
+	{
+		dc.FillSolidRect(&rcClip, Colors::BackGround);
+		DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
+	}
+
+};
+
 class CMainFrame :
 	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>>,
 	public CUpdateUI<CMainFrame>,
@@ -171,7 +190,7 @@ private:
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
-	CMultiPaneStatusBarCtrl m_statusBar;
+	CMultiPaneStatusBarCtrl m_statusBar;		// CMultiPaneStatusBarCtrlFlickerFree /  CMultiPaneStatusBarCtrl
 	UINT_PTR m_timer;
 	LogFile m_logFile;
 	std::unique_ptr<FileWriter> m_logWriter;

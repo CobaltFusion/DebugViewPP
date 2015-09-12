@@ -47,7 +47,7 @@ public:
 		return 1; // handled; no need to erase background; do it in DoPaint();
 	}
 
-	void DoPaint(CDCHandle dc, const RECT& rcClip)
+	virtual void DoPaint(CDCHandle dc, const RECT& /*rcClip*/)
 	{
 		ATLASSERT(false); // must override this
 	}
