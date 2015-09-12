@@ -17,6 +17,7 @@
 #include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
+#include "DebugView++Lib/Conversions.h"
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
@@ -241,6 +242,7 @@ Lines LogSources::GetLines()
 			auto& line = *it;
 			const char* whitespace = " \r\n\t";
 			boost::trim_right_if(line.message, boost::is_any_of(whitespace));
+			line.message = TabsToSpaces(line.message);	// workaround for issue #173
 			lines.push_back(*it);
 		}
 	}

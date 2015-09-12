@@ -13,6 +13,7 @@
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/LogSources.h"
+#include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
 #include <boost/asio.hpp> 
@@ -32,23 +33,6 @@ struct Settings
 	bool flush;
 	bool linenumber;
 };
-
-std::string GetTimeText(double time)
-{
-	return stringbuilder() << std::fixed << std::setprecision(6) << time;
-}
-
-std::string GetTimeText(const SYSTEMTIME& st)
-{
-	char buf[32];
-	sprintf_s(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-	return buf;
-}
-
-std::string GetTimeText(const FILETIME& ft)
-{
-	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
-}
 
 void OutputDetails(Settings settings, const Line& line)
 {
