@@ -58,9 +58,15 @@ void LogSources::AddMessage(const std::string& message)
 	m_loopback->Signal();
 }
 
+void LogSources::UpdateSettings(std::shared_ptr<LogSource> source)
+{
+	source->SetAutoNewLine(GetAutoNewLine());
+}
+
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
+	UpdateSettings(source);
 	m_sources.push_back(source);
 	SetEvent(m_updateEvent.get());
 }
