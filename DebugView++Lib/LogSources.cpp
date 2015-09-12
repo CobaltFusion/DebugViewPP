@@ -32,7 +32,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-const double g_handleCacheTimeout = 1.0; //seconds
+const double g_handleCacheTimeout = 5.0; //seconds
 
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
@@ -183,8 +183,6 @@ void LogSources::Listen()
 	}
 }
 
-// todo: CheckForTerminatedProcesses could now periodically check for A LOT of processes whether they are still running
-// Since it will check every process that even logged anything; it might be more efficient to use RegisterWaitForSingleObject
 void LogSources::CheckForTerminatedProcesses()
 {
 	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
