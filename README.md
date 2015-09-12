@@ -36,27 +36,29 @@ These are some of its features:
 - support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-New in 1.4:
+Changes in 1.4:
 
-- Added console version (DebugViewConsole.exe) for use without UI
-- Fixed several minor UI bugs
-- Dbgview agent client mode allowing logging of kernel messages
+- added console version (DebugViewConsole.exe) for use without UI
+- several minor UI bugs fixed
+- dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
-- Better logging to files 
-- History (memory consumption) limits
-- fixed highlighting in lines containing tabs
+- better logging to files 
+- history (memory consumption) limits
+- fixed troubles with tabs (highlighting/logfile/regex)
 - timezone independent and human readable timestamps in the logfiles
+- save filters after changing instead of only at exit
+- moved filters out of sub-menu and add shortcut keys (try highlighting a word and pressing delete)
  
 Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
 
-Download latest release !! Updated on September 5, 2015 (bugfixes and added console options)
+Download latest version
 -----------------------
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++2015_09_05.msi)
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_12.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_12.msi)
 
-Download Older (stable) version
+Older version
 -------------------------------
 
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
