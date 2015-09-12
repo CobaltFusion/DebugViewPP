@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\DebugView++Lib\Colors.h" />
+    <ClInclude Include="..\include\DebugView++Lib\Conversions.h" />
     <ClInclude Include="..\include\DebugView++Lib\DBWinBuffer.h" />
     <ClInclude Include="..\include\DebugView++Lib\DBWinReader.h" />
     <ClInclude Include="..\include\DebugView++Lib\DBWinWriter.h" />
@@ -167,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Colors.cpp" />
+    <ClCompile Include="Conversions.cpp" />
     <ClCompile Include="DBWinBuffer.cpp" />
     <ClCompile Include="DBWinReader.cpp" />
     <ClCompile Include="DBWinWriter.cpp" />

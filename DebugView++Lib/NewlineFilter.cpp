@@ -77,7 +77,9 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PIDMap& terminatedP
 			m_lineBuffers.erase(pid);
 		}
 		auto processName = ProcessInfo::GetProcessName(handle);
-		lines.push_back(Line(0.0, FILETIME(), pid, Str(processName).str(), "<process terminated>", nullptr));
+		auto info = ProcessInfo::GetProcessInfo(handle);
+		std::string infoStr = stringbuilder() << "<process started at " << info << " has now terminated>";
+		lines.push_back(Line(0.0, FILETIME(), pid, Str(processName).str(), infoStr, nullptr));
 	}
 	return lines;
 }
