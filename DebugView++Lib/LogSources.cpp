@@ -167,7 +167,7 @@ void LogSources::Listen()
 					break;
 				else
 				{
-					assert((index >= (int)sources.size()) && "res.index out of range");
+					assert((index < (int)sources.size()) && "res.index out of range");
 					auto logsource = sources[index];
 					logsource->Notify();
 					if (logsource->AtEnd())
