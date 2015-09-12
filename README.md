@@ -46,6 +46,10 @@ New in 1.4:
 - History (memory consumption) limits
 - fixed highlighting in lines containing tabs
 - timezone independent and human readable timestamps in the logfiles
+ 
+Not new features, but often overlooked, see below for details
+- View->Process Colors, easy way to give evert process its own color!
+- Options->Link views, best effort to synchronize the line-selection over all views
 
 Download latest release !! Updated on September 5, 2015 (bugfixes and added console options)
 -----------------------
@@ -57,7 +61,6 @@ Download Older (stable) version
 
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
-
 
 Documentation
 --------
@@ -123,13 +126,20 @@ Include, exclude, once and highlight filters are the most intuitive filters to u
 
 **stop**; this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
 
-Finally, consider this use case:
+Other features:
+--------------------
+
+**link views**; the selected line in the current view is located re-selected when you switch to another view. This is done on a best-effort bases, so if the exact line is not found, the nearest line is selected. In that case switching views will cause the currently selected line to change.
+
+Consider this use case:
 
 If you want to have auto scoll on, but some high frequeny messages are annoying you, but you cannot exclude them because they help you diagnose your event when it occurs, try this:
 
 Use two views, one where the diagnostic messages are filtered and autoscroll is on, and one where the messages are included (and maybe highlighted), next turn on the 'link views' feature.
 
 Now you can monitor the filtered view, and when your event occurs, select a line and switch to the unfiltered view, the same line is now highlighted, but in full unfiltered context.
+
+**process colors**; If enabled each process (even processed with identical names) will get a its own background color automatically without adding any filters.
 
 Other documentation:
 --------------------
@@ -145,6 +155,7 @@ turned off if any other line is selected.
 
 The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occured, it is the time the message was received by DebugView++. Also there is no quarantee that the time between occurance and reception of messages is constant, *however* in practice this is **pretty** constant :)
 
+**Link Views**
 
 How to build
 ------------
