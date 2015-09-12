@@ -51,7 +51,7 @@ public:
 		CHAIN_MSG_MAP(COffscreenPaint<CMultiPaneStatusBarCtrlFlickerFree>)
 	END_MSG_MAP()
 
-	void DoPaint(CDCHandle dc, const RECT& rcClip) override
+	virtual void DoPaint(CDCHandle dc, const RECT& rcClip)
 	{
 		dc.FillSolidRect(&rcClip, Colors::BackGround);
 		DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
