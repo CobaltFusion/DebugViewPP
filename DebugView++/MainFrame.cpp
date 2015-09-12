@@ -638,6 +638,7 @@ void CMainFrame::AddFilterView()
 		return;
 
 	AddFilterView(dlg.GetName(), dlg.GetFilters());
+	SaveSettings();
 }
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
@@ -1041,6 +1042,7 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	GetTabCtrl().Invalidate();
 	GetView().SetName(dlg.GetName());
 	GetView().SetFilters(dlg.GetFilters());
+	SaveSettings();
 }
 
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
