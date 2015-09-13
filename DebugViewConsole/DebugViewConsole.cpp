@@ -11,6 +11,7 @@
 #include <memory>
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/DBWinReader.h"
+#include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/Conversions.h"
@@ -56,7 +57,9 @@ void OutputDetails(Settings settings, const Line& line)
 	}
 }
 
-void ShowMessages(Settings settings)
+static bool g_quit = false;
+
+void LogMessages(Settings settings)
 {
 	LogSources sources(true);
 	sources.AddDBWinReader(false);
@@ -65,8 +68,26 @@ void ShowMessages(Settings settings)
 
 	sources.SetAutoNewLine(settings.autonewline);
 
+	std::ofstream fs;
+
+	if (!settings.filename.empty())
+	{
+		OpenLogFile(fs, settings.filename);
+		fs.flush();
+	}
+
+	auto guard = make_guard([&fs, &settings]()
+		{ 
+			if (!settings.filename.empty())
+			{
+				fs.flush();
+				fs.close();
+				std::cout << "Log file closed.\n";
+			}
+		});
+
 	std::string separator = settings.tabs ? "\t" : " ";
-	for (;;)
+	for (;g_quit == false;)
 	{
 		auto lines = sources.GetLines();
 		int linenumber = 0;
@@ -79,13 +100,19 @@ void ShowMessages(Settings settings)
 			}
 			OutputDetails(settings, *i);
 			std::cout << separator << i->message.c_str() << "\n";
+			if (!settings.filename.empty())
+			{
+				WriteLogFileMessage(fs, i->time, i->systemTime, i->pid, i->processName, i->message);
+			}
 		}
 		if (settings.flush)
 		{
 			std::cout.flush();
+			fs.flush();
 		}
-		Sleep(100);
+		Sleep(250);
 	}
+	std::cout.flush();
 }
 
 } // namespace debugviewpp
@@ -108,28 +135,48 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 	return std::find(begin, end, option) != end;
 }
 
+BOOL WINAPI ConsoleHandler(DWORD dwType)
+{
+	switch(dwType) {
+	case CTRL_C_EVENT:
+	case CTRL_LOGOFF_EVENT:
+	case CTRL_SHUTDOWN_EVENT:
+		fusion::debugviewpp::g_quit = true;
+		// report as handled, so no other handler gets called.
+		return TRUE;
+	default:
+		break;
+	}
+	return FALSE;
+}
+
 int main(int argc, char* argv[])
 try
 {
 	using namespace fusion::debugviewpp;
+
+	// install CTRL-C handler
+	SetConsoleCtrlHandler(ConsoleHandler, TRUE);
 
 	Settings settings = {0};
 	std::cout << "DebugViewConsole v" << VERSION_STR << std::endl;
 	settings.timestamp = false;
 	if (cmdOptionExists(argv, argv+argc, "-h") || cmdOptionExists(argv, argv+argc, "--help"))
 	{
-		std::cout << "-h: this help message\n";
+		std::cout << "options:\n";
+		std::cout << "  -h: this help message\n";
+		std::cout << "  -a: auto-newline (automatically adds newline to messages without a newline, most people what this on)\n";
+		std::cout << "  -f: flush (aggressively flush buffers, if unsure, do not use)\n";
+		std::cout << "  -v: verbose output\n";
+		std::cout << "  -d <file>: write to .dblog file\n";
+		std::cout << "console output options: (do not effect the dblog file)\n";
 		//std::cout << "-u: send a UDP test-message (used only for debugging)\n";
-		std::cout << "-l: prefix line number\n";
-		std::cout << "-s: prefix messages with system time\n";
-		std::cout << "-q: prefix message with high-precision (<1us) offset (from QueryPerformanceCounter)\n";
-		std::cout << "-t: tab-separated output\n";
-		std::cout << "-p: add PID (process ID)\n";
-		std::cout << "-n: add process name\n";
-		std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
-		std::cout << "-f: flush\n";
-		std::cout << "-v: verbose output\n";
-		std::cout << "-d <file>: write to .dblog file\n";
+		std::cout << "  -l: prefix line number\n";
+		std::cout << "  -s: prefix messages with system time\n";
+		std::cout << "  -q: prefix message with high-precision (<1us) offset (from QueryPerformanceCounter)\n";
+		std::cout << "  -t: tab-separated output\n";
+		std::cout << "  -p: add PID (process ID)\n";
+		std::cout << "  -n: add process name\n";
 		exit(0);
 	}
 
@@ -209,8 +256,9 @@ try
 	}
 	else
 	{
-		std::cout << "Listining for OutputDebugString messages..." << std::endl;
-		ShowMessages(settings);
+		std::cout << "Listening for OutputDebugString messages..." << std::endl;
+		LogMessages(settings);
+		std::cout << "Process ended normally.\n";
 	}
 	return 0;
 }
