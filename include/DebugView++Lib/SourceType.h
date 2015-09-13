@@ -9,6 +9,7 @@
 
 #include <string>
 #include <regex>
+#include <memory>
 #include "MatchType.h"
 
 namespace fusion {

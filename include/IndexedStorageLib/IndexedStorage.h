@@ -20,9 +20,9 @@ class VectorStorage
 public:
 	bool Empty() const;
 	void Clear();
-	int Add(const std::string& value);
-	int Count() const;
-	std::string operator[](int i) const;
+	size_t Add(const std::string& value);
+	size_t Count() const;
+	std::string operator[](size_t i) const;
 
 private:
 	std::vector<std::string> m_storage;
@@ -35,20 +35,20 @@ public:
 
 	bool Empty() const;
 	void Clear();
-	int Add(const std::string& value);
-	int Count() const;
-	std::string operator[](int i);
+	size_t Add(const std::string& value);
+	size_t Count() const;
+	std::string operator[](size_t i);
 
 	std::string Compress(const std::vector<std::string>& value) const;
 	std::vector<std::string> Decompress(const std::string& value) const;
 
 private:
-	int GetBlockIndex(int index) const;
-	int GetRelativeIndex(int index) const;
-	std::string GetString(int index);
+	size_t GetBlockIndex(size_t index) const;
+	size_t GetRelativeIndex(size_t index) const;
+	std::string GetString(size_t index);
 
-	int m_writeBlockIndex;
-	int m_readBlockIndex;
+	size_t m_writeBlockIndex;
+	size_t m_readBlockIndex;
 	std::vector<std::string> m_readList;
 	std::vector<std::string> m_writeList;
 

@@ -9,3 +9,4 @@ ipch/
 *.log
 
 DebugView++/version.wxi
+bin

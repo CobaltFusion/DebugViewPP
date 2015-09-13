@@ -8,5 +8,10 @@
 #pragma once
 
 #include "targetver.h"
-
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+
+#pragma warning(disable : 4503 4512 4996)	// boost warnings we cannot work around
+#include <boost/noncopyable.hpp>
+#include <boost/signals2.hpp>
+#include <boost/thread.hpp>
+

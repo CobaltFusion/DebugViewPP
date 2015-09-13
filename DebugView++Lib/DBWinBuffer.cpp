@@ -15,8 +15,8 @@ namespace debugviewpp {
 bool IsWindowsVistaOrGreater()
 {
 	OSVERSIONINFO osvi = {0};
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
 	return (osvi.dwMajorVersion > 5);
 }
 

@@ -26,18 +26,18 @@ void VectorStorage::Clear()
 	m_storage.shrink_to_fit();
 }
 
-int VectorStorage::Add(const std::string& value)
+size_t VectorStorage::Add(const std::string& value)
 {
 	m_storage.push_back(value);
 	return m_storage.size() - 1;
 }
 
-int VectorStorage::Count() const
+size_t VectorStorage::Count() const
 {
 	return m_storage.size();
 }
 
-std::string VectorStorage::operator[](int i) const
+std::string VectorStorage::operator[](size_t i) const
 {
 	return m_storage[i];
 }
@@ -67,11 +67,11 @@ void SnappyStorage::Clear()
 	m_writeBlockIndex = 0;
 }
 
-int SnappyStorage::Add(const std::string& value)
+size_t SnappyStorage::Add(const std::string& value)
 {
-	int id = m_writeList.size();
+	auto id = m_writeList.size();
 	m_writeList.push_back(value);
-	int result = m_writeBlockIndex * blockSize + id;
+	auto result = m_writeBlockIndex * blockSize + id;
 	if (id == blockSize - 1)
 	{
 		std::string test = Compress(m_writeList);
@@ -82,30 +82,30 @@ int SnappyStorage::Add(const std::string& value)
 	return result;
 }
 
-int SnappyStorage::Count() const
+size_t SnappyStorage::Count() const
 {
 	return m_storage.size();
 }
 
-std::string SnappyStorage::operator[](int i)
+std::string SnappyStorage::operator[](size_t i)
 {
 	return GetString(i);
 }
 
-int SnappyStorage::GetBlockIndex(int index) const
+size_t SnappyStorage::GetBlockIndex(size_t index) const
 {
 	return index / blockSize;
 }
 
-int SnappyStorage::GetRelativeIndex(int index) const
+size_t SnappyStorage::GetRelativeIndex(size_t index) const
 {
 	return index % blockSize;
 }
 
-std::string SnappyStorage::GetString(int index)
+std::string SnappyStorage::GetString(size_t index)
 {
-	int blockId = GetBlockIndex(index);
-	int id = GetRelativeIndex(index);
+	auto blockId = GetBlockIndex(index);
+	auto id = GetRelativeIndex(index);
 		
 	if (blockId == m_writeBlockIndex)
 	{

@@ -13,17 +13,19 @@
 namespace fusion {
 namespace debugviewpp {
 
-const std::string g_debugViewPPIdentification = "File Identification Header, DebugView++ Format Version 1";
+const std::string g_debugViewPPIdentification1 = "File Identification Header, DebugView++ Format Version 1";
+const std::string g_debugViewPPIdentification2 = "File Identification Header, DebugView++ Format Version 2";	// not yet used
 
 struct FileType
 {
 	enum type
 	{
 		Unknown = 0,
-		DebugViewPP,			// identified by first line (header) in file "0\t0\t0\tDebugView++\tFile Identification Header, DebugView++ v1.x.x.x"  (4 tabs)
+		DebugViewPP1,			// identified by first line (header) in file "0\t0\t0\tDebugView++\tFile Identification Header, DebugView++ v1.x.x.x"  (4 tabs)
+		DebugViewPP2,			// identified by first line (header) in file "0\t0\t0\tDebugView++\tFile Identification Header, DebugView++ v1.x.x.x"  (4 tabs), // currently not used
 		Sysinternals,			// identified by <line>\t<time>\t<message>\r\n (line containing 2 tabs + 1 microsoft newline)			    // kernel log message
 								//  _or_         <line>\t<time>\t[pid] <message>\r\n (line containing 2 tabs + 1 microsoft newline)			// process log message
-		AsciiText			    // and other file is treaded as if it was ASCII-text encoded, which is UTF8 compatible as long as nu actual unicode character are encoded.
+		AsciiText			    // any other file is treaded as if it was ASCII-text encoded, which is UTF8 compatible as long as no actual UTF8 characters are encoded.
 	};
 };
 
@@ -39,7 +41,7 @@ bool ReadLogFileMessage(const std::string& data, Line& line);
 
 std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
 
-void OpenLogFile(std::ofstream& ofstream, std::string filename);
+void OpenLogFile(std::ofstream& ofstream, std::string filename, bool truncate = true);
 void WriteLogFileMessage(std::ofstream& ofstream, double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message);
 
 } // namespace debugviewpp 

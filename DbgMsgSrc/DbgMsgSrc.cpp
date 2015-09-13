@@ -46,8 +46,20 @@ void DbgMsgTest()
 	OutputDebugStringA("1\t\t2\t\t3\t\t4\t\t5");
 	OutputDebugStringA("A\t\tB\t\tC\t\tD\t\tE");
 	OutputDebugStringA("11\t\t12\t\t13\t\t14\t\t15");
-	OutputDebugStringA("\t\t22\t\t23A\t\t24\t\t25");
-	OutputDebugStringA("\t\t\t\t33\t\t34\t\t35");
+	OutputDebugStringA("21\t\t22\t\t23A\t\t24\t\t25");
+
+	OutputDebugStringA(" This line has 1 space prefixed");
+	OutputDebugStringA("  This line has 2 space prefixed");
+	OutputDebugStringA("   This line has 3 space prefixed");
+	OutputDebugStringA("    This line has 4 space prefixed");
+
+	OutputDebugStringA("HighLighting test: Double-click the word 'lines' in each of the following lines and make sure that word is highlighted.");
+
+	OutputDebugStringA("\t123\t \t123\t \t123\t \t123\t This lines starts with tab");
+	OutputDebugStringA(" \t123\t \t123\t \t123\t \t123\t This lines starts with 1 space + tab");
+	OutputDebugStringA("  \t123\t  \t123\t  \t123\t  \t123\t This lines starts with 2 spaces + tab");
+	OutputDebugStringA("   \t123\t   \t123\t   \t123\t   \t123\t This lines starts with 3 spaces + tab");
+	OutputDebugStringA("    \t123\t    \t123\t    \t123\t    \t123\t This lines starts with 4 spaces + tab");
 	OutputDebugStringA("2LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
 }
 
@@ -109,7 +121,6 @@ void testLongString()
 
 void Output(const std::string& filename)
 {
-	std::cout << "Buggazer tester, PID: " << GetCurrentProcessId() << "\n";
 	std::fstream fs;
 	fs.open(filename, std::fstream::in);
 

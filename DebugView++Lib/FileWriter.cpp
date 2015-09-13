@@ -20,7 +20,7 @@ FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
 	m_filename(filename),
 	m_logfile(logfile)
 {
-	OpenLogFile(m_ofstream, Str(filename).str());
+	OpenLogFile(m_ofstream, Str(filename).str(), false);	// false == append
 	m_thread = boost::thread(&FileWriter::Process, this);
 }
 
@@ -32,7 +32,7 @@ void FileWriter::Process()
 {
 	//todo: we need locking on Logfile, think of ClearLog() 
 	// also, reading the .dblog file does not work correctly
-	int writeIndex = 0;
+	size_t writeIndex = 0;
 	for(;;)
 	{
 		while (m_logfile.Count() > writeIndex)

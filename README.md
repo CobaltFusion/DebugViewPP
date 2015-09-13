@@ -23,46 +23,46 @@ These are some of its features:
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
 - memory compressed logbuffer using google snappy (-50% RAM consumed)
-
-New features in v1.2
-- Commandline version
+- commandline version
 - tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
-
-Coming up (implemented in bleeding-egde version 1.3)
-
-- Redesign of the monitoring code, more flexible and efficient, enable use of any
+- redesign of the monitoring code, more flexible and efficient, enable use of any
   collection as linebuffer
-- fixed issue #140: Highlight filters take precidence over other filters for coloring of the entire line
 - add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
-- fixed un-pause problem
-- Clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
+- clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
 - continuous logging to file commandline option
 - tailing our own logfiles over samba network
-- support for reading and tailing Sysinternals Debugview logfiles (four common formats)
+- support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-Coming up / Working on (on the head version in GIT)
+Changes in 1.4:
 
-- Fixed several minor UI bugs
-- Dbgview agent client mode allowing logging of kernel messages
+- added console version (DebugViewConsole.exe) for use without UI
+- several minor UI bugs fixed
+- dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
-- Better logging to files 
-- History (memory consumption) limits
+- better logging to files 
+- history (memory consumption) limits
+- fixed troubles with tabs (highlighting/logfile/regex)
+- timezone independent and human readable timestamps in the logfiles
+- save filters after changing instead of only at exit
+- moved filters out of sub-menu and add shortcut keys (try highlighting a word and pressing delete)
+ 
+Not new features, but often overlooked, see below for details
+- View->Process Colors, easy way to give evert process its own color!
+- Options->Link views, best effort to synchronize the line-selection over all views
 
-Download Stable release
+Download latest version
 -----------------------
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_12.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_12.msi)
+
+Older version
+-------------------------------
 
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
-
-Download Bleeding Edge !! Updated on July 15 2014 (fixed kernel messages)
-----------------------
-
-+ [DebugView v1.3.x Zipped executables](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++15_july.zip)
-+ [DebugView v1.3.x Win32 installer](http://www.myquest.nl/sites/debugview/BleedingEdge/DebugView++15_july.msi)
-
 
 Documentation
 --------
@@ -124,17 +124,24 @@ just type any word or part of a word to match.
 
 Include, exclude, once and highlight filters are the most intuitive filters to use. Track and stop can be a little confusing, let me try to give some examples.
 
-**track**; use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
+**track**: use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
 
-**stop**; this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
+**stop**: this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
 
-Finally, consider this use case:
+Other features:
+--------------------
+
+**link views**: the selected line in the current view is located re-selected when you switch to another view. This is done on a best-effort bases, so if the exact line is not found, the nearest line is selected. In that case switching views will cause the currently selected line to change.
+
+Consider this use case:
 
 If you want to have auto scoll on, but some high frequeny messages are annoying you, but you cannot exclude them because they help you diagnose your event when it occurs, try this:
 
 Use two views, one where the diagnostic messages are filtered and autoscroll is on, and one where the messages are included (and maybe highlighted), next turn on the 'link views' feature.
 
 Now you can monitor the filtered view, and when your event occurs, select a line and switch to the unfiltered view, the same line is now highlighted, but in full unfiltered context.
+
+**process colors**: If enabled each process (even processed with identical names) will get a its own background color automatically without adding any filters.
 
 Other documentation:
 --------------------
@@ -150,7 +157,6 @@ turned off if any other line is selected.
 
 The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occured, it is the time the message was received by DebugView++. Also there is no quarantee that the time between occurance and reception of messages is constant, *however* in practice this is **pretty** constant :)
 
-
 How to build
 ------------
 
@@ -164,7 +170,14 @@ The libraries must be installed in /Libraries and zip.exe installed, add the bin
 Build dependencies
 ------------------
 - WiX Toolset: install the latest binary from http://wixtoolset.org/
-- boost: read the install.sh in the boost archive
+- boost: see the install.sh in the boost archive
+    - install visual studio 201x (now testing 2015)
+    - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
+    - unzip boost_1_59_0.zip to D:\project\DebugViewPP2015\Libraries\boost_1_59_0
+    - cd D:\project\DebugViewPP2015\Libraries\boost_1_59_0
+    - run D:\project\DebugViewPP2015\Libraries\boost_1_59_0\bootstrap.bat
+    - b2.exe --prefix=C:\Project\DebugViewPP2015\Libraries\boost --build-type=complete stage install (~45 minutes)
+    - for some reason I have to copy \Libraries\boost_1_59_0\stage\lib\*.* to \Libraries\boost\lib\*.* to get the vc140-mt-sgd libraries.
 - WTL and zip: decompress the archives and you're done
 
 

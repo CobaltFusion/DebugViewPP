@@ -266,7 +266,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(floor_to<int>(seconds), L"second");
 
-	static const wchar_t* units[] = { L"s", L"ms", L"Âµs", L"ns", nullptr };
+	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -492,7 +492,7 @@ LRESULT CMainFrame::OnScRestore(UINT, INT, HWND)
 
 LRESULT CMainFrame::OnScClose(UINT, INT, HWND)
 {
-	PostMessage(WM_COMMAND, IDCANCEL);
+	PostMessage(WM_COMMAND, ID_APP_EXIT);
 	return 0;
 }
 
@@ -638,6 +638,7 @@ void CMainFrame::AddFilterView()
 		return;
 
 	AddFilterView(dlg.GetName(), dlg.GetFilters());
+	SaveSettings();
 }
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
@@ -1041,6 +1042,7 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	GetTabCtrl().Invalidate();
 	GetView().SetName(dlg.GetName());
 	GetView().SetFilters(dlg.GetFilters());
+	SaveSettings();
 }
 
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

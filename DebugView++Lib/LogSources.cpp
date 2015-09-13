@@ -17,6 +17,7 @@
 #include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
+#include "DebugView++Lib/Conversions.h"
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
@@ -58,9 +59,15 @@ void LogSources::AddMessage(const std::string& message)
 	m_loopback->Signal();
 }
 
+void LogSources::UpdateSettings(std::shared_ptr<LogSource> source)
+{
+	source->SetAutoNewLine(GetAutoNewLine());
+}
+
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
+	UpdateSettings(source);
 	m_sources.push_back(source);
 	SetEvent(m_updateEvent.get());
 }
@@ -147,7 +154,10 @@ void LogSources::Listen()
 					waitHandles.push_back(handle);
 					sources.push_back(source);
 				}
-				source->Initialize();	//todo: find a better way to do this?
+				// TODO: currenly only FileReader::Initialize uses this to start reading from the file only after 'LogSources::Listen()' is called.
+				// I dont remember why this was introduced, if there is a requirement to postpone reading from source until LogSources::Listen() is called 
+				// (instead of after creation of the Logsource) the SocketReader should probably also do that.
+				source->Initialize();
 			}
 		}
 
@@ -167,10 +177,7 @@ void LogSources::Listen()
 					break;
 				else
 				{
-					if (index >= (int)sources.size())
-					{
-						assert(!"res.index out of range");
-					}
+					assert((index < (int)sources.size()) && "res.index out of range");
 					auto logsource = sources[index];
 					logsource->Notify();
 					if (logsource->AtEnd())
@@ -234,7 +241,8 @@ Lines LogSources::GetLines()
 		{
 			auto& line = *it;
 			const char* whitespace = " \r\n\t";
-			boost::trim_if(line.message, boost::is_any_of(whitespace));
+			boost::trim_right_if(line.message, boost::is_any_of(whitespace));
+			line.message = TabsToSpaces(line.message);	// workaround for issue #173
 			lines.push_back(*it);
 		}
 	}

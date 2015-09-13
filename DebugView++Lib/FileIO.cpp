@@ -54,6 +54,23 @@ FILETIME MakeFileTime(uint64_t t)
 	return ft;
 }
 
+FILETIME MakeFileTime(const std::string text)
+{
+	SYSTEMTIME st = {0};
+	std::istringstream is(text);
+	char c1, c2, c3, c4, c5, c6;
+	if (!((is >> st.wYear >> c1 >> st.wMonth >> c2 >> st.wDay >> std::noskipws >> c3 >> st.wHour >> c4 >> st.wMinute >> c5 >> st.wSecond >> c6 >> st.wMilliseconds) 
+		&& c1 == '/' && c2 == '/' && c3 == ' ' && c4 == ':' && c5 == ':' && c6 == '.'))
+	{
+		SYSTEMTIME zero = FileTimeToSystemTime(FILETIME());
+		st = zero;
+	}
+
+	auto ft = SystemTimeToFileTime(st);
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return ft;
+}
+
 bool ReadTime(const std::string& s, double& time)
 {
 	std::istringstream is(s);
@@ -70,14 +87,18 @@ std::string FileTypeToString(FileType::type value)
 {
 	switch (value)
 	{
-	case FileType::DebugViewPP:
-		return "DebugView++ Logfile";
+	case FileType::DebugViewPP1:
+		return "DebugView++ Logfile v1";
+	case FileType::DebugViewPP2:
+		return "DebugView++ Logfile v2";
 	case FileType::Sysinternals:
 		return "Sysinternals Debugview Logfile";
+	case FileType::AsciiText:
+		return "Ascii text file";
 	default:
 		break;
 	}
-	return "Ascii text file";
+	return "Unimplemented file type";
 }
 
 FileType::type IdentifyFile(std::string filename)
@@ -89,10 +110,13 @@ FileType::type IdentifyFile(std::string filename)
 
 	// first we check for our own header
 	auto trimmed = boost::trim_copy_if(line, boost::is_any_of(" \r\n\t"));
-	auto marker = g_debugViewPPIdentification;
-	if (boost::ends_with(trimmed, marker))
+	if (boost::ends_with(trimmed, g_debugViewPPIdentification1))
 	{
-		return FileType::DebugViewPP;
+		return FileType::DebugViewPP1;
+	}
+	if (boost::ends_with(trimmed, g_debugViewPPIdentification2))
+	{
+		return FileType::DebugViewPP2;
 	}
 
 	// if the extention is .txt (and we did not find our own header)
@@ -244,7 +268,7 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 {
 	TabSplitter split(data);
 	line.time = boost::lexical_cast<double>(split.GetNext());
-	line.systemTime = MakeFileTime(boost::lexical_cast<uint64_t>(split.GetNext()));
+	line.systemTime = MakeFileTime(split.GetNext());
 	line.pid = boost::lexical_cast<DWORD>(split.GetNext());
 	line.processName = split.GetNext();
 	line.message = split.GetTail();
@@ -258,22 +282,46 @@ std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
 	return os << ((hi << 32) | lo);
 }
 
-void OpenLogFile(std::ofstream& ofstream, std::string filename)
+void OpenLogFile(std::ofstream& ofstream, std::string filename, bool truncate)
 {
-	bool newLogFile = !FileExists(filename.c_str());
-	ofstream.open(filename, std::ofstream::app);
-	if (newLogFile)
+	if (truncate)
 	{
-		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification);
+		ofstream.open(filename, std::ofstream::trunc);
 	}
+	else	// append
+	{
+		ofstream.open(filename, std::ofstream::app);
+	}
+	
+	if (truncate)
+	{
+		// intentionally maintain the same amount of colomns, so it is always easy to parse by csv import tools
+		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
+	}
+}
+
+std::string GetDateTimeText(const FILETIME& filetime)
+{
+	// convert the FILETIME from UTC to local timezone so the time so written as 'clocktime'
+	auto st = FileTimeToSystemTime(FileTimeToLocalFileTime(filetime));
+	char buf[64];
+	sprintf_s(buf, "%04d/%02d/%02d %02d:%02d:%02d.%03d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	return buf;
+}
+
+std::string GetOffsetText(double time)
+{
+	char buf[32];
+	sprintf_s(buf, "%.06f", time);
+	return buf;
 }
 
 void WriteLogFileMessage(std::ofstream& ofstream, double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message)
 {
-	boost::trim_if(message, boost::is_any_of(" \r\n\t")); 
+	boost::trim_right_if(message, boost::is_any_of(" \r\n\t")); 
 	ofstream <<
-		time << "\t" <<
-		filetime << "\t"<<
+		GetOffsetText(time) << "\t" <<
+		GetDateTimeText(filetime) << "\t"<<
 		pid << "\t" <<
 		processName << "\t" <<
 		message << "\n";

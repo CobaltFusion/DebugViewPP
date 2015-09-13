@@ -25,8 +25,8 @@ public:
 	virtual void SetAutoNewLine(bool value);
 	virtual bool GetAutoNewLine() const;
 
-	// maybe called multiple times, the derived class are responsible for 
-	// actually executing code once if needed.
+	// maybe called multiple times, the derived class is responsible for
+	// executing initialization code once if needed.
 	virtual void Initialize() {}
 
 	virtual void Abort();

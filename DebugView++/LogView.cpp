@@ -13,6 +13,7 @@
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
+#include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
@@ -456,7 +457,8 @@ int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
 	auto rect = GetSubItemRect(0, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
-	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
+//	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
+	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
 	int index = GetTextOffset(dc, text, xPos - x0);
 	if (index < 0)
 		return xPos > x0 ? text.size() : 0;
@@ -471,7 +473,8 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
-	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
+//	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
+	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
 
 	int begin = nFit;
 	while (begin > 0)
@@ -697,7 +700,7 @@ ItemData CLogView::GetItemData(int iItem) const
 	data.text[Column::Time] = GetItemWText(iItem, ColumnToSubItem(Column::Time));
 	data.text[Column::Pid] = GetItemWText(iItem, ColumnToSubItem(Column::Pid));
 	data.text[Column::Process] = GetItemWText(iItem, ColumnToSubItem(Column::Process));
-	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
+	auto text = m_logFile[m_logLines[iItem].line].text;	// TabsToSpaces removed here, see issue #173
 	data.highlights = GetHighlights(text);
 	data.text[Column::Message] = WStr(text).str();
 	data.color = GetTextColor(m_logFile[m_logLines[iItem].line]);
@@ -715,7 +718,7 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 
 	int begin = GetTextIndex(dc, iItem, x1);
 	int end = GetTextIndex(dc, iItem, x2);
-	return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::Text));	
+	return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::Text));
 }
 
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
@@ -793,36 +796,6 @@ void CopyItemText(const std::string& s, wchar_t* buf, size_t maxLen)
 void CopyItemText(const std::wstring& s, wchar_t* buf, size_t maxLen)
 {
 	CopyItemText(s.c_str(), buf, maxLen);
-}
-
-std::string GetTimeText(double time)
-{
-	return stringbuilder() << std::fixed << std::setprecision(6) << time;
-}
-
-std::string GetDateText(const SYSTEMTIME& st)
-{
-	int size = GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, nullptr, nullptr, 0);
-	std::vector<char> buf(size);
-	GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, nullptr, buf.data(), size);
-	return std::string(buf.data(), size - 1);
-}
-
-std::string GetDateText(const FILETIME& ft)
-{
-	return GetDateText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
-}
-
-std::string GetTimeText(const SYSTEMTIME& st)
-{
-	char buf[32];
-	sprintf_s(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-	return buf;
-}
-
-std::string GetTimeText(const FILETIME& ft)
-{
-	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
 std::string CLogView::GetColumnText(int iItem, Column::type column) const
@@ -1674,7 +1647,7 @@ void CLogView::ApplyFilters()
 	{
 		if (IsIncluded(m_logFile[line]))
 		{
-			logLines.push_back(LogLine(line));
+			logLines.emplace_back(LogLine(line));
 			if (itBookmark != bookmarks.end() && *itBookmark == line)
 			{
 				logLines.back().bookmark = true;
@@ -1717,7 +1690,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 
 	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))
+		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))	// TabsToSpaces removed here, see issue #173
 			return TextColor(it->bgColor, it->fgColor);
 	}
 

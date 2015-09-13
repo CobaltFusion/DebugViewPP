@@ -77,6 +77,14 @@ template <typename F>
 class scope_guard : boost::noncopyable
 {
 public: 
+	scope_guard(scope_guard&& rhs) : 
+		m_action(rhs.m_action),
+		m_released(rhs.m_released)
+	{
+		rhs.m_action = nullptr;
+		rhs.m_released = true;
+	}
+
 	explicit scope_guard(const F& x) :
 		m_action(x),
 		m_released(false)

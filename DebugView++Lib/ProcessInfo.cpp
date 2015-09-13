@@ -7,6 +7,8 @@
 
 #include "stdafx.h"
 #include <array>
+#include "DebugView++Lib/Conversions.h"
+#include "Win32Lib/Utilities.h"
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/Colors.h"
 #include "DebugView++Lib/ProcessInfo.h"
@@ -51,7 +53,7 @@ size_t ProcessInfo::GetPrivateBytes()
 std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 {
 	std::array<wchar_t, MAX_PATH> buf;
-	DWORD rc = GetProcessImageFileName(handle, buf.data(), buf.size());
+	auto rc = GetProcessImageFileName(handle, buf.data(), buf.size());
 	if (rc == 0)
 		return L"";
 
@@ -62,6 +64,16 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 			name = it + 1;
 	}
 	return name;
+}
+
+std::wstring ProcessInfo::GetProcessInfo(HANDLE handle)
+{
+	FILETIME creation = {0};
+	FILETIME exit = {0};
+	FILETIME kernel = {0};
+	FILETIME user = {0};
+	GetProcessTimes(handle, &creation, &exit, &kernel, &user);
+	return WStr(GetTimeText(creation)).str();
 }
 
 std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
