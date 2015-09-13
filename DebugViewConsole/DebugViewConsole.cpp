@@ -32,6 +32,7 @@ struct Settings
 	bool autonewline;
 	bool flush;
 	bool linenumber;
+	std::string filename;
 };
 
 void OutputDetails(Settings settings, const Line& line)
@@ -128,6 +129,7 @@ try
 		std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
 		std::cout << "-f: flush\n";
 		std::cout << "-v: verbose output\n";
+		std::cout << "-d <file>: write to .dblog file\n";
 		exit(0);
 	}
 
@@ -178,6 +180,12 @@ try
 	{
 		if (verbose) std::cout << "-f: auto flush (write to disk more often)\n";
 		settings.flush = true;
+	}
+
+	if (cmdOptionExists(argv, argv+argc, "-d"))
+	{
+		settings.filename = std::string(getCmdOption(argv, argv + argc, "-d"));
+		if (verbose) std::cout << "-d: write to: " << settings.filename << "\n";
 	}
 
 	if (cmdOptionExists(argv, argv+argc, "-u"))
