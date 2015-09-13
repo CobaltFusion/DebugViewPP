@@ -19,29 +19,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-template <typename CharT>
-std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tabsize = 4)
-{
-	std::basic_string<CharT> result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == CharT('\t'))
-		{
-			do
-			{
-				result.push_back(CharT(' '));
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
-}
-
 SelectionInfo::SelectionInfo() :
 	beginLine(0), endLine(0), count(0)
 {

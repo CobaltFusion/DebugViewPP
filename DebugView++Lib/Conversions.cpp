@@ -42,49 +42,5 @@ std::string GetTimeText(const FILETIME& ft)
 	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
-std::wstring TabsToSpaces(const std::wstring& s, int tabsize)
-{
-	std::wstring result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == L'\t')
-		{
-			do
-			{
-				result.push_back(L' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
-}
-
-std::string TabsToSpaces(const std::string& s, int tabsize)
-{
-	std::string result;
-	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
-	{
-		if (*it == '\t')
-		{
-			do
-			{
-				result.push_back(' ');
-			}
-			while (result.size() % tabsize != 0);
-		}
-		else
-		{
-			result.push_back(*it);
-		}
-	}
-	return result;
-}
-
 } // namespace debugviewpp 
 } // namespace fusion
