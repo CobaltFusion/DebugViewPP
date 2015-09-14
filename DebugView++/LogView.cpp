@@ -1254,7 +1254,7 @@ bool CLogView::EndUpdate()
 	if (m_stop) 
 	{
 		m_stop();
-		m_stop = 0;
+		m_stop = nullptr;
 	}
 	if (m_track) 
 	{
@@ -1269,7 +1269,7 @@ bool CLogView::EndUpdate()
 
 void CLogView::StopTracking()
 {
-	m_track = 0;
+	m_track = nullptr;
 }
 
 void CLogView::StopScrolling()
