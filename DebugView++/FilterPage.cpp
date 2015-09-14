@@ -56,7 +56,7 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	m_grid.SetSubItem(item, 4, pBkColor);
 	m_grid.SetSubItem(item, 5, pTxColor);
 	m_grid.SetSubItem(item, 6, PropCreateReadOnlyItem(L"", L"×"));
-	m_grid.SelectItem(item, 1);
+	m_grid.SelectItem(item);
 }
 
 void CFilterPageImpl::AddFilter(const Filter& filter)
@@ -139,6 +139,7 @@ LRESULT CFilterPageImpl::OnAddItem(NMHDR* /*pnmh*/)
 	Filter filter;
 	AddFilter(filter);
 	m_filters.push_back(filter);
+	m_grid.SendMessage(WM_KEYDOWN, VK_F2, 0);
 
 	return 0;
 }
