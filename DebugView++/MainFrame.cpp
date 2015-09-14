@@ -77,6 +77,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
 	COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
@@ -84,6 +85,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
+	NOTIFY_CODE_HANDLER_EX(NM_RCLICK, OnRClickTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
 	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
@@ -657,6 +659,30 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 	ShowTabControl();
 }
 
+LRESULT CMainFrame::OnRClickTab(NMHDR* pnmh)
+{
+	if (pnmh->hwndFrom != m_TabCtrl)
+	{
+		SetMsgHandled(false);
+		return FALSE;
+	}
+
+	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
+	if (nmhdr.iItem < 0)
+		return FALSE;
+
+	m_TabCtrl.SetCurSel(nmhdr.iItem);
+
+	CMenu menuContext;
+	menuContext.LoadMenu(IDR_TAB_CONTEXTMENU);
+	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
+	CPoint pt(nmhdr.pt);
+	m_TabCtrl.ClientToScreen(&pt);
+	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, *this);
+
+	return TRUE;
+}
+
 LRESULT CMainFrame::OnBeginTabDrag(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
@@ -697,17 +723,7 @@ void CMainFrame::SetModifiedMark(int tabindex, bool modified)
 LRESULT CMainFrame::OnCloseTab(NMHDR* pnmh)
 {
 	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
-
-	int filterIndex = nmhdr.iItem;
-	int views = GetViewCount();
-	if (filterIndex >= 0 && filterIndex < views)
-	{
-		GetTabCtrl().DeleteItem(filterIndex, false);
-		int select = filterIndex == views - 1 ? filterIndex - 1 : filterIndex;
-		GetTabCtrl().SetCurSel(select);
-		if (GetViewCount() == 1)
-			HideTabControl();
-	}
+	CloseView(nmhdr.iItem);
 	return 0;
 }
 
@@ -1045,6 +1061,11 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	SaveSettings();
 }
 
+void CMainFrame::OnViewClose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CloseView(GetTabCtrl().GetCurSel());
+}
+
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	CSourcesDlg dlg(m_sourceInfos);
@@ -1090,6 +1111,18 @@ void CMainFrame::AddLogSource(const SourceInfo& info)
 	default:
 		// do nothing
 		break;
+	}
+}
+
+void CMainFrame::CloseView(int i)
+{
+	int views = GetViewCount();
+	if (i >= 0 && i < views)
+	{
+		GetTabCtrl().DeleteItem(i, false);
+		GetTabCtrl().SetCurSel(i == views - 1 ? i - 1 : i);
+		if (GetViewCount() == 1)
+			HideTabControl();
 	}
 }
 

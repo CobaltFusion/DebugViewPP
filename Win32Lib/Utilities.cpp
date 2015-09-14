@@ -12,24 +12,21 @@
 
 namespace fusion {
 
-void ScopedCursorDeleter::operator()(pointer p) const
-{
-	SetCursor(p);
-}
-
 ScopedCursor::ScopedCursor(HCURSOR hCursor) :
-	unique_ptr(GetCursor(hCursor))
+	m_hCursor(::SetCursor(hCursor))
 {
 }
 
-void ScopedCursor::reset(HCURSOR hCursor)
+ScopedCursor::ScopedCursor(ScopedCursor&& sc) :
+	m_hCursor(sc.m_hCursor)
 {
-	unique_ptr::reset(GetCursor(hCursor));
+	sc.m_hCursor = nullptr;
 }
 
-HCURSOR ScopedCursor::GetCursor(HCURSOR hCursor)
+ScopedCursor::~ScopedCursor()
 {
-	return hCursor ? SetCursor(hCursor) : nullptr;
+	if (m_hCursor)
+		::SetCursor(m_hCursor);
 }
 
 std::wstring LoadString(int id)

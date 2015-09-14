@@ -152,6 +152,7 @@ private:
 	LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
 	LRESULT OnScRestore(UINT, INT, HWND);
 	LRESULT OnScClose(UINT, INT, HWND);
+	LRESULT OnRClickTab(NMHDR* pnmh);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
@@ -176,6 +177,7 @@ private:
 	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnViewClose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 
@@ -187,6 +189,7 @@ private:
 	void HandleDroppedFile(const std::wstring& file);
 	void Run(const std::wstring& pathName = L"");
 	void AddLogSource(const SourceInfo& info);
+	void CloseView(int i);
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;

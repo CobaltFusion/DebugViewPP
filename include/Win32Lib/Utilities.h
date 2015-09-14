@@ -55,40 +55,32 @@ size_t array_size(T (&)[N])
 	return N;
 }
 
-struct ScopedCursorDeleter
+class ScopedCursor : boost::noncopyable
 {
-	typedef HCURSOR pointer;
-	void operator()(pointer p) const;
-};
-
-class ScopedCursor : public std::unique_ptr<std::remove_pointer<HCURSOR>::type, ScopedCursorDeleter>
-{
-	typedef std::unique_ptr<std::remove_pointer<HCURSOR>::type, ScopedCursorDeleter> unique_ptr;
-
 public:
-	explicit ScopedCursor(HCURSOR hCursor = nullptr);
-	void reset(HCURSOR hCursor = nullptr);
+	explicit ScopedCursor(HCURSOR hCursor);
+	ScopedCursor(ScopedCursor&& sc);
+	~ScopedCursor();
 
 private:
-	static HCURSOR GetCursor(HCURSOR hCursor);
+	HCURSOR m_hCursor;
 };
 
 template <typename F>
 class scope_guard : boost::noncopyable
 {
 public: 
-	scope_guard(scope_guard&& rhs) : 
-		m_action(rhs.m_action),
-		m_released(rhs.m_released)
-	{
-		rhs.m_action = nullptr;
-		rhs.m_released = true;
-	}
-
 	explicit scope_guard(const F& x) :
 		m_action(x),
 		m_released(false)
 	{
+	}
+
+	scope_guard(scope_guard&& rhs) : 
+		m_action(std::move(rhs.m_action)),
+		m_released(rhs.m_released)
+	{
+		rhs.m_released = true;
 	}
 
 	void release()
