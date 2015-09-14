@@ -1660,20 +1660,22 @@ bool FilterSupportsColor(FilterType::type value)
 	return false;
 }
 
+std::vector<Filter> MoveHighlighFiltersToFront(std::vector<Filter> filters)
+{
+	std::stable_partition(filters.begin(), filters.end(), [](const Filter& f) { return f.filterType == FilterType::Highlight; });
+	return filters;
+}
+
 TextColor CLogView::GetTextColor(const Message& msg) const
 {
-	auto messageFilters = m_filter.messageFilters;
-	std::sort(messageFilters.begin(), messageFilters.end());
-
+	auto messageFilters = MoveHighlighFiltersToFront(m_filter.messageFilters);
 	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
 		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))	// TabsToSpaces removed here, see issue #173
 			return TextColor(it->bgColor, it->fgColor);
 	}
 
-	auto processFilters = m_filter.processFilters;
-	std::sort(processFilters.begin(), processFilters.end());
-
+	auto processFilters = MoveHighlighFiltersToFront(m_filter.processFilters);
 	for (auto it = processFilters.begin(); it != processFilters.end(); ++it)
 	{
 		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.processName, it->re))

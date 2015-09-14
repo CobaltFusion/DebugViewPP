@@ -1076,21 +1076,21 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	auto it = sourceInfos.begin();
 	while (it != sourceInfos.end())
 	{
-		auto& info = (*it);
+		auto& info = *it;
 		if (info.logsource != nullptr)
-			if (info.remove || info.enabled == false)
+			if (info.remove || !info.enabled)
 				m_logSources.Remove(info.logsource);
 
 		if (info.remove)
 		{
 			it = sourceInfos.erase(it);
-			continue;
 		}
-		if (info.enabled && info.logsource == nullptr)
+		else
 		{
-			AddLogSource(info);
+			if (info.enabled && info.logsource == nullptr)
+				AddLogSource(info);
+			++it;
 		}
-		++it;
 	}
 	m_sourceInfos = sourceInfos;
 }
