@@ -39,14 +39,62 @@ std::string GetTimeText(const SYSTEMTIME& st)
 	return buf;
 }
 
+std::string GetDateTimeText(const FILETIME& filetime)
+{
+	// convert the FILETIME from UTC to local timezone so the time so written as 'clocktime'
+	auto st = FileTimeToSystemTime(FileTimeToLocalFileTime(filetime));
+	char buf[64];
+	sprintf_s(buf, "%04d/%02d/%02d %02d:%02d:%02d.%03d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	return buf;
+}
+
 std::string GetTimeText(const FILETIME& ft)
 {
 	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
 }
 
-USTimeConverter::USTimeConverter()
-    : m_lastFileTime(FILETIME())
+SYSTEMTIME GetSystemTime(WORD year, WORD month, WORD day)
 {
+	SYSTEMTIME st = { year, month, 0, day }; // wYear, wMonth, wDayOfWeek, wDay
+	return st;
+}
+
+USTimeConverter::USTimeConverter()
+	: m_lastFileTime(FILETIME())
+	, m_firstValue(true)
+{
+}
+
+FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
+{
+	if (m_firstValue)
+	{
+		m_firstValue = false;
+		auto st = GetSystemTime(2000, 1, 1);
+		st.wHour = h;
+		st.wMinute = m;
+		st.wSecond = s;
+		st.wMilliseconds = 0;
+		m_lastFileTime = SystemTimeToFileTime(st);
+	}
+
+	auto st = FileTimeToSystemTime(m_lastFileTime);
+	st.wHour = h;
+	st.wMinute = m;
+	st.wSecond = s;
+	st.wMilliseconds = 0;
+	auto ft = SystemTimeToFileTime(st);
+
+	//std::cout << "ft: " << GetDateTimeText(ft) << " last: " << GetDateTimeText(m_lastFileTime) << std::endl;
+
+	if (CompareFileTime(&ft, &m_lastFileTime) < 0)	// is ft before m_lastFileTime, then assume it is on the next day.
+	{
+		st.wDay += 1;
+	}
+	ft = SystemTimeToFileTime(st);
+	m_lastFileTime = ft;
+	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	return ft;
 }
 
 // read localtime in format "hh:mm:ss tt" (AM/PM postfix)
@@ -54,7 +102,6 @@ bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& f
 {
 	std::istringstream is(text);
 	WORD h, m, s;
-	WORD day = 1;
 	char c1, c2, p1, p2;
 	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
 		return false;
@@ -64,21 +111,7 @@ bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& f
 	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
 		h += 12;
 
-    SYSTEMTIME st = { 2000, 1, 0, 0 }; // wYear, wMonth, wDayOfWeek, wDay; months starts are 1
-	st.wHour = h;
-	st.wMinute = m;
-	st.wSecond = s;
-	st.wMilliseconds = 0;
-	st.wDay = day;
-	ft = SystemTimeToFileTime(st);
-
-    //if (ft < m_lastFileTime)
-    //{
-    //    SYSTEMTIME lst = FileTimeToSystemTime(m_lastFileTime);
-    //    lst.wDay += 1;
-    //}
-
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	ft = USTimeToFiletime(h, m, s, 0);
 	return true;
 }
 
@@ -88,29 +121,16 @@ bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME&
 	std::istringstream is(text);
 
 	WORD h, m, s, ms;
-	WORD day = 1;
 	char c1, c2, p1, p2, d1;
 	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
 		return false;
-	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
-	{
-		if (h == 12) 
-		{
-			h = 0;
-			day = 2;
-		}
-	}
+	if (h == 12) 
+		h = 0;
 
-	SYSTEMTIME st = {0};
-	st.wYear = 2000;
-	st.wMonth = 1;
-	st.wHour = h;
-	st.wMinute = m;
-	st.wSecond = s;
-	st.wMilliseconds = ms;
-	st.wDay = day;
-	ft = SystemTimeToFileTime(st);
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+		h += 12;
+
+	ft = USTimeToFiletime(h, m, s, ms);
 	return true;
 }
 

@@ -14,6 +14,7 @@
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
+#include "DebugView++Lib/Conversions.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -126,61 +127,22 @@ FileType::type IdentifyFile(std::string filename)
 	if (boost::ends_with(str, ".txt"))
 		return FileType::AsciiText;
 
-	// to test for sysinternals debugview-logfiles, we need to check the second line 
-	// since the first line contains the computer-name in some cases (depending on how it was saved)
-	// logfiles with only one line are not that interesting anyway.
-	if (!std::getline(is, line))		
-		return FileType::AsciiText;
+	// .log files are potentially sysinternals dbgview files
+	if (boost::ends_with(str, ".log"))
+	{
+		// to test for sysinternals debugview-logfiles, we need to check the second line 
+		// since the first line contains the computer-name in some cases (depending on how it was saved)
+		// logfiles with only one line are not that interesting anyway.
+		if (!std::getline(is, line))
+			return FileType::AsciiText;
 
-	// if the second line contains 2 or 3 tabs characters, we say it's a sysinternals debugview-logfile 
-	// why some sysinternals debugview-logfile have an empty extra colomn is unknown.
-	auto tabs = std::count(line.begin(), line.end(), '\t');
-	if (tabs == 2 || tabs == 3)
-		return FileType::Sysinternals;
-
+		// if the second line contains 2 or 3 tabs characters, we say it's a sysinternals debugview-logfile 
+		// two kinds of lines are logged, kernel message lines and process message lines, the latter have an extra PID colomn
+		auto tabs = std::count(line.begin(), line.end(), '\t');
+		if (tabs == 2 || tabs == 3)
+			return FileType::Sysinternals;
+	}
 	return FileType::AsciiText;
-}
-
-// read localtime in format "hh:mm:ss tt" (AM/PM postfix)
-bool ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft)
-{
-	std::istringstream is(text);
-	WORD h, m, s;
-	char c1, c2, p1, p2;
-	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
-		return false;
-	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
-		h += 12;
-
-	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
-	st.wHour = h;
-	st.wMinute = m;
-	st.wSecond = s;
-	st.wMilliseconds = 0;
-	ft = SystemTimeToFileTime(st);
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
-	return true;
-}
-
-// read localtime in format "hh:mm:ss.ms tt" (AM/PM postfix)
-bool ReadLocalTimeUSRegionMs(const std::string& text, FILETIME& ft)
-{
-	std::istringstream is(text);
-	WORD h, m, s, ms;
-	char c1, c2, p1, p2, d1;
-	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
-		return false;
-	if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
-		h += 12;
-
-	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
-	st.wHour = h;
-	st.wMinute = m;
-	st.wSecond = s;
-	st.wMilliseconds = ms;
-	ft = SystemTimeToFileTime(st);
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
-	return true;
 }
 
 // read localtime in format "HH:mm:ss.ms"
@@ -241,9 +203,9 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 	// depending on regional settings Sysinternals debugview logs time differently.
 	// we support the four most common formats
 	// 'hh:MM:SS.mmm tt', 'hh:MM:SS tt', 'HH:MM:SS.mmm' and 'HH:MM:SS' 
-
-	if (!ReadLocalTimeUSRegionMs(col2,line.systemTime))			// try hh:MM:SS.mmm tt
-		if (!ReadLocalTimeUSRegion(col2,line.systemTime))		// try hh:MM:SS tt
+	USTimeConverter convert;
+	if (!convert.ReadLocalTimeUSRegionMs(col2,line.systemTime))			// try hh:MM:SS.mmm tt
+		if (!convert.ReadLocalTimeUSRegion(col2,line.systemTime))		// try hh:MM:SS tt
 			if (!ReadLocalTimeMs(col2, line.systemTime))		// try HH:MM:SS.mmm
 				if (!ReadLocalTime(col2, line.systemTime))      // try HH:MM:SS
 					ReadTime(col2, line.time);					// otherwise assume relative time: S.mmmmmm
@@ -298,15 +260,6 @@ void OpenLogFile(std::ofstream& ofstream, std::string filename, bool truncate)
 		// intentionally maintain the same amount of colomns, so it is always easy to parse by csv import tools
 		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
 	}
-}
-
-std::string GetDateTimeText(const FILETIME& filetime)
-{
-	// convert the FILETIME from UTC to local timezone so the time so written as 'clocktime'
-	auto st = FileTimeToSystemTime(FileTimeToLocalFileTime(filetime));
-	char buf[64];
-	sprintf_s(buf, "%04d/%02d/%02d %02d:%02d:%02d.%03d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-	return buf;
 }
 
 std::string GetOffsetText(double time)

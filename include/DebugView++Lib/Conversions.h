@@ -17,6 +17,7 @@ namespace debugviewpp {
 std::string GetTimeText(double time);
 std::string GetDateText(const SYSTEMTIME& st);
 std::string GetDateText(const FILETIME& ft);
+std::string GetDateTimeText(const FILETIME& filetime);
 std::string GetTimeText(const SYSTEMTIME& st);
 std::string GetTimeText(const FILETIME& ft);
 
@@ -45,14 +46,16 @@ std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tab
 
 class USTimeConverter
 {
+public:
 	USTimeConverter();
 
-    bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft);
-    bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME& ft);
+	bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft);
+	bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME& ft);
 
 private:
+	FILETIME USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms);
 	FILETIME m_lastFileTime;
-
+	bool m_firstValue;
 };
 
 } // namespace debugviewpp 
