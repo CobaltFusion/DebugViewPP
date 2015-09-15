@@ -9,6 +9,7 @@
 
 #include <windows.h>
 #include <string>
+#include "Win32Lib/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -41,6 +42,18 @@ std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tab
 	}
 	return result;
 }
+
+class USTimeConverter
+{
+	USTimeConverter();
+
+    bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft);
+    bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME& ft);
+
+private:
+	FILETIME m_lastFileTime;
+
+};
 
 } // namespace debugviewpp 
 } // namespace fusion
