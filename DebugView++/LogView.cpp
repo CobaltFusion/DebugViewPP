@@ -617,7 +617,19 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
 		int id = ++highlightId;
 		for (auto tok = begin; tok != end; ++tok)
-			InsertHighlight(highlights, Highlight(id, tok->position(), tok->position() + tok->length(), TextColor(it->bgColor, it->fgColor)));
+		{
+			int first = 0;
+			int count = 1;
+			if (tok->size() > 1 && it->matchType == MatchType::RegexGroups)
+			{
+				first = 1;
+				count = tok->size();
+			}
+			for (int i = first; i < count; ++i)
+			{
+				InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), TextColor(it->bgColor, it->fgColor)));
+			}
+		}
 	}
 
 	auto line = boost::make_iterator_range(text);

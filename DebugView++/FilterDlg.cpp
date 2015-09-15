@@ -88,7 +88,8 @@ static const MatchType::type MatchTypes[] =
 {
 	MatchType::Simple,
 	MatchType::Wildcard,
-	MatchType::Regex
+	MatchType::Regex,
+	MatchType::RegexGroups
 };
 
 CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :

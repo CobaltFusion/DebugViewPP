@@ -71,7 +71,8 @@ std::string MakePattern(MatchType::type type, const std::string& text)
 	{
 	case MatchType::Simple: return MakeSimplePattern(text);
 	case MatchType::Wildcard: return MakeWildcardPattern(text);
-	case MatchType::Regex: return text;
+	case MatchType::Regex:
+	case MatchType::RegexGroups: return text;
 	default: assert("Unexpected MatchType"); break;
 	}
 	return text;
@@ -85,7 +86,8 @@ int MatchTypeToInt(MatchType::type value)
 #define MATCH_TYPES \
 	MATCH_TYPE(Simple) \
 	MATCH_TYPE(Wildcard) \
-	MATCH_TYPE(Regex)
+	MATCH_TYPE(Regex) \
+	MATCH_TYPE(RegexGroups)
 
 MatchType::type IntToMatchType(int value)
 {

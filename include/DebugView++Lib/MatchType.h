@@ -18,7 +18,8 @@ struct MatchType
 	{
 		Simple,
 		Wildcard,
-		Regex
+		Regex,
+		RegexGroups
 	};
 };
 

@@ -69,8 +69,8 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
 	m_grid.InsertColumn(0, L"Filter", LVCFMT_LEFT, 200, 0, -1, 1);
 	m_grid.InsertColumn(1, L"", LVCFMT_LEFT, 32, 0, -1, 0);
-	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 60, 0, -1, 2);
-	m_grid.InsertColumn(3, L"Type", LVCFMT_LEFT, 60, 0, -1, 3);
+	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 76, 0, -1, 2);
+	m_grid.InsertColumn(3, L"Type", LVCFMT_LEFT, 48, 0, -1, 3);
 	m_grid.InsertColumn(4, L"Bg", LVCFMT_LEFT, 24, 0, -1, 4);
 	m_grid.InsertColumn(5, L"Fg", LVCFMT_LEFT, 24, 0, -1, 5);
 	m_grid.InsertColumn(6, L"", LVCFMT_LEFT, 16, 0, -1, 6);
