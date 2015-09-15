@@ -85,8 +85,6 @@ FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
 	st.wMilliseconds = 0;
 	auto ft = SystemTimeToFileTime(st);
 
-	//std::cout << "ft: " << GetDateTimeText(ft) << " last: " << GetDateTimeText(m_lastFileTime) << std::endl;
-
 	if (CompareFileTime(&ft, &m_lastFileTime) < 0)	// is ft before m_lastFileTime, then assume it is on the next day.
 	{
 		st.wDay += 1;

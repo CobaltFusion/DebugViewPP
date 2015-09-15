@@ -157,7 +157,7 @@ void DBLogReader::AddLine(const std::string& data)
 	case FileType::AsciiText:
 		return FileReader::AddLine(data);
 	case FileType::Sysinternals:
-		ReadSysInternalsLogFileMessage(data, line);
+		ReadSysInternalsLogFileMessage(data, line, m_converter);
 		GetRelativeTime(line);
 		break;
 	case FileType::DebugViewPP1:

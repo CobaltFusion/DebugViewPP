@@ -11,6 +11,7 @@
 #include "PipeReader.h"
 #include "Process.h"
 #include "FileIO.h"
+#include "DebugView++Lib/Conversions.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -53,6 +54,7 @@ private:
 	void GetRelativeTime(Line& line);
 	long m_linenumber;
 	FILETIME m_firstFiletime;
+	USTimeConverter m_converter;
 };
 
 } // namespace debugviewpp 

@@ -193,7 +193,7 @@ std::istream& ReadLogFileMessage(std::istream& is, Line& line)
 	return is;
 }
 
-bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
+bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line, USTimeConverter& converter)
 {
 	TabSplitter split(data);
 	auto col1 = split.GetNext();
@@ -203,9 +203,8 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line)
 	// depending on regional settings Sysinternals debugview logs time differently.
 	// we support the four most common formats
 	// 'hh:MM:SS.mmm tt', 'hh:MM:SS tt', 'HH:MM:SS.mmm' and 'HH:MM:SS' 
-	USTimeConverter convert;
-	if (!convert.ReadLocalTimeUSRegionMs(col2,line.systemTime))			// try hh:MM:SS.mmm tt
-		if (!convert.ReadLocalTimeUSRegion(col2,line.systemTime))		// try hh:MM:SS tt
+	if (!converter.ReadLocalTimeUSRegionMs(col2,line.systemTime))			// try hh:MM:SS.mmm tt
+		if (!converter.ReadLocalTimeUSRegion(col2,line.systemTime))		// try hh:MM:SS tt
 			if (!ReadLocalTimeMs(col2, line.systemTime))		// try HH:MM:SS.mmm
 				if (!ReadLocalTime(col2, line.systemTime))      // try HH:MM:SS
 					ReadTime(col2, line.time);					// otherwise assume relative time: S.mmmmmm

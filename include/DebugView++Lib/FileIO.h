@@ -13,6 +13,8 @@
 namespace fusion {
 namespace debugviewpp {
 
+class USTimeConverter;
+
 const std::string g_debugViewPPIdentification1 = "File Identification Header, DebugView++ Format Version 1";
 const std::string g_debugViewPPIdentification2 = "File Identification Header, DebugView++ Format Version 2";	// not yet used
 
@@ -36,7 +38,7 @@ FileType::type IdentifyFile(std::string filename);
 
 std::istream& ReadLogFileMessage(std::istream& is, Line& line);
 
-bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line);
+bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line, USTimeConverter& converter);
 bool ReadLogFileMessage(const std::string& data, Line& line);
 
 std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
