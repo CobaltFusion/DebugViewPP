@@ -42,21 +42,22 @@ private:
 
 class CMultiPaneStatusBarCtrlFlickerFree :
 	public CMultiPaneStatusBarCtrlImpl<CMultiPaneStatusBarCtrlFlickerFree>,
-	public COffscreenPaint<CMultiPaneStatusBarCtrlFlickerFree>
+	public CDoubleBufferImpl<CMultiPaneStatusBarCtrlFlickerFree>
 {
 public:
 	DECLARE_WND_SUPERCLASS(nullptr, CMultiPaneStatusBarCtrlImpl<CMultiPaneStatusBarCtrlFlickerFree>::GetWndClassName())  
 
 	BEGIN_MSG_MAP(CMultiPaneStatusBarCtrlFlickerFree)
-		CHAIN_MSG_MAP(COffscreenPaint<CMultiPaneStatusBarCtrlFlickerFree>)
+		CHAIN_MSG_MAP(CDoubleBufferImpl<CMultiPaneStatusBarCtrlFlickerFree>)
 	END_MSG_MAP()
 
-	virtual void DoPaint(CDCHandle dc, const RECT& rcClip)
+	void DoPaint(CDCHandle dc)
 	{
-		dc.FillSolidRect(&rcClip, Colors::BackGround);
+		RECT rect;
+		dc.GetClipBox(&rect);
+		dc.FillSolidRect(&rect, Colors::BackGround);
 		DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 	}
-
 };
 
 class CMainFrame :
@@ -144,42 +145,42 @@ private:
 	void AddFilterView(const std::wstring& name, const LogFilter& filter = LogFilter());
 	void AddMessage(const Message& message);
 
+	void SetModifiedMark(int tabindex, bool modified);
 	void ClearLog();
 	void SaveLogFile(const std::wstring& fileName);
 	void SaveViewFile(const std::wstring& fileName);
 
+	void OnContextMenu(HWND /*hWnd*/, CPoint pt);
 	LRESULT OnSysCommand(UINT nCommand, CPoint);
 	LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
 	LRESULT OnScRestore(UINT, INT, HWND);
 	LRESULT OnScClose(UINT, INT, HWND);
-	LRESULT OnRClickTab(NMHDR* pnmh);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
 	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
-	void SetModifiedMark(int tabindex, bool modified);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	LRESULT OnDeleteTab(NMHDR* pnmh);
-	void OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnAlwaysOnTop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnViewClose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
-	void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
+	void OnFileNewTab(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileOpen(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileRun(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileSaveLog(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileExit(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileSaveView(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLinkViews(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnAutoNewline(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnHide(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnAlwaysOnTop(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLogClear(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLogPause(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLogGlobal(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLogHistory(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLogDebugviewAgent(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFind(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFont(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewFilter(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewClose(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnSources(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnAppAbout(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	int GetViewCount() const;
 	CLogView& GetView(int i);
@@ -193,7 +194,7 @@ private:
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
-	CMultiPaneStatusBarCtrl m_statusBar;		// CMultiPaneStatusBarCtrlFlickerFree /  CMultiPaneStatusBarCtrl
+	CMultiPaneStatusBarCtrl m_statusBar; // CMultiPaneStatusBarCtrlFlickerFree /  CMultiPaneStatusBarCtrl
 	UINT_PTR m_timer;
 	LogFile m_logFile;
 	std::unique_ptr<FileWriter> m_logWriter;

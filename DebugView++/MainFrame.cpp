@@ -59,6 +59,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_TIMER(OnTimer)
 	MSG_WM_MOUSEWHEEL(OnMouseWheel)
+	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_SYSCOMMAND(OnSysCommand)
 	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
@@ -85,7 +86,6 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
 	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
-	NOTIFY_CODE_HANDLER_EX(NM_RCLICK, OnRClickTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
 	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
 	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
@@ -390,6 +390,33 @@ bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint /*pt*/)
 	return true;
 }
 
+void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
+{
+	if (hWnd != m_TabCtrl)
+	{
+		SetMsgHandled(false);
+		return;
+	}
+
+	CTCHITTESTINFO hit;
+	hit.pt = pt;
+	m_TabCtrl.ScreenToClient(&hit.pt);
+	int item = m_TabCtrl.HitTest(&hit);
+
+	CMenu menuContext;
+	menuContext.LoadMenu(IDR_TAB_CONTEXTMENU);
+	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
+
+	if (item < 0)
+	{
+		menuPopup.EnableMenuItem(ID_VIEW_FILTER, MF_BYCOMMAND | MF_GRAYED);
+		menuPopup.EnableMenuItem(ID_VIEW_CLEAR, MF_BYCOMMAND | MF_GRAYED);
+		menuPopup.EnableMenuItem(ID_VIEW_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+	}
+
+	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, *this);
+}
+
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
 	Pause();
@@ -657,30 +684,6 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 	GetTabCtrl().InsertItem(newIndex, pItem.release());
 	GetTabCtrl().SetCurSel(newIndex);
 	ShowTabControl();
-}
-
-LRESULT CMainFrame::OnRClickTab(NMHDR* pnmh)
-{
-	if (pnmh->hwndFrom != m_TabCtrl)
-	{
-		SetMsgHandled(false);
-		return FALSE;
-	}
-
-	auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
-	if (nmhdr.iItem < 0)
-		return FALSE;
-
-	m_TabCtrl.SetCurSel(nmhdr.iItem);
-
-	CMenu menuContext;
-	menuContext.LoadMenu(IDR_TAB_CONTEXTMENU);
-	CMenuHandle menuPopup(menuContext.GetSubMenu(0));
-	CPoint pt(nmhdr.pt);
-	m_TabCtrl.ClientToScreen(&pt);
-	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, *this);
-
-	return TRUE;
 }
 
 LRESULT CMainFrame::OnBeginTabDrag(NMHDR* pnmh)

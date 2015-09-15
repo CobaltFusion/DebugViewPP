@@ -9,7 +9,6 @@
 
 #include <vector>
 #include <deque>
-#include "OffscreenPaint.h"
 #include "FilterDlg.h"
 #include "Win32Support.h"
 #include "Win32Lib/Win32Lib.h"
@@ -113,7 +112,7 @@ class CLogView :
 		CWinTraitsOR<
 			LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
 			LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
-	public COffscreenPaint<CLogView>,
+	public CDoubleBufferImpl<CLogView>,
 	public COwnerDraw<CLogView>
 {
 public:
@@ -124,7 +123,7 @@ public:
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
 
-	void DoPaint(CDCHandle dc, const RECT& rcClip);
+	void DoPaint(CDCHandle dc);
 
 	std::wstring GetName() const;
 	void SetName(const std::wstring& name);

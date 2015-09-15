@@ -93,7 +93,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_BOOKMARKS, OnViewClearBookmarks)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
-	CHAIN_MSG_MAP(COffscreenPaint<CLogView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
+	CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP_CATCH(ExceptionHandler)
 
@@ -1111,9 +1111,11 @@ void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 	Invalidate();
 }
 
-void CLogView::DoPaint(CDCHandle dc, const RECT& rcClip)
+void CLogView::DoPaint(CDCHandle dc)
 {
-	dc.FillSolidRect(&rcClip, Colors::BackGround);
+	RECT rect;
+	dc.GetClipBox(&rect);
+	dc.FillSolidRect(&rect, Colors::BackGround);
  
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 }
