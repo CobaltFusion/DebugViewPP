@@ -35,7 +35,7 @@ std::string GetDateText(const FILETIME& ft)
 std::string GetTimeText(const SYSTEMTIME& st)
 {
 	char buf[32];
-	sprintf_s(buf, "%d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	sprintf_s(buf, "%02d:%02d:%02d.%03d", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 	return buf;
 }
 
