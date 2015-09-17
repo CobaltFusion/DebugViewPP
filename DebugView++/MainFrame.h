@@ -100,6 +100,7 @@ public:
 
 	void SetLogging();
 	void Load(const std::wstring& fileName);
+	void LoadAsync(const std::wstring& fileName);
 	void Load(HANDLE hFile);
 	void Load(std::istream& is, const std::string& name, FILETIME fileTime);
 	void CapturePipe(HANDLE hPipe);

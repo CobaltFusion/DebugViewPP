@@ -25,6 +25,7 @@
 #include "FilterDlg.h"
 #include "SourcesDlg.h"
 #include "AboutDlg.h"
+#include "FileOpenDlg.h"
 #include "LogView.h"
 
 namespace fusion {
@@ -779,6 +780,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 {
 	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
 	CFileDialog dlg(true, L".dblog", filename.c_str(), OFN_FILEMUSTEXIST,
+	//CFileOpenDlg dlg(true, L".dblog", filename.c_str(), OFN_FILEMUSTEXIST,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"DebugView Log Files (*.log)\0*.log\0"
 		L"All Files (*.*)\0*.*\0\0",
@@ -786,7 +788,10 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load Log File";
 	if (dlg.DoModal() == IDOK)
+	{
 		Load(std::wstring(dlg.m_szFileName));
+		//LoadAsync(dlg.m_szFileName);		// todo: tails by default, should be made optional, also suppress internal messages about 'removed' logsource
+	}
 }
 
 void CMainFrame::Run(const std::wstring& pathName)
@@ -813,8 +818,16 @@ void CMainFrame::Load(const std::wstring& filename)
 
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
 	GetFileAttributesEx(filename.c_str(), GetFileExInfoStandard, &fileInfo);
-	Load(file, boost::filesystem::wpath(filename).filename().string(), fileInfo.ftCreationTime);
 	SetTitle(filename);
+	Load(file, boost::filesystem::wpath(filename).filename().string(), fileInfo.ftCreationTime);
+}
+
+void CMainFrame::LoadAsync(const std::wstring& filename)
+{
+	SetTitle(filename);
+	Pause();
+	ClearLog();
+	m_logSources.AddDBLogReader(filename);
 }
 
 void CMainFrame::SetTitle(const std::wstring& title)

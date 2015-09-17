@@ -172,7 +172,12 @@ void DBLogReader::AddLine(const std::string& data)
 		assert(false);
 	}
 
-	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), line.message.c_str());
+	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), TabsToSpaces(line.message).c_str());	// workaround for issue #173
+}
+
+void DBLogReader::PreProcess(Line& line) const
+{
+	// intentionally empty (will negate the default behavior)
 }
 
 } // namespace debugviewpp 
