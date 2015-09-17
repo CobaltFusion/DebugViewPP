@@ -55,8 +55,8 @@ Not new features, but often overlooked, see below for details
 
 Download latest version
 -----------------------
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_12.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_12.msi)
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_17.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_17.msi)
 
 Older version
 -------------------------------
