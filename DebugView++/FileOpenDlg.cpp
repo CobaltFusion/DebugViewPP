@@ -9,6 +9,7 @@
 #include "resource.h"
 #include "version.h"
 #include "FileOpenDlg.h"
+#include "Dlgs.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -31,7 +32,10 @@ bool CFileOpenDlg::Keep() const
 
 BOOL CFileOpenDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-	// SetControlText(chx1, L"Keep file open");
+	// customize file dialog, using "Explorer-Style Control Identifiers", see:
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms646960(v=vs.85).aspx
+
+	SetControlText(chx1, L"Keep file open");
 	return TRUE;
 }
 
