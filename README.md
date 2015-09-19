@@ -81,6 +81,8 @@ Screenshot demonstrating connecting to ADB logcat (Android Debug Bridge)
 More examples
 -------------
 
+**Connect any pipe**:
+
 To connect directly to a port or service, [plink] can be used:
 
 > plink -ssh -batch -v 192.168.0.1 2>&1 | debugview++
@@ -88,6 +90,17 @@ To connect directly to a port or service, [plink] can be used:
 Notice that 2>&1 is used *before* the pipe (|) symbol to redirect stderr to stdout.
 
 [plink]: http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
+
+**Connect to sysinternals dbgview agent for kernel messages**:
+Example: connect to sysinternals DbgView Agent, first start Dbgview.exe /a /k (/k for kernel messages)
+And connect DebugView using Log->Connect DebugView Agent
+
+**Use RegexGroups + Token Highlighting**:
+Suppose you want to highlight some data value in your logging, since the actually value may differ, you cannot use normal matching to highlight them. With RegexGroups you can match text _before_ or _after the actual token you want to highlight.
+
+Example:
+
+![FilterDialog Screenshot](art/regexgroups.png "RegexGroups Screenshot")
 
 Highlighted:
 ------------
