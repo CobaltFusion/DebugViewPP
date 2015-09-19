@@ -74,12 +74,23 @@ Screenshots
 
 Screenshot demonstrating bookmarks and highlighting features.
 
+**Highlighted**:
+
+- regex (token filter):     ``[^\s]*\\[\\\w+\.\s]+``    filenames in blue
+- regex (token filter):     ``0x\w+``                   hexadecimal numbers in red
+- regex (highlight filter): ``Unittest``                lines with the word 'Unittest' have a lightgreen background
+- a doubleclick on 'bytes' causes all instances of 'bytes' to highlight in yellow
+
+See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
+
 ![DebugView++ Screenshot](art/logcat_example.png "DebugView++ Screenshot")
 
 Screenshot demonstrating connecting to ADB logcat (Android Debug Bridge)
 
 More examples
 -------------
+
+**Connect any pipe**:
 
 To connect directly to a port or service, [plink] can be used:
 
@@ -89,19 +100,22 @@ Notice that 2>&1 is used *before* the pipe (|) symbol to redirect stderr to stdo
 
 [plink]: http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 
-Highlighted:
-------------
-- regex (token filter):     ``[^\s]*\\[\\\w+\.\s]+``    filenames in blue
-- regex (token filter):     ``0x\w+``                   hexadecimal numbers in red
-- regex (highlight filter): ``Unittest``                lines with the word 'Unittest' have a lightgreen background
-- a doubleclick on 'bytes' causes all instances of 'bytes' to highlight in yellow
+**Connect to sysinternals dbgview agent for kernel messages**:
+Example: connect to sysinternals DbgView Agent, first start Dbgview.exe /a /k (/k for kernel messages)
+And connect DebugView using Log->Connect DebugView Agent
 
-See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
+**Use RegexGroups + Token Highlighting**:
+Suppose you want to highlight some data value in your logging, since the actually value may differ, you cannot use normal matching to highlight them. With RegexGroups you can match text _before_ or _after the actual token you want to highlight.
 
-![FilterDialog Screenshot](art/filterdialog.png "FilterDialog Screenshot")
+Example:
+
+![FilterDialog Screenshot](art/regexgroups.png "RegexGroups Screenshot")
 
 Filters:
 --------
+
+![FilterDialog Screenshot](art/filterdialog.png "FilterDialog Screenshot")
+
 
 Filters can be defined per view, for example choose File -> New View, and the filter dialog will popup.
 Pressing OK will open a new view without any filters. 
