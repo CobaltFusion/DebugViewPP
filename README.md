@@ -74,8 +74,8 @@ Screenshots
 
 Screenshot demonstrating bookmarks and highlighting features.
 
-Highlighted:
-------------
+**Highlighted**:
+
 - regex (token filter):     ``[^\s]*\\[\\\w+\.\s]+``    filenames in blue
 - regex (token filter):     ``0x\w+``                   hexadecimal numbers in red
 - regex (highlight filter): ``Unittest``                lines with the word 'Unittest' have a lightgreen background
