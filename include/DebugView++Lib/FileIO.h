@@ -27,6 +27,9 @@ struct FileType
 		DebugViewPP2,			// identified by first line (header) in file "0\t0\t0\tDebugView++\tFile Identification Header, DebugView++ v1.x.x.x"  (4 tabs), // currently not used
 		Sysinternals,			// identified by <line>\t<time>\t<message>\r\n (line containing 2 tabs + 1 microsoft newline)			    // kernel log message
 								//  _or_         <line>\t<time>\t[pid] <message>\r\n (line containing 2 tabs + 1 microsoft newline)			// process log message
+		UTF8,
+		UTF16BE,
+		UTF16LE,
 		AsciiText			    // any other file is treaded as if it was ASCII-text encoded, which is UTF8 compatible as long as no actual UTF8 characters are encoded.
 	};
 };
@@ -35,6 +38,7 @@ std::string FileTypeToString(FileType::type value);
 
 bool FileExists(const char *filename);
 FileType::type IdentifyFile(std::string filename);
+bool IsBinaryFileType(FileType::type);
 
 std::istream& ReadLogFileMessage(std::istream& is, Line& line);
 

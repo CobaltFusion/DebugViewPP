@@ -19,11 +19,11 @@ namespace debugviewpp {
 
 class ILineBuffer;
 
-class FileReader : public LogSource
+class BinaryFileReader : public LogSource
 {
 public:
-	explicit FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
-	virtual ~FileReader();
+	explicit BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
+	virtual ~BinaryFileReader();
 
 	virtual void Initialize();
 	virtual bool AtEnd() const;
@@ -42,7 +42,7 @@ private:
 
 	bool m_end;
 	ChangeNotificationHandle m_handle;
-	std::ifstream m_ifstream;
+	std::wifstream m_wifstream;
 	std::string m_filenameOnly;
 	bool m_initialized;
 };

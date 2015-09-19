@@ -12,6 +12,8 @@
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/PipeReader.h"
 #include "DebugView++Lib/FileReader.h"
+#include "DebugView++Lib/BinaryFileReader.h"
+#include "DebugView++Lib/DBLogReader.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/SocketReader.h"
@@ -45,7 +47,7 @@ LogSources::LogSources(bool startListening) :
 {
 	m_sources.push_back(m_loopback);
 	if (startListening)
-		m_thread = boost::thread(&LogSources::Listen, this);
+		m_listenThread = boost::thread(&LogSources::Listen, this);
 }
 	
 LogSources::~LogSources()
@@ -126,7 +128,7 @@ void LogSources::Abort()
 		(*i)->Abort();
 	}
 	SetEvent(m_updateEvent.get());
-	m_thread.join();
+	m_listenThread.join();
 }
 
 void LogSources::Reset()
@@ -154,9 +156,8 @@ void LogSources::Listen()
 					waitHandles.push_back(handle);
 					sources.push_back(source);
 				}
-				// TODO: currenly only FileReader::Initialize uses this to start reading from the file only after 'LogSources::Listen()' is called.
-				// I dont remember why this was introduced, if there is a requirement to postpone reading from source until LogSources::Listen() is called 
-				// (instead of after creation of the Logsource) the SocketReader should probably also do that.
+				// here LogSource::Initialize is called on the m_listenThread, currently only FileReader::Initialize uses this to start reading from the file.
+				// This will block all other logsources while the file is being read (which is normally not a problem)
 				source->Initialize();
 			}
 		}
@@ -270,6 +271,7 @@ std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& 
 	return processReader;
 }
 
+// AddFileReader() is never used
 std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
 {
 	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, IdentifyFile(Str(filename)), filename);
@@ -277,6 +279,17 @@ std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filena
 	return filereader;
 }
 
+std::shared_ptr<BinaryFileReader> LogSources::AddBinaryFileReader(const std::wstring& filename)
+{
+	auto filetype = IdentifyFile(Str(filename));
+	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
+	auto filereader = std::make_shared<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
+	Add(filereader);
+	return filereader;
+}
+
+// todo: DBLogReader is now always used for all types of files.
+// we should choose to either rename DBLogReader, or move the FileType::AsciiText out of DBLogReader
 std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
 {
 	auto filetype = IdentifyFile(Str(filename));
