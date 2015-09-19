@@ -232,7 +232,7 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 	line.systemTime = MakeFileTime(split.GetNext());
 	line.pid = boost::lexical_cast<DWORD>(split.GetNext());
 	line.processName = split.GetNext();
-	line.message = split.GetTail();
+	line.message = TabsToSpaces(split.GetTail());		// workaround for issue #173
 	return true;
 }
 
