@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "resource.h"
-#include "version.h"
 #include "FileOpenDlg.h"
 #include "Dlgs.h"
 
