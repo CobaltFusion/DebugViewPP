@@ -306,7 +306,6 @@
     <ClInclude Include="LogView.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="FilterPage.h" />
-    <ClInclude Include="OffscreenPaint.h" />
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="RegExDlg.h" />
     <ClInclude Include="Resource.h" />

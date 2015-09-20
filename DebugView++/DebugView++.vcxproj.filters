@@ -122,9 +122,6 @@
     <ClInclude Include="SourceDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OffscreenPaint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FileOpenDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
