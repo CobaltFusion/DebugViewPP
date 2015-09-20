@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "Dlgs.h"
-#include "FileOpenDlg.h"
+#include "FileOptionDlg.h"
 
 namespace fusion {
 namespace debugviewpp {

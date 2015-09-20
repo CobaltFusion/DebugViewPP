@@ -25,7 +25,7 @@
 #include "FilterDlg.h"
 #include "SourcesDlg.h"
 #include "AboutDlg.h"
-#include "FileOpenDlg.h"
+#include "FileOptionDlg.h"
 #include "LogView.h"
 
 namespace fusion {
