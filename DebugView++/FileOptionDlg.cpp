@@ -6,41 +6,43 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "resource.h"
-#include "FileOpenDlg.h"
 #include "Dlgs.h"
+#include "FileOptionDlg.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-CFileOpenDlg::CFileOpenDlg(BOOL bOpenFileDialog, // TRUE for FileOpen, FALSE for FileSaveAs
+CFileOptionDlg::CFileOptionDlg(
+	BOOL bOpenFileDialog, // TRUE for FileOpen, FALSE for FileSaveAs
+	LPCTSTR lpszOptionLabel,
 	LPCTSTR lpszDefExt,
 	LPCTSTR lpszFileName,
 	DWORD dwFlags,
 	LPCTSTR lpszFilter,
-	HWND hWndParent) 
-		: CFileDialogImpl<CFileOpenDlg>(bOpenFileDialog, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent)
-		, m_keep(false)
+	HWND hWndParent) :
+	CFileDialogImpl<CFileOptionDlg>(bOpenFileDialog, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent),
+	m_label(lpszOptionLabel),
+	m_option(false)
 {
 }
 
-bool CFileOpenDlg::Keep() const
+bool CFileOptionDlg::Option() const
 {
-	return m_keep;
+	return m_option;
 }
 
-BOOL CFileOpenDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
+BOOL CFileOptionDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	// customize file dialog, using "Explorer-Style Control Identifiers", see:
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms646960(v=vs.85).aspx
 
-	SetControlText(chx1, L"Keep file open");
+	SetControlText(chx1, m_label.c_str());
 	return TRUE;
 }
 
-void CFileOpenDlg::OnDestroy()
+void CFileOptionDlg::OnDestroy()
 {
-	m_keep = GetReadOnlyPref() != FALSE;
+	m_option = GetReadOnlyPref() != FALSE;
 }
 
 } // namespace debugviewpp 

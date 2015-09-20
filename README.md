@@ -48,6 +48,7 @@ Changes in 1.4:
 - timezone independent and human readable timestamps in the logfiles
 - save filters after changing instead of only at exit
 - moved filters out of sub-menu and add shortcut keys (try highlighting a word and pressing delete)
+- add basic support for tailing unicode logfiles (unicode characters are truncated)
  
 Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
@@ -55,8 +56,8 @@ Not new features, but often overlooked, see below for details
 
 Download latest version
 -----------------------
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_17.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_17.msi)
++ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.zip)
++ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.msi)
 
 Older version
 -------------------------------

@@ -7,34 +7,36 @@
 
 #pragma once
 
-#include "Resource.h"
+#include <string>
 
 namespace fusion {
 namespace debugviewpp {
 
-class CFileOpenDlg : public CFileDialogImpl<CFileOpenDlg>
+class CFileOptionDlg : public CFileDialogImpl<CFileOptionDlg>
 {
 public:
-	CFileOpenDlg(BOOL bOpenFileDialog, // TRUE for FileOpen, FALSE for FileSaveAs
+	CFileOptionDlg(BOOL bOpenFileDialog, // TRUE for FileOpen, FALSE for FileSaveAs
+	LPCTSTR lpszOptionLabel,
 	LPCTSTR lpszDefExt = nullptr,
 	LPCTSTR lpszFileName = nullptr,
 	DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 	LPCTSTR lpszFilter = nullptr,
 	HWND hWndParent = nullptr);
 
-	bool Keep() const;
+	bool Option() const;
 
 	BEGIN_MSG_MAP(CFileOpenDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
-	CHAIN_MSG_MAP(CFileDialogImpl<CFileOpenDlg>)
+	CHAIN_MSG_MAP(CFileDialogImpl<CFileOptionDlg>)
 	END_MSG_MAP()
 
 private:
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
 
-	bool m_keep;
+	std::wstring m_label;
+	bool m_option;
 };
 
 } // namespace debugviewpp 

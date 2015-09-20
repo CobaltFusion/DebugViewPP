@@ -60,7 +60,7 @@
     <ClCompile Include="SourceDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileOpenDlg.cpp">
+    <ClCompile Include="FileOptionDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,10 +122,7 @@
     <ClInclude Include="SourceDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OffscreenPaint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileOpenDlg.h">
+    <ClInclude Include="FileOptionDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
