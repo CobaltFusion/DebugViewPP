@@ -24,6 +24,7 @@ class DBWinReader;
 class ProcessReader;
 class FileReader;
 class DBLogReader;
+class BinaryFileReader;
 class PipeReader;
 class TestSource;
 class Loopback;
@@ -52,6 +53,7 @@ public:
 	std::shared_ptr<DBWinReader> AddDBWinReader(bool global);
 	std::shared_ptr<ProcessReader> AddProcessReader(const std::wstring& pathName, const std::wstring& args);
 	std::shared_ptr<FileReader> AddFileReader(const std::wstring& filename);
+	std::shared_ptr<BinaryFileReader> AddBinaryFileReader(const std::wstring& filename);
 	std::shared_ptr<DBLogReader> AddDBLogReader(const std::wstring& filename);
 	std::shared_ptr<DbgviewReader> AddDbgviewReader(const std::string& hostname);
 	std::shared_ptr<SocketReader> AddUDPReader(const std::string& hostname, int port);
@@ -75,8 +77,8 @@ private:
 	Timer m_timer;
 	double m_handleCacheTime;
 
-	// make sure the thread is last to initialize
-	boost::thread m_thread;
+	// make sure this thread is last to initialize
+	boost::thread m_listenThread;
 };
 
 } // namespace debugviewpp 

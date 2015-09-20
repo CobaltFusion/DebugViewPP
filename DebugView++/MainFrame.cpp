@@ -436,7 +436,16 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C \"" << file << "\"");
 	}
 	else
-		m_logSources.AddDBLogReader(file);
+	{
+		if (IsBinaryFileType(IdentifyFile(Str(file))))
+		{
+			m_logSources.AddBinaryFileReader(file);
+		}
+		else
+		{
+			m_logSources.AddDBLogReader(file);
+		}
+	}
 }
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)

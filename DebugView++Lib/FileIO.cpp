@@ -96,6 +96,12 @@ std::string FileTypeToString(FileType::type value)
 		return "Sysinternals Debugview Logfile";
 	case FileType::AsciiText:
 		return "Ascii text file";
+	case FileType::UTF8:
+		return "Unicode UTF-8";
+	case FileType::UTF16BE:
+		return "Unicode UTF16BE";
+	case FileType::UTF16LE:
+		return "Unicode UTF16LE";
 	default:
 		break;
 	}
@@ -104,6 +110,25 @@ std::string FileTypeToString(FileType::type value)
 
 FileType::type IdentifyFile(std::string filename)
 {
+	{
+		// Encoding detection is very complex, see #107
+		std::ifstream fs(filename, std::ios::binary);
+		std::vector<unsigned char> buffer(3);
+		fs.read((char*)buffer.data(), buffer.size());
+		if (buffer[0] == 0xfe && buffer[1] == 0xff)
+		{
+			return FileType::UTF16BE;
+		}
+		if (buffer[0] == 0xff && buffer[1] == 0xfe)
+		{
+			return FileType::UTF16LE;
+		}
+		if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+		{
+			return FileType::UTF8;
+		}
+	}
+
 	std::ifstream is(filename, std::ios::in);
 	std::string line;
 	if (!std::getline(is, line))
@@ -143,6 +168,23 @@ FileType::type IdentifyFile(std::string filename)
 			return FileType::Sysinternals;
 	}
 	return FileType::AsciiText;
+}
+
+bool IsBinaryFileType(FileType::type filetype)
+{
+	switch (filetype)
+	{
+		case FileType::UTF16BE:
+			return true;
+		case FileType::UTF16LE:
+			return true;
+		case FileType::UTF8:
+			return true;
+		default:
+			// do nothing
+			break;
+	}
+	return false;
 }
 
 // read localtime in format "HH:mm:ss.ms"
