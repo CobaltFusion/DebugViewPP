@@ -217,6 +217,7 @@ private:
 	std::shared_ptr<DBWinReader> m_pGlobalReader;
 	std::shared_ptr<DbgviewReader> m_pDbgviewReader;
 	std::vector<SourceInfo> m_sourceInfos;
+	bool m_skipStatusUpdate;
 };
 
 } // namespace debugviewpp 

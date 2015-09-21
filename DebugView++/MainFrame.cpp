@@ -112,7 +112,8 @@ CMainFrame::CMainFrame() :
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
-	m_logSources(true)
+	m_logSources(true),
+	m_skipStatusUpdate(false)
 {
 	m_notifyIconData.cbSize = 0;
 }
@@ -138,6 +139,11 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL CMainFrame::OnIdle()
 {
+	if (m_skipStatusUpdate == true)
+	{
+		m_skipStatusUpdate = false;
+		return FALSE;
+	}
 	UpdateUI();
 	UIUpdateToolBar();
 	UIUpdateStatusBar();
@@ -350,7 +356,10 @@ void CMainFrame::UpdateStatusBar()
 void CMainFrame::ProcessLines(const Lines& lines)
 {
 	if (lines.empty())
+	{
+		m_skipStatusUpdate = true;
 		return;
+	}
 
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
