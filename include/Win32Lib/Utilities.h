@@ -11,8 +11,9 @@
 #include <sstream>
 #include <cmath>
 #include <boost/date_time/local_time/local_time.hpp> 
+#pragma warning(push, 3)
 #include <boost/thread.hpp>
-
+#pragma warning(pop)
 #include <atlbase.h>
 #include <atlwin.h>
 

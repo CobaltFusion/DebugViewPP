@@ -13,6 +13,17 @@
 namespace fusion {
 namespace debugviewpp {
 
+namespace SubItem
+{
+	const int Text = 0;
+	const int Enable = 1;
+	const int Match = 2;
+	const int Type = 3;
+	const int Background = 4;
+	const int Foreground = 5;
+	const int Remove = 6;
+};
+
 CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount) :
 	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount),
 	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount)
@@ -49,13 +60,16 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
 	pTxColor->SetEnabled(filter.filterType != FilterType::Exclude);
 
+	auto pFilter = CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType);
+	pFilter->SetEnabled(filter.matchType != MatchType::RegexGroups);
+
 	m_grid.InsertItem(item, pFilterProp);
-	m_grid.SetSubItem(item, 1, PropCreateCheckButton(L"", filter.enable));
-	m_grid.SetSubItem(item, 2, CreateEnumTypeItem(L"", m_matchTypes, m_matchTypeCount, filter.matchType));
-	m_grid.SetSubItem(item, 3, CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType));
-	m_grid.SetSubItem(item, 4, pBkColor);
-	m_grid.SetSubItem(item, 5, pTxColor);
-	m_grid.SetSubItem(item, 6, PropCreateReadOnlyItem(L"", L"×"));
+	m_grid.SetSubItem(item, SubItem::Enable, PropCreateCheckButton(L"", filter.enable));
+	m_grid.SetSubItem(item, SubItem::Match, CreateEnumTypeItem(L"", m_matchTypes, m_matchTypeCount, filter.matchType));
+	m_grid.SetSubItem(item, SubItem::Type, pFilter);
+	m_grid.SetSubItem(item, SubItem::Background, pBkColor);
+	m_grid.SetSubItem(item, SubItem::Foreground, pTxColor);
+	m_grid.SetSubItem(item, SubItem::Remove, PropCreateReadOnlyItem(L"", L"×"));
 	m_grid.SelectItem(item);
 }
 
@@ -67,13 +81,13 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
-	m_grid.InsertColumn(0, L"Filter", LVCFMT_LEFT, 200, 0, -1, 1);
-	m_grid.InsertColumn(1, L"", LVCFMT_LEFT, 32, 0, -1, 0);
-	m_grid.InsertColumn(2, L"Match", LVCFMT_LEFT, 76, 0, -1, 2);
-	m_grid.InsertColumn(3, L"Type", LVCFMT_LEFT, 48, 0, -1, 3);
-	m_grid.InsertColumn(4, L"Bg", LVCFMT_LEFT, 24, 0, -1, 4);
-	m_grid.InsertColumn(5, L"Fg", LVCFMT_LEFT, 24, 0, -1, 5);
-	m_grid.InsertColumn(6, L"", LVCFMT_LEFT, 16, 0, -1, 6);
+	m_grid.InsertColumn(SubItem::Text, L"Filter", LVCFMT_LEFT, 200, 0, -1, 1);
+	m_grid.InsertColumn(SubItem::Enable, L"", LVCFMT_LEFT, 32, 0, -1, 0);
+	m_grid.InsertColumn(SubItem::Match, L"Match", LVCFMT_LEFT, 76, 0, -1, 2);
+	m_grid.InsertColumn(SubItem::Type, L"Type", LVCFMT_LEFT, 48, 0, -1, 3);
+	m_grid.InsertColumn(SubItem::Background, L"Bg", LVCFMT_LEFT, 24, 0, -1, 4);
+	m_grid.InsertColumn(SubItem::Foreground, L"Fg", LVCFMT_LEFT, 24, 0, -1, 5);
+	m_grid.InsertColumn(SubItem::Remove, L"", LVCFMT_LEFT, 16, 0, -1, 6);
 	m_grid.SetExtendedGridStyle(PGS_EX_SINGLECLICKEDIT | PGS_EX_ADDITEMATEND);
 
 	UpdateGrid();
@@ -150,7 +164,7 @@ LRESULT CFilterPageImpl::OnClickItem(NMHDR* pnmh)
 
 	int iItem;
 	int iSubItem;
-	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 6)
+	if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == SubItem::Remove)
 	{
 		m_grid.DeleteItem(iItem);
 		m_filters.erase(m_filters.begin() + iItem);
@@ -169,26 +183,32 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	if (!m_grid.FindProperty(nmhdr.prop, iItem, iSubItem))
 		return FALSE;
 	
-	if (iSubItem == 3)
+	if (iSubItem == SubItem::Match)
 	{
-		auto& bkColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, 4));
-		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, 5));
+		auto& type = dynamic_cast<CPropertyListItem&>(*m_grid.GetProperty(iItem, SubItem::Type));
+		type.SetEnabled(GetMatchType(iItem) != MatchType::RegexGroups);
+	}
+
+	if (iSubItem == SubItem::Type)
+	{
+		auto& bkColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Background));
+		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Foreground));
 		bkColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
 		txColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
 	}
 
-	if (iSubItem == 4)
+	if (iSubItem == SubItem::Background)
 	{
 		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
-		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 0));
+		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, SubItem::Text));
 		edit.SetBkColor(color.GetColor());
 		return TRUE;
 	}
 
-	if (iSubItem == 5)
+	if (iSubItem == SubItem::Foreground)
 	{
 		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
-		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, 0));
+		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, SubItem::Text));
 		edit.SetTextColor(color.GetColor());
 		return TRUE;
 	}
@@ -199,40 +219,40 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 bool CFilterPageImpl::GetFilterEnable(int iItem) const
 {
 	CComVariant val;
-	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, 1).GetValue(&val);
+	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, SubItem::Enable).GetValue(&val);
 	return val.boolVal != VARIANT_FALSE;
 }
 
 std::wstring CFilterPageImpl::GetFilterText(int iItem) const
 {
-	return GetGridItemText(m_grid, iItem, 0);
+	return GetGridItemText(m_grid, iItem, SubItem::Text);
 }
 
 MatchType::type CFilterPageImpl::GetMatchType(int iItem) const
 {
 	CComVariant val;
-	GetGridItem<CPropertyListItem>(m_grid, iItem, 2).GetValue(&val);
+	GetGridItem<CPropertyListItem>(m_grid, iItem, SubItem::Match).GetValue(&val);
 	return m_matchTypes[val.lVal];
 }
 
 FilterType::type CFilterPageImpl::GetFilterType(int iItem) const
 {
 	CComVariant val;
-	GetGridItem<CPropertyListItem>(m_grid, iItem, 3).GetValue(&val);
+	GetGridItem<CPropertyListItem>(m_grid, iItem, SubItem::Type).GetValue(&val);
 	return m_filterTypes[val.lVal];
 }
 
 COLORREF CFilterPageImpl::GetFilterBgColor(int iItem) const
 {
 	CComVariant val;
-	GetGridItem<CPropertyColorItem>(m_grid, iItem, 4).GetValue(&val);
+	GetGridItem<CPropertyColorItem>(m_grid, iItem, SubItem::Background).GetValue(&val);
 	return val.lVal;
 }
 
 COLORREF CFilterPageImpl::GetFilterFgColor(int iItem) const
 {
 	CComVariant val;
-	GetGridItem<CPropertyColorItem>(m_grid, iItem, 5).GetValue(&val);
+	GetGridItem<CPropertyColorItem>(m_grid, iItem, SubItem::Foreground).GetValue(&val);
 	return val.lVal;
 }
 
