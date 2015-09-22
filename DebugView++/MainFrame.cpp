@@ -139,7 +139,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL CMainFrame::OnIdle()
 {
-	if (m_skipStatusUpdate == true)
+	if (m_skipStatusUpdate)
 	{
 		m_skipStatusUpdate = false;
 		return FALSE;
