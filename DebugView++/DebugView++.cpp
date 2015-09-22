@@ -8,8 +8,8 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include "hstream.h"
+#include "CobaltFusion/scope_guard.h"
 #include "DebugView++Lib/DBWinWriter.h"
-#include "resource.h"
 #include "MainFrame.h"
 
 //#define CONSOLE_DEBUG
@@ -18,6 +18,26 @@ CAppModule _Module;
 
 namespace fusion {
 namespace debugviewpp {
+
+class CAppModuleInitialization
+{
+public:
+	CAppModuleInitialization(CAppModule& module, HINSTANCE hInstance) :
+		m_module(module)
+	{
+		HRESULT hr = m_module.Init(nullptr, hInstance);
+		if (FAILED(hr))
+			ThrowWin32Error(hr, "CAppModule::Init");
+	}
+
+	~CAppModuleInitialization()
+	{
+		m_module.Term();
+	}
+
+private:
+	CAppModule& m_module;
+};
 
 class MessageLoop
 {
@@ -72,7 +92,7 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	if (hPipe && IsDBWinViewerActive())
 		return ForwardMessagesFromPipe(hPipe);
 
-	fusion::debugviewpp::CMainFrame wndMain;
+	CMainFrame wndMain;
 	MessageLoop theLoop(_Module);
 
 	auto args = GetCommandLineArguments();
@@ -110,44 +130,40 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	return theLoop.Run();
 }
 
-} // namespace debugviewpp 
-} // namespace fusion
-
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
-try
+int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpstrCmdLine, int nCmdShow)
 {
-	fusion::SetPrivilege(SE_DEBUG_NAME, true);
-	fusion::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
+	SetPrivilege(SE_DEBUG_NAME, true);
+	SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
 
-	fusion::ComInitialization com(fusion::ComInitialization::ApartmentThreaded);
+	ComInitialization com(ComInitialization::ApartmentThreaded);
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(nullptr, 0, 0, 0L);
 
 	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls
 
-	HRESULT hRes = _Module.Init(nullptr, hInstance);
-	ATLASSERT(SUCCEEDED(hRes));
-	hRes;
-
 #ifdef CONSOLE_DEBUG
 	FILE* standardOut;
 	AllocConsole();
 	freopen_s(&standardOut, "CONOUT$", "wb", stdout);
+	auto fileGuard = make_guard([standardOut] { fclose(standardOut); });
 	std::cout.clear();
 #endif
 
-	int nRet = fusion::debugviewpp::Run(lpstrCmdLine, nCmdShow);
+	CAppModuleInitialization moduleInit(_Module, hInstance);
+	return Run(lpstrCmdLine, nCmdShow);
+}
 
-#ifdef CONSOLE_DEBUG
-	fclose(standardOut);
-#endif
+} // namespace debugviewpp 
+} // namespace fusion
 
-	_Module.Term();
-	return nRet;
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCmdLine, int nCmdShow)
+try
+{
+	return fusion::debugviewpp::Main(hInstance, hPrevInstance, lpstrCmdLine, nCmdShow);
 }
 catch (std::exception& e)
 {
 	MessageBoxA(nullptr, e.what(), "DebugView++ Error", MB_OK | MB_ICONERROR);
-	return -1;
+	return EXIT_FAILURE;
 }
