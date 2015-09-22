@@ -12,6 +12,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "Win32Lib/Win32Lib.h"
+#include "Win32Lib/Utilities.h"
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/Conversions.h"
@@ -269,12 +270,19 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line, USTimeC
 
 bool ReadLogFileMessage(const std::string& data, Line& line)
 {
-	TabSplitter split(data);
-	line.time = boost::lexical_cast<double>(split.GetNext());
-	line.systemTime = MakeFileTime(split.GetNext());
-	line.pid = boost::lexical_cast<DWORD>(split.GetNext());
-	line.processName = split.GetNext();
-	line.message = TabsToSpaces(split.GetTail());		// workaround for issue #173
+	try
+	{
+		TabSplitter split(data);
+		line.time = boost::lexical_cast<double>(split.GetNext());
+		line.systemTime = MakeFileTime(split.GetNext());
+		line.pid = boost::lexical_cast<DWORD>(split.GetNext());
+		line.processName = split.GetNext();
+		line.message = TabsToSpaces(split.GetTail());		// workaround for issue #173
+	}
+	catch (std::exception& e)
+	{
+		line.message = stringbuilder() << "Exception: '" << e.what() << "' occurred processing line: " << data;
+	}
 	return true;
 }
 
