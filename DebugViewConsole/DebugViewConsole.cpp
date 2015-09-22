@@ -33,6 +33,7 @@ struct Settings
 	bool autonewline;
 	bool flush;
 	bool linenumber;
+	bool console;
 	std::string filename;
 };
 
@@ -93,13 +94,16 @@ void LogMessages(Settings settings)
 		int linenumber = 0;
 		for (auto i=lines.begin(); i != lines.end(); ++i)
 		{
-			if (settings.linenumber)
+			if (settings.console)
 			{
-				++linenumber;
-				std::cout << std::setw(5) << std::setfill('0') << linenumber << std::setfill(' ') << separator;
+				if (settings.linenumber)
+				{
+					++linenumber;
+					std::cout << std::setw(5) << std::setfill('0') << linenumber << std::setfill(' ') << separator;
+				}
+				OutputDetails(settings, *i);
+				std::cout << separator << i->message.c_str() << "\n";
 			}
-			OutputDetails(settings, *i);
-			std::cout << separator << i->message.c_str() << "\n";
 			if (!settings.filename.empty())
 			{
 				WriteLogFileMessage(fs, i->time, i->systemTime, i->pid, i->processName, i->message);
@@ -169,6 +173,7 @@ try
 		std::cout << "  -f: flush (aggressively flush buffers, if unsure, do not use)\n";
 		std::cout << "  -v: verbose output\n";
 		std::cout << "  -d <file>: write to .dblog file\n";
+		std::cout << "  -c enable console output\n";
 		std::cout << "console output options: (do not effect the dblog file)\n";
 		//std::cout << "-u: send a UDP test-message (used only for debugging)\n";
 		std::cout << "  -l: prefix line number\n";
@@ -227,6 +232,11 @@ try
 	{
 		if (verbose) std::cout << "-f: auto flush (write to disk more often)\n";
 		settings.flush = true;
+	}
+	if (cmdOptionExists(argv, argv+argc, "-c"))
+	{
+		if (verbose) std::cout << "-c: enable console output\n";
+		settings.console = true;
 	}
 
 	if (cmdOptionExists(argv, argv+argc, "-d"))
