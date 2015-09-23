@@ -12,7 +12,7 @@
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include "CobaltFusion/dbgstream.h"
+#include "CobaltFusion/scope_guard.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/FileReader.h"
