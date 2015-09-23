@@ -65,6 +65,8 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnBeginDrag)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET, OnViewReset)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET_TO_LINE, OnViewResetToLine)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewAutoScroll)
@@ -919,6 +921,26 @@ void CLogView::ClearView()
 void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	ClearView();
+}
+
+void CLogView::OnViewReset(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	ResetToLine(0);
+}
+
+void CLogView::OnViewResetToLine(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	int begin = GetNextItem(-1, LVNI_FOCUSED);
+	if (begin < 0)
+		return;
+	ResetToLine(m_logLines[begin].line);
+}
+
+void CLogView::ResetToLine(int line)
+{
+	StopTracking();
+	m_firstLine = line;
+	ApplyFilters();
 }
 
 void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

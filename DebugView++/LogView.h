@@ -195,6 +195,8 @@ private:
 	LRESULT OnOdCacheHint(NMHDR* pnmh);
 	LRESULT OnBeginDrag(NMHDR* pnmh);
 	void OnViewClear(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewReset(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewResetToLine(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -225,6 +227,7 @@ private:
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
+	void ResetToLine(int line);
 	void ClearView();
 	void UpdateColumnInfo();
 	void UpdateColumns();
