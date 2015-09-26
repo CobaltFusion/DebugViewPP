@@ -17,27 +17,24 @@ namespace debugviewpp {
 
 class ILineBuffer;
 
-template<typename T, class S> 
+template <typename T, class S> 
 T Read(S& is)
 {
 	T t = T();
-	is.read((char*) &t, sizeof(T));
+	is.read(reinterpret_cast<char*>(&t), sizeof(t));
 	return t;
 }
 
-template<typename T, class S> 
+template <typename T, class S> 
 void Write(S& is, T t)
 {
-	std::vector<unsigned char> buffer;
-	for (int i=0; i<sizeof(T); ++i)
-		buffer.push_back((t >> (i*8)) & 0xff);
-	is.write((char*) buffer.data(), buffer.size());
+	is.write(reinterpret_cast<const char*>(&t), sizeof(t));
 }
 
 class DbgviewReader : public PassiveLogSource
 {
 public:
-	explicit DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
+	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
 	virtual ~DbgviewReader();
 
 	virtual void Abort();

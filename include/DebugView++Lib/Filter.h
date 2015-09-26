@@ -18,10 +18,20 @@
 namespace fusion {
 namespace debugviewpp {
 
+struct ColorMatch
+{
+	ColorMatch(std::string text, COLORREF color);
+
+	std::string text;
+	COLORREF color;
+};
+
+typedef std::vector<ColorMatch> ColorMatches;
+
 struct Filter
 {
 	Filter();
-	Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, int matchCount = 0);
+	Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, bool matched = false);
 
 	std::string text;
 	std::regex re;
@@ -30,7 +40,7 @@ struct Filter
 	COLORREF bgColor;
 	COLORREF fgColor;
 	bool enable;
-	int matchCount;
+	bool matched;
 };
 
 struct LogFilter
@@ -42,7 +52,7 @@ struct LogFilter
 void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg);
 void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg);
 
-bool IsIncluded(std::vector<Filter>& filters, const std::string& message);
+bool IsIncluded(std::vector<Filter>& filters, const std::string& message, ColorMatches& colorMatches);
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
 
 } // namespace debugviewpp 

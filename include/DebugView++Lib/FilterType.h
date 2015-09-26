@@ -14,20 +14,26 @@
 namespace fusion {
 namespace debugviewpp {
 
+#define FILTER_TYPES() \
+	FILTER_TYPE(Include) \
+	FILTER_TYPE(Exclude) \
+	FILTER_TYPE(Highlight) \
+	FILTER_TYPE(Token) \
+	FILTER_TYPE(Stop) \
+	FILTER_TYPE(Track) \
+	FILTER_TYPE(Once) \
+	FILTER_TYPE(Clear) \
+	FILTER_TYPE(Beep) \
+	FILTER_TYPE(MatchColor)
+
 struct FilterType
 {
+#define FILTER_TYPE(f) f,
 	enum type
 	{
-		Include,
-		Exclude,
-		Highlight,
-		Token,
-		Stop,
-		Track,
-		Once,
-		Clear,
-		Beep
+		FILTER_TYPES()
 	};
+#undef FILTER_TYPE
 };
 
 int FilterTypeToInt(FilterType::type value);

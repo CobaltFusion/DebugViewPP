@@ -35,11 +35,9 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 	if (amount < 1)
 		return std::vector<unsigned char>();
 	std::vector<unsigned char> buffer(amount);
-	is.read((char*)buffer.data(), amount);
+	is.read(reinterpret_cast<char*>(buffer.data()), amount);
 	return buffer;
 }
-
-
 
 struct Magic
 {
@@ -125,7 +123,7 @@ void DbgviewReader::Loop()
 
 		DWORD pid = 0;
 		std::string msg, flags;
-		for(;;)
+		for (;;)
 		{
 			msg.clear();
 			flags.clear();

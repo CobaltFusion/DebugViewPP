@@ -11,16 +11,21 @@
 
 namespace fusion {
 namespace debugviewpp {
- 
+
+#define MATCH_TYPES() \
+	MATCH_TYPE(Simple) \
+	MATCH_TYPE(Wildcard) \
+	MATCH_TYPE(Regex) \
+	MATCH_TYPE(RegexGroups)
+
 struct MatchType
 {
+#define MATCH_TYPE(m) m,
 	enum type
 	{
-		Simple,
-		Wildcard,
-		Regex,
-		RegexGroups
+		MATCH_TYPES()
 	};
+#undef MATCH_TYPE
 };
 
 std::string MakePattern(MatchType::type type, const std::string& text);

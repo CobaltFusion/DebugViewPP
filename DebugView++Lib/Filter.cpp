@@ -14,17 +14,23 @@
 namespace fusion {
 namespace debugviewpp {
 
+ColorMatch::ColorMatch(std::string text, COLORREF color) :
+	text(text), color(color)
+{
+}
+
 Filter::Filter() :
 	matchType(MatchType::Simple),
 	filterType(FilterType::Include),
 	bgColor(RGB(255, 255, 255)),
 	fgColor(RGB(  0,   0,   0)),
-	enable(true)
+	enable(true),
+	matched(false)
 {
 }
 
-Filter::Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, int matchCount) :
-	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matchCount(matchCount)
+Filter::Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, bool matched) :
+	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matched(matched)
 {
 }
 
@@ -63,35 +69,46 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
 	}
 }
 
-bool IsIncluded(std::vector<Filter>& filters, const std::string& text)
+bool IsIncluded(std::vector<Filter>& filters, const std::string& text, ColorMatches& colorMatches)
 {
+	for (auto it = filters.begin(); it != filters.end(); ++it)
+	{
+		if (!it->enable)
+			continue;
+
+		if (it->filterType == FilterType::Exclude && std::regex_search(text, it->re))
+			return false;
+	}
+
 	bool included = false;
 	bool includeFilterPresent = false;
 	for (auto it = filters.begin(); it != filters.end(); ++it)
 	{
-		if (it->enable && it->filterType == FilterType::Include)
+		if (!it->enable)
+			continue;
+
+		if (it->filterType == FilterType::MatchColor)
+		{
+			std::smatch match;
+			if (std::regex_search(text, match, it->re))
+				colorMatches.push_back(ColorMatch(match[0].str(), GetRandomBackColor()));
+		}
+
+		if (!includeFilterPresent && it->filterType == FilterType::Include)
 		{
 			includeFilterPresent = true;
 			included |= std::regex_search(text, it->re);
 		}
+
+		if (it->filterType == FilterType::Once && std::regex_search(text, it->re))
+		{
+			included = it->matched;
+			it->matched = true;
+			return included;
+		}
 	}
 
-	if (!includeFilterPresent) 
-		included = true;
-
-	for (auto it = filters.begin(); it != filters.end(); ++it)
-	{
-		if (it->enable && it->filterType == FilterType::Exclude && std::regex_search(text, it->re))
-			return false;
-	}
-
-	for (auto it = filters.begin(); it != filters.end(); ++it)
-	{
-		if (it->enable && it->filterType == FilterType::Once && std::regex_search(text, it->re))
-			return ++it->matchCount == 1;
-	}
-
-	return included;
+	return !includeFilterPresent || included;
 }
 
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text)

@@ -606,6 +606,34 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
 	highlights.swap(newHighlights);
 }
 
+void InsertCaseInsensitiveHighlight(std::vector<Highlight>& highlights, const std::string& text, const std::string& match, TextColor color)
+{
+	auto line = boost::make_iterator_range(text);
+	for (;;)
+	{
+		auto range = boost::algorithm::ifind_first(line, match);
+		if (range.empty())
+			break;
+
+		InsertHighlight(highlights, Highlight(1, range.begin() - text.begin(), range.end() - text.begin(), color));
+		line = boost::make_iterator_range(range.end(), line.end());
+	}
+}
+
+void InsertCaseSensitiveHighlight(std::vector<Highlight>& highlights, const std::string& text, const std::string& match, TextColor color)
+{
+	auto line = boost::make_iterator_range(text);
+	for (;;)
+	{
+		auto range = boost::algorithm::find_first(line, match);
+		if (range.empty())
+			break;
+
+		InsertHighlight(highlights, Highlight(1, range.begin() - text.begin(), range.end() - text.begin(), color));
+		line = boost::make_iterator_range(range.end(), line.end());
+	}
+}
+
 std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 {
 	std::vector<Highlight> highlights;
@@ -634,16 +662,10 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		}
 	}
 
-	auto line = boost::make_iterator_range(text);
-	for (;;)
-	{
-		auto match = boost::algorithm::ifind_first(line, m_highlightText);
-		if (match.empty())
-			break;
+	for (auto it = m_colorMatches.begin(); it != m_colorMatches.end(); ++it)
+		InsertCaseSensitiveHighlight(highlights, text, it->text, TextColor(it->color, Colors::Text));
 
-		InsertHighlight(highlights, Highlight(1, match.begin() - text.begin(), match.end() - text.begin(), TextColor(Colors::Highlight, Colors::Text)));
-		line = boost::make_iterator_range(match.end(), line.end());
-	}
+	InsertCaseInsensitiveHighlight(highlights, text, Str(m_highlightText), TextColor(Colors::Highlight, Colors::Text));
 
 	return highlights;
 }
@@ -1625,17 +1647,14 @@ void CLogView::ResetFilters()
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
 		if (it->filterType == FilterType::Once)
-		{
-			it->matchCount = 0;
-		}
+			it->matched = false;
 	}
 	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
 	{
 		if (it->filterType == FilterType::Once)
-		{
-			it->matchCount = 0;
-		}
-	}	
+			it->matched = false;
+	}
+	m_colorMatches.clear();
 }
 
 void CLogView::ApplyFilters()
@@ -1736,7 +1755,7 @@ bool CLogView::IsBeepMessage(const Message& msg) const
 bool CLogView::IsIncluded(const Message& msg)
 {
 	using debugviewpp::IsIncluded;
-	return IsIncluded(m_filter.processFilters, msg.processName) && IsIncluded(m_filter.messageFilters, msg.text);
+	return IsIncluded(m_filter.processFilters, msg.processName, m_colorMatches) && IsIncluded(m_filter.messageFilters, msg.text, m_colorMatches);
 }
 
 bool CLogView::MatchFilterType(FilterType::type type, const Message& msg) const

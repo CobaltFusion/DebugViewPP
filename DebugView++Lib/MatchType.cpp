@@ -83,18 +83,12 @@ int MatchTypeToInt(MatchType::type value)
 	return value;
 }
 
-#define MATCH_TYPES \
-	MATCH_TYPE(Simple) \
-	MATCH_TYPE(Wildcard) \
-	MATCH_TYPE(Regex) \
-	MATCH_TYPE(RegexGroups)
-
 MatchType::type IntToMatchType(int value)
 {
 #define MATCH_TYPE(f) case MatchType::f: return MatchType::f;
 	switch (value)
 	{
-	MATCH_TYPES
+	MATCH_TYPES()
 	default: assert(!"Unexpected MatchType"); break;
 	}
 #undef MATCH_TYPE
@@ -107,7 +101,7 @@ std::string MatchTypeToString(MatchType::type value)
 #define MATCH_TYPE(f) case MatchType::f: return #f;
 	switch (value)
 	{
-	MATCH_TYPES
+	MATCH_TYPES()
 	default: assert(!"Unexpected MatchType"); break;
 	}
 #undef MATCH_TYPE
@@ -120,7 +114,7 @@ const wchar_t* EnumToWCharPtr(MatchType::type value)
 #define MATCH_TYPE(f) case MatchType::f: return L ## #f;
 	switch (value)
 	{
-	MATCH_TYPES
+	MATCH_TYPES()
 	default: assert(!"Unexpected MatchType"); break;
 	}
 #undef MATCH_TYPE
@@ -131,7 +125,7 @@ const wchar_t* EnumToWCharPtr(MatchType::type value)
 MatchType::type StringToMatchType(const std::string& s)
 {
 #define MATCH_TYPE(f) if (s == #f) return MatchType::f;
-	MATCH_TYPES
+	MATCH_TYPES()
 #undef MATCH_TYPE
 
 	throw std::invalid_argument("bad MatchType!");
