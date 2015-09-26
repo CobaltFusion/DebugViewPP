@@ -10,6 +10,7 @@
 #include <string>
 #include <regex>
 #include <vector>
+#include <unordered_map>
 #include "MatchType.h"
 #include "FilterType.h"
 
@@ -18,15 +19,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-struct ColorMatch
-{
-	ColorMatch(std::string text, COLORREF color);
-
-	std::string text;
-	COLORREF color;
-};
-
-typedef std::vector<ColorMatch> ColorMatches;
+typedef std::unordered_map<std::string, COLORREF> MatchColors;
 
 struct Filter
 {
@@ -52,7 +45,7 @@ struct LogFilter
 void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg);
 void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg);
 
-bool IsIncluded(std::vector<Filter>& filters, const std::string& message, ColorMatches& colorMatches);
+bool IsIncluded(std::vector<Filter>& filters, const std::string& message, MatchColors& matchColors);
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
 
 } // namespace debugviewpp 

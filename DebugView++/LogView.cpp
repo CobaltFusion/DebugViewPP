@@ -606,26 +606,12 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
 	highlights.swap(newHighlights);
 }
 
-void InsertCaseInsensitiveHighlight(std::vector<Highlight>& highlights, const std::string& text, const std::string& match, TextColor color)
+void InsertHighlight(std::vector<Highlight>& highlights, const std::string& text, const std::string& match, TextColor color)
 {
 	auto line = boost::make_iterator_range(text);
 	for (;;)
 	{
 		auto range = boost::algorithm::ifind_first(line, match);
-		if (range.empty())
-			break;
-
-		InsertHighlight(highlights, Highlight(1, range.begin() - text.begin(), range.end() - text.begin(), color));
-		line = boost::make_iterator_range(range.end(), line.end());
-	}
-}
-
-void InsertCaseSensitiveHighlight(std::vector<Highlight>& highlights, const std::string& text, const std::string& match, TextColor color)
-{
-	auto line = boost::make_iterator_range(text);
-	for (;;)
-	{
-		auto range = boost::algorithm::find_first(line, match);
 		if (range.empty())
 			break;
 
@@ -641,7 +627,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	int highlightId = 1;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (!it->enable || it->filterType != FilterType::Token)
+		if (!it->enable || (it->filterType != FilterType::Token && it->filterType != FilterType::MatchColor))
 			continue;
 
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
@@ -657,15 +643,23 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			}
 			for (int i = first; i < count; ++i)
 			{
-				InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), TextColor(it->bgColor, it->fgColor)));
+				TextColor color(Colors::BackGround, Colors::Text);
+				if (it->filterType == FilterType::MatchColor)
+				{
+					auto it = m_matchColors.find(tok->str(i));
+					if (it != m_matchColors.end())
+						color.back = it->second;
+				}
+				else
+				{
+					color = TextColor(it->bgColor, it->fgColor);
+				}
+				InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), color));
 			}
 		}
 	}
 
-	for (auto it = m_colorMatches.begin(); it != m_colorMatches.end(); ++it)
-		InsertCaseSensitiveHighlight(highlights, text, it->text, TextColor(it->color, Colors::Text));
-
-	InsertCaseInsensitiveHighlight(highlights, text, Str(m_highlightText), TextColor(Colors::Highlight, Colors::Text));
+	InsertHighlight(highlights, text, Str(m_highlightText), TextColor(Colors::Highlight, Colors::Text));
 
 	return highlights;
 }
@@ -1654,7 +1648,7 @@ void CLogView::ResetFilters()
 		if (it->filterType == FilterType::Once)
 			it->matched = false;
 	}
-	m_colorMatches.clear();
+	m_matchColors.clear();
 }
 
 void CLogView::ApplyFilters()
@@ -1755,7 +1749,7 @@ bool CLogView::IsBeepMessage(const Message& msg) const
 bool CLogView::IsIncluded(const Message& msg)
 {
 	using debugviewpp::IsIncluded;
-	return IsIncluded(m_filter.processFilters, msg.processName, m_colorMatches) && IsIncluded(m_filter.messageFilters, msg.text, m_colorMatches);
+	return IsIncluded(m_filter.processFilters, msg.processName, m_matchColors) && IsIncluded(m_filter.messageFilters, msg.text, m_matchColors);
 }
 
 bool CLogView::MatchFilterType(FilterType::type type, const Message& msg) const

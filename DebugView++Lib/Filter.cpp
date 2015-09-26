@@ -14,11 +14,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-ColorMatch::ColorMatch(std::string text, COLORREF color) :
-	text(text), color(color)
-{
-}
-
 Filter::Filter() :
 	matchType(MatchType::Simple),
 	filterType(FilterType::Include),
@@ -69,7 +64,7 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
 	}
 }
 
-bool IsIncluded(std::vector<Filter>& filters, const std::string& text, ColorMatches& colorMatches)
+bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColors& matchColors)
 {
 	for (auto it = filters.begin(); it != filters.end(); ++it)
 	{
@@ -89,9 +84,12 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, ColorMatc
 
 		if (it->filterType == FilterType::MatchColor)
 		{
-			std::smatch match;
-			if (std::regex_search(text, match, it->re))
-				colorMatches.push_back(ColorMatch(match[0].str(), GetRandomBackColor()));
+			std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
+			for (auto tok = begin; tok != end; ++tok)
+			{
+				if (matchColors.find(tok->str()) == matchColors.end())
+					matchColors.emplace(std::make_pair(tok->str(), GetRandomBackColor()));
+			}
 		}
 
 		if (!includeFilterPresent && it->filterType == FilterType::Include)

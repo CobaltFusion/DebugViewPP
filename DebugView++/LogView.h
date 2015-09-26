@@ -269,7 +269,7 @@ private:
 	CMainFrame& m_mainFrame;
 	LogFile& m_logFile;
 	LogFilter m_filter;
-	std::vector<ColorMatch> m_colorMatches;
+	MatchColors m_matchColors;
 	CMyHeaderCtrl m_hdr;
 	std::vector<ColumnInfo> m_columns;
 	int m_firstLine;
