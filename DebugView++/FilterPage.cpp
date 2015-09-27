@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "CobaltFusion/scope_guard.h"
 #include "Win32Lib/utilities.h"
 #include "Resource.h"
 #include "FilterPage.h"
@@ -56,6 +57,11 @@ END_MSG_MAP_CATCH(ExceptionHandler)
 void CFilterPageImpl::ExceptionHandler()
 {
 	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CFilterPageImpl::ShowError()
+{
+	m_grid.SetFocus();
 }
 
 void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
@@ -282,14 +288,19 @@ Filter CFilterPageImpl::GetFilter(int item) const
 	return Filter(Str(GetFilterText(item)), GetMatchType(item), GetFilterType(item), GetFilterBgColor(item), GetFilterFgColor(item), GetFilterEnable(item));
 }
 
-std::vector<Filter> CFilterPageImpl::GetFilters() const
+std::vector<Filter> CFilterPageImpl::GetFilters()
 {
 	std::vector<Filter> filters;
 	int n = m_grid.GetItemCount();
 	filters.reserve(n);
 
 	for (int i = 0; i < n; ++i)
+	{
+		m_grid.SetFocus();
+		m_grid.SelectItem(i);
+		m_grid.SendMessage(WM_KEYDOWN, VK_F2, 0);
 		filters.push_back(Filter(Str(GetFilterText(i)), GetMatchType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
+	}
 
 	return filters;
 }
@@ -298,9 +309,7 @@ void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 {
 	m_filters = filters;
 	if (IsWindow())
-	{
 		UpdateGrid();
-	}
 }
 
 void CFilterPageImpl::UpdateGrid(int focus)

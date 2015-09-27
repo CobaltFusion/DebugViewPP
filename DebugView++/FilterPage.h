@@ -25,7 +25,7 @@ class CFilterPageImpl :
 public:
 	CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount);
 
-	std::vector<Filter> GetFilters() const;
+	std::vector<Filter> GetFilters();
 	void SetFilters(const std::vector<Filter>& filters);
 
 	enum { IDD = IDD_FILTER_PAGE };
@@ -36,6 +36,7 @@ public:
 
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
+	void ShowError();
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();

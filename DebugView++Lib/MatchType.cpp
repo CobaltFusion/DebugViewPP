@@ -12,6 +12,17 @@
 namespace fusion {
 namespace debugviewpp {
 
+// Do not change existing values, these number are stored in files to represent the MatchType enum
+// Extend with new MatchType values at the end.
+// See MatchTypeToInt() and IntToMatchType() for conversion to/from MatchType enum
+namespace FilterFileIds
+{
+	const int Simple = 0;
+	const int Wildcard = 1;
+	const int Regex = 2;
+	const int RegexGroups = 3;
+}
+
 bool IsSpecialRegexCharacter(char c)
 {
 	switch (c)
@@ -80,12 +91,20 @@ std::string MakePattern(MatchType::type type, const std::string& text)
 
 int MatchTypeToInt(MatchType::type value)
 {
-	return value;
+#define MATCH_TYPE(f) case MatchType::f: return FilterFileIds::f;
+	switch (value)
+	{
+	MATCH_TYPES()
+	default: assert(!"Unexpected MatchType"); break;
+	}
+#undef MATCH_TYPE
+
+	throw std::invalid_argument("bad MatchType!");
 }
 
 MatchType::type IntToMatchType(int value)
 {
-#define MATCH_TYPE(f) case MatchType::f: return MatchType::f;
+#define MATCH_TYPE(f) case FilterFileIds::f: return MatchType::f;
 	switch (value)
 	{
 	MATCH_TYPES()

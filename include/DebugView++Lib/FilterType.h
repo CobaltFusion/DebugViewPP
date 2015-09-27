@@ -19,12 +19,12 @@ namespace debugviewpp {
 	FILTER_TYPE(Exclude) \
 	FILTER_TYPE(Highlight) \
 	FILTER_TYPE(Token) \
+	FILTER_TYPE(MatchColor) \
 	FILTER_TYPE(Stop) \
 	FILTER_TYPE(Track) \
 	FILTER_TYPE(Once) \
 	FILTER_TYPE(Clear) \
-	FILTER_TYPE(Beep) \
-	FILTER_TYPE(MatchColor)
+	FILTER_TYPE(Beep)
 
 struct FilterType
 {

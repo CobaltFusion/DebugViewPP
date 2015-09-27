@@ -172,10 +172,15 @@ void CFilterDlg::OnSize(UINT /*nType*/, CSize size)
 
 LRESULT CFilterDlg::OnTabSelChange(NMHDR* /*pnmh*/)
 {
-	int tab = m_tabCtrl.GetCurSel();
+	SelectTab(m_tabCtrl.GetCurSel());
+	return 0;
+}
+
+void CFilterDlg::SelectTab(int tab)
+{
+	m_tabCtrl.SetCurSel(tab);
 	m_messagePage.ShowWindow(tab == 0 ? SW_SHOW : SW_HIDE);
 	m_processPage.ShowWindow(tab == 1 ? SW_SHOW : SW_HIDE);
-	return 0;
 }
 
 std::wstring GetFileNameExt(const std::wstring& fileName)
@@ -272,8 +277,21 @@ void CFilterDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
-	m_filter.messageFilters = m_messagePage.GetFilters();
-	m_filter.processFilters = m_processPage.GetFilters();
+	CFilterPage* pPage = nullptr;
+	try
+	{
+		pPage = &m_messagePage;
+		m_filter.messageFilters = m_messagePage.GetFilters();
+		pPage = &m_processPage;
+		m_filter.processFilters = m_processPage.GetFilters();
+	}
+	catch (std::regex_error&)
+	{
+		SelectTab(pPage == &m_processPage);
+		MessageBox(L"Regular expression syntax error", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+		pPage->ShowError();
+		return;
+	}
 	EndDialog(nID);
 }
 

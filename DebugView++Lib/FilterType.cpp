@@ -13,14 +13,39 @@
 namespace fusion {
 namespace debugviewpp {
 
+// Do not change existing values, these number are stored in files to represent the FilterType enum
+// Extend with new FilterType values at the end.
+// See FilterTypeToInt() and IntToFilterType() for conversion to/from FilterType enum
+namespace FilterFileIds
+{
+	const int Include = 0;
+	const int Exclude = 1;
+	const int Highlight = 2;
+	const int Token = 3;
+	const int Stop = 4;
+	const int Track = 5;
+	const int Once = 6;
+	const int Clear = 7;
+	const int Beep = 8;
+	const int MatchColor = 9;
+}
+
 int FilterTypeToInt(FilterType::type value)
 {
-	return value;
+#define FILTER_TYPE(f) case FilterType::f: return FilterFileIds::f;
+	switch (value)
+	{
+	FILTER_TYPES()
+	default: assert(!"Unexpected FilterType"); break;
+	}
+#undef FILTER_TYPE
+
+	throw std::invalid_argument("bad FilterType!");
 }
 
 FilterType::type IntToFilterType(int value)
 {
-#define FILTER_TYPE(f) case FilterType::f: return FilterType::f;
+#define FILTER_TYPE(f) case FilterFileIds::f: return FilterType::f;
 	switch (value)
 	{
 	FILTER_TYPES()
