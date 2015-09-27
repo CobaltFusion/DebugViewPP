@@ -238,6 +238,7 @@ void CMainFrame::UpdateUI()
 		UISetCheck(id, GetView().IsColumnViewed(id));
 
 	UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
+	UIEnable(ID_OPTIONS_LINKVIEWS, GetTabCtrl().GetItemCount() > 1);
 	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_logSources.GetAutoNewLine());
 	UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
 	UISetCheck(ID_OPTIONS_HIDE, m_hide);
