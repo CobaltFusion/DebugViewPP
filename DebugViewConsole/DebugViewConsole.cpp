@@ -10,6 +10,7 @@
 #include <vector>
 #include <memory>
 #include "Win32Lib/utilities.h"
+#include "CobaltFusion/scope_guard.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/ProcessInfo.h"

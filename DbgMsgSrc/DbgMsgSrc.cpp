@@ -61,6 +61,27 @@ void DbgMsgTest()
 	OutputDebugStringA("   \t123\t   \t123\t   \t123\t   \t123\t This lines starts with 3 spaces + tab");
 	OutputDebugStringA("    \t123\t    \t123\t    \t123\t    \t123\t This lines starts with 4 spaces + tab");
 	OutputDebugStringA("2LongLine: Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Very Long Message that ends in a single newline. Message ends HERE.\n");
+
+	OutputDebugStringA("Message without newline (tid: 9000)");
+	OutputDebugStringA("Message without newline  (tid: 9001)");
+	OutputDebugStringA("Message without newline    (tid: 9002)");
+	OutputDebugStringA("Message without newline      (tid: 9003)");
+	OutputDebugStringA("Message without newline  (tid: 9001)");
+	OutputDebugStringA("Message without newline    (tid: 9002)");
+	OutputDebugStringA("Message without newline      (tid: 9003)");
+	OutputDebugStringA("Message without newline      (tid: 9003)");
+	OutputDebugStringA("Message without newline    (tid: 9002)");
+	OutputDebugStringA("Message without newline  (tid: 9001)");
+	OutputDebugStringA("Message without newline (tid: 9000)");
+	OutputDebugStringA("Message without newline (address: 0x01020304)");
+	OutputDebugStringA("Message without newline  (address: 0xDEADBEEF)");
+	OutputDebugStringA("Message without newline   (address: 0xFEEDBEEF)");
+	OutputDebugStringA("Message without newline    (address: 0xB105F00D)");
+	OutputDebugStringA("Message without newline     (address: 0x0DEFACED)");
+	OutputDebugStringA("Message without newline     (address: 0xBAADF00D)");
+	OutputDebugStringA("Message without newline    (address: 0xCAFEBABE)");
+	OutputDebugStringA("Message without newline   (address: 0xDEADC0DE)");
+	OutputDebugStringA("Message without newline (address: 0xDEADC0DE)");
 }
 
 void SocketTest()
