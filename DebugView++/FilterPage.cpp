@@ -197,7 +197,15 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	if (iSubItem == SubItem::Match)
 	{
 		auto& type = dynamic_cast<CPropertyListItem&>(*m_grid.GetProperty(iItem, SubItem::Type));
-		type.SetEnabled(GetMatchType(iItem) != MatchType::RegexGroups);
+		if (GetMatchType(iItem) == MatchType::RegexGroups)
+		{
+			type.SetValue(CComVariant(FilterType::Token));
+			type.SetEnabled(false);
+		}
+		else
+		{
+			type.SetEnabled(true);
+		}
 	}
 
 	if (iSubItem == SubItem::Type)
