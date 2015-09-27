@@ -274,6 +274,27 @@ void CFilterDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
+std::wstring GetRegexErrorDescription(std::regex_constants::error_type err)
+{
+	switch (err)
+	{
+	case std::regex_constants::error_badbrace: return L"Invalid count in { } expression";
+	case std::regex_constants::error_badrepeat: return L"A repeat expression (one of '*', '?', '+', '{') was not preceded by an expression";
+	case std::regex_constants::error_brace: return L"Unmatched '{' or '}'";
+	case std::regex_constants::error_brack: return L"Unmatched '[' or ']'";
+	case std::regex_constants::error_collate: return L"Invalid collating element name";
+	case std::regex_constants::error_complexity: return L"Too complex";
+	case std::regex_constants::error_ctype: return L"Invalid character class name";
+	case std::regex_constants::error_escape: return L"Invalid escape sequence";
+	case std::regex_constants::error_paren: return L"Unmatched '(' or ')'";
+	case std::regex_constants::error_range: return L"Invalid character range specifier";
+	case std::regex_constants::error_space: return L"Not enough resources available";
+	case std::regex_constants::error_stack: return L"Not enough memory available";
+	case std::regex_constants::error_backref: return L"Invalid back reference";
+	default: return L"";
+	}
+}
+
 void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
@@ -285,10 +306,10 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 		pPage = &m_processPage;
 		m_filter.processFilters = m_processPage.GetFilters();
 	}
-	catch (std::regex_error&)
+	catch (std::regex_error& ex)
 	{
 		SelectTab(pPage == &m_processPage);
-		MessageBox(L"Regular expression syntax error", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+		MessageBox(WStr(L"Regular expression syntax error: " + GetRegexErrorDescription(ex.code())), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 		pPage->ShowError();
 		return;
 	}
