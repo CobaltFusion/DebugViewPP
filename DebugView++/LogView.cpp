@@ -643,18 +643,16 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			}
 			for (int i = first; i < count; ++i)
 			{
-				TextColor color(Colors::BackGround, Colors::Text);
 				if (it->filterType == FilterType::MatchColor)
 				{
-					auto it = m_matchColors.find(tok->str(i));
-					if (it != m_matchColors.end())
-						color.back = it->second;
+					auto itc = m_matchColors.find(tok->str(i));
+					if (itc != m_matchColors.end())
+						InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), TextColor(itc->second, Colors::Text)));
 				}
 				else
 				{
-					color = TextColor(it->bgColor, it->fgColor);
+					InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), TextColor(it->bgColor, it->fgColor)));
 				}
-				InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), color));
 			}
 		}
 	}
