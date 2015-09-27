@@ -24,6 +24,16 @@ namespace SubItem
 	const int Remove = 6;
 };
 
+bool SupportsColor(FilterType::type filterType)
+{
+	switch (filterType)
+	{
+	case FilterType::Exclude: return false;
+	case FilterType::MatchColor: return false;
+	default: return true;
+	}
+}
+
 CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount) :
 	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount),
 	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount)
@@ -54,11 +64,12 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	pFilterProp->SetBkColor(filter.bgColor);
 	pFilterProp->SetTextColor(filter.fgColor);
 
+	bool supportsColor = SupportsColor(filter.filterType);
 	auto pBkColor = PropCreateColorItem(L"Background Color", filter.bgColor);
-	pBkColor->SetEnabled(filter.filterType != FilterType::Exclude);
+	pBkColor->SetEnabled(supportsColor);
 
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
-	pTxColor->SetEnabled(filter.filterType != FilterType::Exclude);
+	pTxColor->SetEnabled(supportsColor);
 
 	auto pFilter = CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType);
 	pFilter->SetEnabled(filter.matchType != MatchType::RegexGroups);
@@ -193,8 +204,10 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	{
 		auto& bkColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Background));
 		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Foreground));
-		bkColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
-		txColor.SetEnabled(GetFilterType(iItem) != FilterType::Exclude);
+
+		auto supportsColor = SupportsColor(GetFilterType(iItem));
+		bkColor.SetEnabled(supportsColor);
+		txColor.SetEnabled(supportsColor);
 	}
 
 	if (iSubItem == SubItem::Background)
