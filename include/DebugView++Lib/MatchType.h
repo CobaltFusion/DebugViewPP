@@ -12,15 +12,18 @@
 namespace fusion {
 namespace debugviewpp {
 
+// Do not change existing values, these number are stored in files to represent the MatchType enum
+// Extend with new MatchType values at the end.
+// See MatchTypeToInt() and IntToMatchType() for conversion to/from MatchType enum
 #define MATCH_TYPES() \
-	MATCH_TYPE(Simple) \
-	MATCH_TYPE(Wildcard) \
-	MATCH_TYPE(Regex) \
-	MATCH_TYPE(RegexGroups)
+	MATCH_TYPE(Simple, 0) \
+	MATCH_TYPE(Wildcard, 1) \
+	MATCH_TYPE(Regex, 2) \
+	MATCH_TYPE(RegexGroups, 3)
 
 struct MatchType
 {
-#define MATCH_TYPE(m) m,
+#define MATCH_TYPE(m, id) m,
 	enum type
 	{
 		MATCH_TYPES()

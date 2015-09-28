@@ -66,12 +66,12 @@ static const FilterType::type MessageFilterTypes[] =
 	FilterType::Exclude,
 	FilterType::Highlight,
 	FilterType::Token,
+	FilterType::MatchColor,
 	FilterType::Stop,
 	FilterType::Track,
 	FilterType::Once,
 	FilterType::Clear,
-	FilterType::Beep,
-	FilterType::MatchColor
+	FilterType::Beep
 };
 
 static const FilterType::type ProcessFilterTypes[] =

@@ -12,17 +12,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-// Do not change existing values, these number are stored in files to represent the MatchType enum
-// Extend with new MatchType values at the end.
-// See MatchTypeToInt() and IntToMatchType() for conversion to/from MatchType enum
-namespace FilterFileIds
-{
-	const int Simple = 0;
-	const int Wildcard = 1;
-	const int Regex = 2;
-	const int RegexGroups = 3;
-}
-
 bool IsSpecialRegexCharacter(char c)
 {
 	switch (c)
@@ -91,7 +80,7 @@ std::string MakePattern(MatchType::type type, const std::string& text)
 
 int MatchTypeToInt(MatchType::type value)
 {
-#define MATCH_TYPE(f) case MatchType::f: return FilterFileIds::f;
+#define MATCH_TYPE(f, id) case MatchType::f: return id;
 	switch (value)
 	{
 	MATCH_TYPES()
@@ -104,7 +93,7 @@ int MatchTypeToInt(MatchType::type value)
 
 MatchType::type IntToMatchType(int value)
 {
-#define MATCH_TYPE(f) case FilterFileIds::f: return MatchType::f;
+#define MATCH_TYPE(f, id) case id: return MatchType::f;
 	switch (value)
 	{
 	MATCH_TYPES()
@@ -117,7 +106,7 @@ MatchType::type IntToMatchType(int value)
 
 std::string MatchTypeToString(MatchType::type value)
 {
-#define MATCH_TYPE(f) case MatchType::f: return #f;
+#define MATCH_TYPE(f, id) case MatchType::f: return #f;
 	switch (value)
 	{
 	MATCH_TYPES()
@@ -130,7 +119,7 @@ std::string MatchTypeToString(MatchType::type value)
 
 const wchar_t* EnumToWCharPtr(MatchType::type value)
 {
-#define MATCH_TYPE(f) case MatchType::f: return L ## #f;
+#define MATCH_TYPE(f, id) case MatchType::f: return L ## #f;
 	switch (value)
 	{
 	MATCH_TYPES()
@@ -143,7 +132,7 @@ const wchar_t* EnumToWCharPtr(MatchType::type value)
 
 MatchType::type StringToMatchType(const std::string& s)
 {
-#define MATCH_TYPE(f) if (s == #f) return MatchType::f;
+#define MATCH_TYPE(f, id) if (s == #f) return MatchType::f;
 	MATCH_TYPES()
 #undef MATCH_TYPE
 

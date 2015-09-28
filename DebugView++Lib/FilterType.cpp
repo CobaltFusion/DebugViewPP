@@ -13,26 +13,9 @@
 namespace fusion {
 namespace debugviewpp {
 
-// Do not change existing values, these number are stored in files to represent the FilterType enum
-// Extend with new FilterType values at the end.
-// See FilterTypeToInt() and IntToFilterType() for conversion to/from FilterType enum
-namespace FilterFileIds
-{
-	const int Include = 0;
-	const int Exclude = 1;
-	const int Highlight = 2;
-	const int Token = 3;
-	const int Stop = 4;
-	const int Track = 5;
-	const int Once = 6;
-	const int Clear = 7;
-	const int Beep = 8;
-	const int MatchColor = 9;
-}
-
 int FilterTypeToInt(FilterType::type value)
 {
-#define FILTER_TYPE(f) case FilterType::f: return FilterFileIds::f;
+#define FILTER_TYPE(f, id) case FilterType::f: return id;
 	switch (value)
 	{
 	FILTER_TYPES()
@@ -45,7 +28,7 @@ int FilterTypeToInt(FilterType::type value)
 
 FilterType::type IntToFilterType(int value)
 {
-#define FILTER_TYPE(f) case FilterFileIds::f: return FilterType::f;
+#define FILTER_TYPE(f, id) case id: return FilterType::f;
 	switch (value)
 	{
 	FILTER_TYPES()
@@ -58,7 +41,7 @@ FilterType::type IntToFilterType(int value)
 
 std::string FilterTypeToString(FilterType::type value)
 {
-#define FILTER_TYPE(f) case FilterType::f: return #f;
+#define FILTER_TYPE(f, id) case FilterType::f: return #f;
 	switch (value)
 	{
 	FILTER_TYPES()
@@ -71,7 +54,7 @@ std::string FilterTypeToString(FilterType::type value)
 
 const wchar_t* EnumToWCharPtr(FilterType::type value)
 {
-#define FILTER_TYPE(f) case FilterType::f: return L ## #f;
+#define FILTER_TYPE(f, id) case FilterType::f: return L ## #f;
 	switch (value)
 	{
 	FILTER_TYPES()
@@ -84,7 +67,7 @@ const wchar_t* EnumToWCharPtr(FilterType::type value)
 
 FilterType::type StringToFilterType(const std::string& s)
 {
-#define FILTER_TYPE(f) if (s == #f) return FilterType::f;
+#define FILTER_TYPE(f, id) if (s == #f) return FilterType::f;
 	FILTER_TYPES()
 #undef FILTER_TYPE
 

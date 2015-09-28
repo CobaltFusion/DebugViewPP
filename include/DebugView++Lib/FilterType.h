@@ -14,21 +14,24 @@
 namespace fusion {
 namespace debugviewpp {
 
+// Do not change existing values, these number are stored in files to represent the FilterType enum
+// Extend with new FilterType values at the end.
+// See FilterTypeToInt() and IntToFilterType() for conversion to/from FilterType enum
 #define FILTER_TYPES() \
-	FILTER_TYPE(Include) \
-	FILTER_TYPE(Exclude) \
-	FILTER_TYPE(Highlight) \
-	FILTER_TYPE(Token) \
-	FILTER_TYPE(MatchColor) \
-	FILTER_TYPE(Stop) \
-	FILTER_TYPE(Track) \
-	FILTER_TYPE(Once) \
-	FILTER_TYPE(Clear) \
-	FILTER_TYPE(Beep)
+	FILTER_TYPE(Include, 0) \
+	FILTER_TYPE(Exclude, 1) \
+	FILTER_TYPE(Highlight, 2) \
+	FILTER_TYPE(Token, 3) \
+	FILTER_TYPE(Stop, 4) \
+	FILTER_TYPE(Track, 5) \
+	FILTER_TYPE(Once, 6) \
+	FILTER_TYPE(Clear, 7) \
+	FILTER_TYPE(Beep, 8) \
+	FILTER_TYPE(MatchColor, 9)
 
 struct FilterType
 {
-#define FILTER_TYPE(f) f,
+#define FILTER_TYPE(f, id) f,
 	enum type
 	{
 		FILTER_TYPES()
