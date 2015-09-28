@@ -102,7 +102,6 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
 		{
 			included |= !it->matched;
 			it->matched = true;
-			return included;
 		}
 	}
 
