@@ -11,6 +11,11 @@
 #include "PropertyItemEditors.h"
 #include "PropertyItemImpl.h"
 
+namespace Colors
+{
+	COLORREF Auto = 0x80808080;
+}
+
 class ColorDialog : public CColorDialogImpl<ColorDialog>
 {
 public:
@@ -21,17 +26,77 @@ public:
 	}
 
 	BEGIN_MSG_MAP(ColorDialog)
-		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MSG_WM_INITDIALOG(OnInitDialog)
+		CHAIN_MSG_MAP(CColorDialogImpl<ColorDialog>)
 	END_MSG_MAP()
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	{
 		SetWindowText(m_title.c_str());
-		return 0;
+		return TRUE;
 	}
 
 private:
 	std::wstring m_title;
+};
+
+class ColorAutoDialog : public CColorDialogImpl<ColorAutoDialog>
+{
+public:
+	ColorAutoDialog(const wchar_t* title, COLORREF clrInit = 0, DWORD dwFlags = 0, HWND hWndParent = nullptr) :
+		CColorDialogImpl<ColorAutoDialog>(clrInit, dwFlags, hWndParent),
+		m_title(title),
+		m_auto(false),
+		m_showAuto(false)
+	{
+	}
+
+	BEGIN_MSG_MAP(ColorAutoDialog)
+		MSG_WM_INITDIALOG(OnInitDialog)
+		MSG_WM_DESTROY(OnDestroy)
+		CHAIN_MSG_MAP(CColorDialogImpl<ColorAutoDialog>)
+	END_MSG_MAP()
+
+	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+	{
+		SetWindowText(m_title.c_str());
+		if (m_showAuto)
+		{
+			RECT rect = { 164, 160, 220, 176 };
+			m_btnAuto.Create(*this, &rect, L"Auto", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_TEXT | BS_LEFT, 0, IDD_AUTO);
+			m_btnAuto.SetFont(GetFont(), FALSE);
+			m_btnAuto.CheckDlgButton(IDD_AUTO, m_auto ? BST_CHECKED : BST_UNCHECKED);
+		}
+		return TRUE;
+	}
+
+	void OnDestroy()
+	{
+		m_auto = m_showAuto && m_btnAuto.IsDlgButtonChecked(IDD_AUTO) == BST_CHECKED;
+	}
+
+	void HideAuto()
+	{
+		m_showAuto = false;
+	}
+
+	void ShowAuto(bool value)
+	{
+		m_auto = value;
+		m_showAuto = true;
+	}
+
+	COLORREF GetColor() const
+	{
+		return m_auto ? Colors::Auto : CColorDialogImpl<ColorAutoDialog>::GetColor();
+	}
+
+private:
+	enum { IDD_AUTO = 1234 };
+	std::wstring m_title;
+	CButton m_btnAuto;
+	bool m_auto;
+	bool m_showAuto;
 };
 
 class CPropertyColorItem : public CPropertyItem
