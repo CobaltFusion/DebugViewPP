@@ -92,7 +92,7 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
 			}
 		}
 
-		if (!includeFilterPresent && it->filterType == FilterType::Include)
+		if (it->filterType == FilterType::Include)
 		{
 			includeFilterPresent = true;
 			included |= std::regex_search(text, it->re);
