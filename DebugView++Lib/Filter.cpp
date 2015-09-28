@@ -100,7 +100,7 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
 
 		if (it->filterType == FilterType::Once && std::regex_search(text, it->re))
 		{
-			included |= it->matched;
+			included |= !it->matched;
 			it->matched = true;
 			return included;
 		}
