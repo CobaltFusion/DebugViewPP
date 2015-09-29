@@ -46,6 +46,17 @@ void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg)
 	}
 }
 
+// Temporary backward compatibilty for loading FilterType::MatchColor:
+Filter MakeFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, bool matched)
+{
+	if (filterType == FilterType::MatchColor)
+	{
+		filterType = FilterType::Token;
+		bgColor = Colors::Auto;
+	}
+	return Filter(text, matchType, filterType, bgColor, fgColor, enable, matched);
+}
+
 void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
 {
 	for (int i = 0; ; ++i)
@@ -54,7 +65,7 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
 		if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filter" << i)) != ERROR_SUCCESS)
 			break;
 
-		filters.push_back(Filter(
+		filters.push_back(MakeFilter(
 			Str(RegGetStringValue(regFilter)),
 			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
 			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
@@ -82,7 +93,7 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
 		if (!it->enable)
 			continue;
 
-		if (it->filterType == FilterType::MatchColor)
+		if (it->filterType == FilterType::MatchColor || it->filterType == FilterType::Token && it->bgColor == Colors::Auto)
 		{
 			std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
 			for (auto tok = begin; tok != end; ++tok)

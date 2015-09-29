@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "DebugView++Lib/Colors.h"
 #include "Win32Lib/utilities.h"
 
 namespace fusion {
@@ -13,6 +14,7 @@ namespace debugviewpp {
 
 namespace Colors {
 
+extern const COLORREF Auto = 0x80808080;
 extern const COLORREF BackGround = GetSysColor(COLOR_WINDOW);
 extern const COLORREF Text = GetSysColor(COLOR_WINDOWTEXT);
 extern const COLORREF Highlight = RGB(255, 255, 55);

@@ -516,44 +516,6 @@ unsigned GetTextAlign(const HDITEM& item)
 	return HDF_LEFT;
 }
 
-class ScopedBkColor
-{
-public:
-	ScopedBkColor(HDC hdc, COLORREF col) :
-		m_hdc(hdc),
-		m_col(SetBkColor(hdc, col))
-	{
-	}
-
-	~ScopedBkColor()
-	{
-		SetBkColor(m_hdc, m_col);
-	}
-
-private:
-	HDC m_hdc;
-	COLORREF m_col;
-};
-
-class ScopedTextColor
-{
-public:
-	ScopedTextColor(HDC hdc, COLORREF col) :
-		m_hdc(hdc),
-		m_col(SetTextColor(hdc, col))
-	{
-	}
-
-	~ScopedTextColor()
-	{
-		SetTextColor(m_hdc, m_col);
-	}
-
-private:
-	HDC m_hdc;
-	COLORREF m_col;
-};
-
 SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
 {
 	SIZE size;
@@ -643,7 +605,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			}
 			for (int i = first; i < count; ++i)
 			{
-				if (it->filterType == FilterType::MatchColor)
+				if (it->filterType == FilterType::MatchColor || it->bgColor == Colors::Auto)
 				{
 					auto itc = m_matchColors.find(tok->str(i));
 					if (itc != m_matchColors.end())

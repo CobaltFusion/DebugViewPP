@@ -45,6 +45,7 @@ public:
 	void OnLButtonUp(UINT nFlags, CPoint point);
 
 private:
+	void UpdateGridColors(int item);
 	void InsertFilter(int item, const Filter& filter);
 	void AddFilter(const Filter& filter);
 	std::wstring GetFilterText(int iItem) const;

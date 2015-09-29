@@ -35,6 +35,16 @@ bool SupportsColor(FilterType::type filterType)
 	}
 }
 
+bool SupportsAutoColor(FilterType::type filterType)
+{
+	switch (filterType)
+	{
+	case FilterType::Token: return true;
+//	case FilterType::Highlight: return true;
+	default: return false;
+	}
+}
+
 CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount) :
 	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount),
 	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount)
@@ -64,20 +74,34 @@ void CFilterPageImpl::ShowError()
 	m_grid.SetFocus();
 }
 
+void CFilterPageImpl::UpdateGridColors(int item)
+{
+	auto& text = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(item, SubItem::Text));
+	auto& bg = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(item, SubItem::Background));
+	auto& fg = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(item, SubItem::Foreground));
+
+	auto supportsColor = SupportsColor(GetFilterType(item));
+	auto bgColor = bg.GetColor();
+	auto autoCol = bgColor == Colors::Auto;
+	if (autoCol && !SupportsAutoColor(GetFilterType(item)))
+	{
+		bg.SetColor(RGB(255, 255, 255));
+		autoCol = false;
+	}
+	text.SetBkColor(supportsColor && !autoCol ? bgColor : RGB(255, 255, 255));
+	text.SetTextColor(supportsColor && !autoCol ? fg.GetColor() : RGB(0, 0, 0));
+
+	bg.SetEnabled(supportsColor);
+	bg.ShowAuto(SupportsAutoColor(GetFilterType(item)));
+
+	fg.SetEnabled(supportsColor && !autoCol);
+}
+
 void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 {
 	auto pFilterProp = PropCreateSimple(L"", WStr(filter.text));
-	pFilterProp->SetBkColor(filter.bgColor);
-	pFilterProp->SetTextColor(filter.fgColor);
-
-	bool supportsColor = SupportsColor(filter.filterType);
 	auto pBkColor = PropCreateColorItem(L"Background Color", filter.bgColor);
-	pBkColor->SetEnabled(supportsColor);
-	pBkColor->ShowAuto();
-
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
-	pTxColor->SetEnabled(supportsColor);
-
 	auto pFilter = CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType);
 	pFilter->SetEnabled(filter.matchType != MatchType::RegexGroups);
 
@@ -88,6 +112,7 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	m_grid.SetSubItem(item, SubItem::Background, pBkColor);
 	m_grid.SetSubItem(item, SubItem::Foreground, pTxColor);
 	m_grid.SetSubItem(item, SubItem::Remove, PropCreateReadOnlyItem(L"", L"×"));
+	UpdateGridColors(item);
 	m_grid.SelectItem(item);
 }
 
@@ -216,34 +241,13 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	}
 
 	if (iSubItem == SubItem::Type)
-	{
-		auto& bkColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Background));
-		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Foreground));
-
-		auto supportsColor = SupportsColor(GetFilterType(iItem));
-		bkColor.SetEnabled(supportsColor);
-		txColor.SetEnabled(supportsColor);
-	}
+		UpdateGridColors(iItem);
 
 	if (iSubItem == SubItem::Background)
-	{
-		auto& bg = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
-		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, SubItem::Text));
-		auto color = bg.GetColor();
-		auto autoCol = color == Colors::Auto;
-		edit.SetBkColor(autoCol ? RGB(255, 255, 255) : color);
-
-		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Foreground));
-		txColor.SetEnabled(SupportsColor(GetFilterType(iItem)) && !autoCol);
-	}
+		UpdateGridColors(iItem);
 
 	if (iSubItem == SubItem::Foreground)
-	{
-		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
-		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, SubItem::Text));
-		edit.SetTextColor(color.GetColor());
-		return TRUE;
-	}
+		UpdateGridColors(iItem);
 
 	return 0;
 }

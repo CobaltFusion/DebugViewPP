@@ -51,14 +51,7 @@ ptree MakePTree(const Filter& filter)
 
 Filter MakeFilter(const ptree& pt)
 {
-	Filter filter;
-	filter.enable = pt.get<bool>("Enable");
-	filter.text = pt.get<std::string>("Text");
-	filter.matchType = StringToMatchType(pt.get<std::string>("MatchType"));
-	filter.filterType = StringToFilterType(pt.get<std::string>("FilterType"));
-	filter.bgColor = MakeColor(pt.get_child("BackColor"));
-	filter.fgColor = MakeColor(pt.get_child("TextColor"));
-	return filter;
+	return MakeFilter(pt.get<std::string>("Text"), StringToMatchType(pt.get<std::string>("MatchType")), StringToFilterType(pt.get<std::string>("FilterType")), MakeColor(pt.get_child("BackColor")), MakeColor(pt.get_child("TextColor")), pt.get<bool>("Enable"));
 }
 
 ptree MakePTree(const std::vector<Filter>& filters)

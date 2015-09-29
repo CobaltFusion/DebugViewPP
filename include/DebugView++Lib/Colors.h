@@ -12,6 +12,7 @@ namespace debugviewpp {
 
 namespace Colors {
 
+extern const COLORREF Auto;
 extern const COLORREF BackGround;
 extern const COLORREF Text;
 extern const COLORREF Highlight;
