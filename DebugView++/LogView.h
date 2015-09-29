@@ -197,6 +197,7 @@ private:
 	void OnViewClear(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewReset(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewResetToLine(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewExcludeLines(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -227,6 +228,7 @@ private:
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
+	std::vector<std::string> GetSelectedMessages() const;
 	void ResetToLine(int line);
 	void ClearView();
 	void UpdateColumnInfo();

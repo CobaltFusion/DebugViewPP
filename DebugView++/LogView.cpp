@@ -66,6 +66,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnBeginDrag)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_LINES, OnViewExcludeLines)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET, OnViewReset)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET_TO_LINE, OnViewResetToLine)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
@@ -277,6 +278,15 @@ void CLogView::OnDropFiles(HDROP hDropInfo)
 {
 	// Need to maunally forward to CMainFrame, don't understand why
 	m_mainFrame.OnDropFiles(hDropInfo);
+}
+
+std::vector<std::string> CLogView::GetSelectedMessages() const
+{
+	std::vector<std::string> messages;
+	int item = -1;
+	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+		messages.push_back(GetColumnText(item, Column::Message));
+	return messages;
 }
 
 void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
@@ -917,6 +927,16 @@ void CLogView::ResetToLine(int line)
 {
 	StopTracking();
 	m_firstLine = line;
+	ApplyFilters();
+}
+
+void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	auto messages = GetSelectedMessages();
+	for (auto it = messages.begin(); it != messages.end(); ++it)
+	{
+		m_filter.messageFilters.push_back(Filter(*it, MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
+	}
 	ApplyFilters();
 }
 
