@@ -26,7 +26,6 @@
 #include "DebugView++Lib/Loopback.h"
 #include <boost/algorithm/string.hpp>
 
-
 // class Logsources has a vector<LogSource> and start a thread for LogSources::Listen()
 // - Listen() exectues every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
 // - LogSource::Notify reads input en writes to linebuffer (passed at construction)
@@ -141,56 +140,74 @@ void LogSources::Reset()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
+	bool dirty = false;
+	const long graceTimeMs = 40;
 	for (;;)
 	{
-		std::vector<HANDLE> waitHandles;
-		std::vector<std::shared_ptr<LogSource>> sources;
+		WaitForNextEvent();
+		
+		if (!dirty)
 		{
-			boost::mutex::scoped_lock lock(m_mutex);
-			for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
-			{
-				auto source = *it;
-				HANDLE handle = source->GetHandle();
-				if (handle != INVALID_HANDLE_VALUE)
-				{
-					waitHandles.push_back(handle);
-					sources.push_back(source);
-				}
-				// here LogSource::Initialize is called on the m_listenThread, currently only FileReader::Initialize uses this to start reading from the file.
-				// This will block all other logsources while the file is being read (which is normally not a problem)
-				source->Initialize();
-			}
+			//GuiExecutor::CallAfter(graceTimeMs, [dirty] { 
+			//	m_updateTrigger();
+			//	GuiExecutor::CallAfter(10, [dirty] { m_updateTrigger(); dirty = false; }
+			//});
+			dirty = true;
 		}
+		// todo: protect dirty against races
 
-		auto updateEventIndex = waitHandles.size(); 
-		waitHandles.push_back(m_updateEvent.get());
-		for (;;)
-		{
-			m_loopback->Signal();
-			auto res = WaitForAnyObject(waitHandles, INFINITE);
-
-			if (m_end)
-				break;
-			if (res.signaled)
-			{
-				int index = res.index - WAIT_OBJECT_0;
-				if (index == updateEventIndex)
-					break;
-				else
-				{
-					assert((index < (int)sources.size()) && "res.index out of range");
-					auto logsource = sources[index];
-					logsource->Notify();
-					if (logsource->AtEnd())
-					{
-						InternalRemove(logsource);
-						break;
-					}
-				}
-			}
-		}
 		if (m_end)
 			break;
+	}
+}
+
+void LogSources::WaitForNextEvent()
+{
+	std::vector<HANDLE> waitHandles;
+	std::vector<std::shared_ptr<LogSource>> sources;
+	{
+		boost::mutex::scoped_lock lock(m_mutex);
+		for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+		{
+			auto source = *it;
+			HANDLE handle = source->GetHandle();
+			if (handle != INVALID_HANDLE_VALUE)
+			{
+				waitHandles.push_back(handle);
+				sources.push_back(source);
+			}
+			// here LogSource::Initialize is called on the m_listenThread, currently only FileReader::Initialize uses this to start reading from the file.
+			// This will block all other logsources while the file is being read (which is normally not a problem)
+			source->Initialize();
+		}
+	}
+
+	auto updateEventIndex = waitHandles.size(); 
+	waitHandles.push_back(m_updateEvent.get());
+	for (;;)
+	{
+		m_loopback->Signal();
+		auto res = WaitForAnyObject(waitHandles, INFINITE);
+
+		if (m_end)
+			break;
+		if (res.signaled)
+		{
+			int index = res.index - WAIT_OBJECT_0;
+			if (index == updateEventIndex)
+				break;
+			else
+			{
+				assert((index < (int)sources.size()) && "res.index out of range");
+				auto logsource = sources[index];
+				logsource->Notify();
+				if (logsource->AtEnd())
+				{
+					InternalRemove(logsource);
+					break;
+				}
+			}
+		}
 	}
 }
 
