@@ -1685,7 +1685,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 		{
 			if (it->bgColor == Colors::Auto)
 			{
-				auto itc = m_matchColors.find(match.str());
+				auto itc = m_matchColors.find(MatchKey(match, it->matchType));
 				if (itc != m_matchColors.end())
 					return TextColor(itc->second, Colors::Text);
 			}
