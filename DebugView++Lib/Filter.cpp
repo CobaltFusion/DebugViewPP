@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <boost/algorithm/string/case_conv.hpp>
 #include "DebugView++Lib/Colors.h"
 #include "Win32Lib/utilities.h"
 #include "Win32Lib/Win32Lib.h"
@@ -13,6 +14,26 @@
 
 namespace fusion {
 namespace debugviewpp {
+
+std::string MatchKey(const std::smatch& match, MatchType::type matchType)
+{
+	if (matchType == MatchType::RegexGroups && match.size() > 1)
+	{
+		std::string key;
+		auto it = match.begin();
+		while (++it != match.end())
+		{
+			if (!key.empty())
+				key.append(1, '\0');
+			key += boost::to_lower_copy(it->str());
+		}
+		return key;
+	}
+	else
+	{
+		return boost::to_lower_copy(match.str());
+	}
+}
 
 Filter::Filter() :
 	matchType(MatchType::Simple),
@@ -98,8 +119,9 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
 			std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
 			for (auto tok = begin; tok != end; ++tok)
 			{
-				if (matchColors.find(tok->str()) == matchColors.end())
-					matchColors.emplace(std::make_pair(tok->str(), GetRandomBackColor()));
+				auto key = MatchKey(*tok, it->matchType);
+				if (matchColors.find(key) == matchColors.end())
+					matchColors.emplace(std::make_pair(key, GetRandomBackColor()));
 			}
 		}
 

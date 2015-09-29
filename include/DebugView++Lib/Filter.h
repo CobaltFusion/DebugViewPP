@@ -48,6 +48,8 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg);
 bool IsIncluded(std::vector<Filter>& filters, const std::string& message, MatchColors& matchColors);
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
 
+std::string MatchKey(const std::smatch& match, MatchType::type matchType);
+
 // Temporary backward compatibilty for loading FilterType::MatchColor:
 Filter MakeFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, bool matched = false);
 
