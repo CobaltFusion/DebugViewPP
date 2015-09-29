@@ -44,6 +44,7 @@ public:
 
 	void Reset();
 	void Listen();
+	void WaitForNextEvent();
 	void Abort();
 	Lines GetLines();
 	void Remove(std::shared_ptr<LogSource> logsource);
