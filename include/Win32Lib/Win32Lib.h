@@ -112,7 +112,7 @@ private:
 	void* m_ptr;
 };
 
-class GdiObjectSelection
+class GdiObjectSelection : boost::noncopyable
 {
 public:
 	GdiObjectSelection(HDC hdc, HGDIOBJ hObject);
@@ -121,6 +121,39 @@ public:
 private:
 	HDC m_hdc;
 	HGDIOBJ m_hObject;
+};
+
+class ScopedTextColor : boost::noncopyable
+{
+public:
+	ScopedTextColor(HDC hdc, COLORREF color);
+	~ScopedTextColor();
+
+private:
+	HDC m_hdc;
+	COLORREF m_color;
+};
+
+class ScopedBkColor : boost::noncopyable
+{
+public:
+	ScopedBkColor(HDC hdc, COLORREF color);
+	~ScopedBkColor();
+
+private:
+	HDC m_hdc;
+	COLORREF m_color;
+};
+
+class ScopedTextAlign : boost::noncopyable
+{
+public:
+	ScopedTextAlign(HDC hdc, UINT align);
+	~ScopedTextAlign();
+
+private:
+	HDC m_hdc;
+	UINT m_align;
 };
 
 class Win32Error : public boost::system::system_error

@@ -10,10 +10,11 @@
 #include "PropertyItem.h"
 #include "PropertyItemEditors.h"
 #include "PropertyItemImpl.h"
+#include "Win32Lib/Win32Lib.h"
 
 namespace Colors
 {
-	COLORREF Auto = 0x80808080;
+	const COLORREF Auto = 0x80808080;
 }
 
 class ColorDialog : public CColorDialogImpl<ColorDialog>
@@ -30,7 +31,7 @@ public:
 		CHAIN_MSG_MAP(CColorDialogImpl<ColorDialog>)
 	END_MSG_MAP()
 
-	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	{
 		SetWindowText(m_title.c_str());
 		return TRUE;
@@ -46,18 +47,18 @@ public:
 	ColorAutoDialog(const wchar_t* title, COLORREF clrInit = 0, DWORD dwFlags = 0, HWND hWndParent = nullptr) :
 		CColorDialogImpl<ColorAutoDialog>(clrInit, dwFlags, hWndParent),
 		m_title(title),
-		m_auto(false),
+		m_auto(clrInit == Colors::Auto),
 		m_showAuto(false)
 	{
 	}
 
-	BEGIN_MSG_MAP(ColorAutoDialog)
+	BEGIN_MSG_MAP_EX(ColorAutoDialog)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_DESTROY(OnDestroy)
 		CHAIN_MSG_MAP(CColorDialogImpl<ColorAutoDialog>)
 	END_MSG_MAP()
 
-	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	{
 		SetWindowText(m_title.c_str());
 		if (m_showAuto)
@@ -72,7 +73,9 @@ public:
 
 	void OnDestroy()
 	{
-		m_auto = m_showAuto && m_btnAuto.IsDlgButtonChecked(IDD_AUTO) == BST_CHECKED;
+		m_auto = m_showAuto && m_btnAuto.GetCheck() == BST_CHECKED;
+		if (m_btnAuto.IsWindow())
+			m_btnAuto.DestroyWindow();
 	}
 
 	void HideAuto()
@@ -80,10 +83,15 @@ public:
 		m_showAuto = false;
 	}
 
-	void ShowAuto(bool value)
+	void ShowAuto()
 	{
-		m_auto = value;
 		m_showAuto = true;
+	}
+
+	void SetCurrentColor(COLORREF color)
+	{
+		CColorDialogImpl<ColorAutoDialog>::SetCurrentColor(color);
+		m_auto = color == Colors::Auto;
 	}
 
 	COLORREF GetColor() const
@@ -118,6 +126,16 @@ public:
 		m_dlg.SetCurrentColor(color);
 	}
 
+	void ShowAuto()
+	{
+		m_dlg.ShowAuto();
+	}
+
+	void HideAuto()
+	{
+		m_dlg.HideAuto();
+	}
+
 	BOOL Activate(UINT action, LPARAM /*lParam*/)
 	{
 		if (!IsEnabled())
@@ -150,7 +168,18 @@ public:
 		::InflateRect(&rect, -1, -1);
 		dc.FillSolidRect(&rect, RGB(0, 0, 0));
 		::InflateRect(&rect, -1, -1);
-		dc.FillSolidRect(&rect, GetColor() & 0xFFFFFF);
+		auto color = GetColor();
+		if (color == Colors::Auto)
+		{
+			fusion::ScopedBkColor bg(dc, RGB(255, 255, 255));
+			fusion::ScopedTextColor fg(dc, RGB(0, 0, 0));
+			fusion::ScopedTextAlign ta(dc, TA_CENTER | TA_BOTTOM);
+			dc.ExtTextOut((rect.left + rect.right)/2, rect.bottom, ETO_OPAQUE, &rect, L"A", 1);
+		}
+		else
+		{
+			dc.FillSolidRect(&rect, color & 0xFFFFFF);
+		}
 	}
 
 	BOOL GetValue(VARIANT* pValue) const
@@ -169,7 +198,7 @@ public:
 	}
 
 private:
-	ColorDialog m_dlg;
+	ColorAutoDialog m_dlg;
 };
 
 inline CPropertyColorItem* PropCreateColorItem(const wchar_t* name, COLORREF color)

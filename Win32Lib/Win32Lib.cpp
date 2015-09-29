@@ -42,11 +42,49 @@ void ChangeNotificationHandleDeleter::operator()(pointer p) const
 GdiObjectSelection::GdiObjectSelection(HDC hdc, HGDIOBJ hObject) :
 	m_hdc(hdc), m_hObject(SelectObject(hdc, hObject))
 {
+	if (!m_hObject)
+		ThrowLastError("SelectObject");
 }
 
 GdiObjectSelection::~GdiObjectSelection()
 {
 	SelectObject(m_hdc, m_hObject);
+}
+
+ScopedTextColor::ScopedTextColor(HDC hdc, COLORREF color) :
+	m_hdc(hdc), m_color(::SetTextColor(hdc, color))
+{
+	if (m_color == CLR_INVALID)
+		ThrowLastError("SetTextColor");
+}
+
+ScopedTextColor::~ScopedTextColor()
+{
+	::SetTextColor(m_hdc, m_color);
+}
+
+ScopedBkColor::ScopedBkColor(HDC hdc, COLORREF color) :
+	m_hdc(hdc), m_color(::SetBkColor(hdc, color))
+{
+	if (m_color == CLR_INVALID)
+		ThrowLastError("SetBkColor");
+}
+
+ScopedBkColor::~ScopedBkColor()
+{
+	::SetBkColor(m_hdc, m_color);
+}
+
+ScopedTextAlign::ScopedTextAlign(HDC hdc, UINT align) :
+	m_hdc(hdc), m_align(::SetTextAlign(hdc, align))
+{
+	if (m_align == GDI_ERROR)
+		ThrowLastError("SetTextAlign");
+}
+
+ScopedTextAlign::~ScopedTextAlign()
+{
+	::SetTextAlign(m_hdc, m_align);
 }
 
 std::wstring MultiByteToWideChar(const char* str, int len)

@@ -73,6 +73,7 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	bool supportsColor = SupportsColor(filter.filterType);
 	auto pBkColor = PropCreateColorItem(L"Background Color", filter.bgColor);
 	pBkColor->SetEnabled(supportsColor);
+	pBkColor->ShowAuto();
 
 	auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
 	pTxColor->SetEnabled(supportsColor);
@@ -226,10 +227,14 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 
 	if (iSubItem == SubItem::Background)
 	{
-		auto& color = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
+		auto& bg = dynamic_cast<CPropertyColorItem&>(*nmhdr.prop);
 		auto& edit = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(iItem, SubItem::Text));
-		edit.SetBkColor(color.GetColor());
-		return TRUE;
+		auto color = bg.GetColor();
+		auto autoCol = color == Colors::Auto;
+		edit.SetBkColor(autoCol ? RGB(255, 255, 255) : color);
+
+		auto& txColor = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(iItem, SubItem::Foreground));
+		txColor.SetEnabled(SupportsColor(GetFilterType(iItem)) && !autoCol);
 	}
 
 	if (iSubItem == SubItem::Foreground)
