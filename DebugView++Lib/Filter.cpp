@@ -93,7 +93,7 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
 		if (!it->enable)
 			continue;
 
-		if (it->filterType == FilterType::MatchColor || it->filterType == FilterType::Token && it->bgColor == Colors::Auto)
+		if (it->bgColor == Colors::Auto)
 		{
 			std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
 			for (auto tok = begin; tok != end; ++tok)

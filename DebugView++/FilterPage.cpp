@@ -30,7 +30,6 @@ bool SupportsColor(FilterType::type filterType)
 	switch (filterType)
 	{
 	case FilterType::Exclude: return false;
-	case FilterType::MatchColor: return false;
 	default: return true;
 	}
 }
@@ -39,9 +38,14 @@ bool SupportsAutoColor(FilterType::type filterType)
 {
 	switch (filterType)
 	{
-	case FilterType::Token: return true;
-//	case FilterType::Highlight: return true;
-	default: return false;
+	case FilterType::Include:
+	case FilterType::Highlight:
+	case FilterType::Track:
+	case FilterType::Stop:
+	case FilterType::Token:
+		return true;
+	default:
+		return false;
 	}
 }
 
@@ -85,11 +89,11 @@ void CFilterPageImpl::UpdateGridColors(int item)
 	auto autoCol = bgColor == Colors::Auto;
 	if (autoCol && !SupportsAutoColor(GetFilterType(item)))
 	{
-		bg.SetColor(RGB(255, 255, 255));
+		bg.SetColor(Colors::BackGround);
 		autoCol = false;
 	}
-	text.SetBkColor(supportsColor && !autoCol ? bgColor : RGB(255, 255, 255));
-	text.SetTextColor(supportsColor && !autoCol ? fg.GetColor() : RGB(0, 0, 0));
+	text.SetBkColor(supportsColor && !autoCol ? bgColor : Colors::BackGround);
+	text.SetTextColor(supportsColor && !autoCol ? fg.GetColor() : Colors::Text);
 
 	bg.SetEnabled(supportsColor);
 	bg.ShowAuto(SupportsAutoColor(GetFilterType(item)));

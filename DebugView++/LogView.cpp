@@ -589,7 +589,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	int highlightId = 1;
 	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
 	{
-		if (!it->enable || (it->filterType != FilterType::Token && it->filterType != FilterType::MatchColor))
+		if (!it->enable || it->filterType != FilterType::Token)
 			continue;
 
 		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
@@ -605,7 +605,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			}
 			for (int i = first; i < count; ++i)
 			{
-				if (it->filterType == FilterType::MatchColor || it->bgColor == Colors::Auto)
+				if (it->bgColor == Colors::Auto)
 				{
 					auto itc = m_matchColors.find(tok->str(i));
 					if (itc != m_matchColors.end())
@@ -1680,8 +1680,20 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 	auto messageFilters = MoveHighlighFiltersToFront(m_filter.messageFilters);
 	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
-		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, it->re))	// TabsToSpaces removed here, see issue #173
-			return TextColor(it->bgColor, it->fgColor);
+		std::smatch match;
+		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, match, it->re))	// TabsToSpaces removed here, see issue #173
+		{
+			if (it->bgColor == Colors::Auto)
+			{
+				auto itc = m_matchColors.find(match.str());
+				if (itc != m_matchColors.end())
+					return TextColor(itc->second, Colors::Text);
+			}
+			else
+			{
+				return TextColor(it->bgColor, it->fgColor);
+			}
+		}
 	}
 
 	auto processFilters = MoveHighlighFiltersToFront(m_filter.processFilters);
