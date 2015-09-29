@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <array>
 #include <regex>
+#include <set>
 #include <boost/algorithm/string.hpp>
 #include "Resource.h"
 #include "MainFrame.h"
@@ -995,19 +996,14 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 
 void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
 {
-	std::map<std::string, int> processNames;
+	std::set<std::string> names;
 	int item = -1;
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-	{
-		const auto& name = m_logFile[m_logLines[item].line].processName;
-		processNames[name] = 0;
-	}
+		names.insert(m_logFile[m_logLines[item].line].processName);
 
-	for (auto it=processNames.begin(); it != processNames.end(); ++it)
-	{
-		const auto& name = it->first;
-		m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
-	}
+	for (auto it = names.begin(); it != names.end(); ++it)
+		m_filter.processFilters.push_back(Filter(Str(*it), MatchType::Simple, filterType, bgColor, fgColor));
+
 	ApplyFilters();
 }
 

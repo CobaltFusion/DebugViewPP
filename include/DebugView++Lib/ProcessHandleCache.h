@@ -7,14 +7,13 @@
 
 #pragma once
 
-#include <vector>
-#include <map>
+#include <unordered_map>
 #include "Win32Lib/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-typedef std::map<DWORD, Handle> PIDMap;
+typedef std::unordered_map<DWORD, Handle> PidMap;
 
 class ProcessHandleCache
 {
@@ -22,10 +21,10 @@ public:
 	~ProcessHandleCache();
 
 	void Add(DWORD pid, Handle handle);
-	PIDMap CleanupMap();
+	PidMap CleanupMap();
 
 private:
-	std::map<DWORD, Handle> m_cache;
+	PidMap m_cache;
 };
 
 } // namespace debugviewpp 

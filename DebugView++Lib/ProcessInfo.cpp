@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <array>
+#include <psapi.h>
 #include "DebugView++Lib/Conversions.h"
 #include "Win32Lib/Utilities.h"
 #include "Win32Lib/Win32Lib.h"

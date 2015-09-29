@@ -21,16 +21,11 @@ NewlineFilter::NewlineFilter()
 Lines NewlineFilter::Process(const Line& line)
 {
 	Lines lines;
-	if (m_lineBuffers.find(line.pid) == m_lineBuffers.end())
-	{
-		std::string message;
-		message.reserve(4000);
-		m_lineBuffers[line.pid] = std::move(message);
-	}
-	std::string& message = m_lineBuffers[line.pid];
+	auto& message = m_lineBuffers[line.pid];
+	message.reserve(4000);
 
 	Line outputLine = line;
-	for (auto i = line.message.begin(); i != line.message.end(); i++)
+	for (auto i = line.message.begin(); i != line.message.end(); ++i)
 	{
 		if (*i == '\r')
 			continue;
@@ -60,10 +55,10 @@ Lines NewlineFilter::Process(const Line& line)
 	return lines;
 }
 
-Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PIDMap& terminatedProcessesMap)
+Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap)
 {
 	Lines lines;
-	for (auto i = terminatedProcessesMap.begin(); i != terminatedProcessesMap.end(); i++)
+	for (auto i = terminatedProcessesMap.begin(); i != terminatedProcessesMap.end(); ++i)
 	{
 		DWORD pid = i->first;
 		HANDLE handle = i->second.get();
@@ -72,14 +67,14 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PIDMap& terminatedP
 			if (!m_lineBuffers[pid].empty())
 			{
 				// timestamp not filled, this will be done by the loopback source
-				lines.push_back(Line(0.0, FILETIME(), pid, "<flush>", m_lineBuffers[pid], nullptr));
+				lines.push_back(Line(0, FILETIME(), pid, "<flush>", m_lineBuffers[pid], nullptr));
 			}
 			m_lineBuffers.erase(pid);
 		}
 		auto processName = ProcessInfo::GetProcessName(handle);
 		auto info = ProcessInfo::GetProcessInfo(handle);
 		std::string infoStr = stringbuilder() << "<process started at " << info << " has now terminated>";
-		lines.push_back(Line(0.0, FILETIME(), pid, Str(processName).str(), infoStr, nullptr));
+		lines.push_back(Line(0, FILETIME(), pid, Str(processName).str(), infoStr, nullptr));
 	}
 	return lines;
 }

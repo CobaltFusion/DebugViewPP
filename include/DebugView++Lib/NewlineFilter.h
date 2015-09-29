@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/ProcessHandleCache.h"
@@ -20,8 +21,8 @@ class NewlineFilter {
 public:
 	NewlineFilter();
 	Lines Process(const Line& line);
-	Lines FlushLinesFromTerminatedProcesses(const PIDMap& terminatedProcessesMap);
-	std::map<DWORD, std::string> m_lineBuffers;
+	Lines FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap);
+	std::unordered_map<DWORD, std::string> m_lineBuffers;
 };
 
 } // namespace debugviewpp 

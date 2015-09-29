@@ -23,9 +23,9 @@ void ProcessHandleCache::Add(DWORD pid, Handle handle)
 		m_cache[pid] = std::move(handle);
 }
 
-PIDMap ProcessHandleCache::CleanupMap()
+PidMap ProcessHandleCache::CleanupMap()
 {
-	PIDMap removePids;
+	PidMap removePids;
 	for (auto i = m_cache.begin(); i != m_cache.end(); ++i)
 	{
 		DWORD exitcode = 0;

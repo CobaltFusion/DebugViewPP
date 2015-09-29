@@ -8,8 +8,7 @@
 #pragma once
 
 #include <string>
-#include <map>
-#include <psapi.h>
+#include <unordered_map>
 
 #pragma comment(lib, "DebugView++Lib.lib")
 
@@ -51,7 +50,7 @@ public:
 	ProcessProperties GetProcessProperties(DWORD uid) const;
 
 private:
-	std::map<DWORD, InternalProcessProperties> m_processProperties;
+	std::unordered_map<DWORD, InternalProcessProperties> m_processProperties;
 	DWORD m_unqiueId;
 };
 
