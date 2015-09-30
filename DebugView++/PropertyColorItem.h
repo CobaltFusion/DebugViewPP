@@ -20,7 +20,7 @@ class ColorDialog : public CColorDialogImpl<ColorDialog>
 {
 public:
 	ColorDialog(const wchar_t* title, COLORREF clrInit = 0, DWORD dwFlags = 0, HWND hWndParent = nullptr) :
-		CColorDialogImpl<ColorDialog>(clrInit, dwFlags, hWndParent),
+		CColorDialogImpl<ColorDialog>(clrInit == Colors::Auto ? RGB(255, 255, 255) : clrInit, dwFlags, hWndParent),
 		m_title(title),
 		m_auto(clrInit == Colors::Auto),
 		m_showAuto(false)
@@ -67,8 +67,7 @@ public:
 	void SetCurrentColor(COLORREF color)
 	{
 		m_auto = color == Colors::Auto;
-		if (!m_auto)
-			CColorDialogImpl<ColorDialog>::SetCurrentColor(color);
+		CColorDialogImpl<ColorDialog>::SetCurrentColor(m_auto ? RGB(255, 255, 255) : color);
 	}
 
 	COLORREF GetColor() const
