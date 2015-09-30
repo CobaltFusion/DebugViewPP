@@ -22,7 +22,7 @@ class ILineBuffer;
 class BinaryFileReader : public LogSource
 {
 public:
-	explicit BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
+	BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
 	virtual ~BinaryFileReader();
 
 	virtual void Initialize();

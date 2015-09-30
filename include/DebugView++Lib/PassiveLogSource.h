@@ -21,6 +21,7 @@ class ILineBuffer;
 struct PollLine
 {
 	PollLine(DWORD pid, const std::string& processName, const std::string& message, std::shared_ptr<LogSource> logsource);
+
 	DWORD pid;
 	std::string processName;
 	std::string message;
@@ -30,7 +31,7 @@ struct PollLine
 class PassiveLogSource : public LogSource
 {
 public:
-	explicit PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency);
+	PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency);
 	virtual ~PassiveLogSource();
 	
 	virtual HANDLE GetHandle() const;
@@ -46,6 +47,7 @@ public:
 	void StartThread();
 
 	long GetMicrosecondInterval() const;
+
 private:
 	void Loop();
 

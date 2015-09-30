@@ -20,16 +20,16 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 {
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, std::shared_ptr<LogSource> logsource)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const char* message, const std::shared_ptr<LogSource>& pSource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(Line(time, systemTime, handle, message, logsource));
+	m_buffer.push_back(Line(time, systemTime, handle, message, pSource));
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, std::shared_ptr<LogSource> logsource)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, const std::shared_ptr<LogSource>& pSource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
-	m_buffer.push_back(Line(time, systemTime, pid, processName, message, logsource));
+	m_buffer.push_back(Line(time, systemTime, pid, processName, message, pSource));
 }
 
 // m_backingBuffer can not be moved since it is a member variabele and only rvalues can be moved.

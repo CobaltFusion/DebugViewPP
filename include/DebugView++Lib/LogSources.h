@@ -7,7 +7,9 @@
 
 #pragma once
 
+#pragma warning(push, 1)
 #include <boost/thread.hpp>
+#pragma warning(pop)
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
@@ -36,7 +38,7 @@ typedef std::vector<HANDLE> LogSourceHandles;
 class LogSources
 {
 public:
-	LogSources(bool startListening = false);
+	explicit LogSources(bool startListening = false);
 	~LogSources();
 
 	void SetAutoNewLine(bool value);
@@ -61,6 +63,7 @@ public:
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);
+
 private:
 	void UpdateSettings(std::shared_ptr<LogSource> source);
 	void Add(std::shared_ptr<LogSource> source);

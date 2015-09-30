@@ -20,23 +20,23 @@ class ILineBuffer;
 class SocketReader : public PassiveLogSource
 {
 public:
-	explicit SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname, int port);
+	SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname, int port);
 	virtual ~SocketReader();
 
 	virtual void Abort();
 
 private:
 	void Loop();
-    void StartReceive();
+	void StartReceive();
 	void ReceiveUDPMessage(const boost::system::error_code& error, std::size_t bytes_transferred);
 
 	std::string m_hostname;
 	int m_port;
-    boost::asio::io_service m_ioservice;
+	boost::asio::io_service m_ioservice;
 	boost::asio::ip::udp::socket m_socket;
 	boost::asio::ip::udp::endpoint m_remote_endpoint;
 
-    boost::array<char, 2000> m_RecvBuffer;
+	boost::array<char, 2000> m_RecvBuffer;
 	boost::thread m_thread;
 };
 

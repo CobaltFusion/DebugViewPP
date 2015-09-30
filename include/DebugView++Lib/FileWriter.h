@@ -18,7 +18,7 @@ std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
 class FileWriter
 {
 public:
-	explicit FileWriter(const std::wstring& filename, LogFile& logfile);
+	FileWriter(const std::wstring& filename, LogFile& logfile);
     ~FileWriter();
 
 private:

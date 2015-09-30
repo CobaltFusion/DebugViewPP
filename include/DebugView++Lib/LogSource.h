@@ -19,7 +19,7 @@ class ILineBuffer;
 class LogSource : public boost::noncopyable, public std::enable_shared_from_this<LogSource>
 {
 public:
-	explicit LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
+	LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
 	virtual ~LogSource();
 	
 	virtual void SetAutoNewLine(bool value);

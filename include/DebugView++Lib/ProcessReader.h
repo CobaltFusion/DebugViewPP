@@ -24,6 +24,7 @@ public:
 
 	virtual void Abort();
 	virtual bool AtEnd() const;
+
 private:
 	virtual void Poll();
 

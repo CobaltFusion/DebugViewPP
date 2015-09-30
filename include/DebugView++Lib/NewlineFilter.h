@@ -17,7 +17,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-class NewlineFilter {
+class NewlineFilter
+{
 public:
 	NewlineFilter();
 	Lines Process(const Line& line);

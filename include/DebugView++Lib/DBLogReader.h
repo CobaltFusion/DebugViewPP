@@ -22,9 +22,10 @@ class ILineBuffer;
 class DBLogReader : public FileReader
 {
 public:
-	explicit DBLogReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
+	DBLogReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
 	virtual void AddLine(const std::string& line);
 	virtual void PreProcess(Line& line) const;
+
 private:
 	void GetRelativeTime(Line& line);
 	long m_linenumber;

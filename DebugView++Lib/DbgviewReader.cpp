@@ -6,17 +6,17 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <boost/asio.hpp> 
+#include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/PassiveLogSource.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/LineBuffer.h"
-#include "Win32Lib/Win32Lib.h"
 
-#include <boost/asio.hpp> 
 
 namespace fusion {
 namespace debugviewpp {
 
-const std::string g_sysinternalsDebugViewAgentPort = "2020";
+const std::string SysinternalsDebugViewAgentPort = "2020";
 
 DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname) :
 	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
@@ -39,59 +39,56 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 	return buffer;
 }
 
-struct Magic
+namespace Magic
 {
-	enum type
-	{
-		colomnOneMark = 1,
-		colomnTwoMark = 2,
-		base = 0x83050000,
-		captureKernelEnable = base + 0x00,				// 0
-		captureKernelDisable = base + 0x04,				// 1
-		unknown1 = base + 0x08,							// 2 
-		unknown2 = base + 0x0C,							// 3 
-		passThroughEnable = base + 0x10,				// 4
-		passThroughDisable = base + 0x14,				// 5
-		captureWin32Enable = base + 0x18,				// 6
-		captureWin32Disable = base + 0x1c,				// 7
-		unknown3 = base + 0x20,							// 8 
-		requestUnknown = base + 0x24,					// 9 
-		requestQueryPerformanceFrequency = base + 0x28	// A
-	};
+	const int ColomnOneMark = 1;
+	const int ColomnTwoMark = 2;
+	const int Base = 0x83050000;
+	const int CaptureKernelEnable = Base + 0x00;              // 0
+	const int CaptureKernelDisable = Base + 0x04;             // 1
+	const int Unknown1 = Base + 0x08;                         // 2 
+	const int Unknown2 = Base + 0x0C;                         // 3 
+	const int PassThroughEnable = Base + 0x10;                // 4
+	const int PassThroughDisable = Base + 0x14;               // 5
+	const int CaptureWin32Enable = Base + 0x18;               // 6
+	const int CaptureWin32Disable = Base + 0x1c;              // 7
+	const int Unknown3 = Base + 0x20;                         // 8
+	const int RequestUnknown = Base + 0x24;                   // 9
+	const int RequestQueryPerformanceFrequency = Base + 0x28; // A
 };
 
 void DbgviewReader::Loop()
 {
-	m_iostream.connect(m_hostname, g_sysinternalsDebugViewAgentPort);
+	m_iostream.connect(m_hostname, SysinternalsDebugViewAgentPort);
 	const char* processName = "[tcp]";
 
 	// unknown command (dbgview sends it after connect, it gets a 4 byte answer 0x7fffffff)
-	//Write<DWORD>(m_iostream, Magic::base + 0x24);	
+	//Write<DWORD>(m_iostream, Magic::Base + 0x24);	
 	//Read<DWORD>(m_iostream);					// 0x7fffffff
 
 	// unknown command (dbgview sends it after connect, but without it all seems fine too)
 	// maybe 0x08 turns something on, and 0x0C turns it off? (following the logic of the enums)
-	//Write<DWORD>(m_iostream, Magic::base + 0x08);	
+	//Write<DWORD>(m_iostream, Magic::Base + 0x08);	
 
-	Write<DWORD>(m_iostream, Magic::requestQueryPerformanceFrequency);
-	auto qpFrequency = Read<DWORD>(m_iostream);		// 0x0023ae93
+	Write<DWORD>(m_iostream, Magic::RequestQueryPerformanceFrequency);
+	auto qpFrequency = Read<DWORD>(m_iostream); // 0x0023ae93
 
 	if (!m_iostream || qpFrequency == 0)
 	{
-	  Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
-	  Signal();
-	  return;
+		Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
+		Signal();
+		return;
 	}
 
-	Write<DWORD>(m_iostream, Magic::captureKernelEnable);
-	Write<DWORD>(m_iostream, Magic::captureWin32Disable);
-	Write<DWORD>(m_iostream, Magic::passThroughDisable);
+	Write<DWORD>(m_iostream, Magic::CaptureKernelEnable);
+	Write<DWORD>(m_iostream, Magic::CaptureWin32Disable);
+	Write<DWORD>(m_iostream, Magic::PassThroughDisable);
 
 	Timer timer(qpFrequency);
 	Add(stringbuilder() << "Connected to " << GetDescription());
 	Signal();
 
-	for(;;)
+	for (;;)
 	{
 		m_iostream.clear();
 		auto messageLength = Read<DWORD>(m_iostream);
@@ -117,7 +114,7 @@ void DbgviewReader::Loop()
 		// instead use read() to receive the complete message.
 		// this allows us to use ss.tellg() to determine the amount of trash bytes.
 		std::vector<char> buffer(messageLength);
-		m_iostream.read(reinterpret_cast<char*>(buffer.data()), messageLength);
+		m_iostream.read(buffer.data(), messageLength);
 		std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
 		ss.write(buffer.data(), buffer.size());
 
@@ -136,10 +133,10 @@ void DbgviewReader::Loop()
 			auto qpcTime = Read<long long>(ss);
 			auto time = timer.Get(qpcTime);
 
-			if (buffer[20] == Magic::colomnOneMark)
+			if (buffer[20] == Magic::ColomnOneMark)
 			{
 				unsigned char c1, c2;
-				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::colomnOneMark && c2 == Magic::colomnTwoMark))
+				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::ColomnOneMark && c2 == Magic::ColomnTwoMark))
 				{
 					Add(0, processName, "<error parsing pid>\n");
 					break;

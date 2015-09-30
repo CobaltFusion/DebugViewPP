@@ -7,14 +7,7 @@
 
 #pragma once
 
-#include <boost/utility.hpp>
-#include <boost/thread.hpp>
-#include <boost/signals2.hpp>
-
 #include "LogSource.h"
-#include "DBWinBuffer.h"
-#include "ProcessHandleCache.h"
-#include "Win32Lib/utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -34,10 +27,12 @@ typedef std::vector<DBWinMessage> DBWinMessages;
 
 typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
 
+struct DbWinBuffer;
+
 class DBWinReader : public LogSource
 {
 public:
-	explicit DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global);
+	DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global);
 	virtual ~DBWinReader();
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();

@@ -18,8 +18,8 @@ class ILineBuffer;
 class Loopback : public PassiveLogSource
 {
 public:
-	explicit Loopback(Timer& timer, ILineBuffer& linebuffer);
-	~Loopback();
+	Loopback(Timer& timer, ILineBuffer& linebuffer);
+	virtual ~Loopback();
 
 	virtual bool GetAutoNewLine() const;
 	virtual void PreProcess(Line& line) const;
