@@ -10,11 +10,13 @@
 #include <array>
 #include <regex>
 #include <set>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
 #include "DebugView++Lib/Conversions.h"
+#include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
@@ -933,9 +935,10 @@ void CLogView::ResetToLine(int line)
 void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	auto messages = GetSelectedMessages();
-	for (auto it = messages.begin(); it != messages.end(); ++it)
+	int size = std::min(size_t(25), messages.size());
+	for (int i=0; i<size; ++i)
 	{
-		m_filter.messageFilters.push_back(Filter(*it, MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
+		m_filter.messageFilters.push_back(Filter(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
 	}
 	ApplyFilters();
 }
