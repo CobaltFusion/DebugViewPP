@@ -38,8 +38,8 @@ public:
 		SetWindowText(m_title.c_str());
 		if (m_showAuto)
 		{
-			RECT rect = { 164, 160, 220, 176 };
-			m_btnAuto.Create(*this, &rect, L"Auto", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_TEXT | BS_LEFT, 0, IDD_AUTO);
+			RECT rect = { 166, 160, 216, 176 };
+			m_btnAuto.Create(*this, &rect, L"Auto", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_TEXT | BS_LEFT, 0);
 			m_btnAuto.SetFont(GetFont(), FALSE);
 			m_btnAuto.SetCheck(m_auto ? BST_CHECKED : BST_UNCHECKED);
 		}
@@ -77,7 +77,6 @@ public:
 	}
 
 private:
-	enum { IDD_AUTO = 1234 };
 	std::wstring m_title;
 	CButton m_btnAuto;
 	bool m_auto;

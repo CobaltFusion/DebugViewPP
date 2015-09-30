@@ -60,6 +60,8 @@ BEGIN_MSG_MAP_TRY(CFilterPageImpl)
 	MSG_WM_DESTROY(OnDestroy)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
+	MSG_WM_ENTERSIZEMOVE(OnEnterSizeMove)
+	MSG_WM_SIZE(OnSize)
 	NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnDrag)
 	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
@@ -128,10 +130,10 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
-	m_grid.InsertColumn(SubItem::Text, L"Filter", LVCFMT_LEFT, 180, 0, -1, 1);
+	m_grid.InsertColumn(SubItem::Text, L"Filter", LVCFMT_LEFT, 200, 0, -1, 1);
 	m_grid.InsertColumn(SubItem::Enable, L"", LVCFMT_LEFT, 32, 0, -1, 0);
 	m_grid.InsertColumn(SubItem::Match, L"Match", LVCFMT_LEFT, 76, 0, -1, 2);
-	m_grid.InsertColumn(SubItem::Type, L"Type", LVCFMT_LEFT, 68, 0, -1, 3);
+	m_grid.InsertColumn(SubItem::Type, L"Type", LVCFMT_LEFT, 48, 0, -1, 3);
 	m_grid.InsertColumn(SubItem::Background, L"Bg", LVCFMT_LEFT, 24, 0, -1, 4);
 	m_grid.InsertColumn(SubItem::Foreground, L"Fg", LVCFMT_LEFT, 24, 0, -1, 5);
 	m_grid.InsertColumn(SubItem::Remove, L"", LVCFMT_LEFT, 16, 0, -1, 6);
@@ -139,6 +141,7 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 
 	UpdateGrid();
 	DlgResize_Init(false);
+	OnEnterSizeMove();
 	return TRUE;
 }
 
@@ -193,6 +196,21 @@ void CFilterPageImpl::OnLButtonUp(UINT /*nFlags*/, CPoint point)
 			InsertFilter(item, filter);
 		}
 	}
+}
+
+void CFilterPageImpl::OnEnterSizeMove()
+{
+	RECT rect;
+	m_grid.GetWindowRect(&rect);
+	m_preResizeWidth = rect.right - rect.left;
+}
+
+void CFilterPageImpl::OnSize(UINT /*type*/, CSize size)
+{	
+	int newWidth = m_grid.GetColumnWidth(SubItem::Text) + size.cx - m_preResizeWidth;
+	m_grid.SetColumnWidth(SubItem::Text, newWidth);
+	m_preResizeWidth = size.cx;
+	SetMsgHandled(false);
 }
 
 LRESULT CFilterPageImpl::OnAddItem(NMHDR* /*pnmh*/)

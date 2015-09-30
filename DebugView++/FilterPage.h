@@ -43,6 +43,8 @@ public:
 	LRESULT OnDrag(NMHDR* phdr);
 	void OnMouseMove(UINT nFlags, CPoint point);
 	void OnLButtonUp(UINT nFlags, CPoint point);
+	void OnEnterSizeMove();
+	void OnSize(UINT type, CSize size);
 
 private:
 	void UpdateGridColors(int item);
@@ -70,6 +72,7 @@ private:
 	CImageList m_dragImage;
 	int m_dragItem;
 	std::unique_ptr<ScopedCursor> m_dragCursor;
+	int m_preResizeWidth;
 };
 
 class CFilterPage : public CFilterPageImpl
