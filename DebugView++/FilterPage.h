@@ -43,7 +43,6 @@ public:
 	LRESULT OnDrag(NMHDR* phdr);
 	void OnMouseMove(UINT nFlags, CPoint point);
 	void OnLButtonUp(UINT nFlags, CPoint point);
-	void OnEnterSizeMove();
 	void OnSize(UINT type, CSize size);
 
 private:
