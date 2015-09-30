@@ -6,7 +6,6 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <VersionHelpers.h>
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 
@@ -15,7 +14,10 @@ namespace debugviewpp {
 
 bool IsWindowsVistaOrGreater()
 {
-	return ::IsWindowsVistaOrGreater() != FALSE;
+	OSVERSIONINFO osvi = {0};
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&osvi);
+	return (osvi.dwMajorVersion > 5);
 }
 
 bool IsDBWinViewerActive()
