@@ -29,5 +29,11 @@
     <ClCompile Include="CobaltFusionTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestGuiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

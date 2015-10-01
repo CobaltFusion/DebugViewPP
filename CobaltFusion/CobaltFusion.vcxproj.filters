@@ -26,6 +26,15 @@
     <ClInclude Include="..\include\CobaltFusion\JobDispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CobaltFusion\Executor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CobaltFusion\SynchronizedQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CobaltFusion\GuiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -35,6 +44,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="JobDispatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiExecutor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
