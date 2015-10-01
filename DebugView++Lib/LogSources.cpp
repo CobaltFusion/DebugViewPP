@@ -5,9 +5,9 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
-
 #include "stdafx.h"
+#include <boost/algorithm/string.hpp>
+#include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/PipeReader.h"
@@ -20,11 +20,9 @@
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/Conversions.h"
-#include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/Loopback.h"
-#include <boost/algorithm/string.hpp>
 
 // class Logsources has a vector<LogSource> and start a thread for LogSources::Listen()
 // - Listen() exectues every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
@@ -42,7 +40,7 @@ LogSources::LogSources(bool startListening) :
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_linebuffer(64*1024),
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
-	m_handleCacheTime(0.0)
+	m_handleCacheTime(0)
 {
 	m_sources.push_back(m_loopback);
 	if (startListening)
@@ -92,11 +90,10 @@ std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
 {
 	std::vector<std::shared_ptr<LogSource>> sources;
 	boost::mutex::scoped_lock lock(m_mutex);
-	for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
+	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
 	{
-		if ((*i) == m_loopback)
-			continue;				
-		sources.push_back(*i);
+		if (*it != m_loopback)
+			sources.push_back(*it);
 	}
 	return sources;
 }
@@ -104,9 +101,9 @@ std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
 void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
-	for (auto i = m_sources.begin(); i != m_sources.end(); ++i)
+	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
 	{
-		(*i)->SetAutoNewLine(value);
+		(*it)->SetAutoNewLine(value);
 	}
 }
 
@@ -122,9 +119,9 @@ void LogSources::Abort()
 	boost::unique_lock<boost::mutex> lock(m_mutex);
 	auto sources = m_sources;
 	lock.unlock();
-	for (auto i = sources.begin(); i != sources.end(); ++i)
+	for (auto it = sources.begin(); it != sources.end(); ++it)
 	{
-		(*i)->Abort();
+		(*it)->Abort();
 	}
 	SetEvent(m_updateEvent.get());
 	m_listenThread.join();
@@ -198,7 +195,7 @@ void LogSources::WaitForNextEvent()
 				break;
 			else
 			{
-				assert((index < (int)sources.size()) && "res.index out of range");
+				assert((index < static_cast<int>(sources.size())) && "res.index out of range");
 				auto logsource = sources[index];
 				logsource->Notify();
 				if (logsource->AtEnd())
@@ -220,10 +217,9 @@ void LogSources::CheckForTerminatedProcesses()
 	// instead put them in the m_loopback buffer for processing.
 
 	auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcesses(m_handleCache.CleanupMap());
-	for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it )
+	for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it)
 	{
-		Line& line = *it;
-		m_loopback->AddMessage(line.pid, line.processName.c_str(), line.message.c_str());
+		m_loopback->AddMessage(it->pid, it->processName.c_str(), it->message.c_str());
 	}
 	if (!flushedLines.empty())
 		m_loopback->Signal();
@@ -236,7 +232,7 @@ Lines LogSources::GetLines()
 
 	auto inputLines = m_linebuffer.GetLines();
 	Lines lines;
-	for (auto it = inputLines.begin(); it != inputLines.end(); ++it )
+	for (auto it = inputLines.begin(); it != inputLines.end(); ++it)
 	{
 		auto inputLine = *it;
 		// let the logsource decide how to create processname
@@ -244,23 +240,21 @@ Lines LogSources::GetLines()
 		{
 			inputLine.logsource->PreProcess(inputLine);
 		}
-		
-		if (inputLine.handle != 0)
+
+		if (inputLine.handle != nullptr)
 		{
 			inputLine.pid = GetProcessId(inputLine.handle);
-			m_handleCache.Add(inputLine.pid, std::move(Handle(inputLine.handle)));
-			inputLine.handle = 0;
+			m_handleCache.Add(inputLine.pid, Handle(inputLine.handle));
+			inputLine.handle = nullptr;
 		}
 
 		// since a line can contain multiple newlines, processing 1 line can output
 		// multiple lines, in this case the timestamp for each line is the same.
 		auto processedLines = m_newlineFilter.Process(inputLine);
-		for (auto it = processedLines.begin(); it != processedLines.end(); ++it )
+		for (auto it = processedLines.begin(); it != processedLines.end(); ++it)
 		{
-			auto& line = *it;
-			const char* whitespace = " \r\n\t";
-			boost::trim_right_if(line.message, boost::is_any_of(whitespace));
-			line.message = TabsToSpaces(line.message);	// workaround for issue #173
+			boost::trim_right_if(it->message, boost::is_any_of(" \r\n\t"));
+//			it->message = TabsToSpaces(it->message);	// workaround for issue #173
 			lines.push_back(*it);
 		}
 	}

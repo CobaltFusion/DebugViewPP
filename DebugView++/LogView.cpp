@@ -9,14 +9,13 @@
 #include <iomanip>
 #include <array>
 #include <regex>
-#include <set>
+#include <unordered_set>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
 #include "DebugView++Lib/Conversions.h"
-#include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
@@ -449,8 +448,8 @@ int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
 	auto rect = GetSubItemRect(0, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
-//	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
-	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
+	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
+//	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
 	int index = GetTextOffset(dc, text, xPos - x0);
 	if (index < 0)
 		return xPos > x0 ? text.size() : 0;
@@ -465,8 +464,8 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 		return 0;
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
-//	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
-	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
+	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
+//	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
 
 	int begin = nFit;
 	while (begin > 0)
@@ -680,7 +679,7 @@ ItemData CLogView::GetItemData(int iItem) const
 	data.text[Column::Time] = GetItemWText(iItem, ColumnToSubItem(Column::Time));
 	data.text[Column::Pid] = GetItemWText(iItem, ColumnToSubItem(Column::Pid));
 	data.text[Column::Process] = GetItemWText(iItem, ColumnToSubItem(Column::Process));
-	auto text = m_logFile[m_logLines[iItem].line].text;	// TabsToSpaces removed here, see issue #173
+	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);	// TabsToSpaces removed here, see issue #173
 	data.highlights = GetHighlights(text);
 	data.text[Column::Message] = WStr(text).str();
 	data.color = GetTextColor(m_logFile[m_logLines[iItem].line]);
@@ -742,42 +741,6 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 		dc.DrawFocusRect(&rect);
 }
 
-template <typename CharT>
-void CopyItemText(const CharT* s, wchar_t* buf, size_t maxLen)
-{
-	assert(maxLen > 0);
-
-	for (int len = 0; len + 1U < maxLen && *s; ++s)
-	{
-		if (*s == '\t')
-		{
-			do
-			{
-				*buf++ = ' ';
-				++len;
-			}
-			while (len + 1U < maxLen && len % 4 != 0);
-		}
-		else
-		{
-			*buf++ = *s;
-			++len;
-		}
-	}
-
-	*buf = '\0';
-}
-
-void CopyItemText(const std::string& s, wchar_t* buf, size_t maxLen)
-{
-	CopyItemText(s.c_str(), buf, maxLen);
-}
-
-void CopyItemText(const std::wstring& s, wchar_t* buf, size_t maxLen)
-{
-	CopyItemText(s.c_str(), buf, maxLen);
-}
-
 std::string CLogView::GetColumnText(int iItem, Column::type column) const
 {
 	int line = m_logLines[iItem].line;
@@ -804,7 +767,6 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 
 	m_dispInfoText = WStr(GetColumnText(item.iItem, SubItemToColumn(item.iSubItem))).str();
 	item.pszText = const_cast<wchar_t*>(m_dispInfoText.c_str());
-//	CopyItemText(GetColumnText(item.iItem, SubItemToColumn(item.iSubItem)), item.pszText, item.cchTextMax);
 	return 0;
 }
 
@@ -936,7 +898,7 @@ void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*w
 {
 	auto messages = GetSelectedMessages();
 	int size = std::min(size_t(25), messages.size());
-	for (int i=0; i<size; ++i)
+	for (int i = 0; i < size; ++i)
 	{
 		m_filter.messageFilters.push_back(Filter(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
 	}
@@ -1019,7 +981,7 @@ void CLogView::OnViewPreviousProcess(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 
 void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
 {
-	std::set<std::string> names;
+	std::unordered_set<std::string> names;
 	int item = -1;
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
 		names.insert(m_logFile[m_logLines[item].line].processName);
