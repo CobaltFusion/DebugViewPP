@@ -66,7 +66,10 @@ public:
 	{
 		boost::unique_lock<boost::mutex> lock(m_mtx);
 		m_cond.wait(lock, [this] { return !m_buffer.Empty(); });
-		return m_buffer.Read();
+		char c = m_buffer.Read();
+		lock.unlock();
+		m_cond.notify_all();
+		return c;
 	}
 
 	void Write(char c)
@@ -74,18 +77,27 @@ public:
 		boost::unique_lock<boost::mutex> lock(m_mtx);
 		m_cond.wait(lock, [this] { return !m_buffer.Full(); });
 		m_buffer.Write(c);
+		lock.unlock();
+		m_cond.notify_all();
 	}
 
 	void Clear()
 	{
 		boost::unique_lock<boost::mutex> lock(m_mtx);
 		m_buffer.Clear();
+		lock.unlock();
+		m_cond.notify_all();
 	}
 
-	void Swap(CircularBuffer& cb)
+	void Swap(SynchronizedCircularBuffer& cb)
 	{
 		boost::unique_lock<boost::mutex> lock(m_mtx);
-		m_buffer.Swap(cb);
+		boost::unique_lock<boost::mutex> cbLock(cb.m_mtx);
+		m_buffer.Swap(cb.m_buffer);
+		cbLock.unlock();
+		lock.unlock();
+		cb.m_cond.notify_all();
+		m_cond.notify_all();
 	}
 
 	void WriteStringZ(const std::string& s)
@@ -93,6 +105,8 @@ public:
 		boost::unique_lock<boost::mutex> lock(m_mtx);
 		m_cond.wait(lock, [this, s] { return m_buffer.Available() > s.size(); });
 		m_buffer.WriteStringZ(s.c_str());
+		lock.unlock();
+		m_cond.notify_all();
 	}
 
 	void WriteStringZ(const std::string& s, const boost::chrono::system_clock::duration& timeout)
@@ -101,6 +115,8 @@ public:
 		if (!m_cond.wait_for(lock, timeout, [this, s] { return m_buffer.Available() > s.size(); }))
 			throw Timeout();
 		m_buffer.WriteStringZ(s.c_str());
+		lock.unlock();
+		m_cond.notify_all();
 	}
 
 	std::string ReadStringZ()
