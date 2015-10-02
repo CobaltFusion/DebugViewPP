@@ -19,14 +19,13 @@ namespace fusion {
 class CircularBuffer : boost::noncopyable
 {
 public:
-	explicit CircularBuffer(size_t size);
-	virtual ~CircularBuffer();
-	size_t Size() const;
+	explicit CircularBuffer(size_t capacity);
+	size_t Capacity() const;
 
-	virtual bool Empty() const;
-	virtual bool Full() const;
-	virtual size_t GetFree() const;
-	virtual size_t GetCount() const;
+	bool Empty() const;
+	bool Full() const;
+	size_t Available() const;
+	size_t Size() const;
 	
 	// Performance can be improved by doing block-operations, for example using a Duff-device
 	char Read();
@@ -38,48 +37,18 @@ public:
 	void Swap(CircularBuffer& circularBuffer);
 	void DumpStats();
 
-protected:
-    void NotifyWriter();
-
-	size_t NextPosition(size_t offset) const
-	{
-		return offset+1 == m_size ? 0 : offset+1;
-	}
-
-	const char* ReadPointer() const
-	{
-		return m_buffer.get() + m_readOffset;
-	}
-
-	char* WritePointer() const
-	{
-		return m_buffer.get() + m_writeOffset;
-	}
-
-	void IncreaseReadPointer()
-	{
-		m_readOffset = NextPosition(m_readOffset);
-	}
-
-	void IncreaseWritePointer()
-	{
-		m_writeOffset = NextPosition(m_writeOffset);
-	}
-
-	static int GetPowerOfTwo(int size);
-	void WaitForReader();
-	virtual void WaitForReaderTimeout();
-
 private:
-	void AssignBuffer(std::unique_ptr<char> buffer, size_t size, size_t readOffset, size_t writeOffset);
+	size_t NextPosition(size_t offset) const;
+	const char* ReadPointer() const;
+	char* WritePointer() const;
+	void IncreaseReadPointer();
+	void IncreaseWritePointer();
+	void AssignBuffer(std::unique_ptr<char[]> buffer, size_t size, size_t readOffset, size_t writeOffset);
 
-	size_t m_size;						// important: m_buffer must be initialized after m_size
-	std::unique_ptr<char> m_buffer;		//
+	size_t m_capacity; // important: m_buffer must be initialized after m_capacity
+	std::unique_ptr<char[]> m_buffer;
 	size_t m_readOffset;
 	size_t m_writeOffset;
-	boost::condition_variable m_triggerRead;
 };
-
-
 
 } // namespace fusion

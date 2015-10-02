@@ -51,33 +51,17 @@ namespace fusion {
 //   R                           W 
 
 
-CircularBuffer::CircularBuffer(size_t size) :
-	m_size(size),
-	m_buffer(new char[size]),
+CircularBuffer::CircularBuffer(size_t capacity) :
+	m_capacity(capacity),
+	m_buffer(new char[capacity + 1]),
 	m_readOffset(0),
 	m_writeOffset(0)
 {
 }
 
-CircularBuffer::~CircularBuffer()
+size_t CircularBuffer::Capacity() const
 {
-}
-
-int CircularBuffer::GetPowerOfTwo(int v)
-{
-	v--;	// decrement by one, so if the input is a power of two, we return the input value.
-	v |= v >> 1;
-	v |= v >> 2;
-	v |= v >> 4;
-	v |= v >> 8;
-	v |= v >> 16;
-	v++;
-	return v;
-}
-
-size_t CircularBuffer::Size() const
-{
-	return m_size;
+	return m_capacity;
 }
 
 bool CircularBuffer::Empty() const
@@ -85,18 +69,14 @@ bool CircularBuffer::Empty() const
 	return m_readOffset == m_writeOffset;
 }
 
-size_t CircularBuffer::GetFree() const
+size_t CircularBuffer::Available() const
 {
-	return (m_writeOffset < m_readOffset)
-                ? (m_readOffset - m_writeOffset) - 1
-                : (m_size - m_writeOffset) + m_readOffset - 1;
+	return m_writeOffset < m_readOffset ? m_readOffset - m_writeOffset - 1 : m_capacity - m_writeOffset + m_readOffset;
 }
 
-size_t CircularBuffer::GetCount() const
+size_t CircularBuffer::Size() const
 {
-	return (m_writeOffset >= m_readOffset)
-                ? m_writeOffset - m_readOffset
-                : (m_size - m_readOffset) + m_writeOffset;
+	return m_writeOffset < m_readOffset ? m_capacity + 1 - m_readOffset + m_writeOffset : m_writeOffset - m_readOffset;
 }
 
 bool CircularBuffer::Full() const
@@ -121,38 +101,39 @@ std::string CircularBuffer::ReadStringZ()
 void CircularBuffer::WriteStringZ(const char* message)
 {
 	//std::cerr << "  WriteStringZ\n";
-	for (size_t i=0; i < strlen(message); ++i)
-		Write(message[i]);
-	Write(0);
+	while (*message)
+	{
+		Write(*message);
+		++message;
+	}
+	Write('\0');
 	//std::cerr << "  WriteStringZ done\n";
 }
 
-void CircularBuffer::WaitForReader()
+size_t CircularBuffer::NextPosition(size_t offset) const
 {
-    auto predicate = [this] { return !Full(); };
-
-	while (Full())
-	{
-		boost::mutex waitingLock;
-		boost::unique_lock<boost::mutex> lock(waitingLock);
-		bool result = m_triggerRead.timed_wait(lock, boost::posix_time::seconds(1), predicate);
-		if (!result)
-		{
-			WaitForReaderTimeout();
-		}
-	}
+	return offset == m_capacity ? 0 : offset + 1;
 }
 
-void CircularBuffer::WaitForReaderTimeout()
+const char* CircularBuffer::ReadPointer() const
 {
-	// this method is overridden in a singlethreaded unittest
+	return m_buffer.get() + m_readOffset;
 }
 
-void CircularBuffer::NotifyWriter()
+char* CircularBuffer::WritePointer() const
 {
-    m_triggerRead.notify_all();
+	return m_buffer.get() + m_writeOffset;
 }
 
+void CircularBuffer::IncreaseReadPointer()
+{
+	m_readOffset = NextPosition(m_readOffset);
+}
+
+void CircularBuffer::IncreaseWritePointer()
+{
+	m_writeOffset = NextPosition(m_writeOffset);
+}
 
 void CircularBuffer::Clear()
 {
@@ -160,30 +141,19 @@ void CircularBuffer::Clear()
 	m_writeOffset = 0;
 }
 
-void CircularBuffer::Swap(CircularBuffer& circularBuffer)
+void CircularBuffer::Swap(CircularBuffer& cb)
 {
-	auto buffer = std::move(m_buffer);
-	auto size = m_size;
-	auto readOffset = m_readOffset;
-	auto writeOffset = m_writeOffset;
-	AssignBuffer(std::move(circularBuffer.m_buffer), circularBuffer.m_size, circularBuffer.m_readOffset, circularBuffer.m_writeOffset);
-	circularBuffer.AssignBuffer(std::move(buffer), size, readOffset, writeOffset);
-}
-
-void CircularBuffer::AssignBuffer(std::unique_ptr<char> buffer, size_t size, size_t readOffset, size_t writeOffset)
-{
-	m_buffer = std::move(buffer);
-	m_readOffset = readOffset;
-	m_writeOffset = writeOffset;
-	m_size = size;
+	std::swap(m_capacity, cb.m_capacity);
+	std::swap(m_buffer, cb.m_buffer);
+	std::swap(m_readOffset, cb.m_readOffset);
+	std::swap(m_writeOffset, cb.m_writeOffset);
 }
 
 char CircularBuffer::Read()
 {
 	if (Empty())
-	{
 		throw std::exception("Read from empty buffer!");
-	}
+
 	auto value = *ReadPointer();
 	//std::cerr << "  " << m_readOffset << " => " << unsigned int(unsigned char(value)) << "\n";
 	IncreaseReadPointer();
