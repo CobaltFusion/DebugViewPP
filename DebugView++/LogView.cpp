@@ -347,7 +347,7 @@ int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 	SIZE size;
 	if (!GetTextExtentExPointA(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
 		return 0;
-	return SkipTabsOffset(s, nFit);
+	return SkipTabOffset(s, nFit);
 }
 
 int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
@@ -357,7 +357,7 @@ int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
 	SIZE size;
 	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
 		return 0;
-	return SkipTabsOffset(s, nFit);
+	return SkipTabOffset(s, nFit);
 }
 
 bool iswordchar(int c)
@@ -585,8 +585,9 @@ void InsertHighlight(std::vector<Highlight>& highlights, const std::string& text
 		auto range = boost::algorithm::ifind_first(line, match);
 		if (range.empty())
 			break;
-
-		InsertHighlight(highlights, Highlight(1, range.begin() - text.begin(), range.end() - text.begin(), color));
+		int begin = ExpandedTabOffset(text, range.begin() - text.begin());
+		int end = ExpandedTabOffset(text, range.end() - text.begin());
+		InsertHighlight(highlights, Highlight(1, begin, end, color));
 		line = boost::make_iterator_range(range.end(), line.end());
 	}
 }
@@ -614,15 +615,18 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			}
 			for (int i = first; i < count; ++i)
 			{
+				int begin = ExpandedTabOffset(text, tok->position(i));
+				int end = ExpandedTabOffset(text, tok->position(i) + tok->length(i));
+
 				if (it->bgColor == Colors::Auto)
 				{
 					auto itc = m_matchColors.find(tok->str(i));
 					if (itc != m_matchColors.end())
-						InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), TextColor(itc->second, Colors::Text)));
+						InsertHighlight(highlights, Highlight(id, begin, end, TextColor(itc->second, Colors::Text)));
 				}
 				else
 				{
-					InsertHighlight(highlights, Highlight(id, tok->position(i), tok->position(i) + tok->length(i), TextColor(it->bgColor, it->fgColor)));
+					InsertHighlight(highlights, Highlight(id, begin, end, TextColor(it->bgColor, it->fgColor)));
 				}
 			}
 		}
@@ -677,7 +681,7 @@ ItemData CLogView::GetItemData(int iItem) const
 	data.text[Column::Pid] = GetItemWText(iItem, ColumnToSubItem(Column::Pid));
 	data.text[Column::Process] = GetItemWText(iItem, ColumnToSubItem(Column::Process));
 	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
-	data.highlights = GetHighlights(text);
+	data.highlights = GetHighlights(m_logFile[m_logLines[iItem].line].text);
 	data.text[Column::Message] = WStr(text).str();
 	data.color = GetTextColor(m_logFile[m_logLines[iItem].line]);
 	return data;

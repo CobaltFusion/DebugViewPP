@@ -37,10 +37,25 @@ std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tab
 }
 
 template <typename CharT>
-int SkipTabsOffset(const std::basic_string<CharT>& s, int offset, int tabsize = 4)
+int SkipTabOffset(const std::basic_string<CharT>& s, int offset, int tabsize = 4)
 {
 	int pos = 0;
 	for (auto it = s.begin(); it != s.end() && pos < offset; ++it)
+	{
+		if (*it == CharT('\t'))
+			pos += tabsize - pos % tabsize;
+		else
+			++pos;
+	}
+	return pos;
+}
+
+template <typename CharT>
+int ExpandedTabOffset(const std::basic_string<CharT>& s, int offset, int tabsize = 4)
+{
+	int i = 0;
+	int pos = 0;
+	for (auto it = s.begin(); it != s.end() && i < offset; ++it, ++i)
 	{
 		if (*it == CharT('\t'))
 			pos += tabsize - pos % tabsize;
