@@ -342,20 +342,22 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 
 int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 {
+	auto exp = TabsToSpaces(s);
 	int nFit;
 	SIZE size;
-	if (!GetTextExtentExPointA(hdc, s.c_str(), s.size(), xPos, &nFit, nullptr, &size) || nFit < 0 || nFit >= static_cast<int>(s.size()))
-		return -1;
-	return nFit;
+	if (!GetTextExtentExPointA(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
+		return 0;
+	return SkipTabsOffset(s, nFit);
 }
 
 int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
 {
+	auto exp = TabsToSpaces(s);
 	int nFit;
 	SIZE size;
-	if (!GetTextExtentExPointW(hdc, s.c_str(), s.size(), xPos, &nFit, nullptr, &size) || nFit < 0 || nFit >= static_cast<int>(s.size()))
-		return -1;
-	return nFit;
+	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
+		return 0;
+	return SkipTabsOffset(s, nFit);
 }
 
 bool iswordchar(int c)
@@ -448,12 +450,8 @@ int CLogView::GetTextIndex(CDCHandle dc, int iItem, int xPos) const
 	auto rect = GetSubItemRect(0, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	int x0 = rect.left + GetHeader().GetBitmapMargin();
 
-	auto text = TabsToSpaces(GetItemWText(iItem, ColumnToSubItem(Column::Message)));
-//	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
-	int index = GetTextOffset(dc, text, xPos - x0);
-	if (index < 0)
-		return xPos > x0 ? text.size() : 0;
-	return index;
+	auto text = GetItemWText(iItem, ColumnToSubItem(Column::Message));
+	return GetTextOffset(dc, text, xPos - x0);
 }
 
 LRESULT CLogView::OnDblClick(NMHDR* pnmh)
@@ -465,7 +463,6 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
 
 	int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
 	auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
-//	auto text = GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message));	// TabsToSpaces removed here, see issue #173
 
 	int begin = nFit;
 	while (begin > 0)
@@ -679,7 +676,7 @@ ItemData CLogView::GetItemData(int iItem) const
 	data.text[Column::Time] = GetItemWText(iItem, ColumnToSubItem(Column::Time));
 	data.text[Column::Pid] = GetItemWText(iItem, ColumnToSubItem(Column::Pid));
 	data.text[Column::Process] = GetItemWText(iItem, ColumnToSubItem(Column::Process));
-	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);	// TabsToSpaces removed here, see issue #173
+	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
 	data.highlights = GetHighlights(text);
 	data.text[Column::Message] = WStr(text).str();
 	data.color = GetTextColor(m_logFile[m_logLines[iItem].line]);
@@ -1662,7 +1659,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
 	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
 	{
 		std::smatch match;
-		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, match, it->re))	// TabsToSpaces removed here, see issue #173
+		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, match, it->re))
 		{
 			if (it->bgColor == Colors::Auto)
 			{
