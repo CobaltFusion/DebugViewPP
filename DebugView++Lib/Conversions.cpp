@@ -59,9 +59,9 @@ SYSTEMTIME GetSystemTime(WORD year, WORD month, WORD day)
 	return st;
 }
 
-USTimeConverter::USTimeConverter()
-	: m_lastFileTime(FILETIME())
-	, m_firstValue(true)
+USTimeConverter::USTimeConverter() :
+	m_lastFileTime(),
+	m_firstValue(true)
 {
 }
 
@@ -131,7 +131,6 @@ bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME&
 	ft = USTimeToFiletime(h, m, s, ms);
 	return true;
 }
-
 
 } // namespace debugviewpp 
 } // namespace fusion

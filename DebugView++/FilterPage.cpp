@@ -129,7 +129,7 @@ void CFilterPageImpl::AddFilter(const Filter& filter)
 BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
-	m_grid.InsertColumn(SubItem::Text, L"Filter", LVCFMT_LEFT, 194, 0, -1, 1);
+	m_grid.InsertColumn(SubItem::Text, L"Filter", LVCFMT_LEFT, 174, 0, -1, 1);
 	m_grid.InsertColumn(SubItem::Enable, L"", LVCFMT_LEFT, 32, 0, -1, 0);
 	m_grid.InsertColumn(SubItem::Match, L"Match", LVCFMT_LEFT, 76, 0, -1, 2);
 	m_grid.InsertColumn(SubItem::Type, L"Type", LVCFMT_LEFT, 48, 0, -1, 3);
@@ -143,6 +143,13 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	m_grid.GetWindowRect(&rect);
 	m_preResizeWidth = rect.right - rect.left;
 	DlgResize_Init(false);
+
+	// focus last item, 1) so mouse-wheel scrolling works 2) because if there are many filters, mostly likely the user wants to edit a recently added filter
+
+    // TODO: does't work
+	//m_grid.SetFocus();
+	//m_grid.SelectItem(m_grid.GetItemCount() - 1); 
+
 	return TRUE;
 }
 
