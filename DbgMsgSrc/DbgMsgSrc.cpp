@@ -42,7 +42,7 @@ void DbgMsgTest()
 	OutputDebugStringA("Message 3 with newline\n");
 	OutputDebugStringA("Message with\nembedded newline\n");
 	OutputDebugStringA("This should look like a table in a non-proportionally spaced font like 'Courier'");
-	OutputDebugStringA("Colomn1\tColomn2\tColomn3\tColomn4\tColomn5");
+	OutputDebugStringA("Columnn1\tColumnn2\tColumnn3\tColumnn4\tColumnn5");
 	OutputDebugStringA("1\t\t2\t\t3\t\t4\t\t5");
 	OutputDebugStringA("A\t\tB\t\tC\t\tD\t\tE");
 	OutputDebugStringA("11\t\t12\t\t13\t\t14\t\t15");

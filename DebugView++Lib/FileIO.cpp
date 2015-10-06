@@ -163,7 +163,7 @@ FileType::type IdentifyFile(std::string filename)
 			return FileType::AsciiText;
 
 		// if the second line contains 2 or 3 tabs characters, we say it's a sysinternals debugview-logfile 
-		// two kinds of lines are logged, kernel message lines and process message lines, the latter have an extra PID colomn
+		// two kinds of lines are logged, kernel message lines and process message lines, the latter have an extra PID Columnn
 		auto tabs = std::count(line.begin(), line.end(), '\t');
 		if (tabs == 2 || tabs == 3)
 			return FileType::Sysinternals;
@@ -306,7 +306,7 @@ void OpenLogFile(std::ofstream& ofstream, std::string filename, bool truncate)
 	
 	if (truncate)
 	{
-		// intentionally maintain the same amount of colomns, so it is always easy to parse by csv import tools
+		// intentionally maintain the same amount of Columnns, so it is always easy to parse by csv import tools
 		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
 	}
 }

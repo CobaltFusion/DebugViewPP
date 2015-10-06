@@ -41,8 +41,8 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 
 namespace Magic
 {
-	const int ColomnOneMark = 1;
-	const int ColomnTwoMark = 2;
+	const int ColumnnOneMark = 1;
+	const int ColumnnTwoMark = 2;
 	const int Base = 0x83050000;
 	const int CaptureKernelEnable = Base + 0x00;              // 0
 	const int CaptureKernelDisable = Base + 0x04;             // 1
@@ -133,10 +133,10 @@ void DbgviewReader::Loop()
 			auto qpcTime = Read<long long>(ss);
 			auto time = timer.Get(qpcTime);
 
-			if (buffer[20] == Magic::ColomnOneMark)
+			if (buffer[20] == Magic::ColumnnOneMark)
 			{
 				unsigned char c1, c2;
-				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::ColomnOneMark && c2 == Magic::ColomnTwoMark))
+				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::ColumnnOneMark && c2 == Magic::ColumnnTwoMark))
 				{
 					Add(0, processName, "<error parsing pid>\n");
 					break;
