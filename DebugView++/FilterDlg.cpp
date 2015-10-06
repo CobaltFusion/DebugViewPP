@@ -148,7 +148,8 @@ BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	CenterWindow(GetParent());
 	DlgResize_Init();
 
-	return TRUE;
+	GotoDlgCtrl(m_tabCtrl.GetDlgItem(0));
+	return FALSE;
 }
 
 void CFilterDlg::OnDestroy()

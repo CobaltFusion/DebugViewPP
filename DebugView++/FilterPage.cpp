@@ -145,11 +145,8 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	DlgResize_Init(false);
 
 	// focus last item, 1) so mouse-wheel scrolling works 2) because if there are many filters, mostly likely the user wants to edit a recently added filter
-
-    // TODO: does't work
-	//m_grid.SetFocus();
-	//m_grid.SelectItem(m_grid.GetItemCount() - 1); 
-
+	auto lastItem = m_grid.GetItemCount() - 1;
+	m_grid.SelectItem(lastItem);
 	return TRUE;
 }
 
