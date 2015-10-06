@@ -1169,7 +1169,7 @@ void CMainFrame::OnViewFind(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CFontDialog dlg(&m_logfont);
+	CFontDialog dlg(&m_logfont, CF_SCREENFONTS);
 	if (dlg.DoModal(*this) == IDOK)
 	{
 		m_logfont = dlg.m_lf;
