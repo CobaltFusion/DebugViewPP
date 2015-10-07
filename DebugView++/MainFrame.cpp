@@ -12,6 +12,8 @@
 #include <boost/utility.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include "CobaltFusion/scope_guard.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
@@ -72,6 +74,8 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
 	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)	
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
+	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_PROJECT, OnFileLoadProject)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_PROJECT, OnFileSaveProject)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
@@ -110,6 +114,9 @@ CMainFrame::CMainFrame() :
 	m_hide(false),
 	m_lineBuffer(7000),
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
+	m_logFileName(L"DebugView++.dblog"),
+	m_txtFileName(L"MessagesInTheCurrentView.dblog"),
+	m_projectFileName(L"DebugView++.dbproj"),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
 	m_logSources(true),
@@ -795,10 +802,34 @@ void CMainFrame::SaveViewFile(const std::wstring& filename)
 	UpdateStatusBar();
 }
 
+void CMainFrame::LoadProject(const std::wstring& fileName)
+{
+}
+
+boost::property_tree::ptree MakePTree()
+{
+	boost::property_tree::ptree pt;
+	pt.put("AutoNewline", true);
+	pt.put("LinkViews", true);
+	return pt;
+}
+
+void CMainFrame::SaveProject(const std::wstring& fileName)
+{
+#if BOOST_VERSION < 105600
+	boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+#else
+	boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
+#endif
+
+	boost::property_tree::ptree pt;
+	pt.put_child("DebugViewPP", MakePTree());
+	boost::property_tree::write_xml(Str(fileName), pt, std::locale(), settings);
+}
+
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"DebugView++.dblog";
-	CFileOptionDlg dlg(true, L"Keep file open", L".dblog", filename.c_str(), OFN_FILEMUSTEXIST,
+	CFileOptionDlg dlg(true, L"Keep file open", L".dblog", m_logFileName.c_str(), OFN_FILEMUSTEXIST,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"DebugView Log Files (*.log)\0*.log\0"
 		L"All Files (*.*)\0*.*\0\0",
@@ -890,8 +921,7 @@ void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring filename = !m_logFileName.empty() ? m_logFileName : L"AllMessagesInMemory.dblog";
-	CFileDialog dlg(false, L".dblog", filename.c_str(), OFN_OVERWRITEPROMPT,
+	CFileDialog dlg(false, L".dblog", m_logFileName.c_str(), OFN_OVERWRITEPROMPT,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"All Files (*.*)\0*.*\0\0", 0);
 	dlg.m_ofn.nFilterIndex = 0;
@@ -902,14 +932,33 @@ void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 
 void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	std::wstring filename = !m_txtFileName.empty() ? m_txtFileName : L"MessagesInTheCurrentView.dblog";
-	CFileDialog dlg(false, L".dblog", filename.c_str(), OFN_OVERWRITEPROMPT,
+	CFileDialog dlg(false, L".dblog", m_txtFileName.c_str(), OFN_OVERWRITEPROMPT,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
-		L"All Files (*.*)\0*.*\0\0", 0);
+		L"All Files (*.*)\0*.*\0\0");
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save the messages in the current view";
 	if (dlg.DoModal() == IDOK)
 		SaveViewFile(dlg.m_szFileName);
+}
+
+void CMainFrame::OnFileLoadProject(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CFileDialog dlg(true, L".dbproj", m_projectFileName.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"DebugView++ Project Files (*.dbproj)\0*.dbproj\0\0");
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Load View Configuration";
+	if (dlg.DoModal() == IDOK)
+		LoadProject(dlg.m_szFileName);
+}
+
+void CMainFrame::OnFileSaveProject(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CFileDialog dlg(false, L".dbproj", m_projectFileName.c_str(), OFN_OVERWRITEPROMPT,
+		L"DebugView++ Project Files (*.dbproj)\0*.dbproj\0\0");
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Save View Configuration";
+	if (dlg.DoModal() == IDOK)
+		SaveProject(dlg.m_szFileName);
 }
 
 void CMainFrame::ClearLog()
