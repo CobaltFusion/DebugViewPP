@@ -40,7 +40,6 @@ LogSources::LogSources(bool startListening) :
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_linebuffer(64*1024),
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
-	m_handleCacheTime(0),
 	m_dirty(false)
 {
 	m_sources.push_back(m_loopback);
@@ -172,6 +171,8 @@ void LogSources::DelayedUpdate()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
+	m_guiExecutor.CallEvery(boost::chrono::seconds(5), [this]() { CheckForTerminatedProcesses(); });
+
 	for (;;)
 	{
 		ListenUntilUpdateEvent();
@@ -234,11 +235,8 @@ void LogSources::ListenUntilUpdateEvent()
 
 void LogSources::CheckForTerminatedProcesses()
 {
-	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
-		return;
-	
-	// add messages to inputLines would mess up the timestamp-order
-	// instead put them in the m_loopback buffer for processing.
+	// adding messages to inputLines would mess up the timestamp-order,
+	// so instead put them in the m_loopback buffer for processing.
 
 	auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcesses(m_handleCache.CleanupMap());
 	for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it)
@@ -247,13 +245,10 @@ void LogSources::CheckForTerminatedProcesses()
 	}
 	if (!flushedLines.empty())
 		m_loopback->Signal();
-	m_handleCacheTime = m_timer.Get();
 }
 
 Lines LogSources::GetLines()
 {
-	CheckForTerminatedProcesses();
-
 	auto inputLines = m_linebuffer.GetLines();
 	Lines lines;
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it)

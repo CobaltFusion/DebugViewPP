@@ -85,7 +85,6 @@ private:
 	NewlineFilter m_newlineFilter;
 	std::shared_ptr<Loopback> m_loopback;
 	Timer m_timer;
-	double m_handleCacheTime;
 
 	GuiExecutor m_guiExecutor;
 	bool m_dirty;
