@@ -898,7 +898,7 @@ void CLogView::ResetToLine(int line)
 void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	auto messages = GetSelectedMessages();
-	int size = std::min(size_t(25), messages.size());
+	int size = std::min(size_t(100), messages.size());
 	for (int i = 0; i < size; ++i)
 	{
 		m_filter.messageFilters.push_back(Filter(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
