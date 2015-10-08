@@ -382,9 +382,7 @@ bool CMainFrame::OnUpdate()
 {
 	auto lines = m_logSources.GetLines();
 	if (lines.empty())
-	{
 		return false;
-	}
 	ProcessLines(lines);
 	return true;
 }

@@ -148,14 +148,20 @@ void LogSources::OnUpdate()
 
 void LogSources::DelayedUpdate()
 {
-	if (m_update())
+	auto receivedLines = m_update();
+	if (!receivedLines)
+		return;
+
+	if (receivedLines.get())	// get the actual return value
 	{
+		// messages where received, schedule next update
 		m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { DelayedUpdate(); });
 	}
 	else
 	{
+		// no more messages where received
 		m_dirty = false;
-		// schedule another update to workaround the race-condition writing to m_dirty
+		// schedule one more update to workaround the race-condition writing to m_dirty
 		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
 		m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { m_update(); });
 	}
