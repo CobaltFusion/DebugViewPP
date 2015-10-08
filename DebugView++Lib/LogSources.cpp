@@ -40,7 +40,8 @@ LogSources::LogSources(bool startListening) :
 	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
 	m_linebuffer(64*1024),
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
-	m_handleCacheTime(0)
+	m_handleCacheTime(0),
+	m_dirty(false)
 {
 	m_sources.push_back(m_loopback);
 	if (startListening)
@@ -132,33 +133,48 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
+boost::signals2::connection LogSources::SubscribeToUpdate(std::function<bool()> func)
+{
+	return m_update.connect(func);
+}
+
+const long graceTimeMs = 40;	// 40ms -> intentionally near what the human eye can still perceive
+
+void LogSources::OnUpdate()
+{
+	m_dirty = true;
+	m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { DelayedUpdate(); });
+}
+
+void LogSources::DelayedUpdate()
+{
+	if (m_update())
+	{
+		m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { DelayedUpdate(); });
+	}
+	else
+	{
+		m_dirty = false;
+		// schedule another update to workaround the race-condition writing to m_dirty
+		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
+		m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { m_update(); });
+	}
+}
+
 // default behaviour: 
 // LogSources starts with 1 logsource, the loopback source
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-	bool dirty = false;
-	const long graceTimeMs = 40;
 	for (;;)
 	{
-		WaitForNextEvent();
-		
-		if (!dirty)
-		{
-			//GuiExecutor::CallAfter(graceTimeMs, [dirty] { 
-			//	m_updateTrigger();
-			//	GuiExecutor::CallAfter(10, [dirty] { m_updateTrigger(); dirty = false; }
-			//});
-			dirty = true;
-		}
-		// todo: protect dirty against races
-
+		ListenUntilUpdateEvent();
 		if (m_end)
 			break;
 	}
 }
 
-void LogSources::WaitForNextEvent()
+void LogSources::ListenUntilUpdateEvent()
 {
 	std::vector<HANDLE> waitHandles;
 	std::vector<std::shared_ptr<LogSource>> sources;
@@ -203,6 +219,8 @@ void LogSources::WaitForNextEvent()
 					InternalRemove(logsource);
 					break;
 				}
+				if (!m_dirty)
+					OnUpdate();
 			}
 		}
 	}

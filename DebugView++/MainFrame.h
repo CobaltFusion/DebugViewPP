@@ -122,7 +122,7 @@ private:
 
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
-	void OnTimer(UINT_PTR nIDEvent);
+	bool OnUpdate();
 	bool OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void ProcessLines(const Lines& lines);
 
@@ -222,7 +222,6 @@ private:
 	std::shared_ptr<DBWinReader> m_pGlobalReader;
 	std::shared_ptr<DbgviewReader> m_pDbgviewReader;
 	std::vector<SourceInfo> m_sourceInfos;
-	bool m_skipStatusUpdate;
 };
 
 } // namespace debugviewpp 

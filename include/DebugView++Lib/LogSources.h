@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <boost/signals2.hpp>
+
 #pragma warning(push, 1)
 #include <boost/thread.hpp>
 #pragma warning(pop)
@@ -15,6 +17,7 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "CobaltFusion/CircularBuffer.h"
+#include "CobaltFusion/GuiExecutor.h"
 #include "DebugView++Lib/NewlineFilter.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
@@ -46,7 +49,7 @@ public:
 
 	void Reset();
 	void Listen();
-	void WaitForNextEvent();
+	void ListenUntilUpdateEvent();
 	void Abort();
 	Lines GetLines();
 	void Remove(std::shared_ptr<LogSource> logsource);
@@ -63,11 +66,14 @@ public:
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);
+	boost::signals2::connection SubscribeToUpdate(std::function<bool()> func);
 
 private:
 	void UpdateSettings(std::shared_ptr<LogSource> source);
 	void Add(std::shared_ptr<LogSource> source);
 	void CheckForTerminatedProcesses();
+	void OnUpdate();
+	void DelayedUpdate();
 
 	bool m_autoNewLine;
 	boost::mutex m_mutex;
@@ -80,6 +86,10 @@ private:
 	std::shared_ptr<Loopback> m_loopback;
 	Timer m_timer;
 	double m_handleCacheTime;
+
+	GuiExecutor m_guiExecutor;
+	bool m_dirty;
+	boost::signals2::signal<bool()> m_update;
 
 	// make sure this thread is last to initialize
 	boost::thread m_listenThread;
