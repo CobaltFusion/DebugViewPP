@@ -432,8 +432,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	Pause();
 	SetTitle(L"Monitoring File(s)");
 	using boost::algorithm::iequals;
-	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
-
+	auto ext = boost::filesystem::wpath(file).extension().wstring();
 	if (iequals(ext, L".exe"))
 	{
 		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
@@ -446,7 +445,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	}
 	else
 	{
-		if (IsBinaryFileType(IdentifyFile(Str(file))))
+		if (IsBinaryFileType(IdentifyFile(file)))
 		{
 			m_logSources.AddBinaryFileReader(file);
 		}
@@ -770,7 +769,7 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	std::ofstream fs;
-	OpenLogFile(fs, Str(filename));
+	OpenLogFile(fs, filename);
 	int count = m_logFile.Count();
 	for (int i = 0; i < count; ++i)
 	{

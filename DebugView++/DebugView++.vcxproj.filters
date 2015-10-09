@@ -74,9 +74,6 @@
     <ClInclude Include="LogView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GuiThread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AboutDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>

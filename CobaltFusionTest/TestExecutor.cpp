@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(TestExecutor)
 	auto f = exec.CallAsync([]() { return 2 + 2; });
 	BOOST_CHECK_EQUAL(f.get(), 4);
 
-	auto now = boost::chrono::steady_clock::now();
+	auto now = Executor::Clock::now();
 
 	std::vector<int> vec;
 	auto timer = exec.CallAt(now + boost::chrono::milliseconds(600), [&vec]() { vec.push_back(10); });

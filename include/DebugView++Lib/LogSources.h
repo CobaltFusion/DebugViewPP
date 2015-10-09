@@ -41,6 +41,8 @@ typedef std::vector<HANDLE> LogSourceHandles;
 class LogSources
 {
 public:
+	typedef boost::signals2::signal<bool ()> Update;
+
 	explicit LogSources(bool startListening = false);
 	~LogSources();
 
@@ -66,7 +68,7 @@ public:
 	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
 	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);
-	boost::signals2::connection SubscribeToUpdate(std::function<bool()> func);
+	boost::signals2::connection SubscribeToUpdate(Update::slot_type slot);
 
 private:
 	void UpdateSettings(std::shared_ptr<LogSource> source);
@@ -88,7 +90,7 @@ private:
 
 	GuiExecutor m_guiExecutor;
 	bool m_dirty;
-	boost::signals2::signal<bool()> m_update;
+	Update m_update;
 
 	// make sure this thread is last to initialize
 	boost::thread m_listenThread;

@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	std::string TabSplitter::GetNext()
+	std::string GetNext()
 	{
 		auto it = std::find(m_it, m_end, '\t');
 		std::string s(m_it, it);
@@ -37,7 +37,7 @@ public:
 		return s;
 	}
 
-	std::string TabSplitter::GetTail() const
+	std::string GetTail() const
 	{
 		return std::string(m_it, m_end);
 	}
@@ -89,27 +89,19 @@ std::string FileTypeToString(FileType::type value)
 {
 	switch (value)
 	{
-	case FileType::DebugViewPP1:
-		return "DebugView++ Logfile v1";
-	case FileType::DebugViewPP2:
-		return "DebugView++ Logfile v2";
-	case FileType::Sysinternals:
-		return "Sysinternals Debugview Logfile";
-	case FileType::AsciiText:
-		return "Ascii text file";
-	case FileType::UTF8:
-		return "Unicode UTF-8";
-	case FileType::UTF16BE:
-		return "Unicode UTF16BE";
-	case FileType::UTF16LE:
-		return "Unicode UTF16LE";
-	default:
-		break;
+	case FileType::DebugViewPP1: return "DebugView++ Logfile v1";
+	case FileType::DebugViewPP2: return "DebugView++ Logfile v2";
+	case FileType::Sysinternals: return "Sysinternals Debugview Logfile";
+	case FileType::AsciiText: return "ASCII text file";
+	case FileType::UTF8: return "Unicode UTF-8";
+	case FileType::UTF16BE: return "Unicode UTF16BE";
+	case FileType::UTF16LE: return "Unicode UTF16LE";
+	default: break;
 	}
 	return "Unimplemented file type";
 }
 
-FileType::type IdentifyFile(std::string filename)
+FileType::type IdentifyFile(const std::wstring& filename)
 {
 	{
 		// Encoding detection is very complex, see #107
@@ -130,7 +122,7 @@ FileType::type IdentifyFile(std::string filename)
 		}
 	}
 
-	std::ifstream is(filename, std::ios::in);
+	std::ifstream is(filename);
 	std::string line;
 	if (!std::getline(is, line))
 		return FileType::Unknown;
@@ -148,13 +140,11 @@ FileType::type IdentifyFile(std::string filename)
 
 	// if the extention is .txt (and we did not find our own header)
 	// we say it is an ascii-file.
-	auto str = filename;
-	boost::to_lower(str);
-	if (boost::ends_with(str, ".txt"))
+	if (boost::iends_with(filename, ".txt"))
 		return FileType::AsciiText;
 
 	// .log files are potentially sysinternals dbgview files
-	if (boost::ends_with(str, ".log"))
+	if (boost::iends_with(filename, ".log"))
 	{
 		// to test for sysinternals debugview-logfiles, we need to check the second line 
 		// since the first line contains the computer-name in some cases (depending on how it was saved)
@@ -277,7 +267,7 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 		line.systemTime = MakeFileTime(split.GetNext());
 		line.pid = boost::lexical_cast<DWORD>(split.GetNext());
 		line.processName = split.GetNext();
-		line.message = TabsToSpaces(split.GetTail());		// workaround for issue #173
+		line.message = split.GetTail();
 	}
 	catch (std::exception& e)
 	{
@@ -293,18 +283,11 @@ std::ostream& operator<<(std::ostream& os, const FILETIME& ft)
 	return os << ((hi << 32) | lo);
 }
 
-void OpenLogFile(std::ofstream& ofstream, std::string filename, bool truncate)
+void OpenLogFile(std::ofstream& ofstream, const std::wstring& filename, OpenMode::type mode)
 {
-	if (truncate)
-	{
-		ofstream.open(filename, std::ofstream::trunc);
-	}
-	else	// append
-	{
-		ofstream.open(filename, std::ofstream::app);
-	}
+	ofstream.open(filename, mode == OpenMode::Truncate ? std::ofstream::trunc : std::ofstream::app);
 	
-	if (truncate)
+	if (mode == OpenMode::Truncate)
 	{
 		// intentionally maintain the same amount of Columnns, so it is always easy to parse by csv import tools
 		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);

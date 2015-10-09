@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
+#include "Win32Lib/Win32Lib.h"
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/ProcessReader.h"
@@ -32,12 +33,12 @@
 namespace fusion {
 namespace debugviewpp {
 
-const double g_handleCacheTimeout = 5.0; //seconds
+const boost::chrono::seconds handleCacheTimeout(5);
 
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
 	m_autoNewLine(true),
-	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
+	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
 	m_linebuffer(64*1024),
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
 	m_dirty(false)
@@ -132,17 +133,17 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
-boost::signals2::connection LogSources::SubscribeToUpdate(std::function<bool()> func)
+boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot)
 {
-	return m_update.connect(func);
+	return m_update.connect(slot);
 }
 
-const long graceTimeMs = 40;	// 40ms -> intentionally near what the human eye can still perceive
+const boost::chrono::milliseconds graceTime(40); // -> intentionally near what the human eye can still perceive
 
 void LogSources::OnUpdate()
 {
 	m_dirty = true;
-	m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { DelayedUpdate(); });
+	m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 }
 
 void LogSources::DelayedUpdate()
@@ -154,7 +155,7 @@ void LogSources::DelayedUpdate()
 	if (receivedLines.get())	// get the actual return value
 	{
 		// messages where received, schedule next update
-		m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { DelayedUpdate(); });
+		m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 	}
 	else
 	{
@@ -162,7 +163,7 @@ void LogSources::DelayedUpdate()
 		m_dirty = false;
 		// schedule one more update to workaround the race-condition writing to m_dirty
 		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
-		m_guiExecutor.CallAfter(boost::chrono::milliseconds(graceTimeMs), [this]() { m_update(); });
+		m_guiExecutor.CallAfter(graceTime, [this]() { m_update(); });
 	}
 }
 
@@ -171,7 +172,7 @@ void LogSources::DelayedUpdate()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-	m_guiExecutor.CallEvery(boost::chrono::seconds(5), [this]() { CheckForTerminatedProcesses(); });
+	m_guiExecutor.CallEvery(handleCacheTimeout, [this]() { CheckForTerminatedProcesses(); });
 
 	for (;;)
 	{
@@ -304,14 +305,14 @@ std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& 
 // AddFileReader() is never used
 std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
 {
-	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, IdentifyFile(Str(filename)), filename);
+	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, IdentifyFile(filename), filename);
 	Add(filereader);
 	return filereader;
 }
 
 std::shared_ptr<BinaryFileReader> LogSources::AddBinaryFileReader(const std::wstring& filename)
 {
-	auto filetype = IdentifyFile(Str(filename));
+	auto filetype = IdentifyFile(filename);
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 	auto filereader = std::make_shared<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
 	Add(filereader);
@@ -322,7 +323,7 @@ std::shared_ptr<BinaryFileReader> LogSources::AddBinaryFileReader(const std::wst
 // we should choose to either rename DBLogReader, or move the FileType::AsciiText out of DBLogReader
 std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
 {
-	auto filetype = IdentifyFile(Str(filename));
+	auto filetype = IdentifyFile(filename);
 	if (filetype == FileType::Unknown)
 	{
 		AddMessage(stringbuilder() << "Unable to open '" << filename <<"'\n");

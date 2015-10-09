@@ -1542,7 +1542,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 void CLogView::Save(const std::wstring& filename) const
 {
 	std::ofstream fs;
-	OpenLogFile(fs, Str(filename));
+	OpenLogFile(fs, filename);
 
 	int lines = GetItemCount();
 	for (int i = 0; i < lines; ++i)
