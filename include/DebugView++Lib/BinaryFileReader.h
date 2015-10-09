@@ -33,7 +33,7 @@ public:
 	virtual void AddLine(const std::string& line);
 
 protected:
-	std::string m_filename;
+	std::wstring m_filename;
 	std::string m_name;
 	FileType::type m_fileType;
 
@@ -43,7 +43,7 @@ private:
 	bool m_end;
 	ChangeNotificationHandle m_handle;
 	std::wifstream m_wifstream;
-	std::string m_filenameOnly;
+	std::wstring m_filenameOnly;
 	bool m_initialized;
 };
 

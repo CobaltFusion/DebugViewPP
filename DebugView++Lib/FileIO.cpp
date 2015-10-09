@@ -269,9 +269,9 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 		line.processName = split.GetNext();
 		line.message = split.GetTail();
 	}
-	catch (std::exception& e)
+	catch (std::exception& ex)
 	{
-		line.message = stringbuilder() << "Exception: '" << e.what() << "' occurred processing line: " << data;
+		line.message = stringbuilder() << "Exception: '" << ex.what() << "' occurred processing line: " << data;
 	}
 	return true;
 }
@@ -290,7 +290,7 @@ void OpenLogFile(std::ofstream& ofstream, const std::wstring& filename, OpenMode
 	if (mode == OpenMode::Truncate)
 	{
 		// intentionally maintain the same amount of Columnns, so it is always easy to parse by csv import tools
-		WriteLogFileMessage(ofstream, 0.0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
+		WriteLogFileMessage(ofstream, 0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
 	}
 }
 

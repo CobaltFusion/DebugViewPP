@@ -7,8 +7,9 @@
 
 #pragma once
 
-#include "CobaltFusion/CircularBuffer.h"
-#include "Line.h"
+#include <memory>
+#include <string>
+#include "LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -18,8 +19,10 @@ class LogSource;
 class ILineBuffer
 {
 public:
-	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const char* message, const std::shared_ptr<LogSource>& pSource) = 0;
-	virtual void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message, const std::shared_ptr<LogSource>& pSource) = 0;
+	virtual ~ILineBuffer() = 0;
+
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const std::shared_ptr<LogSource>& pSource) = 0;
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pSource) = 0;
 	virtual Lines GetLines() = 0;
 	virtual bool Empty() const = 0;
 };

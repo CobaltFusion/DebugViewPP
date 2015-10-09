@@ -753,7 +753,7 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	case Column::Date: return GetDateText(msg.systemTime);
 	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
-	case Column::Process: return msg.processName;
+	case Column::Process: return Str(msg.processName).str();
 	case Column::Message: return msg.text;
 	}
 	return std::string();

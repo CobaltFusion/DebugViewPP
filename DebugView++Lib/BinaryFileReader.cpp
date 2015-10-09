@@ -6,14 +6,14 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <locale>
+#include <codecvt>
 #include <boost/filesystem.hpp>
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/BinaryFileReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/Line.h"
 
-#include <locale>
-#include <codecvt>
 
 namespace fusion {
 namespace debugviewpp {
@@ -21,28 +21,28 @@ namespace debugviewpp {
 BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) :
 	LogSource(timer, SourceType::File, linebuffer),
 	m_end(true),
-	m_filename(Str(filename).str()),
+	m_filename(filename),
 	m_fileType(filetype),
 	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
 	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_wifstream(m_filename, std::ios::binary),
-	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().string()),
+	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().wstring()),
 	m_initialized(false)
 {
 	switch (filetype)
 	{
-		case FileType::UTF16LE:
-			m_wifstream.imbue(std::locale(m_wifstream.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::codecvt_mode(std::little_endian | std::consume_header)>));
-			break;
-		case FileType::UTF16BE:
-			m_wifstream.imbue(std::locale(m_wifstream.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
-			break;
-		case FileType::UTF8:
-			m_wifstream.imbue(std::locale(m_wifstream.getloc(), new std::codecvt_utf8<wchar_t>));
-			break;
-		default: 
-			assert(!"This BinaryFileReader filetype was not implemented!"); 
-			break;
+	case FileType::UTF16LE:
+		m_wifstream.imbue(std::locale(m_wifstream.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::codecvt_mode(std::little_endian | std::consume_header)>));
+		break;
+	case FileType::UTF16BE:
+		m_wifstream.imbue(std::locale(m_wifstream.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+		break;
+	case FileType::UTF8:
+		m_wifstream.imbue(std::locale(m_wifstream.getloc(), new std::codecvt_utf8<wchar_t>));
+		break;
+	default: 
+		assert(!"This BinaryFileReader filetype was not implemented!"); 
+		break;
 		
 	}
 	SetDescription(filename);
@@ -100,24 +100,24 @@ void BinaryFileReader::ReadUntilEof()
 		if (length > lastReadPosition)
 			m_wifstream.seekg(lastReadPosition);
 		else if (length != lastReadPosition)
-			Add(stringbuilder() << "file shrank, resynced at offset " << length);
+			AddInternal(stringbuilder() << "file shrank, resynced at offset " << length);
 	}
 	else
 	{
 		// Some error other then EOF occured
-		Add("Stopped tailing " + m_filename);
+		AddInternal("Stopped tailing " + Str(m_filename).str());
 		m_end = true;
 	}
 }
 
 void BinaryFileReader::AddLine(const std::string& line)
 {
-	Add(line.c_str());
+	AddInternal(line);
 }
 
 void BinaryFileReader::PreProcess(Line& line) const
 {
-	line.processName = m_filenameOnly;
+	line.processName = Str(m_filenameOnly).str();
 }
 
 // todo: Reading support for more filetypes, maybe not, who logs in unicode anyway?

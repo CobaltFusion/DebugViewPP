@@ -18,7 +18,7 @@ namespace debugviewpp {
 
 struct Message
 {
-	Message(double time, FILETIME systemTime, DWORD pid, const std::string processName, const std::string& msg, COLORREF color = Colors::BackGround);
+	Message(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& msg, COLORREF color = Colors::BackGround);
 
 	double time;
 	FILETIME systemTime;

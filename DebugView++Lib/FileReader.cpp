@@ -94,7 +94,7 @@ void FileReader::ReadUntilEof()
 
 void FileReader::AddLine(const std::string& line)
 {
-	Add(line.c_str());
+	Add(line);
 }
 
 void FileReader::PreProcess(Line& line) const

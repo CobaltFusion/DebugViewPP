@@ -25,14 +25,11 @@ PipeReader::PipeReader(Timer& timer, ILineBuffer& linebuffer, HANDLE hPipe, DWOR
 
 PipeReader::~PipeReader()
 {
-
 }
 
 bool PipeReader::AtEnd() const
 {
-	if (LogSource::AtEnd())
-		return true;
-	return PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == 0;
+	return LogSource::AtEnd() || PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, nullptr, nullptr) == FALSE;
 }
 
 void PipeReader::Poll()
@@ -59,7 +56,7 @@ void PipeReader::Poll(PassiveLogSource& logsource)
 		{
 			if (*p == '\0' || *p == '\n' || p - begin > 4000)
 			{
-				logsource.AddMessage(m_pid, m_process.c_str(), std::string(begin, p).c_str());
+				logsource.AddMessage(m_pid, m_process, std::string(begin, p));
 				begin = p + 1;
 			}
 			++p;

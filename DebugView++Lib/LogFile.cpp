@@ -8,11 +8,12 @@
 #include "stdafx.h"
 #include <vector>
 #include "DebugView++Lib/LogFile.h"
+#include "Win32Lib/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-Message::Message(double time, FILETIME systemTime, DWORD pid, const std::string processName, const std::string& msg, COLORREF color) :
+Message::Message(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& msg, COLORREF color) :
 	time(time), systemTime(systemTime), processId(pid), processName(processName), text(msg), color(color)
 {
 }
@@ -37,7 +38,7 @@ void LogFile::Clear()
 
 void LogFile::Add(const Message& msg)
 {
-	auto props = m_processInfo.GetProcessProperties(msg.processId, msg.processName);
+	auto props = m_processInfo.GetProcessProperties(msg.processId, WStr(msg.processName).str());
 	m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid));
 	m_storage.Add(msg.text);
 }
@@ -61,7 +62,7 @@ Message LogFile::operator[](size_t i) const
 {
 	auto& msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
-	return Message(msg.time, msg.systemTime, props.pid, props.name, m_storage[i], props.color);
+	return Message(msg.time, msg.systemTime, props.pid, Str(props.name).str(), m_storage[i], props.color);
 }
 
 size_t LogFile::GetHistorySize() const

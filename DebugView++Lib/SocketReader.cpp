@@ -6,12 +6,12 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <boost/asio.hpp> 
+#include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/PassiveLogSource.h"
 #include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/LineBuffer.h"
-#include "Win32Lib/Win32Lib.h"
 
-#include <boost/asio.hpp> 
 
 namespace fusion {
 namespace debugviewpp {
@@ -24,7 +24,7 @@ SocketReader::SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::str
 	m_port(port),
 	m_socket(m_ioservice)
 {
-	udp::endpoint listen_endpoint(address::from_string(hostname.c_str()), port);
+	udp::endpoint listen_endpoint(address::from_string(hostname), port);
 	m_socket.open(listen_endpoint.protocol());
 	m_socket.set_option(udp::socket::reuse_address(true));
 	m_socket.bind(listen_endpoint);
@@ -44,19 +44,15 @@ void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std
 	ss.write(m_RecvBuffer.data(), bytes_transferred);
 
 	std::string addr = m_remote_endpoint.address().to_string();
-	for(;;)
+	std::string msg;
+	while (std::getline(ss, msg, '\0'))
 	{
-		std::string msg;
-		std::getline(ss, msg, '\0'); 
 		if (!msg.empty())
 		{
 			msg.push_back('\n');
-			std::string port = stringbuilder() << "[UDP " << addr << ":" << m_port << "]";
-			Add(0, port.c_str(), msg.c_str());
+			Add(0, stringbuilder() << "[UDP " << addr << L":" << m_port << L"]", msg);
 			Signal();
 		}
-		if (!ss)
-			break;
 	}
 	StartReceive();
 }

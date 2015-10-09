@@ -25,12 +25,12 @@ Lines NewlineFilter::Process(const Line& line)
 	message.reserve(4000);
 
 	Line outputLine = line;
-	for (auto i = line.message.begin(); i != line.message.end(); ++i)
+	for (auto it = line.message.begin(); it != line.message.end(); ++it)
 	{
-		if (*i == '\r')
+		if (*it == '\r')
 			continue;
 
-		if (*i == '\n')
+		if (*it == '\n')
 		{
 			outputLine.message = message;
 			message.clear();
@@ -38,7 +38,7 @@ Lines NewlineFilter::Process(const Line& line)
 		}
 		else
 		{
-			message.push_back(char(*i));
+			message.push_back(*it);
 		}
 	}
 
@@ -46,7 +46,7 @@ Lines NewlineFilter::Process(const Line& line)
 	{
 		m_lineBuffers.erase(line.pid);
 	}
-	else if (outputLine.logsource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	else if (outputLine.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
 	{
 		outputLine.message = message;
 		message.clear();
@@ -58,10 +58,10 @@ Lines NewlineFilter::Process(const Line& line)
 Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap)
 {
 	Lines lines;
-	for (auto i = terminatedProcessesMap.begin(); i != terminatedProcessesMap.end(); ++i)
+	for (auto it = terminatedProcessesMap.begin(); it != terminatedProcessesMap.end(); ++it)
 	{
-		DWORD pid = i->first;
-		HANDLE handle = i->second.get();
+		DWORD pid = it->first;
+		HANDLE handle = it->second.get();
 		if (m_lineBuffers.find(pid) != m_lineBuffers.end())
 		{
 			if (!m_lineBuffers[pid].empty())
@@ -71,10 +71,10 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PidMap& terminatedP
 			}
 			m_lineBuffers.erase(pid);
 		}
-		auto processName = ProcessInfo::GetProcessName(handle);
+		auto processName = Str(ProcessInfo::GetProcessName(handle)).str();
 		auto info = ProcessInfo::GetProcessInfo(handle);
 		std::string infoStr = stringbuilder() << "<process started at " << info << " has now terminated>";
-		lines.push_back(Line(0, FILETIME(), pid, Str(processName).str(), infoStr, nullptr));
+		lines.push_back(Line(0, FILETIME(), pid, processName, infoStr, nullptr));
 	}
 	return lines;
 }

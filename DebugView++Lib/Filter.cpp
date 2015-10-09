@@ -57,7 +57,7 @@ void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg)
 	{
 		CRegKey regFilter;
 		regFilter.Create(reg, WStr(wstringbuilder() << L"Filter" << i));
-		regFilter.SetStringValue(L"", WStr(it->text.c_str()));
+		regFilter.SetStringValue(L"", WStr(it->text));
 		regFilter.SetDWORDValue(L"MatchType", MatchTypeToInt(it->matchType));
 		regFilter.SetDWORDValue(L"FilterType", FilterTypeToInt(it->filterType));
 		regFilter.SetDWORDValue(L"Type", FilterTypeToInt(it->filterType));

@@ -58,8 +58,7 @@ void DBWinReader::Notify()
 	if (handle == 0)
 	{
 		Win32Error error(GetLastError(), "OpenProcess");
-		std::string s = stringbuilder() << error.what() << ", data: " <<  m_dbWinBuffer->data << " (pid: " << m_dbWinBuffer->processId << ")";
-		LogSource::Add(s.c_str());
+		LogSource::Add(stringbuilder() << error.what() << ", data: " <<  m_dbWinBuffer->data << " (pid: " << m_dbWinBuffer->processId << ")");
 	}
 #endif
 	// performance does not improve significantly (almost immeasurable) without the GetSystemTimeAsFileTime call, not without the OpenProcess call.

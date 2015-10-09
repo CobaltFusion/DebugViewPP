@@ -28,11 +28,6 @@ LogSource::~LogSource()
 {
 }
 
-bool LogSource::AtEnd() const
-{
-	return m_end;
-}
-
 void LogSource::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
@@ -41,6 +36,26 @@ void LogSource::SetAutoNewLine(bool value)
 bool LogSource::GetAutoNewLine() const
 {
 	return m_autoNewLine;
+}
+
+void LogSource::Initialize()
+{
+}
+
+void LogSource::Abort()
+{
+	m_end = true;
+}
+
+bool LogSource::AtEnd() const
+{
+	return m_end;
+}
+
+void LogSource::PreProcess(Line& line) const
+{
+	if (line.handle)
+		line.processName = Str(ProcessInfo::GetProcessName(line.handle)).str();
 }
 
 std::wstring LogSource::GetDescription() const
@@ -58,37 +73,24 @@ SourceType::type LogSource::GetSourceType() const
 	return m_sourceType;
 }
 
-void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message)
+void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message)
 {
 	m_linebuffer.Add(time, systemTime, pid, processName, message, shared_from_this());
 }
 
-void LogSource::Add(DWORD pid, const char* processName, const char* message)
+void LogSource::Add(DWORD pid, const std::string& processName, const std::string& message)
 {
 	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), pid, processName, message, shared_from_this());
 }
 
-void LogSource::Add(const char* message, HANDLE handle)
+void LogSource::Add(const std::string& message, HANDLE handle)
 {
 	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), handle, message, shared_from_this());
 }
 
-void LogSource::Add(const std::string& message)
+void LogSource::AddInternal(const std::string& message)
 {
-	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), 0, "[internal]", message.c_str(), shared_from_this());
-}
-
-void LogSource::PreProcess(Line& line) const
-{
-	if (line.handle != 0)
-	{
-		line.processName = Str(ProcessInfo::GetProcessName(line.handle)).str();
-	}
-}
-
-void LogSource::Abort()
-{
-	m_end = true;
+	m_linebuffer.Add(m_timer.Get(), GetSystemTimeAsFileTime(), 0, "[internal]", message, shared_from_this());
 }
 
 } // namespace debugviewpp 

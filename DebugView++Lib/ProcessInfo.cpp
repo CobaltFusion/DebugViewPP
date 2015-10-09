@@ -24,7 +24,7 @@ InternalProcessProperties::InternalProcessProperties() :
 {
 }
 
-InternalProcessProperties::InternalProcessProperties(DWORD pid, const std::string& name, COLORREF color) :
+InternalProcessProperties::InternalProcessProperties(DWORD pid, const std::wstring& name, COLORREF color) :
 	pid(pid), name(name), color(color)
 {
 }
@@ -86,7 +86,7 @@ std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
 	return L"";
 }
 
-DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
+DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
 {
 	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); ++i)
 	{
@@ -101,7 +101,7 @@ DWORD ProcessInfo::GetUid(DWORD processId, const std::string& processName)
 	return index;
 }
 
-ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::string& processName)
+ProcessProperties ProcessInfo::GetProcessProperties(DWORD processId, const std::wstring& processName)
 {
 	auto uid = GetUid(processId, processName);
 	ProcessProperties props(m_processProperties[uid]);

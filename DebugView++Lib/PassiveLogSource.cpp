@@ -6,24 +6,25 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/PassiveLogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, std::shared_ptr<LogSource> logsource) :
+PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pLogSource) :
 	pid(pid),
 	processName(processName),
 	message(message),
-	logsource(logsource)
+	pLogSource(pLogSource)
 {
 }
 
 PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency) :
 	LogSource(timer, sourceType, linebuffer),
 	m_microsecondInterval(0),
-	m_handle(CreateEvent(NULL, FALSE, FALSE, NULL))
+	m_handle(CreateEvent(nullptr, false, false, nullptr))
 {
 	if (pollFrequency > 0)
 	{
@@ -56,7 +57,7 @@ void PassiveLogSource::Abort()
 
 void PassiveLogSource::Loop()
 {
-	for(;;)
+	for (;;)
 	{
 		Poll();
 		Signal();
@@ -80,15 +81,13 @@ void PassiveLogSource::Notify()
 		m_lines.swap(m_backBuffer);
 	}
 
-	for (auto i = m_backBuffer.cbegin(); i != m_backBuffer.cend(); ++i)
-	{
-		auto line = *i;
-		Add(line.pid, line.processName.c_str(), line.message.c_str());
-	}
+	for (auto it = m_backBuffer.cbegin(); it != m_backBuffer.cend(); ++it)
+		Add(it->pid, it->processName, it->message);
+
 	m_backBuffer.clear();
 }
 
-void PassiveLogSource::AddMessage(DWORD pid, const char* processName, const char* message)
+void PassiveLogSource::AddMessage(DWORD pid, const std::string& processName, const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_lines.push_back(PollLine(pid, processName, message, shared_from_this()));
@@ -97,7 +96,7 @@ void PassiveLogSource::AddMessage(DWORD pid, const char* processName, const char
 void PassiveLogSource::AddMessage(const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	m_lines.push_back(PollLine(0, "[internal]", message.c_str(), shared_from_this()));
+	m_lines.push_back(PollLine(0, "[internal]", message, shared_from_this()));
 }
 
 void PassiveLogSource::Signal()

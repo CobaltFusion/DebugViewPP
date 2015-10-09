@@ -60,7 +60,7 @@ namespace Magic
 void DbgviewReader::Loop()
 {
 	m_iostream.connect(m_hostname, SysinternalsDebugViewAgentPort);
-	const char* processName = "[tcp]";
+	const std::string processName("[tcp]");
 
 	// unknown command (dbgview sends it after connect, it gets a 4 byte answer 0x7fffffff)
 	//Write<DWORD>(m_iostream, Magic::Base + 0x24);	
@@ -128,7 +128,7 @@ void DbgviewReader::Loop()
 			unsigned int lineNr = Read<DWORD>(ss);
 			if (!ss)
 				break;
-			
+
 			auto filetime = Read<FILETIME>(ss);
 			auto qpcTime = Read<long long>(ss);
 			auto time = timer.Get(qpcTime);
@@ -147,11 +147,11 @@ void DbgviewReader::Loop()
 			std::getline(ss, msg, '\0'); 
 
 			msg.push_back('\n');
-			Add(time, filetime, pid, processName, msg.c_str());
+			Add(time, filetime, pid, processName, msg);
 
 			// strangely, messages are always send in multiples of 4 bytes.
 			// this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.
-			auto remainder = ((size_t) ss.tellg()) % 4;
+			auto remainder = static_cast<int>(ss.tellg() % 4);
 			if (remainder > 0)
 				Read(ss, 4 - remainder);
 		}
