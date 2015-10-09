@@ -18,10 +18,10 @@ namespace debugviewpp {
 struct InternalProcessProperties
 {
 	InternalProcessProperties();
-	InternalProcessProperties(DWORD pid, const std::string& name, COLORREF color);
+	InternalProcessProperties(DWORD pid, const std::wstring& name, COLORREF color);
 
 	DWORD pid;			// system processId
-	std::string name;
+	std::wstring name;
 	COLORREF color;
 };
 
@@ -31,7 +31,7 @@ struct ProcessProperties
 
 	DWORD uid;			// unique id
 	DWORD pid;			// system processId
-	std::string name;
+	std::wstring name;
 	COLORREF color;
 };
 
@@ -45,8 +45,8 @@ public:
 	static std::wstring GetProcessInfo(HANDLE handle);
 	static std::wstring GetProcessNameByPid(DWORD processId);
 
-	DWORD GetUid(DWORD processId, const std::string& processName);
-	ProcessProperties GetProcessProperties(DWORD processId, const std::string& processName);
+	DWORD GetUid(DWORD processId, const std::wstring& processName);
+	ProcessProperties GetProcessProperties(DWORD processId, const std::wstring& processName);
 	ProcessProperties GetProcessProperties(DWORD uid) const;
 
 private:

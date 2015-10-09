@@ -753,7 +753,7 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	case Column::Date: return GetDateText(msg.systemTime);
 	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
-	case Column::Process: return msg.processName;
+	case Column::Process: return Str(msg.processName).str();
 	case Column::Message: return msg.text;
 	}
 	return std::string();
@@ -898,7 +898,7 @@ void CLogView::ResetToLine(int line)
 void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	auto messages = GetSelectedMessages();
-	int size = std::min(size_t(25), messages.size());
+	int size = std::min(size_t(100), messages.size());
 	for (int i = 0; i < size; ++i)
 	{
 		m_filter.messageFilters.push_back(Filter(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
@@ -1542,7 +1542,7 @@ void CLogView::SaveSettings(CRegKey& reg)
 void CLogView::Save(const std::wstring& filename) const
 {
 	std::ofstream fs;
-	OpenLogFile(fs, Str(filename));
+	OpenLogFile(fs, filename);
 
 	int lines = GetItemCount();
 	for (int i = 0; i < lines; ++i)

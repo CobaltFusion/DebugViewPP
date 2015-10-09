@@ -27,7 +27,7 @@ public:
 
 	// maybe called multiple times, the derived class is responsible for
 	// executing initialization code once if needed.
-	virtual void Initialize() {}
+	virtual void Initialize();
 
 	virtual void Abort();
 
@@ -50,16 +50,16 @@ public:
 	SourceType::type GetSourceType() const;
 
 	// for DBWIN messages
-	void Add(const char* message, HANDLE handle = 0);
+	void Add(const std::string& message, HANDLE handle = nullptr);
 
 	// for Loopback messages
-	void Add(DWORD pid, const char* processName, const char* message);
+	void Add(DWORD pid, const std::string& processName, const std::string& message);
 
 	// used when reading from files
-	void Add(double time, FILETIME systemTime, DWORD pid, const char* processName, const char* message);
+	void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
 
 	// used by PassiveLogsources writing internal status messages
-	void Add(const std::string& message);
+	void AddInternal(const std::string& message);
 
 private:
 	bool m_autoNewLine;

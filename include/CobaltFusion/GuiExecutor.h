@@ -84,8 +84,9 @@ class GuiExecutor : boost::noncopyable,
 	private GuiExecutorBase
 {
 public:
-	typedef boost::chrono::steady_clock::time_point TimePoint;
-	typedef boost::chrono::steady_clock::duration Duration;
+	typedef boost::chrono::steady_clock Clock;
+	typedef Clock::time_point TimePoint;
+	typedef Clock::duration Duration;
 
 	GuiExecutor();
 	~GuiExecutor();

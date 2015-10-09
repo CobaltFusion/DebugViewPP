@@ -20,12 +20,12 @@ class ILineBuffer;
 
 struct PollLine
 {
-	PollLine(DWORD pid, const std::string& processName, const std::string& message, std::shared_ptr<LogSource> logsource);
+	PollLine(DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pLogSource);
 
 	DWORD pid;
 	std::string processName;
 	std::string message;
-	std::shared_ptr<LogSource> logsource;
+	std::shared_ptr<LogSource> pLogSource;
 };
 
 class PassiveLogSource : public LogSource
@@ -41,7 +41,7 @@ public:
 
 	// in contrast to the LogSource::Add methdods, these methods are de-coupled so they 
 	// can be used to add messages from any thread. The typical use-case are messages from the UI thread.
-	void AddMessage(DWORD pid, const char* processName, const char* message);
+	void AddMessage(DWORD pid, const std::string& processName, const std::string& message);
 	void AddMessage(const std::string& message);
 	void Signal();
 	void StartThread();

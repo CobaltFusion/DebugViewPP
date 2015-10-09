@@ -36,8 +36,8 @@ struct FileType
 
 std::string FileTypeToString(FileType::type value);
 
-bool FileExists(const char *filename);
-FileType::type IdentifyFile(std::string filename);
+bool FileExists(const wchar_t* filename);
+FileType::type IdentifyFile(const std::wstring& filename);
 bool IsBinaryFileType(FileType::type);
 
 std::istream& ReadLogFileMessage(std::istream& is, Line& line);
@@ -47,7 +47,12 @@ bool ReadLogFileMessage(const std::string& data, Line& line);
 
 std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
 
-void OpenLogFile(std::ofstream& ofstream, std::string filename, bool truncate = true);
+struct OpenMode
+{
+	enum type { Append, Truncate };
+};
+
+void OpenLogFile(std::ofstream& ofstream, const std::wstring& filename, OpenMode::type mode = OpenMode::Truncate );
 void WriteLogFileMessage(std::ofstream& ofstream, double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message);
 
 } // namespace debugviewpp 

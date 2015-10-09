@@ -67,7 +67,7 @@ void DBLogReader::AddLine(const std::string& data)
 		assert(false);
 	}
 
-	Add(line.time, line.systemTime, line.pid, line.processName.c_str(), TabsToSpaces(line.message).c_str());	// workaround for issue #173
+	Add(line.time, line.systemTime, line.pid, line.processName, line.message);
 }
 
 void DBLogReader::PreProcess(Line& line) const

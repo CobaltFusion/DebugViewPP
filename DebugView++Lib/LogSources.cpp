@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
+#include "Win32Lib/Win32Lib.h"
 #include "Win32Lib/utilities.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/ProcessReader.h"
@@ -32,15 +33,15 @@
 namespace fusion {
 namespace debugviewpp {
 
-const double g_handleCacheTimeout = 5.0; //seconds
+const boost::chrono::seconds handleCacheTimeout(5);
 
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
 	m_autoNewLine(true),
-	m_updateEvent(CreateEvent(NULL, FALSE, FALSE, NULL)),
+	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
 	m_linebuffer(64*1024),
 	m_loopback(std::make_shared<Loopback>(m_timer, m_linebuffer)),
-	m_handleCacheTime(0)
+	m_dirty(false)
 {
 	m_sources.push_back(m_loopback);
 	if (startListening)
@@ -132,33 +133,56 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
+boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot)
+{
+	return m_update.connect(slot);
+}
+
+const boost::chrono::milliseconds graceTime(40); // -> intentionally near what the human eye can still perceive
+
+void LogSources::OnUpdate()
+{
+	m_dirty = true;
+	m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
+}
+
+void LogSources::DelayedUpdate()
+{
+	auto receivedLines = m_update();
+	if (!receivedLines)
+		return;
+
+	if (receivedLines.get())	// get the actual return value
+	{
+		// messages where received, schedule next update
+		m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
+	}
+	else
+	{
+		// no more messages where received
+		m_dirty = false;
+		// schedule one more update to workaround the race-condition writing to m_dirty
+		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
+		m_guiExecutor.CallAfter(graceTime, [this]() { m_update(); });
+	}
+}
+
 // default behaviour: 
 // LogSources starts with 1 logsource, the loopback source
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-	bool dirty = false;
-	const long graceTimeMs = 40;
+	m_guiExecutor.CallEvery(handleCacheTimeout, [this]() { CheckForTerminatedProcesses(); });
+
 	for (;;)
 	{
-		WaitForNextEvent();
-		
-		if (!dirty)
-		{
-			//GuiExecutor::CallAfter(graceTimeMs, [dirty] { 
-			//	m_updateTrigger();
-			//	GuiExecutor::CallAfter(10, [dirty] { m_updateTrigger(); dirty = false; }
-			//});
-			dirty = true;
-		}
-		// todo: protect dirty against races
-
+		ListenUntilUpdateEvent();
 		if (m_end)
 			break;
 	}
 }
 
-void LogSources::WaitForNextEvent()
+void LogSources::ListenUntilUpdateEvent()
 {
 	std::vector<HANDLE> waitHandles;
 	std::vector<std::shared_ptr<LogSource>> sources;
@@ -203,6 +227,8 @@ void LogSources::WaitForNextEvent()
 					InternalRemove(logsource);
 					break;
 				}
+				if (!m_dirty)
+					OnUpdate();
 			}
 		}
 	}
@@ -210,38 +236,31 @@ void LogSources::WaitForNextEvent()
 
 void LogSources::CheckForTerminatedProcesses()
 {
-	if ((m_timer.Get() - m_handleCacheTime) < g_handleCacheTimeout)
-		return;
-	
-	// add messages to inputLines would mess up the timestamp-order
-	// instead put them in the m_loopback buffer for processing.
+	// adding messages to inputLines would mess up the timestamp-order,
+	// so instead put them in the m_loopback buffer for processing.
 
 	auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcesses(m_handleCache.CleanupMap());
 	for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it)
-	{
-		m_loopback->AddMessage(it->pid, it->processName.c_str(), it->message.c_str());
-	}
+		m_loopback->AddMessage(it->pid, it->processName, it->message);
+
 	if (!flushedLines.empty())
 		m_loopback->Signal();
-	m_handleCacheTime = m_timer.Get();
 }
 
 Lines LogSources::GetLines()
 {
-	CheckForTerminatedProcesses();
-
 	auto inputLines = m_linebuffer.GetLines();
 	Lines lines;
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it)
 	{
 		auto inputLine = *it;
 		// let the logsource decide how to create processname
-		if (inputLine.logsource != nullptr)
+		if (inputLine.pLogSource)
 		{
-			inputLine.logsource->PreProcess(inputLine);
+			inputLine.pLogSource->PreProcess(inputLine);
 		}
 
-		if (inputLine.handle != nullptr)
+		if (inputLine.handle)
 		{
 			inputLine.pid = GetProcessId(inputLine.handle);
 			m_handleCache.Add(inputLine.pid, Handle(inputLine.handle));
@@ -254,7 +273,6 @@ Lines LogSources::GetLines()
 		for (auto it = processedLines.begin(); it != processedLines.end(); ++it)
 		{
 			boost::trim_right_if(it->message, boost::is_any_of(" \r\n\t"));
-//			it->message = TabsToSpaces(it->message);	// workaround for issue #173
 			lines.push_back(*it);
 		}
 	}
@@ -263,47 +281,47 @@ Lines LogSources::GetLines()
 
 std::shared_ptr<DBWinReader> LogSources::AddDBWinReader(bool global)
 {
-	auto dbwinreader = std::make_shared<DBWinReader>(m_timer, m_linebuffer, global);
-	Add(dbwinreader);
-	return dbwinreader;
+	auto pDbWinReader = std::make_shared<DBWinReader>(m_timer, m_linebuffer, global);
+	Add(pDbWinReader);
+	return pDbWinReader;
 }
 
 std::shared_ptr<TestSource> LogSources::AddTestSource()
 {
-	auto testsource = std::make_shared<TestSource>(m_timer, m_linebuffer);
-	Add(testsource);
-	return testsource;
+	auto pTestSource = std::make_shared<TestSource>(m_timer, m_linebuffer);
+	Add(pTestSource);
+	return pTestSource;
 }
 
 std::shared_ptr<ProcessReader> LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
-	auto processReader = std::make_shared<ProcessReader>(m_timer, m_linebuffer, pathName, args);
-	Add(processReader);
-	return processReader;
+	auto pProcessReader = std::make_shared<ProcessReader>(m_timer, m_linebuffer, pathName, args);
+	Add(pProcessReader);
+	return pProcessReader;
 }
 
 // AddFileReader() is never used
 std::shared_ptr<FileReader> LogSources::AddFileReader(const std::wstring& filename)
 {
-	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, IdentifyFile(Str(filename)), filename);
+	auto filereader = std::make_shared<FileReader>(m_timer, m_linebuffer, IdentifyFile(filename), filename);
 	Add(filereader);
 	return filereader;
 }
 
 std::shared_ptr<BinaryFileReader> LogSources::AddBinaryFileReader(const std::wstring& filename)
 {
-	auto filetype = IdentifyFile(Str(filename));
+	auto filetype = IdentifyFile(filename);
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
-	auto filereader = std::make_shared<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
-	Add(filereader);
-	return filereader;
+	auto pFileReader = std::make_shared<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
+	Add(pFileReader);
+	return pFileReader;
 }
 
 // todo: DBLogReader is now always used for all types of files.
 // we should choose to either rename DBLogReader, or move the FileType::AsciiText out of DBLogReader
 std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& filename)
 {
-	auto filetype = IdentifyFile(Str(filename));
+	auto filetype = IdentifyFile(filename);
 	if (filetype == FileType::Unknown)
 	{
 		AddMessage(stringbuilder() << "Unable to open '" << filename <<"'\n");
@@ -311,33 +329,32 @@ std::shared_ptr<DBLogReader> LogSources::AddDBLogReader(const std::wstring& file
 	}
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 
-	auto dblogreader = std::make_shared<DBLogReader>(m_timer, m_linebuffer, filetype, filename);
-	Add(dblogreader);
-	return dblogreader;
+	auto pDbLogReader = std::make_shared<DBLogReader>(m_timer, m_linebuffer, filetype, filename);
+	Add(pDbLogReader);
+	return pDbLogReader;
 }
 
 std::shared_ptr<PipeReader> LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 {
-	auto processName = Str(ProcessInfo::GetProcessNameByPid(pid)).str();
-	auto pipeReader = std::make_shared<PipeReader>(m_timer, m_linebuffer, hPipe, pid, processName, 40);
-	Add(pipeReader);
-	return pipeReader;
+	auto pPipeReader = std::make_shared<PipeReader>(m_timer, m_linebuffer, hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str(), 40);
+	Add(pPipeReader);
+	return pPipeReader;
 }
 
 std::shared_ptr<DbgviewReader> LogSources::AddDbgviewReader(const std::string& hostname)
 {
-	auto dbgviewreader = std::make_shared<DbgviewReader>(m_timer, m_linebuffer, hostname);
-	m_loopback->AddMessage(stringbuilder() << "Source '" << dbgviewreader->GetDescription() << "' was added.");
-	Add(dbgviewreader);
-	return dbgviewreader;
+	auto pDbgViewReader = std::make_shared<DbgviewReader>(m_timer, m_linebuffer, hostname);
+	m_loopback->AddMessage(stringbuilder() << "Source '" << pDbgViewReader->GetDescription() << "' was added.");
+	Add(pDbgViewReader);
+	return pDbgViewReader;
 }
 
 std::shared_ptr<SocketReader> LogSources::AddUDPReader(const std::string& hostname, int port)
 {
-	auto socketreader = std::make_shared<SocketReader>(m_timer, m_linebuffer, hostname, port);
-	m_loopback->AddMessage(stringbuilder() << "Source '" << socketreader->GetDescription() << "' was added.");
-	Add(socketreader);
-	return socketreader;
+	auto pSocketReader = std::make_shared<SocketReader>(m_timer, m_linebuffer, hostname, port);
+	m_loopback->AddMessage(stringbuilder() << "Source '" << pSocketReader->GetDescription() << "' was added.");
+	Add(pSocketReader);
+	return pSocketReader;
 }
 
 } // namespace debugviewpp 

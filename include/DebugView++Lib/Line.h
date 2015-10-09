@@ -8,6 +8,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <memory>
 #include "Win32Lib/Win32Lib.h"
 
 namespace fusion {
@@ -17,15 +19,16 @@ class LogSource;
 
 struct Line
 {
-	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, std::shared_ptr<LogSource> logsource);
-	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = "", const std::string& message = "", std::shared_ptr<LogSource> logsource = std::shared_ptr<LogSource>());
+	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const std::shared_ptr<LogSource>& pLogSource);
+	explicit Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = std::string(), const std::string& message = std::string(), const std::shared_ptr<LogSource>& pLogSource = std::shared_ptr<LogSource>());
+
 	double time;
 	FILETIME systemTime;
 	HANDLE handle;
 	DWORD pid;
 	std::string processName;
 	std::string message;
-	std::shared_ptr<LogSource> logsource;
+	std::shared_ptr<LogSource> pLogSource;
 };
 
 typedef std::vector<Line> Lines;

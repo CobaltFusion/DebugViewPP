@@ -9,6 +9,9 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <algorithm>
+#include <boost/asio.hpp> 
+#include <boost/algorithm/string.hpp>
 #include "Win32Lib/utilities.h"
 #include "CobaltFusion/scope_guard.h"
 #include "DebugView++Lib/DBWinBuffer.h"
@@ -19,8 +22,6 @@
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
-#include <boost/asio.hpp> 
-#include <boost/algorithm/string.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -62,6 +63,11 @@ void OutputDetails(Settings settings, const Line& line)
 
 static bool g_quit = false;
 
+void Quit()
+{
+	g_quit = true;
+}
+
 void LogMessages(Settings settings)
 {
 	LogSources sources(true);
@@ -75,26 +81,26 @@ void LogMessages(Settings settings)
 
 	if (!settings.filename.empty())
 	{
-		OpenLogFile(fs, settings.filename);
+		OpenLogFile(fs, WStr(settings.filename));
 		fs.flush();
 	}
 
 	auto guard = make_guard([&fs, &settings]()
-		{ 
-			if (!settings.filename.empty())
-			{
-				fs.flush();
-				fs.close();
-				std::cout << "Log file closed.\n";
-			}
-		});
+	{
+		if (!settings.filename.empty())
+		{
+			fs.flush();
+			fs.close();
+			std::cout << "Log file closed.\n";
+		}
+	});
 
 	std::string separator = settings.tabs ? "\t" : " ";
-	for (;g_quit == false;)
+	while (!g_quit)
 	{
 		auto lines = sources.GetLines();
 		int linenumber = 0;
-		for (auto i=lines.begin(); i != lines.end(); ++i)
+		for (auto it = lines.begin(); it != lines.end(); ++it)
 		{
 			if (settings.console)
 			{
@@ -103,12 +109,12 @@ void LogMessages(Settings settings)
 					++linenumber;
 					std::cout << std::setw(5) << std::setfill('0') << linenumber << std::setfill(' ') << separator;
 				}
-				OutputDetails(settings, *i);
-				std::cout << separator << i->message.c_str() << "\n";
+				OutputDetails(settings, *it);
+				std::cout << separator << it->message.c_str() << "\n";
 			}
 			if (!settings.filename.empty())
 			{
-				WriteLogFileMessage(fs, i->time, i->systemTime, i->pid, i->processName, i->message);
+				WriteLogFileMessage(fs, it->time, it->systemTime, it->pid, it->processName, it->message);
 			}
 		}
 		if (settings.flush)
@@ -124,16 +130,10 @@ void LogMessages(Settings settings)
 } // namespace debugviewpp
 } // namespace fusion
 
-#include <algorithm>
-
-char* getCmdOption(char ** begin, char ** end, const std::string& option)
+char* getCmdOption(char** begin, char** end, const std::string& option)
 {
-	char ** itr = std::find(begin, end, option);
-	if (itr != end && ++itr != end)
-	{
-		return *itr;
-	}
-	return 0;
+	char** itr = std::find(begin, end, option);
+	return itr != end && ++itr != end ? *itr : nullptr;
 }
 
 bool cmdOptionExists(char** begin, char** end, const std::string& option)
@@ -143,11 +143,12 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 
 BOOL WINAPI ConsoleHandler(DWORD dwType)
 {
-	switch(dwType) {
+	switch (dwType)
+	{
 	case CTRL_C_EVENT:
 	case CTRL_LOGOFF_EVENT:
 	case CTRL_SHUTDOWN_EVENT:
-		fusion::debugviewpp::g_quit = true;
+		fusion::debugviewpp::Quit();
 		// report as handled, so no other handler gets called.
 		return TRUE;
 	default:
@@ -171,7 +172,7 @@ try
 	{
 		std::cout << "options:\n";
 		std::cout << "  -h: this help message\n";
-		std::cout << "  -a: auto-newline (automatically adds newline to messages without a newline, most people what this on)\n";
+		std::cout << "  -a: auto-newline (automatically adds newline to messages without a newline, most people want this on)\n";
 		std::cout << "  -f: flush (aggressively flush buffers, if unsure, do not use)\n";
 		std::cout << "  -v: verbose output\n";
 		std::cout << "  -d <file>: write to .dblog file\n";
@@ -188,68 +189,79 @@ try
 	}
 
 	bool verbose = false;
-	if (cmdOptionExists(argv, argv+argc, "-v"))
+	if (cmdOptionExists(argv, argv + argc, "-v"))
 	{
 		if (verbose) std::cout << "-s: verbose output\n";
 		verbose = true;
 	}
 
-	if (cmdOptionExists(argv, argv+argc, "-l"))
+	if (cmdOptionExists(argv, argv + argc, "-l"))
 	{
-		if (verbose) std::cout << "-l: prefix line number\n";
+		if (verbose)
+			std::cout << "-l: prefix line number\n";
 		settings.linenumber = true;
 	}
 
-	if (cmdOptionExists(argv, argv+argc, "-s"))
+	if (cmdOptionExists(argv, argv + argc, "-s"))
 	{
-		if (verbose) std::cout << "-s: including systemtime\n";
+		if (verbose)
+			std::cout << "-s: including systemtime\n";
 		settings.timestamp = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-q"))
+	if (cmdOptionExists(argv, argv + argc, "-q"))
 	{
-		if (verbose) std::cout << "-q: including relative high-precision offset\n";
+		if (verbose)
+			std::cout << "-q: including relative high-precision offset\n";
 		settings.performanceCounter = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-t"))
+	if (cmdOptionExists(argv, argv + argc, "-t"))
 	{
-		if (verbose) std::cout << "-t: output tab-separated output\n";
+		if (verbose)
+			std::cout << "-t: output tab-separated output\n";
 		settings.tabs = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-p"))
+	if (cmdOptionExists(argv, argv + argc, "-p"))
 	{
-		if (verbose) std::cout << "-p: add PID (process ID)\n";
+		if (verbose)
+			std::cout << "-p: add PID (process ID)\n";
 		settings.pid = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-n"))
+	if (cmdOptionExists(argv, argv + argc, "-n"))
 	{
-		if (verbose) std::cout << "-n: add process name\n";
+		if (verbose)
+			std::cout << "-n: add process name\n";
 		settings.processName = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-a"))
+	if (cmdOptionExists(argv, argv + argc, "-a"))
 	{
-		if (verbose) std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
+		if (verbose)
+			std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
 		settings.autonewline = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-f"))
+	if (cmdOptionExists(argv, argv + argc, "-f"))
 	{
-		if (verbose) std::cout << "-f: auto flush (write to disk more often)\n";
+		if (verbose)
+			std::cout << "-f: auto flush (write to disk more often)\n";
 		settings.flush = true;
 	}
-	if (cmdOptionExists(argv, argv+argc, "-c"))
+	if (cmdOptionExists(argv, argv + argc, "-c"))
 	{
-		if (verbose) std::cout << "-c: enable console output\n";
+		if (verbose)
+			std::cout << "-c: enable console output\n";
 		settings.console = true;
 	}
 
-	if (cmdOptionExists(argv, argv+argc, "-d"))
+	if (cmdOptionExists(argv, argv + argc, "-d"))
 	{
-		settings.filename = std::string(getCmdOption(argv, argv + argc, "-d"));
-		if (verbose) std::cout << "-d: write to: " << settings.filename << "\n";
+		settings.filename = getCmdOption(argv, argv + argc, "-d");
+		if (verbose)
+			std::cout << "-d: write to: " << settings.filename << "\n";
 	}
 
-	if (cmdOptionExists(argv, argv+argc, "-u"))
+	if (cmdOptionExists(argv, argv + argc, "-u"))
 	{
-		if (verbose) std::cout << "Send UDP test message...\n";
+		if (verbose)
+			std::cout << "Send UDP test message...\n";
 		using namespace boost::asio::ip;
 		boost::asio::io_service io_service;
 		udp::resolver resolver(io_service);

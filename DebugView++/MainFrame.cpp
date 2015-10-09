@@ -34,8 +34,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-const unsigned int msOnTimerPeriod = 40;	// 40ms -> 25 frames/second intentionally near what the human eye can still perceive
-
 std::wstring GetPersonalPath()
 {
 	std::wstring path;
@@ -61,7 +59,6 @@ CLogView& CLogViewTabItem::GetView()
 BEGIN_MSG_MAP_TRY(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
-	MSG_WM_TIMER(OnTimer)
 	MSG_WM_MOUSEWHEEL(OnMouseWheel)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_DROPFILES(OnDropFiles)
@@ -120,8 +117,7 @@ CMainFrame::CMainFrame() :
 	m_projectFileName(L"DebugView++.dbproj"),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
-	m_logSources(true),
-	m_skipStatusUpdate(false)
+	m_logSources(true)
 {
 	m_notifyIconData.cbSize = 0;
 }
@@ -147,11 +143,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL CMainFrame::OnIdle()
 {
-	if (m_skipStatusUpdate)
-	{
-		m_skipStatusUpdate = false;
-		return FALSE;
-	}
 	UpdateUI();
 	UIUpdateToolBar();
 	UIUpdateStatusBar();
@@ -202,7 +193,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	m_timer = SetTimer(1, msOnTimerPeriod, nullptr);
+	m_logSources.SubscribeToUpdate([this] { return OnUpdate(); });
 	DragAcceptFiles(true);
 
 	// Resume can throw if a second debugview is running
@@ -365,10 +356,10 @@ void CMainFrame::UpdateStatusBar()
 void CMainFrame::ProcessLines(const Lines& lines)
 {
 	if (lines.empty())
-	{
-		m_skipStatusUpdate = true;
 		return;
-	}
+
+	// design decision: filtering is done on the UI thread, see CLogView::Add
+	// changing this would introduces extra thread and thus complexity. Do that only if it solves a problem.
 
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
@@ -388,12 +379,13 @@ void CMainFrame::ProcessLines(const Lines& lines)
 	}
 }
 
-void CMainFrame::OnTimer(UINT_PTR /*nIDEvent*/)
+bool CMainFrame::OnUpdate()
 {
-	// filtering is still done on the UI thread, see CLogView::Add
-	// design decision: only change this if it becomes a problem, because it introduces extra thread 
-	// and thus complexity. Do that only if it solves a problem.
-	ProcessLines(m_logSources.GetLines());
+	auto lines = m_logSources.GetLines();
+	if (lines.empty())
+		return false;
+	ProcessLines(lines);
+	return true;
 }
 
 bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint /*pt*/)
@@ -441,8 +433,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	Pause();
 	SetTitle(L"Monitoring File(s)");
 	using boost::algorithm::iequals;
-	std::wstring ext = boost::filesystem::wpath(file).extension().wstring();
-
+	auto ext = boost::filesystem::wpath(file).extension().wstring();
 	if (iequals(ext, L".exe"))
 	{
 		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
@@ -455,7 +446,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	}
 	else
 	{
-		if (IsBinaryFileType(IdentifyFile(Str(file))))
+		if (IsBinaryFileType(IdentifyFile(file)))
 		{
 			m_logSources.AddBinaryFileReader(file);
 		}
@@ -779,7 +770,7 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	std::ofstream fs;
-	OpenLogFile(fs, Str(filename));
+	OpenLogFile(fs, filename);
 	int count = m_logFile.Count();
 	for (int i = 0; i < count; ++i)
 	{
