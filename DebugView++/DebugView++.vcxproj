@@ -300,7 +300,6 @@
     <ClInclude Include="FilterDlg.h" />
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="GuiThread.h" />
     <ClInclude Include="HistoryDlg.h" />
     <ClInclude Include="hstream.h" />
     <ClInclude Include="LogView.h" />

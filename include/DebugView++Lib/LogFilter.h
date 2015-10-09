@@ -20,6 +20,7 @@ struct FilterData
 };
 
 boost::property_tree::ptree MakePTree(const std::vector<Filter>& filters);
+std::vector<Filter> MakeFilters(const boost::property_tree::ptree& pt);
 
 void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter);
 void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter);

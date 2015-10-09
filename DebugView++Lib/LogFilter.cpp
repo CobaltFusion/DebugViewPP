@@ -13,6 +13,7 @@
 #pragma warning(push, 3)
 #include <boost/property_tree/json_parser.hpp>
 #pragma warning(pop)
+#include "DebugView++Lib/Colors.h"
 #include "DebugView++Lib/LogFilter.h"
 
 namespace fusion {
@@ -23,6 +24,12 @@ using boost::property_tree::ptree;
 ptree MakePTree(COLORREF color)
 {
 	ptree pt;
+	if (color == Colors::Auto)
+	{
+		pt.put("<xmlattr>.Auto", true);
+		return pt;
+	}
+
 	pt.put("Red", GetRValue(color));
 	pt.put("Green", GetGValue(color));
 	pt.put("Blue", GetBValue(color));
@@ -31,6 +38,9 @@ ptree MakePTree(COLORREF color)
 
 COLORREF MakeColor(const ptree& pt)
 {
+	if (pt.get<bool>("<xmlattr>.Auto", false))
+		return Colors::Auto;
+
 	auto red = pt.get<int>("Red");
 	auto green = pt.get<int>("Green");
 	auto blue = pt.get<int>("Blue");

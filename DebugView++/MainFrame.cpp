@@ -813,7 +813,7 @@ void CMainFrame::LoadProject(const std::wstring& fileName)
 
 	auto viewsPt = pt.get_child("DebugViewPP.Views");
 	std::vector<View> views;
-	for (auto it = pt.begin(); it != pt.end(); ++it)
+	for (auto it = viewsPt.begin(); it != viewsPt.end(); ++it)
 	{
 		if (it->first == "View")
 		{
@@ -823,8 +823,9 @@ void CMainFrame::LoadProject(const std::wstring& fileName)
 			view.name = viewPt.get<std::string>("Name");
 			view.clockTime = viewPt.get<bool>("ClockTime");
 			view.processColors = viewPt.get<bool>("ProcessColors");
-			//viewPt.get_child("MessageFilters", MakePTree(filters.messageFilters));
-			//viewPt.get_child("ProcessFilters", MakePTree(filters.processFilters));
+			view.filters.messageFilters = MakeFilters(viewPt.get_child("MessageFilters"));
+			view.filters.processFilters = MakeFilters(viewPt.get_child("ProcessFilters"));
+
 			views.push_back(view);
 		}
 	}
@@ -843,6 +844,13 @@ void CMainFrame::LoadProject(const std::wstring& fileName)
 		auto& logView = GetView(i);
 		logView.SetClockTime(views[i].clockTime);
 		logView.SetViewProcessColors(views[i].processColors);
+	}
+
+	size_t i = GetViewCount();
+	while (i > views.size())
+	{
+		--i;
+		CloseView(i);
 	}
 }
 
