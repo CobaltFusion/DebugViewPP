@@ -99,6 +99,8 @@ public:
 	END_UPDATE_UI_MAP()
 
 	void SetLogging();
+	void LoadConfiguration(const std::wstring& fileName);
+	void SaveConfiguration(const std::wstring& fileName);
 	void Load(const std::wstring& fileName);
 	void LoadAsync(const std::wstring& fileName);
 	void Load(HANDLE hFile);
@@ -150,8 +152,6 @@ private:
 	void ClearLog();
 	void SaveLogFile(const std::wstring& fileName);
 	void SaveViewFile(const std::wstring& fileName);
-	void LoadProject(const std::wstring& fileName);
-	void SaveProject(const std::wstring& fileName);
 
 	void OnContextMenu(HWND /*hWnd*/, CPoint pt);
 	LRESULT OnSysCommand(UINT nCommand, CPoint);
@@ -169,8 +169,8 @@ private:
 	void OnFileSaveLog(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnFileExit(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnFileSaveView(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnFileLoadProject(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnFileSaveProject(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileLoadConfiguration(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileSaveConfiguration(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLinkViews(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnAutoNewline(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnHide(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -213,7 +213,7 @@ private:
 	LogSources m_logSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
-	std::wstring m_projectFileName;
+	std::wstring m_configFileName;
 	size_t m_initialPrivateBytes;
 	NOTIFYICONDATA m_notifyIconData;
 	LOGFONT m_logfont;

@@ -72,8 +72,8 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
 	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)	
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
-	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_PROJECT, OnFileLoadProject)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_PROJECT, OnFileSaveProject)
+	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
@@ -114,7 +114,7 @@ CMainFrame::CMainFrame() :
 	m_tryGlobal(HasGlobalDBWinReaderRights()),
 	m_logFileName(L"DebugView++.dblog"),
 	m_txtFileName(L"MessagesInTheCurrentView.dblog"),
-	m_projectFileName(L"DebugView++.dbproj"),
+	m_configFileName(L"DebugView++.dbconf"),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
 	m_logSources(true)
@@ -803,7 +803,7 @@ struct View
 	LogFilter filters;
 };
 
-void CMainFrame::LoadProject(const std::wstring& fileName)
+void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 {
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_xml(Str(fileName), pt, boost::property_tree::xml_parser::trim_whitespace);
@@ -854,7 +854,7 @@ void CMainFrame::LoadProject(const std::wstring& fileName)
 	}
 }
 
-void CMainFrame::SaveProject(const std::wstring& fileName)
+void CMainFrame::SaveConfiguration(const std::wstring& fileName)
 {
 #if BOOST_VERSION < 105600
 	boost::property_tree::xml_writer_settings<char> settings('\t', 1);
@@ -1001,24 +1001,24 @@ void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd
 		SaveViewFile(dlg.m_szFileName);
 }
 
-void CMainFrame::OnFileLoadProject(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnFileLoadConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CFileDialog dlg(true, L".dbproj", m_projectFileName.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
-		L"DebugView++ Project Files (*.dbproj)\0*.dbproj\0\0");
+	CFileDialog dlg(true, L".dbconf", m_configFileName.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load View Configuration";
 	if (dlg.DoModal() == IDOK)
-		LoadProject(dlg.m_szFileName);
+		LoadConfiguration(dlg.m_szFileName);
 }
 
-void CMainFrame::OnFileSaveProject(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CMainFrame::OnFileSaveConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CFileDialog dlg(false, L".dbproj", m_projectFileName.c_str(), OFN_OVERWRITEPROMPT,
-		L"DebugView++ Project Files (*.dbproj)\0*.dbproj\0\0");
+	CFileDialog dlg(false, L".dbconf", m_configFileName.c_str(), OFN_OVERWRITEPROMPT,
+		L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save View Configuration";
 	if (dlg.DoModal() == IDOK)
-		SaveProject(dlg.m_szFileName);
+		SaveConfiguration(dlg.m_szFileName);
 }
 
 void CMainFrame::ClearLog()

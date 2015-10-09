@@ -120,7 +120,9 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 		ThrowLastError(L"Main window creation failed!");
 
 	wndMain.ShowWindow(cmdShow);
-	if (!fileName.empty())
+	if (boost::algorithm::iends_with(fileName, ".dbconf"))
+		wndMain.LoadConfiguration(fileName);
+	else if (!fileName.empty())
 		wndMain.Load(fileName);
 	else if (hFile)
 		wndMain.Load(hFile);
