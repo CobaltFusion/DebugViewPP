@@ -75,12 +75,12 @@ std::vector<Filter> MakeFilters(const ptree& pt)
 	return filters;
 }
 
-ptree MakePTree(const std::string& name, const LogFilter& filter)
+ptree MakePTree(const FilterData& view)
 {
 	ptree pt;
-	pt.put("Filter.Name", name);
-	pt.put_child("Filter.MessageFilters", MakePTree(filter.messageFilters));
-	pt.put_child("Filter.ProcessFilters", MakePTree(filter.processFilters));
+	pt.put("Filter.Name", view.name);
+	pt.put_child("Filter.MessageFilters", MakePTree(view.filter.messageFilters));
+	pt.put_child("Filter.ProcessFilters", MakePTree(view.filter.processFilters));
 	return pt;
 }
 
@@ -101,12 +101,14 @@ void SaveXml(const std::string& fileName, const std::string& name, const LogFilt
 #else
 	boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
 #endif
-	write_xml(fileName, MakePTree(name, filter), std::locale(), settings);
+	FilterData view = { name, filter };
+	write_xml(fileName, MakePTree(view), std::locale(), settings);
 }
 
 void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter)
 {
-	write_json(fileName, MakePTree(name, filter));
+	FilterData view = { name, filter };
+	write_json(fileName, MakePTree(view));
 }
 
 FilterData LoadXml(const std::string& fileName)

@@ -19,6 +19,7 @@
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
+#include "DebugView++Lib/LogFilter.h"
 #include "Win32Lib/utilities.h"
 #include "hstream.h"
 #include "Resource.h"
@@ -802,16 +803,56 @@ void CMainFrame::SaveViewFile(const std::wstring& filename)
 	UpdateStatusBar();
 }
 
+struct View
+{
+	int index;
+	std::string name;
+	bool clockTime;
+	bool processColors;
+	LogFilter filters;
+};
+
 void CMainFrame::LoadProject(const std::wstring& fileName)
 {
-}
-
-boost::property_tree::ptree MakePTree()
-{
 	boost::property_tree::ptree pt;
-	pt.put("AutoNewline", true);
-	pt.put("LinkViews", true);
-	return pt;
+	boost::property_tree::read_xml(Str(fileName), pt, boost::property_tree::xml_parser::trim_whitespace);
+
+	auto autoNewline = pt.get<bool>("DebugViewPP.AutoNewline");
+	auto linkViews = pt.get<bool>("DebugViewPP.LinkViews");
+
+	auto viewsPt = pt.get_child("DebugViewPP.Views");
+	std::vector<View> views;
+	for (auto it = pt.begin(); it != pt.end(); ++it)
+	{
+		if (it->first == "View")
+		{
+			View view;
+			auto& viewPt = it->second;
+			view.index = viewPt.get<bool>("Index");
+			view.name = viewPt.get<std::string>("Name");
+			view.clockTime = viewPt.get<bool>("ClockTime");
+			view.processColors = viewPt.get<bool>("ProcessColors");
+			//viewPt.get_child("MessageFilters", MakePTree(filters.messageFilters));
+			//viewPt.get_child("ProcessFilters", MakePTree(filters.processFilters));
+			views.push_back(view);
+		}
+	}
+	std::sort(views.begin(), views.end(), [](const View& v1, const View& v2) { return v1.index < v2.index; });
+
+	m_logSources.SetAutoNewLine(autoNewline);
+	m_linkViews = linkViews;
+
+	for (int i = 0; i < static_cast<int>(views.size()); ++i)
+	{
+		if (i >= GetViewCount())
+			AddFilterView(WStr(views[i].name), views[i].filters);
+		else
+			GetView(i).SetFilters(views[i].filters);
+
+		auto& logView = GetView(i);
+		logView.SetClockTime(views[i].clockTime);
+		logView.SetViewProcessColors(views[i].processColors);
+	}
 }
 
 void CMainFrame::SaveProject(const std::wstring& fileName)
@@ -822,8 +863,28 @@ void CMainFrame::SaveProject(const std::wstring& fileName)
 	boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
 #endif
 
+	boost::property_tree::ptree mainPt;
+	mainPt.put("AutoNewline", m_logSources.GetAutoNewLine());
+	mainPt.put("LinkViews", m_linkViews);
+
+	int views = GetViewCount();
+	for (int i = 0; i < views; ++i)
+	{
+		auto& logView = GetView(i);
+		auto filters = logView.GetFilters();
+		boost::property_tree::ptree viewPt;
+		viewPt.put("Index", i);
+		viewPt.put("Name", Str(logView.GetName()).str());
+		viewPt.put("ClockTime", logView.GetClockTime());
+		viewPt.put("ProcessColors", logView.GetViewProcessColors());
+		viewPt.put_child("MessageFilters", MakePTree(filters.messageFilters));
+		viewPt.put_child("ProcessFilters", MakePTree(filters.processFilters));
+		mainPt.add_child("Views.View", viewPt);
+	}
+
 	boost::property_tree::ptree pt;
-	pt.put_child("DebugViewPP", MakePTree());
+	pt.add_child("DebugViewPP", mainPt);
+
 	boost::property_tree::write_xml(Str(fileName), pt, std::locale(), settings);
 }
 

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <boost/property_tree/ptree_fwd.hpp>
 #include "Filter.h"
 
 namespace fusion {
@@ -17,6 +18,8 @@ struct FilterData
 	std::string name;
 	LogFilter filter;
 };
+
+boost::property_tree::ptree MakePTree(const std::vector<Filter>& filters);
 
 void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter);
 void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter);

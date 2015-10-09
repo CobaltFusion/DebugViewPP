@@ -143,7 +143,6 @@ public:
 	void StopScrolling();
 	bool ScrollToIndex(int index, bool center);
 	void ScrollDown();
-	bool IsLastLineSelected();
 
 	bool IsColumnViewed(int nID) const;
 	bool GetClockTime() const;
