@@ -25,6 +25,7 @@ Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& m
 Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pLogSource) :
 	time(time),
 	systemTime(systemTime),
+	handle(nullptr),
 	pid(pid),
 	processName(processName),
 	message(message),
