@@ -25,6 +25,15 @@ namespace SubItem
 	const int Remove = 6;
 };
 
+template <typename T>
+size_t GetArrayIndex(T value, const T a[], size_t size)
+{
+	for (size_t i = 0; i < size; ++i)
+		if (a[i] == value)
+			return i;
+	return 0;
+}
+
 bool SupportsColor(FilterType::type filterType)
 {
 	switch (filterType)
@@ -34,24 +43,10 @@ bool SupportsColor(FilterType::type filterType)
 	}
 }
 
-bool SupportsAutoColor(FilterType::type filterType)
-{
-	switch (filterType)
-	{
-	case FilterType::Include:
-	case FilterType::Highlight:
-	case FilterType::Track:
-	case FilterType::Stop:
-	case FilterType::Token:
-		return true;
-	default:
-		return false;
-	}
-}
-
-CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount) :
+CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount, bool supportAutoBg) :
 	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount),
-	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount)
+	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount),
+	m_supportAutoBg(supportAutoBg)
 {
 }
 
@@ -77,6 +72,21 @@ void CFilterPageImpl::ExceptionHandler()
 void CFilterPageImpl::ShowError()
 {
 	m_grid.SetFocus();
+}
+
+bool CFilterPageImpl::SupportsAutoColor(FilterType::type filterType) const
+{
+	switch (filterType)
+	{
+	case FilterType::Include:
+	case FilterType::Highlight:
+	case FilterType::Track:
+	case FilterType::Stop:
+	case FilterType::Token:
+		return m_supportAutoBg;
+	default:
+		return false;
+	}
 }
 
 void CFilterPageImpl::UpdateGridColors(int item)
@@ -250,7 +260,7 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 		auto& type = dynamic_cast<CPropertyListItem&>(*m_grid.GetProperty(iItem, SubItem::Type));
 		if (GetMatchType(iItem) == MatchType::RegexGroups)
 		{
-			type.SetValue(CComVariant(FilterType::Token));
+			type.SetValue(CComVariant(GetArrayIndex(FilterType::Token, m_filterTypes, m_filterTypeCount)));
 			type.SetEnabled(false);
 		}
 		else

@@ -23,7 +23,7 @@ class CFilterPageImpl :
 	public CDialogResize<CFilterPageImpl>
 {
 public:
-	CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount);
+	CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount, bool supportAutoBg);
 
 	std::vector<Filter> GetFilters();
 	void SetFilters(const std::vector<Filter>& filters);
@@ -46,6 +46,7 @@ public:
 	void OnSize(UINT type, CSize size);
 
 private:
+	bool SupportsAutoColor(FilterType::type filterType) const;
 	void UpdateGridColors(int item);
 	void InsertFilter(int item, const Filter& filter);
 	void AddFilter(const Filter& filter);
@@ -66,6 +67,7 @@ private:
 	size_t m_filterTypeCount;
 	const MatchType::type* m_matchTypes;
 	size_t m_matchTypeCount;
+	bool m_supportAutoBg;
 	CPropertyGridCtrl m_grid;
 	std::vector<Filter> m_filters;
 	CImageList m_dragImage;
@@ -78,8 +80,8 @@ class CFilterPage : public CFilterPageImpl
 {
 public:
 	template <size_t FilterTypeCount, size_t MatchTypeCount>
-	CFilterPage(const FilterType::type (&filterTypes)[FilterTypeCount], const MatchType::type (&matchTypes)[MatchTypeCount]) :
-		CFilterPageImpl(filterTypes, FilterTypeCount, matchTypes, MatchTypeCount)
+	CFilterPage(const FilterType::type (&filterTypes)[FilterTypeCount], const MatchType::type (&matchTypes)[MatchTypeCount], bool supportAutoBg) :
+		CFilterPageImpl(filterTypes, FilterTypeCount, matchTypes, MatchTypeCount, supportAutoBg)
 	{
 	}
 };

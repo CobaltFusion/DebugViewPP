@@ -84,7 +84,7 @@ static const FilterType::type ProcessFilterTypes[] =
 	FilterType::Beep
 };
 
-static const MatchType::type MatchTypes[] =
+static const MatchType::type MessageMatchTypes[] =
 {
 	MatchType::Simple,
 	MatchType::Wildcard,
@@ -92,9 +92,16 @@ static const MatchType::type MatchTypes[] =
 	MatchType::RegexGroups
 };
 
+static const MatchType::type ProcessMatchTypes[] =
+{
+	MatchType::Simple,
+	MatchType::Wildcard,
+	MatchType::Regex
+};
+
 CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :
-	m_messagePage(MessageFilterTypes, MatchTypes),
-	m_processPage(ProcessFilterTypes, MatchTypes),
+	m_messagePage(MessageFilterTypes, MessageMatchTypes, true),
+	m_processPage(ProcessFilterTypes, ProcessMatchTypes, false),
 	m_name(name),
 	m_filter(filters)
 {
