@@ -148,21 +148,14 @@ void ScopedScheduledCall::Cancel()
 }
 
 Executor::Executor() :
-	m_end(false),
-	m_thread(&Executor::Run, this)
+	m_threadId(boost::this_thread::get_id())
 {
-}
-
-Executor::~Executor()
-{
-	m_q.Push([this] { m_end = true; });
-	m_thread.join();
 }
 
 ScheduledCall Executor::CallAt(const TimePoint& at, std::function<void ()> fn)
 {
 	unsigned id = GetCallId();
-	m_q.Push([this, id, at, fn]()
+	Add([this, id, at, fn]()
 	{
 		m_scheduledCalls.Insert(Executor::CallData(id, at, fn));
 	});
@@ -179,7 +172,7 @@ ScheduledCall Executor::CallEvery(const Duration& interval, std::function<void (
 	assert(interval > Duration::zero());
 
 	unsigned id = GetCallId();
-	m_q.Push([this, id, interval, fn]()
+	Add([this, id, interval, fn]()
 	{
 		m_scheduledCalls.Insert(Executor::CallData(id, boost::chrono::steady_clock::now() + interval, interval, fn));
 	});
@@ -197,7 +190,12 @@ void Executor::Cancel(const ScheduledCall& call)
 
 bool Executor::IsExecutorThread() const
 {
-	return boost::this_thread::get_id() == m_thread.get_id();
+	return boost::this_thread::get_id() == m_threadId;
+}
+
+void Executor::Add(std::function<void ()> fn)
+{
+	m_q.Push(fn);
 }
 
 std::function<void ()> Executor::GetNextFunction()
@@ -208,13 +206,31 @@ std::function<void ()> Executor::GetNextFunction()
 		return m_q.Pop();
 }
 
-void Executor::Run()
+void Executor::RunOne()
+{
+	m_threadId = boost::this_thread::get_id();
+	GetNextFunction()();
+}
+
+ActiveExecutor::ActiveExecutor() :
+	m_end(false),
+	m_thread([this] { Run(); })
+{
+}
+
+ActiveExecutor::~ActiveExecutor()
+{
+	Add([this] { m_end = true; });
+	m_thread.join();
+}
+
+void ActiveExecutor::Run()
 {
 	while (!m_end)
 	{
 		try
 		{
-			GetNextFunction()();
+			RunOne();
 		}
 		catch (std::exception& e)
 		{

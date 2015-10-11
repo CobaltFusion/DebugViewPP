@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(TestExecutor)
 
 BOOST_AUTO_TEST_CASE(TestExecutor)
 {
-	Executor exec;
+	ActiveExecutor exec;
 
 	BOOST_CHECK_EQUAL(exec.Call([]() { return 1 + 1; }), 2);
 	auto f = exec.CallAsync([]() { return 2 + 2; });

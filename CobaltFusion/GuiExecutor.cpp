@@ -47,7 +47,10 @@ GuiExecutor::GuiExecutor() :
 
 GuiExecutor::~GuiExecutor()
 {
-	m_wnd.DestroyWindow();
+	if (IsExecutorThread())
+		m_wnd.DestroyWindow();
+	else
+		Call([this] { m_wnd.DestroyWindow(); });
 }
 
 ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void()> fn)

@@ -99,13 +99,12 @@ public:
 	typedef Clock::duration Duration;
 
 	Executor();
-	~Executor();
 
 	template <typename Fn>
 	auto Call(Fn fn) -> decltype(fn())
 	{
 		boost::packaged_task<decltype(fn())> task(fn);
-		m_q.Push([&task]() { task(); });
+		Add([&task]() { task(); });
 		return task.get_future().get();
 	}
 
@@ -114,7 +113,7 @@ public:
 	{
 		auto pTask = std::make_shared<boost::packaged_task<decltype(fn())>>(fn);
 		auto f = pTask->get_future();
-		m_q.Push([pTask]() { (*pTask)(); });
+		Add([pTask]() { (*pTask)(); });
 		return f;
 	}
 
@@ -126,14 +125,30 @@ public:
 
 	bool IsExecutorThread() const;
 
+	void RunOne();
+
+protected:
+	void Add(std::function<void ()> fn);
+
 private:
 	typedef TimedCalls::CallData CallData;
 
 	std::function<void ()> GetNextFunction();
-	void Run();
 
 	SynchronizedQueue<std::function<void ()>> m_q;
 	TimedCalls m_scheduledCalls;
+	boost::thread::id m_threadId;
+};
+
+class ActiveExecutor : public Executor
+{
+public:
+	ActiveExecutor();
+	~ActiveExecutor();
+
+private:
+	void Run();
+
 	bool m_end;
 	boost::thread m_thread;
 };
