@@ -53,7 +53,7 @@ GuiExecutor::~GuiExecutor()
 		Call([this] { m_wnd.DestroyWindow(); });
 }
 
-ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void()> fn)
+ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void ()> fn)
 {
 	unsigned id = GetCallId();
 	CallAsync([this, id, at, fn]()
@@ -64,12 +64,12 @@ ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void()> fn)
 	return MakeScheduledCall(id);
 }
 
-ScheduledCall GuiExecutor::CallAfter(const Duration& interval, std::function<void()> fn)
+ScheduledCall GuiExecutor::CallAfter(const Duration& interval, std::function<void ()> fn)
 {
 	return CallAt(boost::chrono::steady_clock::now() + interval, fn);
 }
 
-ScheduledCall GuiExecutor::CallEvery(const Duration& interval, std::function<void()> fn)
+ScheduledCall GuiExecutor::CallEvery(const Duration& interval, std::function<void ()> fn)
 {
 	assert(interval > Duration::zero());
 

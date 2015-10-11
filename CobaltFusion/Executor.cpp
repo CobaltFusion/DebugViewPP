@@ -147,39 +147,60 @@ void ScopedScheduledCall::Cancel()
 	m_call.Cancel();
 }
 
-Executor::Executor() :
-	m_threadId(boost::this_thread::get_id())
+Executor::Executor()
 {
+	SetExecutorThread();
 }
 
-ScheduledCall Executor::CallAt(const TimePoint& at, std::function<void ()> fn)
+bool Executor::IsExecutorThread() const
+{
+	return boost::this_thread::get_id() == m_threadId;
+}
+
+void Executor::RunOne()
+{
+	SetExecutorThread();
+	m_q.Pop()();
+}
+
+void Executor::SetExecutorThread()
+{
+	m_threadId = boost::this_thread::get_id();
+}
+
+void Executor::Add(std::function<void ()> fn)
+{
+	m_q.Push(fn);
+}
+
+ScheduledCall TimedExecutor::CallAt(const TimePoint& at, std::function<void ()> fn)
 {
 	unsigned id = GetCallId();
 	Add([this, id, at, fn]()
 	{
-		m_scheduledCalls.Insert(Executor::CallData(id, at, fn));
+		m_scheduledCalls.Insert(TimedExecutor::CallData(id, at, fn));
 	});
 	return MakeScheduledCall(id);
 }
 
-ScheduledCall Executor::CallAfter(const Duration& interval, std::function<void ()> fn)
+ScheduledCall TimedExecutor::CallAfter(const Duration& interval, std::function<void ()> fn)
 {
 	return CallAt(boost::chrono::steady_clock::now() + interval, fn);
 }
 
-ScheduledCall Executor::CallEvery(const Duration& interval, std::function<void ()> fn)
+ScheduledCall TimedExecutor::CallEvery(const Duration& interval, std::function<void ()> fn)
 {
 	assert(interval > Duration::zero());
 
 	unsigned id = GetCallId();
 	Add([this, id, interval, fn]()
 	{
-		m_scheduledCalls.Insert(Executor::CallData(id, boost::chrono::steady_clock::now() + interval, interval, fn));
+		m_scheduledCalls.Insert(TimedExecutor::CallData(id, boost::chrono::steady_clock::now() + interval, interval, fn));
 	});
 	return MakeScheduledCall(id);
 }
 
-void Executor::Cancel(const ScheduledCall& call)
+void TimedExecutor::Cancel(const ScheduledCall& call)
 {
 	unsigned id = GetId(call);
 	if (IsExecutorThread())
@@ -188,28 +209,13 @@ void Executor::Cancel(const ScheduledCall& call)
 		Call([this, id]() { m_scheduledCalls.Remove(id); });
 }
 
-bool Executor::IsExecutorThread() const
+void TimedExecutor::RunOne()
 {
-	return boost::this_thread::get_id() == m_threadId;
-}
-
-void Executor::Add(std::function<void ()> fn)
-{
-	m_q.Push(fn);
-}
-
-std::function<void ()> Executor::GetNextFunction()
-{
-	if (!m_scheduledCalls.IsEmpty() && !m_q.WaitForNotEmpty(m_scheduledCalls.NextDeadline()))
-		return m_scheduledCalls.Pop().fn;
+	SetExecutorThread();
+	if (!m_scheduledCalls.IsEmpty() && !WaitForNotEmpty(m_scheduledCalls.NextDeadline()))
+		m_scheduledCalls.Pop().fn();
 	else
-		return m_q.Pop();
-}
-
-void Executor::RunOne()
-{
-	m_threadId = boost::this_thread::get_id();
-	GetNextFunction()();
+		return Executor::RunOne();
 }
 
 ActiveExecutor::ActiveExecutor() :

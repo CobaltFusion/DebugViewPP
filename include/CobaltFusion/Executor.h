@@ -91,13 +91,9 @@ private:
 	std::vector<CallData> m_scheduledCalls;
 };
 
-class Executor : private ExecutorBase
+class Executor
 {
 public:
-	typedef boost::chrono::steady_clock Clock;
-	typedef Clock::time_point TimePoint;
-	typedef Clock::duration Duration;
-
 	Executor();
 
 	template <typename Fn>
@@ -117,30 +113,49 @@ public:
 		return f;
 	}
 
+	bool IsExecutorThread() const;
+
+	void RunOne();
+
+protected:
+	void SetExecutorThread();
+	void Add(std::function<void ()> fn);
+
+	template <typename Clock, typename Duration>
+	bool WaitForNotEmpty(const boost::chrono::time_point<Clock, Duration>& time) const
+	{
+		return m_q.WaitForNotEmpty(time);
+	}
+
+private:
+	SynchronizedQueue<std::function<void ()>> m_q;
+	boost::thread::id m_threadId;
+};
+
+class TimedExecutor :
+	private ExecutorBase,
+	public Executor
+{
+public:
+	typedef TimedCalls::Clock Clock;
+	typedef TimedCalls::TimePoint TimePoint;
+	typedef TimedCalls::Duration Duration;
+
 	ScheduledCall CallAt(const TimePoint& at, std::function<void ()> fn);
 	ScheduledCall CallAfter(const Duration& interval, std::function<void ()> fn);
 	ScheduledCall CallEvery(const Duration& interval, std::function<void ()> fn);
 
 	virtual void Cancel(const ScheduledCall& call);
 
-	bool IsExecutorThread() const;
-
 	void RunOne();
-
-protected:
-	void Add(std::function<void ()> fn);
 
 private:
 	typedef TimedCalls::CallData CallData;
 
-	std::function<void ()> GetNextFunction();
-
-	SynchronizedQueue<std::function<void ()>> m_q;
 	TimedCalls m_scheduledCalls;
-	boost::thread::id m_threadId;
 };
 
-class ActiveExecutor : public Executor
+class ActiveExecutor : public TimedExecutor
 {
 public:
 	ActiveExecutor();
