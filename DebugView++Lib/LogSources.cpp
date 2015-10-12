@@ -173,12 +173,8 @@ void LogSources::DelayedUpdate()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-	for (;;)
-	{
+	while (!m_end)
 		ListenUntilUpdateEvent();
-		if (m_end)
-			break;
-	}
 }
 
 void LogSources::ListenUntilUpdateEvent()
@@ -204,18 +200,18 @@ void LogSources::ListenUntilUpdateEvent()
 
 	auto updateEventIndex = waitHandles.size(); 
 	waitHandles.push_back(m_updateEvent.get());
-	for (;;)
+	while (!m_end)
 	{
 		m_loopback->Signal();
 		auto res = WaitForAnyObject(waitHandles, INFINITE);
 
-		if (m_end)
-			break;
 		if (res.signaled)
 		{
 			int index = res.index - WAIT_OBJECT_0;
 			if (index == updateEventIndex)
+			{
 				break;
+			}
 			else
 			{
 				assert((index < static_cast<int>(sources.size())) && "res.index out of range");
@@ -264,14 +260,18 @@ Lines LogSources::GetLines()
 
 		if (inputLine.handle)
 		{
+			Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);
 			auto it = m_pidMap.find(inputLine.pid);
 			if (it == m_pidMap.end())
 			{
-				m_pidMap[inputLine.pid] = Handle(inputLine.handle);
+				m_pidMap[inputLine.pid] = std::move(handle);
 				m_processMonitor.Add(inputLine.pid, inputLine.handle);
 			}
-			inputLine.handle = nullptr;
+			else
+			{
+				inputLine.handle = nullptr;
+			}
 		}
 
 		// since a line can contain multiple newlines, processing 1 line can output

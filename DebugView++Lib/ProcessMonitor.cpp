@@ -19,7 +19,7 @@ ProcessMonitor::ProcessInfo::ProcessInfo(DWORD pid, HANDLE handle) :
 {
 }
 
-	ProcessMonitor::ProcessMonitor() :
+ProcessMonitor::ProcessMonitor() :
 	m_end(false),
 	m_event(CreateEvent(nullptr, false, false, nullptr)),
 	m_thread([this] { Run(); })
