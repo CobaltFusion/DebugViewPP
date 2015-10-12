@@ -101,7 +101,7 @@ public:
 			return TRUE;
 
 		HDHITTESTINFO info;
-		info.pt = GetMessagePos();
+		info.pt = Win32::GetMessagePos();
 		ScreenToClient(&info.pt);
 		return HitTest(&info) < 1;
 	}
@@ -283,7 +283,7 @@ private:
 	bool m_changed;
 	std::function<void ()> m_stop;
 	std::function<bool ()> m_track;
-	HIcon m_hBookmarkIcon;
+	Win32::HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;
 	HCURSOR m_hBeamCursor;
 	CPoint m_dragStart;

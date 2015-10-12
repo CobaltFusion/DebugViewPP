@@ -17,6 +17,7 @@
 #pragma comment(lib, "Win32Lib.lib")
 
 namespace fusion {
+namespace Win32 {
 
 struct LocalAllocDeleter
 {
@@ -178,13 +179,21 @@ SYSTEMTIME GetSystemTime();
 SYSTEMTIME GetLocalTime();
 FILETIME GetSystemTimeAsFileTime();
 FILETIME FileTimeToLocalFileTime(const FILETIME& ft);
+FILETIME LocalFileTimeToFileTime(const FILETIME& ft);
 SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft);
 FILETIME SystemTimeToFileTime(const SYSTEMTIME& st);
 
 Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, DWORD protect, DWORD maximumSizeHigh, DWORD maximumSizeLow, const wchar_t* pName);
+
 Handle OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId);
+
 Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName);
+
+void SetEvent(Handle& hEvent);
+void SetEvent(HANDLE hEvent);
+
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
+
 void SetPrivilege(const wchar_t* privilege, bool enablePrivilege);
 void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege);
 
@@ -197,6 +206,8 @@ struct WaitResult
 
 void WaitForSingleObject(HANDLE hObject);
 bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds);
+void WaitForSingleObject(const Handle& hObject);
+bool WaitForSingleObject(const Handle& hObject, DWORD milliSeconds);
 
 WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool waitAll, DWORD milliSeconds);
 
@@ -256,5 +267,17 @@ DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue);
 
 ULONG_PTR GetParentProcessId();
 std::vector<std::wstring> GetCommandLineArguments();
+
+DWORD GetExitCodeProcess(HANDLE hProcess);
+DWORD GetExitCodeProcess(const Handle& hProcess);
+
+} // namespace Win32
+
+bool operator==(const FILETIME& ft1, const FILETIME& ft2);
+bool operator!=(const FILETIME& ft1, const FILETIME& ft2);
+bool operator<(const FILETIME& ft1, const FILETIME& ft2);
+bool operator>=(const FILETIME& ft1, const FILETIME& ft2);
+bool operator>(const FILETIME& ft1, const FILETIME& ft2);
+bool operator<=(const FILETIME& ft1, const FILETIME& ft2);
 
 } // namespace fusion

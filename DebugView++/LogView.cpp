@@ -238,7 +238,7 @@ bool Contains(const RECT& rect, const POINT& pt)
 
 BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
 {
-	POINT pt = GetMessagePos();
+	POINT pt = Win32::GetMessagePos();
 	ScreenToClient(&pt);
 
 	RECT client;
@@ -422,7 +422,7 @@ void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 {
 	CClientDC dc(*this);
 
-	GdiObjectSelection font(dc, GetFont());
+	Win32::GdiObjectSelection font(dc, GetFont());
 	TEXTMETRIC metric;
 	dc.GetTextMetrics(&metric);
 	pMeasureItemStruct->itemHeight = metric.tmHeight;
@@ -441,7 +441,7 @@ void CLogView::DeleteItem(DELETEITEMSTRUCT* lParam)
 int CLogView::GetTextIndex(int iItem, int xPos)
 {
 	CClientDC dc(*this);
-	GdiObjectSelection font(dc, GetFont());
+	Win32::GdiObjectSelection font(dc, GetFont());
 	return GetTextIndex(dc.m_hDC, iItem, xPos);
 }
 
@@ -654,8 +654,8 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 		rcHighlight.left = rcHighlight.right;
 		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->end).cx;
 		{
-			ScopedTextColor txtcol(hdc, it->color.fore);
-			ScopedBkColor bkcol(hdc, it->color.back);
+			Win32::ScopedTextColor txtcol(hdc, it->color.fore);
+			Win32::ScopedBkColor bkcol(hdc, it->color.back);
 			ExtTextOut(hdc, pos, rcHighlight, text);
 		}
 		rcHighlight.left = rcHighlight.right;
@@ -731,8 +731,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	rect.left += GetColumnWidth(0);
 	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
 
-	ScopedBkColor bcol(dc, bkColor);
-	ScopedTextColor tcol(dc, txColor);
+	Win32::ScopedBkColor bcol(dc, bkColor);
+	Win32::ScopedTextColor tcol(dc, txColor);
 
 	int subitemCount = GetHeader().GetItemCount();
 	DrawBookmark(dc, iItem);
@@ -1397,8 +1397,8 @@ void CLogView::Copy()
 	}
 	const std::string& str = ss.str();
 
-	HGlobal hdst(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
-	GlobalLock<char> lock(hdst);
+	Win32::HGlobal hdst(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
+	Win32::GlobalLock<char> lock(hdst);
 	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<char*>(lock.Ptr(), str.size()));
 	lock.Ptr()[str.size()] = '\0';
 	if (OpenClipboard())
@@ -1483,10 +1483,10 @@ bool CLogView::FindPrevious(const std::wstring& text)
 
 void CLogView::LoadSettings(CRegKey& reg)
 {
-	SetName(RegGetStringValue(reg));
-	SetAutoScrollStop(RegGetDWORDValue(reg, L"AutoScrollStop", 1) != 0);
-	SetClockTime(RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
-	SetViewProcessColors(RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
+	SetName(Win32::RegGetStringValue(reg));
+	SetAutoScrollStop(Win32::RegGetDWORDValue(reg, L"AutoScrollStop", 1) != 0);
+	SetClockTime(Win32::RegGetDWORDValue(reg, L"ClockTime", 1) != 0);
+	SetViewProcessColors(Win32::RegGetDWORDValue(reg, L"ShowProcessColors", 0) != 0);
 
 	std::vector<ColumnInfo> columns;
 	for (int i = 0; i < Column::Count; ++i)
@@ -1496,9 +1496,9 @@ void CLogView::LoadSettings(CRegKey& reg)
 			break;
 
 		ColumnInfo column = m_columns[i];
-		column.enable = RegGetDWORDValue(regColumn, L"Enable", column.enable) != 0;
-		column.column.cx = RegGetDWORDValue(regColumn, L"Width", column.column.cx);
-		column.column.iOrder = RegGetDWORDValue(regColumn, L"Order", column.column.iOrder);
+		column.enable = Win32::RegGetDWORDValue(regColumn, L"Enable", column.enable) != 0;
+		column.column.cx = Win32::RegGetDWORDValue(regColumn, L"Width", column.column.cx);
+		column.column.iOrder = Win32::RegGetDWORDValue(regColumn, L"Order", column.column.iOrder);
 		columns.push_back(column);
 	}
 	if (columns.size() == m_columns.size())
@@ -1554,7 +1554,7 @@ void CLogView::Save(const std::wstring& filename) const
 
 	fs.close();
 	if (!fs)
-		ThrowLastError(filename);
+		Win32::ThrowLastError(filename);
 }
 
 LogFilter CLogView::GetFilters() const

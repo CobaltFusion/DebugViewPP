@@ -19,9 +19,9 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 	return global ? L"Global\\" + name : name;
 }
 
-Handle CreateDBWinBufferMapping(bool global)
+Win32::Handle CreateDBWinBufferMapping(bool global)
 {
-	Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
+	Win32::Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		throw std::runtime_error("CreateDBWinBufferMapping");
 	return hMap;
@@ -53,9 +53,9 @@ void DBWinReader::Notify()
 	HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, m_dbWinBuffer->processId);
 
 #ifdef OPENPROCESS_DEBUG
-	if (handle == 0)
+	if (!handle)
 	{
-		Win32Error error(GetLastError(), "OpenProcess");
+		Win32::Win32Error error(GetLastError(), "OpenProcess");
 		LogSource::Add(stringbuilder() << error.what() << ", data: " <<  m_dbWinBuffer->data << " (pid: " << m_dbWinBuffer->processId << ")");
 	}
 #endif

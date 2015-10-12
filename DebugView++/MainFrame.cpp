@@ -300,7 +300,7 @@ std::wstring FormatDateTime(const SYSTEMTIME& systemTime)
 
 std::wstring FormatDateTime(const FILETIME& fileTime)
 {
-	return FormatDateTime(FileTimeToSystemTime(FileTimeToLocalFileTime(fileTime)));
+	return FormatDateTime(Win32::FileTimeToSystemTime(Win32::FileTimeToLocalFileTime(fileTime)));
 }
 
 std::wstring FormatBytes(size_t size)
@@ -518,7 +518,7 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
 			menu.EnableMenuItem(SC_MINIMIZE, MF_BYCOMMAND | MF_GRAYED);
 			menu.EnableMenuItem(SC_MAXIMIZE, MF_BYCOMMAND | MF_GRAYED);
 			menu.EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
-			POINT position = GetCursorPos();
+			POINT position = Win32::GetCursorPos();
 			menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, position.x, position.y, m_hWnd);
 		}
 		break;
@@ -558,8 +558,8 @@ int CMainFrame::LogFontSizeToPointSize(int logFontSize)
 
 bool CMainFrame::LoadSettings()
 {
-	auto mutex = CreateMutex(nullptr, false, L"Local\\DebugView++");
-	MutexLock lock(mutex.get());
+	auto mutex = Win32::CreateMutex(nullptr, false, L"Local\\DebugView++");
+	Win32::MutexLock lock(mutex.get());
 
 	DWORD x, y, cx, cy;
 	CRegKey reg;
@@ -570,17 +570,17 @@ bool CMainFrame::LoadSettings()
 		reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS && static_cast<int>(y + cy) <= GetSystemMetrics(SM_CYVIRTUALSCREEN))
 		SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
 
-	m_linkViews = RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
-	m_logSources.SetAutoNewLine(RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
-	SetAlwaysOnTop(RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
+	m_linkViews = Win32::RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
+	m_logSources.SetAutoNewLine(Win32::RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
+	SetAlwaysOnTop(Win32::RegGetDWORDValue(reg, L"AlwaysOnTop", 0) != 0);
 
-	m_applicationName = RegGetStringValue(reg, L"ApplicationName", L"DebugView++");
+	m_applicationName = Win32::RegGetStringValue(reg, L"ApplicationName", L"DebugView++");
 	SetTitle();
 
-	m_hide = RegGetDWORDValue(reg, L"Hide", 0) != 0;
+	m_hide = Win32::RegGetDWORDValue(reg, L"Hide", 0) != 0;
 
-	auto fontName = RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
-	int fontSize = RegGetDWORDValue(reg, L"FontSize", 8);
+	auto fontName = Win32::RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
+	int fontSize = Win32::RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
 		LOGFONT lf = { 0 };
@@ -599,14 +599,14 @@ bool CMainFrame::LoadSettings()
 			if (regView.Open(regViews, WStr(wstringbuilder() << L"View" << i)) != ERROR_SUCCESS)
 				break;
 
-			auto name = RegGetStringValue(regView);
+			auto name = Win32::RegGetStringValue(regView);
 			if (i == 0)
 				GetTabCtrl().GetItem(0)->SetText(name.c_str());
 			else
 				AddFilterView(name);
 			GetView().LoadSettings(regView);
 		}
-		GetTabCtrl().SetCurSel(RegGetDWORDValue(regViews, L"Current", 0));
+		GetTabCtrl().SetCurSel(Win32::RegGetDWORDValue(regViews, L"Current", 0));
 		GetTabCtrl().UpdateLayout();
 		GetTabCtrl().Invalidate();
 	}
@@ -616,7 +616,7 @@ bool CMainFrame::LoadSettings()
 	{
 		auto colors = ColorDialog::GetCustomColors();
 		for (int i = 0; i < 16; ++i)
-			colors[i] = RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
+			colors[i] = Win32::RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
 	}
 
 	return true;
@@ -624,10 +624,10 @@ bool CMainFrame::LoadSettings()
 
 void CMainFrame::SaveSettings()
 {
-	auto mutex = CreateMutex(nullptr, false, L"Local\\DebugView++");
-	MutexLock lock(mutex.get());
+	auto mutex = Win32::CreateMutex(nullptr, false, L"Local\\DebugView++");
+	Win32::MutexLock lock(mutex.get());
 
-	auto placement = fusion::GetWindowPlacement(*this);
+	auto placement = Win32::GetWindowPlacement(*this);
 
 	CRegKey reg;
 	reg.Create(HKEY_CURRENT_USER, RegistryPath);
@@ -779,7 +779,7 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 	}
 	fs.close();
 	if (!fs)
-		ThrowLastError(filename);
+		Win32::ThrowLastError(filename);
 
 	m_logFileName = filename;
 	UpdateStatusBar();
@@ -925,7 +925,7 @@ void CMainFrame::Load(const std::wstring& filename)
 {
 	std::ifstream file(filename);
 	if (!file)
-		ThrowLastError(filename);
+		Win32::ThrowLastError(filename);
 
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
 	GetFileAttributesEx(filename.c_str(), GetFileExInfoStandard, &fileInfo);
@@ -970,8 +970,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
-	DWORD pid = GetParentProcessId();
-	m_logSources.AddPipeReader(pid, hPipe);
+	m_logSources.AddPipeReader(Win32::GetParentProcessId(), hPipe);
 }
 
 void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1288,7 +1287,7 @@ void CMainFrame::OnViewFont(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::SetLogFont()
 {
-	HFont hFont(CreateFontIndirect(&m_logfont));
+	Win32::HFont hFont(CreateFontIndirect(&m_logfont));
 	if (!hFont)
 		return;
 

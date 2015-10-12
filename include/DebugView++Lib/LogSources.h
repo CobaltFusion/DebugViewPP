@@ -74,14 +74,14 @@ public:
 private:
 	void UpdateSettings(std::shared_ptr<LogSource> source);
 	void Add(std::shared_ptr<LogSource> source);
-	void OnProcessEnd(DWORD pid, HANDLE handle);
+	void OnProcessEnded(DWORD pid, HANDLE handle);
 	void OnUpdate();
 	void DelayedUpdate();
 
 	bool m_autoNewLine;
 	boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;
-	Handle m_updateEvent;
+	Win32::Handle m_updateEvent;
 	bool m_end;
 	VectorLineBuffer m_linebuffer;
 	PidMap m_pidMap;

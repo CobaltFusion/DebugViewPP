@@ -11,6 +11,7 @@
 #include "Win32Support.h"
 
 namespace fusion {
+namespace Win32 {
 
 ComInitialization::ComInitialization(CoInit init)
 {
@@ -48,4 +49,5 @@ POINT GetCursorPos()
 	return pos;
 }
 
+} // namespace Win32
 } // namespace fusion

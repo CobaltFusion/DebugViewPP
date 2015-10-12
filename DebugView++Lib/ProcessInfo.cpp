@@ -69,17 +69,17 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 
 std::wstring ProcessInfo::GetProcessInfo(HANDLE handle)
 {
-	FILETIME creation = {0};
-	FILETIME exit = {0};
-	FILETIME kernel = {0};
-	FILETIME user = {0};
+	FILETIME creation = { 0 };
+	FILETIME exit = { 0 };
+	FILETIME kernel = { 0 };
+	FILETIME user = { 0 };
 	GetProcessTimes(handle, &creation, &exit, &kernel, &user);
 	return WStr(GetTimeText(creation)).str();
 }
 
 std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
 {
-	Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
+	Win32::Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
 	if (hProcess)
 		return GetProcessName(hProcess.get());
 

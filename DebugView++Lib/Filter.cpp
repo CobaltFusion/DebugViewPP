@@ -87,12 +87,12 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
 			break;
 
 		filters.push_back(MakeFilter(
-			Str(RegGetStringValue(regFilter)),
-			IntToMatchType(RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
-			IntToFilterType(RegGetDWORDValue(regFilter, L"Type")),
-			RegGetDWORDValue(regFilter, L"BgColor", Colors::BackGround),
-			RegGetDWORDValue(regFilter, L"FgColor", Colors::Text),
-			RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
+			Str(Win32::RegGetStringValue(regFilter)),
+			IntToMatchType(Win32::RegGetDWORDValue(regFilter, L"MatchType", MatchType::Regex)),
+			IntToFilterType(Win32::RegGetDWORDValue(regFilter, L"Type")),
+			Win32::RegGetDWORDValue(regFilter, L"BgColor", Colors::BackGround),
+			Win32::RegGetDWORDValue(regFilter, L"FgColor", Colors::Text),
+			Win32::RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
 	}
 }
 

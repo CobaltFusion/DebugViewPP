@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <string>
 #include <atlstr.h>
+#include "Win32Lib/Win32Lib.h"
 #include "Win32Lib/utilities.h"
 
 namespace fusion {
@@ -33,7 +34,7 @@ std::wstring LoadString(int id)
 {
 	CString cs;
 	if (!cs.LoadString(id))
-		ThrowLastError("LoadString");
+		Win32::ThrowLastError("LoadString");
 	return static_cast<const wchar_t*>(cs);
 }
 
@@ -45,7 +46,7 @@ std::wstring GetExceptionMessage()
 	}
 	catch (std::exception& e)
 	{
-		return MultiByteToWideChar(e.what());
+		return Win32::MultiByteToWideChar(e.what());
 	}
 	catch (...)
 	{

@@ -152,7 +152,7 @@ bool GuiWaitFor(std::function<bool ()> pred)
 		MSG msg;
 		switch (GetMessage(&msg, nullptr, 0, 0 ))
 		{
-		case -1: ThrowLastError("GetMessage");
+		case -1: Win32::ThrowLastError("GetMessage");
 		case 0: return false;
 		}
 

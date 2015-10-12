@@ -21,7 +21,7 @@ ProcessMonitor::ProcessInfo::ProcessInfo(DWORD pid, HANDLE handle) :
 
 ProcessMonitor::ProcessMonitor() :
 	m_end(false),
-	m_event(CreateEvent(nullptr, false, false, nullptr)),
+	m_event(Win32::CreateEvent(nullptr, false, false, nullptr)),
 	m_thread([this] { Run(); })
 {
 }
@@ -29,7 +29,7 @@ ProcessMonitor::ProcessMonitor() :
 ProcessMonitor::~ProcessMonitor()
 {
 	m_q.Push([this] { m_end = true; });
-	SetEvent(m_event.get());
+	Win32::SetEvent(m_event);
 	m_thread.join();
 }
 
@@ -39,12 +39,12 @@ void ProcessMonitor::Add(DWORD pid, HANDLE handle)
 	{
 		m_processes.push_back(ProcessMonitor::ProcessInfo(pid, handle));
 	});
-	SetEvent(m_event.get());
+	Win32::SetEvent(m_event);
 }
 
-boost::signals2::connection ProcessMonitor::ConnectProcessEnd(ProcessEnd::slot_type slot)
+boost::signals2::connection ProcessMonitor::ConnectProcessEnded(ProcessEnded::slot_type slot)
 {
-	return m_processEnd.connect(slot);
+	return m_processEnded.connect(slot);
 }
 
 void ProcessMonitor::Run()
@@ -59,7 +59,7 @@ void ProcessMonitor::Run()
 		for (int i = 0; i < count; ++i)
 			handles[i + 1] = m_processes[(offset + i) % processCount].handle;
 		DWORD timeout = static_cast<size_t>(count) < m_processes.size() ? 1000 : INFINITE;
-		auto result = WaitForAnyObject(handles.data(), handles.data() + count + 1, timeout);
+		auto result = Win32::WaitForAnyObject(handles.data(), handles.data() + count + 1, timeout);
 		if (!result.signaled)
 		{
 			offset = (offset + count) % processCount;
@@ -72,7 +72,7 @@ void ProcessMonitor::Run()
 		else
 		{
 			int i = (offset + result.index - 1) % processCount;
-			m_processEnd(m_processes[i].pid, m_processes[i].handle);
+			m_processEnded(m_processes[i].pid, m_processes[i].handle);
 			m_processes[i] = m_processes.back();
 			m_processes.resize(processCount - 1);
 		}

@@ -15,18 +15,18 @@
 namespace fusion {
 namespace debugviewpp {
 
-typedef std::unordered_map<DWORD, Handle> PidMap;
+typedef std::unordered_map<DWORD, Win32::Handle> PidMap;
 
 class ProcessMonitor
 {
 public:
-	typedef boost::signals2::signal<void (DWORD, HANDLE)> ProcessEnd;
+	typedef boost::signals2::signal<void (DWORD, HANDLE)> ProcessEnded;
 
 	ProcessMonitor();
 	~ProcessMonitor();
 
 	void Add(DWORD pid, HANDLE handle);
-	boost::signals2::connection ConnectProcessEnd(ProcessEnd::slot_type slot);
+	boost::signals2::connection ConnectProcessEnded(ProcessEnded::slot_type slot);
 
 private:
 	struct ProcessInfo
@@ -40,8 +40,8 @@ private:
 	void Run();
 
 	bool m_end;
-	Handle m_event;
-	ProcessEnd m_processEnd;
+	Win32::Handle m_event;
+	ProcessEnded m_processEnded;
 	std::vector<ProcessInfo> m_processes;
 	SynchronizedQueue<std::function<void ()>> m_q;
 	boost::thread m_thread;

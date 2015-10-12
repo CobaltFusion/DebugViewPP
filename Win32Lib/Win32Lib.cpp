@@ -14,6 +14,7 @@
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
 
 namespace fusion {
+namespace Win32 {
 
 void LocalAllocDeleter::operator()(pointer p) const
 {
@@ -172,6 +173,14 @@ FILETIME FileTimeToLocalFileTime(const FILETIME& ft)
 	return ftLocal;
 }
 
+FILETIME LocalFileTimeToFileTime(const FILETIME& ftLocal)
+{
+	FILETIME ft;
+	if (!::LocalFileTimeToFileTime(&ftLocal, &ft))
+		ThrowLastError("LocalFileTimeToFileTime");
+	return ft;
+}
+
 SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft)
 {
 	SYSTEMTIME st;
@@ -192,7 +201,7 @@ Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, D
 {
 	Handle hMap(::CreateFileMappingW(hFile, const_cast<SECURITY_ATTRIBUTES*>(pAttributes), protect, maximumSizeHigh, maximumSizeLow, pName));
 	if (!hMap)
-		ThrowLastError(std::wstring(L"CreateFileMapping(\"") + pName + L"\")");
+		ThrowLastError("CreateFileMapping");
 
 	return hMap;
 }
@@ -210,16 +219,27 @@ Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset
 {
 	Handle hEvent(::CreateEventW(const_cast<SECURITY_ATTRIBUTES*>(pEventAttributes), manualReset, initialState, pName));
 	if (!hEvent)
-		ThrowLastError(std::wstring(L"CreateEvent(\"") + pName + L"\")");
+		ThrowLastError("CreateEvent");
 
 	return hEvent;
+}
+
+void SetEvent(Handle& hEvent)
+{
+	SetEvent(hEvent.get());
+}
+
+void SetEvent(HANDLE hEvent)
+{
+	if (!::SetEvent(hEvent))
+		ThrowLastError("SetEvent");
 }
 
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName)
 {
 	Handle hMutex(::CreateMutexW(const_cast<SECURITY_ATTRIBUTES*>(pMutexAttributes), initialOwner, pName));
 	if (!hMutex)
-		ThrowLastError(std::wstring(L"CreateMutex(\"") + pName + L"\")");
+		ThrowLastError("CreateMutex");
 
 	return hMutex;
 }
@@ -246,6 +266,16 @@ bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds)
 	case WAIT_FAILED: ThrowLastError("WaitForSingleObject");
 	default: throw std::runtime_error("WaitForSingleObject");
 	}
+}
+
+void WaitForSingleObject(const Handle& hObject)
+{
+	WaitForSingleObject(hObject.get());
+}
+
+bool WaitForSingleObject(const Handle& hObject, DWORD milliSeconds)
+{
+	return WaitForSingleObject(hObject.get(), milliSeconds);
 }
 
 WaitResult::WaitResult(bool signaled, int index) : 
@@ -421,6 +451,51 @@ std::vector<std::wstring> GetCommandLineArguments()
 	HLocal args(CommandLineToArgvW(GetCommandLineW(), &argc));
 	auto argv = static_cast<const wchar_t**>(args.get());
 	return std::vector<std::wstring>(argv, argv + argc);
+}
+
+DWORD GetExitCodeProcess(HANDLE hProcess)
+{
+	DWORD exitCode;
+	if (!::GetExitCodeProcess(hProcess, &exitCode))
+		Win32::ThrowLastError("GetExitCodeProcess");
+	return exitCode;
+}
+
+DWORD GetExitCodeProcess(const Handle& hProcess)
+{
+	return GetExitCodeProcess(hProcess.get());
+}
+
+} // namespace Win32
+
+bool operator==(const FILETIME& ft1, const FILETIME& ft2)
+{
+	return ::CompareFileTime(&ft1, &ft2) == 0;
+}
+
+bool operator!=(const FILETIME& ft1, const FILETIME& ft2)
+{
+	return !(ft1 == ft2);
+}
+
+bool operator<(const FILETIME& ft1, const FILETIME& ft2)
+{
+	return ::CompareFileTime(&ft1, &ft2) < 0;
+}
+
+bool operator>=(const FILETIME& ft1, const FILETIME& ft2)
+{
+	return !(ft1 < ft2);
+}
+
+bool operator>(const FILETIME& ft1, const FILETIME& ft2)
+{
+	return ft2 < ft1;
+}
+
+bool operator<=(const FILETIME& ft1, const FILETIME& ft2)
+{
+	return !(ft1 > ft2);
 }
 
 } // namespace fusion

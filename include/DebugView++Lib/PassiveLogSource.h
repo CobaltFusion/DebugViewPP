@@ -53,7 +53,7 @@ private:
 
 	std::vector<PollLine> m_lines;
 	std::vector<PollLine> m_backBuffer;
-	Handle m_handle;
+	Win32::Handle m_handle;
 	boost::mutex m_mutex;
 	long m_microsecondInterval;
 	boost::thread m_thread;

@@ -35,11 +35,11 @@ private:
 	void Run(const std::wstring& pathName, const std::wstring& args);
 
 	std::wstring m_name;
-	Handle m_stdIn;
-	Handle m_stdOut;
-	Handle m_stdErr;
-	Handle m_hProcess;
-	Handle m_hThread;
+	Win32::Handle m_stdIn;
+	Win32::Handle m_stdOut;
+	Win32::Handle m_stdErr;
+	Win32::Handle m_hProcess;
+	Win32::Handle m_hThread;
 	unsigned m_processId;
 	unsigned m_threadId;
 };

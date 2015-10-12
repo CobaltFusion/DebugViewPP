@@ -16,6 +16,7 @@
 #pragma warning(pop)
 #include <atlbase.h>
 #include <atlwin.h>
+#include "Win32Lib/Win32Lib.h"
 
 // Alternative to ATL standard BEGIN_MSG_MAP() with try block:
 #define BEGIN_MSG_MAP_TRY(theClass) \
@@ -114,9 +115,6 @@ private:
 typedef basic_stringbuilder<char> stringbuilder;
 typedef basic_stringbuilder<wchar_t> wstringbuilder;
 
-std::wstring MultiByteToWideChar(const std::string& str);
-std::string WideCharToMultiByte(const std::wstring& str);
-
 class Str
 {
 public:
@@ -131,12 +129,12 @@ public:
 	}
 
 	explicit Str(const std::wstring& s) :
-		m_str(WideCharToMultiByte(s))
+		m_str(Win32::WideCharToMultiByte(s))
 	{
 	}
 
 	explicit Str(const wchar_t* s) :
-		m_str(WideCharToMultiByte(s))
+		m_str(Win32::WideCharToMultiByte(s))
 	{
 	}
 	
@@ -168,7 +166,7 @@ class WStr
 {
 public:
 	explicit WStr(const std::string& s) :
-		m_str(MultiByteToWideChar(s))
+		m_str(Win32::MultiByteToWideChar(s))
 	{
 	}
 
@@ -200,12 +198,6 @@ public:
 private:
 	std::wstring m_str;
 };
-
-void ThrowWin32Error(DWORD error, const std::string& what);
-
-void ThrowLastError(const std::string& what);
-
-void ThrowLastError(const std::wstring& what);
 
 std::wstring LoadString(int id);
 

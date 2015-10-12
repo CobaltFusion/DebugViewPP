@@ -41,7 +41,7 @@ private:
 	void ReadUntilEof();
 
 	bool m_end;
-	ChangeNotificationHandle m_handle;
+	Win32::ChangeNotificationHandle m_handle;
 	std::ifstream m_ifstream;
 	std::string m_filenameOnly;
 	bool m_initialized;

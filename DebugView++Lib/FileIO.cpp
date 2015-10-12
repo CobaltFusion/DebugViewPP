@@ -58,19 +58,16 @@ FILETIME MakeFileTime(uint64_t t)
 
 FILETIME MakeFileTime(const std::string text)
 {
-	SYSTEMTIME st = {0};
+	SYSTEMTIME st = { 0 };
 	std::istringstream is(text);
 	char c1, c2, c3, c4, c5, c6;
 	if (!((is >> st.wYear >> c1 >> st.wMonth >> c2 >> st.wDay >> std::noskipws >> c3 >> st.wHour >> c4 >> st.wMinute >> c5 >> st.wSecond >> c6 >> st.wMilliseconds) 
 		&& c1 == '/' && c2 == '/' && c3 == ' ' && c4 == ':' && c5 == ':' && c6 == '.'))
 	{
-		SYSTEMTIME zero = FileTimeToSystemTime(FILETIME());
-		st = zero;
+		st = Win32::FileTimeToSystemTime(FILETIME());
 	}
 
-	auto ft = SystemTimeToFileTime(st);
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
-	return ft;
+	return Win32::LocalFileTimeToFileTime(Win32::SystemTimeToFileTime(st));
 }
 
 bool ReadTime(const std::string& s, double& time)
@@ -165,17 +162,13 @@ bool IsBinaryFileType(FileType::type filetype)
 {
 	switch (filetype)
 	{
-		case FileType::UTF16BE:
-			return true;
-		case FileType::UTF16LE:
-			return true;
-		case FileType::UTF8:
-			return true;
-		default:
-			// do nothing
-			break;
+	case FileType::UTF16BE:
+	case FileType::UTF16LE:
+	case FileType::UTF8:
+		return true;
+	default:
+		return false;
 	}
-	return false;
 }
 
 // read localtime in format "HH:mm:ss.ms"
@@ -187,13 +180,12 @@ bool ReadLocalTimeMs(const std::string& text, FILETIME& ft)
 	if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
 		return false;
 
-	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	SYSTEMTIME st = Win32::FileTimeToSystemTime(FILETIME());
 	st.wHour = h;
 	st.wMinute = m;
 	st.wSecond = s;
 	st.wMilliseconds = ms;
-	ft = SystemTimeToFileTime(st);
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	ft = Win32::LocalFileTimeToFileTime(Win32::SystemTimeToFileTime(st));
 	return true;
 }
 
@@ -206,13 +198,12 @@ bool ReadLocalTime(const std::string& text, FILETIME& ft)
 	if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
 		return false;
 
-	SYSTEMTIME st = FileTimeToSystemTime(FILETIME());
+	SYSTEMTIME st = Win32::FileTimeToSystemTime(FILETIME());
 	st.wHour = h;
 	st.wMinute = m;
 	st.wSecond = s;
 	st.wMilliseconds = 0;
-	ft = SystemTimeToFileTime(st);
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
+	ft = Win32::LocalFileTimeToFileTime(Win32::SystemTimeToFileTime(st));
 	return true;
 }
 

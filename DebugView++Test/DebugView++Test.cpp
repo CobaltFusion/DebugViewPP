@@ -46,29 +46,29 @@ public:
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
 	HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
-	Handle handle(rawHandle);
+	Win32::Handle handle(rawHandle);
 	{ 
 		BOOST_REQUIRE_EQUAL(handle.get(), rawHandle);
-		Handle handle1(std::move(handle));
-		BOOST_REQUIRE_EQUAL(handle.get(), HANDLE(0));
+		Win32::Handle handle1(std::move(handle));
+		BOOST_REQUIRE_EQUAL(handle.get(), HANDLE(nullptr));
 		BOOST_REQUIRE_EQUAL(handle1.get(), rawHandle);
 		{
-			Handle handle2(std::move(handle1));
+			Win32::Handle handle2(std::move(handle1));
 			handle2.release();
-			BOOST_REQUIRE_EQUAL(handle2.get(), HANDLE(0));
+			BOOST_REQUIRE_EQUAL(handle2.get(), HANDLE(nullptr));
 		}
-		BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(0));
+		BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(nullptr));
 	}
 
 	{
-		Handle handle1;
+		Win32::Handle handle1;
 		{
-			HANDLE zero = 0;
-			Handle zeroHandle(zero);
-			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(0));
+			HANDLE zero = nullptr;
+			Win32::Handle zeroHandle(zero);
+			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(nullptr));
 			handle1 = std::move(zeroHandle);
-			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(0));
-			BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(0));
+			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(nullptr));
+			BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(nullptr));
 		}
 		// this scope ensures having a Handle leave scope that had its guts ripped out by std::move 
 		// will not cause nullpointers or exections
@@ -184,11 +184,11 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	Timer timer;
 
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 1");
+	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 2");
+	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2");
 	BOOST_MESSAGE("add line");
-	logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "message 3");
+	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
 	BOOST_MESSAGE("3 lines added.");
 
 	auto lines = logsources.GetLines();
@@ -206,14 +206,13 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	BOOST_MESSAGE("Write " << testsize << " lines...");
 	for (int i=0; i < testsize; ++i)
 	{
-		logsource->Add(timer.Get(), GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
+		logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
 	}
 
 	auto morelines = logsources.GetLines();
 	BOOST_MESSAGE("received: " << morelines.size() << " lines.");
 	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
 

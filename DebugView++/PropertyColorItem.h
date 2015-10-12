@@ -141,9 +141,9 @@ public:
 		auto color = GetColor();
 		if (color == Colors::Auto)
 		{
-			ScopedBkColor bg(dc, RGB(255, 255, 255));
-			ScopedTextColor fg(dc, RGB(0, 0, 0));
-			ScopedTextAlign ta(dc, TA_CENTER | TA_BOTTOM);
+			Win32::ScopedBkColor bg(dc, RGB(255, 255, 255));
+			Win32::ScopedTextColor fg(dc, RGB(0, 0, 0));
+			Win32::ScopedTextAlign ta(dc, TA_CENTER | TA_BOTTOM);
 			dc.ExtTextOut((rect.left + rect.right)/2, rect.bottom, ETO_OPAQUE, &rect, L"A", 1);
 		}
 		else

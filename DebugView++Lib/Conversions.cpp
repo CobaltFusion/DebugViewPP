@@ -29,7 +29,7 @@ std::string GetDateText(const SYSTEMTIME& st)
 
 std::string GetDateText(const FILETIME& ft)
 {
-	return GetDateText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
+	return GetDateText(Win32::FileTimeToSystemTime(Win32::FileTimeToLocalFileTime(ft)));
 }
 
 std::string GetTimeText(const SYSTEMTIME& st)
@@ -42,7 +42,7 @@ std::string GetTimeText(const SYSTEMTIME& st)
 std::string GetDateTimeText(const FILETIME& filetime)
 {
 	// convert the FILETIME from UTC to local timezone so the time so written as 'clocktime'
-	auto st = FileTimeToSystemTime(FileTimeToLocalFileTime(filetime));
+	auto st = Win32::FileTimeToSystemTime(Win32::FileTimeToLocalFileTime(filetime));
 	char buf[64];
 	sprintf_s(buf, "%04d/%02d/%02d %02d:%02d:%02d.%03d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 	return buf;
@@ -50,7 +50,7 @@ std::string GetDateTimeText(const FILETIME& filetime)
 
 std::string GetTimeText(const FILETIME& ft)
 {
-	return GetTimeText(FileTimeToSystemTime(FileTimeToLocalFileTime(ft)));
+	return GetTimeText(Win32::FileTimeToSystemTime(Win32::FileTimeToLocalFileTime(ft)));
 }
 
 SYSTEMTIME GetSystemTime(WORD year, WORD month, WORD day)
@@ -75,24 +75,22 @@ FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
 		st.wMinute = m;
 		st.wSecond = s;
 		st.wMilliseconds = 0;
-		m_lastFileTime = SystemTimeToFileTime(st);
+		m_lastFileTime = Win32::SystemTimeToFileTime(st);
 	}
 
-	auto st = FileTimeToSystemTime(m_lastFileTime);
+	auto st = Win32::FileTimeToSystemTime(m_lastFileTime);
 	st.wHour = h;
 	st.wMinute = m;
 	st.wSecond = s;
 	st.wMilliseconds = 0;
-	auto ft = SystemTimeToFileTime(st);
+	auto ft = Win32::SystemTimeToFileTime(st);
 
-	if (CompareFileTime(&ft, &m_lastFileTime) < 0)	// is ft before m_lastFileTime, then assume it is on the next day.
+	if (ft < m_lastFileTime) // is ft before m_lastFileTime, then assume it is on the next day.
 	{
 		st.wDay += 1;
 	}
-	ft = SystemTimeToFileTime(st);
-	m_lastFileTime = ft;
-	LocalFileTimeToFileTime(&ft, &ft);		// convert to UTC
-	return ft;
+	m_lastFileTime = Win32::SystemTimeToFileTime(st);
+	return Win32::LocalFileTimeToFileTime(ft); // convert to UTC
 }
 
 // read localtime in format "hh:mm:ss tt" (AM/PM postfix)

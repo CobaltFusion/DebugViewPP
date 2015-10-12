@@ -27,7 +27,7 @@ public:
 	{
 		HRESULT hr = m_module.Init(nullptr, hInstance);
 		if (FAILED(hr))
-			ThrowWin32Error(hr, "CAppModule::Init");
+			Win32::ThrowWin32Error(hr, "CAppModule::Init");
 	}
 
 	~CAppModuleInitialization()
@@ -66,7 +66,7 @@ private:
 int ForwardMessagesFromPipe(HANDLE hPipe)
 {
 	DBWinWriter dbwin;
-	DWORD pid = GetParentProcessId();
+	DWORD pid = Win32::GetParentProcessId();
 
 	hstream pipe(hPipe);
 	std::string line;
@@ -95,7 +95,7 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	CMainFrame wndMain;
 	MessageLoop theLoop(_Module);
 
-	auto args = GetCommandLineArguments();
+	auto args = Win32::GetCommandLineArguments();
 	std::wstring fileName;
 
 	for (size_t i = 1; i < args.size(); ++i)
@@ -117,7 +117,7 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 	}
 
 	if (wndMain.CreateEx() == nullptr)
-		ThrowLastError(L"Main window creation failed!");
+		Win32::ThrowLastError(L"Main window creation failed!");
 
 	wndMain.ShowWindow(cmdShow);
 	if (boost::algorithm::iends_with(fileName, ".dbconf"))
@@ -134,10 +134,10 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 
 int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpstrCmdLine, int nCmdShow)
 {
-	SetPrivilege(SE_DEBUG_NAME, true);
-	SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
+	Win32::SetPrivilege(SE_DEBUG_NAME, true);
+	Win32::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
 
-	ComInitialization com(ComInitialization::ApartmentThreaded);
+	Win32::ComInitialization com(Win32::ComInitialization::ApartmentThreaded);
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(nullptr, 0, 0, 0L);

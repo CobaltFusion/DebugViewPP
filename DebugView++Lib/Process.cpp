@@ -57,27 +57,27 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 
 	HANDLE stdInRd, stdInWr;
 	if (!CreatePipe(&stdInRd, &stdInWr, &saAttr, 0))
-		ThrowLastError("CreatePipe");
-	Handle stdInRd2(stdInRd);
+		Win32::ThrowLastError("CreatePipe");
+	Win32::Handle stdInRd2(stdInRd);
 	m_stdIn.reset(stdInWr);
 	if (!SetHandleInformation(stdInWr, HANDLE_FLAG_INHERIT, 0))
-		ThrowLastError("SetHandleInformation");
+		Win32::ThrowLastError("SetHandleInformation");
 
 	HANDLE stdOutRd, stdOutWr;
 	if (!CreatePipe(&stdOutRd, &stdOutWr, &saAttr, 0))
-		ThrowLastError("CreatePipe");
-	Handle stdOutWr2(stdOutWr);
+		Win32::ThrowLastError("CreatePipe");
+	Win32::Handle stdOutWr2(stdOutWr);
 	m_stdOut.reset(stdOutRd);
 	if (!SetHandleInformation(stdOutRd, HANDLE_FLAG_INHERIT, 0))
-		ThrowLastError("SetHandleInformation");
+		Win32::ThrowLastError("SetHandleInformation");
 
 	HANDLE stdErrRd, stdErrWr;
 	if (!CreatePipe(&stdErrRd, &stdErrWr, &saAttr, 0))
-		ThrowLastError("CreatePipe");
-	Handle stdErrWr2(stdErrWr);
+		Win32::ThrowLastError("CreatePipe");
+	Win32::Handle stdErrWr2(stdErrWr);
 	m_stdErr.reset(stdErrRd);
 	if (!SetHandleInformation(stdErrRd, HANDLE_FLAG_INHERIT, 0))
-		ThrowLastError("SetHandleInformation");
+		Win32::ThrowLastError("SetHandleInformation");
 
 	STARTUPINFO startupInfo;
 	startupInfo.cb = sizeof(startupInfo);
@@ -112,7 +112,7 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 		nullptr,
 		&startupInfo,
 		&processInformation))
-		ThrowLastError("SetHandleInformation");
+		Win32::ThrowLastError("SetHandleInformation");
 
 	m_hProcess.reset(processInformation.hProcess);
 	m_hThread.reset(processInformation.hThread);
@@ -162,17 +162,12 @@ unsigned Process::GetThreadId() const
 
 bool Process::IsRunning() const
 {
-	DWORD exitCode;
-	if (!GetExitCodeProcess(m_hProcess.get(), &exitCode))
-		ThrowLastError("process exit");
-
-	return exitCode == STILL_ACTIVE;
+	return Win32::GetExitCodeProcess(m_hProcess) == STILL_ACTIVE;
 }
 
 void Process::Wait() const
 {
-	if (WaitForSingleObject(m_hProcess.get(), INFINITE) != WAIT_OBJECT_0)
-		ThrowLastError("process exit");
+	Win32::WaitForSingleObject(m_hProcess.get());
 }
 
 } // namespace fusion

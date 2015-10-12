@@ -46,7 +46,7 @@ LogSources::LogSources(bool startListening) :
 	m_sources.push_back(m_loopback);
 	if (startListening)
 		m_listenThread = boost::thread(&LogSources::Listen, this);
-	m_processMonitor.ConnectProcessEnd([this](DWORD pid, HANDLE handle) { OnProcessEnd(pid, handle); });
+	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
 }
 	
 LogSources::~LogSources()
@@ -70,13 +70,13 @@ void LogSources::Add(std::shared_ptr<LogSource> source)
 	boost::mutex::scoped_lock lock(m_mutex);
 	UpdateSettings(source);
 	m_sources.push_back(source);
-	SetEvent(m_updateEvent.get());
+	Win32::SetEvent(m_updateEvent);
 }
 
 void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
 	InternalRemove(logsource);
-	SetEvent(m_updateEvent.get());
+	Win32::SetEvent(m_updateEvent);
 }
 
 void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
@@ -125,7 +125,7 @@ void LogSources::Abort()
 	{
 		(*it)->Abort();
 	}
-	SetEvent(m_updateEvent.get());
+	Win32::SetEvent(m_updateEvent);
 	m_listenThread.join();
 }
 
@@ -203,7 +203,7 @@ void LogSources::ListenUntilUpdateEvent()
 	while (!m_end)
 	{
 		m_loopback->Signal();
-		auto res = WaitForAnyObject(waitHandles, INFINITE);
+		auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
 
 		if (res.signaled)
 		{
@@ -229,7 +229,7 @@ void LogSources::ListenUntilUpdateEvent()
 	}
 }
 
-void LogSources::OnProcessEnd(DWORD pid, HANDLE handle)
+void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 {
 	m_guiExecutor.CallAsync([this, pid, handle]
 	{
@@ -260,7 +260,7 @@ Lines LogSources::GetLines()
 
 		if (inputLine.handle)
 		{
-			Handle handle(inputLine.handle);
+			Win32::Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);
 			auto it = m_pidMap.find(inputLine.pid);
 			if (it == m_pidMap.end())

@@ -22,10 +22,10 @@ public:
 	void Write(DWORD pid, const std::string& message);
 
 private:
-	Handle m_hBuffer;
-	Handle m_dbWinBufferReady;
-	Handle m_dbWinDataReady;
-	MappedViewOfFile m_dbWinView;
+	Win32::Handle m_hBuffer;
+	Win32::Handle m_dbWinBufferReady;
+	Win32::Handle m_dbWinDataReady;
+	Win32::MappedViewOfFile m_dbWinView;
 };
 
 } // namespace debugviewpp 

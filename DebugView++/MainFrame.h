@@ -205,7 +205,7 @@ private:
 	std::unique_ptr<FileWriter> m_logWriter;
 	int m_filterNr;
 	CFindDlg m_findDlg;
-	HFont m_hFont;
+	Win32::HFont m_hFont;
 	bool m_linkViews;
 	bool m_hide;
 	bool m_tryGlobal;
