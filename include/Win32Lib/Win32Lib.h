@@ -197,7 +197,30 @@ struct WaitResult
 
 void WaitForSingleObject(HANDLE hObject);
 bool WaitForSingleObject(HANDLE hObject, DWORD milliSeconds);
-WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSeconds);
+
+WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool waitAll, DWORD milliSeconds);
+
+template <typename Coll>
+WaitResult WaitForMultipleObjects(const Coll& handles, bool waitAll, DWORD milliSeconds)
+{
+	return WaitForMultipleObjects(handles.data(), handles.data() + handles.size(), waitAll, milliSeconds);
+}
+
+WaitResult WaitForAnyObject(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds);
+
+template <typename Coll>
+WaitResult WaitForAnyObject(const Coll& handles, DWORD milliSeconds)
+{
+	return WaitForMultipleObjects(handles, false, milliSeconds);
+}
+
+WaitResult WaitForAllObjects(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds);
+
+template <typename Coll>
+WaitResult WaitForAllObjects(const Coll& handles, DWORD milliSeconds)
+{
+	return WaitForMultipleObjects(handles, true, milliSeconds);
+}
 
 class MutexLock : boost::noncopyable
 {

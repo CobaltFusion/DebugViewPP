@@ -55,26 +55,32 @@ Lines NewlineFilter::Process(const Line& line)
 	return lines;
 }
 
+Lines NewlineFilter::FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle)
+{
+	Lines lines;
+	if (m_lineBuffers.find(pid) != m_lineBuffers.end())
+	{
+		if (!m_lineBuffers[pid].empty())
+		{
+			// timestamp not filled, this will be done by the loopback source
+			lines.push_back(Line(0, FILETIME(), pid, "<flush>", m_lineBuffers[pid], nullptr));
+		}
+		m_lineBuffers.erase(pid);
+	}
+	auto processName = Str(ProcessInfo::GetProcessName(handle)).str();
+	auto info = ProcessInfo::GetProcessInfo(handle);
+	std::string infoStr = stringbuilder() << "<process started at " << info << " has now terminated>";
+	lines.push_back(Line(0, FILETIME(), pid, processName, infoStr, nullptr));
+	return lines;
+}
+
 Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap)
 {
 	Lines lines;
 	for (auto it = terminatedProcessesMap.begin(); it != terminatedProcessesMap.end(); ++it)
 	{
-		DWORD pid = it->first;
-		HANDLE handle = it->second.get();
-		if (m_lineBuffers.find(pid) != m_lineBuffers.end())
-		{
-			if (!m_lineBuffers[pid].empty())
-			{
-				// timestamp not filled, this will be done by the loopback source
-				lines.push_back(Line(0, FILETIME(), pid, "<flush>", m_lineBuffers[pid], nullptr));
-			}
-			m_lineBuffers.erase(pid);
-		}
-		auto processName = Str(ProcessInfo::GetProcessName(handle)).str();
-		auto info = ProcessInfo::GetProcessInfo(handle);
-		std::string infoStr = stringbuilder() << "<process started at " << info << " has now terminated>";
-		lines.push_back(Line(0, FILETIME(), pid, processName, infoStr, nullptr));
+		auto moreLines = FlushLinesFromTerminatedProcess(it->first, it->second.get());
+		lines.insert(lines.end(), moreLines.begin(), moreLines.end());
 	}
 	return lines;
 }

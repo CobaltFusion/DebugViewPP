@@ -14,8 +14,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-const double HandleCacheTimeout = 15.0; //seconds
-
 std::wstring GetDBWinName(bool global, const std::wstring& name)
 {
 	return global ? L"Global\\" + name : name;
@@ -52,7 +50,7 @@ HANDLE DBWinReader::GetHandle() const
 
 void DBWinReader::Notify()
 {
-	HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_dbWinBuffer->processId);
+	HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, m_dbWinBuffer->processId);
 
 #ifdef OPENPROCESS_DEBUG
 	if (handle == 0)

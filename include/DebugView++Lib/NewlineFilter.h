@@ -22,7 +22,10 @@ class NewlineFilter
 public:
 	NewlineFilter();
 	Lines Process(const Line& line);
+	Lines FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle);
 	Lines FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap);
+
+private:
 	std::unordered_map<DWORD, std::string> m_lineBuffers;
 };
 

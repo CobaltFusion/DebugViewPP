@@ -254,17 +254,28 @@ WaitResult::WaitResult(bool signaled, int index) :
 {
 }
 
-WaitResult WaitForAnyObject(const std::vector<HANDLE>& handles, DWORD milliSeconds)
+WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool waitAll, DWORD milliSeconds)
 {
-	auto rc = ::WaitForMultipleObjects(handles.size(), handles.data(), FALSE, milliSeconds);
+	size_t count = end - begin;
+	auto rc = ::WaitForMultipleObjects(count, begin, waitAll, milliSeconds);
 	if (rc == WAIT_TIMEOUT)
 		return WaitResult(false);
 	if (rc == WAIT_FAILED)
 		ThrowLastError("WaitForMultipleObjects");
-	if (rc >= WAIT_OBJECT_0 && rc < WAIT_OBJECT_0+handles.size())
-		return WaitResult(true, rc);
-	else 
+	if (rc >= WAIT_OBJECT_0 && rc < WAIT_OBJECT_0 + count)
+		return WaitResult(true, rc - WAIT_OBJECT_0);
+	else
 		throw std::runtime_error("WaitForMultipleObjects");
+}
+
+WaitResult WaitForAnyObject(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds)
+{
+	return WaitForMultipleObjects(begin, end, false, milliSeconds);
+}
+
+WaitResult WaitForAllObjects(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds)
+{
+	return WaitForMultipleObjects(begin, end, true, milliSeconds);
 }
 
 MutexLock::MutexLock(HANDLE hMutex) :

@@ -46,6 +46,7 @@ LogSources::LogSources(bool startListening) :
 	m_sources.push_back(m_loopback);
 	if (startListening)
 		m_listenThread = boost::thread(&LogSources::Listen, this);
+	m_processMonitor.ConnectProcessEnd([this](DWORD pid, HANDLE handle) { OnProcessEnd(pid, handle); });
 }
 	
 LogSources::~LogSources()
@@ -172,7 +173,8 @@ void LogSources::DelayedUpdate()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-	m_guiExecutor.CallEvery(handleCacheTimeout, [this]() { CheckForTerminatedProcesses(); });
+// replaced by ProcessMonitor
+//	m_guiExecutor.CallEvery(handleCacheTimeout, [this]() { CheckForTerminatedProcesses(); });
 
 	for (;;)
 	{
@@ -247,6 +249,22 @@ void LogSources::CheckForTerminatedProcesses()
 		m_loopback->Signal();
 }
 
+void LogSources::OnProcessEnd(DWORD pid, HANDLE handle)
+{
+	m_guiExecutor.CallAsync([this, pid, handle]
+	{
+		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
+		for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it)
+			m_loopback->AddMessage(it->pid, it->processName, it->message);
+
+		if (!flushedLines.empty())
+			m_loopback->Signal();
+		auto it = m_pidMap.find(pid);
+		if (it != m_pidMap.end())
+			m_pidMap.erase(it);
+	});
+}
+
 Lines LogSources::GetLines()
 {
 	auto inputLines = m_linebuffer.GetLines();
@@ -263,7 +281,14 @@ Lines LogSources::GetLines()
 		if (inputLine.handle)
 		{
 			inputLine.pid = GetProcessId(inputLine.handle);
-			m_handleCache.Add(inputLine.pid, Handle(inputLine.handle));
+			// replaced by ProcessMonitor
+//			m_handleCache.Add(inputLine.pid, Handle(inputLine.handle));
+			auto it = m_pidMap.find(inputLine.pid);
+			if (it == m_pidMap.end())
+			{
+				m_pidMap[inputLine.pid] = Handle(inputLine.handle);
+				m_processMonitor.Add(inputLine.pid, inputLine.handle);
+			}
 			inputLine.handle = nullptr;
 		}
 
