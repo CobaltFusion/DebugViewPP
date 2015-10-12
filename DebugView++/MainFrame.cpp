@@ -1022,7 +1022,7 @@ void CMainFrame::OnFileSaveConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWin
 
 void CMainFrame::ClearLog()
 {
-	// First Clear LogFile such that views reset their m_firstLine:
+	// First Clear LogFile so views reset their m_firstLine:
 	m_logFile.Clear();
 	m_logSources.Reset();
 	int views = GetViewCount();
