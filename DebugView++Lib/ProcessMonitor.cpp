@@ -9,39 +9,10 @@
 
 #include "stdafx.h"
 #include "Win32Lib/Win32Lib.h"
-#include "DebugView++Lib/ProcessHandleCache.h"
+#include "DebugView++Lib/ProcessMonitor.h"
 
 namespace fusion {
 namespace debugviewpp {
-
-ProcessHandleCache::~ProcessHandleCache()
-{
-}
-
-void ProcessHandleCache::Add(DWORD pid, Handle handle)
-{
-	if (m_cache.find(pid) == m_cache.end())
-		m_cache[pid] = std::move(handle);
-}
-
-PidMap ProcessHandleCache::CleanupMap()
-{
-	PidMap removePids;
-	for (auto it = m_cache.begin(); it != m_cache.end(); ++it)
-	{
-		DWORD exitcode = 0;
-		BOOL result = GetExitCodeProcess(it->second.get(), &exitcode);
-		if (result == FALSE || exitcode != STILL_ACTIVE)
-		{
-			DWORD pid = it->first;
-			removePids[pid] = std::move(it->second);
-		}
-	}
-
-	for (auto it = removePids.begin(); it != removePids.end(); ++it)
-		m_cache.erase(it->first);
-	return removePids;
-}
 
 ProcessMonitor::ProcessInfo::ProcessInfo(DWORD pid, HANDLE handle) :
 	pid(pid), handle(handle)

@@ -8,7 +8,6 @@
 #pragma once
 
 #include "LineBuffer.h"
-#include "ProcessHandleCache.h"
 
 namespace fusion {
 namespace debugviewpp {

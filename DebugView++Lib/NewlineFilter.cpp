@@ -74,16 +74,5 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle)
 	return lines;
 }
 
-Lines NewlineFilter::FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap)
-{
-	Lines lines;
-	for (auto it = terminatedProcessesMap.begin(); it != terminatedProcessesMap.end(); ++it)
-	{
-		auto moreLines = FlushLinesFromTerminatedProcess(it->first, it->second.get());
-		lines.insert(lines.end(), moreLines.begin(), moreLines.end());
-	}
-	return lines;
-}
-
 } // namespace debugviewpp 
 } // namespace fusion

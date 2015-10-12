@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/Line.h"
-#include "DebugView++Lib/ProcessHandleCache.h"
 #include "Win32Lib/utilities.h"
 
 namespace fusion {
@@ -23,7 +22,6 @@ public:
 	NewlineFilter();
 	Lines Process(const Line& line);
 	Lines FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle);
-	Lines FlushLinesFromTerminatedProcesses(const PidMap& terminatedProcessesMap);
 
 private:
 	std::unordered_map<DWORD, std::string> m_lineBuffers;

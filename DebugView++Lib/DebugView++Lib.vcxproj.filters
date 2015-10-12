@@ -68,9 +68,6 @@
     <ClInclude Include="..\include\DebugView++Lib\DBWinWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugView++Lib\ProcessHandleCache.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\DebugView++Lib\LogSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,6 +110,9 @@
     <ClInclude Include="..\include\DebugView++Lib\DBLogReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\DebugView++Lib\ProcessMonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -152,9 +152,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SourceType.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProcessHandleCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProcessInfo.cpp">
@@ -212,6 +209,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LineBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessMonitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

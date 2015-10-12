@@ -12,7 +12,6 @@
 
 #include "LogSource.h"
 #include "DBWinBuffer.h"
-#include "ProcessHandleCache.h"
 #include "Win32Lib/utilities.h"
 
 namespace fusion {

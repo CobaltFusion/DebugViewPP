@@ -17,18 +17,6 @@ namespace debugviewpp {
 
 typedef std::unordered_map<DWORD, Handle> PidMap;
 
-class ProcessHandleCache
-{
-public:
-	~ProcessHandleCache();
-
-	void Add(DWORD pid, Handle handle);
-	PidMap CleanupMap();
-
-private:
-	PidMap m_cache;
-};
-
 class ProcessMonitor
 {
 public:

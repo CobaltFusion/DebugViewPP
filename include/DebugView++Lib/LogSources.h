@@ -19,6 +19,7 @@
 #include "CobaltFusion/CircularBuffer.h"
 #include "CobaltFusion/GuiExecutor.h"
 #include "DebugView++Lib/NewlineFilter.h"
+#include "DebugView++Lib/ProcessMonitor.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 
@@ -73,7 +74,6 @@ public:
 private:
 	void UpdateSettings(std::shared_ptr<LogSource> source);
 	void Add(std::shared_ptr<LogSource> source);
-	void CheckForTerminatedProcesses();
 	void OnProcessEnd(DWORD pid, HANDLE handle);
 	void OnUpdate();
 	void DelayedUpdate();
@@ -86,7 +86,6 @@ private:
 	VectorLineBuffer m_linebuffer;
 	PidMap m_pidMap;
 	ProcessMonitor m_processMonitor;
-	ProcessHandleCache m_handleCache;
 	NewlineFilter m_newlineFilter;
 	std::shared_ptr<Loopback> m_loopback;
 	Timer m_timer;

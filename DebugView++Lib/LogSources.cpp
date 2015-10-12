@@ -173,9 +173,6 @@ void LogSources::DelayedUpdate()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-// replaced by ProcessMonitor
-//	m_guiExecutor.CallEvery(handleCacheTimeout, [this]() { CheckForTerminatedProcesses(); });
-
 	for (;;)
 	{
 		ListenUntilUpdateEvent();
@@ -236,19 +233,6 @@ void LogSources::ListenUntilUpdateEvent()
 	}
 }
 
-void LogSources::CheckForTerminatedProcesses()
-{
-	// adding messages to inputLines would mess up the timestamp-order,
-	// so instead put them in the m_loopback buffer for processing.
-
-	auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcesses(m_handleCache.CleanupMap());
-	for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it)
-		m_loopback->AddMessage(it->pid, it->processName, it->message);
-
-	if (!flushedLines.empty())
-		m_loopback->Signal();
-}
-
 void LogSources::OnProcessEnd(DWORD pid, HANDLE handle)
 {
 	m_guiExecutor.CallAsync([this, pid, handle]
@@ -281,8 +265,6 @@ Lines LogSources::GetLines()
 		if (inputLine.handle)
 		{
 			inputLine.pid = GetProcessId(inputLine.handle);
-			// replaced by ProcessMonitor
-//			m_handleCache.Add(inputLine.pid, Handle(inputLine.handle));
 			auto it = m_pidMap.find(inputLine.pid);
 			if (it == m_pidMap.end())
 			{
