@@ -94,6 +94,7 @@ public:
 	template <typename Fn>
 	auto Call(Fn fn) -> decltype(fn())
 	{
+		assert(!IsExecutorThread());
 		typedef decltype(fn()) R;
 		boost::packaged_task<R> task(fn);
 		m_q.Push([&task]() { task(); });

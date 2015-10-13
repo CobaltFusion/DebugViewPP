@@ -157,6 +157,11 @@ bool Executor::IsExecutorThread() const
 	return boost::this_thread::get_id() == m_threadId;
 }
 
+bool Executor::IsIdle() const
+{
+	return m_q.Empty();
+}
+
 void Executor::RunOne()
 {
 	SetExecutorThread();

@@ -99,6 +99,7 @@ public:
 	template <typename Fn>
 	auto Call(Fn fn) -> decltype(fn())
 	{
+		assert(!IsExecutorThread());
 		boost::packaged_task<decltype(fn())> task(fn);
 		Add([&task]() { task(); });
 		return task.get_future().get();
@@ -114,6 +115,7 @@ public:
 	}
 
 	bool IsExecutorThread() const;
+	bool IsIdle() const;
 
 	void RunOne();
 
