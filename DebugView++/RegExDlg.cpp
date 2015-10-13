@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "CobaltFusion/Str.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "Win32/Utilities.h"
 #include "RegExDlg.h"
 

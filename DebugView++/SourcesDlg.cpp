@@ -10,6 +10,7 @@
 #include <atlstr.h>
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
 #include "Resource.h"

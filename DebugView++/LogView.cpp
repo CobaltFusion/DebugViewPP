@@ -12,7 +12,9 @@
 #include <unordered_set>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileIO.h"
 #include "Resource.h"
@@ -813,7 +815,7 @@ bool Contains(const std::string& text, const std::string& substring)
 
 LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 {
-	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
@@ -1428,7 +1430,7 @@ template <typename Predicate>
 int CLogView::FindLine(Predicate pred, int direction) const
 {
 	SetCursor(::LoadCursor(nullptr, IDC_ARROW));
-	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	int line = begin;

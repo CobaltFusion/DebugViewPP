@@ -354,6 +354,23 @@ const void* MappedViewOfFile::Ptr() const
 	return m_ptr;
 }
 
+ScopedCursor::ScopedCursor(HCURSOR hCursor) :
+	m_hCursor(::SetCursor(hCursor))
+{
+}
+
+ScopedCursor::ScopedCursor(ScopedCursor&& sc) :
+	m_hCursor(sc.m_hCursor)
+{
+	sc.m_hCursor = nullptr;
+}
+
+ScopedCursor::~ScopedCursor()
+{
+	if (m_hCursor)
+		::SetCursor(m_hCursor);
+}
+
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName)
 {
 	long length = 0;
@@ -457,13 +474,33 @@ DWORD GetExitCodeProcess(HANDLE hProcess)
 {
 	DWORD exitCode;
 	if (!::GetExitCodeProcess(hProcess, &exitCode))
-		Win32::ThrowLastError("GetExitCodeProcess");
+		ThrowLastError("GetExitCodeProcess");
 	return exitCode;
 }
 
 DWORD GetExitCodeProcess(const Handle& hProcess)
 {
 	return GetExitCodeProcess(hProcess.get());
+}
+
+std::wstring GetWindowText(HWND hWnd)
+{
+	int length = ::GetWindowTextLengthW(hWnd);
+	std::vector<wchar_t> text(length + 1);
+	if (::GetWindowTextW(hWnd, text.data(), length + 1) == 0)
+	{
+		if (auto err = GetLastError())
+			throw Win32Error(err, "GetWindowText");
+	}
+	return std::wstring(text.data(), length);
+}
+
+std::wstring GetDlgItemText(HWND hDlg, int idc)
+{
+	HWND hWnd = ::GetDlgItem(hDlg, idc);
+	if (!hWnd)
+		ThrowLastError("GetExitCodeProcess");
+	return GetWindowText(hWnd);
 }
 
 } // namespace Win32

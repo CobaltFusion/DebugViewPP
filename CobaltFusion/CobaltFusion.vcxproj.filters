@@ -47,6 +47,9 @@
     <ClInclude Include="..\include\CobaltFusion\Str.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CobaltFusion\AtlWinExt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
@@ -181,7 +182,7 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
 	m_dragImage.BeginDrag(0, lv.ptAction.x - rect.left, lv.ptAction.y - rect.top);
 	m_dragImage.DragEnter(*this, lv.ptAction);
 	SetCapture();
-	m_dragCursor.reset(new ScopedCursor(LoadCursor(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDC_DRAGDROP))));
+	m_dragCursor.reset(new Win32::ScopedCursor(LoadCursor(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDC_DRAGDROP))));
 	return 0;
 }
 

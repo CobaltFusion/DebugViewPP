@@ -13,23 +13,6 @@
 
 namespace fusion {
 
-ScopedCursor::ScopedCursor(HCURSOR hCursor) :
-	m_hCursor(::SetCursor(hCursor))
-{
-}
-
-ScopedCursor::ScopedCursor(ScopedCursor&& sc) :
-	m_hCursor(sc.m_hCursor)
-{
-	sc.m_hCursor = nullptr;
-}
-
-ScopedCursor::~ScopedCursor()
-{
-	if (m_hCursor)
-		::SetCursor(m_hCursor);
-}
-
 std::wstring LoadString(int id)
 {
 	CString cs;
@@ -110,13 +93,6 @@ long long Timer::GetTicks() const
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);
 	return li.QuadPart;
-}
-
-std::wstring GetDlgItemText(const CWindow& wnd, int idc)
-{
-	CString text;
-	wnd.GetDlgItemText(idc, text);
-	return std::wstring(text, text.GetLength());
 }
 
 } // namespace fusion
