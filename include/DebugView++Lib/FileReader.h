@@ -30,9 +30,9 @@ public:
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 	virtual void PreProcess(Line& line) const;
-	virtual void AddLine(const std::string& line);
 
 protected:
+	virtual void AddLine(const std::string& line);
 	std::string m_filename;
 	std::string m_name;
 	FileType::type m_fileType;

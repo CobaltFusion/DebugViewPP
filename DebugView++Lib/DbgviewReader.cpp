@@ -73,6 +73,8 @@ void DbgviewReader::Loop()
 
 	Write<DWORD>(m_iostream, Magic::RequestQueryPerformanceFrequency);
 	auto qpFrequency = Read<DWORD>(m_iostream); // 0x0023ae93
+	long long t0 = 0;
+	bool first = true;
 
 	if (!m_iostream || qpFrequency == 0)
 	{
@@ -85,11 +87,11 @@ void DbgviewReader::Loop()
 	Write<DWORD>(m_iostream, Magic::CaptureWin32Disable);
 	Write<DWORD>(m_iostream, Magic::PassThroughDisable);
 
-	Timer timer(qpFrequency);
+	double timerUnit = 1. / qpFrequency;
 	Add(stringbuilder() << "Connected to " << GetDescription());
 	Signal();
 
-	for (;;)
+	while (!AtEnd())
 	{
 		m_iostream.clear();
 		auto messageLength = Read<DWORD>(m_iostream);
@@ -120,19 +122,21 @@ void DbgviewReader::Loop()
 		ss.write(buffer.data(), buffer.size());
 
 		DWORD pid = 0;
-		std::string msg, flags;
+		std::string msg;
 		for (;;)
 		{
-			msg.clear();
-			flags.clear();
-						
 			unsigned int lineNr = Read<DWORD>(ss);
 			if (!ss)
 				break;
 
 			auto filetime = Read<FILETIME>(ss);
 			auto qpcTime = Read<long long>(ss);
-			auto time = timer.Get(qpcTime);
+			if (first)
+			{
+				t0 = qpcTime;
+				first = false;
+			}
+			auto time = (qpcTime - t0) * timerUnit;
 
 			if (buffer[20] == Magic::ColumnnOneMark)
 			{
@@ -157,8 +161,6 @@ void DbgviewReader::Loop()
 				Read(ss, 4 - remainder);
 		}
 		Signal();
-		if (AtEnd())
-			break;
 	}
 }
 

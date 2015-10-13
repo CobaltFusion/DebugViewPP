@@ -10,6 +10,7 @@
 #include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/SourceType.h"
 #include "Win32/Utilities.h"
+#include "CobaltFusion/Timer.h"
 #include "CobaltFusion/dbgstream.h"
 
 namespace fusion {

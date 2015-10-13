@@ -7,19 +7,28 @@
 
 #pragma once
 
-#include <string>
-#include <cmath>
+#pragma warning(push, 3)
+#include <boost/thread.hpp>
+#pragma warning(pop)
+#include <Windows.h>
 
 namespace fusion {
 
-std::wstring LoadString(int id);
-
-std::wstring GetExceptionMessage();
-
-template <typename T>
-T floor_to(double value)
+class Timer
 {
-	return static_cast<T>(std::floor(value));
-}
+public:
+	Timer();
+
+	void Reset();
+	double Get();
+
+private:
+	long long GetTicks() const;
+
+	double m_timerUnit;
+	bool m_init;
+	long long m_offset;
+	boost::mutex m_mutex;
+};
 
 } // namespace fusion
