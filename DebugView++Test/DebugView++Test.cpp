@@ -13,8 +13,9 @@
 
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
-#include "DebugView++Lib/ProcessInfo.h"
+#include "CobaltFusion/stringbuilder.h"
 #include "IndexedStorageLib/IndexedStorage.h"
+#include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/LogSource.h"

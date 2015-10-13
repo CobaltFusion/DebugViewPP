@@ -12,11 +12,12 @@
 #include <unordered_set>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include "CobaltFusion/stringbuilder.h"
+#include "DebugView++Lib/Conversions.h"
+#include "DebugView++Lib/FileIO.h"
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
-#include "DebugView++Lib/Conversions.h"
-#include "DebugView++Lib/FileIO.h"
 
 namespace fusion {
 namespace debugviewpp {

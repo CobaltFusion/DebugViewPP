@@ -8,7 +8,6 @@
 #pragma once
 
 #include <string>
-#include <sstream>
 #include <cmath>
 #include <boost/date_time/local_time/local_time.hpp> 
 #pragma warning(push, 3)
@@ -67,53 +66,6 @@ public:
 private:
 	HCURSOR m_hCursor;
 };
-
-template <class CharType, class Traits = std::char_traits<CharType>, class Allocator = std::allocator<CharType>>
-class basic_stringbuilder
-{
-public:
-	typedef std::basic_string<CharType, Traits, Allocator> string_type;
-
-	template <typename T>
-	basic_stringbuilder& operator<<(const T& t)
-	{
-		m_ss << t;
-		return *this;
-	}
-
-	basic_stringbuilder& operator<<(const std::wstring& str)
-	{
-		m_ss << Str(str).str().c_str();
-		return *this;
-	}
-
-	basic_stringbuilder& operator<<(const std::string& str)
-	{
-		m_ss << str.c_str();
-		return *this;
-	}
-
-	string_type str() const
-	{
-		return m_ss.str();
-	}
-
-	const CharType* c_str() const
-	{
-		return m_ss.str().c_str();
-	}
-
-	operator string_type() const
-	{
-		return m_ss.str();
-	}
-
-private:
-	std::basic_ostringstream<CharType, Traits, Allocator> m_ss;
-};
-
-typedef basic_stringbuilder<char> stringbuilder;
-typedef basic_stringbuilder<wchar_t> wstringbuilder;
 
 class Str
 {
@@ -221,30 +173,6 @@ private:
 	long long m_offset;
 	boost::mutex m_mutex;
 };
-
-template <typename T>
-std::unique_ptr<T> make_unique()
-{
-	return std::unique_ptr<T>(new T);
-}
-
-template <typename T, typename A1>
-std::unique_ptr<T> make_unique(A1&& a1)
-{
-	return std::unique_ptr<T>(new T(std::forward<A1>(a1)));
-}
-
-template <typename T, typename A1, typename A2>
-std::unique_ptr<T> make_unique(A1&& a1, A2&& a2)
-{
-	return std::unique_ptr<T>(new T(std::forward<A1>(a1), std::forward<A2>(a2)));
-}
-
-template <typename T, typename A1, typename A2, typename A3>
-std::unique_ptr<T> make_unique(A1&& a1, A2&& a2, A3&& a3)
-{
-	return std::unique_ptr<T>(new T(std::forward<A1>(a1), std::forward<A2>(a2), std::forward<A3>(a3)));
-}
 
 template <typename T>
 T floor_to(double value)

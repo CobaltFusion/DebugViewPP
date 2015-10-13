@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <boost/asio.hpp> 
 #include "Win32/Win32Lib.h"
+#include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/PassiveLogSource.h"
 #include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/LineBuffer.h"

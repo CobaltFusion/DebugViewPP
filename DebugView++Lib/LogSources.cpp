@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
+#include "CobaltFusion/stringbuilder.h"
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
 #include "DebugView++Lib/LogSources.h"

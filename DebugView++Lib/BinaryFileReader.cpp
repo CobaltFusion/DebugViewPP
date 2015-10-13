@@ -9,6 +9,7 @@
 #include <locale>
 #include <codecvt>
 #include <boost/filesystem.hpp>
+#include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/BinaryFileReader.h"
 #include "DebugView++Lib/LineBuffer.h"

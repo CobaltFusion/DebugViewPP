@@ -13,6 +13,7 @@
 #include <boost/algorithm/string.hpp>
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
+#include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/Conversions.h"

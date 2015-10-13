@@ -7,9 +7,10 @@
 
 #include "stdafx.h"
 #include <sstream>
-#include "DebugView++Lib/Conversions.h"
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
+#include "CobaltFusion/stringbuilder.h"
+#include "DebugView++Lib/Conversions.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -14,6 +14,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/make_unique.h"
+#include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/FileReader.h"
