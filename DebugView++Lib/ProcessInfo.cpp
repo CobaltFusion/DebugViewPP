@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <array>
 #include <psapi.h>
+#include "CobaltFusion/Str.h"
 #include "DebugView++Lib/Conversions.h"
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"

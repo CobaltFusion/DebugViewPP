@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
 #include "HistoryDlg.h"
 

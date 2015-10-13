@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
 #include "Resource.h"
 #include "FilterPage.h"

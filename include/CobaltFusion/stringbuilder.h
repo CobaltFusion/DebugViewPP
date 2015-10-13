@@ -9,6 +9,7 @@
 
 #include <string>
 #include <sstream>
+#include "CobaltFusion/Str.h"
 
 namespace fusion {
 

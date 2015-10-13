@@ -8,6 +8,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "CobaltFusion/Str.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/ProcessInfo.h"

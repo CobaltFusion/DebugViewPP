@@ -7,8 +7,9 @@
 
 #include "stdafx.h"
 #include <vector>
-#include "DebugView++Lib/LogFile.h"
+#include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
+#include "DebugView++Lib/LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -14,6 +14,7 @@
 #include <boost/algorithm/string.hpp>
 #include "Win32/Utilities.h"
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/Str.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/FileIO.h"
