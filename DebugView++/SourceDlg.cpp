@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include <atlstr.h>
-#include "Win32Lib/utilities.h"
+#include "Win32/utilities.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
 #include "Resource.h"

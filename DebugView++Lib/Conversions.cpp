@@ -6,10 +6,10 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "DebugView++Lib/Conversions.h"
-#include "Win32Lib/utilities.h"
-#include "Win32Lib/Win32Lib.h"
 #include <sstream>
+#include "DebugView++Lib/Conversions.h"
+#include "Win32/Utilities.h"
+#include "Win32/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {

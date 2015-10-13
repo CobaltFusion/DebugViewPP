@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/ProcessInfo.h"

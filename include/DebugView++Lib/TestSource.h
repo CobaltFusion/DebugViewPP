@@ -12,7 +12,7 @@
 
 #include "LogSource.h"
 #include "DBWinBuffer.h"
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

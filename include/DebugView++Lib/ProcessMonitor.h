@@ -9,7 +9,7 @@
 
 #include <unordered_map>
 #include <boost/signals2.hpp>
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 #include "CobaltFusion/SynchronizedQueue.h"
 #include <boost/thread.hpp>
 

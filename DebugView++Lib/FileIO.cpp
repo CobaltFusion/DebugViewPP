@@ -11,8 +11,8 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include "Win32Lib/Win32Lib.h"
-#include "Win32Lib/Utilities.h"
+#include "Win32/Win32Lib.h"
+#include "Win32/Utilities.h"
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/Conversions.h"

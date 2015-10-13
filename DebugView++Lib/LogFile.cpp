@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <vector>
 #include "DebugView++Lib/LogFile.h"
-#include "Win32Lib/Utilities.h"
+#include "Win32/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

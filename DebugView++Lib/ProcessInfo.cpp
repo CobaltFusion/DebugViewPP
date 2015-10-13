@@ -9,8 +9,8 @@
 #include <array>
 #include <psapi.h>
 #include "DebugView++Lib/Conversions.h"
-#include "Win32Lib/Utilities.h"
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Utilities.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/Colors.h"
 #include "DebugView++Lib/ProcessInfo.h"
 

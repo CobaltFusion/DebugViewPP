@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32Lib/Utilities.h"
+#include "Win32/Utilities.h"
 #include "RegExDlg.h"
 
 namespace fusion {

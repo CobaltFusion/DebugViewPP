@@ -11,7 +11,7 @@
 #include <deque>
 #include "FilterDlg.h"
 #include "Win32Support.h"
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogFile.h"
 
 namespace fusion {

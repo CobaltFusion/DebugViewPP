@@ -7,8 +7,8 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
-#include "Win32Lib/Win32Lib.h"
-#include "Win32Lib/utilities.h"
+#include "Win32/Win32Lib.h"
+#include "Win32/Utilities.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/PipeReader.h"

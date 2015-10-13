@@ -9,9 +9,10 @@
 
 #include <string>
 #include <vector>
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 
 namespace fusion {
+namespace Win32 {
 
 class Process
 {
@@ -35,13 +36,14 @@ private:
 	void Run(const std::wstring& pathName, const std::wstring& args);
 
 	std::wstring m_name;
-	Win32::Handle m_stdIn;
-	Win32::Handle m_stdOut;
-	Win32::Handle m_stdErr;
-	Win32::Handle m_hProcess;
-	Win32::Handle m_hThread;
+	Handle m_stdIn;
+	Handle m_stdOut;
+	Handle m_stdErr;
+	Handle m_hProcess;
+	Handle m_hThread;
 	unsigned m_processId;
 	unsigned m_threadId;
 };
 
+} // namespace Win32
 } // namespace fusion

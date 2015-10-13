@@ -11,10 +11,10 @@
 #include <boost/test/unit_test_gui.hpp>
 #include <random>
 
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "IndexedStorageLib/IndexedStorage.h"
-#include "Win32Lib/Win32Lib.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/LogSource.h"
@@ -34,8 +34,13 @@ std::string GetTestString(int i)
 class TestLineBuffer : public LineBuffer
 {
 public:
-	TestLineBuffer(size_t size) : LineBuffer(size) {}
-	virtual ~TestLineBuffer() {}
+	TestLineBuffer(size_t size) : LineBuffer(size)
+	{
+	}
+
+	virtual ~TestLineBuffer()
+	{
+	}
 
 	virtual void WaitForReaderTimeout()
 	{

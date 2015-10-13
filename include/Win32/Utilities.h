@@ -16,7 +16,7 @@
 #pragma warning(pop)
 #include <atlbase.h>
 #include <atlwin.h>
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 
 // Alternative to ATL standard BEGIN_MSG_MAP() with try block:
 #define BEGIN_MSG_MAP_TRY(theClass) \

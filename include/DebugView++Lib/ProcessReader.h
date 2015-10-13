@@ -9,7 +9,7 @@
 
 #include "PipeReader.h"
 #include "PassiveLogSource.h"
-#include "Process.h"
+#include "Win32/Process.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -28,7 +28,7 @@ public:
 private:
 	virtual void Poll();
 
-	Process m_process;
+	Win32::Process m_process;
 	PipeReader m_stdout;
 	PipeReader m_stderr;
 };

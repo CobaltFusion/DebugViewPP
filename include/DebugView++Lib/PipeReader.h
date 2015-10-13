@@ -8,7 +8,7 @@
 #pragma once
 
 #include <boost/utility.hpp>
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
 #include "LogSource.h"
 #include "PassiveLogSource.h"
 

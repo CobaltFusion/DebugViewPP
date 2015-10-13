@@ -8,7 +8,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/ProcessMonitor.h"
 
 namespace fusion {

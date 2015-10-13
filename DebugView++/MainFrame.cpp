@@ -6,7 +6,6 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "MainFrame.h"
 
 #include <algorithm>
 #include <boost/utility.hpp>
@@ -20,7 +19,7 @@
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/LogFilter.h"
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
 #include "hstream.h"
 #include "Resource.h"
 #include "RunDlg.h"
@@ -30,6 +29,7 @@
 #include "AboutDlg.h"
 #include "FileOptionDlg.h"
 #include "LogView.h"
+#include "MainFrame.h"
 
 namespace fusion {
 namespace debugviewpp {

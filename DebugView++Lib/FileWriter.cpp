@@ -7,11 +7,11 @@
 
 #include "stdafx.h"
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/FileWriter.h"
 #include "CobaltFusion/dbgstream.h"
-#include "Win32Lib/utilities.h"
-#include <boost/algorithm/string.hpp>
+#include "Win32/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

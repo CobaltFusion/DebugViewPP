@@ -26,9 +26,6 @@
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugView++Lib\Process.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\DebugView++Lib\ProcessReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -116,9 +113,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProcessReader.cpp">

@@ -128,12 +128,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Win32Lib\Utilities.h" />
-    <ClInclude Include="..\include\Win32Lib\Win32Lib.h" />
+    <ClInclude Include="..\include\Win32\Process.h" />
+    <ClInclude Include="..\include\Win32\Utilities.h" />
+    <ClInclude Include="..\include\Win32\Win32Lib.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Process.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

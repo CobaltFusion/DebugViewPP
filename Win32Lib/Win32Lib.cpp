@@ -9,7 +9,7 @@
 #include <vector>
 #include <iostream>
 #include <shellapi.h>
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
 

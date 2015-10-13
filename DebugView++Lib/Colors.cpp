@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/Colors.h"
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -8,8 +8,8 @@
 #include "stdafx.h"
 #include <string>
 #include <atlstr.h>
-#include "Win32Lib/Win32Lib.h"
-#include "Win32Lib/utilities.h"
+#include "Win32/Win32Lib.h"
+#include "Win32/utilities.h"
 
 namespace fusion {
 

@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <boost/asio.hpp> 
 #include <boost/algorithm/string.hpp>
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
 #include "CobaltFusion/scope_guard.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"

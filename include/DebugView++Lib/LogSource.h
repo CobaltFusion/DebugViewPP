@@ -9,7 +9,7 @@
 
 #include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/SourceType.h"
-#include "Win32Lib/utilities.h"
+#include "Win32/Utilities.h"
 #include "CobaltFusion/dbgstream.h"
 
 namespace fusion {

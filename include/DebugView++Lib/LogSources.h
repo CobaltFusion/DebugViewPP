@@ -12,7 +12,7 @@
 #pragma warning(push, 1)
 #include <boost/thread.hpp>
 #pragma warning(pop)
-#include "Win32Lib/Win32Lib.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"

@@ -156,7 +156,6 @@
     <ClInclude Include="..\include\DebugView++Lib\NewlineFilter.h" />
     <ClInclude Include="..\include\DebugView++Lib\PassiveLogSource.h" />
     <ClInclude Include="..\include\DebugView++Lib\PipeReader.h" />
-    <ClInclude Include="..\include\DebugView++Lib\Process.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessInfo.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessMonitor.h" />
     <ClInclude Include="..\include\DebugView++Lib\ProcessReader.h" />
@@ -192,7 +191,6 @@
     <ClCompile Include="NewlineFilter.cpp" />
     <ClCompile Include="PassiveLogSource.cpp" />
     <ClCompile Include="PipeReader.cpp" />
-    <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessInfo.cpp" />
     <ClCompile Include="ProcessMonitor.cpp" />
     <ClCompile Include="ProcessReader.cpp" />
