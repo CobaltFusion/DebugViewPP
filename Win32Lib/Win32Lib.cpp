@@ -466,6 +466,11 @@ DWORD GetExitCodeProcess(const Handle& hProcess)
 	return GetExitCodeProcess(hProcess.get());
 }
 
+bool IsGUIThread()
+{
+	return ::IsGUIThread(FALSE) == TRUE;
+}
+
 } // namespace Win32
 
 bool operator==(const FILETIME& ft1, const FILETIME& ft2)

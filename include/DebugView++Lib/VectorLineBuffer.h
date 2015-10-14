@@ -17,8 +17,8 @@ class VectorLineBuffer : public ILineBuffer
 public:
 	explicit VectorLineBuffer(size_t size);
 
-	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const std::shared_ptr<LogSource>& pSource);
-	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pSource);
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource);
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource);
 	Lines GetLines();
 	virtual bool Empty() const;
 

@@ -271,6 +271,9 @@ std::vector<std::wstring> GetCommandLineArguments();
 DWORD GetExitCodeProcess(HANDLE hProcess);
 DWORD GetExitCodeProcess(const Handle& hProcess);
 
+bool IsGUIThread();
+
+
 } // namespace Win32
 
 bool operator==(const FILETIME& ft1, const FILETIME& ft2);

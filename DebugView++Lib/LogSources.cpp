@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <cassert>
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/stringbuilder.h"
 #include "Win32/Win32Lib.h"
@@ -68,6 +69,7 @@ void LogSources::UpdateSettings(std::shared_ptr<LogSource> source)
 
 void LogSources::Add(std::shared_ptr<LogSource> source)
 {
+	assert(Win32::IsGUIThread());
 	boost::mutex::scoped_lock lock(m_mutex);
 	UpdateSettings(source);
 	m_sources.push_back(source);
@@ -76,12 +78,14 @@ void LogSources::Add(std::shared_ptr<LogSource> source)
 
 void LogSources::Remove(std::shared_ptr<LogSource> logsource)
 {
+	assert(Win32::IsGUIThread());
 	InternalRemove(logsource);
 	Win32::SetEvent(m_updateEvent);
 }
 
 void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
 {
+	assert(Win32::IsGUIThread());
 	AddMessage(stringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.");
 	boost::mutex::scoped_lock lock(m_mutex);
 	logsource->Abort();

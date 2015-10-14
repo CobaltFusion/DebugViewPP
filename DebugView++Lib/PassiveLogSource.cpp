@@ -13,7 +13,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pLogSource) :
+PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
 	pid(pid),
 	processName(processName),
 	message(message),
@@ -90,13 +90,13 @@ void PassiveLogSource::Notify()
 void PassiveLogSource::AddMessage(DWORD pid, const std::string& processName, const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	m_lines.push_back(PollLine(pid, processName, message, shared_from_this()));
+	m_lines.push_back(PollLine(pid, processName, message, this));
 }
 
 void PassiveLogSource::AddMessage(const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	m_lines.push_back(PollLine(0, "[internal]", message, shared_from_this()));
+	m_lines.push_back(PollLine(0, "[internal]", message, this));
 }
 
 void PassiveLogSource::Signal()

@@ -12,7 +12,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const std::shared_ptr<LogSource>& pLogSource) :
+Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pLogSource) :
 	time(time),
 	systemTime(systemTime),
 	handle(handle),
@@ -22,7 +22,7 @@ Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& m
 {
 }
 
-Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pLogSource) :
+Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
 	time(time),
 	systemTime(systemTime),
 	handle(nullptr),

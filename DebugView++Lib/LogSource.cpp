@@ -76,22 +76,22 @@ SourceType::type LogSource::GetSourceType() const
 
 void LogSource::Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message)
 {
-	m_linebuffer.Add(time, systemTime, pid, processName, message, shared_from_this());
+	m_linebuffer.Add(time, systemTime, pid, processName, message, this);
 }
 
 void LogSource::Add(DWORD pid, const std::string& processName, const std::string& message)
 {
-	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), pid, processName, message, shared_from_this());
+	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), pid, processName, message, this);
 }
 
 void LogSource::Add(const std::string& message, HANDLE handle)
 {
-	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), handle, message, shared_from_this());
+	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), handle, message, this);
 }
 
 void LogSource::AddInternal(const std::string& message)
 {
-	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "[internal]", message, shared_from_this());
+	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "[internal]", message, this);
 }
 
 } // namespace debugviewpp 

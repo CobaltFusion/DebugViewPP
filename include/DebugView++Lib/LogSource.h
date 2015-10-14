@@ -16,7 +16,7 @@ namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
-class LogSource : public boost::noncopyable, public std::enable_shared_from_this<LogSource>
+class LogSource : public boost::noncopyable
 {
 public:
 	LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);

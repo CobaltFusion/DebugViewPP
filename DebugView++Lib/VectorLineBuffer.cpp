@@ -20,13 +20,13 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 {
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const std::shared_ptr<LogSource>& pSource)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_buffer.push_back(Line(time, systemTime, handle, message, pSource));
 }
 
-void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pSource)
+void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource)
 {
 	boost::unique_lock<boost::mutex> lock(m_linesMutex);
 	m_buffer.push_back(Line(time, systemTime, pid, processName, message, pSource));

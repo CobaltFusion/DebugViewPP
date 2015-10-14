@@ -21,8 +21,8 @@ class ILineBuffer
 public:
 	virtual ~ILineBuffer() = 0;
 
-	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const std::shared_ptr<LogSource>& pSource) = 0;
-	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const std::shared_ptr<LogSource>& pSource) = 0;
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pLogSource) = 0;
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) = 0;
 	virtual Lines GetLines() = 0;
 	virtual bool Empty() const = 0;
 };
