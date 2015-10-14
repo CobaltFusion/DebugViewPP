@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Win32/Win32Lib.h"
 #include "LogSource.h"
 
 namespace fusion {

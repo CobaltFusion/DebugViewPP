@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <vector>
-
 namespace fusion {
 namespace debugviewpp {
 

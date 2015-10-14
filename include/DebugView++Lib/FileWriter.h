@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <string>
+#include <fstream>
 #include <boost/thread.hpp>
 #include "LogFile.h"
 
@@ -19,7 +21,7 @@ class FileWriter
 {
 public:
 	FileWriter(const std::wstring& filename, LogFile& logfile);
-    ~FileWriter();
+	~FileWriter();
 
 private:
 	void Process();

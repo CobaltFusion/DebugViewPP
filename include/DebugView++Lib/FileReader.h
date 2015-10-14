@@ -7,11 +7,9 @@
 
 #pragma once
 
-#include <boost/thread.hpp>
-#include "PipeReader.h"
-#include "Process.h"
+#include <fstream>
 #include "FileIO.h"
-#include "DebugView++Lib/Conversions.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
 
 namespace fusion {

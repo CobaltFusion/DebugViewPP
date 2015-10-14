@@ -7,10 +7,6 @@
 
 #pragma once
 
-#include <boost/thread.hpp>
-#include "PipeReader.h"
-#include "Process.h"
-#include "FileIO.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileReader.h"
 
@@ -22,7 +18,7 @@ class ILineBuffer;
 class DBLogReader : public FileReader
 {
 public:
-	DBLogReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
+	DBLogReader(Timer& timer, ILineBuffer& lineBuffer, FileType::type fileType, const std::wstring& filename);
 	virtual void AddLine(const std::string& line);
 	virtual void PreProcess(Line& line) const;
 

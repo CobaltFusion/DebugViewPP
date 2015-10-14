@@ -1224,9 +1224,9 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	while (it != sourceInfos.end())
 	{
 		auto& info = *it;
-		if (info.logsource != nullptr)
+		if (info.pLogSource)
 			if (info.remove || !info.enabled)
-				m_logSources.Remove(info.logsource);
+				m_logSources.Remove(info.pLogSource);
 
 		if (info.remove)
 		{
@@ -1234,7 +1234,7 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 		}
 		else
 		{
-			if (info.enabled && info.logsource == nullptr)
+			if (info.enabled && info.pLogSource == nullptr)
 				AddLogSource(info);
 			++it;
 		}

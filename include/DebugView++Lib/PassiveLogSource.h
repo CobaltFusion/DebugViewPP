@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include <boost/utility.hpp>
 #include <boost/thread.hpp>
-#include <boost/signals2.hpp>
-
+#include "Win32/Win32Lib.h"
 #include "LogSource.h"
 
 namespace fusion {
@@ -31,12 +29,12 @@ struct PollLine
 class PassiveLogSource : public LogSource
 {
 public:
-	PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency);
+	PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& lineBuffer, long pollFrequency);
 	virtual ~PassiveLogSource();
 	
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
-	virtual void Poll() {}
+	virtual void Poll();
 	virtual void Abort();
 
 	// in contrast to the LogSource::Add methdods, these methods are de-coupled so they 

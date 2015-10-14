@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <stdexcept>
+#include <boost/algorithm/string.hpp>
 #include "DebugView++Lib/SourceType.h"
 #include "DebugView++Lib/LogSource.h"
 #include "assert.h"
@@ -14,31 +15,29 @@
 namespace fusion {
 namespace debugviewpp {
 
-SourceInfo::SourceInfo(std::wstring description, SourceType::type type)
-: enabled(false), description(description), type(type), remove(false)
+SourceInfo::SourceInfo(const std::wstring& description, SourceType::type type) :
+	enabled(false), description(description), type(type), remove(false)
 {
 }
 
-SourceInfo::SourceInfo(std::wstring description, SourceType::type type, std::wstring address, int port)
-: enabled(false), description(description), type(type), address(address), port(port), remove(false)
+SourceInfo::SourceInfo(const std::wstring& description, SourceType::type type, const std::wstring& address, int port) :
+	enabled(false), description(description), type(type), address(address), port(port), remove(false)
 {
 }
 
-SourceInfo::SourceInfo(std::wstring description, SourceType::type type, std::wstring address, int port, std::shared_ptr<LogSource> logsource)
-: enabled(true), description(description), type(type), address(address), port(port), logsource(logsource), remove(false)
+SourceInfo::SourceInfo(const std::wstring&, SourceType::type type, const std::wstring& adsress, int port, const std::shared_ptr<LogSource>& pLogSource) :
+	enabled(true), description(description), type(type), address(address), port(port), pLogSource(pLogSource), remove(false)
 {
 }
 
-std::string RemoveSpaces(std::string value)
+std::string RemoveSpaces(const std::string& value)
 {
-	boost::replace_all(value, " ", "_");
-	return value;
+	return boost::replace_all_copy(value, " ", "_");
 }
 
-std::string RestoreSpaces(std::string value)
+std::string RestoreSpaces(const std::string& value)
 {
-	boost::replace_all(value, "_", " ");
-	return value;
+	return boost::replace_all_copy(value, "_", " ");
 }
 
 int SourceTypeToInt(SourceType::type value)
@@ -70,19 +69,6 @@ SourceType::type IntToSourceType(int value)
 std::string SourceTypeToString(SourceType::type value)
 {
 #define SOURCE_TYPE(f) case SourceType::f: return RestoreSpaces(#f);
-	switch (value)
-	{
-	SOURCE_TYPES
-	default: assert(!"Unexpected SourceType"); break;
-	}
-#undef SOURCE_TYPE
-
-	throw std::invalid_argument("bad SourceType!");
-}
-
-const wchar_t* EnumToWCharPtr(SourceType::type value)
-{
-#define SOURCE_TYPE(f) case SourceType::f: return L ## #f;
 	switch (value)
 	{
 	SOURCE_TYPES

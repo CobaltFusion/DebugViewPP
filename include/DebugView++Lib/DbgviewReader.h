@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include "PipeReader.h"
+#include <boost/asio.hpp>
 #include "PassiveLogSource.h"
-#include "Process.h"
-#include <boost/asio.hpp> 
 
 namespace fusion {
 namespace debugviewpp {

@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "PipeReader.h"
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
 #include "PassiveLogSource.h"
 #include "Process.h"
-#include <boost/asio.hpp> 
 
 namespace fusion {
 namespace debugviewpp {
@@ -20,7 +20,7 @@ class ILineBuffer;
 class SocketReader : public PassiveLogSource
 {
 public:
-	SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname, int port);
+	SocketReader(Timer& timer, ILineBuffer& lineBuffer, const std::string& hostname, int port);
 	virtual ~SocketReader();
 
 	virtual void Abort();
@@ -36,7 +36,7 @@ private:
 	boost::asio::ip::udp::socket m_socket;
 	boost::asio::ip::udp::endpoint m_remote_endpoint;
 
-	boost::array<char, 2000> m_RecvBuffer;
+	boost::array<char, 2000> m_recvBuffer;
 	boost::thread m_thread;
 };
 

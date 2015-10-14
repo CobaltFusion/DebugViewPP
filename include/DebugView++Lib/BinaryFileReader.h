@@ -7,10 +7,6 @@
 
 #pragma once
 
-#include <boost/thread.hpp>
-#include "PipeReader.h"
-#include "Process.h"
-#include "FileIO.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LogSource.h"
 

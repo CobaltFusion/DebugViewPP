@@ -19,8 +19,8 @@ namespace debugviewpp {
 
 using namespace boost::asio::ip;
 
-SocketReader::SocketReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname, int port) :
-	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
+SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, const std::string& hostname, int port) :
+	PassiveLogSource(timer, SourceType::Pipe, lineBuffer, 40),
 	m_hostname(hostname),
 	m_port(port),
 	m_socket(m_ioservice)
@@ -42,7 +42,7 @@ SocketReader::~SocketReader()
 void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std::size_t bytes_transferred)
 {
 	std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
-	ss.write(m_RecvBuffer.data(), bytes_transferred);
+	ss.write(m_recvBuffer.data(), bytes_transferred);
 
 	std::string addr = m_remote_endpoint.address().to_string();
 	std::string msg;
@@ -60,9 +60,9 @@ void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std
 
 void SocketReader::StartReceive()
 {
-	m_socket.async_receive_from(boost::asio::buffer(m_RecvBuffer), m_remote_endpoint,
-			boost::bind(&SocketReader::ReceiveUDPMessage, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
-	);    
+	m_socket.async_receive_from(boost::asio::buffer(m_recvBuffer), m_remote_endpoint,
+		boost::bind(&SocketReader::ReceiveUDPMessage, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
+	);
 }
 
 void SocketReader::Loop()

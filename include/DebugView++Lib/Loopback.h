@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <boost/utility.hpp>
 #include "DebugView++Lib/PassiveLogSource.h"
 
 namespace fusion {
@@ -18,7 +17,7 @@ class ILineBuffer;
 class Loopback : public PassiveLogSource
 {
 public:
-	Loopback(Timer& timer, ILineBuffer& linebuffer);
+	Loopback(Timer& timer, ILineBuffer& lineBuffer);
 	virtual ~Loopback();
 
 	virtual bool GetAutoNewLine() const;
