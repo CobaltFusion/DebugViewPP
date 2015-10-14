@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "CobaltFusion/Str.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "Win32/Utilities.h"
 #include "RunDlg.h"
 
@@ -62,8 +63,8 @@ void CRunDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CRunDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	m_pathName = fusion::GetDlgItemText(*this, IDC_RUN);
-	m_arguments = fusion::GetDlgItemText(*this, IDC_ARGUMENTS);
+	m_pathName = Win32::GetDlgItemText(*this, IDC_RUN);
+	m_arguments = Win32::GetDlgItemText(*this, IDC_ARGUMENTS);
 
 	EndDialog(nID);
 }

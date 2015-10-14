@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "Win32/Win32Lib.h"
 
 namespace fusion {
 namespace debugviewpp {

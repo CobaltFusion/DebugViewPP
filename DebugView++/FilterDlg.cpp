@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include <atlstr.h>
+#include "CobaltFusion/AtlWinExt.h"
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/LogFilter.h"
@@ -212,7 +213,7 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		return;
 
 	LogFilter filter;
-	auto name = fusion::GetDlgItemText(*this, IDC_NAME);
+	auto name = Win32::GetDlgItemText(*this, IDC_NAME);
 	filter.messageFilters = m_messagePage.GetFilters();
 	filter.processFilters = m_processPage.GetFilters();
 
@@ -305,7 +306,7 @@ std::wstring GetRegexErrorDescription(std::regex_constants::error_type err)
 
 void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
+	m_name = Win32::GetDlgItemText(*this, IDC_NAME);
 	CFilterPage* pPage = nullptr;
 	try
 	{

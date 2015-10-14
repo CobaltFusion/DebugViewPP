@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <atlstr.h>
 #include "CobaltFusion/Str.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "Win32/utilities.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
@@ -53,10 +54,10 @@ void CSourceDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CSourceDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	m_name = fusion::GetDlgItemText(*this, IDC_NAME);
+	m_name = Win32::GetDlgItemText(*this, IDC_NAME);
 	m_port = GetDlgItemInt(IDC_PORT);
-	m_address = fusion::GetDlgItemText(*this, IDC_IPADDRESS);
-	m_sourcetype = StringToSourceType(Str(fusion::GetDlgItemText(*this, IDC_TYPE)));
+	m_address = Win32::GetDlgItemText(*this, IDC_IPADDRESS);
+	m_sourcetype = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
 	EndDialog(nID);
 }
 

@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <sstream>
+#include <iomanip>
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/stringbuilder.h"

@@ -7,11 +7,9 @@
 
 #pragma once
 
-#include <boost/thread.hpp>
-#include "PipeReader.h"
-#include "Process.h"
+#include <fstream>
 #include "FileIO.h"
-#include "DebugView++Lib/Conversions.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
 
 namespace fusion {
@@ -30,9 +28,9 @@ public:
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 	virtual void PreProcess(Line& line) const;
-	virtual void AddLine(const std::string& line);
 
 protected:
+	virtual void AddLine(const std::string& line);
 	std::string m_filename;
 	std::string m_name;
 	FileType::type m_fileType;

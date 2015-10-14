@@ -41,7 +41,7 @@ GuiExecutor::GuiExecutor() :
 	m_guiThreadId(boost::this_thread::get_id()),
 	m_wnd(*this)
 {
-	assert(::IsGUIThread(false));
+	assert(::IsGUIThread(FALSE));
 	m_wnd.Create();
 }
 

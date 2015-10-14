@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <memory>
 #include <algorithm>

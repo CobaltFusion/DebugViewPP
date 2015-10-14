@@ -87,6 +87,10 @@ void PassiveLogSource::Notify()
 	m_backBuffer.clear();
 }
 
+void PassiveLogSource::Poll()
+{
+}
+
 void PassiveLogSource::AddMessage(DWORD pid, const std::string& processName, const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);

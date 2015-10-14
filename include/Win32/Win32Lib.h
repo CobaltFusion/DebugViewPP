@@ -258,6 +258,18 @@ private:
 	void* m_ptr;
 };
 
+class ScopedCursor : boost::noncopyable
+{
+public:
+	explicit ScopedCursor(HCURSOR hCursor);
+	ScopedCursor(ScopedCursor&& sc);
+	~ScopedCursor();
+
+private:
+	HCURSOR m_hCursor;
+};
+
+std::wstring LoadString(int id);
 
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName = nullptr);
 std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName, const wchar_t* defaultValue);
@@ -271,6 +283,8 @@ std::vector<std::wstring> GetCommandLineArguments();
 DWORD GetExitCodeProcess(HANDLE hProcess);
 DWORD GetExitCodeProcess(const Handle& hProcess);
 
+std::wstring GetWindowText(HWND hWnd);
+std::wstring GetDlgItemText(HWND hDlg, int idc);
 bool IsGUIThread();
 
 

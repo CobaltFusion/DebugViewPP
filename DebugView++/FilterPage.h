@@ -9,10 +9,10 @@
 
 #include <regex>
 #include <vector>
-
-#include "Grid.h"
+#include "Win32/Win32Lib.h"
 #include "DebugView++Lib/FilterType.h"
 #include "DebugView++Lib/Filter.h"
+#include "Grid.h"
 #include "Resource.h"
 
 namespace fusion {
@@ -72,7 +72,7 @@ private:
 	std::vector<Filter> m_filters;
 	CImageList m_dragImage;
 	int m_dragItem;
-	std::unique_ptr<ScopedCursor> m_dragCursor;
+	std::unique_ptr<Win32::ScopedCursor> m_dragCursor;
 	int m_preResizeWidth;
 };
 

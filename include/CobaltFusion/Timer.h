@@ -5,27 +5,30 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include <string>
-#include "Win32/Win32Lib.h"
-
 #pragma once
 
-namespace fusion {
-namespace debugviewpp {
+#pragma warning(push, 3)
+#include <boost/thread.hpp>
+#pragma warning(pop)
+#include <Windows.h>
 
-class DBWinWriter
+namespace fusion {
+
+class Timer
 {
 public:
-	DBWinWriter();
+	Timer();
 
-	void Write(DWORD pid, const std::string& message);
+	void Reset();
+	double Get();
 
 private:
-	Win32::Handle m_hBuffer;
-	Win32::Handle m_dbWinBufferReady;
-	Win32::Handle m_dbWinDataReady;
-	Win32::MappedViewOfFile m_dbWinView;
+	long long GetTicks() const;
+
+	double m_timerUnit;
+	bool m_init;
+	long long m_offset;
+	boost::mutex m_mutex;
 };
 
-} // namespace debugviewpp 
 } // namespace fusion

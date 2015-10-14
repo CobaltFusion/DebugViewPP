@@ -45,12 +45,12 @@ void CFindDlg::OnDestroy()
 
 void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
-	m_mainFrame.FindNext(fusion::GetDlgItemText(*this, IDC_TEXT));
+	m_mainFrame.FindNext(Win32::GetDlgItemText(*this, IDC_TEXT));
 }
 
 void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 {
-	m_mainFrame.FindPrevious(fusion::GetDlgItemText(*this, IDC_TEXT));
+	m_mainFrame.FindPrevious(Win32::GetDlgItemText(*this, IDC_TEXT));
 }
 
 } // namespace debugviewpp 

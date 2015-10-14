@@ -8,8 +8,6 @@
 #pragma once
 
 #include <string>
-#include <regex>
-#include "MatchType.h"
 
 namespace fusion {
 namespace debugviewpp {

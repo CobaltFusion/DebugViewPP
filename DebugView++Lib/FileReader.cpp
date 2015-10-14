@@ -37,11 +37,9 @@ FileReader::~FileReader()
 void FileReader::Initialize()
 {
 	if (m_initialized)
-	{
 		return;
-	}
-	m_initialized = true;
 
+	m_initialized = true;
 	if (m_ifstream.is_open())
 	{
 		ReadUntilEof();
@@ -91,7 +89,6 @@ void FileReader::ReadUntilEof()
 		m_end = true;
 	}
 }
-
 
 void FileReader::AddLine(const std::string& line)
 {

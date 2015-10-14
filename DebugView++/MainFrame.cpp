@@ -13,6 +13,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/make_unique.h"
 #include "CobaltFusion/stringbuilder.h"
@@ -769,7 +770,7 @@ void CMainFrame::OnFileNewTab(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 void CMainFrame::SaveLogFile(const std::wstring& filename)
 {
 	UISetText(0, WStr(wstringbuilder() << "Saving " << filename));
-	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	std::ofstream fs;
 	OpenLogFile(fs, filename);
@@ -790,7 +791,7 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 void CMainFrame::SaveViewFile(const std::wstring& filename)
 {
 	UISetText(0, WStr(wstringbuilder() << "Saving " << filename));
-	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 	GetView().Save(filename);
 	m_txtFileName = filename;
 	UpdateStatusBar();
@@ -958,7 +959,7 @@ void CMainFrame::Load(HANDLE hFile)
 
 void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME fileTime)
 {
-	ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	Pause();
 	ClearLog();
@@ -1223,9 +1224,9 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	while (it != sourceInfos.end())
 	{
 		auto& info = *it;
-		if (info.logsource != nullptr)
+		if (info.pLogSource)
 			if (info.remove || !info.enabled)
-				m_logSources.Remove(info.logsource);
+				m_logSources.Remove(info.pLogSource);
 
 		if (info.remove)
 		{
@@ -1233,7 +1234,7 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 		}
 		else
 		{
-			if (info.enabled && info.logsource == nullptr)
+			if (info.enabled && info.pLogSource == nullptr)
 				AddLogSource(info);
 			++it;
 		}

@@ -10,7 +10,6 @@
 #include <string>
 #include <regex>
 #include <memory>
-#include "MatchType.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -32,16 +31,16 @@ struct SourceType		// the SourceType is for UI indication
 
 struct SourceInfo
 {
-	SourceInfo(std::wstring description, SourceType::type sourcetype);
-	SourceInfo(std::wstring description, SourceType::type sourcetype, std::wstring address, int port);
-	SourceInfo(std::wstring description, SourceType::type sourcetype, std::wstring address, int port, std::shared_ptr<LogSource> logsource);
+	SourceInfo(const std::wstring& description, SourceType::type sourceType);
+	SourceInfo(const std::wstring& description, SourceType::type sourceType, const std::wstring& address, int port);
+	SourceInfo(const std::wstring& description, SourceType::type sourceType, const std::wstring& address, int port, const std::shared_ptr<LogSource>& pLogSource);
 
 	bool enabled;
 	std::wstring description;
 	SourceType::type type;
 	std::wstring address;
 	int port;
-	std::shared_ptr<LogSource> logsource;
+	std::shared_ptr<LogSource> pLogSource;
 	bool remove;
 };
 
@@ -50,8 +49,6 @@ int SourceTypeToInt(SourceType::type value);
 SourceType::type IntToSourceType(int value);
 
 std::string SourceTypeToString(SourceType::type value);
-
-const wchar_t* EnumToWCharPtr(SourceType::type value);
 
 SourceType::type StringToSourceType(const std::string& s);
 

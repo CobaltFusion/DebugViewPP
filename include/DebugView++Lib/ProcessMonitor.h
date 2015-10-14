@@ -9,9 +9,9 @@
 
 #include <unordered_map>
 #include <boost/signals2.hpp>
+#include <boost/thread.hpp>
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/SynchronizedQueue.h"
-#include <boost/thread.hpp>
 
 namespace fusion {
 namespace debugviewpp {
