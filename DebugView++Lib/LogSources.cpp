@@ -224,7 +224,7 @@ void LogSources::ListenUntilUpdateEvent()
 				logsource->Notify();
 				if (logsource->AtEnd())
 				{
-					InternalRemove(logsource);
+					m_guiExecutor.CallAsync([this, logsource] { InternalRemove(logsource); });
 					break;
 				}
 				if (!m_dirty)
