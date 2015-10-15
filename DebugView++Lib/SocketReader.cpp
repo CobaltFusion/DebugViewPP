@@ -17,20 +17,12 @@
 namespace fusion {
 namespace debugviewpp {
 
-using namespace boost::asio::ip;
-
-SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, const std::string& hostname, int port) :
+SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :
 	PassiveLogSource(timer, SourceType::Pipe, lineBuffer, 40),
-	m_hostname(hostname),
 	m_port(port),
-	m_socket(m_ioservice)
+	m_socket(m_ioservice, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
 {
-	udp::endpoint listen_endpoint(address::from_string(hostname), port);
-	m_socket.open(listen_endpoint.protocol());
-	m_socket.set_option(udp::socket::reuse_address(true));
-	m_socket.bind(listen_endpoint);
-
-	SetDescription(wstringbuilder() << "Listing socket at UDP port '" << m_port << "'");
+	SetDescription(wstringbuilder() << "Listening at UDP port " << m_port);
 	m_thread = boost::thread(&SocketReader::Loop, this);
 }
 
@@ -44,14 +36,13 @@ void SocketReader::ReceiveUDPMessage(const boost::system::error_code& error, std
 	std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
 	ss.write(m_recvBuffer.data(), bytes_transferred);
 
-	std::string addr = m_remote_endpoint.address().to_string();
 	std::string msg;
 	while (std::getline(ss, msg, '\0'))
 	{
 		if (!msg.empty())
 		{
 			msg.push_back('\n');
-			Add(0, stringbuilder() << "[UDP " << addr << L":" << m_port << L"]", msg);
+			AddMessage(0, stringbuilder() << "[UDP " << m_remote_endpoint.address() << ":" << m_port << "]", msg);
 			Signal();
 		}
 	}

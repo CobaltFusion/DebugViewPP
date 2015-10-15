@@ -8,12 +8,11 @@
 #pragma once
 
 #include <vector>
-
+#include "DebugView++Lib/LogSources.h"
 #include "Grid.h"
 #include "PropertyColorItem.h"
 #include "Resource.h"
 #include "Filter.h"
-#include "DebugView++Lib/LogSources.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -23,7 +22,7 @@ class CSourcesDlg :
 	public CDialogResize<CSourcesDlg>
 {
 public:
-	explicit CSourcesDlg(std::vector<SourceInfo> sourceInfos);
+	explicit CSourcesDlg(const std::vector<SourceInfo>& sourceInfos);
 
 	enum { IDD = IDD_SOURCES };
 
@@ -33,18 +32,18 @@ public:
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDC_SOURCES_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
-
-	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
-	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnAdd(UINT uNotifyCode, int nID, CWindow wndCtl);
-	LRESULT OnClickItem(NMHDR* pnmh);
 	
 	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	void ExceptionHandler();
 	std::vector<SourceInfo> GetSourceInfos();
 
 private:
+	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
+	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnAdd(UINT uNotifyCode, int nID, CWindow wndCtl);
+	LRESULT OnClickItem(NMHDR* pnmh);
+
 	bool GetSourceEnable(int iItem) const;
 	std::wstring GetSourceText(int iItem) const;
 	SourceType::type GetSourceType(int iItem) const;
@@ -52,7 +51,6 @@ private:
 
 	CPropertyGridCtrl m_grid;
 	std::vector<SourceInfo> m_sourceInfos;
-	
 };
 
 } // namespace debugviewpp 

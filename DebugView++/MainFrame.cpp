@@ -1244,13 +1244,13 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 
 void CMainFrame::AddLogSource(const SourceInfo& info)
 {
-	switch(info.type)
+	switch (info.type)
 	{
 	case SourceType::Debugview_Agent:
 		m_logSources.AddDbgviewReader(Str(info.address));
 		break;
 	case SourceType::UDP_Socket:
-		m_logSources.AddUDPReader(Str(info.address), info.port);
+		m_logSources.AddUDPReader(info.port);
 		break;
 	case SourceType::TCP_Socket:
 		// implement

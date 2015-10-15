@@ -16,36 +16,31 @@ namespace fusion {
 namespace debugviewpp {
 
 class CSourceDlg :
-	public CDialogImpl<CSourceDlg>,
-	public CDialogResize<CSourceDlg>
+	public CDialogImpl<CSourceDlg>
 {
 public:
-	explicit CSourceDlg(const std::shared_ptr<LogSource>& pLogSource = nullptr);
-
+	CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port);
+		
 	enum { IDD = IDD_SOURCE };
+	
+	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
+	std::wstring GetName() const;
+	SourceType::type GetSourceType() const;
+	std::wstring GetAddress() const;
+	int GetPort() const;
 
-	BEGIN_DLGRESIZE_MAP(CSourceDlg)
-		DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
-	END_DLGRESIZE_MAP()
-
+private:
+	void ExceptionHandler();
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
-	
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
-	std::wstring GetName() { return m_name; }
-	std::wstring GetAddress() { return m_address; }
-	int GetPort() { return m_port; }
-	SourceType::type GetSourceType() { return m_sourcetype; }
-private:
-	std::shared_ptr<LogSource> m_pLogSource;
-	CComboBox m_combo;
+	void OnTypeSelChange(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void UpdateUI();
+
 	std::wstring m_name;
-	int m_port;
+	SourceType::type m_sourceType;
 	std::wstring m_address;
-	SourceType::type m_sourcetype;
+	int m_port;
 };
 
 } // namespace debugviewpp 

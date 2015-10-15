@@ -30,7 +30,7 @@ BEGIN_MSG_MAP_TRY(CSourcesDlg)
 	CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
 END_MSG_MAP_CATCH(ExceptionHandler)
 
-CSourcesDlg::CSourcesDlg(std::vector<SourceInfo> sourceInfos) : m_sourceInfos(sourceInfos)
+CSourcesDlg::CSourcesDlg(const std::vector<SourceInfo>& sourceInfos) : m_sourceInfos(sourceInfos)
 {
 }
 
@@ -42,16 +42,13 @@ void CSourcesDlg::ExceptionHandler()
 void CSourcesDlg::UpdateGrid()
 {
 	m_grid.DeleteAllItems();
-	for (auto it= m_sourceInfos.begin(); it != m_sourceInfos.end(); ++it)
+	for (auto it = m_sourceInfos.begin(); it != m_sourceInfos.end(); ++it)
 	{
-		auto& info = (*it);
-		auto typeName = WStr(SourceTypeToString(info.type));
-
 		int item = m_grid.GetItemCount();
-		m_grid.InsertItem(item, PropCreateCheckButton(L"", info.enabled));
-		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", info.description.c_str()));
-		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", typeName.c_str()));
-		if (info.type == SourceType::System)
+		m_grid.InsertItem(item, PropCreateCheckButton(L"", it->enabled));
+		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", it->description.c_str()));
+		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", WStr(SourceTypeToString(it->type)).c_str()));
+		if (it->type == SourceType::System)
 			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
 		else
 			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
@@ -108,7 +105,6 @@ SourceType::type CSourcesDlg::GetSourceType(int iItem) const
 	return StringToSourceType(Str(GetGridItemText(m_grid, iItem, 2)));
 }
 
-
 void CSourcesDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
 	m_sourceInfos.clear();
@@ -122,7 +118,7 @@ void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CSourceDlg dlg;
+	CSourceDlg dlg(L"UDP port 1234", SourceType::UDP_Socket, L"192.168.1.1", 1234);
 	if (dlg.DoModal() != IDOK)
 		return;
 

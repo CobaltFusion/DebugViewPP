@@ -361,9 +361,9 @@ std::shared_ptr<DbgviewReader> LogSources::AddDbgviewReader(const std::string& h
 	return pDbgViewReader;
 }
 
-std::shared_ptr<SocketReader> LogSources::AddUDPReader(const std::string& hostname, int port)
+std::shared_ptr<SocketReader> LogSources::AddUDPReader(int port)
 {
-	auto pSocketReader = std::make_shared<SocketReader>(m_timer, m_linebuffer, hostname, port);
+	auto pSocketReader = std::make_shared<SocketReader>(m_timer, m_linebuffer, port);
 	m_loopback->AddMessage(stringbuilder() << "Source '" << pSocketReader->GetDescription() << "' was added.");
 	Add(pSocketReader);
 	return pSocketReader;

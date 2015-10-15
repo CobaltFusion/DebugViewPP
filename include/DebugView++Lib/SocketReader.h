@@ -20,7 +20,7 @@ class ILineBuffer;
 class SocketReader : public PassiveLogSource
 {
 public:
-	SocketReader(Timer& timer, ILineBuffer& lineBuffer, const std::string& hostname, int port);
+	SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port);
 	virtual ~SocketReader();
 
 	virtual void Abort();
@@ -30,7 +30,6 @@ private:
 	void StartReceive();
 	void ReceiveUDPMessage(const boost::system::error_code& error, std::size_t bytes_transferred);
 
-	std::string m_hostname;
 	int m_port;
 	boost::asio::io_service m_ioservice;
 	boost::asio::ip::udp::socket m_socket;

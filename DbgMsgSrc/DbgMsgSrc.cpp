@@ -10,11 +10,46 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <boost/utility.hpp>
 #include <windows.h>
+#include <WinSock.h>
 #include <psapi.h>
-#pragma comment(lib, "psapi.lib")
 #include <sys/timeb.h>
+#include "Win32/Win32Lib.h"
 #include "dbgstream.h"
+
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "psapi.lib")
+
+namespace fusion {
+
+namespace Win32 {
+
+class WinsockInitialization : boost::noncopyable
+{
+public:
+	explicit WinsockInitialization(int major = 2, int minor = 2)
+	{
+		WSADATA wsaData = { 0 };
+		int rc = WSAStartup(MAKEWORD(major, minor), &wsaData);
+		if (rc != 0)
+			ThrowWin32Error(rc, "WSAStartup");
+	}
+
+	~WinsockInitialization()
+	{
+		WSACleanup();
+	}
+};
+
+void WSAThrowLastError(const std::string& what)
+{
+	Win32::ThrowWin32Error(WSAGetLastError(), what);
+}
+
+} // namespace Win32
+
+namespace DbgMsgSrc {
 
 void DbgMsgSrc(double freq)
 {
@@ -245,6 +280,27 @@ void CoutCerrTest()
 	}
 }
 
+void UdpTest(const std::string& address, int port)
+{
+	Win32::WinsockInitialization wsaInit;
+
+	auto s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (s == INVALID_SOCKET)
+		Win32::WSAThrowLastError("socket");
+
+	sockaddr_in sa;
+	sa.sin_family = AF_INET;
+    sa.sin_port = htons(port);
+    sa.sin_addr.s_addr = inet_addr(address.c_str());
+
+	std::string message = "DbgMsgSrc UDP message";
+	auto rc = sendto(s, message.data(), message.size(), 0, reinterpret_cast<const sockaddr*>(&sa), sizeof(sa));
+	if (rc == SOCKET_ERROR)
+		Win32::WSAThrowLastError("sendto");
+
+	closesocket(s);
+}
+
 void CoutCerrTest2()
 {
 	std::cout << "One message on cout with newline\n";
@@ -277,10 +333,11 @@ void PrintUsage()
 		"  -7 DbgMsgTest, sends 5 different test lines, using different newlines styles\n"
 		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
 		"  -9 DBGVIEWCLEAR test\n"
-		"  -A cout/cerr test\n";
+		"  -A cout/cerr test\n"
+		"  -u <address> <port> Send UDP messsages to address:port\n";
 }
 
-int main(int argc, char* argv[])
+int Main(int argc, char* argv[])
 {
 	std::cout << "DbgMsgSrc, pid: " << GetCurrentProcessId() << std::endl;
 	//OutputDebugStringA("ping");
@@ -296,7 +353,6 @@ int main(int argc, char* argv[])
 	//HANDLE handle3 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	//printf(" %p, %p, %p\n", handle1, handle2, handle3);
 
-	int lastArgc = argc - 1;
 	for (int i = 1; i < argc; ++i)
 	{
 		std::string arg(argv[i]);
@@ -307,12 +363,15 @@ int main(int argc, char* argv[])
 		}
 		else if (arg == "-2")
 		{
-			if (i == lastArgc)
+			if (i + 1 < argc)
+			{
+				Output(argv[i + 1]);
+			}
+			else
 			{
 				PrintUsage();
 				return -1;
 			}
-			Output(argv[i + 1]);
 			return 0;
 		}
 		else if (arg == "-3")
@@ -371,13 +430,15 @@ int main(int argc, char* argv[])
 		}
 		else if (arg == "-8")
 		{
-			if (i == lastArgc)
+			if (i + 1 < argc)
+			{
+				DbgMsgSrc(std::stoi(argv[i + 1]));
+			}
+			else
 			{
 				PrintUsage();
 				return -1;
 			}
-			int n = atoi(argv[i + 1]);
-			DbgMsgSrc(n);
 			return 0;
 		}
 		else if (arg == "-9")
@@ -388,6 +449,20 @@ int main(int argc, char* argv[])
 		else if (arg == "-A")
 		{
 			CoutCerrTest();
+			return 0;
+		}
+		else if (arg == "-u")
+		{
+			if (i + 2 < argc)
+			{
+				UdpTest(argv[i + 1], std::stoi(argv[i + 2]));
+				return 0;
+			}
+			else
+			{
+				PrintUsage();
+				return -1;
+			}
 			return 0;
 		}
 		else if (arg == "-B")
@@ -407,5 +482,19 @@ int main(int argc, char* argv[])
 		}
 	}
 	PrintUsage();
-	return 0;
+	return EXIT_SUCCESS;
+}
+
+} // namespace DbgMsgSrc
+} // namespace fusion
+
+int main(int argc, char* argv[])
+try
+{
+	return fusion::DbgMsgSrc::Main(argc, argv);
+}
+catch (std::exception& ex)
+{
+	std::cerr << ex.what() << std::endl;
+	return EXIT_FAILURE;
 }
