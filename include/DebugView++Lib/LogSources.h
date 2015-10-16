@@ -55,9 +55,8 @@ public:
 	void ListenUntilUpdateEvent();
 	void Abort();
 	Lines GetLines();
-	void Remove(std::shared_ptr<LogSource> logsource);
-	void InternalRemove(std::shared_ptr<LogSource> logsource);
-	std::vector<std::shared_ptr<LogSource>> GetSources();
+	void Remove(const std::shared_ptr<LogSource>& pLogSource);
+	std::vector<std::shared_ptr<LogSource>> GetSources() const;
 
 	std::shared_ptr<DBWinReader> AddDBWinReader(bool global);
 	std::shared_ptr<ProcessReader> AddProcessReader(const std::wstring& pathName, const std::wstring& args);
@@ -72,14 +71,15 @@ public:
 	boost::signals2::connection SubscribeToUpdate(Update::slot_type slot);
 
 private:
-	void UpdateSettings(std::shared_ptr<LogSource> source);
-	void Add(std::shared_ptr<LogSource> source);
+	void InternalRemove(const std::shared_ptr<LogSource>& pLogSource);
+	void UpdateSettings(const std::shared_ptr<LogSource>& pSource);
+	void Add(const std::shared_ptr<LogSource>& pSource);
 	void OnProcessEnded(DWORD pid, HANDLE handle);
 	void OnUpdate();
 	void DelayedUpdate();
 
 	bool m_autoNewLine;
-	boost::mutex m_mutex;
+	mutable boost::mutex m_mutex;
 	std::vector<std::shared_ptr<LogSource>> m_sources;
 	Win32::Handle m_updateEvent;
 	bool m_end;

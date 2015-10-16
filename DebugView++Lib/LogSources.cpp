@@ -62,38 +62,38 @@ void LogSources::AddMessage(const std::string& message)
 	m_loopback->Signal();
 }
 
-void LogSources::UpdateSettings(std::shared_ptr<LogSource> source)
+void LogSources::UpdateSettings(const std::shared_ptr<LogSource>& pSource)
 {
-	source->SetAutoNewLine(GetAutoNewLine());
+	pSource->SetAutoNewLine(GetAutoNewLine());
 }
 
-void LogSources::Add(std::shared_ptr<LogSource> source)
+void LogSources::Add(const std::shared_ptr<LogSource>& pSource)
 {
-	assert(Win32::IsGUIThread());
+	assert(m_guiExecutor.IsExecutorThread());
 	boost::mutex::scoped_lock lock(m_mutex);
-	UpdateSettings(source);
-	m_sources.push_back(source);
+	UpdateSettings(pSource);
+	m_sources.push_back(pSource);
 	Win32::SetEvent(m_updateEvent);
 }
 
-void LogSources::Remove(std::shared_ptr<LogSource> logsource)
+void LogSources::Remove(const std::shared_ptr<LogSource>& pLogSource)
 {
-	assert(Win32::IsGUIThread());
-	InternalRemove(logsource);
+	assert(m_guiExecutor.IsExecutorThread());
+	InternalRemove(pLogSource);
 	Win32::SetEvent(m_updateEvent);
 }
 
-void LogSources::InternalRemove(std::shared_ptr<LogSource> logsource)
+void LogSources::InternalRemove(const std::shared_ptr<LogSource>& pLogSource)
 {
-	assert(Win32::IsGUIThread());
-	AddMessage(stringbuilder() << "Source '" << logsource->GetDescription() << "' was removed.");
+	assert(m_guiExecutor.IsExecutorThread());
+	AddMessage(stringbuilder() << "Source '" << pLogSource->GetDescription() << "' was removed.");
 	boost::mutex::scoped_lock lock(m_mutex);
-	logsource->Abort();
+	pLogSource->Abort();
 
-	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), logsource), m_sources.end());
+	m_sources.erase(std::remove(m_sources.begin(), m_sources.end(), pLogSource), m_sources.end());
 }
 
-std::vector<std::shared_ptr<LogSource>> LogSources::GetSources()
+std::vector<std::shared_ptr<LogSource>> LogSources::GetSources() const
 {
 	std::vector<std::shared_ptr<LogSource>> sources;
 	boost::mutex::scoped_lock lock(m_mutex);
@@ -109,9 +109,7 @@ void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
 	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
-	{
 		(*it)->SetAutoNewLine(value);
-	}
 }
 
 bool LogSources::GetAutoNewLine() const

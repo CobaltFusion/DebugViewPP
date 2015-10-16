@@ -8,35 +8,38 @@
 #pragma once
 
 #include <boost/array.hpp>
-#include <boost/asio.hpp>
-#include "PassiveLogSource.h"
-#include "Process.h"
+#include "Win32/Win32Lib.h"
+#include "Win32/Socket.h"
+#include "LogSource.h"
 
-namespace fusion {
+namespace fusion {	
 namespace debugviewpp {
 
 class ILineBuffer;
 
-class SocketReader : public PassiveLogSource
+class SocketReader : public LogSource
 {
 public:
 	SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port);
-	virtual ~SocketReader();
 
-	virtual void Abort();
+	virtual HANDLE GetHandle() const;
+	virtual void Notify();
 
 private:
-	void Loop();
-	void StartReceive();
-	void ReceiveUDPMessage(const boost::system::error_code& error, std::size_t bytes_transferred);
+	int BeginReceive();
+	int CompleteReceive();
+	void Receive();
+	std::string GetProcessText() const;
 
-	int m_port;
-	boost::asio::io_service m_ioservice;
-	boost::asio::ip::udp::socket m_socket;
-	boost::asio::ip::udp::endpoint m_remote_endpoint;
-
-	boost::array<char, 2000> m_recvBuffer;
-	boost::thread m_thread;
+	Win32::WinsockInitialization m_wsa;
+	Win32::Socket m_socket;
+	Win32::Handle m_event;
+	boost::array<char, 2000> m_buffer;
+	WSAOVERLAPPED m_overlapped;
+	WSABUF m_wsaBuf[1];
+	sockaddr_in m_from;
+	int m_fromLen;
+	bool m_busy;
 };
 
 } // namespace debugviewpp 

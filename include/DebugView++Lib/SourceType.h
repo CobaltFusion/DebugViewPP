@@ -33,15 +33,12 @@ struct SourceInfo
 {
 	SourceInfo(const std::wstring& description, SourceType::type sourceType);
 	SourceInfo(const std::wstring& description, SourceType::type sourceType, const std::wstring& address, int port);
-	SourceInfo(const std::wstring& description, SourceType::type sourceType, const std::wstring& address, int port, const std::shared_ptr<LogSource>& pLogSource);
 
 	bool enabled;
 	std::wstring description;
 	SourceType::type type;
 	std::wstring address;
 	int port;
-	std::shared_ptr<LogSource> pLogSource;
-	bool remove;
 };
 
 int SourceTypeToInt(SourceType::type value);

@@ -19,6 +19,7 @@
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
+#include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/LogFilter.h"
@@ -1219,25 +1220,19 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	auto sourceInfos = dlg.GetSourceInfos();
-	auto it = sourceInfos.begin();
-	while (it != sourceInfos.end())
+	auto pSources = m_logSources.GetSources();
+	for (auto it = pSources.begin(); it != pSources.end(); ++it)
 	{
-		auto& info = *it;
-		if (info.pLogSource)
-			if (info.remove || !info.enabled)
-				m_logSources.Remove(info.pLogSource);
+		// TODO: Redesign LogSource ownership mess
+		if (std::dynamic_pointer_cast<DbgviewReader>(*it) || std::dynamic_pointer_cast<SocketReader>(*it))
+			m_logSources.Remove(*it);
+	}
 
-		if (info.remove)
-		{
-			it = sourceInfos.erase(it);
-		}
-		else
-		{
-			if (info.enabled && info.pLogSource == nullptr)
-				AddLogSource(info);
-			++it;
-		}
+	auto sourceInfos = dlg.GetSourceInfos();
+	for (auto it = sourceInfos.begin(); it != sourceInfos.end(); ++it)
+	{
+		if (it->enabled)
+			AddLogSource(*it);
 	}
 	m_sourceInfos = sourceInfos;
 }

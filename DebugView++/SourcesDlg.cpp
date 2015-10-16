@@ -81,7 +81,7 @@ LRESULT CSourcesDlg::OnClickItem(NMHDR* pnmh)
 		if (GetSourceType(iItem) != SourceType::System)
 		{
 			m_grid.DeleteItem(iItem);
-			m_sourceInfos[iItem].remove = true;
+			m_sourceInfos.erase(m_sourceInfos.begin() + iItem);
 			return TRUE;
 		}
 	}
