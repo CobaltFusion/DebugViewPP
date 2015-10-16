@@ -290,8 +290,8 @@ void UdpTest(const std::string& address, int port)
 
 	sockaddr_in sa;
 	sa.sin_family = AF_INET;
-    sa.sin_port = htons(port);
-    sa.sin_addr.s_addr = inet_addr(address.c_str());
+	sa.sin_port = htons(port);
+	sa.sin_addr.s_addr = inet_addr(address.c_str());
 
 	std::string message = "DbgMsgSrc UDP message";
 	auto rc = sendto(s, message.data(), message.size(), 0, reinterpret_cast<const sockaddr*>(&sa), sizeof(sa));

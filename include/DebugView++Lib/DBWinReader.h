@@ -24,22 +24,17 @@ struct DBWinMessage
 	HANDLE handle;
 };
 
-typedef std::vector<DBWinMessage> DBWinMessages;
-
-typedef void OnDBWinMessage(double time, FILETIME systemTime, DWORD processId, HANDLE processHandle, const char* message);
-
 struct DbWinBuffer;
 
 class DBWinReader : public LogSource
 {
 public:
-	DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global);
-	virtual ~DBWinReader();
+	DBWinReader(Timer& timer, ILineBuffer& lineBuffer, bool global);
+
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
 
 private:
-	bool m_end;
 	Win32::Handle m_hBuffer;
 	Win32::Handle m_dbWinBufferReady;
 	Win32::Handle m_dbWinDataReady;

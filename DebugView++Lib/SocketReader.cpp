@@ -15,6 +15,85 @@
 
 
 namespace fusion {
+
+namespace Win32 {
+
+class WinsockInitialization : boost::noncopyable
+{
+public:
+	explicit WinsockInitialization(int major = 2, int minor = 2)
+	{
+		WSADATA wsaData = { 0 };
+		int rc = WSAStartup(MAKEWORD(major, minor), &wsaData);
+		if (rc != 0)
+			ThrowWin32Error(rc, "WSAStartup");
+	}
+
+	~WinsockInitialization()
+	{
+		WSACleanup();
+	}
+};
+
+void WSAThrowLastError(const std::string& what)
+{
+	Win32::ThrowWin32Error(WSAGetLastError(), what);
+}
+
+struct SocketDeleter
+{
+	typedef SOCKET pointer;
+
+	void operator()(pointer p) const
+	{
+		if (p != INVALID_SOCKET)
+			closesocket(p);
+	}
+};
+
+typedef std::unique_ptr<void, SocketDeleter> Socket;
+
+} // namespace Win32
+
+void OverlappedUdpReaderSample(int port)
+{
+	Win32::WinsockInitialization wsa(2, 2);
+
+	Win32::Socket s( WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, WSA_FLAG_OVERLAPPED) );
+	if (s.get() == INVALID_SOCKET)
+		Win32::WSAThrowLastError("WSASocket");
+
+	sockaddr_in sa;
+	sa.sin_family = AF_INET;
+	sa.sin_addr.s_addr = htonl(INADDR_ANY);
+	sa.sin_port = htons(port);
+	if (bind(s.get(), reinterpret_cast<sockaddr*>(&sa), sizeof(sa)) == SOCKET_ERROR)
+		Win32::WSAThrowLastError("bind");
+
+	char buffer[2000];
+	WSABUF buffers[] = { sizeof(buffer), buffer };
+
+	DWORD count;
+	DWORD flags;
+	sockaddr_in from;
+	int fromlen;
+	auto hEvent = Win32::CreateEvent(nullptr, false, false, nullptr);
+	WSAOVERLAPPED overlapped;
+	overlapped.hEvent = hEvent.get();
+	if (WSARecvFrom(s.get(), buffers, 1, &count, &flags, reinterpret_cast<sockaddr*>(&from), &fromlen, &overlapped, nullptr) == SOCKET_ERROR)
+	{
+		auto err = WSAGetLastError();
+		if (err != WSA_IO_PENDING)
+			Win32::ThrowWin32Error(err, "WSARecvFrom");
+
+		Win32::WaitForSingleObject(hEvent);
+		int rc = WSAGetOverlappedResult(s.get(), &overlapped, &count, FALSE, &flags);
+		if (rc == 0)
+			Win32::WSAThrowLastError("WSAGetOverlappedResult");
+	}
+
+}
+
 namespace debugviewpp {
 
 SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :

@@ -30,17 +30,13 @@ Win32::Handle CreateDBWinBufferMapping(bool global)
 DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
 	LogSource(timer, SourceType::System, linebuffer),
 	m_hBuffer(CreateDBWinBufferMapping(global)),
-	m_dbWinBufferReady(CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
-	m_dbWinDataReady(CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
+	m_dbWinBufferReady(Win32::CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
+	m_dbWinDataReady(Win32::CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
 	m_mappedViewOfFile(m_hBuffer.get(), PAGE_READONLY, 0, 0, sizeof(DbWinBuffer)),
 	m_dbWinBuffer(static_cast<const DbWinBuffer*>(m_mappedViewOfFile.Ptr()))
 {
 	SetDescription(global ? L"Global Win32 Messages" : L"Win32 Messages");
-	SetEvent(m_dbWinBufferReady.get());
-}
-
-DBWinReader::~DBWinReader()
-{
+	Win32::SetEvent(m_dbWinBufferReady);
 }
 
 HANDLE DBWinReader::GetHandle() const 
@@ -60,7 +56,7 @@ void DBWinReader::Notify()
 	}
 #endif
 	// performance does not improve significantly (almost immeasurable) without the GetSystemTimeAsFileTime call, not without the OpenProcess call.
-	LogSource::Add(m_dbWinBuffer->data, handle);
+	Add(m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
 }
 
