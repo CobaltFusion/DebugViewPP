@@ -23,9 +23,5 @@ public:
 	~ComInitialization();
 };
 
-WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
-POINT GetMessagePos();
-POINT GetCursorPos();
-
 } // namespace Win32
 } // namespace fusion

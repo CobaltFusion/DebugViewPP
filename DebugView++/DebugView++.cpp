@@ -7,8 +7,9 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
-#include "hstream.h"
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/hstream.h"
+#include "Win32/Com.h"
 #include "DebugView++Lib/DBWinWriter.h"
 #include "MainFrame.h"
 
@@ -164,8 +165,8 @@ try
 {
 	return fusion::debugviewpp::Main(hInstance, hPrevInstance, lpstrCmdLine, nCmdShow);
 }
-catch (std::exception& e)
+catch (std::exception& ex)
 {
-	MessageBoxA(nullptr, e.what(), "DebugView++ Error", MB_OK | MB_ICONERROR);
+	MessageBoxA(nullptr, ex.what(), "DebugView++ Error", MB_OK | MB_ICONERROR);
 	return EXIT_FAILURE;
 }

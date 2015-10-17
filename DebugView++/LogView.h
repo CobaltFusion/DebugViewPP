@@ -9,10 +9,10 @@
 
 #include <vector>
 #include <deque>
-#include "FilterDlg.h"
-#include "Win32Support.h"
+#include "Win32/Window.h"
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogFile.h"
+#include "FilterDlg.h"
 
 namespace fusion {
 namespace debugviewpp {

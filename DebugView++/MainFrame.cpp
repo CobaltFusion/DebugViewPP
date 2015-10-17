@@ -17,14 +17,14 @@
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/make_unique.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/hstream.h"
+#include "Win32/Utilities.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/SocketReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/LogFilter.h"
-#include "Win32/Utilities.h"
-#include "hstream.h"
 #include "Resource.h"
 #include "RunDlg.h"
 #include "HistoryDlg.h"
@@ -43,12 +43,10 @@ std::wstring GetPersonalPath()
 	std::wstring path;
 	wchar_t szPath[MAX_PATH];
 	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
-	{
 		path = szPath;
-	}
 	return path;
-
 }
+
 void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
 {
 	m_pView = pView;

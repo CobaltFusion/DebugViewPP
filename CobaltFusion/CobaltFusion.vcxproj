@@ -137,6 +137,7 @@
     <ClInclude Include="..\include\CobaltFusion\dbgstream.h" />
     <ClInclude Include="..\include\CobaltFusion\Executor.h" />
     <ClInclude Include="..\include\CobaltFusion\GuiExecutor.h" />
+    <ClInclude Include="..\include\CobaltFusion\hstream.h" />
     <ClInclude Include="..\include\CobaltFusion\JobDispatcher.h" />
     <ClInclude Include="..\include\CobaltFusion\make_unique.h" />
     <ClInclude Include="..\include\CobaltFusion\scope_guard.h" />

@@ -292,7 +292,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Win32Support.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
@@ -301,7 +300,6 @@
     <ClInclude Include="FindDlg.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="HistoryDlg.h" />
-    <ClInclude Include="hstream.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="FilterPage.h" />
@@ -313,7 +311,6 @@
     <ClInclude Include="SourcesDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h" />
-    <ClInclude Include="Win32Support.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DebugView++.rc" />

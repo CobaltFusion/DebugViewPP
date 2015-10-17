@@ -7,9 +7,12 @@
 
 #pragma once
 
-#include "targetver.h"
+namespace fusion {
+namespace Win32 {
 
-#define NOMINMAX
+WINDOWPLACEMENT GetWindowPlacement(HWND hwnd);
+POINT GetMessagePos();
+POINT GetCursorPos();
 
-#include "winsock2.h"
-#include "windows.h"
+} // namespace Win32
+} // namespace fusion

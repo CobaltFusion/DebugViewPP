@@ -45,9 +45,6 @@
     <ClCompile Include="RunDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Win32Support.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SourcesDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,12 +96,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RunDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hstream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32Support.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SourcesDlg.h">

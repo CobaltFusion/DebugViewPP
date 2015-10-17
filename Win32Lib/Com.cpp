@@ -6,9 +6,8 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <vector>
 #include "Win32/Win32Lib.h"
-#include "Win32Support.h"
+#include "Win32/Com.h"
 
 namespace fusion {
 namespace Win32 {
@@ -23,30 +22,6 @@ ComInitialization::ComInitialization(CoInit init)
 ComInitialization::~ComInitialization()
 {
 	CoUninitialize();
-}
-
-WINDOWPLACEMENT GetWindowPlacement(HWND hwnd)
-{
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(placement);
-	if (!::GetWindowPlacement(hwnd, &placement))
-		ThrowLastError("GetWindowPlacement");
-	return placement;
-}
-
-POINT GetMessagePos()
-{
-	DWORD pos = ::GetMessagePos();
-	POINT pt = { GET_X_LPARAM(pos), GET_Y_LPARAM(pos) };
-	return pt;
-}
-
-POINT GetCursorPos()
-{
-	POINT pos;
-	if (!GetCursorPos(&pos))
-		ThrowLastError("GetCursorPos");
-	return pos;
 }
 
 } // namespace Win32
