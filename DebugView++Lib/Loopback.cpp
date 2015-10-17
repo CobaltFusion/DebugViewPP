@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/Loopback.h"
-#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -29,10 +28,8 @@ bool Loopback::GetAutoNewLine() const
 void Loopback::PreProcess(Line& line) const
 {
 	if (line.message.empty())
-	{
 		line.message = "\n";
-	}
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

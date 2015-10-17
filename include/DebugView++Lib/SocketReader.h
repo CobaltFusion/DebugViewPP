@@ -28,7 +28,6 @@ public:
 private:
 	int BeginReceive();
 	int CompleteReceive();
-	void Receive();
 	std::string GetProcessText() const;
 
 	Win32::WinsockInitialization m_wsa;

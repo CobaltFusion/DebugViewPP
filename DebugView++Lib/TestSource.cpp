@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/TestSource.h"
-#include "DebugView++Lib/LineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -28,13 +27,12 @@ bool TestSource::AtEnd() const
 
 HANDLE TestSource::GetHandle() const 
 {
-	return 0;
+	return nullptr;
 }
 
 void TestSource::Notify()
 {
 }
-
 
 } // namespace debugviewpp 
 } // namespace fusion

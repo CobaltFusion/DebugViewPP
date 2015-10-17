@@ -9,7 +9,7 @@
 
 #include <memory>
 #include <boost/utility.hpp>
-#include "winsock.h"
+#include "winsock2.h"
 
 namespace fusion {
 namespace Win32 {
@@ -32,5 +32,14 @@ struct SocketDeleter
 
 typedef std::unique_ptr<void, SocketDeleter> Socket;
 
-} // namespace Win32	
+Socket WSASocket(int af, int type, int protocol);
+Socket WSASocket(int af, int type, int protocol, const WSAPROTOCOL_INFO* pProtocolInfo, GROUP g, DWORD flags);
+
+void bind(Socket& socket, const sockaddr_in& sa);
+
+bool WSARecvFrom(Socket& s, const WSABUF buffers[], DWORD bufferCount, DWORD* pNumberOfBytesRecvd, DWORD* pFlags, sockaddr_in& from, int& fromLen, WSAOVERLAPPED* pOverlapped, LPWSAOVERLAPPED_COMPLETION_ROUTINE pCompletionRoutine);
+
+DWORD WSAGetOverlappedResult(Socket& s, WSAOVERLAPPED& overlapped, bool wait, DWORD& flags);
+
+} // namespace Win32
 } // namespace fusion
