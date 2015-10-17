@@ -10,23 +10,22 @@
 #include <string>
 #include <fstream>
 #include <boost/thread.hpp>
-#include "LogFile.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 std::ostream& operator<<(std::ostream& os, const FILETIME& ft);
 
+class LogFile;
+
 class FileWriter
 {
 public:
 	FileWriter(const std::wstring& filename, LogFile& logfile);
-	~FileWriter();
 
 private:
-	void Process();
+	void Run();
 	
-	std::wstring m_filename;
 	std::ofstream m_ofstream;
 	LogFile& m_logfile;
 	boost::thread m_thread;

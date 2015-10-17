@@ -18,7 +18,8 @@
 #include "CobaltFusion/make_unique.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/hstream.h"
-#include "Win32/Utilities.h"
+#include "CobaltFusion/Math.h"
+#include "Win32/Registry.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/SocketReader.h"
@@ -259,7 +260,7 @@ std::wstring FormatUnits(int n, const std::wstring& unit)
 
 std::wstring FormatDuration(double seconds)
 {
-	int minutes = floor_to<int>(seconds / 60);
+	int minutes = FloorTo<int>(seconds / 60);
 	seconds -= 60 * minutes;
 
 	int hours = minutes / 60;
@@ -275,7 +276,7 @@ std::wstring FormatDuration(double seconds)
 		return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
 
 	if (minutes > 0)
-		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(floor_to<int>(seconds), L"second");
+		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
 	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
 	const wchar_t** unit = units;

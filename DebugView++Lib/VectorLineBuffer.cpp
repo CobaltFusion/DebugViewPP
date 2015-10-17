@@ -8,9 +8,8 @@
 #pragma once
 
 #include "stdafx.h"
-#include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/ProcessInfo.h"
-#include "Win32/Utilities.h"
+#include "DebugView++Lib/VectorLineBuffer.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -6,29 +6,21 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/FileWriter.h"
-#include "CobaltFusion/dbgstream.h"
-#include "Win32/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
-	m_filename(filename),
 	m_logfile(logfile)
 {
 	OpenLogFile(m_ofstream, filename, OpenMode::Append);
-	m_thread = boost::thread(&FileWriter::Process, this);
+	m_thread = boost::thread(&FileWriter::Run, this);
 }
 
-FileWriter::~FileWriter()
-{
-}
-
-void FileWriter::Process()
+void FileWriter::Run()
 {
 	//todo: we need locking on Logfile, think of ClearLog() 
 	// also, reading the .dblog file does not work correctly
@@ -42,10 +34,9 @@ void FileWriter::Process()
 			WriteLogFileMessage(m_ofstream, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
 		}
 		m_ofstream.flush();
-		Sleep(1000);
+		boost::this_thread::sleep_for(boost::chrono::seconds(1));
 	}
 }
-
 
 } // namespace debugviewpp 
 } // namespace fusion

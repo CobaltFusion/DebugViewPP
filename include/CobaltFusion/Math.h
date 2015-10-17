@@ -7,12 +7,26 @@
 
 #pragma once
 
-#include <string>
+#include <cmath>
 
 namespace fusion {
 
-std::wstring LoadString(int id);
+template <typename T>
+T FloorTo(double value)
+{
+	return static_cast<T>(std::floor(value));
+}
 
-std::wstring GetExceptionMessage();
+template <typename T>
+T CeilTo(double value)
+{
+	return static_cast<T>(std::ceil(value));
+}
+
+template <typename T>
+T RoundTo(double value)
+{
+	return static_cast<T>(std::round(value));
+}
 
 } // namespace fusion

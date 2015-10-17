@@ -16,10 +16,6 @@ TestSource::TestSource(Timer& timer, ILineBuffer& linebuffer) :
 {
 }
 
-TestSource::~TestSource()
-{
-}
-
 bool TestSource::AtEnd() const
 {
 	return false;

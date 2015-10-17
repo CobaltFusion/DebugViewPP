@@ -18,7 +18,6 @@ class TestSource : public LogSource
 {
 public:
 	TestSource(Timer& timer, ILineBuffer& linebuffer);
-	~TestSource();
 
 	virtual bool AtEnd() const;
 	virtual HANDLE GetHandle() const;

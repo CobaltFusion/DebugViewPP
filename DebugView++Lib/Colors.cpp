@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "DebugView++Lib/Colors.h"
-#include "Win32/Utilities.h"
+#include "CobaltFusion/Math.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -26,12 +26,12 @@ extern const COLORREF ItemHighlightText = GetSysColor(COLOR_HIGHLIGHTTEXT);
 
 COLORREF HsvToRgb(double h, double s, double v)
 {
-	int hi = floor_to<int>(h*6);
+	int hi = FloorTo<int>(h*6);
 	double f = h*6 - hi;
-	int vi = floor_to<int>(256 * v);
-	int pi = floor_to<int>(256 * v * (1 - s));
-	int qi = floor_to<int>(256 * v * (1 - f*s));
-	int ti = floor_to<int>(256 * v * (1 - (1 - f) * s));
+	int vi = FloorTo<int>(256 * v);
+	int pi = FloorTo<int>(256 * v * (1 - s));
+	int qi = FloorTo<int>(256 * v * (1 - f*s));
+	int ti = FloorTo<int>(256 * v * (1 - (1 - f) * s));
 	switch (hi)
 	{
 	case 0: return RGB(vi, ti, pi);

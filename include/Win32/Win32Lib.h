@@ -271,12 +271,6 @@ private:
 
 std::wstring LoadString(int id);
 
-std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName = nullptr);
-std::wstring RegGetStringValue(HKEY hKey, const wchar_t* valueName, const wchar_t* defaultValue);
-
-DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName = nullptr);
-DWORD RegGetDWORDValue(HKEY hKey, const wchar_t* valueName, DWORD defaultValue);
-
 ULONG_PTR GetParentProcessId();
 std::vector<std::wstring> GetCommandLineArguments();
 

@@ -14,7 +14,7 @@
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
-#include "Win32/Win32Lib.h"
+#include "Win32/Registry.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileIO.h"
 #include "Resource.h"

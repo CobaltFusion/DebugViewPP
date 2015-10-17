@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Win32\Com.h" />
     <ClInclude Include="..\include\Win32\Process.h" />
+    <ClInclude Include="..\include\Win32\Registry.h" />
     <ClInclude Include="..\include\Win32\Socket.h" />
     <ClInclude Include="..\include\Win32\Utilities.h" />
     <ClInclude Include="..\include\Win32\Win32Lib.h" />
@@ -140,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Com.cpp" />
     <ClCompile Include="Process.cpp" />
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -9,12 +9,11 @@
 
 #include <string>
 #include <unordered_map>
-#include "Win32/Win32Lib.h"
-#include "DebugView++Lib/Line.h"
-#include "Win32/Utilities.h"
 
 namespace fusion {
 namespace debugviewpp {
+
+struct Line;
 
 class NewlineFilter
 {

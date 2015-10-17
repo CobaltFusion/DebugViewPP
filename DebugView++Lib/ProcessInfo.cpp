@@ -9,9 +9,8 @@
 #include <array>
 #include <psapi.h>
 #include "CobaltFusion/Str.h"
-#include "DebugView++Lib/Conversions.h"
-#include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
+#include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/Colors.h"
 #include "DebugView++Lib/ProcessInfo.h"
 

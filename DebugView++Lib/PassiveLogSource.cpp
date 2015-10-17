@@ -23,30 +23,20 @@ PollLine::PollLine(DWORD pid, const std::string& processName, const std::string&
 
 PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency) :
 	LogSource(timer, sourceType, linebuffer),
-	m_microsecondInterval(0),
-	m_handle(CreateEvent(nullptr, false, false, nullptr))
-{
-	if (pollFrequency > 0)
-	{
-		m_microsecondInterval = 1000000/pollFrequency;
-	}
-}
-
-PassiveLogSource::~PassiveLogSource()
+	m_microsecondInterval(pollFrequency > 0 ? 1000000 / pollFrequency : 0),
+	m_handle(Win32::CreateEvent(nullptr, false, false, nullptr))
 {
 }
 
 void PassiveLogSource::StartThread()
 {
-	if (m_microsecondInterval > 0)
-	{
+	if (m_microsecondInterval > m_microsecondInterval.zero())
 		m_thread = boost::thread(&PassiveLogSource::Loop, this);
-	}
 }
 
 long PassiveLogSource::GetMicrosecondInterval() const
 {
-	return m_microsecondInterval;
+	return static_cast<long>(m_microsecondInterval.count());
 }
 
 void PassiveLogSource::Abort()
@@ -64,7 +54,7 @@ void PassiveLogSource::Loop()
 		if (LogSource::AtEnd())
 			break;
 		// sub 16ms sleep, depends on available hardware for accuracy
-		boost::this_thread::sleep(boost::posix_time::microseconds(m_microsecondInterval));
+		boost::this_thread::sleep_for(m_microsecondInterval);
 	}
 }
 

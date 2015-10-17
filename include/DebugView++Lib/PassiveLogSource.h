@@ -30,7 +30,6 @@ class PassiveLogSource : public LogSource
 {
 public:
 	PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& lineBuffer, long pollFrequency);
-	virtual ~PassiveLogSource();
 	
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();
@@ -53,7 +52,7 @@ private:
 	std::vector<PollLine> m_backBuffer;
 	Win32::Handle m_handle;
 	boost::mutex m_mutex;
-	long m_microsecondInterval;
+	boost::chrono::microseconds m_microsecondInterval;
 	boost::thread m_thread;
 };
 

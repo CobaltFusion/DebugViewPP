@@ -7,8 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string/case_conv.hpp>
-#include "Win32/Utilities.h"
-#include "Win32/Win32Lib.h"
+#include "Win32/Registry.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/Colors.h"
 #include "DebugView++Lib/Filter.h"

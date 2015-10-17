@@ -140,6 +140,7 @@
     <ClInclude Include="..\include\CobaltFusion\hstream.h" />
     <ClInclude Include="..\include\CobaltFusion\JobDispatcher.h" />
     <ClInclude Include="..\include\CobaltFusion\make_unique.h" />
+    <ClInclude Include="..\include\CobaltFusion\Math.h" />
     <ClInclude Include="..\include\CobaltFusion\scope_guard.h" />
     <ClInclude Include="..\include\CobaltFusion\Str.h" />
     <ClInclude Include="..\include\CobaltFusion\stringbuilder.h" />
