@@ -8,16 +8,12 @@
 #include "stdafx.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/stringbuilder.h"
-#include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
+#include "DebugView++Lib/NewlineFilter.h"
 
 namespace fusion {
 namespace debugviewpp {
-
-NewlineFilter::NewlineFilter()
-{
-}
 
 Lines NewlineFilter::Process(const Line& line)
 {

@@ -19,7 +19,6 @@ namespace debugviewpp {
 class NewlineFilter
 {
 public:
-	NewlineFilter();
 	Lines Process(const Line& line);
 	Lines FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle);
 
