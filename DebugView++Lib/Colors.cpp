@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <cstdlib>
 #include "DebugView++Lib/Colors.h"
 #include "CobaltFusion/Math.h"
 
