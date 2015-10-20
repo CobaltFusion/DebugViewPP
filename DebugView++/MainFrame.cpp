@@ -1240,13 +1240,13 @@ void CMainFrame::AddLogSource(const SourceInfo& info)
 {
 	switch (info.type)
 	{
-	case SourceType::Debugview_Agent:
+	case SourceType::DebugViewAgent:
 		m_logSources.AddDbgviewReader(Str(info.address));
 		break;
-	case SourceType::UDP_Socket:
+	case SourceType::Udp:
 		m_logSources.AddUDPReader(info.port);
 		break;
-	case SourceType::TCP_Socket:
+	case SourceType::Tcp:
 		// implement
 		break;
 	default:

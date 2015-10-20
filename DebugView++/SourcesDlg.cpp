@@ -118,7 +118,7 @@ void CSourcesDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CSourceDlg dlg(L"UDP port 1234", SourceType::UDP_Socket, L"192.168.1.1", 1234);
+	CSourceDlg dlg(L"UDP port 1234", SourceType::Udp, L"192.168.1.1", 1234);
 	if (dlg.DoModal() != IDOK)
 		return;
 

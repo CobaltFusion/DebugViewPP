@@ -7,10 +7,8 @@
 
 #include "stdafx.h"
 #include <stdexcept>
-#include <boost/algorithm/string.hpp>
+#include <cassert>
 #include "DebugView++Lib/SourceType.h"
-#include "DebugView++Lib/LogSource.h"
-#include "assert.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -25,35 +23,25 @@ SourceInfo::SourceInfo(const std::wstring& description, SourceType::type type, c
 {
 }
 
-std::string RemoveSpaces(const std::string& value)
-{
-	return boost::replace_all_copy(value, " ", "_");
-}
-
-std::string RestoreSpaces(const std::string& value)
-{
-	return boost::replace_all_copy(value, "_", " ");
-}
-
 int SourceTypeToInt(SourceType::type value)
 {
-	return value;
-}
+#define SOURCE_TYPE(en, id, name) case SourceType::en: return id;
+	switch (value)
+	{
+	SOURCE_TYPES()
+	default: assert(!"Unexpected SourceType"); break;
+	}
+#undef SOURCE_TYPE
 
-#define SOURCE_TYPES \
-	SOURCE_TYPE(System) \
-	SOURCE_TYPE(File) \
-	SOURCE_TYPE(Pipe) \
-	SOURCE_TYPE(UDP_Socket) \
-	SOURCE_TYPE(TCP_Socket) \
-	SOURCE_TYPE(Debugview_Agent)
+	throw std::invalid_argument("bad SourceType!");
+}
 
 SourceType::type IntToSourceType(int value)
 {
-#define SOURCE_TYPE(f) case SourceType::f: return SourceType::f;
+#define SOURCE_TYPE(en, id, name) case id: return SourceType::en;
 	switch (value)
 	{
-	SOURCE_TYPES
+	SOURCE_TYPES()
 	default: assert(!"Unexpected SourceType"); break;
 	}
 #undef SOURCE_TYPE
@@ -63,10 +51,10 @@ SourceType::type IntToSourceType(int value)
 
 std::string SourceTypeToString(SourceType::type value)
 {
-#define SOURCE_TYPE(f) case SourceType::f: return RestoreSpaces(#f);
+#define SOURCE_TYPE(en, id, name) case SourceType::en: return name;
 	switch (value)
 	{
-	SOURCE_TYPES
+	SOURCE_TYPES()
 	default: assert(!"Unexpected SourceType"); break;
 	}
 #undef SOURCE_TYPE
@@ -76,8 +64,8 @@ std::string SourceTypeToString(SourceType::type value)
 
 SourceType::type StringToSourceType(const std::string& s)
 {
-#define SOURCE_TYPE(f) if (RemoveSpaces(s) == #f) return SourceType::f;
-	SOURCE_TYPES
+#define SOURCE_TYPE(en, id, name) if (s == name) return SourceType::en;
+	SOURCE_TYPES()
 #undef SOURCE_TYPE
 
 	throw std::invalid_argument("bad SourceType!");

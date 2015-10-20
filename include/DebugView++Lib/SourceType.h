@@ -8,25 +8,28 @@
 #pragma once
 
 #include <string>
-#include <regex>
-#include <memory>
 
 namespace fusion {
 namespace debugviewpp {
 
 class LogSource;
 
-struct SourceType		// the SourceType is for UI indication
+#define SOURCE_TYPES() \
+	SOURCE_TYPE(System, 0, "System") \
+	SOURCE_TYPE(Pipe, 1, "Pipe") \
+	SOURCE_TYPE(File, 2, "File") \
+	SOURCE_TYPE(Udp, 3, "UDP Socket") \
+	SOURCE_TYPE(Tcp, 4, "TCP Socket") \
+	SOURCE_TYPE(DebugViewAgent, 5, "DebugView Agent")
+
+struct SourceType
 {
+#define SOURCE_TYPE(en, id, name) en,
 	enum type
 	{
-		System,
-		Pipe,
-		File,
-		UDP_Socket,
-		TCP_Socket,
-		Debugview_Agent
+		SOURCE_TYPES()
 	};
+#undef SOURCE_TYPE
 };
 
 struct SourceInfo

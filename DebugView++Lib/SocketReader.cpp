@@ -14,7 +14,7 @@ namespace fusion {
 namespace debugviewpp {
 
 SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :
-	LogSource(timer, SourceType::UDP_Socket, lineBuffer),
+	LogSource(timer, SourceType::Udp, lineBuffer),
 	m_wsa(2, 2),
 	m_socket( Win32::WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, WSA_FLAG_OVERLAPPED) ),
 	m_event( Win32::CreateEvent(nullptr, false, true, nullptr) ),
