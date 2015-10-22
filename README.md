@@ -59,6 +59,10 @@ Download latest version
 + [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.zip)
 + [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.msi)
 
+Experimental version
+-----------------------
++ [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++Drugoy_release.zip)
+
 Older version
 -------------------------------
 
