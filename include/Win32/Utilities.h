@@ -13,6 +13,4 @@ namespace fusion {
 
 std::wstring LoadString(int id);
 
-std::wstring GetExceptionMessage();
-
 } // namespace fusion

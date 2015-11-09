@@ -7,21 +7,25 @@
 
 #pragma once
 
+#include "CobaltFusion/AtlWinExt.h"
 #include "Resource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class CRegExDlg :
-	public CDialogImpl<CRegExDlg>
+	public CDialogImpl<CRegExDlg>,
+	public ExceptionHandler<CRegExDlg, std::exception>
 {
 public:
 	enum { IDD = IDD_REGEX };
 
-private:
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
+	DECLARE_MSG_MAP()
 
+	void OnException();
+	void OnException(const std::exception& ex);
+
+private:
 	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
 	void OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 };

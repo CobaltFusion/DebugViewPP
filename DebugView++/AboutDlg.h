@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "CobaltFusion/AtlWinExt.h"
 #include "Resource.h"
 
 namespace fusion {

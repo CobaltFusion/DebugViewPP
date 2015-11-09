@@ -21,20 +21,4 @@ std::wstring LoadString(int id)
 	return static_cast<const wchar_t*>(cs);
 }
 
-std::wstring GetExceptionMessage()
-{
-	try
-	{
-		throw;
-	}
-	catch (std::exception& e)
-	{
-		return Win32::MultiByteToWideChar(e.what());
-	}
-	catch (...)
-	{
-		return L"Unknown exception";
-	}
-}
-
 } // namespace fusion

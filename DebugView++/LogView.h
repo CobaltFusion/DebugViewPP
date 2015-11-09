@@ -11,6 +11,7 @@
 #include <deque>
 #include "Win32/Window.h"
 #include "Win32/Win32Lib.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogFile.h"
 #include "FilterDlg.h"
 
@@ -85,7 +86,8 @@ struct ColumnInfo
 	LVCOLUMN column;
 };
 
-class CMyHeaderCtrl : public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
+class CMyHeaderCtrl :
+	public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
 {
 public:
 	BEGIN_MSG_MAP_EX(CMyHeaderCtrl)
@@ -113,15 +115,15 @@ class CLogView :
 			LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
 			LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
 	public CDoubleBufferImpl<CLogView>,
-	public COwnerDraw<CLogView>
+	public COwnerDraw<CLogView>,
+	public ExceptionHandler<CLogView, std::exception>
 {
 public:
 	CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
+	DECLARE_MSG_MAP()
 
 	void DoPaint(CDCHandle dc);
 
@@ -176,6 +178,9 @@ public:
 	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct);
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct);
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
+
+	void OnException();
+	void OnException(const std::exception& ex);
 
 private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);

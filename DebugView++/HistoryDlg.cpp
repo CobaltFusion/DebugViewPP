@@ -14,13 +14,13 @@
 namespace fusion {
 namespace debugviewpp {
 
-BEGIN_MSG_MAP_TRY(CHistoryDlg)
+BEGIN_MSG_MAP2(CHistoryDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	COMMAND_ID_HANDLER_EX(IDC_UNLIMITED, OnUnlimited)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	REFLECT_NOTIFICATIONS()
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
 CHistoryDlg::CHistoryDlg(int historySize, bool unlimited) :
 	m_historySize(historySize),
@@ -28,9 +28,14 @@ CHistoryDlg::CHistoryDlg(int historySize, bool unlimited) :
 {
 }
 
-void CHistoryDlg::ExceptionHandler()
+void CHistoryDlg::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CHistoryDlg::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CHistoryDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

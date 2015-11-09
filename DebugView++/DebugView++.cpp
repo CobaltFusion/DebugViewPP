@@ -80,8 +80,28 @@ int ForwardMessagesFromPipe(HANDLE hPipe)
 	return 0;
 }
 
-int Run(const wchar_t* /*cmdLine*/, int cmdShow)
+int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine*/, int cmdShow)
 {
+	Win32::SetPrivilege(SE_DEBUG_NAME, true);
+	Win32::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
+
+	Win32::ComInitialization com(Win32::ComInitialization::ApartmentThreaded);
+
+	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
+	::DefWindowProc(nullptr, 0, 0, 0L);
+
+	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls
+
+#ifdef CONSOLE_DEBUG
+	FILE* standardOut;
+	AllocConsole();
+	freopen_s(&standardOut, "CONOUT$", "wb", stdout);
+	auto fileGuard = make_guard([standardOut] { fclose(standardOut); });
+	std::cout.clear();
+#endif
+
+	CAppModuleInitialization moduleInit(_Module, hInstance);
+
 	HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
 	HANDLE hFile = nullptr, hPipe = nullptr;
 	switch (GetFileType(hStdIn))
@@ -131,30 +151,6 @@ int Run(const wchar_t* /*cmdLine*/, int cmdShow)
 		wndMain.CapturePipe(hPipe);
 
 	return theLoop.Run();
-}
-
-int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR lpstrCmdLine, int nCmdShow)
-{
-	Win32::SetPrivilege(SE_DEBUG_NAME, true);
-	Win32::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
-
-	Win32::ComInitialization com(Win32::ComInitialization::ApartmentThreaded);
-
-	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
-	::DefWindowProc(nullptr, 0, 0, 0L);
-
-	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls
-
-#ifdef CONSOLE_DEBUG
-	FILE* standardOut;
-	AllocConsole();
-	freopen_s(&standardOut, "CONOUT$", "wb", stdout);
-	auto fileGuard = make_guard([standardOut] { fclose(standardOut); });
-	std::cout.clear();
-#endif
-
-	CAppModuleInitialization moduleInit(_Module, hInstance);
-	return Run(lpstrCmdLine, nCmdShow);
 }
 
 } // namespace debugviewpp 

@@ -14,16 +14,21 @@
 namespace fusion {
 namespace debugviewpp {
 
-BEGIN_MSG_MAP_TRY(CRegExDlg)
+BEGIN_MSG_MAP2(CRegExDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnClose)
 	COMMAND_ID_HANDLER_EX(IDOK, OnClose)
 	REFLECT_NOTIFICATIONS()
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
-void CRegExDlg::ExceptionHandler()
+void CRegExDlg::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CRegExDlg::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CRegExDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

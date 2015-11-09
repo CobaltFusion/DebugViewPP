@@ -59,7 +59,7 @@ CLogView& CLogViewTabItem::GetView()
 	return *m_pView;
 }
 
-BEGIN_MSG_MAP_TRY(CMainFrame)
+BEGIN_MSG_MAP2(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_MOUSEWHEEL(OnMouseWheel)
@@ -99,7 +99,7 @@ BEGIN_MSG_MAP_TRY(CMainFrame)
 	CHAIN_MSG_MAP(TabbedFrame)
 	CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 	REFLECT_NOTIFICATIONS()
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
 LOGFONT& GetDefaultLogFont()
 {
@@ -134,9 +134,14 @@ void CMainFrame::SetLogging()
 	m_logWriter = make_unique<FileWriter>(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile);
 }
 
-void CMainFrame::ExceptionHandler()
+void CMainFrame::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CMainFrame::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)

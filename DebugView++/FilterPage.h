@@ -10,6 +10,7 @@
 #include <regex>
 #include <vector>
 #include "Win32/Win32Lib.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/FilterType.h"
 #include "DebugView++Lib/Filter.h"
 #include "Grid.h"
@@ -20,7 +21,8 @@ namespace debugviewpp {
 
 class CFilterPageImpl :
 	public CDialogImpl<CFilterPageImpl>,
-	public CDialogResize<CFilterPageImpl>
+	public CDialogResize<CFilterPageImpl>,
+	public ExceptionHandler<CFilterPageImpl, std::exception>
 {
 public:
 	CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount, bool supportAutoBg);
@@ -34,8 +36,10 @@ public:
 		DLGRESIZE_CONTROL(IDC_FILTER_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
+	DECLARE_MSG_MAP()
+
+	void OnException();
+	void OnException(const std::exception& ex);
 	void ShowError();
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);

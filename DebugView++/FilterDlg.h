@@ -8,7 +8,7 @@
 #pragma once
 
 #include <vector>
-
+#include "CobaltFusion/AtlWinExt.h"
 #include "FilterPage.h"
 #include "PropertyColorItem.h"
 #include "RegExDlg.h"
@@ -20,7 +20,8 @@ namespace debugviewpp {
 
 class CFilterDlg :
 	public CDialogImpl<CFilterDlg>,
-	public CDialogResize<CFilterDlg>
+	public CDialogResize<CFilterDlg>,
+	public ExceptionHandler<CFilterDlg, std::exception>
 {
 public:
 	CFilterDlg(const std::wstring& name, const LogFilter& filter = LogFilter());
@@ -40,6 +41,10 @@ public:
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 	END_DLGRESIZE_MAP()
 
+	DECLARE_MSG_MAP()
+
+	void OnException();
+	void OnException(const std::exception& ex);
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
 	void OnSize(UINT nType, CSize size);
@@ -52,9 +57,6 @@ public:
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
 	LRESULT OnTabSelChange(NMHDR* pnmh);
 	void SelectTab(int tab);
-
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
 
 private:
 	CTabCtrl m_tabCtrl;

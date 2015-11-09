@@ -8,6 +8,7 @@
 #pragma once
 
 #include <vector>
+#include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogSources.h"
 #include "Grid.h"
 #include "PropertyColorItem.h"
@@ -19,7 +20,8 @@ namespace debugviewpp {
 
 class CSourcesDlg :
 	public CDialogImpl<CSourcesDlg>,
-	public CDialogResize<CSourcesDlg>
+	public CDialogResize<CSourcesDlg>,
+	public ExceptionHandler<CSourcesDlg, std::exception>
 {
 public:
 	explicit CSourcesDlg(const std::vector<SourceInfo>& sourceInfos);
@@ -32,9 +34,11 @@ public:
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		DLGRESIZE_CONTROL(IDC_SOURCES_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
-	
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
+
+	DECLARE_MSG_MAP()
+
+	void OnException();
+	void OnException(const std::exception& ex);
 	std::vector<SourceInfo> GetSourceInfos();
 
 private:

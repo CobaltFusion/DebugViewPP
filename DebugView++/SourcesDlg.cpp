@@ -20,7 +20,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-BEGIN_MSG_MAP_TRY(CSourcesDlg)
+BEGIN_MSG_MAP2(CSourcesDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
@@ -28,15 +28,20 @@ BEGIN_MSG_MAP_TRY(CSourcesDlg)
 	COMMAND_ID_HANDLER_EX(IDADD, OnAdd)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
 CSourcesDlg::CSourcesDlg(const std::vector<SourceInfo>& sourceInfos) : m_sourceInfos(sourceInfos)
 {
 }
 
-void CSourcesDlg::ExceptionHandler()
+void CSourcesDlg::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CSourcesDlg::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 void CSourcesDlg::UpdateGrid()

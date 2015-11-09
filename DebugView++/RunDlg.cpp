@@ -14,18 +14,23 @@
 namespace fusion {
 namespace debugviewpp {
 
-BEGIN_MSG_MAP_TRY(CRunDlg)
+BEGIN_MSG_MAP2(CRunDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	COMMAND_ID_HANDLER_EX(IDC_BROWSE, OnBrowse)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CRunDlg>)
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
-void CRunDlg::ExceptionHandler()
+void CRunDlg::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CRunDlg::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CRunDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

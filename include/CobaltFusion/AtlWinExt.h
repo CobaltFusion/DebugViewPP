@@ -10,10 +10,24 @@
 #include <atlbase.h>
 #include <atlwin.h>
 
+#define DECLARE_MSG_MAP() \
+	virtual BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID); \
+	BOOL ProcessWindowMessageImpl2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
+
 // Alternative to ATL standard BEGIN_MSG_MAP() with try block:
-#define BEGIN_MSG_MAP_TRY(theClass) \
+#define BEGIN_MSG_MAP2(theClass) \
 	BOOL theClass::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID) \
 	try \
+	{ \
+		return ProcessWindowMessageImpl(hWnd, uMsg, wParam, lParam, lResult, dwMsgMapID); \
+	} \
+	catch (...) \
+	{ \
+		OnException(); \
+		return FALSE; \
+	} \
+	 \
+	BOOL theClass::ProcessWindowMessageImpl2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID) \
 	{ \
 		BOOL bHandled = TRUE; \
 		(hWnd); \
@@ -26,17 +40,26 @@
 		{ \
 		case 0:
 
-#define END_MSG_MAP_CATCH(handler) \
-			break; \
-		default: \
-			ATLTRACE(ATL::atlTraceWindowing, 0, _T("Invalid message map ID (%i)\n"), dwMsgMapID); \
-			ATLASSERT(FALSE); \
-			break; \
-		} \
-		return FALSE; \
-		} \
-		catch (...) \
-		{ \
-			handler(); \
-			return FALSE; \
-		}
+template <typename T, typename E1 = void, typename E2 = void, typename E3 = void, typename E4 = void, typename E5 = void, typename E6 = void, typename E7 = void, typename E8 = void, typename E9 = void, typename E10 = void>
+struct ExceptionHandler : ExceptionHandler<T, E2, E3, E4, E5, E6, E7, E8, E9, E10, void>
+{
+	BOOL ProcessWindowMessageImpl(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
+	try
+	{
+		return ExceptionHandler<T, E2, E3, E4, E5, E6, E7, E8, E9, E10, void>::ProcessWindowMessageImpl(hWnd, uMsg, wParam, lParam, lResult, dwMsgMapID);
+	}
+	catch (E1& ex)
+	{
+		static_cast<T*>(this)->OnException(ex);
+		return FALSE;
+	}
+};
+
+template <typename T>
+struct ExceptionHandler<T, void, void, void, void, void, void, void, void, void, void>
+{
+	BOOL ProcessWindowMessageImpl(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
+	{
+		return static_cast<T*>(this)->ProcessWindowMessageImpl2(hWnd, uMsg, wParam, lParam, lResult, dwMsgMapID);
+	}
+};

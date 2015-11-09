@@ -52,7 +52,7 @@ CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t fil
 {
 }
 
-BEGIN_MSG_MAP_TRY(CFilterPageImpl)
+BEGIN_MSG_MAP2(CFilterPageImpl)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
@@ -64,11 +64,16 @@ BEGIN_MSG_MAP_TRY(CFilterPageImpl)
 	NOTIFY_CODE_HANDLER_EX(PIN_ITEMCHANGED, OnItemChanged)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CFilterPageImpl>)
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
-void CFilterPageImpl::ExceptionHandler()
+void CFilterPageImpl::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CFilterPageImpl::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 void CFilterPageImpl::ShowError()

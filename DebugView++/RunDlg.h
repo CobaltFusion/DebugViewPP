@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include "CobaltFusion/AtlWinExt.h"
 #include "Resource.h"
 
 namespace fusion {
@@ -15,7 +16,8 @@ namespace debugviewpp {
 
 class CRunDlg :
 	public CDialogImpl<CRunDlg>,
-	public CDialogResize<CRunDlg>
+	public CDialogResize<CRunDlg>,
+	public ExceptionHandler<CRunDlg, std::exception>
 {
 public:
 	enum { IDD = IDD_RUN };
@@ -23,6 +25,8 @@ public:
 	std::wstring GetPathName() const;
 	void SetPathName(const std::wstring& pathNamde);
 	std::wstring GetArguments() const;
+	void OnException();
+	void OnException(const std::exception& ex);
 
 	BEGIN_DLGRESIZE_MAP(CRunDlg)
 		DLGRESIZE_CONTROL(IDC_RUN, DLSZ_SIZE_X)
@@ -32,10 +36,9 @@ public:
 		DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 	END_DLGRESIZE_MAP()
 
-private:
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
+	DECLARE_MSG_MAP()
 
+private:
 	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
 	void OnBrowse(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);

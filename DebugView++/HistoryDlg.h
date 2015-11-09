@@ -7,24 +7,27 @@
 
 #pragma once
 
+#include "CobaltFusion/AtlWinExt.h"
 #include "Resource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class CHistoryDlg :
-	public CDialogImpl<CHistoryDlg>
+	public CDialogImpl<CHistoryDlg>,
+	public ExceptionHandler<CHistoryDlg, std::exception>
 {
 public:
 	enum { IDD = IDD_HISTORY };
 
+	DECLARE_MSG_MAP()
+
 	CHistoryDlg(int historySize, bool unlimited);
 	int GetHistorySize() const;
+	void OnException();
+	void OnException(const std::exception& ex);
 
 private:
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
-
 	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
 	void OnUnlimited(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);

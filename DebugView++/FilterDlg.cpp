@@ -47,7 +47,7 @@ void InitializeCustomColors()
 
 bool CustomColorsInitialized = (InitializeCustomColors(), true);
 
-BEGIN_MSG_MAP_TRY(CFilterDlg)
+BEGIN_MSG_MAP2(CFilterDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	MSG_WM_DESTROY(OnDestroy)
 	MSG_WM_SIZE(OnSize)
@@ -60,7 +60,7 @@ BEGIN_MSG_MAP_TRY(CFilterDlg)
 	NOTIFY_CODE_HANDLER_EX(TCN_SELCHANGE, OnTabSelChange)
 	REFLECT_NOTIFICATIONS()
 	CHAIN_MSG_MAP(CDialogResize<CFilterDlg>)
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
 static const FilterType::type MessageFilterTypes[] =
 {
@@ -121,9 +121,14 @@ LogFilter CFilterDlg::GetFilters() const
 	return m_filter;
 }
 
-void CFilterDlg::ExceptionHandler()
+void CFilterDlg::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CFilterDlg::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

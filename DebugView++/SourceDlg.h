@@ -8,29 +8,32 @@
 #pragma once
 
 #include <vector>
-
-#include "Resource.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogSource.h"
+#include "Resource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class CSourceDlg :
-	public CDialogImpl<CSourceDlg>
+	public CDialogImpl<CSourceDlg>,
+	public ExceptionHandler<CSourceDlg, std::exception>
 {
 public:
+	DECLARE_MSG_MAP()
+
 	CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port);
 		
 	enum { IDD = IDD_SOURCE };
 	
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 	std::wstring GetName() const;
 	SourceType::type GetSourceType() const;
 	std::wstring GetAddress() const;
 	int GetPort() const;
+	void OnException();
+	void OnException(const std::exception& ex);
 
 private:
-	void ExceptionHandler();
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);

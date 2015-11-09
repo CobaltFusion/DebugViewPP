@@ -54,7 +54,7 @@ ItemData::ItemData() :
 {
 }
 
-BEGIN_MSG_MAP_TRY(CLogView)
+BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
@@ -103,7 +103,7 @@ BEGIN_MSG_MAP_TRY(CLogView)
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
 	CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	DEFAULT_REFLECTION_HANDLER()
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
 bool CLogView::IsColumnViewed(int nID) const
 {
@@ -144,9 +144,14 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 {
 }
 
-void CLogView::ExceptionHandler()
+void CLogView::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CLogView::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 int CLogView::ColumnToSubItem(Column::type iColumn) const

@@ -19,12 +19,12 @@
 namespace fusion {
 namespace debugviewpp {
 
-BEGIN_MSG_MAP_TRY(CSourceDlg)
+BEGIN_MSG_MAP2(CSourceDlg)
 	MSG_WM_INITDIALOG(OnInitDialog)
 	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
 	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
 	COMMAND_HANDLER_EX(IDC_TYPE, CBN_SELCHANGE, OnTypeSelChange)
-END_MSG_MAP_CATCH(ExceptionHandler)
+END_MSG_MAP()
 
 CSourceDlg::CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port) :
 	m_name(name), m_sourceType(sourceType), m_address(address), m_port(port)
@@ -51,9 +51,14 @@ int CSourceDlg::GetPort() const
 	return m_port;
 }
 
-void CSourceDlg::ExceptionHandler()
+void CSourceDlg::OnException()
 {
-	MessageBox(WStr(GetExceptionMessage()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+}
+
+void CSourceDlg::OnException(const std::exception& ex)
+{
+	MessageBox(WStr(ex.what()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
 }
 
 BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

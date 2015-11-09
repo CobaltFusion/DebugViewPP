@@ -15,6 +15,7 @@ namespace WTL { using ATL::CString; };
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
 #include "TabbedFrame.h"
+#include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/LineBuffer.h"
@@ -63,6 +64,7 @@ public:
 class CMainFrame :
 	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>>,
 	public CUpdateUI<CMainFrame>,
+	public ExceptionHandler<CMainFrame, std::exception>,
 	public CMessageFilter,
 	public CIdleHandler
 {
@@ -98,6 +100,8 @@ public:
 		UPDATE_ELEMENT(ID_MEMORY_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
+	DECLARE_MSG_MAP()
+
 	void SetLogging();
 	void LoadConfiguration(const std::wstring& fileName);
 	void SaveConfiguration(const std::wstring& fileName);
@@ -109,6 +113,8 @@ public:
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 	void OnDropFiles(HDROP hDropInfo);
+	void OnException();
+	void OnException(const std::exception& ex);
 
 private:
 	enum
@@ -117,8 +123,6 @@ private:
 		WM_SYSTEMTRAYICON,
 	};
 
-	BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
-	void ExceptionHandler();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 
