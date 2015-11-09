@@ -17,14 +17,8 @@
 // Alternative to ATL standard BEGIN_MSG_MAP() with try block:
 #define BEGIN_MSG_MAP2(theClass) \
 	BOOL theClass::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID) \
-	try \
 	{ \
 		return ProcessWindowMessageImpl(hWnd, uMsg, wParam, lParam, lResult, dwMsgMapID); \
-	} \
-	catch (...) \
-	{ \
-		OnException(); \
-		return FALSE; \
 	} \
 	 \
 	BOOL theClass::ProcessWindowMessageImpl2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID) \
@@ -59,7 +53,13 @@ template <typename T>
 struct ExceptionHandler<T, void, void, void, void, void, void, void, void, void, void>
 {
 	BOOL ProcessWindowMessageImpl(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
+	try
 	{
 		return static_cast<T*>(this)->ProcessWindowMessageImpl2(hWnd, uMsg, wParam, lParam, lResult, dwMsgMapID);
+	}
+	catch (...)
+	{
+		static_cast<T*>(this)->OnException();
+		return FALSE;
 	}
 };
