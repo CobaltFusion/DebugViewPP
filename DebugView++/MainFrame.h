@@ -100,8 +100,6 @@ public:
 		UPDATE_ELEMENT(ID_MEMORY_PANE, UPDUI_STATUSBAR)
 	END_UPDATE_UI_MAP()
 
-	DECLARE_MSG_MAP()
-
 	void SetLogging();
 	void LoadConfiguration(const std::wstring& fileName);
 	void SaveConfiguration(const std::wstring& fileName);
@@ -113,8 +111,6 @@ public:
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 	void OnDropFiles(HDROP hDropInfo);
-	void OnException();
-	void OnException(const std::exception& ex);
 
 private:
 	enum
@@ -123,9 +119,13 @@ private:
 		WM_SYSTEMTRAYICON,
 	};
 
+	DECLARE_MSG_MAP()
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 
+	void OnException();
+	void OnException(const std::exception& ex);
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
 	bool OnUpdate();

@@ -20,8 +20,6 @@ class CSourceDlg :
 	public ExceptionHandler<CSourceDlg, std::exception>
 {
 public:
-	DECLARE_MSG_MAP()
-
 	CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port);
 		
 	enum { IDD = IDD_SOURCE };
@@ -30,10 +28,12 @@ public:
 	SourceType::type GetSourceType() const;
 	std::wstring GetAddress() const;
 	int GetPort() const;
-	void OnException();
-	void OnException(const std::exception& ex);
 
 private:
+	DECLARE_MSG_MAP()
+
+	void OnException();
+	void OnException(const std::exception& ex);
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);

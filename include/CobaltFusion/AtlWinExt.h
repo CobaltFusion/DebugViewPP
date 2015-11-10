@@ -11,6 +11,9 @@
 #include <atlwin.h>
 
 #define DECLARE_MSG_MAP() \
+	template <typename T, typename E1, typename E2, typename E3, typename E4, typename E5, typename E6, typename E7, typename E8, typename E9, typename E10> \
+	friend struct ExceptionHandler; \
+	 \
 	virtual BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID); \
 	BOOL ProcessWindowMessageImpl2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID);
 

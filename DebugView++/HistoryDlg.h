@@ -20,14 +20,14 @@ class CHistoryDlg :
 public:
 	enum { IDD = IDD_HISTORY };
 
-	DECLARE_MSG_MAP()
-
 	CHistoryDlg(int historySize, bool unlimited);
 	int GetHistorySize() const;
-	void OnException();
-	void OnException(const std::exception& ex);
 
 private:
+	DECLARE_MSG_MAP()
+
+	void OnException();
+	void OnException(const std::exception& ex);
 	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
 	void OnUnlimited(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);

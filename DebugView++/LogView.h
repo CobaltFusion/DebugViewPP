@@ -123,8 +123,6 @@ public:
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	DECLARE_MSG_MAP()
-
 	void DoPaint(CDCHandle dc);
 
 	std::wstring GetName() const;
@@ -179,10 +177,11 @@ public:
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct);
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 
+private:
+	DECLARE_MSG_MAP()
+
 	void OnException();
 	void OnException(const std::exception& ex);
-
-private:
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnDropFiles(HDROP hDropInfo);
 	void OnContextMenu(HWND hWnd, CPoint pt);

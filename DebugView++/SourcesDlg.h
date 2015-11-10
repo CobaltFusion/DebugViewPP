@@ -35,13 +35,13 @@ public:
 		DLGRESIZE_CONTROL(IDC_SOURCES_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
+	std::vector<SourceInfo> GetSourceInfos();
+
+private:
 	DECLARE_MSG_MAP()
 
 	void OnException();
 	void OnException(const std::exception& ex);
-	std::vector<SourceInfo> GetSourceInfos();
-
-private:
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnOk(UINT uNotifyCode, int nID, CWindow wndCtl);
