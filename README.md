@@ -36,7 +36,7 @@ These are some of its features:
 - support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-Changes in 1.4:
+Added in 1.4:
 
 - added console version (DebugViewConsole.exe) for use without UI
 - several minor UI bugs fixed
@@ -180,8 +180,8 @@ How to build
 ------------
 
 This is a Visual Studio 2010 project with the following dependencies (download and install separately)
-- boost 1.43 or later, tested with: http://sourceforge.net/projects/boost/files/boost/1.55.0/, choose boost_1_55_0.zip
-- WTL 8.0 or later, tested with: http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
+- boost 1.55, http://sourceforge.net/projects/boost/files/boost/1.55.0/, choose boost_1_55_0.zip
+- WTL 8.0, http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
 
 The libraries must be installed in /Libraries and zip.exe installed, add the binary directory to your path.
