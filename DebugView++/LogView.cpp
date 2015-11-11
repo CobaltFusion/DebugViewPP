@@ -62,6 +62,7 @@ BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_LBUTTONDOWN(OnLButtonDown)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
+	MSG_WM_TIMER(OnTimer)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
@@ -141,7 +142,8 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
 	m_dragStart(0, 0),
 	m_dragEnd(0, 0),
-	m_dragging(false)
+	m_dragging(false),
+	m_scrollX(0)
 {
 }
 
@@ -404,15 +406,38 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 	Invalidate();
 }
 
-void CLogView::OnMouseMove(UINT flags, CPoint point)
+void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
 
-	if ((flags & MK_LBUTTON) == 0)
+	if (!m_dragging)
 		return;
 
 	m_dragEnd = point;
 	Invalidate();
+
+	RECT rect;
+	GetClientRect(&rect);
+	if (point.x < rect.left + 32)
+	{
+		if (m_scrollX == 0)
+			SetTimer(1, 25, nullptr);
+		m_scrollX = -8;
+	}
+	else if (point.x > rect.right - 32)
+	{
+		if (m_scrollX == 0)
+			SetTimer(1, 25, nullptr);
+		m_scrollX = +8;
+	}
+	else
+	{
+		if (m_scrollX != 0)
+		{
+			KillTimer(1);
+			m_scrollX = 0;
+		}
+	}
 }
 
 void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
@@ -441,6 +466,15 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	int begin = GetTextIndex(info.iItem, x1);
 	int end = GetTextIndex(info.iItem, x2);
 	SetHighlightText(TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message))).substr(begin, end - begin));
+}
+
+void CLogView::OnTimer(UINT_PTR nIDEvent)
+{
+	if (nIDEvent == 1)
+	{
+		Scroll(CSize(m_scrollX, 0));
+		m_dragStart.x -= m_scrollX;
+	}
 }
 
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)

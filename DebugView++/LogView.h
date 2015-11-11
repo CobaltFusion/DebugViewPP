@@ -188,6 +188,7 @@ private:
 	void OnLButtonDown(UINT flags, CPoint point);
 	void OnMouseMove(UINT flags, CPoint point);
 	void OnLButtonUp(UINT nFlags, CPoint point);
+	void OnTimer(UINT_PTR nIDEvent);
 	BOOL OnSetCursor(CWindow wnd, UINT nHitTest, UINT message);
 	LRESULT OnGetDispInfo(NMHDR* pnmh);
 	LRESULT OnClick(NMHDR* pnmh);
@@ -294,6 +295,7 @@ private:
 	CPoint m_dragStart;
 	CPoint m_dragEnd;
 	bool m_dragging;
+	int m_scrollX;
 	std::wstring m_dispInfoText;
 };
 
