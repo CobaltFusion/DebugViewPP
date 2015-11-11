@@ -59,6 +59,7 @@ BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_SETCURSOR(OnSetCursor)
+	MSG_WM_LBUTTONDOWN(OnLButtonDown)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
@@ -387,6 +388,22 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 	return 0;
 }
 
+void CLogView::OnLButtonDown(UINT flags, CPoint point)
+{
+	if ((flags & MK_SHIFT) == 0)
+	{
+		SetMsgHandled(false);
+		return;
+	}
+
+	StopTracking();
+
+	SetCapture();
+	m_dragging = true; 
+	m_dragEnd = point;
+	Invalidate();
+}
+
 void CLogView::OnMouseMove(UINT flags, CPoint point)
 {
 	SetMsgHandled(false);
@@ -412,8 +429,8 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	SubItemHitTest(&info);
 	int x1 = std::min(m_dragStart.x, point.x);
 	int x2 = std::max(m_dragStart.x, point.x);
-	m_dragStart = CPoint();
-	m_dragEnd = CPoint();
+//	m_dragStart = CPoint();
+//	m_dragEnd = CPoint();
 	ReleaseCapture();
 	Invalidate();
 
@@ -698,7 +715,7 @@ ItemData CLogView::GetItemData(int iItem) const
 Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
 	auto rect = GetSubItemRect(iItem, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
-	if (!Contains(rect, m_dragStart))
+	if (!m_dragging || !Contains(rect, m_dragStart))
 		return Highlight(0, 0, 0, TextColor(0, 0));
 
 	int x1 = std::min(m_dragStart.x, m_dragEnd.x);
