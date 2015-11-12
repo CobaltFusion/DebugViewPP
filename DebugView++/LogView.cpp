@@ -14,6 +14,7 @@
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/dbgstream.h"
 #include "Win32/Registry.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileIO.h"
@@ -401,19 +402,20 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 	StopTracking();
 
 	SetCapture();
-	m_dragging = true; 
+	m_dragging = true;
 	m_dragEnd = point;
+	m_dragEnd.x += GetScrollPos(SB_HORZ);
 	Invalidate();
 }
 
 void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
-
 	if (!m_dragging)
 		return;
 
 	m_dragEnd = point;
+	m_dragEnd.x += GetScrollPos(SB_HORZ);
 	Invalidate();
 
 	RECT rect;
@@ -421,14 +423,14 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 	if (point.x < rect.left + 32)
 	{
 		if (m_scrollX == 0)
-			SetTimer(1, 25, nullptr);
-		m_scrollX = -8;
+			SetTimer(1, 100, nullptr);
+		m_scrollX = -32;
 	}
 	else if (point.x > rect.right - 32)
 	{
 		if (m_scrollX == 0)
-			SetTimer(1, 25, nullptr);
-		m_scrollX = +8;
+			SetTimer(1, 100, nullptr);
+		m_scrollX = +32;
 	}
 	else
 	{
@@ -443,26 +445,32 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
+	if (!m_dragging)
+		return;
 
-	if (abs(point.x - m_dragStart.x) <= GetSystemMetrics(SM_CXDRAG) &&
-		abs(point.y - m_dragStart.y) <= GetSystemMetrics(SM_CYDRAG))
+	m_dragging = false;
+
+	auto dragStart = m_dragStart;
+	dragStart.x -= GetScrollPos(SB_HORZ);
+
+	if (abs(point.x - dragStart.x) <= GetSystemMetrics(SM_CXDRAG) &&
+		abs(point.y - dragStart.y) <= GetSystemMetrics(SM_CYDRAG))
 		return;
 
 	LVHITTESTINFO info;
 	info.flags = 0;
-	info.pt = m_dragStart;
+	info.pt = dragStart;
 	SubItemHitTest(&info);
-	int x1 = std::min(m_dragStart.x, point.x);
-	int x2 = std::max(m_dragStart.x, point.x);
+	int x1 = std::min(dragStart.x, point.x);
+	int x2 = std::max(dragStart.x, point.x);
 //	m_dragStart = CPoint();
 //	m_dragEnd = CPoint();
 	ReleaseCapture();
 	Invalidate();
 
-	if (!m_dragging || (info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message) 
+	if ((info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message)
 		return;
 
-	m_dragging = false;
 	int begin = GetTextIndex(info.iItem, x1);
 	int end = GetTextIndex(info.iItem, x2);
 	SetHighlightText(TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message))).substr(begin, end - begin));
@@ -471,10 +479,7 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 void CLogView::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 1)
-	{
 		Scroll(CSize(m_scrollX, 0));
-		m_dragStart.x -= m_scrollX;
-	}
 }
 
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
@@ -749,11 +754,15 @@ ItemData CLogView::GetItemData(int iItem) const
 Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
 	auto rect = GetSubItemRect(iItem, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
-	if (!m_dragging || !Contains(rect, m_dragStart))
+	auto dragStart = m_dragStart;
+	dragStart.x -=  GetScrollPos(SB_HORZ);
+	auto dragEnd = m_dragEnd;
+	dragEnd.x -=  GetScrollPos(SB_HORZ);
+	if (!m_dragging || !Contains(rect, dragStart))
 		return Highlight(0, 0, 0, TextColor(0, 0));
 
-	int x1 = std::min(m_dragStart.x, m_dragEnd.x);
-	int x2 = std::max(m_dragStart.x, m_dragEnd.x);
+	int x1 = std::min(dragStart.x, dragEnd.x);
+	int x2 = std::max(dragStart.x, dragEnd.x);
 
 	int begin = GetTextIndex(dc, iItem, x1);
 	int end = GetTextIndex(dc, iItem, x2);
@@ -918,7 +927,9 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	SetCapture();
 	m_dragging = true; 
 	m_dragStart = nmhdr.ptAction;
+	m_dragStart.x += GetScrollPos(SB_HORZ);
 	m_dragEnd = nmhdr.ptAction;
+	m_dragEnd.x += GetScrollPos(SB_HORZ);
 
 	return 0;
 }
