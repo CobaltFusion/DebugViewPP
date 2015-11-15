@@ -194,7 +194,6 @@ private:
 	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
-	LRESULT OnCustomDraw(NMHDR* pnmh);
 	LRESULT OnOdStateChanged(NMHDR* pnmh);
 	LRESULT OnIncrementalSearch(NMHDR* pnmh);
 	LRESULT OnOdCacheHint(NMHDR* pnmh);

@@ -25,6 +25,60 @@
 namespace fusion {
 namespace debugviewpp {
 
+unsigned GetTextAlign(const HDITEM& item)
+{
+	switch (item.fmt & HDF_JUSTIFYMASK)
+	{
+	case HDF_LEFT: return DT_LEFT;
+	case HDF_CENTER: return DT_CENTER;
+	case HDF_RIGHT: return DT_RIGHT;
+	}
+	return HDF_LEFT;
+}
+
+SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
+{
+	SIZE size;
+	dc.GetTextExtent(text.c_str(), length, &size);
+	return size;
+}
+
+void ExtTextOut(HDC hdc, const POINT& pt, const RECT& rect, const std::wstring& text)
+{
+	::ExtTextOutW(hdc, pt.x, pt.y, ETO_CLIPPED | ETO_OPAQUE, &rect, text.c_str(), text.size(), nullptr);
+}
+
+int GetTextOffset(HDC hdc, const std::string& s, int xPos)
+{
+	auto exp = TabsToSpaces(s);
+	int nFit;
+	SIZE size;
+	if (!GetTextExtentExPointA(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
+		return 0;
+	return SkipTabOffset(s, nFit);
+}
+
+int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
+{
+	auto exp = TabsToSpaces(s);
+	int nFit;
+	SIZE size;
+	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
+		return 0;
+	return SkipTabOffset(s, nFit);
+}
+
+void AddEllipsis(HDC hdc, std::wstring& text, int width)
+{
+	static const std::wstring ellipsis(L"...");
+	int pos = GetTextOffset(hdc, text, width);
+	if (pos >= 0 && pos < static_cast<int>(text.size()))
+	{
+		pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.size()).cx);
+		text = text.substr(0, pos) + ellipsis;
+	}
+}
+
 SelectionInfo::SelectionInfo() :
 	beginLine(0), endLine(0), count(0)
 {
@@ -352,26 +406,6 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);
 }
 
-int GetTextOffset(HDC hdc, const std::string& s, int xPos)
-{
-	auto exp = TabsToSpaces(s);
-	int nFit;
-	SIZE size;
-	if (!GetTextExtentExPointA(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
-		return 0;
-	return SkipTabOffset(s, nFit);
-}
-
-int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
-{
-	auto exp = TabsToSpaces(s);
-	int nFit;
-	SIZE size;
-	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
-		return 0;
-	return SkipTabOffset(s, nFit);
-}
-
 bool iswordchar(int c)
 {
 	return isalnum(c) || c == '_';
@@ -385,7 +419,7 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 	info.flags = 0;
 	info.pt = nmhdr.ptAction;
 	SubItemHitTest(&info);
-	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == 0)
+	if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Bookmark))
 		ToggleBookmark(info.iItem);
 
 	return 0;
@@ -393,10 +427,49 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
 
 void CLogView::OnLButtonDown(UINT flags, CPoint point)
 {
-	if ((flags & MK_SHIFT) == 0)
+	if ((flags & MK_SHIFT) == 0 || m_highlightText.empty())
 	{
 		SetMsgHandled(false);
 		return;
+	}
+
+	LVHITTESTINFO info;
+	info.flags = 0;
+	info.pt = point;
+	SubItemHitTest(&info);
+	if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != ColumnToSubItem(Column::Message))
+	{
+		SetMsgHandled(false);
+		return;
+	}
+
+	CClientDC dc(*this);
+	Win32::GdiObjectSelection font(dc, GetFont());
+
+	int x0 = GetSubItemRect(info.iItem, info.iSubItem, LVIR_BOUNDS).left + GetHeader().GetBitmapMargin();
+	auto line = TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)));
+	auto pos = 0;
+	int min = 1000 * 1000;
+	for (;;)
+	{
+		pos = line.find(m_highlightText, pos);
+		if (pos == line.npos)
+			break;
+
+		int x1 = x0 + GetTextSize(dc.m_hDC, line, pos).cx;
+		int x2 = x0 + GetTextSize(dc.m_hDC, line, pos + m_highlightText.size()).cx;
+		if (std::abs(point.x - x1) < min)
+		{
+			min = std::abs(point.x - x1);
+			m_dragStart = CPoint(x2, point.y);
+		}
+		if (std::abs(point.x - x2) < min)
+		{
+			min = std::abs(point.x - x2);
+			m_dragStart = CPoint(x1, point.y);
+		}
+
+		pos += m_highlightText.size();
 	}
 
 	StopTracking();
@@ -404,6 +477,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 	SetCapture();
 	m_dragging = true;
 	m_dragEnd = point;
+	m_dragStart.x += GetScrollPos(SB_HORZ);
 	m_dragEnd.x += GetScrollPos(SB_HORZ);
 	Invalidate();
 }
@@ -463,8 +537,8 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 	SubItemHitTest(&info);
 	int x1 = std::min(dragStart.x, point.x);
 	int x2 = std::max(dragStart.x, point.x);
-//	m_dragStart = CPoint();
-//	m_dragEnd = CPoint();
+	m_dragStart = CPoint();
+	m_dragEnd = CPoint();
 	ReleaseCapture();
 	Invalidate();
 
@@ -576,40 +650,6 @@ RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
 	if (iSubItem == 0)
 		rect.right = rect.left + GetColumnWidth(0);
 	return rect;
-}
-
-unsigned GetTextAlign(const HDITEM& item)
-{
-	switch (item.fmt & HDF_JUSTIFYMASK)
-	{
-	case HDF_LEFT: return DT_LEFT;
-	case HDF_CENTER: return DT_CENTER;
-	case HDF_RIGHT: return DT_RIGHT;
-	}
-	return HDF_LEFT;
-}
-
-SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
-{
-	SIZE size;
-	dc.GetTextExtent(text.c_str(), length, &size);
-	return size;
-}
-
-void ExtTextOut(HDC hdc, const POINT& pt, const RECT& rect, const std::wstring& text)
-{
-	::ExtTextOutW(hdc, pt.x, pt.y, ETO_CLIPPED | ETO_OPAQUE, &rect, text.c_str(), text.size(), nullptr);
-}
-
-void AddEllipsis(HDC hdc, std::wstring& text, int width)
-{
-	static const std::wstring ellipsis(L"...");
-	int pos = GetTextOffset(hdc, text, width);
-	if (pos >= 0 && pos < static_cast<int>(text.size()))
-	{
-		pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.size()).cx);
-		text = text.substr(0, pos) + ellipsis;
-	}
 }
 
 void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highlight)
