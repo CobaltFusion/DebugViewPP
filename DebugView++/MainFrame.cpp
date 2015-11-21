@@ -120,7 +120,10 @@ CMainFrame::CMainFrame() :
 	m_configFileName(L"DebugView++.dbconf"),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
-	m_logSources(true)
+	m_logSources(true),
+	m_pLocalReader(nullptr),
+	m_pGlobalReader(nullptr),
+	m_pDbgviewReader(nullptr)
 {
 	m_notifyIconData.cbSize = 0;
 }
@@ -1090,12 +1093,12 @@ void CMainFrame::Pause()
 	if (m_pLocalReader)
 	{
 		m_logSources.Remove(m_pLocalReader);
-		m_pLocalReader.reset();
+		m_pLocalReader = nullptr;
 	}
 	if (m_pGlobalReader)
 	{
 		m_logSources.Remove(m_pGlobalReader);
-		m_pGlobalReader.reset();
+		m_pGlobalReader = nullptr;
 	}
 }
 
@@ -1175,7 +1178,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 	else
 	{
 		m_logSources.Remove(m_pGlobalReader);
-		m_pGlobalReader.reset();
+		m_pGlobalReader = nullptr;
 	}
 }
 
@@ -1193,7 +1196,7 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 	else
 	{
 		m_logSources.Remove(m_pDbgviewReader);
-		m_pDbgviewReader.reset();
+		m_pDbgviewReader = nullptr;
 	}
 }
 
@@ -1228,7 +1231,7 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	for (auto it = pSources.begin(); it != pSources.end(); ++it)
 	{
 		// TODO: Redesign LogSource ownership mess
-		if (std::dynamic_pointer_cast<DbgviewReader>(*it) || std::dynamic_pointer_cast<SocketReader>(*it))
+		if (dynamic_cast<DbgviewReader*>(*it) || dynamic_cast<SocketReader*>(*it))
 			m_logSources.Remove(*it);
 	}
 

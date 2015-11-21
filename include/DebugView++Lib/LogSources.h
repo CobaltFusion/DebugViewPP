@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <memory>
 #include <boost/signals2.hpp>
 
 #pragma warning(push, 1)
@@ -39,6 +40,26 @@ class SocketReader;
 
 typedef std::vector<HANDLE> LogSourceHandles;
 
+template<typename T>
+void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
+{
+	v.erase(
+		std::remove_if( // Selectively remove elements in the second vector...
+			v.begin(),
+			v.end(),
+			[&] (std::unique_ptr<T> const& p)
+			{   // This predicate checks whether the element is contained
+				// in the second vector of pointers to be removed...
+				return std::find(
+					e.cbegin(), 
+					e.cend(), 
+					p.get()
+					) != e.end();
+			}),
+		v.end()
+	);
+}
+
 class LogSources
 {
 public:
@@ -55,39 +76,40 @@ public:
 	void ListenUntilUpdateEvent();
 	void Abort();
 	Lines GetLines();
-	void Remove(const std::shared_ptr<LogSource>& pLogSource);
-	std::vector<std::shared_ptr<LogSource>> GetSources() const;
+	void Remove(LogSource* pLogSource);
+	std::vector<LogSource*> GetSources() const;
 
-	std::shared_ptr<DBWinReader> AddDBWinReader(bool global);
-	std::shared_ptr<ProcessReader> AddProcessReader(const std::wstring& pathName, const std::wstring& args);
-	std::shared_ptr<FileReader> AddFileReader(const std::wstring& filename);
-	std::shared_ptr<BinaryFileReader> AddBinaryFileReader(const std::wstring& filename);
-	std::shared_ptr<DBLogReader> AddDBLogReader(const std::wstring& filename);
-	std::shared_ptr<DbgviewReader> AddDbgviewReader(const std::string& hostname);
-	std::shared_ptr<SocketReader> AddUDPReader(int port);
-	std::shared_ptr<PipeReader> AddPipeReader(DWORD pid, HANDLE hPipe);
-	std::shared_ptr<TestSource> AddTestSource();		// for unittesting
+	DBWinReader* AddDBWinReader(bool global);
+	ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
+	FileReader* AddFileReader(const std::wstring& filename);
+	BinaryFileReader* AddBinaryFileReader(const std::wstring& filename);
+	DBLogReader* AddDBLogReader(const std::wstring& filename);
+	DbgviewReader* AddDbgviewReader(const std::string& hostname);
+	SocketReader* AddUDPReader(int port);
+	PipeReader* AddPipeReader(DWORD pid, HANDLE hPipe);
+	TestSource* AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);
 	boost::signals2::connection SubscribeToUpdate(Update::slot_type slot);
 
 private:
-	void InternalRemove(const std::shared_ptr<LogSource>& pLogSource);
-	void UpdateSettings(const std::shared_ptr<LogSource>& pSource);
-	void Add(const std::shared_ptr<LogSource>& pSource);
+	void InternalRemove(LogSource*);
+	void UpdateSettings(const std::unique_ptr<LogSource>& pSource);
+	void Add(std::unique_ptr<LogSource> pSource);
 	void OnProcessEnded(DWORD pid, HANDLE handle);
 	void OnUpdate();
 	void DelayedUpdate();
+	Loopback* CreateLoopback(Timer& timer, ILineBuffer& lineBuffer);
 
 	bool m_autoNewLine;
 	mutable boost::mutex m_mutex;
-	std::vector<std::shared_ptr<LogSource>> m_sources;
+	std::vector<std::unique_ptr<LogSource>> m_sources;
 	Win32::Handle m_updateEvent;
 	bool m_end;
 	VectorLineBuffer m_linebuffer;
 	PidMap m_pidMap;
 	ProcessMonitor m_processMonitor;
 	NewlineFilter m_newlineFilter;
-	std::shared_ptr<Loopback> m_loopback;
+	Loopback* m_loopback;
 	Timer m_timer;
 
 	GuiExecutor m_guiExecutor;
