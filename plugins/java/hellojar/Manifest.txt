@@ -1,0 +1,2 @@
+Main-Class: nl.cobaltfusion.debugviewpp.HelloJar
+Class-Path: jna-4.1.0.jar

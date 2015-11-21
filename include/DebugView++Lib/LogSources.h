@@ -113,7 +113,7 @@ private:
 	Timer m_timer;
 
 	GuiExecutor m_guiExecutor;
-	bool m_dirty;
+	bool m_updatePending;
 	Update m_update;
 
 	// make sure this thread is last to initialize

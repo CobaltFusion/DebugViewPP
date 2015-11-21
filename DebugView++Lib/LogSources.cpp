@@ -44,7 +44,7 @@ LogSources::LogSources(bool startListening) :
 	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
 	m_linebuffer(64*1024),
 	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
-	m_dirty(false)
+	m_updatePending(false)
 {
 	
 	if (startListening)
@@ -153,7 +153,7 @@ const boost::chrono::milliseconds graceTime(40); // -> intentionally near what t
 
 void LogSources::OnUpdate()
 {
-	m_dirty = true;
+	m_updatePending = true;
 	m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 }
 
@@ -171,8 +171,8 @@ void LogSources::DelayedUpdate()
 	else
 	{
 		// no more messages where received
-		m_dirty = false;
-		// schedule one more update to workaround the race-condition writing to m_dirty
+		m_updatePending = false;
+		// schedule one more update to workaround the race-condition writing to m_updatePending
 		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
 		m_guiExecutor.CallAfter(graceTime, [this]() { m_update(); });
 	}
@@ -232,7 +232,7 @@ void LogSources::ListenUntilUpdateEvent()
 					m_guiExecutor.CallAsync([this, logsource] { InternalRemove(logsource); });
 					break;
 				}
-				if (!m_dirty)
+				if (!m_updatePending)
 					OnUpdate();
 			}
 		}

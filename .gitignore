@@ -10,3 +10,4 @@ ipch/
 
 DebugView++/version.wxi
 bin
+*.class
