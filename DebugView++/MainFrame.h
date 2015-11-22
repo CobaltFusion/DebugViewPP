@@ -222,9 +222,9 @@ private:
 	NOTIFYICONDATA m_notifyIconData;
 	LOGFONT m_logfont;
 	std::wstring m_applicationName;
-	std::shared_ptr<DBWinReader> m_pLocalReader;
-	std::shared_ptr<DBWinReader> m_pGlobalReader;
-	std::shared_ptr<DbgviewReader> m_pDbgviewReader;
+	DBWinReader* m_pLocalReader;
+	DBWinReader* m_pGlobalReader;
+	DbgviewReader* m_pDbgviewReader;
 	std::vector<SourceInfo> m_sourceInfos;
 };
 
