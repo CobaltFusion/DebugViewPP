@@ -504,14 +504,14 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 	if (point.x < rect.left + 32)
 	{
 		if (m_scrollX == 0)
-			SetTimer(1, 100, nullptr);
-		m_scrollX = -32;
+			SetTimer(1, 25, nullptr);
+		m_scrollX = -8;
 	}
 	else if (point.x > rect.right - 32)
 	{
 		if (m_scrollX == 0)
-			SetTimer(1, 100, nullptr);
-		m_scrollX = +32;
+			SetTimer(1, 25, nullptr);
+		m_scrollX = +8;
 	}
 	else
 	{
