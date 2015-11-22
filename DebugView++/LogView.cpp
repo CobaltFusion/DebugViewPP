@@ -492,12 +492,12 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
-	if (m_dragging)
-	{
-		m_dragEnd = point;
-		m_dragEnd.x += GetScrollPos(SB_HORZ);
-		Invalidate();
-	}
+	if (!m_dragging)
+		return;
+
+	m_dragEnd = point;
+	m_dragEnd.x += GetScrollPos(SB_HORZ);
+	Invalidate();
 
 	RECT rect;
 	GetClientRect(&rect);
@@ -526,6 +526,10 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
+
+	if (m_scrollX)
+		KillTimer(1);
+
 	if (!m_dragging)
 		return;
 
@@ -562,17 +566,7 @@ void CLogView::OnTimer(UINT_PTR nIDEvent)
 	if (nIDEvent != 1)
 		return;
 
-	CRect rect;
-	GetClientRect(&rect);
-	if (!rect.PtInRect(Win32::GetMessagePos()))
-	{
-		Scroll(CSize(m_scrollX, 0));
-	}
-	else
-	{
-		KillTimer(1);
-		m_scrollX = 0;
-	}
+	Scroll(CSize(m_scrollX, 0));
 }
 
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
