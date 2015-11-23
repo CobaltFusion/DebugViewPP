@@ -450,6 +450,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 	auto line = TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)));
 	auto pos = 0;
 	int min = 1000 * 1000;
+	bool found = false;
 	for (;;)
 	{
 		pos = line.find(m_highlightText, pos);
@@ -470,6 +471,12 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 		}
 
 		pos += m_highlightText.size();
+		found = true;
+	}
+	if (!found)
+	{
+		SetMsgHandled(false);
+		return;
 	}
 
 	StopTracking();
@@ -497,14 +504,14 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 	if (point.x < rect.left + 32)
 	{
 		if (m_scrollX == 0)
-			SetTimer(1, 100, nullptr);
-		m_scrollX = -32;
+			SetTimer(1, 25, nullptr);
+		m_scrollX = -8;
 	}
 	else if (point.x > rect.right - 32)
 	{
 		if (m_scrollX == 0)
-			SetTimer(1, 100, nullptr);
-		m_scrollX = +32;
+			SetTimer(1, 25, nullptr);
+		m_scrollX = +8;
 	}
 	else
 	{
@@ -519,6 +526,10 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 {
 	SetMsgHandled(false);
+
+	if (m_scrollX)
+		KillTimer(1);
+
 	if (!m_dragging)
 		return;
 
@@ -552,8 +563,10 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 
 void CLogView::OnTimer(UINT_PTR nIDEvent)
 {
-	if (nIDEvent == 1)
-		Scroll(CSize(m_scrollX, 0));
+	if (nIDEvent != 1)
+		return;
+
+	Scroll(CSize(m_scrollX, 0));
 }
 
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
