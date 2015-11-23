@@ -92,6 +92,7 @@ public:
 	boost::signals2::connection SubscribeToUpdate(Update::slot_type slot);
 
 private:
+	void UpdateSources();
 	void InternalRemove(LogSource*);
 	void UpdateSettings(const std::unique_ptr<LogSource>& pSource);
 	void Add(std::unique_ptr<LogSource> pSource);

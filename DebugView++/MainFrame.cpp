@@ -1230,7 +1230,6 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	auto pSources = m_logSources.GetSources();
 	for (auto it = pSources.begin(); it != pSources.end(); ++it)
 	{
-		// TODO: Redesign LogSource ownership mess
 		if (dynamic_cast<DbgviewReader*>(*it) || dynamic_cast<SocketReader*>(*it))
 			m_logSources.Remove(*it);
 	}

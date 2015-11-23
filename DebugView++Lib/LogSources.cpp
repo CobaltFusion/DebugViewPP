@@ -87,8 +87,7 @@ void LogSources::Add(std::unique_ptr<LogSource> pSource)
 
 void LogSources::Remove(LogSource* pLogSource)
 {
-	assert(m_guiExecutor.IsExecutorThread());
-	InternalRemove(pLogSource);
+	pLogSource->Abort();
 	Win32::SetEvent(m_updateEvent);
 }
 
@@ -196,6 +195,7 @@ void LogSources::ListenUntilUpdateEvent()
 		for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
 		{
 			auto source = it->get();
+			if (source->AtEnd()) continue;
 			HANDLE handle = source->GetHandle();
 			if (handle != INVALID_HANDLE_VALUE)
 			{
@@ -219,22 +219,36 @@ void LogSources::ListenUntilUpdateEvent()
 		{
 			int index = res.index - WAIT_OBJECT_0;
 			if (index == updateEventIndex)
-			{
 				break;
-			}
 			else
 			{
 				assert((index < static_cast<int>(sources.size())) && "res.index out of range");
 				auto logsource = sources[index];
 				logsource->Notify();
-				if (logsource->AtEnd())
-				{
-					m_guiExecutor.CallAsync([this, logsource] { InternalRemove(logsource); });
-					break;
-				}
 				if (!m_updatePending)
 					OnUpdate();
 			}
+		}
+	}
+	m_guiExecutor.Call([this] { UpdateSources(); });
+}
+
+void LogSources::UpdateSources()
+{
+	std::vector<LogSource*> sources;
+	{
+		boost::mutex::scoped_lock lock(m_mutex);
+		for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
+		{
+			sources.push_back(it->get());
+		}
+	}
+
+	for (auto it = sources.begin(); it != sources.end(); ++it)
+	{
+		if ((*it)->AtEnd())
+		{
+			InternalRemove(*it);
 		}
 	}
 }

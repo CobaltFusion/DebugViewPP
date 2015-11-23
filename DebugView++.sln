@@ -50,6 +50,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++Test", "DebugVie
 		{7AA3A43A-F0CD-4BD8-BC04-5A30F7260C38} = {7AA3A43A-F0CD-4BD8-BC04-5A30F7260C38}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{997ACF6D-C484-4738-AD85-9259543F8F9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMonitor", "plugins\cs\HttpMonitor\HttpMonitor.csproj", "{229C866B-8DD9-49FF-91D0-0B8B30448F03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -221,8 +225,25 @@ Global
 		{49BDA8E7-213A-44E2-BEDB-C599E07B8DA7}.Release|x64.ActiveCfg = Release|x64
 		{49BDA8E7-213A-44E2-BEDB-C599E07B8DA7}.Release|x64.Build.0 = Release|x64
 		{49BDA8E7-213A-44E2-BEDB-C599E07B8DA7}.Release|x86.ActiveCfg = Release|Win32
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|Win32.ActiveCfg = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|Win32.Build.0 = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|x64.ActiveCfg = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|x86.ActiveCfg = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Debug|x86.Build.0 = Debug|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|Mixed Platforms.Build.0 = Release|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|Win32.ActiveCfg = Release|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|Win32.Build.0 = Release|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|x64.ActiveCfg = Release|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|x86.ActiveCfg = Release|x86
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03} = {997ACF6D-C484-4738-AD85-9259543F8F9C}
 	EndGlobalSection
 EndGlobal
