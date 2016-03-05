@@ -121,6 +121,7 @@ public:
 
 protected:
 	void SetExecutorThread();
+	void SetExecutorThread(boost::thread::id id);
 	void Add(std::function<void ()> fn);
 
 	template <typename Clock, typename Duration>

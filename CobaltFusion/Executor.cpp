@@ -173,6 +173,11 @@ void Executor::SetExecutorThread()
 	m_threadId = boost::this_thread::get_id();
 }
 
+void Executor::SetExecutorThread(boost::thread::id id)
+{
+    m_threadId = id;
+}
+
 void Executor::Add(std::function<void ()> fn)
 {
 	m_q.Push(fn);
@@ -227,6 +232,7 @@ ActiveExecutor::ActiveExecutor() :
 	m_end(false),
 	m_thread([this] { Run(); })
 {
+	SetExecutorThread(m_thread.get_id());
 }
 
 ActiveExecutor::~ActiveExecutor()
