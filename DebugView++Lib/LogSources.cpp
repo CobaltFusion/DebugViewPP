@@ -214,6 +214,7 @@ void LogSources::ListenUntilUpdateEvent()
 	{
 		m_loopback->Signal();
 		auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
+		if (m_end) return;
 
 		if (res.signaled)
 		{
