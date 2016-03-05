@@ -282,7 +282,7 @@ void OpenLogFile(std::ofstream& ofstream, const std::wstring& filename, OpenMode
 	if (mode == OpenMode::Truncate)
 	{
 		// intentionally maintain the same amount of Columnns, so it is always easy to parse by csv import tools
-		WriteLogFileMessage(ofstream, 0, FILETIME(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
+		WriteLogFileMessage(ofstream, 0, Win32::GetSystemTimeAsFileTime(), 0, "DebugView++.exe", g_debugViewPPIdentification1);
 	}
 }
 
