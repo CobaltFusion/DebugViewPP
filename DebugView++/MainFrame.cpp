@@ -62,6 +62,8 @@ CLogView& CLogViewTabItem::GetView()
 BEGIN_MSG_MAP2(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
+	MSG_WM_QUERYENDSESSION(OnQueryEndSession)
+	MSG_WM_ENDSESSION(OnEndSession)
 	MSG_WM_MOUSEWHEEL(OnMouseWheel)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_DROPFILES(OnDropFiles)
@@ -232,6 +234,21 @@ void CMainFrame::OnClose()
 	fclose(stdout);
 	FreeConsole();
 #endif
+}
+
+LRESULT CMainFrame::OnQueryEndSession(WPARAM, LPARAM)
+{
+	// MSDN: 
+	// The WM_QUERYENDSESSION message is sent when the user chooses to end the session or when an application calls one of the system shutdown functions
+	// When an application returns TRUE for this message, it receives the WM_ENDSESSION message.
+	// Each application should return TRUE or FALSE immediately upon receiving this message, and defer any cleanup operations until it receives the WM_ENDSESSION message.
+	return TRUE;
+}
+
+LRESULT CMainFrame::OnEndSession(WPARAM, LPARAM)
+{
+	OnClose();
+	return TRUE;
 }
 
 void CMainFrame::UpdateUI()

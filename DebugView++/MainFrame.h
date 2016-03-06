@@ -128,6 +128,8 @@ private:
 	void OnException(const std::exception& ex);
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
+	LRESULT OnQueryEndSession(WPARAM wParam, LPARAM lParam);
+	LRESULT OnEndSession(WPARAM wParam, LPARAM lParam);
 	bool OnUpdate();
 	bool OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void ProcessLines(const Lines& lines);
