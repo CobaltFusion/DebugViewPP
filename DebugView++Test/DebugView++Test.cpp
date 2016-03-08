@@ -10,6 +10,7 @@
 #define BOOST_TEST_MODULE DebugView++Lib Unit Test
 #include <boost/test/unit_test_gui.hpp>
 #include <random>
+#include <fstream>
 
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
@@ -22,6 +23,7 @@
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/LogFile.h"
+#include "DebugView++Lib/FileIO.h"
 #include "CobaltFusion/scope_guard.h"
 
 namespace fusion {
@@ -248,6 +250,26 @@ BOOST_AUTO_TEST_CASE(TimeZoneTest)
 	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2"));
 	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3"));
 	BOOST_REQUIRE_EQUAL(logFile.Count(), 3);
+
+	// todo save file test
+	std::string filename = "some_unique_test_filename";
+	std::ofstream fs;
+	OpenLogFile(fs, WStr(filename));
+	int count = logFile.Count();
+	for (int i = 0; i < count; ++i)
+	{
+		auto msg = logFile[i];
+		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
+	}
+	fs.close();
+
+	// load file test
+	std::ifstream file(filename);
+	Line line;
+	line.processName = "process";
+	line.systemTime = Win32::GetSystemTimeAsFileTime();
+	while (ReadLogFileMessage(file, line))
+		std::cout << "line: " << line.message << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
