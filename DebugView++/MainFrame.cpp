@@ -978,7 +978,7 @@ void CMainFrame::SetTitle(const std::wstring& title)
 void CMainFrame::Load(HANDLE hFile)
 {
 	hstream file(hFile);
-	FILETIME ft = { 0 };
+	FILETIME ft = Win32::GetSystemTimeAsFileTime();
 	Load(file, "", ft);
 }
 
@@ -1271,11 +1271,10 @@ void CMainFrame::AddLogSource(const SourceInfo& info)
 		m_logSources.AddUDPReader(info.port);
 		break;
 	case SourceType::Tcp:
-		// implement
-		break;
+		throw std::exception("SourceType::Tcp not implememted");
 	default:
 		// do nothing
-		break;
+		throw std::exception("SourceType not implememted");
 	}
 }
 

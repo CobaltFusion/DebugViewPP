@@ -165,8 +165,18 @@ FILETIME GetSystemTimeAsFileTime()
 	return ft;
 }
 
+void ThrowIfZero(const FILETIME& ft)
+{
+	// zero'd FILETIME conversions will fail in UTC-n, now they will always fail.
+	if (ft.dwHighDateTime == 0 && ft.dwLowDateTime == 0)
+	{
+		throw std::exception("FILETIME == 0!");
+	}
+}
+
 FILETIME FileTimeToLocalFileTime(const FILETIME& ft)
 {
+	ThrowIfZero(ft);
 	FILETIME ftLocal;
 	if (!::FileTimeToLocalFileTime(&ft, &ftLocal))
 		ThrowLastError("FileTimeToLocalFileTime");
@@ -175,6 +185,7 @@ FILETIME FileTimeToLocalFileTime(const FILETIME& ft)
 
 FILETIME LocalFileTimeToFileTime(const FILETIME& ftLocal)
 {
+	ThrowIfZero(ftLocal);
 	FILETIME ft;
 	if (!::LocalFileTimeToFileTime(&ftLocal, &ft))
 		ThrowLastError("LocalFileTimeToFileTime");
@@ -183,6 +194,7 @@ FILETIME LocalFileTimeToFileTime(const FILETIME& ftLocal)
 
 SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft)
 {
+	ThrowIfZero(ft);
 	SYSTEMTIME st;
 	if (!::FileTimeToSystemTime(&ft, &st))
 		ThrowLastError("FileTimeToSystemTime");

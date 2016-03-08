@@ -21,6 +21,8 @@
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/TestSource.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
+#include "DebugView++Lib/LogFile.h"
+#include "CobaltFusion/scope_guard.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -188,12 +190,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	auto logsource = logsources.AddTestSource();
 
 	Timer timer;
-
-	BOOST_MESSAGE("add line");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
-	BOOST_MESSAGE("add line");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2");
-	BOOST_MESSAGE("add line");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
 	BOOST_MESSAGE("3 lines added.");
 
@@ -218,6 +216,38 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	auto morelines = logsources.GetLines();
 	BOOST_MESSAGE("received: " << morelines.size() << " lines.");
 	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
+}
+
+BOOST_AUTO_TEST_CASE(TimeZoneTest)
+{
+	Win32::SetPrivilege(SE_TIME_ZONE_NAME, true);
+	
+	TIME_ZONE_INFORMATION tz;
+	GetTimeZoneInformation(&tz);
+	auto tzGuard = make_guard([tz] { SetTimeZoneInformation(&tz); });
+
+	TIME_ZONE_INFORMATION testTz = tz;
+	testTz.Bias = -480;
+	SetTimeZoneInformation(&testTz);
+
+	LogSources logsources(false);
+	auto logsource = logsources.AddTestSource();
+	//int counter = 0;
+	//logsources.SubscribeToUpdate([&counter] () -> bool { counter++; return true; });
+
+	Timer timer;
+	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
+	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2");
+	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
+
+	auto lines = logsources.GetLines();
+	BOOST_REQUIRE_EQUAL(lines.size(), 3);
+
+	LogFile logFile;
+	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1"));
+	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2"));
+	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3"));
+	BOOST_REQUIRE_EQUAL(logFile.Count(), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -276,7 +276,7 @@ Lines LogSources::GetLines()
 	Lines lines;
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it)
 	{
-		auto inputLine = *it;
+		auto& inputLine = *it;
 		// let the logsource decide how to create processname
 		if (inputLine.pLogSource)
 		{
