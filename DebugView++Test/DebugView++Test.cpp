@@ -24,6 +24,7 @@
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
+#include "DebugView++Lib/Conversions.h"
 #include "CobaltFusion/scope_guard.h"
 
 namespace fusion {
@@ -52,6 +53,149 @@ public:
 		throw std::exception("WaitForReader timeout");
 	}
 };
+
+
+class ScopedTimezoneBias
+{
+public:
+	ScopedTimezoneBias(LONG Bias)
+	{
+		Win32::SetPrivilege(SE_TIME_ZONE_NAME, true);
+		GetTimeZoneInformation(&m_tz);
+		TIME_ZONE_INFORMATION tz = m_tz;
+		tz.Bias = Bias;
+		SetTimeZoneInformation(&tz);
+	}
+
+	~ScopedTimezoneBias()
+	{
+		SetTimeZoneInformation(&m_tz);
+		Win32::SetPrivilege(SE_TIME_ZONE_NAME, false);
+	}
+private:
+	TIME_ZONE_INFORMATION m_tz;
+};
+
+std::string SaveLogFile(const LogFile& logfile)
+{
+	std::string filename = "SaveLoadLogFile_unique_test_filename";
+	std::ofstream fs;
+	OpenLogFile(fs, WStr(filename), OpenMode::Truncate);
+	int count = logfile.Count();
+	for (int i = 0; i < count; ++i)
+	{
+		auto msg = logfile[i];
+		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
+	}
+	fs.close();
+	return filename;
+}
+
+LogFile LoadLogFile(const std::string& filename)
+{
+	// load file test
+	std::ifstream file(filename);
+	Line line;
+	line.processName = "process";
+	line.systemTime = Win32::GetSystemTimeAsFileTime();
+	LogFile result;
+	ReadLogFileMessage(file, line);		// ignore header
+	while (ReadLogFileMessage(file, line))
+		result.Add(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
+	return result;
+}
+
+bool AreEqual(const Message& a, const Message& b)
+{
+	if (std::fabs(a.time - b.time) > 0.000001) return false;
+	if (GetTimeText(a.systemTime) != GetTimeText(b.systemTime)) return false;
+	if (a.processId != b.processId) return false;
+	if (a.processName != b.processName) return false;
+	if (a.text != b.text) return false;
+	//if (a.color != b.color) return false;	// not stored in file
+	return true;
+}
+
+bool AreEqual(const LogFile& a, const LogFile& b)
+{
+	if (a.Count() != b.Count())
+		return false;
+	int count = a.Count();
+	for (int i = 0; i < count; ++i)
+	{
+		if (!AreEqual(a[i], b[i]))
+			return false;
+	}
+	return true;
+}
+
+BOOST_AUTO_TEST_CASE(TimeZone)
+{
+	Timer timer;
+	LogFile logFile;
+	auto t1 = Win32::GetSystemTimeAsFileTime();
+	logFile.Add(Message(timer.Get(), t1, 0, "processname", "test message 1"));
+	auto t2 = Win32::GetSystemTimeAsFileTime();
+	logFile.Add(Message(timer.Get(), t2, 0, "processname", "test message 2"));
+	auto t3 = Win32::GetSystemTimeAsFileTime();
+	logFile.Add(Message(timer.Get(), t3, 0, "processname", "test message 3"));
+	auto t4 = Win32::GetSystemTimeAsFileTime();
+	logFile.Add(Message(0, t4, 0, "processname", "message 4 (zero time message)"));
+
+	BOOST_MESSAGE("UTC");
+	{
+		ScopedTimezoneBias(0);
+		auto result = LoadLogFile(SaveLogFile(logFile));
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+	BOOST_MESSAGE("(UTC-8) Fremond");
+	{
+		ScopedTimezoneBias(-480);
+		auto result = LoadLogFile(SaveLogFile(logFile));
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+	BOOST_MESSAGE("(UTC+8:30) Pyongyang Standard Time");
+	{
+		ScopedTimezoneBias(+510);
+		auto result = LoadLogFile(SaveLogFile(logFile));
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+	BOOST_MESSAGE("test boundry case (UTC-12) Baker- / Howland Island (uninhabited islands belonging to the United States)");
+	{
+		ScopedTimezoneBias(-720);
+		auto result = LoadLogFile(SaveLogFile(logFile));
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+	BOOST_MESSAGE("test boundry case (UTC+14) Kiritimati (Christmas Island, also uninhabited, part of the Kiribati Line Islands)");
+	{
+		ScopedTimezoneBias(+720);
+		auto result = LoadLogFile(SaveLogFile(logFile));
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+
+	// test crossing timezones 
+	BOOST_MESSAGE("test sending a logfile into the past (UTC -> UTC-8)");
+	{
+		auto filename = SaveLogFile(logFile);
+		ScopedTimezoneBias(-480);
+		auto result = LoadLogFile(filename);
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+
+	// test crossing timezones 
+	BOOST_MESSAGE("test sending a logfile into the future (UTC-8 -> UTC)");
+	{
+		std::string filename;
+		{
+			ScopedTimezoneBias(-480);
+			filename = SaveLogFile(logFile);
+		}
+		auto result = LoadLogFile(filename);
+		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+	}
+
+}
+
 
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
@@ -218,58 +362,6 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	auto morelines = logsources.GetLines();
 	BOOST_MESSAGE("received: " << morelines.size() << " lines.");
 	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
-}
-
-BOOST_AUTO_TEST_CASE(TimeZoneTest)
-{
-	Win32::SetPrivilege(SE_TIME_ZONE_NAME, true);
-	
-	TIME_ZONE_INFORMATION tz;
-	GetTimeZoneInformation(&tz);
-	auto tzGuard = make_guard([tz] { SetTimeZoneInformation(&tz); });
-
-	TIME_ZONE_INFORMATION testTz = tz;
-	testTz.Bias = -480;
-	SetTimeZoneInformation(&testTz);
-
-	LogSources logsources(false);
-	auto logsource = logsources.AddTestSource();
-	//int counter = 0;
-	//logsources.SubscribeToUpdate([&counter] () -> bool { counter++; return true; });
-
-	Timer timer;
-	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
-	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2");
-	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
-
-	auto lines = logsources.GetLines();
-	BOOST_REQUIRE_EQUAL(lines.size(), 3);
-
-	LogFile logFile;
-	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1"));
-	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2"));
-	logFile.Add(Message(0.0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3"));
-	BOOST_REQUIRE_EQUAL(logFile.Count(), 3);
-
-	// todo save file test
-	std::string filename = "some_unique_test_filename";
-	std::ofstream fs;
-	OpenLogFile(fs, WStr(filename));
-	int count = logFile.Count();
-	for (int i = 0; i < count; ++i)
-	{
-		auto msg = logFile[i];
-		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
-	}
-	fs.close();
-
-	// load file test
-	std::ifstream file(filename);
-	Line line;
-	line.processName = "process";
-	line.systemTime = Win32::GetSystemTimeAsFileTime();
-	while (ReadLogFileMessage(file, line))
-		std::cout << "line: " << line.message << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
