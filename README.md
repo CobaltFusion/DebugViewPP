@@ -54,14 +54,21 @@ Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
 
-Download latest version
+Changes in 1.6.x:
+- restructuring log-sources code 
+- experimental horizontal scrolling by dragging mouse
+- fixed crash when saving files in UTC-n timezones
+- fixed crash when pause/unpausing
+
+
+Download latest version (20 Sept 2015)
 -----------------------
 + [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.zip)
 + [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.msi)
 
-Experimental version
+Experimental version (10 March 2016)
 -----------------------
-+ [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++Drugoy_release.zip)
++ [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2016_03_10.zip)
 
 Older version
 -------------------------------
