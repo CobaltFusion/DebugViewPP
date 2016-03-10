@@ -196,7 +196,6 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 
 }
 
-
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
 	HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
@@ -363,6 +362,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesTest)
 	BOOST_MESSAGE("received: " << morelines.size() << " lines.");
 	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
 }
+
+// add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
 
 BOOST_AUTO_TEST_SUITE_END()
 
