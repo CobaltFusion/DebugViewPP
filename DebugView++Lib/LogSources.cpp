@@ -270,6 +270,16 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 	});
 }
 
+bool LogSources::LogSourceExists(const LogSource* pLogSource) const
+{
+	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+	{
+		auto source = it->get();
+		if (pLogSource == source) return true;
+	}
+	return false;
+}
+
 Lines LogSources::GetLines()
 {
 	auto inputLines = m_linebuffer.GetLines();
@@ -277,6 +287,8 @@ Lines LogSources::GetLines()
 	for (auto it = inputLines.begin(); it != inputLines.end(); ++it)
 	{
 		auto& inputLine = *it;
+		if (!LogSourceExists(inputLine.pLogSource)) continue;
+
 		// let the logsource decide how to create processname
 		if (inputLine.pLogSource)
 		{

@@ -100,6 +100,7 @@ private:
 	void OnUpdate();
 	void DelayedUpdate();
 	Loopback* CreateLoopback(Timer& timer, ILineBuffer& lineBuffer);
+	bool LogSourceExists(const LogSource* pLogSource) const;
 
 	bool m_autoNewLine;
 	mutable boost::mutex m_mutex;
