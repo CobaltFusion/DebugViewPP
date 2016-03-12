@@ -19,7 +19,11 @@ class ILineBuffer;
 struct PollLine
 {
 	PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
+	PollLine(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
 
+	bool timesValid;
+	double time;
+	FILETIME systemTime;
 	DWORD pid;
 	std::string processName;
 	std::string message;
@@ -40,6 +44,8 @@ public:
 	// can be used to add messages from any thread. The typical use-case are messages from the UI thread.
 	void AddMessage(DWORD pid, const std::string& processName, const std::string& message);
 	void AddMessage(const std::string& message);
+	void AddMessage(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
+
 	void Signal();
 	void StartThread();
 

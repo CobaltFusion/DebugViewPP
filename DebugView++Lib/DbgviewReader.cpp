@@ -77,7 +77,7 @@ void DbgviewReader::Loop()
 
 	if (!m_iostream || qpFrequency == 0)
 	{
-		Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
+		LogSource::Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
 		Signal();
 		return;
 	}
@@ -87,7 +87,7 @@ void DbgviewReader::Loop()
 	Write<DWORD>(m_iostream, Magic::PassThroughDisable);
 
 	double timerUnit = 1. / qpFrequency;
-	Add(stringbuilder() << "Connected to " << GetDescription());
+	AddMessage(stringbuilder() << "Connected to " << GetDescription());
 	Signal();
 
 	while (!AtEnd())
@@ -97,14 +97,14 @@ void DbgviewReader::Loop()
 		
 		if (m_iostream.eof())
 		{
-			Add(stringbuilder() << "Connected to " << GetDescription() << " closed.");
+			AddMessage(stringbuilder() << "Connected to " << GetDescription() << " closed.");
 			LogSource::Abort();
 			break;
 		}
 
 		if (!m_iostream || messageLength >= 0x7fffffff)
 		{
-			Add(0, processName, "<error parsing messageLength>\n");
+			AddMessage(0, processName, "<error parsing messageLength>\n");
 			Signal();
 			break;
 		}
@@ -142,7 +142,7 @@ void DbgviewReader::Loop()
 				unsigned char c1, c2;
 				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::ColumnnOneMark && c2 == Magic::ColumnnTwoMark))
 				{
-					Add(0, processName, "<error parsing pid>\n");
+					AddMessage(0, processName, "<error parsing pid>\n");
 					break;
 				}
 				Read(ss, 1);	// discard one leading space
@@ -151,7 +151,7 @@ void DbgviewReader::Loop()
 			std::getline(ss, msg, '\0'); 
 
 			msg.push_back('\n');
-			Add(time, filetime, pid, processName, msg);
+			AddMessage(time, filetime, pid, processName, msg);
 
 			// strangely, messages are always send in multiples of 4 bytes.
 			// this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.

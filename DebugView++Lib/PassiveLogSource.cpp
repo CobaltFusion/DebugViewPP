@@ -14,6 +14,19 @@ namespace fusion {
 namespace debugviewpp {
 
 PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
+	timesValid(false),
+	time(0.0),
+	systemTime(FILETIME()),
+	pid(pid),
+	processName(processName),
+	message(message),
+	pLogSource(pLogSource)
+{
+}
+PollLine::PollLine(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
+	timesValid(true),
+	time(time),
+	systemTime(systemTime),
 	pid(pid),
 	processName(processName),
 	message(message),
@@ -72,8 +85,12 @@ void PassiveLogSource::Notify()
 	}
 
 	for (auto it = m_backBuffer.cbegin(); it != m_backBuffer.cend(); ++it)
-		Add(it->pid, it->processName, it->message);
-
+	{
+		if (it->timesValid)
+			Add(it->time, it->systemTime, it->pid, it->processName, it->message);
+		else
+			Add(it->pid, it->processName, it->message);
+	}
 	m_backBuffer.clear();
 }
 
@@ -91,6 +108,11 @@ void PassiveLogSource::AddMessage(const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
 	m_lines.push_back(PollLine(0, "[internal]", message, this));
+}
+
+void PassiveLogSource::AddMessage(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message)
+{
+	m_lines.push_back(PollLine(time, systemTime, pid, processName, message, this));
 }
 
 void PassiveLogSource::Signal()
