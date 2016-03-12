@@ -61,7 +61,7 @@ Changes in 1.6.x:
 - fixed crash when pause/unpausing
 
 
-Download latest version (20 Sept 2015)
+Download latest version (stable branch, from 20 Sept 2015)
 -----------------------
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
