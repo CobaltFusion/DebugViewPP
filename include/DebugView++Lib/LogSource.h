@@ -32,7 +32,7 @@ public:
 
 	virtual void Abort();
 
-	// return when true is returned, the Logsource is removed from LogSources and usually the means it leave scope
+	// when true is returned, the Logsource is removed from LogSources and then destroyed.
 	virtual bool AtEnd() const;
 
 	// return a handle to wait for, Notify() is called when the handle is signaled
@@ -42,7 +42,7 @@ public:
 	virtual void Notify() = 0;
 
 	// called for each line before it is added to the view,
-	// typically used to modify the processname for non-dbwin logsources
+	// typically used to set the processname
 	virtual void PreProcess(Line& line) const;
 
 	std::wstring GetDescription() const;

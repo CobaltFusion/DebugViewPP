@@ -55,7 +55,7 @@ void DBWinReader::Notify()
 		LogSource::Add(stringbuilder() << error.what() << ", data: " <<  m_dbWinBuffer->data << " (pid: " << m_dbWinBuffer->processId << ")");
 	}
 #endif
-	// performance does not improve significantly (almost immeasurable) without the GetSystemTimeAsFileTime call, not without the OpenProcess call.
+	// performance does not improve significantly (almost immeasurable) without the GetSystemTimeAsFileTime call, nor without the OpenProcess call.
 	Add(m_dbWinBuffer->data, handle);
 	SetEvent(m_dbWinBufferReady.get());
 }
