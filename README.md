@@ -36,7 +36,7 @@ These are some of its features:
 - support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-Added in 1.4:
+Added in 1.5:
 
 - added console version (DebugViewConsole.exe) for use without UI
 - several minor UI bugs fixed
@@ -63,8 +63,8 @@ Changes in 1.6.x:
 
 Download latest version (20 Sept 2015)
 -----------------------
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.msi)
++ [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
++ [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
 
 Experimental version (12 March 2016)
 -----------------------
