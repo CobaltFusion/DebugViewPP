@@ -31,12 +31,12 @@ These are some of its features:
 - add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
 - clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
-- continuous logging to file commandline option
-- tailing our own logfiles over samba network
+- continuous logging to file commandline option (experimental)
+- tailing our own logfiles over samba network (experimental)
 - support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
-Added in 1.4:
+Added in 1.5:
 
 - added console version (DebugViewConsole.exe) for use without UI
 - several minor UI bugs fixed
@@ -49,6 +49,7 @@ Added in 1.4:
 - save filters after changing instead of only at exit
 - moved filters out of sub-menu and add shortcut keys (try highlighting a word and pressing delete)
 - add basic support for tailing unicode logfiles (unicode characters are truncated)
+- fixed crash when saving files in UTC-n timezones
  
 Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
@@ -57,18 +58,17 @@ Not new features, but often overlooked, see below for details
 Changes in 1.6.x:
 - restructuring log-sources code 
 - experimental horizontal scrolling by dragging mouse
-- fixed crash when saving files in UTC-n timezones
-- fixed crash when pause/unpausing
+- fixed a bug in version 1.6.48 that prevented dbgview-agent messages from showing
 
-
-Download latest version (20 Sept 2015)
+Download latest version (stable branch, from 20 Sept 2015)
 -----------------------
-+ [DebugView v1.4.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.zip)
-+ [DebugView v1.4.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2015_09_20.msi)
++ [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
++ [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
 
-Experimental version (10 March 2016)
+Experimental version (12 March 2016)
 -----------------------
-+ [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2016_03_10.zip)
++ [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2016_03_12.zip)
++ [DebugView v1.6.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2016_03_12.msi)
 
 Older version
 -------------------------------
