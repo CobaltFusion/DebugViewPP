@@ -31,8 +31,8 @@ These are some of its features:
 - add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
 - clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
-- continuous logging to file commandline option
-- tailing our own logfiles over samba network
+- continuous logging to file commandline option (experimental)
+- tailing our own logfiles over samba network (experimental)
 - support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
 - implemented tailing overwritten/skrinking logfiles
 
