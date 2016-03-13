@@ -46,8 +46,8 @@ namespace Magic
 	const int Base = 0x83050000;
 	const int CaptureKernelEnable = Base + 0x00;              // 0
 	const int CaptureKernelDisable = Base + 0x04;             // 1
-	const int Unknown1 = Base + 0x08;                         // 2 
-	const int Unknown2 = Base + 0x0C;                         // 3 
+	const int VerboseKernelMessagesEnable = Base + 0x08;      // 2	// Meaning of these 'VerboseKernel' values was never confirmed
+	const int VerboseKernelMessagesDisable = Base + 0x0C;     // 3	// 
 	const int PassThroughEnable = Base + 0x10;                // 4
 	const int PassThroughDisable = Base + 0x14;               // 5
 	const int CaptureWin32Enable = Base + 0x18;               // 6
@@ -66,10 +66,6 @@ void DbgviewReader::Loop()
 	//Write<DWORD>(m_iostream, Magic::Base + 0x24);	
 	//Read<DWORD>(m_iostream);					// 0x7fffffff
 
-	// unknown command (dbgview sends it after connect, but without it all seems fine too)
-	// maybe 0x08 turns something on, and 0x0C turns it off? (following the logic of the enums)
-	//Write<DWORD>(m_iostream, Magic::Base + 0x08);	
-
 	Write<DWORD>(m_iostream, Magic::RequestQueryPerformanceFrequency);
 	auto qpFrequency = Read<DWORD>(m_iostream); // 0x0023ae93
 	long long t0 = 0;
@@ -83,8 +79,9 @@ void DbgviewReader::Loop()
 	}
 
 	Write<DWORD>(m_iostream, Magic::CaptureKernelEnable);
-	Write<DWORD>(m_iostream, Magic::CaptureWin32Disable);
-	Write<DWORD>(m_iostream, Magic::PassThroughDisable);
+	Write<DWORD>(m_iostream, Magic::VerboseKernelMessagesEnable);
+	Write<DWORD>(m_iostream, Magic::CaptureWin32Enable);
+	Write<DWORD>(m_iostream, Magic::PassThroughEnable);
 
 	double timerUnit = 1. / qpFrequency;
 	AddMessage(stringbuilder() << "Connected to " << GetDescription());
@@ -99,12 +96,13 @@ void DbgviewReader::Loop()
 		{
 			AddMessage(stringbuilder() << "Connected to " << GetDescription() << " closed.");
 			LogSource::Abort();
+			Signal();
 			break;
 		}
 
 		if (!m_iostream || messageLength >= 0x7fffffff)
 		{
-			AddMessage(0, processName, "<error parsing messageLength>\n");
+			AddMessage(0, processName, "<error parsing messageLength>");
 			Signal();
 			break;
 		}
@@ -142,15 +140,14 @@ void DbgviewReader::Loop()
 				unsigned char c1, c2;
 				if (!((ss >> c1 >> pid >> c2) && c1 == Magic::ColumnnOneMark && c2 == Magic::ColumnnTwoMark))
 				{
-					AddMessage(0, processName, "<error parsing pid>\n");
+					AddMessage(0, processName, "<error parsing pid>");
 					break;
 				}
 				Read(ss, 1);	// discard one leading space
 			}
 
 			std::getline(ss, msg, '\0'); 
-
-			msg.push_back('\n');
+			msg.push_back('\n');				//todo: newlines are not coming from the source, is getline removing them?
 			AddMessage(time, filetime, pid, processName, msg);
 
 			// strangely, messages are always send in multiples of 4 bytes.

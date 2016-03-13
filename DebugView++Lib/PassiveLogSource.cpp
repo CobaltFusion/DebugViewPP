@@ -107,7 +107,8 @@ void PassiveLogSource::AddMessage(DWORD pid, const std::string& processName, con
 void PassiveLogSource::AddMessage(const std::string& message)
 {
 	boost::mutex::scoped_lock lock(m_mutex);
-	m_lines.push_back(PollLine(0, "[internal]", message, this));
+	std::string msg = message + "\n";
+	m_lines.push_back(PollLine(0, "[internal]", msg, this));
 }
 
 void PassiveLogSource::AddMessage(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message)
