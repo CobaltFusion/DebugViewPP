@@ -49,6 +49,7 @@ Added in 1.5:
 - save filters after changing instead of only at exit
 - moved filters out of sub-menu and add shortcut keys (try highlighting a word and pressing delete)
 - add basic support for tailing unicode logfiles (unicode characters are truncated)
+- fixed crash when saving files in UTC-n timezones
  
 Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
@@ -57,9 +58,7 @@ Not new features, but often overlooked, see below for details
 Changes in 1.6.x:
 - restructuring log-sources code 
 - experimental horizontal scrolling by dragging mouse
-- fixed crash when saving files in UTC-n timezones
-- fixed crash when pause/unpausing
-
+- fixed a bug in version 1.6.48 that prevented dbgview-agent messages from showing
 
 Download latest version (stable branch, from 20 Sept 2015)
 -----------------------
