@@ -57,6 +57,37 @@ namespace Magic
 	const int RequestQueryPerformanceFrequency = Base + 0x28; // A
 };
 
+template <typename T>
+std::string ToHex(const T& s)
+{
+	std::ostringstream result;
+	result << "[" << s.size() << "] ";
+
+	for (size_t i = 0; i < s.size(); ++i)
+		result << std::hex << std::setfill('0') << std::setw(2) << std::uppercase << ((int)s[i] & 0xff) << " ";
+	return result.str();
+}
+
+template <typename T>
+std::string ToChar(const T& s)
+{
+	std::ostringstream result;
+	result << "[" << s.size() << "] ";
+
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		if (s[i] > 32)
+		{
+			result << std::setfill(' ') << std::setw(2) << (char)s[i] << " ";
+		}
+		else
+		{
+			result << " . ";
+		}
+	}
+	return result.str();
+}
+
 void DbgviewReader::Loop()
 {
 	m_iostream.connect(m_hostname, SysinternalsDebugViewAgentPort);
@@ -146,8 +177,12 @@ void DbgviewReader::Loop()
 				Read(ss, 1);	// discard one leading space
 			}
 
+			// todo: the protocol does not embed \n into the string, so getline works.
+			// however, we are missing the information how newlines _are_ send... so for now, we always add a newline
+			// tested: dbgview can remote-receive newline and not-newline terminated lines, the difference can be observed by turning 'Option->Force Carriage Returns' off.
+			// 
 			std::getline(ss, msg, '\0'); 
-			msg.push_back('\n');				//todo: newlines are not coming from the source, is getline removing them?
+			msg.push_back('\n');
 			AddMessage(time, filetime, pid, processName, msg);
 
 			// strangely, messages are always send in multiples of 4 bytes.
