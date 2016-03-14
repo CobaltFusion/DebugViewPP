@@ -67,7 +67,7 @@ void FileReader::ReadUntilEof()
 {
 	std::string line;
 	while (std::getline(m_ifstream, line))
-		AddLine(line);
+		SafeAddLine(line);
 
 	if (m_ifstream.eof()) 
 	{
@@ -90,8 +90,21 @@ void FileReader::ReadUntilEof()
 	}
 }
 
+void FileReader::SafeAddLine(const std::string& line)
+{
+	try 
+	{
+		AddLine(line);
+	}
+	catch (std::exception& e)
+	{
+		Add(stringbuilder() << "Error parsing line: " << e.what());
+	}
+}
+
 void FileReader::AddLine(const std::string& line)
 {
+	// DBLogReader and BinaryFileReader override this method
 	Add(line);
 }
 

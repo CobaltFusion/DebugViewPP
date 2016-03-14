@@ -36,6 +36,7 @@ protected:
 	FileType::type m_fileType;
 
 private:
+	void SafeAddLine(const std::string& line);
 	void ReadUntilEof();
 
 	bool m_end;
