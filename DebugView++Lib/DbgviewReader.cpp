@@ -119,7 +119,15 @@ void DbgviewReader::Loop()
 	Write<DWORD>(m_iostream, Magic::VerboseKernelMessagesEnable);
 	Write<DWORD>(m_iostream, Magic::CaptureWin32Enable);
 	Write<DWORD>(m_iostream, Magic::PassThroughEnable);
-	Write<DWORD>(m_iostream, Magic::ForceCarriageReturnsEnable);
+
+	if (GetAutoNewLine())
+	{
+		Write<DWORD>(m_iostream, Magic::ForceCarriageReturnsEnable);
+	}
+	else
+	{
+		Write<DWORD>(m_iostream, Magic::ForceCarriageReturnsDisable);
+	}
 
 	double timerUnit = 1. / qpFrequency;
 	AddMessage(stringbuilder() << "Connected to " << GetDescription());
@@ -156,10 +164,6 @@ void DbgviewReader::Loop()
 		std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
 		ss.write(buffer.data(), buffer.size());
 
-		AddMessage(stringbuilder() << ToChar(buffer));
-		AddMessage(stringbuilder() << ToHex(buffer));
-		Signal();
-
 		DWORD pid = 0;
 		std::string msg;
 		for (;;)
@@ -185,18 +189,11 @@ void DbgviewReader::Loop()
 					AddMessage(0, processName, "<error parsing pid>");
 					break;
 				}
-				auto t = Read(ss, 1);	// discard one leading space
-				AddMessage(stringbuilder() << ToChar(t));
-				AddMessage(stringbuilder() << ToHex(t));
-				Signal();
+				Read(ss, 1);	// discard one leading space
 			}
 
-			// todo: the protocol does not embed \n into the string, so getline works.
-			// however, we are missing the information how newlines _are_ send... so for now, we always add a newline
-			// tested: dbgview can remote-receive newline and not-newline terminated lines, the difference can be observed by turning 'Option->Force Carriage Returns' off.
-			// 
-			std::getline(ss, msg, '\0'); 
-			msg.push_back('\n');
+			std::getline(ss, msg, '\0');
+			msg.push_back('\n');	// newlines are never send as part of the message
 			AddMessage(time, filetime, pid, processName, msg);
 
 			// strangely, messages are always send in multiples of 4 bytes.
