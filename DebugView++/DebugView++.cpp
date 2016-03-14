@@ -127,12 +127,12 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 		}
 		else if (boost::iequals(args[i], L"/log"))
 		{
-			wndMain.SetLogging();
+			//wndMain.SetLogging();		// todo: implement: this feature is not usuable now.
 		}
 		else if (args[i][0] != '/')
 		{
 			if (!fileName.empty())
-				throw std::runtime_error("Duplicate filename");
+				throw std::runtime_error("multiple filenames specified on commandline");
 			fileName = args[i];
 		}
 	}
