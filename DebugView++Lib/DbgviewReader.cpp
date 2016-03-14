@@ -48,13 +48,17 @@ namespace Magic
 	const int CaptureKernelDisable = Base + 0x04;             // 1
 	const int VerboseKernelMessagesEnable = Base + 0x08;      // 2	// Meaning of these 'VerboseKernel' values was never confirmed
 	const int VerboseKernelMessagesDisable = Base + 0x0C;     // 3	// 
-	const int PassThroughEnable = Base + 0x10;                // 4
-	const int PassThroughDisable = Base + 0x14;               // 5
+	const int PassThroughDisable = Base + 0x10;               // 4
+	const int PassThroughEnable = Base + 0x14;                // 5
 	const int CaptureWin32Enable = Base + 0x18;               // 6
 	const int CaptureWin32Disable = Base + 0x1c;              // 7
 	const int Unknown3 = Base + 0x20;                         // 8
-	const int RequestUnknown = Base + 0x24;                   // 9
+	const int RequestUnknown = Base + 0x24;                   // 9	// answer: 0x7fffffff
 	const int RequestQueryPerformanceFrequency = Base + 0x28; // A
+	const int Unknown4 = Base + 0x2C; 
+	const int Unknown5 = Base + 0x30; 
+	const int ForceCarriageReturnsEnable = Base + 0x34;
+	const int ForceCarriageReturnsDisable = Base + 0x38;
 };
 
 template <typename T>
@@ -88,17 +92,19 @@ std::string ToChar(const T& s)
 	return result.str();
 }
 
+void DbgviewReader::SetAutoNewLine(bool value)
+{
+	LogSource::SetAutoNewLine(value);
+	//	 todo: send ForceCarriageReturnsEnable/ForceCarriageReturnsDisable
+}
+
 void DbgviewReader::Loop()
 {
 	m_iostream.connect(m_hostname, SysinternalsDebugViewAgentPort);
 	const std::string processName("[tcp]");
 
-	// unknown command (dbgview sends it after connect, it gets a 4 byte answer 0x7fffffff)
-	//Write<DWORD>(m_iostream, Magic::Base + 0x24);	
-	//Read<DWORD>(m_iostream);					// 0x7fffffff
-
 	Write<DWORD>(m_iostream, Magic::RequestQueryPerformanceFrequency);
-	auto qpFrequency = Read<DWORD>(m_iostream); // 0x0023ae93
+	auto qpFrequency = Read<DWORD>(m_iostream);
 	long long t0 = 0;
 	bool first = true;
 
@@ -113,6 +119,7 @@ void DbgviewReader::Loop()
 	Write<DWORD>(m_iostream, Magic::VerboseKernelMessagesEnable);
 	Write<DWORD>(m_iostream, Magic::CaptureWin32Enable);
 	Write<DWORD>(m_iostream, Magic::PassThroughEnable);
+	Write<DWORD>(m_iostream, Magic::ForceCarriageReturnsDisable);
 
 	double timerUnit = 1. / qpFrequency;
 	AddMessage(stringbuilder() << "Connected to " << GetDescription());
@@ -149,6 +156,10 @@ void DbgviewReader::Loop()
 		std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
 		ss.write(buffer.data(), buffer.size());
 
+		AddMessage(stringbuilder() << ToChar(buffer));
+		AddMessage(stringbuilder() << ToHex(buffer));
+		Signal();
+
 		DWORD pid = 0;
 		std::string msg;
 		for (;;)
@@ -174,7 +185,10 @@ void DbgviewReader::Loop()
 					AddMessage(0, processName, "<error parsing pid>");
 					break;
 				}
-				Read(ss, 1);	// discard one leading space
+				auto t = Read(ss, 1);	// discard one leading space
+				AddMessage(stringbuilder() << ToChar(t));
+				AddMessage(stringbuilder() << ToHex(t));
+				Signal();
 			}
 
 			// todo: the protocol does not embed \n into the string, so getline works.

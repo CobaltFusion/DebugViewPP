@@ -34,7 +34,7 @@ class DbgviewReader : public PassiveLogSource
 public:
 	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
 	virtual ~DbgviewReader();
-
+	virtual void SetAutoNewLine(bool value);
 	virtual void Abort();
 
 private:

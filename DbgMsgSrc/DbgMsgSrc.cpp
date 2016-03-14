@@ -392,8 +392,8 @@ int Main(int argc, char* argv[])
 		}
 		else if (arg == "-n")
 		{
-			std::cout << "Send OutputDebugStringA 'WithNewLine\\n' (12 bytes)\n";
-			OutputDebugStringA("WithNewLine\n");
+			std::cout << "Send OutputDebugStringA 'WithNewLine\\n' (16 bytes)\n";
+			OutputDebugStringA("With___NewLine \n");
 			return 0;
 		}
 		else if (arg == "-e")
