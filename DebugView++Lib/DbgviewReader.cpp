@@ -119,7 +119,7 @@ void DbgviewReader::Loop()
 	Write<DWORD>(m_iostream, Magic::VerboseKernelMessagesEnable);
 	Write<DWORD>(m_iostream, Magic::CaptureWin32Enable);
 	Write<DWORD>(m_iostream, Magic::PassThroughEnable);
-	Write<DWORD>(m_iostream, Magic::ForceCarriageReturnsDisable);
+	Write<DWORD>(m_iostream, Magic::ForceCarriageReturnsEnable);
 
 	double timerUnit = 1. / qpFrequency;
 	AddMessage(stringbuilder() << "Connected to " << GetDescription());
