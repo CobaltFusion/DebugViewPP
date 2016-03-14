@@ -316,7 +316,7 @@ Lines LogSources::GetLines()
 		auto processedLines = m_newlineFilter.Process(inputLine);
 		for (auto it = processedLines.begin(); it != processedLines.end(); ++it)
 		{
-			boost::trim_right_if(it->message, boost::is_any_of(" \r\n\t"));
+			boost::trim_right_if(it->message, boost::is_any_of("\r\n"));
 			lines.push_back(*it);
 		}
 	}
