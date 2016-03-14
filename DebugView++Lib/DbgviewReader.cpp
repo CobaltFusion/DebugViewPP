@@ -125,7 +125,7 @@ void DbgviewReader::Loop()
 		
 		if (m_iostream.eof())
 		{
-			AddMessage(stringbuilder() << "Connected to " << GetDescription() << " closed.");
+			AddMessage(stringbuilder() << "Connection to " << GetDescription() << " closed.");
 			LogSource::Abort();
 			Signal();
 			break;

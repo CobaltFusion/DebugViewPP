@@ -421,7 +421,7 @@ ULONG_PTR GetParentProcessId()
 
 std::vector<std::wstring> GetCommandLineArguments()
 {
-	int argc;
+	int argc = 0;
 	HLocal args(CommandLineToArgvW(GetCommandLineW(), &argc));
 	auto argv = static_cast<const wchar_t**>(args.get());
 	return std::vector<std::wstring>(argv, argv + argc);

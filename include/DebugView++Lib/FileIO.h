@@ -36,7 +36,7 @@ struct FileType
 
 std::string FileTypeToString(FileType::type value);
 
-bool FileExists(const wchar_t* filename);
+bool FileExists(const char* filename);
 FileType::type IdentifyFile(const std::wstring& filename);
 bool IsBinaryFileType(FileType::type);
 

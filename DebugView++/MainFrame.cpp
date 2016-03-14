@@ -1206,10 +1206,25 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		m_logFile.SetHistorySize(dlg.GetHistorySize());
 }
 
+std::wstring GetExecutePath()
+{
+	using namespace boost;
+	auto path = filesystem::system_complete(filesystem::path( Win32::GetCommandLineArguments()[0]));
+	return path.remove_filename().c_str();
+}
+
 void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (!m_pDbgviewReader)
+	{
+		std::string dbgview = stringbuilder() << GetExecutePath() << "\\dbgview.exe";
+		if (FileExists(dbgview.c_str()))
+		{
+			std::string cmd = stringbuilder() << "start \"\" " << dbgview << " /a";
+			system(cmd.c_str());
+		}
 		m_pDbgviewReader = m_logSources.AddDbgviewReader("127.0.0.1");
+	}
 	else
 	{
 		m_logSources.Remove(m_pDbgviewReader);
