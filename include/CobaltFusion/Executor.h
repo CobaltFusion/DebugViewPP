@@ -24,7 +24,7 @@ public:
 	virtual void Cancel(const ScheduledCall& call) = 0;
 
 protected:
-	~ExecutorBase();
+	virtual ~ExecutorBase();
 	unsigned GetId(const ScheduledCall& call) const;
 	ScheduledCall MakeScheduledCall(unsigned id);
 

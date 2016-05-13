@@ -76,7 +76,7 @@ public:
 	virtual void OnTimer() = 0;
 
 protected:
-	~GuiExecutorBase();
+	virtual ~GuiExecutorBase();
 };
 
 class GuiExecutor : boost::noncopyable,
@@ -89,7 +89,7 @@ public:
 	typedef Clock::duration Duration;
 
 	GuiExecutor();
-	~GuiExecutor();
+	virtual ~GuiExecutor();
 
 	template <typename Fn>
 	auto Call(Fn fn) -> decltype(fn())

@@ -84,7 +84,7 @@ TimedCalls::CallData::CallData(unsigned id, TimePoint at, Duration interval, std
 }
 
 ScheduledCall::ScheduledCall() :
-	pExec(nullptr)
+	pExec(nullptr), id(0)
 {
 }
 
@@ -136,6 +136,8 @@ ScopedScheduledCall& ScopedScheduledCall::operator=(const ScheduledCall& call)
 
 ScopedScheduledCall& ScopedScheduledCall::operator=(ScopedScheduledCall&& call)
 {
+	if (this == &call)
+		return *this;
 	m_call.Cancel();
 	m_call = call.m_call;
 	call.m_call = ScheduledCall();
