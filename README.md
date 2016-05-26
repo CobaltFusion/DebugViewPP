@@ -114,7 +114,7 @@ Notice that 2>&1 is used *before* the pipe (|) symbol to redirect stderr to stdo
 
 **Connect to sysinternals dbgview agent for kernel messages**:
 Example: connect to sysinternals DbgView Agent, first start Dbgview.exe /a /k (/k for kernel messages)
-And connect DebugView using Log->Connect DebugView Agent
+And connect DebugView++ using Log->Connect DebugView Agent. Note that 'Log->Connect DebugView Agent' assumes the agent is running on the same workstation as DebugView++ so it connects to 127.0.0.1. If you need to connect to a remote agent, use Log->Sources...->Add->DbgView Agent and fill in the ip-address.
 
 **Use RegexGroups + Token Highlighting**:
 Suppose you want to highlight some data value in your logging, since the actually value may differ, you cannot use normal matching to highlight them. With RegexGroups you can match text _before_ or _after the actual token you want to highlight.
