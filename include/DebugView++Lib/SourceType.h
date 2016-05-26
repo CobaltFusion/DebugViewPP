@@ -20,7 +20,7 @@ class LogSource;
 	SOURCE_TYPE(File, 2, "File") \
 	SOURCE_TYPE(Udp, 3, "UDP Socket") \
 	SOURCE_TYPE(Tcp, 4, "TCP Socket") \
-	SOURCE_TYPE(DebugViewAgent, 5, "DebugView Agent")
+	SOURCE_TYPE(DebugViewAgent, 5, "DbgView Agent")
 
 struct SourceType
 {
