@@ -95,6 +95,7 @@ class Executor
 {
 public:
 	Executor();
+	virtual ~Executor() {}
 
 	template <typename Fn>
 	auto Call(Fn fn) -> decltype(fn())
