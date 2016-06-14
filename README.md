@@ -59,13 +59,14 @@ Changes in 1.6.x:
 - restructuring log-sources code 
 - experimental horizontal scrolling by dragging mouse
 - fixed a bug in version 1.6.48 that prevented dbgview-agent messages from showing
+- added name of tailing file in window title
 
 Download latest version (stable branch, from 20 Sept 2015)
 -----------------------
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
 
-Experimental version (13 March 2016)
+Experimental version (14 June 2016)
 -----------------------
 + [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2016_06_14.zip)
 + [DebugView v1.6.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2016_06_14.msi)
