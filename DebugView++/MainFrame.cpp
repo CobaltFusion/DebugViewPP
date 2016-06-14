@@ -459,7 +459,7 @@ void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
 	Pause();
-	SetTitle(L"Monitoring File(s)");
+	SetTitle(file);
 	using boost::algorithm::iequals;
 	auto ext = boost::filesystem::wpath(file).extension().wstring();
 	if (iequals(ext, L".exe"))
