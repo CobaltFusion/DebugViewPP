@@ -648,7 +648,8 @@ public:
       MESSAGE_HANDLER(WM_MOUSEWHEEL, OnScroll)      
       MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
       MESSAGE_HANDLER(WM_CHAR, OnChar)
-      MESSAGE_HANDLER(WM_GETDLGCODE, OnGetDlgCode)
+	  // FIX: Don't intercept default message handling for VK_RETURN, VK_ESCAPE:
+      //MESSAGE_HANDLER(WM_GETDLGCODE, OnGetDlgCode)
       MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
       MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
       MESSAGE_HANDLER(WM_LBUTTONDBLCLK, OnLButtonDown)
