@@ -16,7 +16,9 @@ bool IsWindowsVistaOrGreater()
 {
 	OSVERSIONINFO osvi = {0};
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&osvi);
+	// http://stackoverflow.com/questions/27246562/how-to-get-the-os-version-in-win8-1-as-getversion-getversionex-are-deprecated
+	// it looks like we can safely suppress this warning
+	GetVersionEx(&osvi);	
 	return (osvi.dwMajorVersion > 5);
 }
 
@@ -28,12 +30,8 @@ bool IsDBWinViewerActive()
 
 bool HasGlobalDBWinReaderRights()
 {
-	//if (IsWindowsVistaOrGreater())
-	{
-		Win32::Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
-		return hMap != nullptr;
-	}
-	return false;
+	Win32::Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));
+	return hMap != nullptr;
 }
 
 } // namespace debugviewpp 

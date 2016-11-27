@@ -116,7 +116,7 @@ CMainFrame::CMainFrame() :
 	m_linkViews(false),
 	m_hide(false),
 	m_lineBuffer(7000),
-	m_tryGlobal(HasGlobalDBWinReaderRights()),
+	m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
 	m_logFileName(L"DebugView++.dblog"),
 	m_txtFileName(L"MessagesInTheCurrentView.dblog"),
 	m_configFileName(L"DebugView++.dbconf"),
