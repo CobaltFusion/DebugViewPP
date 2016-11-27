@@ -648,7 +648,8 @@ public:
       MESSAGE_HANDLER(WM_MOUSEWHEEL, OnScroll)      
       MESSAGE_HANDLER(WM_KEYDOWN, OnKeyDown)
       MESSAGE_HANDLER(WM_CHAR, OnChar)
-      MESSAGE_HANDLER(WM_GETDLGCODE, OnGetDlgCode)
+	  // FIX: Don't intercept default message handling for VK_RETURN, VK_ESCAPE:
+      //MESSAGE_HANDLER(WM_GETDLGCODE, OnGetDlgCode)
       MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
       MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
       MESSAGE_HANDLER(WM_LBUTTONDBLCLK, OnLButtonDown)
@@ -944,6 +945,52 @@ public:
       return 0;
    }
 
+   BOOL IsLeftMostColumn(int column) const
+   {
+      int count = GetHeader().GetItemCount();
+	  ATLASSERT(count < 100);
+      int order[100];
+      GetColumnOrderArray(count, order);
+	  return column == order[0];
+   }
+
+   BOOL IsRightMostColumn(int column) const
+   {
+      int count = GetHeader().GetItemCount();
+	  ATLASSERT(count < 100);
+      int order[100];
+      GetColumnOrderArray(count, order);
+	  return column == order[count - 1];
+   }
+
+   int GetColumnLeftOf(int column) const
+   {
+      int count = GetHeader().GetItemCount();
+	  ATLASSERT(count < 100);
+      int order[100];
+      GetColumnOrderArray(count, order);
+      for (int i = 1; i < count; ++i)
+	  {
+		  if (order[i] == column)
+			  return order[i - 1];
+	  }
+	  return order[0];
+   }
+
+   int GetColumnRightOf(int column) const
+   {
+      int count = GetHeader().GetItemCount();
+	  ATLASSERT(count < 100);
+      int order[100];
+      GetColumnOrderArray(count, order);
+      for (int i = 0; i < count - 1; ++i)
+	  {
+		  if (order[i] == column)
+			  return order[i + 1];
+	  }
+	  return order[count - 1];
+   }
+
    LRESULT OnNavigate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
    {
       if( (m_di.dwExtStyle & PGS_EX_NOSHEETNAVIGATION) != 0 ) return 0;
@@ -955,33 +1002,35 @@ public:
          break;
       case VK_LEFT:
          if( _IsAppendActionItem(m_iSelectedRow ) ) break;
-         if( m_iSelectedRow >= 0 && m_iSelectedCol > 0 ) {
+         if( m_iSelectedRow >= 0 && !IsLeftMostColumn(m_iSelectedCol) ) {
             // Can we navigate?
+            // Repaint old item
+            _InvalidateItem(m_iSelectedRow, m_iSelectedCol);
             // Navigate
-            m_iSelectedCol--;
+            m_iSelectedCol = GetColumnLeftOf(m_iSelectedCol);
             // Let owner know
             IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
             ATLASSERT(prop);
             NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop };
             ::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
-            // Repaint new and old item
-            _InvalidateItem(m_iSelectedRow, m_iSelectedCol + 1);
+            // Repaint new item
             _InvalidateItem(m_iSelectedRow, m_iSelectedCol);
          }
          break;
       case VK_RIGHT:
          if( _IsAppendActionItem(m_iSelectedRow ) ) break;
-         if( m_iSelectedRow >= 0 && m_iSelectedCol < m_nColumns - 1 ) {
+         if( m_iSelectedRow >= 0 && !IsRightMostColumn(m_iSelectedCol) ) {
             // Can we navigate?
+            // Repaint old item
+            _InvalidateItem(m_iSelectedRow, m_iSelectedCol);
             // Navigate
-            m_iSelectedCol++;
+            m_iSelectedCol = GetColumnRightOf(m_iSelectedCol);
             // Let owner know
             IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
             ATLASSERT(prop);
             NMPROPERTYITEM nmh = { m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop };
             ::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
-            // Repaint new and old item
-            _InvalidateItem(m_iSelectedRow, m_iSelectedCol - 1);
+            // Repaint new item
             _InvalidateItem(m_iSelectedRow, m_iSelectedCol);
          }
          break;
