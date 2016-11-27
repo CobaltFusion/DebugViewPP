@@ -732,18 +732,18 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 			}
 			for (int i = first; i < count; ++i)
 			{
-				int begin = ExpandedTabOffset(text, tok->position(i));
-				int end = ExpandedTabOffset(text, tok->position(i) + tok->length(i));
+				int beginIndex = ExpandedTabOffset(text, tok->position(i));
+				int endIndex = ExpandedTabOffset(text, tok->position(i) + tok->length(i));
 
 				if (it->bgColor == Colors::Auto)
 				{
 					auto itc = m_matchColors.find(tok->str(i));
 					if (itc != m_matchColors.end())
-						InsertHighlight(highlights, Highlight(id, begin, end, TextColor(itc->second, Colors::Text)));
+						InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(itc->second, Colors::Text)));
 				}
 				else
 				{
-					InsertHighlight(highlights, Highlight(id, begin, end, TextColor(it->bgColor, it->fgColor)));
+					InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(it->bgColor, it->fgColor)));
 				}
 			}
 		}

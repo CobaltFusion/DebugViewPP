@@ -359,17 +359,17 @@ protected:
 	bool m_bCanClose;
 
 public:
-	// NOTE: These are here for backwards compatibility.
-	//  Use the new CTFI_NONE, CTFI_RECT, etc.
-	typedef enum FieldFlags
-	{
-		eCustomTabItem_None    = CTFI_NONE,
-		eCustomTabItem_Rect    = CTFI_RECT,
-		eCustomTabItem_Image   = CTFI_IMAGE,
-		eCustomTabItem_Text    = CTFI_TEXT,
-		eCustomTabItem_ToolTip = CTFI_TOOLTIP,
-		eCustomTabItem_All     = CTFI_ALL,
-	};
+	//// NOTE: These are here for backwards compatibility.
+	////  Use the new CTFI_NONE, CTFI_RECT, etc.
+	//typedef enum FieldFlags
+	//{
+	//	eCustomTabItem_None    = CTFI_NONE,
+	//	eCustomTabItem_Rect    = CTFI_RECT,
+	//	eCustomTabItem_Image   = CTFI_IMAGE,
+	//	eCustomTabItem_Text    = CTFI_TEXT,
+	//	eCustomTabItem_ToolTip = CTFI_TOOLTIP,
+	//	eCustomTabItem_All     = CTFI_ALL,
+	//};
 
 #if (_MSC_VER >= 1300)
 	#pragma deprecated(eCustomTabItem_None)
@@ -557,12 +557,12 @@ protected:
 	HWND m_hWndTabView;
 
 public:
-	// NOTE: This is here for backwards compatibility.
-	//  Use the new CTFI_TABVIEW instead
-	typedef enum FieldFlags
-	{
-		eCustomTabItem_TabView = CTFI_TABVIEW,
-	};
+	//// NOTE: This is here for backwards compatibility.
+	////  Use the new CTFI_TABVIEW instead
+	//typedef enum FieldFlags
+	//{
+	//	eCustomTabItem_TabView = CTFI_TABVIEW,
+	//};
 
 // Use CTFI_TABVIEW instead
 #if (_MSC_VER >= 1300)

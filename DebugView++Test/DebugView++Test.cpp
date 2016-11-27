@@ -143,31 +143,31 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 	auto t4 = Win32::GetSystemTimeAsFileTime();
 	logFile.Add(Message(0, t4, 0, "processname", "message 4 (zero time message)"));
 
-	BOOST_MESSAGE("UTC");
+	BOOST_TEST_MESSAGE("UTC");
 	{
 		ScopedTimezoneBias(0);
 		auto result = LoadLogFile(SaveLogFile(logFile));
 		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
 	}
-	BOOST_MESSAGE("(UTC-8) Fremond");
+	BOOST_TEST_MESSAGE("(UTC-8) Fremond");
 	{
 		ScopedTimezoneBias(-480);
 		auto result = LoadLogFile(SaveLogFile(logFile));
 		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
 	}
-	BOOST_MESSAGE("(UTC+8:30) Pyongyang Standard Time");
+	BOOST_TEST_MESSAGE("(UTC+8:30) Pyongyang Standard Time");
 	{
 		ScopedTimezoneBias(+510);
 		auto result = LoadLogFile(SaveLogFile(logFile));
 		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
 	}
-	BOOST_MESSAGE("test boundry case (UTC-12) Baker- / Howland Island (uninhabited islands belonging to the United States)");
+	BOOST_TEST_MESSAGE("test boundry case (UTC-12) Baker- / Howland Island (uninhabited islands belonging to the United States)");
 	{
 		ScopedTimezoneBias(-720);
 		auto result = LoadLogFile(SaveLogFile(logFile));
 		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
 	}
-	BOOST_MESSAGE("test boundry case (UTC+14) Kiritimati (Christmas Island, also uninhabited, part of the Kiribati Line Islands)");
+	BOOST_TEST_MESSAGE("test boundry case (UTC+14) Kiritimati (Christmas Island, also uninhabited, part of the Kiribati Line Islands)");
 	{
 		ScopedTimezoneBias(+720);
 		auto result = LoadLogFile(SaveLogFile(logFile));
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 	}
 
 	// test crossing timezones 
-	BOOST_MESSAGE("test sending a logfile into the past (UTC -> UTC-8)");
+	BOOST_TEST_MESSAGE("test sending a logfile into the past (UTC -> UTC-8)");
 	{
 		auto filename = SaveLogFile(logFile);
 		ScopedTimezoneBias(-480);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 	}
 
 	// test crossing timezones 
-	BOOST_MESSAGE("test sending a logfile into the future (UTC-8 -> UTC)");
+	BOOST_TEST_MESSAGE("test sending a logfile into the future (UTC-8 -> UTC)");
 	{
 		std::string filename;
 		{
@@ -252,11 +252,11 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2)
 
 	for (int j=0; j< 1000; ++j)
 	{
-		//BOOST_MESSAGE("j: " << j << "\n");
+		//BOOST_TEST_MESSAGE("j: " << j << "\n");
 
 		for (int i=0; i<17; ++i)
 		{
-			//BOOST_MESSAGE("i: " << i << "\n");
+			//BOOST_TEST_MESSAGE("i: " << i << "\n");
 			FILETIME ft;
 			ft.dwLowDateTime = 43;
 			ft.dwHighDateTime = 44;
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 
 	size_t m1 = ProcessInfo::GetPrivateBytes();
 	size_t usedByVector = m1 - m0;
-	BOOST_MESSAGE("VectorStorage requires: " << usedByVector/1024 << " kB");
+	BOOST_TEST_MESSAGE("VectorStorage requires: " << usedByVector/1024 << " kB");
 
 	for (size_t i = 0; i < testSize; ++i)
 		s.Add(GetTestString(i));
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 	size_t m2 = ProcessInfo::GetPrivateBytes();
 	size_t usedBySnappy = m2 - m1;
 
-	BOOST_MESSAGE("SnappyStorage requires: " << usedBySnappy/1024 << " kB (" << (100*usedBySnappy)/usedByVector << "%)");
+	BOOST_TEST_MESSAGE("SnappyStorage requires: " << usedBySnappy/1024 << " kB (" << (100*usedBySnappy)/usedByVector << "%)");
 	BOOST_REQUIRE_GT(0.50*usedByVector, usedBySnappy);
 }
 
@@ -339,28 +339,28 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
-	BOOST_MESSAGE("3 lines added.");
+	BOOST_TEST_MESSAGE("3 lines added.");
 
 	auto lines = logsources.GetLines();
-	BOOST_MESSAGE("received: " << lines.size() << " lines.");
+	BOOST_TEST_MESSAGE("received: " << lines.size() << " lines.");
 
 	BOOST_REQUIRE_EQUAL(lines.size(), 3);
 
 	for (auto it = lines.begin(); it != lines.end(); ++it)
 	{
 		auto line = *it;
-		BOOST_MESSAGE("line: " << line.message);
+		BOOST_TEST_MESSAGE("line: " << line.message);
 	}
 
 	const int testsize = 1000;
-	BOOST_MESSAGE("Write " << testsize << " lines...");
+	BOOST_TEST_MESSAGE("Write " << testsize << " lines...");
 	for (int i=0; i < testsize; ++i)
 	{
 		logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
 	}
 
 	auto morelines = logsources.GetLines();
-	BOOST_MESSAGE("received: " << morelines.size() << " lines.");
+	BOOST_TEST_MESSAGE("received: " << morelines.size() << " lines.");
 	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
 }
 
@@ -428,9 +428,9 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	logsources.AddDBWinReader(false);
 	logsources.SetAutoNewLine(true);
 
-	BOOST_MESSAGE("cmd: " << cmd);
+	BOOST_TEST_MESSAGE("cmd: " << cmd);
 	system((cmd + "-n").c_str());
-	BOOST_MESSAGE("done.");
+	BOOST_TEST_MESSAGE("done.");
 	//	 logsources.Abort(); // hangs? 
 
 	Sleep(200);

@@ -10,6 +10,7 @@
 #include <string>
 
 #pragma warning(push, 3)
+#pragma warning (disable: 4838)
 #include "PropertyGrid.h"
 #pragma warning(pop)
 #include "PropertyColorItem.h"

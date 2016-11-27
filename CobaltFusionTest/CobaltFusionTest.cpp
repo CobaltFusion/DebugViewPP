@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(CircularBufferBufferFullTimeout)
 		}
 	}, std::exception);
 
-	BOOST_MESSAGE("iterations: " << iterations);
+	BOOST_TEST_MESSAGE("iterations: " << iterations);
 	BOOST_CHECK(buffer.Full());
 
 	int readInterations = 0;

@@ -12,9 +12,15 @@
 #include "atlgdix.h"
 #include "atlcoll.h"
 namespace WTL { using ATL::CString; };
+
+#pragma warning(push, 3)
+#pragma warning (disable: 4838)
+
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
 #include "TabbedFrame.h"
+#pragma warning(pop)
+
 #include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
