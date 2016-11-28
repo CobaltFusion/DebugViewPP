@@ -13,3 +13,5 @@ ipch/
 DebugView++/version.wxi
 bin
 *.class
+*.db
+*.opendb

@@ -29,6 +29,8 @@ using std::max;
 #include "windows.h"
 #include "ShellApi.h"
 
+#pragma warning(push)
+#pragma warning(disable : 4838) // conversion from 'int' to 'UINT' requires a narrowing conversion
 #include <atlbase.h>
 #include <atlapp.h>
 
@@ -45,6 +47,7 @@ using std::max;
 #include <atldlgs.h>
 #include <atlmisc.h>
 #include <atlstr.h>
+#pragma warning(pop)
 
 #undef _CRT_NON_CONFORMING_SWPRINTFS
 
