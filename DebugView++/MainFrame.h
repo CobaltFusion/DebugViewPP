@@ -127,8 +127,8 @@ private:
 
 	DECLARE_MSG_MAP()
 
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL OnIdle();
+	BOOL PreTranslateMessage(MSG* pMsg) override;
+	BOOL OnIdle() override;
 
 	void OnException();
 	void OnException(const std::exception& ex);
