@@ -91,7 +91,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libraries\gtest-1.7.0\msvc\gtest\$(Configuration);..\Libraries\boost\lib\;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\boost\lib\$(Platform);$(Outdir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libraries\gtest-1.7.0\msvc\gtest\$(Configuration);..\Libraries\boost\lib64\;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\boost\lib\$(Platform);$(Outdir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,7 +125,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\Libraries\gtest-1.7.0\msvc\gtest\$(Configuration);..\Libraries\boost\lib\;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\boost\lib\$(Platform);$(Outdir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,7 +144,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\Libraries\gtest-1.7.0\msvc\gtest\$(Configuration);..\Libraries\boost\lib64\;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\boost\lib\$(Platform);$(Outdir)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

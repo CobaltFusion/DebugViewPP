@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <boost/noncopyable.hpp>
 #include <atlbase.h>
 #include <atlwin.h>
 #include "CobaltFusion/Executor.h"
@@ -84,7 +85,7 @@ class GuiExecutor : boost::noncopyable,
 	private GuiExecutorBase
 {
 public:
-	typedef boost::chrono::steady_clock Clock;
+	typedef std::chrono::steady_clock Clock;
 	typedef Clock::time_point TimePoint;
 	typedef Clock::duration Duration;
 
@@ -92,21 +93,21 @@ public:
 	virtual ~GuiExecutor();
 
 	template <typename Fn>
-	auto Call(Fn fn) -> decltype(fn())
+	auto Call(Fn fn)
 	{
 		assert(!IsExecutorThread());
 		typedef decltype(fn()) R;
-		boost::packaged_task<R> task(fn);
+		std::packaged_task<R ()> task(fn);
 		m_q.Push([&task]() { task(); });
 		m_wnd.Notify();
 		return task.get_future().get();
 	}
 
 	template <typename Fn>
-	auto CallAsync(Fn fn) -> boost::unique_future<decltype(fn())>
+	auto CallAsync(Fn fn)
 	{
 		typedef decltype(fn()) R;
-		auto pTask = std::make_shared<boost::packaged_task<R>>(fn);
+		auto pTask = std::make_shared<std::packaged_task<R ()>>(fn);
 		m_q.Push([pTask]() { (*pTask)(); });
 		m_wnd.Notify();
 		return pTask->get_future();
@@ -128,7 +129,7 @@ private:
 	virtual void OnTimer();
 	void ResetTimer();
 
-	boost::thread::id m_guiThreadId;
+	std::thread::id m_guiThreadId;
 	detail::HiddenWindow<GuiExecutorBase> m_wnd;
 	SynchronizedQueue<std::function<void ()>> m_q;
 	TimedCalls m_scheduledCalls;

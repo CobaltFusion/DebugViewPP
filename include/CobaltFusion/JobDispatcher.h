@@ -9,10 +9,11 @@
 
 #include <memory>
 #include <string>
+#include <thread>
+#include <mutex>
 #include <deque>
 #include <boost/noncopyable.hpp>
 #include <boost/signals2.hpp>
-#include <boost/thread.hpp>
 
 #pragma comment(lib, "CobaltFusion.lib")
 
@@ -50,11 +51,11 @@ protected:
 
 	bool m_stop;
 	std::deque<Job> m_jobQueue;
-	boost::mutex m_executionMutex;
-	boost::mutex m_stopMutex;
-	boost::mutex m_queueMutex;
-	boost::condition_variable m_condition;
-	std::unique_ptr<boost::thread> m_thread;
+	std::mutex m_executionMutex;
+	std::mutex m_stopMutex;
+	std::mutex m_queueMutex;
+	std::condition_variable m_condition;
+	std::unique_ptr<std::thread> m_thread;
 	boost::signals2::signal<void(std::exception_ptr)> m_exceptionOccurredSignal;
 };
 
@@ -69,7 +70,7 @@ public:
 	void Stop();
 
 private:
-	std::unique_ptr<boost::thread> m_thread;
+	std::unique_ptr<std::thread> m_thread;
 
 };
 

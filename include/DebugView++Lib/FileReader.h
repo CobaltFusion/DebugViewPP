@@ -21,13 +21,13 @@ class FileReader : public LogSource
 {
 public:
 	FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
-	virtual ~FileReader();
+	~FileReader() override;
 
-	virtual void Initialize();
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-	virtual void PreProcess(Line& line) const;
+	void Initialize() override;
+	bool AtEnd() const override;
+	HANDLE GetHandle() const override;
+	void Notify() override;
+	void PreProcess(Line& line) const override;
 
 protected:
 	virtual void AddLine(const std::string& line);

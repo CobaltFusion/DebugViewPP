@@ -20,8 +20,8 @@ public:
 	PipeReader(Timer& timer, ILineBuffer& lineBuffer, HANDLE hPipe, DWORD pid, const std::string& processName, long pollFrequency);
 	virtual ~PipeReader();
 
-	virtual bool AtEnd() const;
-	virtual void Poll();
+	bool AtEnd() const override;
+	void Poll() override;
 	void Poll(PassiveLogSource& logSource);
 
 private:

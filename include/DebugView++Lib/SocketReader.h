@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <boost/array.hpp>
+#include <array>
 #include "Win32/Win32Lib.h"
 #include "Win32/Socket.h"
 #include "LogSource.h"
@@ -22,8 +22,8 @@ class SocketReader : public LogSource
 public:
 	SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port);
 
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
+	HANDLE GetHandle() const override;
+	void Notify() override;
 
 private:
 	int BeginReceive();
@@ -33,7 +33,7 @@ private:
 	Win32::WinsockInitialization m_wsa;
 	Win32::Socket m_socket;
 	Win32::Handle m_event;
-	boost::array<char, 2000> m_buffer;
+	std::array<char, 2000> m_buffer;
 	WSAOVERLAPPED m_overlapped;
 	WSABUF m_wsaBuf[1];
 	sockaddr_in m_from;

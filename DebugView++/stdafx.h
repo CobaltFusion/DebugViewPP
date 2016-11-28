@@ -70,8 +70,8 @@ extern CAppModule _Module;
 #include <sstream>
 
 #include <boost/utility.hpp>
-#include <boost/thread.hpp>
-#include <boost/system/system_error.hpp>
+//#include <boost/thread.hpp>
+//#include <boost/system/system_error.hpp>
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>

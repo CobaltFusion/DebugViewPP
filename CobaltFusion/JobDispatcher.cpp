@@ -8,25 +8,24 @@
 #pragma once
 
 #include "stdafx.h"
+#include <future>
 #include "CobaltFusion/JobDispatcher.h"
 
 namespace fusion {
 
-JobDispatcher::JobDispatcher()
-: m_stop(false)
+JobDispatcher::JobDispatcher() :
+	m_stop(false)
 {
 }
 
-JobDispatcher::~JobDispatcher()
-{
-}
+JobDispatcher::~JobDispatcher() = default;
 
 void JobDispatcher::Flush()
 {
-	boost::lock_guard<boost::mutex> lock(m_stopMutex);
+	std::lock_guard<std::mutex> lock(m_stopMutex);
 	if (m_stop == false)
 	{
-		boost::promise<bool> flush;
+		std::promise<bool> flush;
 		auto flushed = flush.get_future();
 		Queue([&flush] ()
 		{ 
@@ -39,11 +38,11 @@ void JobDispatcher::Flush()
 void JobDispatcher::Queue(Job job)
 {       
 	{
-		boost::lock_guard<boost::mutex> lock(m_queueMutex);
+		std::lock_guard<std::mutex> lock(m_queueMutex);
 		m_jobQueue.push_back(job);
 	}
 		
-	boost::lock_guard<boost::mutex> lock(m_executionMutex);
+	std::lock_guard<std::mutex> lock(m_executionMutex);
 	m_condition.notify_one();
 }
 
@@ -54,13 +53,13 @@ boost::signals2::connection JobDispatcher::SubscribeToExceptionEvent(std::functi
 
 bool JobDispatcher::HasJobs()
 {
-	boost::lock_guard<boost::mutex> lock(m_queueMutex);
+	std::lock_guard<std::mutex> lock(m_queueMutex);
 	return !m_jobQueue.empty();
 }
 
 void JobDispatcher::ClearJobs()
 {
-	boost::lock_guard<boost::mutex> lock(m_queueMutex);
+	std::lock_guard<std::mutex> lock(m_queueMutex);
 	m_jobQueue.clear();
 }
 
@@ -68,7 +67,7 @@ Job JobDispatcher::NextJob()
 {
 	Job job;
 
-	boost::lock_guard<boost::mutex> lock(m_queueMutex);
+	std::lock_guard<std::mutex> lock(m_queueMutex);
 	if (!m_jobQueue.empty())
 	{
 		job = m_jobQueue.front();
@@ -79,7 +78,7 @@ Job JobDispatcher::NextJob()
 
 BackgroundDispatcher::BackgroundDispatcher()
 {
-	m_thread.reset(new boost::thread(&BackgroundDispatcher::Run, this));
+	m_thread.reset(new std::thread(&BackgroundDispatcher::Run, this));
 }
 
 BackgroundDispatcher::~BackgroundDispatcher()
@@ -91,7 +90,7 @@ void BackgroundDispatcher::Run()
 {
 	for (;;)
 	{
-		boost::unique_lock<boost::mutex> lock(m_executionMutex);
+		std::unique_lock<std::mutex> lock(m_executionMutex);
 		if (!HasJobs() || !m_stop)
 		{
 			// wait for a job to be queued
@@ -129,8 +128,8 @@ void BackgroundDispatcher::Stop()
 	}
 
 	{
-		boost::lock_guard<boost::mutex> stopLock(m_stopMutex);
-		boost::lock_guard<boost::mutex> executeLock(m_executionMutex);
+		std::lock_guard<std::mutex> stopLock(m_stopMutex);
+		std::lock_guard<std::mutex> executeLock(m_executionMutex);
 		m_stop = true;
 		m_condition.notify_one();
 	}

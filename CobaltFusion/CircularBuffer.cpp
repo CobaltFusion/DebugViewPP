@@ -8,6 +8,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include <iostream>
 #include "CobaltFusion/CircularBuffer.h"
 #include "CobaltFusion/dbgstream.h"
 

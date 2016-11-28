@@ -11,7 +11,7 @@
 
 #define _SCL_SECURE_NO_WARNINGS
 #include <boost/test/unit_test_gui.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <random>
 #include <fstream>
 
@@ -417,7 +417,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 std::wstring GetExecutePath()
 {
 	using namespace boost;
-	auto path = filesystem::system_complete(filesystem::path( Win32::GetCommandLineArguments()[0]));
+	auto path = std::experimental::filesystem::system_complete(std::experimental::filesystem::path( Win32::GetCommandLineArguments()[0]));
 	return path.remove_filename().c_str();
 }
 

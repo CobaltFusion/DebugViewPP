@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <fstream>
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LogSource.h"
 
@@ -19,14 +20,14 @@ class BinaryFileReader : public LogSource
 {
 public:
 	BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
-	virtual ~BinaryFileReader();
+	~BinaryFileReader() override;
 
-	virtual void Initialize();
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
-	virtual void PreProcess(Line& line) const;
-	virtual void AddLine(const std::string& line);
+	void Initialize() override;
+	bool AtEnd() const override;
+	HANDLE GetHandle() const override;
+	void Notify() override;
+	void PreProcess(Line& line) const override;
+	void AddLine(const std::string& line);
 
 protected:
 	std::wstring m_filename;

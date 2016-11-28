@@ -33,16 +33,17 @@ class DbgviewReader : public PassiveLogSource
 {
 public:
 	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
-	virtual ~DbgviewReader();
-	virtual void SetAutoNewLine(bool value);
-	virtual void Abort();
+	~DbgviewReader() override;
+
+	void SetAutoNewLine(bool value) override;
+	void Abort() override;
 
 private:
 	void Loop();
 	std::string m_hostname;
 	boost::asio::ip::tcp::iostream m_iostream;
 
-	boost::thread m_thread;
+	std::thread m_thread;
 };
 
 } // namespace debugviewpp 

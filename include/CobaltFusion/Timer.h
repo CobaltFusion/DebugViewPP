@@ -7,9 +7,7 @@
 
 #pragma once
 
-#pragma warning(push, 3)
-#include <boost/thread.hpp>
-#pragma warning(pop)
+#include <mutex>
 #include <Windows.h>
 
 namespace fusion {
@@ -28,7 +26,7 @@ private:
 	double m_timerUnit;
 	bool m_init;
 	long long m_offset;
-	boost::mutex m_mutex;
+	std::mutex m_mutex;
 };
 
 } // namespace fusion

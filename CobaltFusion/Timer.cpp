@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <stdexcept>
 #include "CobaltFusion/Timer.h"
 
 namespace fusion {
@@ -31,7 +32,7 @@ void Timer::Reset()
 double Timer::Get()
 {
 	auto ticks = GetTicks();
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (!m_init)
 	{
 		m_offset = ticks;

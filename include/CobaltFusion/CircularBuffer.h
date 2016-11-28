@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 #include <boost/noncopyable.hpp>
-#include <boost/thread.hpp>
 
 #pragma comment(lib, "CobaltFusion.lib")
 

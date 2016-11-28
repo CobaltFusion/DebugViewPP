@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <locale>
 #include <codecvt>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/FileIO.h"
@@ -25,10 +25,10 @@ BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileTy
 	m_end(true),
 	m_filename(filename),
 	m_fileType(filetype),
-	m_name(Str(boost::filesystem::wpath(filename).filename().string()).str()),
-	m_handle(FindFirstChangeNotification(boost::filesystem::wpath(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
+	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_wifstream(m_filename, std::ios::binary),
-	m_filenameOnly(boost::filesystem::wpath(m_filename).filename().wstring()),
+	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().wstring()),
 	m_initialized(false)
 {
 	switch (filetype)

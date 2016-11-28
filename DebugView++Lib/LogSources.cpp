@@ -26,7 +26,6 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "DebugView++Lib/Loopback.h"
-#include "CobaltFusion/make_unique.h"
 
 // class Logsources has a vector<LogSource> and start a thread for LogSources::Listen()
 // - Listen() exectues every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
@@ -59,7 +58,7 @@ LogSources::~LogSources()
 
 Loopback* LogSources::CreateLoopback(Timer& timer, ILineBuffer& lineBuffer)
 {
-	auto loopback = make_unique<Loopback>(timer, lineBuffer);
+	auto loopback = std::make_unique<Loopback>(timer, lineBuffer);
 	auto result = loopback.get();
 	m_sources.emplace_back(std::move(loopback));
 	return result;
@@ -148,7 +147,7 @@ boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot
 	return m_update.connect(slot);
 }
 
-const boost::chrono::milliseconds graceTime(40); // -> intentionally near what the human eye can still perceive
+const std::chrono::milliseconds graceTime(40); // -> intentionally near what the human eye can still perceive
 
 void LogSources::OnUpdate()
 {
@@ -325,7 +324,7 @@ Lines LogSources::GetLines()
 
 DBWinReader* LogSources::AddDBWinReader(bool global)
 {
-	auto pDbWinReader = make_unique<DBWinReader>(m_timer, m_linebuffer, global);
+	auto pDbWinReader = std::make_unique<DBWinReader>(m_timer, m_linebuffer, global);
 	auto pResult = pDbWinReader.get();
 	Add(std::move(pDbWinReader));
 	return pResult;
@@ -333,7 +332,7 @@ DBWinReader* LogSources::AddDBWinReader(bool global)
 
 TestSource* LogSources::AddTestSource()
 {
-	auto pTestSource = make_unique<TestSource>(m_timer, m_linebuffer);
+	auto pTestSource = std::make_unique<TestSource>(m_timer, m_linebuffer);
 	auto pResult = pTestSource.get();
 	Add(std::move(pTestSource));
 	return pResult;
@@ -341,7 +340,7 @@ TestSource* LogSources::AddTestSource()
 
 ProcessReader* LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
-	auto pProcessReader = make_unique<ProcessReader>(m_timer, m_linebuffer, pathName, args);
+	auto pProcessReader = std::make_unique<ProcessReader>(m_timer, m_linebuffer, pathName, args);
 	auto pResult = pProcessReader.get();
 	Add(std::move(pProcessReader));
 	return pResult;
@@ -350,7 +349,7 @@ ProcessReader* LogSources::AddProcessReader(const std::wstring& pathName, const 
 // AddFileReader() is never used
 FileReader* LogSources::AddFileReader(const std::wstring& filename)
 {
-	auto pFilereader = make_unique<FileReader>(m_timer, m_linebuffer, IdentifyFile(filename), filename);
+	auto pFilereader = std::make_unique<FileReader>(m_timer, m_linebuffer, IdentifyFile(filename), filename);
 	auto pResult = pFilereader.get();
 	Add(std::move(pFilereader));
 	return pResult;
@@ -360,7 +359,7 @@ BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 {
 	auto filetype = IdentifyFile(filename);
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
-	auto pFileReader = make_unique<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
+	auto pFileReader = std::make_unique<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
 	auto pResult = pFileReader.get();
 	Add(std::move(pFileReader));
 	return pResult;
@@ -378,7 +377,7 @@ DBLogReader* LogSources::AddDBLogReader(const std::wstring& filename)
 	}
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 
-	auto pDbLogReader = make_unique<DBLogReader>(m_timer, m_linebuffer, filetype, filename);
+	auto pDbLogReader = std::make_unique<DBLogReader>(m_timer, m_linebuffer, filetype, filename);
 	auto pResult = pDbLogReader.get();
 	Add(std::move(pDbLogReader));
 	return pResult;
@@ -386,7 +385,7 @@ DBLogReader* LogSources::AddDBLogReader(const std::wstring& filename)
 
 PipeReader* LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 {
-	auto pPipeReader = make_unique<PipeReader>(m_timer, m_linebuffer, hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str(), 40);
+	auto pPipeReader = std::make_unique<PipeReader>(m_timer, m_linebuffer, hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str(), 40);
 	auto pResult = pPipeReader.get();
 	Add(std::move(pPipeReader));
 	return pResult;
@@ -394,7 +393,7 @@ PipeReader* LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 
 DbgviewReader* LogSources::AddDbgviewReader(const std::string& hostname)
 {
-	auto pDbgViewReader = make_unique<DbgviewReader>(m_timer, m_linebuffer, hostname);
+	auto pDbgViewReader = std::make_unique<DbgviewReader>(m_timer, m_linebuffer, hostname);
 	m_loopback->AddMessage(stringbuilder() << "Source '" << pDbgViewReader->GetDescription() << "' was added.");
 	auto pResult = pDbgViewReader.get();
 	Add(std::move(pDbgViewReader));
@@ -403,7 +402,7 @@ DbgviewReader* LogSources::AddDbgviewReader(const std::string& hostname)
 
 SocketReader* LogSources::AddUDPReader(int port)
 {
-	auto pSocketReader = make_unique<SocketReader>(m_timer, m_linebuffer, port);
+	auto pSocketReader = std::make_unique<SocketReader>(m_timer, m_linebuffer, port);
 	m_loopback->AddMessage(stringbuilder() << "Source '" << pSocketReader->GetDescription() << "' was added.");
 	auto pResult = pSocketReader.get();
 	Add(std::move(pSocketReader));

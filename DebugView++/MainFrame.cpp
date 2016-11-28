@@ -8,14 +8,13 @@
 #include "stdafx.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <boost/utility.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
-#include "CobaltFusion/make_unique.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/hstream.h"
 #include "CobaltFusion/Math.h"
@@ -136,7 +135,7 @@ CMainFrame::~CMainFrame()
 
 void CMainFrame::SetLogging()
 {
-	m_logWriter = make_unique<FileWriter>(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile);
+	m_logWriter = std::make_unique<FileWriter>(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile);
 }
 
 void CMainFrame::OnException()
@@ -461,7 +460,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 	Pause();
 	SetTitle(file);
 	using boost::algorithm::iequals;
-	auto ext = boost::filesystem::wpath(file).extension().wstring();
+	auto ext = std::experimental::filesystem::path(file).extension().wstring();
 	if (iequals(ext, L".exe"))
 	{
 		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
@@ -723,7 +722,7 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 	pView->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 	pView->SetFont(m_hFont.get());
 
-	auto pItem = make_unique<CLogViewTabItem>();
+	auto pItem = std::make_unique<CLogViewTabItem>();
 	pItem->SetText(name.c_str());
 	pItem->SetView(pView);
 
@@ -958,7 +957,7 @@ void CMainFrame::Load(const std::wstring& filename)
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
 	GetFileAttributesEx(filename.c_str(), GetFileExInfoStandard, &fileInfo);
 	SetTitle(filename);
-	Load(file, boost::filesystem::wpath(filename).filename().string(), fileInfo.ftCreationTime);
+	Load(file, std::experimental::filesystem::path(filename).filename().string(), fileInfo.ftCreationTime);
 }
 
 void CMainFrame::LoadAsync(const std::wstring& filename)
@@ -1208,8 +1207,7 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 std::wstring GetExecutePath()
 {
-	using namespace boost;
-	auto path = filesystem::system_complete(filesystem::path( Win32::GetCommandLineArguments()[0]));
+	auto path = std::experimental::filesystem::system_complete(std::experimental::filesystem::path( Win32::GetCommandLineArguments()[0]));
 	return path.remove_filename().c_str();
 }
 

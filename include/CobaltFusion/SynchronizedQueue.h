@@ -8,9 +8,9 @@
 #pragma once
 
 #include <queue>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/chrono.hpp>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
 namespace fusion {
 
@@ -25,19 +25,19 @@ public:
 
 	bool Empty() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return Empty(lock);
 	}
 
 	bool Full() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return Full(lock);
 	}
 
 	size_t Size() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_q.size();
 	}
 
@@ -48,33 +48,33 @@ public:
 
 	void WaitForNotFull() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [&]() { return !Full(lock); });
 	}
 
 	template <typename Clock, typename Duration>
-	bool WaitForNotFull(const boost::chrono::time_point<Clock, Duration>& time) const
+	bool WaitForNotFull(const std::chrono::time_point<Clock, Duration>& time) const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_cond.wait_until(lock, time, [&]() { return !Full(lock); });
 	}
 
 	void WaitForNotEmpty() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [&]() { return !Empty(lock); });
 	}
 
 	template <typename Clock, typename Duration>
-	bool WaitForNotEmpty(const boost::chrono::time_point<Clock, Duration>& time) const
+	bool WaitForNotEmpty(const std::chrono::time_point<Clock, Duration>& time) const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_cond.wait_until(lock, time, [&]() { return !Empty(lock); });
 	}
 
 	void Push(T t)
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [&]() { return !Full(lock); });
 		m_q.push(std::move(t));
 		lock.unlock();
@@ -83,7 +83,7 @@ public:
 
 	T Pop()
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [&]() { return !Empty(lock); });
 		T t(m_q.front());
 		m_q.pop();
@@ -93,19 +93,19 @@ public:
 	}
 
 private:
-	bool Empty(boost::unique_lock<boost::mutex>&) const
+	bool Empty(std::unique_lock<std::mutex>&) const
 	{
 		return m_q.empty();
 	}
 
-	bool Full(boost::unique_lock<boost::mutex>&) const
+	bool Full(std::unique_lock<std::mutex>&) const
 	{
 		return m_maxSize > 0 && m_q.size() == m_maxSize;
 	}
 
 	size_t m_maxSize;
-	mutable boost::mutex m_mtx;
-	mutable boost::condition_variable m_cond;
+	mutable std::mutex m_mtx;
+	mutable std::condition_variable m_cond;
 	std::queue<T> m_q;
 };
 

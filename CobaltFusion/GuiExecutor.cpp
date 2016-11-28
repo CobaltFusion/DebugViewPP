@@ -38,7 +38,7 @@ GuiExecutorBase::~GuiExecutorBase()
 }
 
 GuiExecutor::GuiExecutor() :
-	m_guiThreadId(boost::this_thread::get_id()),
+	m_guiThreadId(std::this_thread::get_id()),
 	m_wnd(*this)
 {
 	assert(::IsGUIThread(FALSE));
@@ -66,7 +66,7 @@ ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void ()> fn
 
 ScheduledCall GuiExecutor::CallAfter(const Duration& interval, std::function<void ()> fn)
 {
-	return CallAt(boost::chrono::steady_clock::now() + interval, fn);
+	return CallAt(std::chrono::steady_clock::now() + interval, fn);
 }
 
 ScheduledCall GuiExecutor::CallEvery(const Duration& interval, std::function<void ()> fn)
@@ -74,7 +74,7 @@ ScheduledCall GuiExecutor::CallEvery(const Duration& interval, std::function<voi
 	assert(interval > Duration::zero());
 
 	unsigned id = GetCallId();
-	auto at = boost::chrono::steady_clock::now() + interval;
+	auto at = std::chrono::steady_clock::now() + interval;
 	CallAsync([this, id, at, interval, fn]()
 	{
 		m_scheduledCalls.Insert(GuiExecutor::CallData(id, at, interval, fn));
@@ -103,7 +103,7 @@ void GuiExecutor::Cancel(const ScheduledCall& call)
 
 bool GuiExecutor::IsExecutorThread() const
 {
-	return boost::this_thread::get_id() == m_guiThreadId;
+	return std::this_thread::get_id() == m_guiThreadId;
 }
 
 bool GuiExecutor::IsIdle() const
@@ -131,7 +131,7 @@ void GuiExecutor::ResetTimer()
 	m_wnd.ClearTimer();
 	while (!m_scheduledCalls.IsEmpty())
 	{
-		auto now = boost::chrono::steady_clock::now();
+		auto now = std::chrono::steady_clock::now();
 		auto at = m_scheduledCalls.NextDeadline();
 		if (at <= now)
 		{
@@ -139,7 +139,7 @@ void GuiExecutor::ResetTimer()
 		}
 		else
 		{
-			m_wnd.SetTimerMs(static_cast<unsigned>(boost::chrono::duration_cast<boost::chrono::milliseconds>(at - now).count()));
+			m_wnd.SetTimerMs(static_cast<unsigned>(std::chrono::duration_cast<std::chrono::milliseconds>(at - now).count()));
 			break;
 		}
 	}

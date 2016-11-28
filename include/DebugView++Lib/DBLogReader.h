@@ -19,8 +19,9 @@ class DBLogReader : public FileReader
 {
 public:
 	DBLogReader(Timer& timer, ILineBuffer& lineBuffer, FileType::type fileType, const std::wstring& filename);
-	virtual void AddLine(const std::string& line);
-	virtual void PreProcess(Line& line) const;
+
+	void AddLine(const std::string& line) override;
+	void PreProcess(Line& line) const override;
 
 private:
 	void GetRelativeTime(Line& line);

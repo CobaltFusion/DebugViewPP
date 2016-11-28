@@ -23,7 +23,7 @@ public:
 	virtual bool Empty() const;
 
 private:
-	boost::mutex m_linesMutex;
+	std::mutex m_linesMutex;
 	Lines m_buffer;
 	Lines m_backingBuffer;
 };

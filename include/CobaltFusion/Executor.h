@@ -9,9 +9,9 @@
 
 #include <memory>
 #include <functional>
-#include <boost/thread.hpp>
-#include <boost/thread/future.hpp>
-#include <boost/chrono.hpp>
+#include <thread>
+#include <future>
+#include <chrono>
 #include "CobaltFusion/SynchronizedQueue.h"
 
 namespace fusion {
@@ -66,7 +66,7 @@ private:
 class TimedCalls
 {
 public:
-	typedef boost::chrono::steady_clock Clock;
+	typedef std::chrono::steady_clock Clock;
 	typedef Clock::time_point TimePoint;
 	typedef Clock::duration Duration;
 
@@ -98,18 +98,18 @@ public:
 	virtual ~Executor() {}
 
 	template <typename Fn>
-	auto Call(Fn fn) -> decltype(fn())
+	auto Call(Fn fn)
 	{
 		assert(!IsExecutorThread());
-		boost::packaged_task<decltype(fn())> task(fn);
+		std::packaged_task<decltype(fn()) ()> task(fn);
 		Add([&task]() { task(); });
 		return task.get_future().get();
 	}
 
 	template <typename Fn>
-	auto CallAsync(Fn fn) -> boost::unique_future<decltype(fn())>
+	auto CallAsync(Fn fn)
 	{
-		auto pTask = std::make_shared<boost::packaged_task<decltype(fn())>>(fn);
+		auto pTask = std::make_shared<std::packaged_task<decltype(fn()) ()>>(fn);
 		auto f = pTask->get_future();
 		Add([pTask]() { (*pTask)(); });
 		return f;
@@ -122,18 +122,18 @@ public:
 
 protected:
 	void SetExecutorThread();
-	void SetExecutorThread(boost::thread::id id);
+	void SetExecutorThread(std::thread::id id);
 	void Add(std::function<void ()> fn);
 
 	template <typename Clock, typename Duration>
-	bool WaitForNotEmpty(const boost::chrono::time_point<Clock, Duration>& time) const
+	bool WaitForNotEmpty(const std::chrono::time_point<Clock, Duration>& time) const
 	{
 		return m_q.WaitForNotEmpty(time);
 	}
 
 private:
 	SynchronizedQueue<std::function<void ()>> m_q;
-	boost::thread::id m_threadId;
+	std::thread::id m_threadId;
 };
 
 class TimedExecutor :
@@ -169,7 +169,7 @@ private:
 	void Run();
 
 	bool m_end;
-	boost::thread m_thread;
+	std::thread m_thread;
 };
 
 } // namespace fusion

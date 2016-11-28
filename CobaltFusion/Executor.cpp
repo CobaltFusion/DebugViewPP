@@ -156,7 +156,7 @@ Executor::Executor()
 
 bool Executor::IsExecutorThread() const
 {
-	return boost::this_thread::get_id() == m_threadId;
+	return std::this_thread::get_id() == m_threadId;
 }
 
 bool Executor::IsIdle() const
@@ -172,10 +172,10 @@ void Executor::RunOne()
 
 void Executor::SetExecutorThread()
 {
-	m_threadId = boost::this_thread::get_id();
+	m_threadId = std::this_thread::get_id();
 }
 
-void Executor::SetExecutorThread(boost::thread::id id)
+void Executor::SetExecutorThread(std::thread::id id)
 {
     m_threadId = id;
 }
@@ -197,7 +197,7 @@ ScheduledCall TimedExecutor::CallAt(const TimePoint& at, std::function<void ()> 
 
 ScheduledCall TimedExecutor::CallAfter(const Duration& interval, std::function<void ()> fn)
 {
-	return CallAt(boost::chrono::steady_clock::now() + interval, fn);
+	return CallAt(std::chrono::steady_clock::now() + interval, fn);
 }
 
 ScheduledCall TimedExecutor::CallEvery(const Duration& interval, std::function<void ()> fn)
@@ -207,7 +207,7 @@ ScheduledCall TimedExecutor::CallEvery(const Duration& interval, std::function<v
 	unsigned id = GetCallId();
 	Add([this, id, interval, fn]()
 	{
-		m_scheduledCalls.Insert(TimedExecutor::CallData(id, boost::chrono::steady_clock::now() + interval, interval, fn));
+		m_scheduledCalls.Insert(TimedExecutor::CallData(id, std::chrono::steady_clock::now() + interval, interval, fn));
 	});
 	return MakeScheduledCall(id);
 }

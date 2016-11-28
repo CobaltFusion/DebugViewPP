@@ -17,5 +17,5 @@
 #ifdef _DEBUG
 #include <boost/noncopyable.hpp>
 #include <boost/signals2.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #endif

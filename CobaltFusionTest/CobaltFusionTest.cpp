@@ -11,6 +11,7 @@
 
 // run as CobaltFusionTest.exe --log_level=test_suite
 
+#include <mutex>
 #define BOOST_TEST_MODULE CobaltFusionLib Unit Test
 #include <boost/test/unit_test_gui.hpp>
 #include "CobaltFusion/CircularBuffer.h"
@@ -40,31 +41,31 @@ public:
 
 	bool Empty() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_buffer.Empty();
 	}
 
 	bool Full() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_buffer.Full();
 	}
 
 	size_t Available() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_buffer.Available();
 	}
 
 	size_t Size() const
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		return m_buffer.Size();
 	}
 	
 	char Read()
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [this] { return !m_buffer.Empty(); });
 		char c = m_buffer.Read();
 		lock.unlock();
@@ -74,7 +75,7 @@ public:
 
 	void Write(char c)
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [this] { return !m_buffer.Full(); });
 		m_buffer.Write(c);
 		lock.unlock();
@@ -83,7 +84,7 @@ public:
 
 	void Clear()
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_buffer.Clear();
 		lock.unlock();
 		m_cond.notify_all();
@@ -91,8 +92,8 @@ public:
 
 	void Swap(SynchronizedCircularBuffer& cb)
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
-		boost::unique_lock<boost::mutex> cbLock(cb.m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> cbLock(cb.m_mtx);
 		m_buffer.Swap(cb.m_buffer);
 		cbLock.unlock();
 		lock.unlock();
@@ -102,16 +103,16 @@ public:
 
 	void WriteStringZ(const std::string& s)
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		m_cond.wait(lock, [this, s] { return m_buffer.Available() > s.size(); });
 		m_buffer.WriteStringZ(s.c_str());
 		lock.unlock();
 		m_cond.notify_all();
 	}
 
-	void WriteStringZ(const std::string& s, const boost::chrono::system_clock::duration& timeout)
+	void WriteStringZ(const std::string& s, const std::chrono::system_clock::duration& timeout)
 	{
-		boost::unique_lock<boost::mutex> lock(m_mtx);
+		std::unique_lock<std::mutex> lock(m_mtx);
 		if (!m_cond.wait_for(lock, timeout, [this, s] { return m_buffer.Available() > s.size(); }))
 			throw Timeout();
 		m_buffer.WriteStringZ(s.c_str());
@@ -128,8 +129,8 @@ public:
 	}
 
 private:
-	mutable boost::mutex m_mtx;
-	mutable boost::condition_variable m_cond;
+	mutable std::mutex m_mtx;
+	mutable std::condition_variable m_cond;
 	CircularBuffer m_buffer;
 };
 
@@ -235,7 +236,7 @@ BOOST_AUTO_TEST_CASE(CircularBufferBufferFullTimeout)
 		for (int i = 0; i < 100; ++i)
 		{
 			++iterations;
-			buffer.WriteStringZ("test123", boost::chrono::seconds(1));
+			buffer.WriteStringZ("test123", std::chrono::seconds(1));
 			++writeIterations;
 			BOOST_CHECK(!buffer.Empty());
 		}
