@@ -945,24 +945,6 @@ public:
       return 0;
    }
 
-   BOOL IsLeftMostColumn(int column) const
-   {
-      int count = GetHeader().GetItemCount();
-	  ATLASSERT(count < 100);
-      int order[100];
-      GetColumnOrderArray(count, order);
-	  return column == order[0];
-   }
-
-   BOOL IsRightMostColumn(int column) const
-   {
-      int count = GetHeader().GetItemCount();
-	  ATLASSERT(count < 100);
-      int order[100];
-      GetColumnOrderArray(count, order);
-	  return column == order[count - 1];
-   }
-
    int GetColumnLeftOf(int column) const
    {
       int count = GetHeader().GetItemCount();
@@ -995,6 +977,7 @@ public:
    {
       if( (m_di.dwExtStyle & PGS_EX_NOSHEETNAVIGATION) != 0 ) return 0;
       if( !_IsValidSelection() ) return 0;
+	  int iNextCol = m_iSelectedCol;
       // Navigate in the grid control
       switch( wParam ) {
       case VK_TAB:
@@ -1002,12 +985,13 @@ public:
          break;
       case VK_LEFT:
          if( _IsAppendActionItem(m_iSelectedRow ) ) break;
-         if( m_iSelectedRow >= 0 && !IsLeftMostColumn(m_iSelectedCol) ) {
+		 iNextCol = GetColumnLeftOf(m_iSelectedCol);
+         if( m_iSelectedRow >= 0 && iNextCol != m_iSelectedCol ) {
             // Can we navigate?
             // Repaint old item
             _InvalidateItem(m_iSelectedRow, m_iSelectedCol);
             // Navigate
-            m_iSelectedCol = GetColumnLeftOf(m_iSelectedCol);
+            m_iSelectedCol = iNextCol;
             // Let owner know
             IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
             ATLASSERT(prop);
@@ -1019,12 +1003,13 @@ public:
          break;
       case VK_RIGHT:
          if( _IsAppendActionItem(m_iSelectedRow ) ) break;
-         if( m_iSelectedRow >= 0 && !IsRightMostColumn(m_iSelectedCol) ) {
+		 iNextCol = GetColumnRightOf(m_iSelectedCol);
+         if( m_iSelectedRow >= 0 && iNextCol != m_iSelectedCol ) {
             // Can we navigate?
             // Repaint old item
             _InvalidateItem(m_iSelectedRow, m_iSelectedCol);
             // Navigate
-            m_iSelectedCol = GetColumnRightOf(m_iSelectedCol);
+            m_iSelectedCol = iNextCol;
             // Let owner know
             IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
             ATLASSERT(prop);
