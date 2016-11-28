@@ -7,6 +7,8 @@ ipch/
 *.suo
 *.aps
 *.log
+*.VC.opendb
+*.VC.db
 
 DebugView++/version.wxi
 bin

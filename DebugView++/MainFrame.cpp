@@ -1352,8 +1352,19 @@ CLogView& CMainFrame::GetView()
 	return GetView(std::max(0, GetTabCtrl().GetCurSel()));
 }
 
+bool IsClearBufferMessage(const std::string& message)
+{
+	return message.find("DBGVIEWCLEAR") == 0;
+}
+
 void CMainFrame::AddMessage(const Message& message)
 {
+	if (IsClearBufferMessage(message.text))
+	{
+		ClearLog();
+		return;
+	}
+
 	int beginIndex = m_logFile.BeginIndex();
 	int index = m_logFile.EndIndex();
 	m_logFile.Add(message);
