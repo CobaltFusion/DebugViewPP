@@ -84,12 +84,12 @@ void PassiveLogSource::Notify()
 		m_lines.swap(m_backBuffer);
 	}
 
-	for (auto it = m_backBuffer.cbegin(); it != m_backBuffer.cend(); ++it)
+	for (auto& line : m_backBuffer)
 	{
-		if (it->timesValid)
-			Add(it->time, it->systemTime, it->pid, it->processName, it->message);
+		if (line.timesValid)
+			Add(line.time, line.systemTime, line.pid, line.processName, line.message);
 		else
-			Add(it->pid, it->processName, it->message);
+			Add(line.pid, line.processName, line.message);
 	}
 	m_backBuffer.clear();
 }

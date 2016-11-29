@@ -392,8 +392,8 @@ void CMainFrame::ProcessLines(const Lines& lines)
 	for (int i = 0; i < views; ++i)
 		GetView(i).BeginUpdate();
 
-	for (auto it = lines.begin(); it != lines.end(); ++it)
-		AddMessage(Message(it->time, it->systemTime, it->pid, it->processName, it->message));
+	for (auto& line : lines)
+		AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
 
 	for (int i = 0; i < views; ++i)
 	{
@@ -840,12 +840,12 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 
 	auto viewsPt = pt.get_child("DebugViewPP.Views");
 	std::vector<View> views;
-	for (auto it = viewsPt.begin(); it != viewsPt.end(); ++it)
+	for (auto& item : viewsPt)
 	{
-		if (it->first == "View")
+		if (item.first == "View")
 		{
 			View view;
-			auto& viewPt = it->second;
+			auto& viewPt = item.second;
 			view.index = viewPt.get<bool>("Index");
 			view.name = viewPt.get<std::string>("Name");
 			view.clockTime = viewPt.get<bool>("ClockTime");
@@ -1258,17 +1258,17 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 		return;
 
 	auto pSources = m_logSources.GetSources();
-	for (auto it = pSources.begin(); it != pSources.end(); ++it)
+	for (auto& pSource : pSources)
 	{
-		if (dynamic_cast<DbgviewReader*>(*it) || dynamic_cast<SocketReader*>(*it))
-			m_logSources.Remove(*it);
+		if (dynamic_cast<DbgviewReader*>(pSource) || dynamic_cast<SocketReader*>(pSource))
+			m_logSources.Remove(pSource);
 	}
 
 	auto sourceInfos = dlg.GetSourceInfos();
-	for (auto it = sourceInfos.begin(); it != sourceInfos.end(); ++it)
+	for (auto& sourceInfo : sourceInfos)
 	{
-		if (it->enabled)
-			AddLogSource(*it);
+		if (sourceInfo.enabled)
+			AddLogSource(sourceInfo);
 	}
 	m_sourceInfos = sourceInfos;
 }

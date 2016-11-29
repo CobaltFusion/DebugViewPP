@@ -25,12 +25,15 @@ using std::min;
 using std::max;
 
 #include <boost/asio.hpp> // must be included _before_ windows.h
-
 #include "windows.h"
 #include "ShellApi.h"
 
 #pragma warning(push)
+#pragma warning(disable : 4091) // 'typedef ': ignored on left of 'tagGPFIDL_FLAGS' when no variable is declared
 #pragma warning(disable : 4838) // conversion from 'int' to 'UINT' requires a narrowing conversion
+#pragma warning(disable : 4838) // conversion from 'int' to 'UINT' requires a narrowing conversion
+#pragma warning(disable : 4458) // declaration of 'pButtons' hides class member
+
 #include <atlbase.h>
 #include <atlapp.h>
 
@@ -70,8 +73,6 @@ extern CAppModule _Module;
 #include <sstream>
 
 #include <boost/utility.hpp>
-//#include <boost/thread.hpp>
-//#include <boost/system/system_error.hpp>
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>

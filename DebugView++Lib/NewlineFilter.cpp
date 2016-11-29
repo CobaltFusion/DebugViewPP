@@ -21,12 +21,12 @@ Lines NewlineFilter::Process(const Line& line)
 	message.reserve(4000);
 
 	Line outputLine = line;
-	for (auto it = line.message.begin(); it != line.message.end(); ++it)
+	for (auto c : line.message)
 	{
-		if (*it == '\r')
+		if (c == '\r')
 			continue;
 
-		if (*it == '\n')
+		if (c == '\n')
 		{
 			outputLine.message = message;
 			message.clear();
@@ -34,7 +34,7 @@ Lines NewlineFilter::Process(const Line& line)
 		}
 		else
 		{
-			message.push_back(*it);
+			message.push_back(c);
 		}
 	}
 

@@ -239,17 +239,17 @@ void LogSources::UpdateSources()
 	std::vector<LogSource*> sources;
 	{
 		boost::mutex::scoped_lock lock(m_mutex);
-		for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
+		for (auto& pSource : m_sources)
 		{
-			sources.push_back(it->get());
+			sources.push_back(pSource.get());
 		}
 	}
 
-	for (auto it = sources.begin(); it != sources.end(); ++it)
+	for (auto& pSource : sources)
 	{
-		if ((*it)->AtEnd())
+		if (pSource->AtEnd())
 		{
-			InternalRemove(*it);
+			InternalRemove(pSource);
 		}
 	}
 }
@@ -259,8 +259,8 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 	m_guiExecutor.CallAsync([this, pid, handle]
 	{
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
-		for (auto it = flushedLines.begin(); it != flushedLines.end(); ++it)
-			m_loopback->AddMessage(it->pid, it->processName, it->message);
+		for (auto& line : flushedLines)
+			m_loopback->AddMessage(line.pid, line.processName, line.message);
 
 		if (!flushedLines.empty())
 			m_loopback->Signal();
@@ -272,10 +272,10 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 
 bool LogSources::LogSourceExists(const LogSource* pLogSource) const
 {
-	for (auto it = m_sources.begin(); it != m_sources.end(); ++it)
+	for (auto& pSource : m_sources)
 	{
-		auto source = it->get();
-		if (pLogSource == source) return true;
+		if (pLogSource == pSource.get())
+			return true;
 	}
 	return false;
 }
@@ -284,9 +284,8 @@ Lines LogSources::GetLines()
 {
 	auto inputLines = m_linebuffer.GetLines();
 	Lines lines;
-	for (auto it = inputLines.begin(); it != inputLines.end(); ++it)
+	for (auto& inputLine : inputLines)
 	{
-		auto& inputLine = *it;
 		if (!LogSourceExists(inputLine.pLogSource)) continue;
 
 		// let the logsource decide how to create processname
@@ -314,10 +313,10 @@ Lines LogSources::GetLines()
 		// since a line can contain multiple newlines, processing 1 line can output
 		// multiple lines, in this case the timestamp for each line is the same.
 		auto processedLines = m_newlineFilter.Process(inputLine);
-		for (auto it = processedLines.begin(); it != processedLines.end(); ++it)
+		for (auto& line : processedLines)
 		{
-			boost::trim_right_if(it->message, boost::is_any_of("\r\n"));
-			lines.push_back(*it);
+			boost::trim_right_if(line.message, boost::is_any_of("\r\n"));
+			lines.push_back(line);
 		}
 	}
 	return lines;

@@ -175,9 +175,9 @@ void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	column.enable = !column.enable;
 
 	int delta = column.enable ? +1 : -1;
-	for (auto it = m_columns.begin(); it != m_columns.end(); ++it)
-		if (it->column.iSubItem != column.column.iSubItem && it->column.iOrder >= column.column.iOrder)
-			it->column.iOrder += delta;
+	for (auto& col : m_columns)
+		if (col.column.iSubItem != column.column.iSubItem && col.column.iOrder >= column.column.iOrder)
+			col.column.iOrder += delta;
 
 	UpdateColumns();
 }
@@ -255,10 +255,10 @@ void CLogView::UpdateColumns()
 		DeleteColumn(0);
 
 	int col = 0;
-	for (auto it = m_columns.begin(); it != m_columns.end(); ++it)
+	for (auto& item : m_columns)
 	{
-		if (it->enable)
-			InsertColumn(col++, &it->column);
+		if (item.enable)
+			InsertColumn(col++, &item.column);
 	}
 }
 
@@ -714,18 +714,18 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 	std::vector<Highlight> highlights;
 
 	int highlightId = 1;
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	for (auto& filter : m_filter.messageFilters)
 	{
-		if (!it->enable || it->filterType != FilterType::Token)
+		if (!filter.enable || filter.filterType != FilterType::Token)
 			continue;
 
-		std::sregex_iterator begin(text.begin(), text.end(), it->re), end;
+		std::sregex_iterator begin(text.begin(), text.end(), filter.re), end;
 		int id = ++highlightId;
 		for (auto tok = begin; tok != end; ++tok)
 		{
 			int first = 0;
 			int count = 1;
-			if (tok->size() > 1 && it->matchType == MatchType::RegexGroups)
+			if (tok->size() > 1 && filter.matchType == MatchType::RegexGroups)
 			{
 				first = 1;
 				count = tok->size();
@@ -735,7 +735,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 				int beginIndex = ExpandedTabOffset(text, tok->position(i));
 				int endIndex = ExpandedTabOffset(text, tok->position(i) + tok->length(i));
 
-				if (it->bgColor == Colors::Auto)
+				if (filter.bgColor == Colors::Auto)
 				{
 					auto itc = m_matchColors.find(tok->str(i));
 					if (itc != m_matchColors.end())
@@ -743,7 +743,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 				}
 				else
 				{
-					InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(it->bgColor, it->fgColor)));
+					InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(filter.bgColor, filter.fgColor)));
 				}
 			}
 		}
@@ -763,16 +763,16 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 	int height = GetTextSize(hdc, text, text.size()).cy;
 	POINT pos = { rect.left, rect.top + (rect.bottom - rect.top - height)/2 };
 	RECT rcHighlight = rect;
-	for (auto it = highlights.begin(); it != highlights.end(); ++it)
+	for (auto& highlight : highlights)
 	{
-		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->begin).cx;
+		rcHighlight.right = rect.left + GetTextSize(hdc, text, highlight.begin).cx;
 		ExtTextOut(hdc, pos, rcHighlight, text);
 
 		rcHighlight.left = rcHighlight.right;
-		rcHighlight.right = rect.left + GetTextSize(hdc, text, it->end).cx;
+		rcHighlight.right = rect.left + GetTextSize(hdc, text, highlight.end).cx;
 		{
-			Win32::ScopedTextColor txtcol(hdc, it->color.fore);
-			Win32::ScopedBkColor bkcol(hdc, it->color.back);
+			Win32::ScopedTextColor txtcol(hdc, highlight.color.fore);
+			Win32::ScopedBkColor bkcol(hdc, highlight.color.back);
 			ExtTextOut(hdc, pos, rcHighlight, text);
 		}
 		rcHighlight.left = rcHighlight.right;
@@ -1110,8 +1110,8 @@ void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, C
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
 		names.insert(m_logFile[m_logLines[item].line].processName);
 
-	for (auto it = names.begin(); it != names.end(); ++it)
-		m_filter.processFilters.push_back(Filter(Str(*it), MatchType::Simple, filterType, bgColor, fgColor));
+	for (auto& name : names)
+		m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
 
 	ApplyFilters();
 }
@@ -1221,8 +1221,8 @@ void CLogView::OnViewPreviousBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow
 
 void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	for (auto it = m_logLines.begin(); it != m_logLines.end(); ++it)
-		it->bookmark = false;
+	for (auto& line : m_logLines)
+		line.bookmark = false;
 	Invalidate();
 }
 
@@ -1392,18 +1392,18 @@ void CLogView::StopTracking()
 void CLogView::StopScrolling()
 {
 	m_autoScrollDown = false;
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	for (auto& filter : m_filter.messageFilters)
 	{
-		if (it->filterType == FilterType::Track)
+		if (filter.filterType == FilterType::Track)
 		{
-			it->enable = false;
+			filter.enable = false;
 		}
 	}
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	for (auto& filter : m_filter.processFilters)
 	{
-		if (it->filterType == FilterType::Track)
+		if (filter.filterType == FilterType::Track)
 		{
-			it->enable = false;
+			filter.enable = false;
 		}
 	}
 	StopTracking();
@@ -1646,13 +1646,14 @@ void CLogView::SaveSettings(CRegKey& reg)
 	reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
 
 	int i = 0;
-	for (auto it = m_columns.begin(); it != m_columns.end(); ++it, ++i)
+	for (auto& col : m_columns)
 	{
 		CRegKey regColumn;
 		regColumn.Create(reg, WStr(wstringbuilder() << L"Columns\\Column" << i));
-		regColumn.SetDWORDValue(L"Enable", it->enable);
-		regColumn.SetDWORDValue(L"Width", it->column.cx);
-		regColumn.SetDWORDValue(L"Order", it->column.iOrder);
+		regColumn.SetDWORDValue(L"Enable", col.enable);
+		regColumn.SetDWORDValue(L"Width", col.column.cx);
+		regColumn.SetDWORDValue(L"Order", col.column.iOrder);
+		++i;
 	}
 
 	CRegKey regFilters;
@@ -1695,23 +1696,23 @@ void CLogView::SetFilters(const LogFilter& filter)
 std::vector<int> CLogView::GetBookmarks() const
 {
 	std::vector<int> bookmarks;
-	for (auto it = m_logLines.begin(); it != m_logLines.end(); ++it)
-		if (it->bookmark)
-			bookmarks.push_back(it->line);
+	for (auto& line : m_logLines)
+		if (line.bookmark)
+			bookmarks.push_back(line.line);
 	return bookmarks;
 }
 
 void CLogView::ResetFilters()
 {
-	for (auto it = m_filter.messageFilters.begin(); it != m_filter.messageFilters.end(); ++it)
+	for (auto& filter : m_filter.messageFilters)
 	{
-		if (it->filterType == FilterType::Once)
-			it->matched = false;
+		if (filter.filterType == FilterType::Once)
+			filter.matched = false;
 	}
-	for (auto it = m_filter.processFilters.begin(); it != m_filter.processFilters.end(); ++it)
+	for (auto& filter : m_filter.processFilters)
 	{
-		if (it->filterType == FilterType::Once)
-			it->matched = false;
+		if (filter.filterType == FilterType::Once)
+			filter.matched = false;
 	}
 	m_matchColors.clear();
 }
@@ -1783,29 +1784,29 @@ std::vector<Filter> MoveHighlighFiltersToFront(std::vector<Filter> filters)
 TextColor CLogView::GetTextColor(const Message& msg) const
 {
 	auto messageFilters = MoveHighlighFiltersToFront(m_filter.messageFilters);
-	for (auto it = messageFilters.begin(); it != messageFilters.end(); ++it)
+	for (auto& filter : messageFilters)
 	{
 		std::smatch match;
-		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.text, match, it->re))
+		if (filter.enable && FilterSupportsColor(filter.filterType) && std::regex_search(msg.text, match, filter.re))
 		{
-			if (it->bgColor == Colors::Auto)
+			if (filter.bgColor == Colors::Auto)
 			{
-				auto itc = m_matchColors.find(MatchKey(match, it->matchType));
-				if (itc != m_matchColors.end())
-					return TextColor(itc->second, Colors::Text);
+				auto it = m_matchColors.find(MatchKey(match, filter.matchType));
+				if (it != m_matchColors.end())
+					return TextColor(it->second, Colors::Text);
 			}
 			else
 			{
-				return TextColor(it->bgColor, it->fgColor);
+				return TextColor(filter.bgColor, filter.fgColor);
 			}
 		}
 	}
 
 	auto processFilters = MoveHighlighFiltersToFront(m_filter.processFilters);
-	for (auto it = processFilters.begin(); it != processFilters.end(); ++it)
+	for (auto& filter : processFilters)
 	{
-		if (it->enable && FilterSupportsColor(it->filterType) && std::regex_search(msg.processName, it->re))
-			return TextColor(it->bgColor, it->fgColor);
+		if (filter.enable && FilterSupportsColor(filter.filterType) && std::regex_search(msg.processName, filter.re))
+			return TextColor(filter.bgColor, filter.fgColor);
 	}
 
 	return TextColor(m_processColors ? msg.color : Colors::BackGround, Colors::Text);

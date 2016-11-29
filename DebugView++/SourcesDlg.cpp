@@ -47,13 +47,13 @@ void CSourcesDlg::OnException(const std::exception& ex)
 void CSourcesDlg::UpdateGrid()
 {
 	m_grid.DeleteAllItems();
-	for (auto it = m_sourceInfos.begin(); it != m_sourceInfos.end(); ++it)
+	for (auto& sourceInfo : m_sourceInfos)
 	{
 		int item = m_grid.GetItemCount();
-		m_grid.InsertItem(item, PropCreateCheckButton(L"", it->enabled));
-		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", it->description.c_str()));
-		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", WStr(SourceTypeToString(it->type)).c_str()));
-		if (it->type == SourceType::System)
+		m_grid.InsertItem(item, PropCreateCheckButton(L"", sourceInfo.enabled));
+		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", sourceInfo.description.c_str()));
+		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", WStr(SourceTypeToString(sourceInfo.type)).c_str()));
+		if (sourceInfo.type == SourceType::System)
 			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
 		else
 			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));

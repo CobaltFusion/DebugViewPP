@@ -9,7 +9,6 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
@@ -136,7 +135,7 @@ FileType::type IdentifyFile(const std::wstring& filename)
 		return FileType::DebugViewPP2;
 	}
 
-	// if the extention is .txt (and we did not find our own header)
+	// if the extension is .txt (and we did not find our own header)
 	// we say it is an ascii-file.
 	if (boost::iends_with(filename, ".txt"))
 		return FileType::AsciiText;
@@ -255,9 +254,9 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 	try
 	{
 		TabSplitter split(data);
-		line.time = boost::lexical_cast<double>(split.GetNext());
+		line.time = std::stod(split.GetNext());
 		line.systemTime = MakeFileTime(split.GetNext());
-		line.pid = boost::lexical_cast<DWORD>(split.GetNext());
+		line.pid = std::stoul(split.GetNext());
 		line.processName = split.GetNext();
 		line.message = split.GetTail();
 	}

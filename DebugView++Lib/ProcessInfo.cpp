@@ -88,10 +88,10 @@ std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
 
 DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
 {
-	for (auto i = m_processProperties.begin(); i != m_processProperties.end(); ++i)
+	for (auto& item : m_processProperties)
 	{
-		if (i->second.pid == processId && i->second.name == processName)
-			return i->first;
+		if (item.second.pid == processId && item.second.name == processName)
+			return item.first;
 	}
 
 	DWORD index = m_unqiueId;

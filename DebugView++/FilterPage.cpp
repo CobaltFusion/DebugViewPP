@@ -433,8 +433,8 @@ void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 void CFilterPageImpl::UpdateGrid(int focus)
 {
 	m_grid.DeleteAllItems();
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
-		AddFilter(*it);
+	for (auto& filter : m_filters)
+		AddFilter(filter);
 	m_grid.SelectItem(focus);
 }
 
