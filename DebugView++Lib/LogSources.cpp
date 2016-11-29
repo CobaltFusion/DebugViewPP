@@ -105,10 +105,10 @@ std::vector<LogSource*> LogSources::GetSources() const
 {
 	std::vector<LogSource*> sources;
 	boost::mutex::scoped_lock lock(m_mutex);
-	for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
+	for (auto& pSource : m_sources)
 	{
-		if (dynamic_cast<Loopback*>(it->get()))
-			sources.push_back(it->get());
+		if (dynamic_cast<Loopback*>(pSource.get()))
+			sources.push_back(pSource.get());
 	}
 	return sources;
 }
@@ -116,8 +116,8 @@ std::vector<LogSource*> LogSources::GetSources() const
 void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
-	for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
-		(*it)->SetAutoNewLine(value);
+	for (auto& pSource : m_sources)
+		pSource->SetAutoNewLine(value);
 }
 
 bool LogSources::GetAutoNewLine() const
@@ -129,12 +129,14 @@ void LogSources::Abort()
 {
 	m_end = true;
 
-	for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
+	for (auto& pSource : m_sources)
 	{
-		(*it)->Abort();
+		pSource->Abort();
 	}
 	Win32::SetEvent(m_updateEvent);
-	m_listenThread.join();
+
+	// Locks up main thread during shutdown when m_listenThread itself is waiting for the result of a GuiExecutor::Call():
+//	m_listenThread.join();
 }
 
 void LogSources::Reset()
@@ -191,15 +193,14 @@ void LogSources::ListenUntilUpdateEvent()
 	std::vector<LogSource*> sources;
 	{
 		boost::mutex::scoped_lock lock(m_mutex);
-		for (auto& it = m_sources.begin(); it != m_sources.end(); ++it)
+		for (auto& source : m_sources)
 		{
-			auto source = it->get();
 			if (source->AtEnd()) continue;
 			HANDLE handle = source->GetHandle();
 			if (handle != INVALID_HANDLE_VALUE)
 			{
 				waitHandles.push_back(handle);
-				sources.push_back(source);
+				sources.push_back(source.get());
 			}
 			// here LogSource::Initialize is called on the m_listenThread, currently only FileReader::Initialize uses this to start reading from the file.
 			// This will block all other logsources while the file is being read (which is normally not a problem)
