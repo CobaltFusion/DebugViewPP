@@ -148,7 +148,7 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	m_grid.SubclassWindow(GetDlgItem(IDC_FILTER_GRID));
 	m_grid.InsertColumn(SubItem::Text, L"Filter", LVCFMT_LEFT, 174, 0, -1, 1);
-	m_grid.InsertColumn(SubItem::Enable, L"", LVCFMT_LEFT, 32, 0, -1, 0);
+	m_grid.InsertColumn(SubItem::Enable, L"", LVCFMT_LEFT, 24, 0, -1, 0);
 	m_grid.InsertColumn(SubItem::Match, L"Match", LVCFMT_LEFT, 76, 0, -1, 2);
 	m_grid.InsertColumn(SubItem::Type, L"Type", LVCFMT_LEFT, 48, 0, -1, 3);
 	m_grid.InsertColumn(SubItem::Background, L"Bg", LVCFMT_LEFT, 24, 0, -1, 4);

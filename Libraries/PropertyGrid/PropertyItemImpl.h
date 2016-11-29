@@ -555,7 +555,7 @@ public:
       int cxThumb = ::GetSystemMetrics(SM_CXMENUCHECK);
       int cyThumb = ::GetSystemMetrics(SM_CYMENUCHECK);
       RECT rcMark = di.rcItem;
-      rcMark.left += 10;
+      rcMark.left += 3;
       rcMark.right = rcMark.left + cxThumb;
       rcMark.top += 2;
       if( rcMark.top + cyThumb >= rcMark.bottom ) rcMark.top -= rcMark.top + cyThumb - rcMark.bottom + 1;
