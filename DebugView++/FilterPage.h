@@ -40,6 +40,7 @@ public:
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
+	LRESULT OnHeaderItemStateIconClick(NMHDR* phdr);
 	LRESULT OnDrag(NMHDR* phdr);
 	void OnMouseMove(UINT nFlags, CPoint point);
 	void OnLButtonUp(UINT nFlags, CPoint point);
@@ -61,8 +62,11 @@ private:
 	COLORREF GetFilterBgColor(int iItem) const;
 	COLORREF GetFilterFgColor(int iItem) const;
 	bool GetFilterEnable(int iItem) const;
+	void SetFilterEnable(int iItem, bool value);
 	Filter GetFilter(int item) const;
 	void UpdateGrid(int focus = 0);
+	void CheckAllItems(bool checked);
+	void SetHeaderCheckbox();
 
 	LRESULT OnAddItem(NMHDR* pnmh);
 	LRESULT OnClickItem(NMHDR* pnmh);

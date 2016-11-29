@@ -58,6 +58,7 @@ BEGIN_MSG_MAP2(CFilterPageImpl)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
 	MSG_WM_SIZE(OnSize)
+	NOTIFY_CODE_HANDLER_EX(HDN_ITEMSTATEICONCLICK, OnHeaderItemStateIconClick)
 	NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnDrag)
 	NOTIFY_CODE_HANDLER_EX(PIN_ADDITEM, OnAddItem)
 	NOTIFY_CODE_HANDLER_EX(PIN_CLICK, OnClickItem)
@@ -164,11 +165,74 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	// focus last item, 1) so mouse-wheel scrolling works 2) because if there are many filters, mostly likely the user wants to edit a recently added filter
 	auto lastItem = m_grid.GetItemCount() - 1;
 	m_grid.SelectItem(lastItem);
+
+	// Here's where we can add the checkbox to the column header
+	// First, we need to snag the header control and give it the
+	// HDS_CHECKBOXES style since the list view doesn't do this for us
+	auto header = m_grid.GetHeader();
+	header.SetWindowLong(GWL_STYLE, header.GetStyle() | HDS_CHECKBOXES);
+
+	// Now, we can update the format for the first header item,
+	// which corresponds to the first column
+	HDITEM hdi = { 0 };
+	hdi.mask = HDI_FORMAT;
+	header.GetItem(SubItem::Enable, &hdi);
+	hdi.fmt |= HDF_CHECKBOX | HDF_FIXEDWIDTH;
+	header.SetItem(SubItem::Enable, &hdi);
+	SetHeaderCheckbox();
+
 	return TRUE;
 }
 
 void CFilterPageImpl::OnDestroy()
 {
+}
+
+void CFilterPageImpl::CheckAllItems(bool checked)
+{
+	int count = m_grid.GetItemCount();
+	for (int i = 0; i < count; ++i)
+		SetFilterEnable(i, checked);
+	m_grid.Invalidate();
+}
+
+void CFilterPageImpl::SetHeaderCheckbox()
+{
+	bool checked = true;
+	int count = m_grid.GetItemCount();
+	for (int i = 0; i < count; ++i)
+	{
+		if (!GetFilterEnable(i))
+		{
+			checked = false;
+			break;
+		}
+	}
+
+	auto header = m_grid.GetHeader();
+	HDITEM hdi = { 0 };
+	hdi.mask = HDI_FORMAT;
+	header.GetItem(SubItem::Enable, &hdi);
+	if (checked)
+		hdi.fmt |= HDF_CHECKED;
+	else
+		hdi.fmt &= ~HDF_CHECKED;
+	header.SetItem(SubItem::Enable, &hdi);
+	header.Invalidate();
+}
+
+LRESULT CFilterPageImpl::OnHeaderItemStateIconClick(NMHDR* phdr)
+{
+	auto& nmHeader = *reinterpret_cast<NMHEADER*>(phdr);
+
+	if (nmHeader.pitem->mask & HDI_FORMAT && nmHeader.pitem->fmt & HDF_CHECKBOX)
+	{
+		CheckAllItems((nmHeader.pitem->fmt & HDF_CHECKED) == 0);
+		SetHeaderCheckbox();
+		return 1;
+	}
+
+	return 0;
 }
 
 LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
@@ -285,6 +349,9 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	if (iSubItem == SubItem::Foreground)
 		UpdateGridColors(iItem);
 
+	if (iSubItem == SubItem::Enable)
+		SetHeaderCheckbox();
+
 	return 0;
 }
 
@@ -293,6 +360,12 @@ bool CFilterPageImpl::GetFilterEnable(int iItem) const
 	CComVariant val;
 	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, SubItem::Enable).GetValue(&val);
 	return val.boolVal != VARIANT_FALSE;
+}
+
+void CFilterPageImpl::SetFilterEnable(int iItem, bool value)
+{
+	CComVariant val(value);
+	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, SubItem::Enable).SetValue(val);
 }
 
 std::wstring CFilterPageImpl::GetFilterText(int iItem) const
