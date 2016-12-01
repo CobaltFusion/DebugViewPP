@@ -9,7 +9,7 @@
 
 #include <string>
 #include <fstream>
-#include <boost/thread.hpp>
+#include <thread>
 
 namespace fusion {
 namespace debugviewpp {
@@ -28,7 +28,7 @@ private:
 	
 	std::ofstream m_ofstream;
 	LogFile& m_logfile;
-	boost::thread m_thread;
+	std::thread m_thread;
 };
 
 } // namespace debugviewpp 

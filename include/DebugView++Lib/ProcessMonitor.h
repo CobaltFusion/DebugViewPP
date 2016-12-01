@@ -9,7 +9,7 @@
 
 #include <unordered_map>
 #include <boost/signals2.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/SynchronizedQueue.h"
 
@@ -45,7 +45,7 @@ private:
 	ProcessEnded m_processEnded;
 	std::vector<ProcessInfo> m_processes;
 	SynchronizedQueue<std::function<void ()>> m_q;
-	boost::thread m_thread;
+	std::thread m_thread;
 };
 
 } // namespace debugviewpp 

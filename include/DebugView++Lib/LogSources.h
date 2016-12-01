@@ -11,7 +11,7 @@
 #include <boost/signals2.hpp>
 
 #pragma warning(push, 1)
-#include <boost/thread.hpp>
+#include <thread>
 #pragma warning(pop)
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
@@ -103,7 +103,7 @@ private:
 	bool LogSourceExists(const LogSource* pLogSource) const;
 
 	bool m_autoNewLine;
-	mutable boost::mutex m_mutex;
+	mutable std::mutex m_mutex;
 	std::vector<std::unique_ptr<LogSource>> m_sources;
 	Win32::Handle m_updateEvent;
 	bool m_end;
@@ -119,7 +119,7 @@ private:
 	Update m_update;
 
 	// make sure this thread is last to initialize
-	boost::thread m_listenThread;
+	std::thread m_listenThread;
 };
 
 } // namespace debugviewpp 

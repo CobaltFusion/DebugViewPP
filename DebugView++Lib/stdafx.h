@@ -26,7 +26,7 @@
 #include <vector>
 
 #include <boost/utility.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/utility.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/date_time/local_time/local_time.hpp> 
