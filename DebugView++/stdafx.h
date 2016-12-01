@@ -72,7 +72,7 @@ extern CAppModule _Module;
 #include <vector>
 #include <sstream>
 
-#include <boost/utility.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>

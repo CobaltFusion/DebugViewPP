@@ -8,8 +8,8 @@
 #pragma once
 
 #include <string>
-#include <boost/utility.hpp>
-#include <boost/system/system_error.hpp>
+#include <boost/noncopyable.hpp>
+#include <system_error>
 #include <windows.h>
 #include <memory>
 #include <vector>
@@ -157,7 +157,7 @@ private:
 	UINT m_align;
 };
 
-class Win32Error : public boost::system::system_error
+class Win32Error : public std::system_error
 {
 public:
 	Win32Error(DWORD error, const std::string& what);

@@ -25,10 +25,10 @@
 #include <regex>
 #include <vector>
 
-#include <boost/utility.hpp>
+#include <boost/noncopyable.hpp>
 #include <thread>
-#include <boost/utility.hpp>
-#include <boost/system/system_error.hpp>
+#include <boost/noncopyable.hpp>
+#include <system_error>
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>

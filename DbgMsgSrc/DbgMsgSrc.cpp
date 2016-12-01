@@ -10,7 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <boost/utility.hpp>
+#include <boost/noncopyable.hpp>
 #include <windows.h>
 #include <WinSock.h>
 #include <psapi.h>
