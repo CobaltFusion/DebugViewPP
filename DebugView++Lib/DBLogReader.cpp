@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/DBLogReader.h"
 #include "DebugView++Lib/LineBuffer.h"
