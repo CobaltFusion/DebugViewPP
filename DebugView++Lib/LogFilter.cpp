@@ -67,20 +67,20 @@ Filter MakeFilter(const ptree& pt)
 ptree MakePTree(const std::vector<Filter>& filters)
 {
 	ptree pt;
-	for (auto it = filters.begin(); it != filters.end(); ++it)
-		pt.add_child("Filter", MakePTree(*it));
+	for (auto& filter : filters)
+		pt.add_child("Filter", MakePTree(filter));
 	return pt;
 }
 
 std::vector<Filter> MakeFilters(const ptree& pt)
 {
 	std::vector<Filter> filters;
-	for (auto it = pt.begin(); it != pt.end(); ++it)
+	for (auto& item : pt)
 	{
-		if (it->first == "MessageFilter" ||
-			it->first == "ProcessFilter" ||
-			it->first == "Filter")
-			filters.push_back(MakeFilter(it->second));
+		if (item.first == "MessageFilter" ||
+			item.first == "ProcessFilter" ||
+			item.first == "Filter")
+			filters.push_back(MakeFilter(item.second));
 	}
 	return filters;
 }

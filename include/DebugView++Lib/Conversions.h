@@ -26,12 +26,12 @@ std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tab
 {
 	std::basic_string<CharT> result;
 	result.reserve(s.size() + 3*tabsize);
-	for (auto it = s.begin(); it != s.end(); ++it)
+	for (auto c : s)
 	{
-		if (*it == CharT('\t'))
+		if (c == CharT('\t'))
 			result.append(tabsize - result.size() % tabsize, CharT(' '));
 		else
-			result.push_back(*it);
+			result.push_back(c);
 	}
 	return result;
 }

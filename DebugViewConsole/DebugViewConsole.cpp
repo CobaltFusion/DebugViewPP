@@ -26,7 +26,7 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
 
-namespace fusion {
+namespace fusion
 namespace debugviewpp {
 
 struct Settings
@@ -73,6 +73,8 @@ void Quit()
 
 void LogMessages(Settings settings)
 {
+	using namespace std::chrono_literals;
+
 	LogSources sources(true);
 	sources.AddDBWinReader(false);
 	if (HasGlobalDBWinReaderRights())
@@ -103,7 +105,7 @@ void LogMessages(Settings settings)
 	{
 		auto lines = sources.GetLines();
 		int linenumber = 0;
-		for (auto it = lines.begin(); it != lines.end(); ++it)
+		for (auto& line : lines)
 		{
 			if (settings.console)
 			{
@@ -112,12 +114,12 @@ void LogMessages(Settings settings)
 					++linenumber;
 					std::cout << std::setw(5) << std::setfill('0') << linenumber << std::setfill(' ') << separator;
 				}
-				OutputDetails(settings, *it);
-				std::cout << separator << it->message.c_str() << "\n";
+				OutputDetails(settings, line);
+				std::cout << separator << line.message.c_str() << "\n";
 			}
 			if (!settings.filename.empty())
 			{
-				WriteLogFileMessage(fs, it->time, it->systemTime, it->pid, it->processName, it->message);
+				WriteLogFileMessage(fs, line.time, line.systemTime, line.pid, line.processName, line.message);
 			}
 		}
 		if (settings.flush)
@@ -125,7 +127,7 @@ void LogMessages(Settings settings)
 			std::cout.flush();
 			fs.flush();
 		}
-		Sleep(250);
+		std::this_thread::sleep_for(250ms);
 	}
 	std::cout.flush();
 }

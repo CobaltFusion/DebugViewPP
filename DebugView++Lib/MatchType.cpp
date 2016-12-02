@@ -37,11 +37,11 @@ bool IsSpecialRegexCharacter(char c)
 std::string MakeSimplePattern(const std::string& text)
 {
 	std::string pattern;
-	for (auto it = text.begin(); it != text.end(); ++it)
+	for (auto c : text)
 	{
-		if (IsSpecialRegexCharacter(*it))
+		if (IsSpecialRegexCharacter(c))
 			pattern += '\\';
-		pattern += *it;
+		pattern += c;
 	}
 	return pattern;
 }
@@ -49,16 +49,16 @@ std::string MakeSimplePattern(const std::string& text)
 std::string MakeWildcardPattern(const std::string& text)
 {
 	std::string pattern;
-	for (auto it = text.begin(); it != text.end(); ++it)
+	for (auto c : text)
 	{
-		switch (*it)
+		switch (c)
 		{
 		case '?': pattern += ".?"; break;
 		case '*': pattern += ".*"; break;
 		default: 
-			if (IsSpecialRegexCharacter(*it))
+			if (IsSpecialRegexCharacter(c))
 				pattern += '\\';
-			pattern += *it;
+			pattern += c;
 			break;
 		}
 	}

@@ -150,31 +150,31 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 	{
 		ScopedTimezoneBias(0);
 		auto result = LoadLogFile(SaveLogFile(logFile));
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
 	BOOST_TEST_MESSAGE("(UTC-8) Fremond");
 	{
 		ScopedTimezoneBias(-480);
 		auto result = LoadLogFile(SaveLogFile(logFile));
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
 	BOOST_TEST_MESSAGE("(UTC+8:30) Pyongyang Standard Time");
 	{
 		ScopedTimezoneBias(+510);
 		auto result = LoadLogFile(SaveLogFile(logFile));
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
 	BOOST_TEST_MESSAGE("test boundry case (UTC-12) Baker- / Howland Island (uninhabited islands belonging to the United States)");
 	{
 		ScopedTimezoneBias(-720);
 		auto result = LoadLogFile(SaveLogFile(logFile));
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
 	BOOST_TEST_MESSAGE("test boundry case (UTC+14) Kiritimati (Christmas Island, also uninhabited, part of the Kiribati Line Islands)");
 	{
 		ScopedTimezoneBias(+720);
 		auto result = LoadLogFile(SaveLogFile(logFile));
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
 
 	// test crossing timezones 
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 		auto filename = SaveLogFile(logFile);
 		ScopedTimezoneBias(-480);
 		auto result = LoadLogFile(filename);
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
 
 	// test crossing timezones 
@@ -195,26 +195,27 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 			filename = SaveLogFile(logFile);
 		}
 		auto result = LoadLogFile(filename);
-		BOOST_REQUIRE_EQUAL(AreEqual(result, logFile), true);
+		BOOST_TEST(AreEqual(result, logFile));
 	}
-
 }
 
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
+	static constexpr HANDLE nullHandle = nullptr;
+
 	HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	Win32::Handle handle(rawHandle);
 	{ 
-		BOOST_REQUIRE_EQUAL(handle.get(), rawHandle);
+		BOOST_TEST(handle.get() == rawHandle);
 		Win32::Handle handle1(std::move(handle));
-		BOOST_REQUIRE_EQUAL(handle.get(), HANDLE(nullptr));
-		BOOST_REQUIRE_EQUAL(handle1.get(), rawHandle);
+		BOOST_TEST(handle.get() == nullHandle);
+		BOOST_TEST(handle1.get() == rawHandle);
 		{
 			Win32::Handle handle2(std::move(handle1));
 			handle2.release();
-			BOOST_REQUIRE_EQUAL(handle2.get(), HANDLE(nullptr));
+			BOOST_TEST(handle2.get() == nullHandle);
 		}
-		BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(nullptr));
+		BOOST_TEST(handle1.get() == nullHandle);
 	}
 
 	{
@@ -222,13 +223,13 @@ BOOST_AUTO_TEST_CASE(HandleTest)
 		{
 			HANDLE zero = nullptr;
 			Win32::Handle zeroHandle(zero);
-			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(nullptr));
+			BOOST_TEST(zeroHandle.get() == nullHandle);
 			handle1 = std::move(zeroHandle);
-			BOOST_REQUIRE_EQUAL(zeroHandle.get(), HANDLE(nullptr));
-			BOOST_REQUIRE_EQUAL(handle1.get(), HANDLE(nullptr));
+			BOOST_TEST(zeroHandle.get() == nullHandle);
+			BOOST_TEST(handle1.get() == nullHandle);
 		}
 		// this scope ensures having a Handle leave scope that had its guts ripped out by std::move 
-		// will not cause nullpointers or exections
+		// will not cause nullpointers or exeptions
 	}
 }
 
@@ -242,10 +243,10 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 
 	auto lines = buffer.GetLines();
 	auto line = lines[0];
-	BOOST_REQUIRE_EQUAL(line.time, 42.0);
-	BOOST_REQUIRE_EQUAL(line.systemTime.dwLowDateTime, 42);
-	BOOST_REQUIRE_EQUAL(line.systemTime.dwHighDateTime, 43);
-	BOOST_REQUIRE(buffer.Empty());
+	BOOST_TEST(line.time == 42.0);
+	BOOST_TEST(line.systemTime.dwLowDateTime == 42);
+	BOOST_TEST(line.systemTime.dwHighDateTime == 43);
+	BOOST_TEST(buffer.Empty());
 }
 
 BOOST_AUTO_TEST_CASE(LineBufferTest2)
@@ -253,11 +254,11 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2)
 	TestLineBuffer buffer(600);
 	Timer timer;
 
-	for (int j=0; j< 1000; ++j)
+	for (int j = 0; j < 1000; ++j)
 	{
 		//BOOST_TEST_MESSAGE("j: " << j << "\n");
 
-		for (int i=0; i<17; ++i)
+		for (int i = 0; i < 17; ++i)
 		{
 			//BOOST_TEST_MESSAGE("i: " << i << "\n");
 			FILETIME ft;
@@ -267,13 +268,12 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2)
 		}
 
 		auto lines = buffer.GetLines();
-		BOOST_REQUIRE_EQUAL(lines.size(), 17);
-		for (auto it = lines.begin(); it != lines.end(); ++it)
+		BOOST_TEST(lines.size() == 17);
+		for (auto& line : lines)
 		{
-			auto line = *it;
-			BOOST_REQUIRE_EQUAL(line.time, 42.0);
-			BOOST_REQUIRE_EQUAL(line.systemTime.dwLowDateTime, 43);
-			BOOST_REQUIRE_EQUAL(line.systemTime.dwHighDateTime, 44);
+			BOOST_TEST(line.time == 42.0);
+			BOOST_TEST(line.systemTime.dwLowDateTime == 43);
+			BOOST_TEST(line.systemTime.dwHighDateTime == 44);
 		}
 	}
 }
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 	for (size_t i = 0; i < testSize; ++i)
 	{
 		size_t j = distribution(generator);  // generates number in the range 0..testMax 
-		BOOST_REQUIRE_EQUAL(s[j], GetTestString(j));
+		BOOST_TEST(s[j] == GetTestString(j));
 	}
 }
 
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 	size_t usedBySnappy = m2 - m1;
 
 	BOOST_TEST_MESSAGE("SnappyStorage requires: " << usedBySnappy/1024 << " kB (" << (100*usedBySnappy)/usedByVector << "%)");
-	BOOST_REQUIRE_GT(0.50*usedByVector, usedBySnappy);
+	BOOST_TEST(0.50*usedByVector > usedBySnappy);
 }
 
 // execute as:
@@ -347,24 +347,23 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 	auto lines = logsources.GetLines();
 	BOOST_TEST_MESSAGE("received: " << lines.size() << " lines.");
 
-	BOOST_REQUIRE_EQUAL(lines.size(), 3);
+	BOOST_TEST(lines.size() == 3);
 
-	for (auto it = lines.begin(); it != lines.end(); ++it)
+	for (auto& line : lines)
 	{
-		auto line = *it;
 		BOOST_TEST_MESSAGE("line: " << line.message);
 	}
 
 	const int testsize = 1000;
 	BOOST_TEST_MESSAGE("Write " << testsize << " lines...");
-	for (int i=0; i < testsize; ++i)
+	for (int i = 0; i < testsize; ++i)
 	{
 		logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
 	}
 
 	auto morelines = logsources.GetLines();
 	BOOST_TEST_MESSAGE("received: " << morelines.size() << " lines.");
-	BOOST_REQUIRE_EQUAL(morelines.size(), testsize);
+	BOOST_TEST(morelines.size() == testsize);
 }
 
 BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
@@ -377,9 +376,9 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TrailingTab\t");
 
 	auto lines = logsources.GetLines();
-	BOOST_REQUIRE_EQUAL(lines.size(), 2);
-	BOOST_REQUIRE_EQUAL(lines[0].message, "TrailingSpace ");	// space preserved
-	BOOST_REQUIRE_EQUAL(lines[1].message, "TrailingTab\t");		// tab preserved
+	BOOST_TEST(lines.size() == 2);
+	BOOST_TEST(lines[0].message == "TrailingSpace ");	// space preserved
+	BOOST_TEST(lines[1].message == "TrailingTab\t");	// tab preserved
 }
 
 BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
@@ -392,9 +391,9 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "\t\tTwoTabsPrefixed");
 
 	auto lines = logsources.GetLines();
-	BOOST_REQUIRE_EQUAL(lines.size(), 2);
-	BOOST_REQUIRE_EQUAL(lines[0].message, "\tTabPrefix");	// space preserved
-	BOOST_REQUIRE_EQUAL(lines[1].message, "\t\tTwoTabsPrefixed");	// space preserved
+	BOOST_TEST(lines.size() == 2);
+	BOOST_TEST(lines[0].message == "\tTabPrefix");	// space preserved
+	BOOST_TEST(lines[1].message == "\t\tTwoTabsPrefixed");	// space preserved
 }
 
 BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
@@ -408,23 +407,24 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "CarriageReturnNewLinePostfix\r\n");
 
 	auto lines = logsources.GetLines();
-	BOOST_REQUIRE_EQUAL(lines.size(), 3);
-	BOOST_REQUIRE_EQUAL(lines[0].message, "NewLinePostfix");
-	BOOST_REQUIRE_EQUAL(lines[1].message, "NewLineCarriageReturnPostfix");
-	BOOST_REQUIRE_EQUAL(lines[2].message, "CarriageReturnNewLinePostfix");
+	BOOST_TEST(lines.size() == 3);
+	BOOST_TEST(lines[0].message == "NewLinePostfix");
+	BOOST_TEST(lines[1].message == "NewLineCarriageReturnPostfix");
+	BOOST_TEST(lines[2].message == "CarriageReturnNewLinePostfix");
 }
 
 std::wstring GetExecutePath()
 {
-	using namespace boost;
-	auto path = std::experimental::filesystem::system_complete(std::experimental::filesystem::path( Win32::GetCommandLineArguments()[0]));
+	auto path = system_complete(std::experimental::filesystem::path( Win32::GetCommandLineArguments()[0]));
 	return path.remove_filename().c_str();
 }
 
 BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 {
+	using namespace std::chrono_literals;
+
 	std::string dbgMsgSrc = stringbuilder() << GetExecutePath() << "\\DbgMsgSrc.exe";
-	BOOST_REQUIRE_EQUAL(FileExists(dbgMsgSrc.c_str()), true);
+	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
 	LogSources logsources(true);
@@ -434,12 +434,12 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	BOOST_TEST_MESSAGE("cmd: " << cmd);
 	system((cmd + "-n").c_str());
 	BOOST_TEST_MESSAGE("done.");
-	//	 logsources.Abort(); // hangs? 
+	logsources.Abort(); // hangs? 
 
-	Sleep(200);
+	std::this_thread::sleep_for(200ms);
 
 	auto lines = logsources.GetLines();
-	BOOST_REQUIRE_EQUAL(lines.size(), 1);
+	BOOST_TEST(lines.size() == 1);
 }
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)

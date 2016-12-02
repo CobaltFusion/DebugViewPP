@@ -123,11 +123,11 @@ std::string SnappyStorage::GetString(size_t index)
 std::string SnappyStorage::Compress(const std::vector<std::string>& value) const
 {
 	std::vector<char> raw;
-	for (auto s = value.begin(); s != value.end(); ++s)
+	for (auto& s : value)
 	{
-		for (auto t = s->begin(); t != s->end(); ++t)
+		for (auto t : s)
 		{
-			raw.push_back(*t);
+			raw.push_back(t);
 		}
 		raw.push_back('\0');
 	}
@@ -148,7 +148,7 @@ std::vector<std::string> SnappyStorage::Decompress(const std::string& value) con
 		auto begin = it;
 		while (*it)
 			++it;
-		vec.push_back(std::string(begin, it));
+		vec.emplace_back(begin, it);
 	}
 	return vec;
 }
