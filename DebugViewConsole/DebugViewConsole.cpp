@@ -26,7 +26,7 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
 
-namespace fusion
+namespace fusion {
 namespace debugviewpp {
 
 struct Settings
