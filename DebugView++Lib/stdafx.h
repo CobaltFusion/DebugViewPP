@@ -21,19 +21,16 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <string>
 #include <regex>
 #include <vector>
+#include <filesystem>
+#include <thread>
 
-#include <boost/utility.hpp>
-#include <boost/thread.hpp>
-#include <boost/utility.hpp>
-#include <boost/system/system_error.hpp>
+#include <system_error>
 #include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/noncopyable.hpp>
 #endif
 

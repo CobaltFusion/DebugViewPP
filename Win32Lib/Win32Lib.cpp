@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <vector>
+#include <cassert>
 #include <iostream>
 #include <shellapi.h>
 #include "Win32/Win32Lib.h"
@@ -125,7 +126,7 @@ std::string WideCharToMultiByte(const std::wstring& str)
 }
 
 Win32Error::Win32Error(DWORD error, const std::string& what) :
-	boost::system::system_error(error, boost::system::get_system_category(), what)
+	std::system_error(error, std::system_category(), what)
 {
 }
 

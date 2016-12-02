@@ -44,7 +44,7 @@ PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, IL
 void PassiveLogSource::StartThread()
 {
 	if (m_microsecondInterval > m_microsecondInterval.zero())
-		m_thread = boost::thread(&PassiveLogSource::Loop, this);
+		m_thread = std::make_unique<std::thread>(&PassiveLogSource::Loop, this);
 }
 
 long PassiveLogSource::GetMicrosecondInterval() const
@@ -55,7 +55,7 @@ long PassiveLogSource::GetMicrosecondInterval() const
 void PassiveLogSource::Abort()
 {
 	LogSource::Abort();
-	m_thread.join();
+	if (m_thread) m_thread->join();
 }
 
 void PassiveLogSource::Loop()
@@ -67,7 +67,7 @@ void PassiveLogSource::Loop()
 		if (LogSource::AtEnd())
 			break;
 		// sub 16ms sleep, depends on available hardware for accuracy
-		boost::this_thread::sleep_for(m_microsecondInterval);
+		std::this_thread::sleep_for(m_microsecondInterval);
 	}
 }
 
@@ -80,7 +80,7 @@ void PassiveLogSource::Notify()
 {
 	// this swap is essential for efficiency.
 	{
-		boost::mutex::scoped_lock lock(m_mutex);
+		std::lock_guard<std::mutex> lock(m_mutex);
 		m_lines.swap(m_backBuffer);
 	}
 
@@ -100,13 +100,13 @@ void PassiveLogSource::Poll()
 
 void PassiveLogSource::AddMessage(DWORD pid, const std::string& processName, const std::string& message)
 {
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	m_lines.push_back(PollLine(pid, processName, message, this));
 }
 
 void PassiveLogSource::AddMessage(const std::string& message)
 {
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	std::string msg = message + "\n";
 	m_lines.push_back(PollLine(0, "[internal]", msg, this));
 }
@@ -118,7 +118,7 @@ void PassiveLogSource::AddMessage(double time, FILETIME systemTime, DWORD pid, c
 
 void PassiveLogSource::Signal()
 {
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	if (!m_lines.empty())
 		SetEvent(m_handle.get());
 }

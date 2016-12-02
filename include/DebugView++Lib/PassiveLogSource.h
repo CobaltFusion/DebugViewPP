@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <boost/thread.hpp>
+#include <thread>
 #include "Win32/Win32Lib.h"
 #include "LogSource.h"
 
@@ -57,9 +57,9 @@ private:
 	std::vector<PollLine> m_lines;
 	std::vector<PollLine> m_backBuffer;
 	Win32::Handle m_handle;
-	boost::mutex m_mutex;
-	boost::chrono::microseconds m_microsecondInterval;
-	boost::thread m_thread;
+	std::mutex m_mutex;
+	std::chrono::microseconds m_microsecondInterval;
+	std::unique_ptr<std::thread> m_thread;
 };
 
 } // namespace debugviewpp 

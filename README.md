@@ -6,10 +6,17 @@ DebugView++
 DebugView++ is primarily a viewer for Win32 OutputDebugString based logging in the style of
 Sysinternals DebugView. But can also be attached to virtually any other kind of logging.
 
-These are some of its features:
+Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
+- last version with XP support
+- internal refactoring from boost to C++11/14 constructs
+- bugfixes
+- no features planned, if you're missing something you need, file an issue!
+
+Here is a list of current features:
 
 - single selfcontaining executable, setup is provided but not required
-- runs without prerequisites on WinXPSP3, Vista and 7/8.x
+- runs without prerequisites on WinXPSP3 (v1.5 and earlier also on WinXPSP2), Vista and 7/8.x
+- after v1.7 we drop WindowsXP support
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve PID to process name
@@ -54,6 +61,7 @@ Added in 1.5:
 Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
+
 
 Changes in 1.6.x:
 - restructuring log-sources code 

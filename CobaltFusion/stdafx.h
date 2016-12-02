@@ -7,6 +7,9 @@
 
 #pragma once
 
+#define WINVER		    0x0501
+#define _WIN32_WINNT    0x0501
+
 #pragma warning(disable : 4355) // 'this' : used in base member initializer list
 
 #include "targetver.h"

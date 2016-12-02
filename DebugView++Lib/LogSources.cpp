@@ -35,7 +35,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-const boost::chrono::seconds handleCacheTimeout(5);
+const std::chrono::seconds handleCacheTimeout(5);
 
 LogSources::LogSources(bool startListening) : 
 	m_end(false),
@@ -47,7 +47,7 @@ LogSources::LogSources(bool startListening) :
 {
 	
 	if (startListening)
-		m_listenThread = boost::thread(&LogSources::Listen, this);
+		m_listenThread = std::thread(&LogSources::Listen, this);
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
 }
 	
@@ -78,7 +78,7 @@ void LogSources::UpdateSettings(const std::unique_ptr<LogSource>& pSource)
 void LogSources::Add(std::unique_ptr<LogSource> pSource)
 {
 	assert(m_guiExecutor.IsExecutorThread());
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	UpdateSettings(pSource);
 	m_sources.emplace_back(std::move(pSource));
 	Win32::SetEvent(m_updateEvent);
@@ -94,7 +94,7 @@ void LogSources::InternalRemove(LogSource* pLogSource)
 {
 	assert(m_guiExecutor.IsExecutorThread());
 	AddMessage(stringbuilder() << "Source '" << pLogSource->GetDescription() << "' was removed.");
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	pLogSource->Abort();
 	std::vector<LogSource*> v;
 	v.push_back(pLogSource);
@@ -104,7 +104,7 @@ void LogSources::InternalRemove(LogSource* pLogSource)
 std::vector<LogSource*> LogSources::GetSources() const
 {
 	std::vector<LogSource*> sources;
-	boost::mutex::scoped_lock lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	for (auto& pSource : m_sources)
 	{
 		if (dynamic_cast<Loopback*>(pSource.get()))
@@ -192,7 +192,7 @@ void LogSources::ListenUntilUpdateEvent()
 	std::vector<HANDLE> waitHandles;
 	std::vector<LogSource*> sources;
 	{
-		boost::mutex::scoped_lock lock(m_mutex);
+		std::lock_guard<std::mutex> lock(m_mutex);
 		for (auto& source : m_sources)
 		{
 			if (source->AtEnd()) continue;
@@ -238,7 +238,7 @@ void LogSources::UpdateSources()
 {
 	std::vector<LogSource*> sources;
 	{
-		boost::mutex::scoped_lock lock(m_mutex);
+		std::lock_guard<std::mutex> lock(m_mutex);
 		for (auto& pSource : m_sources)
 		{
 			sources.push_back(pSource.get());

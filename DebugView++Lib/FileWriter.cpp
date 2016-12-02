@@ -17,7 +17,7 @@ FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
 	m_logfile(logfile)
 {
 	OpenLogFile(m_ofstream, filename, OpenMode::Append);
-	m_thread = boost::thread(&FileWriter::Run, this);
+	m_thread = std::thread(&FileWriter::Run, this);
 }
 
 void FileWriter::Run()
@@ -34,7 +34,7 @@ void FileWriter::Run()
 			WriteLogFileMessage(m_ofstream, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
 		}
 		m_ofstream.flush();
-		boost::this_thread::sleep_for(boost::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }
 
