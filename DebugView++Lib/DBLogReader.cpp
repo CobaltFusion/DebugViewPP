@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <filesystem>
+#include <cassert>
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/DBLogReader.h"
 #include "DebugView++Lib/LineBuffer.h"
@@ -21,9 +21,17 @@ DBLogReader::DBLogReader(Timer& timer, ILineBuffer& linebuffer, FileType::type f
 {
 }
 
+uint64_t FileTimeToUInt64(const FILETIME& ft)
+{
+	ULARGE_INTEGER value;
+	value.LowPart = ft.dwLowDateTime;
+	value.HighPart = ft.dwHighDateTime;
+	return value.QuadPart;
+}
+
 double GetDifference(FILETIME ft1, FILETIME ft2)
 {
-	return (*((ULONGLONG*)&ft2) - *((ULONGLONG*)&ft1))/10000000.0;
+	return (FileTimeToUInt64(ft2) - FileTimeToUInt64(ft1)) * 100e-9;
 }
 
 // used to create a relative time from the systemtime when only systemtime is stored in Sysinternals DbgView files.

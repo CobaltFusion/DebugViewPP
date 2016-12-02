@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <cassert>
 #include <algorithm>
-#include <boost/atomic.hpp>
+#include <atomic>
 #include "CobaltFusion/Executor.h"
 #include "CobaltFusion/dbgstream.h"
 
@@ -30,7 +30,7 @@ ScheduledCall ExecutorBase::MakeScheduledCall(unsigned id)
 
 unsigned ExecutorBase::GetCallId()
 {
-	static boost::atomic<unsigned> id(0);
+	static std::atomic<unsigned> id(0);
 	return ++id;
 }
 
