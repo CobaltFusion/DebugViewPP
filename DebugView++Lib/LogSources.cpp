@@ -9,6 +9,7 @@
 #include <cassert>
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/thread.h"
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
 #include "DebugView++Lib/LogSources.h"
@@ -45,9 +46,8 @@ LogSources::LogSources(bool startListening) :
 	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
 	m_updatePending(false)
 {
-	
 	if (startListening)
-		m_listenThread = std::thread(&LogSources::Listen, this);
+		m_listenThread = std::make_unique<fusion::thread>([this] { Listen(); });
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
 }
 	
@@ -134,9 +134,7 @@ void LogSources::Abort()
 		pSource->Abort();
 	}
 	Win32::SetEvent(m_updateEvent);
-
-	// Locks up main thread during shutdown when m_listenThread itself is waiting for the result of a GuiExecutor::Call():
-//	m_listenThread.join();
+	if (m_listenThread) m_listenThread->join();
 }
 
 void LogSources::Reset()

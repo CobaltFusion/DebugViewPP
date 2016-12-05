@@ -20,5 +20,6 @@
 #ifdef _DEBUG
 #include <boost/noncopyable.hpp>
 #include <boost/signals2.hpp>
-#include <thread>
 #endif
+
+#include <thread>

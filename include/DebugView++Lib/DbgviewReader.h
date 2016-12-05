@@ -33,7 +33,6 @@ class DbgviewReader : public PassiveLogSource
 {
 public:
 	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
-	~DbgviewReader() override;
 
 	void SetAutoNewLine(bool value) override;
 	void Abort() override;

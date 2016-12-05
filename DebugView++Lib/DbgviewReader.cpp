@@ -18,15 +18,12 @@ namespace debugviewpp {
 
 const std::string SysinternalsDebugViewAgentPort = "2020";
 
-DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname) :
-	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
-	m_hostname(hostname)
+DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname)
+	: PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40)
+	, m_hostname(hostname)
+	, m_thread([this] { Loop(); })
 {
-	SetDescription(wstringbuilder() << "Dbgview Agent at " << m_hostname);
-	m_thread = std::thread(&DbgviewReader::Loop, this);
 }
-
-DbgviewReader::~DbgviewReader() = default;
 
 std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 {
@@ -98,6 +95,7 @@ void DbgviewReader::SetAutoNewLine(bool value)
 
 void DbgviewReader::Loop()
 {
+	SetDescription(wstringbuilder() << "Dbgview Agent at " << m_hostname);
 	m_iostream.connect(m_hostname, SysinternalsDebugViewAgentPort);
 	const std::string processName("[tcp]");
 

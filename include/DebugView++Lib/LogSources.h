@@ -9,16 +9,13 @@
 
 #include <memory>
 #include <boost/signals2.hpp>
-
-#pragma warning(push, 1)
-#include <thread>
-#pragma warning(pop)
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "CobaltFusion/CircularBuffer.h"
 #include "CobaltFusion/GuiExecutor.h"
+#include "CobaltFusion/thread.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/ProcessMonitor.h"
 
@@ -119,7 +116,7 @@ private:
 	Update m_update;
 
 	// make sure this thread is last to initialize
-	std::thread m_listenThread;
+	std::unique_ptr<fusion::thread> m_listenThread;
 };
 
 } // namespace debugviewpp 
