@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2)
 {
 	TestLineBuffer buffer(600);
 	Timer timer;
-
+	BOOST_TEST_MESSAGE("Working, this can take ~30 seconds in debug mode.");
 	for (int j = 0; j < 1000; ++j)
 	{
 		//BOOST_TEST_MESSAGE("j: " << j << "\n");
@@ -434,12 +434,16 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	BOOST_TEST_MESSAGE("cmd: " << cmd);
 	system((cmd + "-n").c_str());
 	BOOST_TEST_MESSAGE("done.");
-	logsources.Abort(); // hangs? 
-
 	std::this_thread::sleep_for(200ms);
+	logsources.Abort();
 
-	auto lines = logsources.GetLines();
-	BOOST_TEST(lines.size() == 1);
+	int count = 0;
+	auto myPid = ::GetCurrentProcessId();
+	for (auto& line : logsources.GetLines())
+	{
+		if (line.pid == myPid) count++;
+	}
+	BOOST_TEST(count == 1);
 }
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
