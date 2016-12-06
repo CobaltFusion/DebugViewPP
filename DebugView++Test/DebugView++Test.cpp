@@ -18,6 +18,8 @@
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/ExecutorHost.h"
+#include "CobaltFusion/Executor.h"
 #include "IndexedStorageLib/IndexedStorage.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/DBWinBuffer.h"
@@ -285,7 +287,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 	size_t testSize = 10000;
 	auto testMax = testSize - 1;
 
-	std::default_random_engine generator;
+	std::mt19937 generator;
 	std::uniform_int_distribution<int> distribution(0, testMax);
 	SnappyStorage s;
 	for (size_t i = 0; i < testSize; ++i)
@@ -294,7 +296,10 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 	for (size_t i = 0; i < testSize; ++i)
 	{
 		size_t j = distribution(generator);  // generates number in the range 0..testMax 
-		BOOST_TEST(s[j] == GetTestString(j));
+		if (s[j] != GetTestString(j))
+		{
+			BOOST_FAIL("Lookup of index " << j << "failed");
+		}
 	}
 }
 
@@ -335,7 +340,8 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 // "DebugView++Test.exe" --log_level=test_suite --run_test=*/LogSourcesReceiveMessages
 BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 {
-	LogSources logsources(false);
+	ActiveExecutorHost executor;
+	LogSources logsources(executor, false);
 	auto logsource = logsources.AddTestSource();
 
 	Timer timer;
@@ -368,7 +374,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 
 BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 {
-	LogSources logsources(false);
+	ActiveExecutorHost executor;
+	LogSources logsources(executor, false);
 	auto logsource = logsources.AddTestSource();
 
 	Timer timer;
@@ -383,7 +390,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 
 BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 {
-	LogSources logsources(false);
+	ActiveExecutorHost executor;
+	LogSources logsources(executor, false);
 	auto logsource = logsources.AddTestSource();
 
 	Timer timer;
@@ -398,7 +406,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 
 BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 {
-	LogSources logsources(false);
+	ActiveExecutorHost executor;
+	LogSources logsources(executor, false);
 	auto logsource = logsources.AddTestSource();
 
 	Timer timer;
@@ -427,9 +436,10 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
-	LogSources logsources(true);
-	logsources.AddDBWinReader(false);
-	logsources.SetAutoNewLine(true);
+	ActiveExecutorHost executor;
+	LogSources logsources(executor, false);
+	executor.Call([&] { logsources.AddDBWinReader(false); });
+	executor.Call([&] { logsources.SetAutoNewLine(true); });
 
 	BOOST_TEST_MESSAGE("cmd: " << cmd);
 	system((cmd + "-n").c_str());

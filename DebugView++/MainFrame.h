@@ -22,6 +22,7 @@ namespace WTL { using ATL::CString; };
 #pragma warning(pop)
 
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/ExecutorHost.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/LineBuffer.h"
@@ -222,7 +223,6 @@ private:
 	bool m_hide;
 	bool m_tryGlobal;
 	CRunDlg m_runDlg;
-	LogSources m_logSources;
 	std::wstring m_logFileName;
 	std::wstring m_txtFileName;
 	std::wstring m_configFileName;
@@ -234,6 +234,8 @@ private:
 	DBWinReader* m_pGlobalReader;
 	DbgviewReader* m_pDbgviewReader;
 	std::vector<SourceInfo> m_sourceInfos;
+	GuiExecutorHost m_guiExecutorHost;
+	LogSources m_logSources;
 };
 
 } // namespace debugviewpp 

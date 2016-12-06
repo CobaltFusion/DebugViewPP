@@ -177,7 +177,7 @@ void Executor::SetExecutorThread()
 
 void Executor::SetExecutorThread(std::thread::id id)
 {
-    m_threadId = id;
+	m_threadId = id;
 }
 
 void Executor::Add(std::function<void ()> fn)

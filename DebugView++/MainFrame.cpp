@@ -18,6 +18,7 @@
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/hstream.h"
 #include "CobaltFusion/Math.h"
+#include "CobaltFusion/GuiExecutor.h"
 #include "Win32/Registry.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
@@ -121,10 +122,10 @@ CMainFrame::CMainFrame() :
 	m_configFileName(L"DebugView++.dbconf"),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
-	m_logSources(true),
 	m_pLocalReader(nullptr),
 	m_pGlobalReader(nullptr),
-	m_pDbgviewReader(nullptr)
+	m_pDbgviewReader(nullptr),
+	m_logSources(m_guiExecutorHost)
 {
 	m_notifyIconData.cbSize = 0;
 }

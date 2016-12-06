@@ -14,7 +14,7 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "CobaltFusion/CircularBuffer.h"
-#include "CobaltFusion/GuiExecutor.h"
+#include "CobaltFusion/ExecutorHost.h"
 #include "CobaltFusion/thread.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/ProcessMonitor.h"
@@ -62,7 +62,7 @@ class LogSources
 public:
 	typedef boost::signals2::signal<bool ()> Update;
 
-	explicit LogSources(bool startListening = false);
+	LogSources(IExecutor& executor, bool startListening = true);
 	~LogSources();
 
 	void SetAutoNewLine(bool value);
@@ -111,7 +111,7 @@ private:
 	Loopback* m_loopback;
 	Timer m_timer;
 
-	GuiExecutor m_guiExecutor;
+	IExecutor& m_executor;
 	bool m_updatePending;
 	Update m_update;
 

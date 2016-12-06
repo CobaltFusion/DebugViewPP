@@ -7,9 +7,11 @@
 
 #include "stdafx.h"
 #include <cassert>
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/thread.h"
+#include "CobaltFusion/assert.h"
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
 #include "DebugView++Lib/LogSources.h"
@@ -38,16 +40,16 @@ namespace debugviewpp {
 
 const std::chrono::seconds handleCacheTimeout(5);
 
-LogSources::LogSources(bool startListening) : 
+LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_end(false),
 	m_autoNewLine(true),
 	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
-	m_linebuffer(64*1024),
+	m_linebuffer(64 * 1024),
 	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
-	m_updatePending(false)
+	m_updatePending(false),
+	m_executor(executor),
+	m_listenThread(startListening ? std::make_unique<fusion::thread>([this] { Listen(); }) : nullptr)
 {
-	if (startListening)
-		m_listenThread = std::make_unique<fusion::thread>([this] { Listen(); });
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
 }
 	
@@ -77,7 +79,7 @@ void LogSources::UpdateSettings(const std::unique_ptr<LogSource>& pSource)
 
 void LogSources::Add(std::unique_ptr<LogSource> pSource)
 {
-	assert(m_guiExecutor.IsExecutorThread());
+	assert(m_executor.IsExecutorThread());
 	std::lock_guard<std::mutex> lock(m_mutex);
 	UpdateSettings(pSource);
 	m_sources.emplace_back(std::move(pSource));
@@ -92,7 +94,7 @@ void LogSources::Remove(LogSource* pLogSource)
 
 void LogSources::InternalRemove(LogSource* pLogSource)
 {
-	assert(m_guiExecutor.IsExecutorThread());
+	assert(m_executor.IsExecutorThread());
 	AddMessage(stringbuilder() << "Source '" << pLogSource->GetDescription() << "' was removed.");
 	std::lock_guard<std::mutex> lock(m_mutex);
 	pLogSource->Abort();
@@ -152,7 +154,7 @@ const std::chrono::milliseconds graceTime(40); // -> intentionally near what the
 void LogSources::OnUpdate()
 {
 	m_updatePending = true;
-	m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
+	m_executor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 }
 
 void LogSources::DelayedUpdate()
@@ -164,7 +166,7 @@ void LogSources::DelayedUpdate()
 	if (receivedLines.get())	// get the actual return value
 	{
 		// messages where received, schedule next update
-		m_guiExecutor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
+		m_executor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 	}
 	else
 	{
@@ -172,7 +174,7 @@ void LogSources::DelayedUpdate()
 		m_updatePending = false;
 		// schedule one more update to workaround the race-condition writing to m_updatePending
 		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
-		m_guiExecutor.CallAfter(graceTime, [this]() { m_update(); });
+		m_executor.CallAfter(graceTime, [this]() { m_update(); });
 	}
 }
 
@@ -181,8 +183,16 @@ void LogSources::DelayedUpdate()
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
 {
-	while (!m_end)
-		ListenUntilUpdateEvent();
+	try
+	{
+		while (!m_end)
+			ListenUntilUpdateEvent();
+	}
+	catch (const std::exception& e)
+	{
+		FUSION_REPORT_EXCEPTION(e.what());
+		throw;
+	}
 }
 
 void LogSources::ListenUntilUpdateEvent()
@@ -229,7 +239,7 @@ void LogSources::ListenUntilUpdateEvent()
 			}
 		}
 	}
-	m_guiExecutor.Call([this] { UpdateSources(); });
+	m_executor.Call([this] { UpdateSources(); });
 }
 
 void LogSources::UpdateSources()
@@ -254,7 +264,7 @@ void LogSources::UpdateSources()
 
 void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 {
-	m_guiExecutor.CallAsync([this, pid, handle]
+	m_executor.CallAsync([this, pid, handle]
 	{
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
 		for (auto& line : flushedLines)
