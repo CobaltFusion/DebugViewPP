@@ -78,12 +78,13 @@ void LogMessages(Settings settings)
 	using namespace std::chrono_literals;
 
 	ActiveExecutorHost executor;
-	LogSources sources(executor);
-	sources.AddDBWinReader(false);
-	if (HasGlobalDBWinReaderRights())
-		sources.AddDBWinReader(true);
-
-	sources.SetAutoNewLine(settings.autonewline);
+	LogSources logsources(executor);
+	executor.Call([&] {
+		logsources.AddDBWinReader(false);
+		if (HasGlobalDBWinReaderRights())
+			logsources.AddDBWinReader(true);
+		logsources.SetAutoNewLine(settings.autonewline);
+	});
 
 	std::ofstream fs;
 
@@ -106,7 +107,10 @@ void LogMessages(Settings settings)
 	std::string separator = settings.tabs ? "\t" : " ";
 	while (!g_quit)
 	{
-		auto lines = sources.GetLines();
+		Lines lines;
+		executor.Call([&] {
+			lines = logsources.GetLines();
+		});
 		int linenumber = 0;
 		for (auto& line : lines)
 		{
