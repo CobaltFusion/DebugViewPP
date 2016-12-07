@@ -251,11 +251,11 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 	BOOST_TEST(buffer.Empty());
 }
 
-BOOST_AUTO_TEST_CASE(LineBufferTest2)
+BOOST_AUTO_TEST_CASE(LineBufferTest2)	// test overflows boosttestui with log-output locking its GUI up temporarily
 {
 	TestLineBuffer buffer(600);
 	Timer timer;
-	BOOST_TEST_MESSAGE("Working, this can take ~30 seconds in debug mode.");
+	std::cout << "LineBufferTest2 running..." << std::endl;  
 	for (int j = 0; j < 1000; ++j)
 	{
 		//BOOST_TEST_MESSAGE("j: " << j << "\n");
@@ -437,23 +437,17 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
 	ActiveExecutorHost executor;
-	LogSources logsources(executor, false);
+	LogSources logsources(executor, true);
 	executor.Call([&] { logsources.AddDBWinReader(false); });
 	executor.Call([&] { logsources.SetAutoNewLine(true); });
 
-	BOOST_TEST_MESSAGE("cmd: " << cmd);
-	system((cmd + "-n").c_str());
-	BOOST_TEST_MESSAGE("done.");
+	logsources.AddMessage("Test message 1");
+	logsources.AddMessage("Test message 2");
 	std::this_thread::sleep_for(200ms);
 	logsources.Abort();
 
-	int count = 0;
-	auto myPid = ::GetCurrentProcessId();
-	for (auto& line : logsources.GetLines())
-	{
-		if (line.pid == myPid) count++;
-	}
-	BOOST_TEST(count == 1);
+
+	BOOST_TEST(logsources.GetLines().size() == 2);
 }
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
