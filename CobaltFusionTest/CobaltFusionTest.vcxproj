@@ -162,6 +162,11 @@
     <ClCompile Include="TestExecutor.cpp" />
     <ClCompile Include="TestGuiExecutor.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CobaltFusion\CobaltFusion.vcxproj">
+      <Project>{218ab179-4c19-4264-bd55-df89a9f321ca}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -342,7 +342,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 {
 	ActiveExecutorHost executor;
 	LogSources logsources(executor, false);
-	auto logsource = logsources.AddTestSource();
+	LogSource* logsource;
+	executor.Call([&] { logsource = logsources.AddTestSource();  });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
@@ -350,7 +351,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
 	BOOST_TEST_MESSAGE("3 lines added.");
 
-	auto lines = logsources.GetLines();
+	Lines lines;
+	executor.Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST_MESSAGE("received: " << lines.size() << " lines.");
 
 	BOOST_TEST(lines.size() == 3);
@@ -367,7 +369,9 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 		logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
 	}
 
-	auto morelines = logsources.GetLines();
+	Lines morelines;
+	executor.Call([&] { morelines = logsources.GetLines(); });
+
 	BOOST_TEST_MESSAGE("received: " << morelines.size() << " lines.");
 	BOOST_TEST(morelines.size() == testsize);
 }
@@ -376,13 +380,15 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 {
 	ActiveExecutorHost executor;
 	LogSources logsources(executor, false);
-	auto logsource = logsources.AddTestSource();
+	LogSource* logsource;
+	executor.Call([&] { logsource = logsources.AddTestSource();  });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TrailingSpace ");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TrailingTab\t");
 
-	auto lines = logsources.GetLines();
+	Lines lines;
+	executor.Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST(lines.size() == 2);
 	BOOST_TEST(lines[0].message == "TrailingSpace ");	// space preserved
 	BOOST_TEST(lines[1].message == "TrailingTab\t");	// tab preserved
@@ -392,13 +398,15 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 {
 	ActiveExecutorHost executor;
 	LogSources logsources(executor, false);
-	auto logsource = logsources.AddTestSource();
+	LogSource* logsource;
+	executor.Call([&] { logsource = logsources.AddTestSource();  });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "\tTabPrefix");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "\t\tTwoTabsPrefixed");
 
-	auto lines = logsources.GetLines();
+	Lines lines;
+	executor.Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST(lines.size() == 2);
 	BOOST_TEST(lines[0].message == "\tTabPrefix");	// space preserved
 	BOOST_TEST(lines[1].message == "\t\tTwoTabsPrefixed");	// space preserved
@@ -408,14 +416,16 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 {
 	ActiveExecutorHost executor;
 	LogSources logsources(executor, false);
-	auto logsource = logsources.AddTestSource();
+	LogSource* logsource;
+	executor.Call([&] { logsource = logsources.AddTestSource();  });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "NewLinePostfix\n");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "NewLineCarriageReturnPostfix\n\r");
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "CarriageReturnNewLinePostfix\r\n");
 
-	auto lines = logsources.GetLines();
+	Lines lines;
+	executor.Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST(lines.size() == 3);
 	BOOST_TEST(lines[0].message == "NewLinePostfix");
 	BOOST_TEST(lines[1].message == "NewLineCarriageReturnPostfix");
@@ -428,7 +438,7 @@ std::wstring GetExecutePath()
 	return path.remove_filename().c_str();
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
+BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 {
 	using namespace std::chrono_literals;
 
@@ -446,9 +456,37 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	std::this_thread::sleep_for(200ms);
 	logsources.Abort();
 
+	Lines lines;
+	executor.Call([&] { lines = logsources.GetLines(); });
 
-	BOOST_TEST(logsources.GetLines().size() == 2);
+	BOOST_TEST(lines.size() == 2);
 }
+
+BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
+{
+	using namespace std::chrono_literals;
+
+	std::string dbgMsgSrc = stringbuilder() << GetExecutePath() << "\\DbgMsgSrc.exe";
+	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
+	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
+
+	ActiveExecutorHost executor;
+	LogSources logsources(executor, true);
+	executor.Call([&] { logsources.AddDBWinReader(false); });
+	executor.Call([&] { logsources.SetAutoNewLine(true); });
+
+	BOOST_TEST_MESSAGE("cmd: " << cmd);
+	system((cmd + "-n").c_str());
+	BOOST_TEST_MESSAGE("done.");
+	std::this_thread::sleep_for(200ms);
+	logsources.Abort();
+
+	Lines lines;
+	executor.Call([&] { lines = logsources.GetLines(); });
+
+	BOOST_TEST(lines.size() == 1);
+}
+
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
 
