@@ -90,7 +90,7 @@ std::string ToChar(const T& s)
 void DbgviewReader::SetAutoNewLine(bool value)
 {
 	LogSource::SetAutoNewLine(value);
-	//	 todo: send ForceCarriageReturnsEnable/ForceCarriageReturnsDisable
+	//	 todo: send ForceCarriageReturnsEnable/ForceCarriageReturnsDisable to dbgview-agent
 }
 
 void DbgviewReader::Loop()
