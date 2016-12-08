@@ -213,7 +213,6 @@ private:
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar; // CMultiPaneStatusBarCtrlFlickerFree /  CMultiPaneStatusBarCtrl
-	UINT_PTR m_timer;
 	LogFile m_logFile;
 	std::unique_ptr<FileWriter> m_logWriter;
 	int m_filterNr;
@@ -234,7 +233,7 @@ private:
 	DBWinReader* m_pGlobalReader;
 	DbgviewReader* m_pDbgviewReader;
 	std::vector<SourceInfo> m_sourceInfos;
-	GuiExecutorHost m_guiExecutorHost;
+	std::unique_ptr<GuiExecutorHost> m_guiExecutorHost;
 	LogSources m_logSources;
 };
 

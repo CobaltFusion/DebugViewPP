@@ -125,7 +125,8 @@ CMainFrame::CMainFrame() :
 	m_pLocalReader(nullptr),
 	m_pGlobalReader(nullptr),
 	m_pDbgviewReader(nullptr),
-	m_logSources(m_guiExecutorHost)
+	m_guiExecutorHost(std::make_unique<GuiExecutorHost>()),
+	m_logSources(*m_guiExecutorHost)
 {
 	m_notifyIconData.cbSize = 0;
 }
@@ -218,9 +219,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 void CMainFrame::OnClose()
 {
-	if (m_timer)
-		KillTimer(m_timer); 
-
+	m_guiExecutorHost.reset();
 	SaveSettings();
 	DestroyWindow();
 

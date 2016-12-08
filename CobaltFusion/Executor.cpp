@@ -151,7 +151,7 @@ void ScopedScheduledCall::Cancel()
 
 Executor::Executor()
 {
-	SetExecutorThread();
+	SetExecutorThread();	// this is wrong? how can the Executor itself be created on the Executor-thread?
 }
 
 bool Executor::IsExecutorThread() const

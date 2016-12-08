@@ -446,18 +446,19 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
-	ActiveExecutorHost executor;
-	LogSources logsources(executor, true);
-	executor.Call([&] { logsources.AddDBWinReader(false); });
-	executor.Call([&] { logsources.SetAutoNewLine(true); });
+	auto executor = std::make_unique<ActiveExecutorHost>();
+	LogSources logsources(*executor, true);
+	executor->Call([&] { logsources.AddDBWinReader(false); });
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
 
 	logsources.AddMessage("Test message 1");
 	logsources.AddMessage("Test message 2");
 	std::this_thread::sleep_for(200ms);
-	logsources.Abort();
+	executor->Call([&] { logsources.Abort(); });
 
 	Lines lines;
-	executor.Call([&] { lines = logsources.GetLines(); });
+	executor->Call([&] { lines = logsources.GetLines(); });
+	executor.reset();
 
 	BOOST_TEST(lines.size() == 2);
 }
@@ -470,19 +471,20 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
-	ActiveExecutorHost executor;
-	LogSources logsources(executor, true);
-	executor.Call([&] { logsources.AddDBWinReader(false); });
-	executor.Call([&] { logsources.SetAutoNewLine(true); });
+	auto executor = std::make_unique<ActiveExecutorHost>();
+	LogSources logsources(*executor, true);
+	executor->Call([&] { logsources.AddDBWinReader(false); });
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
 
 	BOOST_TEST_MESSAGE("cmd: " << cmd);
 	system((cmd + "-n").c_str());
 	BOOST_TEST_MESSAGE("done.");
 	std::this_thread::sleep_for(200ms);
-	logsources.Abort();
+	executor->Call([&] { logsources.Abort(); });
 
 	Lines lines;
-	executor.Call([&] { lines = logsources.GetLines(); });
+	executor->Call([&] { lines = logsources.GetLines(); });
+	executor.reset();
 
 	BOOST_TEST(lines.size() == 1);
 }

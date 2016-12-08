@@ -119,6 +119,7 @@ public:
 	bool IsIdle() const;
 
 	void RunOne();
+	void Clear();
 
 protected:
 	void SetExecutorThread();

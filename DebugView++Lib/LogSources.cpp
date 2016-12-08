@@ -136,7 +136,6 @@ void LogSources::Abort()
 
 	Win32::SetEvent(m_updateEvent);
 	if (m_listenThread) m_listenThread->join();
-	m_executor.Call([] {}); // flush any pending calls
 }
 
 void LogSources::Reset()
