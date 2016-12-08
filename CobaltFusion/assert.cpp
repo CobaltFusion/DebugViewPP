@@ -15,20 +15,20 @@
 
 namespace fusion {
 
-	void errorMessage(const std::string& caption, const std::string& message)
+	void errormessage(const std::string& message, const std::string& caption)
 	{
-		::MessageBoxA(0, message.c_str(), caption.c_str(), MB_ICONEXCLAMATION);
+		MessageBoxA(nullptr, message.c_str(), caption.c_str() , MB_OK | MB_ICONERROR);
 	}
 
 	void assertmessage(const std::string& assertion, const std::string& message, const char * location)
 	{
-		errorMessage("Assertion failed", stringbuilder() << "Assertion '" << assertion << "' failed (" << message << ") at " << location);
+		errormessage(stringbuilder() << "Assertion '" << assertion << "' failed (" << message << ") at " << location, "Exception occurred");
 	}
 
 	void exceptionmessage(const char* what, const char * location)
 	{
 		auto trimmed = boost::trim_copy_if(std::string(what), boost::is_any_of("\r\n\t"));
-		errorMessage("Exception occurred",  stringbuilder() << "Exception '" << trimmed << "' occured at " << location);
+		errormessage(stringbuilder() << "Exception '" << trimmed << "' occured at " << location, "Exception occurred");
 	}
 
 } // namespace fusion

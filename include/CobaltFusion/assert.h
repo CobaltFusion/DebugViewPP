@@ -20,7 +20,7 @@
 
 namespace fusion {
 
-	void errorMessage(const std::string& caption, const std::string& message);
+	void errormessage(const std::string& message, const std::string& caption = "DebugView++ Error");
 	void assertmessage(const std::string& assertion, const std::string& message, const char * location);
 	void exceptionmessage(const char* what, const char * location);
 

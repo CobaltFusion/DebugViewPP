@@ -66,6 +66,7 @@ Loopback* LogSources::CreateLoopback(Timer& timer, ILineBuffer& lineBuffer)
 
 void LogSources::AddMessage(const std::string& message)
 {
+	assert(m_executor.IsExecutorThread());
 	m_loopback->AddMessage(message);
 	m_loopback->Signal();
 }
@@ -93,12 +94,9 @@ void LogSources::Remove(LogSource* pLogSource)
 void LogSources::InternalRemove(LogSource* pLogSource)
 {
 	assert(m_executor.IsExecutorThread());
-	AddMessage(stringbuilder() << "Source '" << pLogSource->GetDescription() << "' was removed.");
-	std::lock_guard<std::mutex> lock(m_mutex);
-	pLogSource->Abort();
-	std::vector<LogSource*> v;
-	v.push_back(pLogSource);
-	EraseElements(m_sources, v);
+	auto description = pLogSource->GetDescription();
+	EraseElements(m_sources, { pLogSource });
+	AddMessage(stringbuilder() << "Source '" << description << "' was removed.");
 }
 
 std::vector<LogSource*> LogSources::GetSources() const
@@ -107,7 +105,7 @@ std::vector<LogSource*> LogSources::GetSources() const
 	std::lock_guard<std::mutex> lock(m_mutex);
 	for (auto& pSource : m_sources)
 	{
-		if (dynamic_cast<Loopback*>(pSource.get()))
+		if (!dynamic_cast<Loopback*>(pSource.get()))
 			sources.push_back(pSource.get());
 	}
 	return sources;
@@ -319,10 +317,10 @@ Lines LogSources::GetLines()
 
 		// since a line can contain multiple newlines, processing 1 line can output
 		// multiple lines, in this case the timestamp for each line is the same.
+		// NewlineFilter::Process will also eat any \r\n's
 		auto processedLines = m_newlineFilter.Process(inputLine);
 		for (auto& line : processedLines)
 		{
-			boost::trim_right_if(line.message, boost::is_any_of("\r\n"));
 			lines.push_back(line);
 		}
 	}

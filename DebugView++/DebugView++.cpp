@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/hstream.h"
+#include "CobaltFusion/assert.h"
 #include "Win32/Com.h"
 #include "DebugView++Lib/DBWinWriter.h"
 #include "MainFrame.h"
@@ -164,6 +165,6 @@ try
 }
 catch (std::exception& ex)
 {
-	MessageBoxA(nullptr, ex.what(), "DebugView++ Error", MB_OK | MB_ICONERROR);
+	fusion::errormessage(ex.what());
 	return EXIT_FAILURE;
 }
