@@ -233,6 +233,8 @@ WaitResult WaitForAllObjects(const Coll& handles, DWORD milliSeconds)
 	return WaitForMultipleObjects(handles, true, milliSeconds);
 }
 
+bool IsProcessRunning(HANDLE handle);
+
 class MutexLock : boost::noncopyable
 {
 public:

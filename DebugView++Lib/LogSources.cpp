@@ -38,8 +38,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-const std::chrono::seconds handleCacheTimeout(5);
-
 LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_end(false),
 	m_autoNewLine(true),
@@ -271,9 +269,7 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
 		for (auto& line : flushedLines)
 			m_loopback->AddMessage(line.pid, line.processName, line.message);
-
-		if (!flushedLines.empty())
-			m_loopback->Signal();
+		m_loopback->Signal();
 		auto it = m_pidMap.find(pid);
 		if (it != m_pidMap.end())
 			m_pidMap.erase(it);
@@ -294,6 +290,7 @@ Lines LogSources::GetLines()
 {
 	assert(m_executor.IsExecutorThread());
 	auto inputLines = m_linebuffer.GetLines();
+
 	Lines lines;
 	for (auto& inputLine : inputLines)
 	{
@@ -305,7 +302,7 @@ Lines LogSources::GetLines()
 			inputLine.pLogSource->PreProcess(inputLine);
 		}
 
-		if (inputLine.handle)
+		if (inputLine.handle && Win32::IsProcessRunning(inputLine.handle))
 		{
 			Win32::Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);

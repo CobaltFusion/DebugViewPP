@@ -12,6 +12,7 @@
 #include "Win32/Com.h"
 #include "DebugView++Lib/DBWinWriter.h"
 #include "MainFrame.h"
+#include <iostream>
 
 //#define CONSOLE_DEBUG
 

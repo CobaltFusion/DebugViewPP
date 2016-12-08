@@ -321,6 +321,11 @@ WaitResult WaitForAllObjects(const HANDLE* begin, const HANDLE* end, DWORD milli
 	return WaitForMultipleObjects(begin, end, true, milliSeconds);
 }
 
+bool IsProcessRunning(HANDLE handle)
+{
+	return (::WaitForSingleObject(handle, 0) == WAIT_TIMEOUT);
+}
+
 MutexLock::MutexLock(HANDLE hMutex) :
 	m_hMutex(hMutex)
 {
