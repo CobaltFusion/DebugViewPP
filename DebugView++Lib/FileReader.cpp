@@ -18,7 +18,7 @@ namespace debugviewpp {
 
 FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) :
 	LogSource(timer, SourceType::File, linebuffer),
-	m_end(true),
+	m_end(false),
 	m_filename(Str(filename).str()),
 	m_fileType(filetype),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
@@ -43,7 +43,6 @@ void FileReader::Initialize()
 	if (m_ifstream.is_open())
 	{
 		ReadUntilEof();
-		m_end = false;
 	}
 }
 

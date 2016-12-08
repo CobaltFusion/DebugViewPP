@@ -457,7 +457,7 @@ void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
-	Pause();
+	if (!IsPaused()) Pause();
 	SetTitle(file);
 	using boost::algorithm::iequals;
 	auto ext = std::experimental::filesystem::path(file).extension().wstring();
@@ -963,7 +963,7 @@ void CMainFrame::Load(const std::wstring& filename)
 void CMainFrame::LoadAsync(const std::wstring& filename)
 {
 	SetTitle(filename);
-	Pause();
+	if (!IsPaused()) Pause();
 	ClearLog();
 	m_logSources.AddDBLogReader(filename);
 }
@@ -985,7 +985,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 {
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	Pause();
+	if (!IsPaused()) Pause();
 	ClearLog();
 
 	Line line;
