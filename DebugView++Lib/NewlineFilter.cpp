@@ -38,11 +38,7 @@ Lines NewlineFilter::Process(const Line& line)
 		}
 	}
 
-	if (message.empty())
-	{
-		m_lineBuffers.erase(line.pid);
-	}
-	else if (outputLine.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	if (outputLine.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
 	{
 		outputLine.message = message;
 		message.clear();

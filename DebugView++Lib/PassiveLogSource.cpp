@@ -107,7 +107,7 @@ void PassiveLogSource::AddMessage(DWORD pid, const std::string& processName, con
 void PassiveLogSource::AddMessage(const std::string& message)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	std::string msg = message + "\n";
+	std::string msg = message;
 	m_lines.push_back(PollLine(0, "[internal]", msg, this));
 }
 
