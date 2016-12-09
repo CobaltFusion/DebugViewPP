@@ -12,7 +12,7 @@ Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
 - internal refactoring from boost to C++11/14 constructs
 - no features planned, if you're missing something you need, file an issue!
 
-Screenshots
+Screenshot
 -----------
 ![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
 
@@ -63,7 +63,7 @@ Added in 1.5:
 - fixed crash when saving files in UTC-n timezones
  
 Not new features, but often overlooked, see below for details
-- View->Process Colors, easy way to give evert process its own color!
+- View->Process Colors, easy way to give every process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
 
 Changes in 1.7.x so far:
@@ -197,7 +197,7 @@ How to build
 ------------
 
 This is a Visual Studio 2010 project with the following dependencies (download and install separately)
-- boost 1.55, http://sourceforge.net/projects/boost/files/boost/1.55.0/, choose boost_1_55_0.zip
+- boost 1.63, https://sourceforge.net/projects/boost/files/boost/1.63.0.beta.1/boost_1_63_0_b1.zip
 - WTL 8.0, http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
 
@@ -207,17 +207,20 @@ Build dependencies
 ------------------
 - WiX Toolset: install the latest binary from http://wixtoolset.org/
 - boost: see the install.sh in the boost archive
-    - install visual studio 201x (now testing 2015)
+    - install visual studio 2015 
     - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
-    - unzip boost_1_59_0.zip to D:\project\DebugViewPP2015\Libraries\boost_1_59_0
-    - cd D:\project\DebugViewPP2015\Libraries\boost_1_59_0
-    - run D:\project\DebugViewPP2015\Libraries\boost_1_59_0\bootstrap.bat
-    - b2.exe --prefix=C:\Project\DebugViewPP2015\Libraries\boost --build-type=complete stage install (~45 minutes)
-    - for some reason I have to copy \Libraries\boost_1_59_0\stage\lib\*.* to \Libraries\boost\lib\*.* to get the vc140-mt-sgd libraries.
-- WTL and zip: decompress the archives and you're done
-
-
-[zip-3.0-setup.exe]: http://downloads.sourceforge.net/gnuwin32/zip-3.0-setup.exe
+    - unzip boost_1_63_0.zip to c:\downloads\boost_1_63_0
+    - cd c:\downloads\boost_1_63_0
+    - run c:\downloads\boost_1_63_0\bootstrap.bat (~1 minute)
+    - b2.exe --build-type=complete stage install (~45 minutes)
+    - find the results in c:\boost
+    - copy C:\boost\include\boost-1_63\boost -> DebugViewpp\Libraries\boost\boost
+    - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\win32
+    - for some reason I have to copy boost_1_62_0\stage\lib\*.* to \Libraries\boost\lib\win32\*.* to get the vc???-mt-sgd libraries.
+    - "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\setenv.cmd" /Release /x64
+    - b2.exe address-model=64 --build-type=complete stage install
+    - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\x64    
+- WTL and zip: decompress the archives and you're done (add zip.exe to the path)
 
 -= Cobalt Fusion =-
 
