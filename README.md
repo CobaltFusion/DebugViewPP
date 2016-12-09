@@ -216,7 +216,7 @@ Build dependencies
     - find the results in c:\boost
     - copy C:\boost\include\boost-1_63\boost -> DebugViewpp\Libraries\boost\boost
     - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\win32
-    - for some reason I have to copy boost_1_62_0\stage\lib\*.* to \Libraries\boost\lib\win32\*.* to get the vc???-mt-sgd libraries.
+    - for some reason I have to copy boost_1_63_0\stage\lib\*.* to \Libraries\boost\lib\win32\*.* to get the vc???-mt-sgd libraries.
     - "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\setenv.cmd" /Release /x64
     - b2.exe address-model=64 --build-type=complete stage install
     - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\x64    
