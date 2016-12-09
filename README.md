@@ -7,10 +7,14 @@ DebugView++ is primarily a viewer for Win32 OutputDebugString based logging in t
 Sysinternals DebugView. But can also be attached to virtually any other kind of logging.
 
 Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
+- bugfixes
 - last version with XP support
 - internal refactoring from boost to C++11/14 constructs
-- bugfixes
 - no features planned, if you're missing something you need, file an issue!
+
+Screenshots
+-----------
+![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
 
 Here is a list of current features:
 
@@ -62,36 +66,31 @@ Not new features, but often overlooked, see below for details
 - View->Process Colors, easy way to give evert process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
 
-
-Changes in 1.6.x:
+Changes in 1.7.x so far:
 - restructuring log-sources code 
 - experimental horizontal scrolling by dragging mouse
 - fixed a bug in version 1.6.48 that prevented dbgview-agent messages from showing
 - added name of tailing file in window title
+- fixed swallowing newlines
+- fixed DebugviewConsole (was broken in 1.6)
+- fixed all tests
+- fixed threading-issues
 
-Download latest version (stable branch, from 20 Sept 2015)
+Download latest version (stable, dated 20 Sept 2015)
 -----------------------
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
 
-Experimental version (14 June 2016)
+Experimental version (9 Dec 2016)
 -----------------------
-+ [DebugView v1.6.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++2016_06_14.zip)
-+ [DebugView v1.6.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++2016_06_14.msi)
++ [DebugView v1.7.x Zipped executables](https://github.com/djeedjay/DebugViewPP/releases/download/v1.7-alpha/DebugView.zip)
++ [DebugView v1.7.x Win32 installer](https://github.com/djeedjay/DebugViewPP/releases/download/v1.7-alpha/DebugView.msi)
 
 Older version
 -------------------------------
 
 + [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
 + [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
-
-Documentation
---------
-at http://debugviewpp.wordpress.com/
-
-Screenshots
------------
-![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
 
 Screenshot demonstrating bookmarks and highlighting features.
 
