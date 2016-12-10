@@ -111,6 +111,11 @@ bool GuiExecutor::IsIdle() const
 	return m_q.Empty();
 }
 
+void GuiExecutor::Synchronize()
+{
+	Call([] {});
+}
+
 void GuiExecutor::OnMessage()
 {
 	assert(IsExecutorThread());

@@ -22,7 +22,7 @@ namespace WTL { using ATL::CString; };
 #pragma warning(pop)
 
 #include "CobaltFusion/AtlWinExt.h"
-#include "CobaltFusion/ExecutorHost.h"
+#include "CobaltFusion/ExecutorClient.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/LineBuffer.h"
@@ -233,7 +233,7 @@ private:
 	DBWinReader* m_pGlobalReader;
 	DbgviewReader* m_pDbgviewReader;
 	std::vector<SourceInfo> m_sourceInfos;
-	std::unique_ptr<GuiExecutorHost> m_guiExecutorHost;
+	std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;
 	LogSources m_logSources;
 };
 

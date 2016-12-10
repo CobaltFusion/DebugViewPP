@@ -17,7 +17,7 @@
 #include "Win32/Utilities.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/Str.h"
-#include "CobaltFusion/ExecutorHost.h"
+#include "CobaltFusion/ExecutorClient.h"
 #include "CobaltFusion/Executor.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
@@ -77,7 +77,7 @@ void LogMessages(Settings settings)
 {
 	using namespace std::chrono_literals;
 
-	ActiveExecutorHost executor;
+	ActiveExecutorClient executor;
 	LogSources logsources(executor);
 	executor.Call([&] {
 		logsources.AddDBWinReader(false);

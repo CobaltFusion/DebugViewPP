@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <cassert>
 #include <iostream>
+#include <chrono>
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/thread.h"
@@ -37,6 +38,8 @@
 
 namespace fusion {
 namespace debugviewpp {
+
+using namespace std::chrono_literals;
 
 LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_end(false),
@@ -143,6 +146,7 @@ void LogSources::Reset()
 
 boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot)
 {
+	//return m_update.connect([&] () -> bool { Throttle(m_executor, slot, 25); return true; } );
 	return m_update.connect(slot);
 }
 

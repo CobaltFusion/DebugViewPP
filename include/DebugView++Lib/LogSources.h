@@ -14,10 +14,11 @@
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
 #include "CobaltFusion/CircularBuffer.h"
-#include "CobaltFusion/ExecutorHost.h"
+#include "CobaltFusion/ExecutorClient.h"
 #include "CobaltFusion/thread.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/ProcessMonitor.h"
+#include "DebugView++Lib/Throttle.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 

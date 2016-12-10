@@ -120,6 +120,7 @@ public:
 
 	void RunOne();
 	void Clear();
+	void Synchronize();
 
 protected:
 	void SetExecutorThread();

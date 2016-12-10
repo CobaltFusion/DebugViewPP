@@ -56,10 +56,10 @@
     <ClInclude Include="..\include\CobaltFusion\thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CobaltFusion\ExecutorHost.h">
+    <ClInclude Include="..\include\CobaltFusion\assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CobaltFusion\assert.h">
+    <ClInclude Include="..\include\CobaltFusion\ExecutorClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -79,10 +79,10 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExecutorHost.cpp">
+    <ClCompile Include="assert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="assert.cpp">
+    <ClCompile Include="ExecutorClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -140,7 +140,7 @@
     <ClInclude Include="..\include\CobaltFusion\Executor.h" />
     <ClInclude Include="..\include\CobaltFusion\GuiExecutor.h" />
     <ClInclude Include="..\include\CobaltFusion\hstream.h" />
-    <ClInclude Include="..\include\CobaltFusion\ExecutorHost.h" />
+    <ClInclude Include="..\include\CobaltFusion\ExecutorClient.h" />
     <ClInclude Include="..\include\CobaltFusion\Math.h" />
     <ClInclude Include="..\include\CobaltFusion\scope_guard.h" />
     <ClInclude Include="..\include\CobaltFusion\Str.h" />
@@ -155,7 +155,7 @@
     <ClCompile Include="assert.cpp" />
     <ClCompile Include="CircularBuffer.cpp" />
     <ClCompile Include="Executor.cpp" />
-    <ClCompile Include="ExecutorHost.cpp" />
+    <ClCompile Include="ExecutorClient.cpp" />
     <ClCompile Include="GuiExecutor.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

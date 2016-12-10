@@ -18,7 +18,7 @@
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/stringbuilder.h"
-#include "CobaltFusion/ExecutorHost.h"
+#include "CobaltFusion/ExecutorClient.h"
 #include "CobaltFusion/Executor.h"
 #include "IndexedStorageLib/IndexedStorage.h"
 #include "DebugView++Lib/ProcessInfo.h"
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 // "DebugView++Test.exe" --log_level=test_suite --run_test=*/LogSourcesReceiveMessages
 BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 {
-	ActiveExecutorHost executor;
+	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
 	executor.Call([&] { logsource = logsources.AddTestSource();  });
@@ -378,7 +378,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 
 BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 {
-	ActiveExecutorHost executor;
+	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
 	executor.Call([&] { logsource = logsources.AddTestSource();  });
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 
 BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 {
-	ActiveExecutorHost executor;
+	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
 	executor.Call([&] { logsource = logsources.AddTestSource();  });
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 
 BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 {
-	ActiveExecutorHost executor;
+	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
 	executor.Call([&] { logsource = logsources.AddTestSource();  });
@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
-	auto executor = std::make_unique<ActiveExecutorHost>();
+	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	executor->Call([&] { logsources.AddDBWinReader(false); });
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
@@ -471,7 +471,7 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
-	auto executor = std::make_unique<ActiveExecutorHost>();
+	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	executor->Call([&] { logsources.AddDBWinReader(false); });
 	executor->Call([&] { logsources.SetAutoNewLine(true); });

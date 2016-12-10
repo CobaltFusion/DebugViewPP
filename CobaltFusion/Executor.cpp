@@ -185,6 +185,11 @@ void Executor::Add(std::function<void ()> fn)
 	m_q.Push(fn);
 }
 
+void Executor::Synchronize()
+{
+	Call([] {});
+}
+
 ScheduledCall TimedExecutor::CallAt(const TimePoint& at, std::function<void ()> fn)
 {
 	unsigned id = GetCallId();

@@ -121,6 +121,7 @@ public:
 
 	bool IsExecutorThread() const;
 	bool IsIdle() const;
+	void Synchronize();
 
 private:
 	typedef TimedCalls::CallData CallData;
