@@ -6,15 +6,21 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include "windows.h"
 
 #pragma warning(disable: 4702 4389)		//ignore signed/unsigned comparision and unreachable code in boost/test
 
 // run as CobaltFusionTest.exe --log_level=test_suite
 
-#include <mutex>
 #define BOOST_TEST_MODULE CobaltFusionLib Unit Test
 #include <boost/test/unit_test_gui.hpp>
+
+#include <mutex>
+#include <thread>
+#include <chrono>
+#include <random>
 #include "CobaltFusion/CircularBuffer.h"
+#include "CobaltFusion/Throttle.h"
 
 namespace fusion {
 
@@ -276,6 +282,42 @@ BOOST_AUTO_TEST_CASE(CircularBufferSwapping)
 	BOOST_REQUIRE_EQUAL(buffer.Size(), 5);
 	BOOST_REQUIRE_EQUAL(buffer2.Size(), 10);
 }
+
+BOOST_AUTO_TEST_CASE(ThrottleTest)
+{
+	ActiveExecutorClient exec;
+	const int testCPS = 20;
+	Throttle throttle(exec, testCPS);	// max calls per second
+	using namespace std::chrono_literals;
+	using namespace std::chrono;
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> randomdelay(10, 90);
+	auto start = ActiveExecutorClient::Clock::now();
+
+	int counter = 0;
+	for (int i = 0; i < 50; ++i)
+	{
+		for (int j = 0; j < 10000; ++j)
+		{
+			throttle.Call([&] {
+				OutputDebugStringA("call...");
+				counter++; 
+			});
+		}
+		std::this_thread::sleep_for(1ms*randomdelay(gen));
+	}
+
+	auto testtime = ActiveExecutorClient::Clock::now() - start;
+	auto testtestMs = duration_cast<milliseconds>(testtime).count();
+	auto callsPerSecond = (1000 * counter) / testtestMs;
+
+	std::cout << "Called " << counter << " times over " << duration_cast<milliseconds>(testtime).count() << "ms, " << callsPerSecond << "cps\n";
+	BOOST_CHECK_LT(callsPerSecond, testCPS+10);
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

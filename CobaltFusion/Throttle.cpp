@@ -7,12 +7,12 @@
 
 #include "stdafx.h"
 #include <chrono>
+#include <iostream>
 #include "CobaltFusion/Throttle.h"
 
 namespace fusion {
 
 using namespace std::chrono_literals;
-
 
 Throttle::Throttle(IExecutor& executor, int callsPerSecond) :
 	m_executor(executor),
@@ -22,11 +22,12 @@ Throttle::Throttle(IExecutor& executor, int callsPerSecond) :
 
 void Throttle::Call(std::function<void()> fn)
 {
-	if (m_scheduledCall)
+	if (m_scheduledCall.is_initialized())
 	{
 		if (Clock::now() > m_lastScheduleCallTimePoint)
 		{
 			m_scheduledCall.get().Cancel();
+			m_scheduledCall.reset();
 			m_executor.CallAsync([=] { fn(); });
 		}
 	}
