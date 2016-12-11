@@ -27,14 +27,13 @@ public:
 	using Clock = std::chrono::steady_clock;
 	using Duration = Clock::duration;
 
-	Throttle(IExecutor& executor, std::function<bool()> fn, int callsPerSecond);
-	void operator()();
+	Throttle(IExecutor& executor, int callsPerSecond);
+	void Call(std::function<void()> fn);
 
 private:
 	boost::optional<ScheduledCall> m_scheduledCall;
 	Clock::duration m_delta;
 	Clock::time_point m_lastScheduleCallTimePoint;
-	std::function<bool()> m_func;
 	IExecutor& m_executor;
 };
 

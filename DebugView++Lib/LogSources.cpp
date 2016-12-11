@@ -49,6 +49,7 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
 	m_updatePending(false),
 	m_executor(executor),
+	m_throttle(m_executor, 25),
 	m_listenThread(startListening ? std::make_unique<fusion::thread>([this] { Listen(); }) : nullptr)
 {
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
@@ -146,7 +147,6 @@ void LogSources::Reset()
 
 boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot)
 {
-	//return m_update.connect([&] () -> bool { Throttle(m_executor, slot, 25); return true; } );
 	return m_update.connect(slot);
 }
 
@@ -154,6 +154,8 @@ const std::chrono::milliseconds graceTime(40); // -> intentionally near what the
 
 void LogSources::OnUpdate()
 {
+	//m_throttle.Call([&] { m_update(); });
+
 	m_updatePending = true;
 	m_executor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 }
