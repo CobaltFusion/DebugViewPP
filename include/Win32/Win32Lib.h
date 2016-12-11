@@ -19,6 +19,8 @@
 namespace fusion {
 namespace Win32 {
 
+static const int fixedNumberOfSystemPids = 5;
+
 struct LocalAllocDeleter
 {
 	typedef HLOCAL pointer;

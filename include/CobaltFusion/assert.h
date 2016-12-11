@@ -15,7 +15,13 @@
 #define STRINGIZE2(x) #x
 #define LINE_STRING STRINGIZE(__LINE__)
 
-#define FUSION_ASSERT(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, __FILE__ ## ":" ## LINE_STRING);
+#ifdef NDEBUG
+	#define FUSION_ASSERT(cond, msg) ((void)0)
+#else
+	#define FUSION_ASSERT(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, __FILE__ ## ":" ## LINE_STRING);
+#endif
+
+#define FUSION_ASSERT_ALWAYS(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, __FILE__ ## ":" ## LINE_STRING);
 #define FUSION_REPORT_EXCEPTION(what) fusion::exceptionmessage(what, __FILE__ ## ":" ## LINE_STRING);
 
 namespace fusion {

@@ -84,9 +84,14 @@ void LogSource::Add(DWORD pid, const std::string& processName, const std::string
 	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), pid, processName, message, this);
 }
 
-void LogSource::Add(const std::string& message, HANDLE handle)
+void LogSource::Add(HANDLE handle, const std::string& message)
 {
 	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), handle, message, this);
+}
+
+void LogSource::Add(const std::string& message)
+{
+	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "", message, this);
 }
 
 void LogSource::AddInternal(const std::string& message)

@@ -52,9 +52,9 @@ public:
 	SourceType::type GetSourceType() const;
 
 	// for DBWIN messages
-	void Add(const std::string& message, HANDLE handle = nullptr);
+	void Add(HANDLE handle, const std::string& message);
 
-	// for Loopback messages
+	// for Loopback messages and DBWIN kernel message that have no PID
 	void Add(DWORD pid, const std::string& processName, const std::string& message);
 
 	// used when reading from files
@@ -62,6 +62,9 @@ public:
 
 	// used by PassiveLogsources writing internal status messages
 	void AddInternal(const std::string& message);
+
+	// used by FileReader
+	void Add(const std::string& message);
 
 private:
 	bool m_autoNewLine;
