@@ -8,7 +8,7 @@ Sysinternals DebugView. But can also be attached to virtually any other kind of 
 
 Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
 - bugfixes
-- last version with XP support
+- last version with (official) XP support
 - internal refactoring from boost to C++11/14 constructs
 - no features planned, if you're missing something you need, file an issue!
 
@@ -20,7 +20,7 @@ Here is a list of current features:
 
 - single selfcontaining executable, setup is provided but not required
 - runs without prerequisites on WinXPSP3 (v1.5 and earlier also on WinXPSP2), Vista and 7/8.x
-- after v1.7 we drop WindowsXP support
+- after v1.7 we drop WindowsXP support if it becomes a problem to maintain
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve PID to process name
