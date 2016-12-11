@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/hstream.h"
-#include "CobaltFusion/assert.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Com.h"
 #include "DebugView++Lib/DBWinWriter.h"
 #include "MainFrame.h"
