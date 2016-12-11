@@ -18,7 +18,7 @@
 #include "CobaltFusion/thread.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/ProcessMonitor.h"
-#include "DebugView++Lib/Throttle.h"
+#include "CobaltFusion/Throttle.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 

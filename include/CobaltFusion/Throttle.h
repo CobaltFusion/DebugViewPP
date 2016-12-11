@@ -14,7 +14,6 @@
 #include "CobaltFusion/ExecutorClient.h"
 
 namespace fusion {
-namespace debugviewpp {
 
 constexpr unsigned long long operator "" _cps(unsigned long long l)
 {
@@ -37,5 +36,4 @@ private:
 	IExecutor& m_executor;
 };
 
-} // namespace debugviewpp 
 } // namespace fusion

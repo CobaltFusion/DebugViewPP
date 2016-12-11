@@ -12,7 +12,7 @@
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/thread.h"
-#include "CobaltFusion/assert.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
 #include "DebugView++Lib/LogSources.h"

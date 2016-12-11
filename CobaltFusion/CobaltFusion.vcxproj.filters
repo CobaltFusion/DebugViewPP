@@ -56,10 +56,13 @@
     <ClInclude Include="..\include\CobaltFusion\thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CobaltFusion\assert.h">
+    <ClInclude Include="..\include\CobaltFusion\ExecutorClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CobaltFusion\ExecutorClient.h">
+    <ClInclude Include="..\include\CobaltFusion\Throttle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\CobaltFusion\fusionassert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -79,10 +82,13 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="assert.cpp">
+    <ClCompile Include="ExecutorClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExecutorClient.cpp">
+    <ClCompile Include="fusionassert.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Throttle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

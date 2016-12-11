@@ -7,10 +7,9 @@
 
 #include "stdafx.h"
 #include <chrono>
-#include "DebugView++Lib/Throttle.h"
+#include "CobaltFusion/Throttle.h"
 
 namespace fusion {
-namespace debugviewpp {
 
 using namespace std::chrono_literals;
 
@@ -38,5 +37,4 @@ void Throttle::Call(std::function<void()> fn)
 	}
 }
 
-} // namespace debugviewpp 
 } // namespace fusion
