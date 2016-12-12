@@ -68,11 +68,17 @@ Loopback* LogSources::CreateLoopback(Timer& timer, ILineBuffer& lineBuffer)
 	return result;
 }
 
+void LogSources::WorkaroundForIssue221()
+{
+	m_update();
+}
+
 void LogSources::AddMessage(const std::string& message)
 {
 	assert(m_executor.IsExecutorThread());
 	m_loopback->AddMessage(message);
 	m_loopback->Signal();
+	WorkaroundForIssue221();
 }
 
 void LogSources::UpdateSettings(const std::unique_ptr<LogSource>& pSource)
@@ -149,8 +155,6 @@ boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot
 {
 	return m_update.connect(slot);
 }
-
-const std::chrono::milliseconds graceTime(40); // -> intentionally near what the human eye can still perceive
 
 // default behaviour: 
 // LogSources starts with 1 logsource, the loopback source
@@ -238,6 +242,7 @@ void LogSources::UpdateSources()
 
 void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 {
+	WorkaroundForIssue221();
 	m_executor.CallAsync([this, pid, handle]
 	{
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
