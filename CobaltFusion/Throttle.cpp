@@ -17,25 +17,33 @@ using namespace std::chrono_literals;
 
 Throttle::Throttle(IExecutor& executor, int callsPerSecond) :
 	m_executor(executor),
-	m_delta(std::chrono::milliseconds(1000/callsPerSecond))
+	m_delta(std::chrono::milliseconds(1000/callsPerSecond)),
+	m_callPending(false)
 {
 }
 
 void Throttle::Call(std::function<void()> fn)
 {
-	if (m_scheduledCall.is_initialized())
+	m_lastCallTimePoint = Clock::now();
+	if (!m_callPending)
 	{
-		if ((Clock::now() - m_lastScheduleCallTimePoint) > m_delta /2 )
-		{
-			m_scheduledCall.get().Cancel();
-			m_scheduledCall.reset();
-			m_executor.CallAsync([=] { fn(); });
-		}
+		m_lastScheduledCallTimePoint = m_lastCallTimePoint;
+		m_callPending = true;
+		m_executor.CallAt(Clock::now() + m_delta, [this, fn] { PendingCall(fn); });
+	}
+}
+
+void Throttle::PendingCall(std::function<void()> fn)
+{
+	fn();
+	if (m_lastCallTimePoint > m_lastScheduledCallTimePoint)
+	{
+		m_lastScheduledCallTimePoint = Clock::now();
+		m_executor.CallAt(Clock::now() + m_delta, [this, fn] { PendingCall(fn); });
 	}
 	else
 	{
-		m_lastScheduleCallTimePoint = Clock::now() + m_delta;
-		m_scheduledCall = m_executor.CallAt(m_lastScheduleCallTimePoint, [=] { fn(); });
+		m_callPending = false;
 	}
 }
 

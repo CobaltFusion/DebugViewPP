@@ -10,16 +10,9 @@
 #include <chrono>
 #include <functional>
 #include "boost/optional.hpp"
-#include "boost/signals2.hpp"
 #include "CobaltFusion/ExecutorClient.h"
 
 namespace fusion {
-
-// todo: define a frequency type to specifiy 'calls per second' ?
-//constexpr unsigned long long operator "" _Hz(unsigned long long l)
-//{
-//	return static_cast<unsigned long long>(l);
-//}
 
 class Throttle
 {
@@ -29,11 +22,13 @@ public:
 
 	Throttle(IExecutor& executor, int callsPerSecond);
 	void Call(std::function<void()> fn);
+	void PendingCall(std::function<void()> fn);
 
 private:
-	boost::optional<ScheduledCall> m_scheduledCall;
 	Clock::duration m_delta;
-	Clock::time_point m_lastScheduleCallTimePoint;
+	Clock::time_point m_lastCallTimePoint;
+	Clock::time_point m_lastScheduledCallTimePoint;
+	bool m_callPending;
 	IExecutor& m_executor;
 };
 

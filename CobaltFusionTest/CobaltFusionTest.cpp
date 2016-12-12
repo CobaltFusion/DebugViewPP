@@ -292,9 +292,9 @@ std::ostream & operator<<(std::ostream &os, const std::chrono::steady_clock::dur
 
 BOOST_AUTO_TEST_CASE(ThrottleTest)
 {
-	auto exec = std::make_unique<ActiveExecutorClient>();
+	ActiveExecutorClient exec;
 	const int testCPS = 20;
-	Throttle throttle(*exec, testCPS);	// max calls per second
+	Throttle throttle(exec, testCPS);	// max calls per second
 	using namespace std::chrono_literals;
 	using namespace std::chrono;
 
@@ -318,7 +318,9 @@ BOOST_AUTO_TEST_CASE(ThrottleTest)
 		}
 		std::this_thread::sleep_for(1ms*randomdelay(gen));
 	}
-	exec.reset();
+
+	// workaround to wait for any pending calls, since we dont have ExecutorClient::Flush()
+	std::this_thread::sleep_for(200ms);
 
 	auto testtime = ActiveExecutorClient::Clock::now() - start;
 	auto testtestMs = duration_cast<milliseconds>(testtime).count();
@@ -327,8 +329,8 @@ BOOST_AUTO_TEST_CASE(ThrottleTest)
 	auto lastDelta = lastexecutionTime - lastcallTime;
 	std::cout << "Last execution was " << lastDelta << " after last call.\n";
 	std::cout << "Called " << counter << " times over " << testtime << ", " << callsPerSecond << "cps\n";
-	BOOST_CHECK_LT(callsPerSecond, testCPS + 5);
-	//BOOST_CHECK_GT(lastDelta.count(), 0);
+	BOOST_CHECK_LT(callsPerSecond, testCPS);
+	BOOST_CHECK_GT(lastDelta.count(), 0);
 }
 
 
