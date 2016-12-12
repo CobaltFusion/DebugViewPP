@@ -8,8 +8,6 @@
 #pragma once
 
 #include <string>
-#include "Win32/Win32Lib.h"
-#include "CobaltFusion/stringbuilder.h"
 
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
