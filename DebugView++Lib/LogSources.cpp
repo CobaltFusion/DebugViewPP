@@ -276,11 +276,11 @@ Lines LogSources::GetLines()
 			inputLine.pLogSource->PreProcess(inputLine);
 		}
 
-		if (inputLine.handle && Win32::IsProcessRunning(inputLine.handle))
+		if (inputLine.handle)
 		{
 			Win32::Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);
-			assert(inputLine.pid == 0);
+			
 			auto it = m_pidMap.find(inputLine.pid);
 			if (it == m_pidMap.end())
 			{

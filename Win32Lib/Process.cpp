@@ -161,7 +161,7 @@ unsigned Process::GetThreadId() const
 	return m_threadId;
 }
 
-bool Process::IsRunning() const
+bool Process::IsRunning() const	// todo: check advantages of this against bool win32::IsProcessRunning(HANDLE handle);
 {
 	return GetExitCodeProcess(m_hProcess) == STILL_ACTIVE;
 }
