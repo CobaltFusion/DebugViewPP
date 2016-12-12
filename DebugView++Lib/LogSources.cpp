@@ -235,6 +235,7 @@ void LogSources::UpdateSources()
 	{
 		if (pSource->AtEnd())
 		{
+			pSource->Abort();
 			InternalRemove(pSource);
 		}
 	}

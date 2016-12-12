@@ -34,6 +34,7 @@ class PassiveLogSource : public LogSource
 {
 public:
 	PassiveLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& lineBuffer, long pollFrequency);
+	virtual ~PassiveLogSource() override;
 	
 	virtual HANDLE GetHandle() const;
 	virtual void Notify();

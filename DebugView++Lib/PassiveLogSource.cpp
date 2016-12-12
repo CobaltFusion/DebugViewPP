@@ -41,6 +41,11 @@ PassiveLogSource::PassiveLogSource(Timer& timer, SourceType::type sourceType, IL
 {
 }
 
+PassiveLogSource::~PassiveLogSource()
+{
+	Abort();
+}
+
 void PassiveLogSource::StartThread()
 {
 	if (m_microsecondInterval > m_microsecondInterval.zero())
@@ -56,6 +61,7 @@ void PassiveLogSource::Abort()
 {
 	LogSource::Abort();
 	if (m_thread) m_thread->join();
+	m_thread.reset();
 }
 
 void PassiveLogSource::Loop()
