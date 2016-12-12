@@ -15,10 +15,11 @@
 
 namespace fusion {
 
-constexpr unsigned long long operator "" _cps(unsigned long long l)
-{
-	return static_cast<unsigned long long>(l);
-}
+// todo: define a frequency type to specifiy 'calls per second' ?
+//constexpr unsigned long long operator "" _Hz(unsigned long long l)
+//{
+//	return static_cast<unsigned long long>(l);
+//}
 
 class Throttle
 {

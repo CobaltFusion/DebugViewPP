@@ -21,6 +21,7 @@
 #include <random>
 #include "CobaltFusion/CircularBuffer.h"
 #include "CobaltFusion/Throttle.h"
+#include "CobaltFusion/stringbuilder.h"
 
 namespace fusion {
 
@@ -283,39 +284,51 @@ BOOST_AUTO_TEST_CASE(CircularBufferSwapping)
 	BOOST_REQUIRE_EQUAL(buffer2.Size(), 10);
 }
 
+std::ostream & operator<<(std::ostream &os, const std::chrono::steady_clock::duration& p)
+{
+	using namespace std::chrono;
+	return os << duration_cast<milliseconds>(p).count() << "ms";
+}
+
 BOOST_AUTO_TEST_CASE(ThrottleTest)
 {
-	ActiveExecutorClient exec;
+	auto exec = std::make_unique<ActiveExecutorClient>();
 	const int testCPS = 20;
-	Throttle throttle(exec, testCPS);	// max calls per second
+	Throttle throttle(*exec, testCPS);	// max calls per second
 	using namespace std::chrono_literals;
 	using namespace std::chrono;
 
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> randomdelay(10, 90);
+	std::uniform_int_distribution<> randomdelay(1, 90);
 	auto start = ActiveExecutorClient::Clock::now();
-
+	auto lastcallTime = start;
+	auto lastexecutionTime = start;
 	int counter = 0;
 	for (int i = 0; i < 50; ++i)
 	{
-		for (int j = 0; j < 10000; ++j)
+		for (int j = 0; j < 100000; ++j)
 		{
+			lastcallTime = ActiveExecutorClient::Clock::now();
 			throttle.Call([&] {
 				OutputDebugStringA("call...");
+				lastexecutionTime = ActiveExecutorClient::Clock::now();
 				counter++; 
 			});
 		}
 		std::this_thread::sleep_for(1ms*randomdelay(gen));
 	}
+	exec.reset();
 
 	auto testtime = ActiveExecutorClient::Clock::now() - start;
 	auto testtestMs = duration_cast<milliseconds>(testtime).count();
 	auto callsPerSecond = (1000 * counter) / testtestMs;
 
-	std::cout << "Called " << counter << " times over " << duration_cast<milliseconds>(testtime).count() << "ms, " << callsPerSecond << "cps\n";
-	BOOST_CHECK_LT(callsPerSecond, testCPS+10);
-
+	auto lastDelta = lastexecutionTime - lastcallTime;
+	std::cout << "Last execution was " << lastDelta << " after last call.\n";
+	std::cout << "Called " << counter << " times over " << testtime << ", " << callsPerSecond << "cps\n";
+	BOOST_CHECK_LT(callsPerSecond, testCPS + 5);
+	//BOOST_CHECK_GT(lastDelta.count(), 0);
 }
 
 

@@ -49,7 +49,7 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
 	m_updatePending(false),
 	m_executor(executor),
-	m_throttle(m_executor, 25),
+	m_throttle(m_executor, 20),
 	m_listenThread(startListening ? std::make_unique<fusion::thread>([this] { Listen(); }) : nullptr)
 {
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
@@ -155,7 +155,6 @@ const std::chrono::milliseconds graceTime(40); // -> intentionally near what the
 void LogSources::OnUpdate()
 {
 	//m_throttle.Call([&] { m_update(); });
-
 	m_updatePending = true;
 	m_executor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
 }

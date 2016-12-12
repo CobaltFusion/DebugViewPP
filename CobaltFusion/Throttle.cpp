@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iostream>
 #include "CobaltFusion/Throttle.h"
+#include "CobaltFusion/stringbuilder.h"
 
 namespace fusion {
 
@@ -24,7 +25,7 @@ void Throttle::Call(std::function<void()> fn)
 {
 	if (m_scheduledCall.is_initialized())
 	{
-		if (Clock::now() > m_lastScheduleCallTimePoint)
+		if ((Clock::now() - m_lastScheduleCallTimePoint) > m_delta /2 )
 		{
 			m_scheduledCall.get().Cancel();
 			m_scheduledCall.reset();

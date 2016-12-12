@@ -212,7 +212,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestSource.cpp" />
-    <ClCompile Include="Throttle.cpp" />
     <ClCompile Include="VectorLineBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
