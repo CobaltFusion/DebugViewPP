@@ -292,29 +292,35 @@ std::ostream & operator<<(std::ostream &os, const std::chrono::steady_clock::dur
 
 BOOST_AUTO_TEST_CASE(ThrottleTest)
 {
-	ActiveExecutorClient exec;
-	const int testCPS = 20;
-	Throttle throttle(exec, testCPS);	// max calls per second
 	using namespace std::chrono_literals;
 	using namespace std::chrono;
+	const int testCPS = 20;
 
+	ActiveExecutorClient exec;
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> randomdelay(1, 90);
 	auto start = ActiveExecutorClient::Clock::now();
 	auto lastcallTime = start;
 	auto lastexecutionTime = start;
-	int counter = 0;
+	int incomingCounter = 0;
+	int outgoingCounter = 0;
+
+	auto fn = [&] {
+		OutputDebugStringA("call...");
+		lastexecutionTime = ActiveExecutorClient::Clock::now();
+		outgoingCounter++;
+	};
+
+	Throttle throttledUpdateCounter(exec, testCPS, fn);	// max calls per second
+
 	for (int i = 0; i < 50; ++i)
 	{
 		for (int j = 0; j < 100000; ++j)
 		{
 			lastcallTime = ActiveExecutorClient::Clock::now();
-			throttle.Call([&] {
-				OutputDebugStringA("call...");
-				lastexecutionTime = ActiveExecutorClient::Clock::now();
-				counter++; 
-			});
+			incomingCounter++;
+			throttledUpdateCounter();
 		}
 		std::this_thread::sleep_for(1ms*randomdelay(gen));
 	}
@@ -324,11 +330,11 @@ BOOST_AUTO_TEST_CASE(ThrottleTest)
 
 	auto testtime = ActiveExecutorClient::Clock::now() - start;
 	auto testtestMs = duration_cast<milliseconds>(testtime).count();
-	auto callsPerSecond = (1000 * counter) / testtestMs;
+	auto callsPerSecond = (1000 * outgoingCounter) / testtestMs;
 
 	auto lastDelta = lastexecutionTime - lastcallTime;
+	std::cout << "Incoming: " << incomingCounter << " calls, Outgoing: " << outgoingCounter << " calls, over " << testtime << " = " << callsPerSecond << "cps\n";
 	std::cout << "Last execution was " << lastDelta << " after last call.\n";
-	std::cout << "Called " << counter << " times over " << testtime << ", " << callsPerSecond << "cps\n";
 	BOOST_CHECK_LT(callsPerSecond, testCPS);
 	BOOST_CHECK_GT(lastDelta.count(), 0);
 }

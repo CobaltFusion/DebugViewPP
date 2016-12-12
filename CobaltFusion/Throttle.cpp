@@ -15,31 +15,32 @@ namespace fusion {
 
 using namespace std::chrono_literals;
 
-Throttle::Throttle(IExecutor& executor, int callsPerSecond) :
-	m_executor(executor),
+Throttle::Throttle(IExecutor& executor, int callsPerSecond, std::function<void()> fn) :
 	m_delta(std::chrono::milliseconds(1000/callsPerSecond)),
-	m_callPending(false)
+	m_callPending(false),
+	m_fn(fn),
+	m_executor(executor)
 {
 }
 
-void Throttle::Call(std::function<void()> fn)
+void Throttle::operator()()
 {
 	m_lastCallTimePoint = Clock::now();
 	if (!m_callPending)
 	{
 		m_lastScheduledCallTimePoint = m_lastCallTimePoint;
 		m_callPending = true;
-		m_executor.CallAt(Clock::now() + m_delta, [this, fn] { PendingCall(fn); });
+		m_executor.CallAt(Clock::now() + m_delta, [this] { PendingCall(); });
 	}
 }
 
-void Throttle::PendingCall(std::function<void()> fn)
+void Throttle::PendingCall()
 {
-	fn();
+	m_fn();
 	if (m_lastCallTimePoint > m_lastScheduledCallTimePoint)
 	{
 		m_lastScheduledCallTimePoint = Clock::now();
-		m_executor.CallAt(Clock::now() + m_delta, [this, fn] { PendingCall(fn); });
+		m_executor.CallAt(Clock::now() + m_delta, [this] { PendingCall(); });
 	}
 	else
 	{

@@ -115,7 +115,7 @@ private:
 	IExecutor& m_executor;
 	bool m_updatePending;
 	Update m_update;
-	Throttle m_throttle;
+	Throttle m_throttledUpdate;
 
 	// make sure this thread is last to initialize
 	std::unique_ptr<fusion::thread> m_listenThread;

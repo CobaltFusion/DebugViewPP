@@ -20,15 +20,17 @@ public:
 	using Clock = std::chrono::steady_clock;
 	using Duration = Clock::duration;
 
-	Throttle(IExecutor& executor, int callsPerSecond);
-	void Call(std::function<void()> fn);
-	void PendingCall(std::function<void()> fn);
+	Throttle(IExecutor& executor, int callsPerSecond, std::function<void()> fn);
+
+	void operator()();
+	void PendingCall();
 
 private:
 	Clock::duration m_delta;
 	Clock::time_point m_lastCallTimePoint;
 	Clock::time_point m_lastScheduledCallTimePoint;
 	bool m_callPending;
+	std::function<void()> m_fn;
 	IExecutor& m_executor;
 };
 
