@@ -152,34 +152,6 @@ boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot
 
 const std::chrono::milliseconds graceTime(40); // -> intentionally near what the human eye can still perceive
 
-void LogSources::OnUpdate()
-{
-	m_throttledUpdate();
-	//m_updatePending = true;
-	//m_executor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
-}
-
-void LogSources::DelayedUpdate()
-{
-	auto receivedLines = m_update();
-	if (!receivedLines)
-		return;
-
-	if (receivedLines.get())	// get the actual return value
-	{
-		// messages where received, schedule next update
-		m_executor.CallAfter(graceTime, [this]() { DelayedUpdate(); });
-	}
-	else
-	{
-		// no more messages where received
-		m_updatePending = false;
-		// schedule one more update to workaround the race-condition writing to m_updatePending
-		// this avoids the need for locking in the extremly time-critical ListenUntilUpdateEvent() method
-		m_executor.CallAfter(graceTime, [this]() { m_update(); });
-	}
-}
-
 // default behaviour: 
 // LogSources starts with 1 logsource, the loopback source
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
@@ -237,7 +209,7 @@ void LogSources::ListenUntilUpdateEvent()
 				auto logsource = sources[index];
 				logsource->Notify();
 				if (!m_updatePending)
-					OnUpdate();
+					m_throttledUpdate();
 			}
 		}
 	}
@@ -308,6 +280,7 @@ Lines LogSources::GetLines()
 		{
 			Win32::Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);
+			assert(inputLine.pid == 0);
 			auto it = m_pidMap.find(inputLine.pid);
 			if (it == m_pidMap.end())
 			{

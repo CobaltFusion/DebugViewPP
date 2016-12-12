@@ -95,8 +95,6 @@ private:
 	void UpdateSettings(const std::unique_ptr<LogSource>& pSource);
 	void Add(std::unique_ptr<LogSource> pSource);
 	void OnProcessEnded(DWORD pid, HANDLE handle);
-	void OnUpdate();
-	void DelayedUpdate();
 	Loopback* CreateLoopback(Timer& timer, ILineBuffer& lineBuffer);
 	bool LogSourceExists(const LogSource* pLogSource) const;
 
