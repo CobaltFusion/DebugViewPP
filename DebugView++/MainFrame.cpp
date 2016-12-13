@@ -19,6 +19,7 @@
 #include "CobaltFusion/hstream.h"
 #include "CobaltFusion/Math.h"
 #include "CobaltFusion/GuiExecutor.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Registry.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
@@ -142,12 +143,12 @@ void CMainFrame::SetLogging()
 
 void CMainFrame::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CMainFrame::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)

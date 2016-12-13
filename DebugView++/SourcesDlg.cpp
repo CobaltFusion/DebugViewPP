@@ -11,6 +11,7 @@
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/fusionassert.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
 #include "Resource.h"
@@ -36,12 +37,12 @@ CSourcesDlg::CSourcesDlg(const std::vector<SourceInfo>& sourceInfos) : m_sourceI
 
 void CSourcesDlg::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CSourcesDlg::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 void CSourcesDlg::UpdateGrid()

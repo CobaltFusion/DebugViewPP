@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <atlstr.h>
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/LogFilter.h"
@@ -123,12 +124,12 @@ LogFilter CFilterDlg::GetFilters() const
 
 void CFilterDlg::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CFilterDlg::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

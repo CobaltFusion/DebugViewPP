@@ -15,6 +15,7 @@
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Registry.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileIO.h"
@@ -204,12 +205,12 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 
 void CLogView::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CLogView::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 int CLogView::ColumnToSubItem(Column::type iColumn) const

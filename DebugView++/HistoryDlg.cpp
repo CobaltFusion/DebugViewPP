@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/Str.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Utilities.h"
 #include "HistoryDlg.h"
 
@@ -30,12 +31,12 @@ CHistoryDlg::CHistoryDlg(int historySize, bool unlimited) :
 
 void CHistoryDlg::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CHistoryDlg::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CHistoryDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

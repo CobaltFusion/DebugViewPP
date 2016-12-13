@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/fusionassert.h"
 #include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
 #include "Resource.h"
@@ -69,12 +70,12 @@ END_MSG_MAP()
 
 void CFilterPageImpl::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CFilterPageImpl::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 void CFilterPageImpl::ShowError()

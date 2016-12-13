@@ -21,12 +21,14 @@
 #endif
 
 #define FUSION_ASSERT_ALWAYS(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, SOURCE_LOCATION);
-#define FUSION_REPORT_EXCEPTION(what) fusion::exceptionmessage(what, SOURCE_LOCATION);
+#define FUSION_REPORT_EXCEPTION(ex) fusion::exceptionmessage(ex, SOURCE_LOCATION);
 
 namespace fusion {
 
-	void errormessage(const std::string& message, const std::string& caption = "DebugView++ Error");
+	void errormessage(const std::string& message, const std::string& caption);
+	void errormessage(const std::wstring& message, const std::wstring& caption);
 	void assertmessage(const std::string& assertion, const std::string& message, const char * location);
-	void exceptionmessage(const char* what, const char * location);
+	void exceptionmessage(const char * what, const char * location);
+	void exceptionmessage(const std::exception& ex, const char * location);
 
 } // namespace fusion

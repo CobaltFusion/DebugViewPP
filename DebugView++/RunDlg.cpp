@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Utilities.h"
 #include "RunDlg.h"
 
@@ -25,12 +26,12 @@ END_MSG_MAP()
 
 void CRunDlg::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CRunDlg::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CRunDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

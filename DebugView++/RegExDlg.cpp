@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/Utilities.h"
 #include "RegExDlg.h"
 
@@ -23,12 +24,12 @@ END_MSG_MAP()
 
 void CRegExDlg::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CRegExDlg::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()).c_str(), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CRegExDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

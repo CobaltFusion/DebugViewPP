@@ -10,6 +10,7 @@
 #include <atlstr.h>
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/fusionassert.h"
 #include "Win32/utilities.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
@@ -53,12 +54,12 @@ int CSourceDlg::GetPort() const
 
 void CSourceDlg::OnException()
 {
-	MessageBox(L"Unknown Exception", LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CSourceDlg::OnException(const std::exception& ex)
 {
-	MessageBox(WStr(ex.what()), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+	FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)

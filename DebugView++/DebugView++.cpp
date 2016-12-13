@@ -165,6 +165,6 @@ try
 }
 catch (std::exception& ex)
 {
-	fusion::errormessage(ex.what());
+	fusion::errormessage(ex.what(), "Debugview++ Error");
 	return EXIT_FAILURE;
 }
