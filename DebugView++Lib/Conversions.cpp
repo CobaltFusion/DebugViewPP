@@ -52,6 +52,7 @@ std::string GetDateTimeText(const FILETIME& filetime)
 
 std::string GetTimeText(const FILETIME& ft)
 {
+	if (ft.dwHighDateTime == 0 && ft.dwLowDateTime == 0) return "0";	// prevent endlessly repeating exception messageboxes when reading a corrupted file
 	return GetTimeText(Win32::FileTimeToSystemTime(Win32::FileTimeToLocalFileTime(ft)));
 }
 

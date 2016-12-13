@@ -473,8 +473,8 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 
 	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
-	executor->Call([&] { logsources.AddDBWinReader(false); });
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddDBWinReader(false); });
 
 	BOOST_TEST_MESSAGE("cmd: " << cmd);
 	system((cmd + "-n").c_str());
@@ -488,6 +488,61 @@ BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
 
 	BOOST_TEST(lines.size() == 1);
 }
+
+std::string CreateTestFile()
+{
+	Timer timer;
+	LogFile logFile;
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 1"));
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 2"));
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 3"));
+	logFile.Add(Message(0, Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 4 (zero time message)"));
+	return SaveLogFile(logFile);
+}
+
+std::string CreateTestSmallerFile()
+{
+	Timer timer;
+	LogFile logFile;
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 1"));
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 2"));
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 3"));
+	return SaveLogFile(logFile);
+}
+
+
+BOOST_AUTO_TEST_CASE(LogSourceDBLogReader)
+{
+	using namespace std::chrono_literals;
+
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	LogSources logsources(*executor, true);
+	auto filename = CreateTestFile();
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	std::this_thread::sleep_for(200ms);
+
+	Lines lines;
+	executor->Call([&] { lines = logsources.GetLines(); });
+	BOOST_TEST(lines.size() == 5);
+	for (auto& line : lines)
+	{
+		std::cout << "line: " << line.message << std::endl;
+	}
+
+	std::cout << "--- now shrink the file --- " << std::endl;
+	CreateTestSmallerFile();
+	std::this_thread::sleep_for(200ms);
+	executor->Call([&] { lines = logsources.GetLines(); });
+	for (auto& line : lines)
+	{
+		std::cout << "line: " << line.message << std::endl;
+	}
+
+}
+
+
+
 
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)

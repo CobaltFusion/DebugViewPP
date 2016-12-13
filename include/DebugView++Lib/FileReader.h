@@ -44,6 +44,7 @@ private:
 	std::ifstream m_ifstream;
 	std::string m_filenameOnly;
 	bool m_initialized;
+	std::string m_line;
 };
 
 } // namespace debugviewpp 

@@ -66,7 +66,18 @@ void FileReader::ReadUntilEof()
 {
 	std::string line;
 	while (std::getline(m_ifstream, line))
-		SafeAddLine(line);
+	{
+		if (m_ifstream.eof())
+		{
+			// the line ended without a newline character, store the line particle
+			m_line += line;
+		}
+		else
+		{
+			SafeAddLine(m_line + line);
+			line.clear();
+		}
+	}
 
 	if (m_ifstream.eof()) 
 	{
@@ -79,7 +90,10 @@ void FileReader::ReadUntilEof()
 		if (length > lastReadPosition)
 			m_ifstream.seekg(lastReadPosition);
 		else if (length != lastReadPosition)
+		{
+			m_line.clear();
 			Add(stringbuilder() << "file shrank, resynced at offset " << length);
+		}
 	}
 	else
 	{
