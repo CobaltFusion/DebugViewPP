@@ -10,6 +10,9 @@
 #include <cassert>
 #include <iostream>
 #include <shellapi.h>
+#include <io.h>
+#include <fcntl.h>
+
 #include "Win32/Win32Lib.h"
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
@@ -469,6 +472,35 @@ std::wstring GetDlgItemText(HWND hDlg, int idc)
 bool IsGUIThread()
 {
 	return ::IsGUIThread(FALSE) == TRUE;
+}
+
+HFile::HFile(const std::string& filename) :
+	m_handle(-1)
+{
+	if (::_sopen_s(&m_handle, filename.c_str(), _O_RDWR | _O_CREAT, _SH_DENYNO, _S_IREAD | _S_IWRITE) != 0)
+	{
+		ThrowLastError("_sopen_s");
+	}
+}
+
+HFile::~HFile()
+{
+	if (m_handle != -1)
+		::_close(m_handle);
+}
+
+size_t HFile::size() const
+{
+	auto size = ::_filelength(m_handle);
+	if (size == -1)
+		ThrowLastError("_filelength");
+	return size;
+}
+
+void HFile::resize(size_t size)
+{
+	if (_chsize_s(m_handle, size) != 0)
+		ThrowLastError("_chsize");
 }
 
 } // namespace Win32

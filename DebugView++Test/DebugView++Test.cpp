@@ -82,11 +82,32 @@ private:
 	TIME_ZONE_INFORMATION m_tz;
 };
 
+std::string GetTestFileName()
+{
+	using namespace std::experimental::filesystem;
+	return absolute(path("SaveLoadLogFile_unique_test_filename")).string();
+}
+
 std::string SaveLogFile(const LogFile& logfile)
 {
-	std::string filename = "SaveLoadLogFile_unique_test_filename";
+	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Truncate);
+	int count = logfile.Count();
+	for (int i = 0; i < count; ++i)
+	{
+		auto msg = logfile[i];
+		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
+	}
+	fs.close();
+	return filename;
+}
+
+std::string AppendLogFile(const LogFile& logfile)
+{
+	auto filename = GetTestFileName();
+	std::ofstream fs;
+	OpenLogFile(fs, WStr(filename), OpenMode::Append);
 	int count = logfile.Count();
 	for (int i = 0; i < count; ++i)
 	{
@@ -256,7 +277,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2)	// test overflows boosttestui with log-out
 	TestLineBuffer buffer(600);
 	Timer timer;
 	std::cout << "LineBufferTest2 running..." << std::endl;  
-	for (int j = 0; j < 1000; ++j)
+	for (int j = 0; j < 100; ++j)
 	{
 		//BOOST_TEST_MESSAGE("j: " << j << "\n");
 
@@ -293,13 +314,11 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 	for (size_t i = 0; i < testSize; ++i)
 		s.Add(GetTestString(i));
 
-	for (size_t i = 0; i < testSize; ++i)
+	// random access can be somewhat slow in debug-mode, this is expected behaviour
+	for (size_t i = 0; i < testSize/10; ++i)
 	{
 		size_t j = distribution(generator);  // generates number in the range 0..testMax 
-		if (s[j] != GetTestString(j))
-		{
-			BOOST_FAIL("Lookup of index " << j << "failed");
-		}
+		BOOST_TEST(s[j] == GetTestString(j));
 	}
 }
 
@@ -451,8 +470,8 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 	executor->Call([&] { logsources.AddDBWinReader(false); });
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
 
-	logsources.AddMessage("Test message 1");
-	logsources.AddMessage("Test message 2");
+	executor->Call([&] { logsources.AddMessage("Test message 1"); });
+	executor->Call([&] { logsources.AddMessage("Test message 2"); });
 	std::this_thread::sleep_for(200ms);
 	executor->Call([&] { logsources.Abort(); });
 
@@ -463,7 +482,7 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 	BOOST_TEST(lines.size() == 2);
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDbwinReader)
+BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
 {
 	using namespace std::chrono_literals;
 
@@ -500,21 +519,34 @@ std::string CreateTestFile()
 	return SaveLogFile(logFile);
 }
 
-std::string CreateTestSmallerFile()
+std::string AppendToTestFile()
 {
 	Timer timer;
 	LogFile logFile;
-	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 1"));
-	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 2"));
-	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message 3"));
-	return SaveLogFile(logFile);
+	logFile.Add(Message(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "test message appended"));
+	return AppendLogFile(logFile);
 }
 
+std::vector<size_t> GetNewLineOffsets(const std::string& filename)
+{
+	std::vector<size_t> result;
+	std::ifstream file(filename);
+	Line line;
+	while (ReadLogFileMessage(file, line))
+		result.push_back(static_cast<size_t>(file.tellg()));
+	return result;
+}
+
+void RemoveLinesFromFile(const std::string& filename, int linesToRemove)
+{
+	auto offsets = GetNewLineOffsets(filename);
+	auto offset = offsets[offsets.size() - 1 - linesToRemove];
+	Win32::HFile(GetTestFileName()).resize(offset);
+}
 
 BOOST_AUTO_TEST_CASE(LogSourceDBLogReader)
 {
 	using namespace std::chrono_literals;
-
 	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	auto filename = CreateTestFile();
@@ -525,24 +557,32 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReader)
 	Lines lines;
 	executor->Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST(lines.size() == 5);
-	for (auto& line : lines)
-	{
-		std::cout << "line: " << line.message << std::endl;
-	}
-
-	std::cout << "--- now shrink the file --- " << std::endl;
-	CreateTestSmallerFile();
-	std::this_thread::sleep_for(200ms);
-	executor->Call([&] { lines = logsources.GetLines(); });
-	for (auto& line : lines)
-	{
-		std::cout << "line: " << line.message << std::endl;
-	}
-
 }
 
 
+BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderResychronizeShrinkingFile)
+{
+	using namespace std::chrono_literals;
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	LogSources logsources(*executor, true);
+	auto filename = CreateTestFile();
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	std::this_thread::sleep_for(200ms);
 
+	Lines lines;
+	executor->Call([&] { lines = logsources.GetLines(); });
+	BOOST_TEST(lines.size() == 5);
+
+	RemoveLinesFromFile(GetTestFileName(), 2);
+	AppendToTestFile();
+	AppendToTestFile();
+	AppendToTestFile();
+
+	std::this_thread::sleep_for(200ms);
+	executor->Call([&] { lines = logsources.GetLines(); });
+	BOOST_TEST(lines.size() == 4);
+}
 
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)

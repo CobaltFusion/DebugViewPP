@@ -285,6 +285,18 @@ std::wstring GetWindowText(HWND hWnd);
 std::wstring GetDlgItemText(HWND hDlg, int idc);
 bool IsGUIThread();
 
+class HFile : boost::noncopyable
+{
+public:
+	explicit HFile(const std::string& filename);
+	~HFile();
+	size_t size() const;
+	void resize(size_t size);
+
+private:
+	int m_handle;
+};
+
 
 } // namespace Win32
 
