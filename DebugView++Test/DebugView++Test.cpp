@@ -584,6 +584,54 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderResychronizeShrinkingFile)
 	BOOST_TEST(lines.size() == 4);
 }
 
+std::string GetTestFileAsString()
+{
+	std::ifstream file(GetTestFileName());
+	std::stringstream ss;
+	ss << file.rdbuf();
+	return ss.str();
+}
+
+BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderRewriteByteByByte)
+{
+	using namespace std::chrono_literals;
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	LogSources logsources(*executor, true);
+	auto filename = CreateTestFile();
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	std::this_thread::sleep_for(200ms);
+
+	{
+		Lines lines;
+		executor->Call([&] { lines = logsources.GetLines(); });
+		BOOST_TEST(lines.size() == 5);
+	}
+	auto content = GetTestFileAsString();
+
+	std::cout << "Output file byte-by-byte\n";
+	std::ofstream fs;
+	fs.open(GetTestFileName(), std::ofstream::trunc);
+	for (char c : content)
+	{
+		fs << c;
+		fs.flush();
+		Sleep(40);
+	}
+	fs.close();
+	std::cout << "Output file byte-by-byte done\n";
+
+	std::this_thread::sleep_for(200ms);
+	Lines lines;
+	executor->Call([&] { lines = logsources.GetLines(); });
+	for (auto& line : lines)
+	{
+		BOOST_TEST(line.message.find("xception") == std::string::npos);
+		std::cout << line.message << std::endl;
+	}
+	BOOST_TEST(lines.size() == 6);
+}
+
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
 
