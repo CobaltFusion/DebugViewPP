@@ -299,13 +299,20 @@ Lines LogSources::GetLines()
 			}
 		}
 
-		// since a line can contain multiple newlines, processing 1 line can output
-		// multiple lines, in this case the timestamp for each line is the same.
-		// NewlineFilter::Process will also eat any \r\n's
-		auto processedLines = m_newlineFilter.Process(inputLine);
-		for (auto& line : processedLines)
+		if (inputLine.message.empty())
 		{
-			lines.push_back(line);
+			lines.push_back(inputLine);
+		}
+		else
+		{
+			// since a line can contain multiple newlines, processing 1 line can output
+			// multiple lines, in this case the timestamp for each line is the same.
+			// NewlineFilter::Process will also eat any \r\n's
+			auto processedLines = m_newlineFilter.Process(inputLine);
+			for (auto& line : processedLines)
+			{
+				lines.push_back(line);
+			}
 		}
 	}
 	return lines;

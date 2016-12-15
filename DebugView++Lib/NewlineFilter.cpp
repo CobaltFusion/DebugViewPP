@@ -16,11 +16,10 @@ namespace debugviewpp {
 
 Lines NewlineFilter::Process(const Line& line)
 {
-	Lines lines;
+	Line outputLine = line;
 	auto& message = m_lineBuffers[line.pid];
 	message.reserve(4000);
-
-	Line outputLine = line;
+	Lines lines;
 	for (auto c : line.message)
 	{
 		if (c == '\r')
@@ -38,13 +37,12 @@ Lines NewlineFilter::Process(const Line& line)
 		}
 	}
 
-	// this appears now needed to for OutputDebugString messages, but causes empty lines to disappear from tailed-files
-	// indicating this we have a bug somewhere else, removing this will cause DebugView++Test to fail.
 	if (message.empty())
 	{
 		m_lineBuffers.erase(line.pid);
 	}
-	else if (outputLine.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+	else 
+	if (outputLine.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
 	{
 		outputLine.message = message;
 		message.clear();
