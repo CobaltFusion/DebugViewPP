@@ -608,17 +608,20 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderRewriteByteByByte)
 	}
 	auto content = GetTestFileAsString();
 
-	std::cout << "Output file byte-by-byte\n";
 	std::ofstream fs;
 	fs.open(GetTestFileName(), std::ofstream::trunc);
+	fs.close();
+	std::this_thread::sleep_for(100ms);
 	for (char c : content)
 	{
+		std::ofstream fs;
+		fs.open(GetTestFileName(), std::ofstream::app);
 		fs << c;
+		// just flushing the fstream doesn't force a trigger of Find....ChangeNotification, but closing the fstream does the trick
 		fs.flush();
-		Sleep(40);
+		fs.close();
+		Sleep(20);
 	}
-	fs.close();
-	std::cout << "Output file byte-by-byte done\n";
 
 	std::this_thread::sleep_for(200ms);
 	Lines lines;
@@ -626,9 +629,15 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderRewriteByteByByte)
 	for (auto& line : lines)
 	{
 		BOOST_TEST(line.message.find("xception") == std::string::npos);
-		std::cout << line.message << std::endl;
+		//std::cout << line.message << std::endl;
 	}
 	BOOST_TEST(lines.size() == 6);
+	BOOST_TEST(lines.at(0).message.back() == '0'); // line ends in '...offset 0' 
+	BOOST_TEST(lines.at(1).message == "File Identification Header, DebugView++ Format Version 1");
+	BOOST_TEST(lines.at(2).message == "test message 1");
+	BOOST_TEST(lines.at(3).message == "test message 2");
+	BOOST_TEST(lines.at(4).message == "test message 3");
+	BOOST_TEST(lines.at(5).message == "message 4 (zero time message)");
 }
 
 std::string CreateAsciiTestFile()
@@ -656,10 +665,10 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderEmptyLines)
 		Lines lines;
 		executor->Call([&] { lines = logsources.GetLines(); });
 		BOOST_TEST(lines.size() == 4);
-		BOOST_TEST(lines[0].message.find("tailing") != std::string::npos);
-		BOOST_TEST(lines[1].message.find("first") != std::string::npos);
-		BOOST_TEST(lines[2].message == "");
-		BOOST_TEST(lines[3].message.find("last") != std::string::npos);
+		BOOST_TEST(lines.at(0).message.find("tailing") != std::string::npos);
+		BOOST_TEST(lines.at(1).message.find("first") != std::string::npos);
+		BOOST_TEST(lines.at(2).message == "", "The expected newline is gone!");
+		BOOST_TEST(lines.at(3).message.find("last") != std::string::npos);
 		for (auto& line : lines)
 		{
 			BOOST_TEST(line.message.find("xception") == std::string::npos);

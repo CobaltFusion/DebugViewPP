@@ -75,7 +75,7 @@ void FileReader::ReadUntilEof()
 		else
 		{
 			SafeAddLine(m_line + line);
-			line.clear();
+			m_line.clear();
 		}
 	}
 
