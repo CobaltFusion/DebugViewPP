@@ -559,7 +559,6 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReader)
 	BOOST_TEST(lines.size() == 5);
 }
 
-
 BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderResychronizeShrinkingFile)
 {
 	using namespace std::chrono_literals;
@@ -630,6 +629,43 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderRewriteByteByByte)
 		std::cout << line.message << std::endl;
 	}
 	BOOST_TEST(lines.size() == 6);
+}
+
+std::string CreateAsciiTestFile()
+{
+	auto filename = GetTestFileName();
+	std::ofstream fs;
+	fs.open(filename, std::ofstream::trunc);
+	fs << "This is the first line\n";
+	fs << "\n"; // empty line
+	fs << "This is the last line\n";
+	return filename;
+}
+
+BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderEmptyLines)
+{
+	using namespace std::chrono_literals;
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	LogSources logsources(*executor, true);
+	auto filename = CreateAsciiTestFile();
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	std::this_thread::sleep_for(200ms);
+
+	{
+		Lines lines;
+		executor->Call([&] { lines = logsources.GetLines(); });
+		BOOST_TEST(lines.size() == 4);
+		BOOST_TEST(lines[0].message.find("tailing") != std::string::npos);
+		BOOST_TEST(lines[1].message.find("first") != std::string::npos);
+		BOOST_TEST(lines[2].message == "");
+		BOOST_TEST(lines[3].message.find("last") != std::string::npos);
+		for (auto& line : lines)
+		{
+			BOOST_TEST(line.message.find("xception") == std::string::npos);
+			std::cout << line.message << std::endl;
+		}
+	}
 }
 
 
