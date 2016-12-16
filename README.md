@@ -108,6 +108,8 @@ Screenshot demonstrating bookmarks and highlighting features.
 
 See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
 
+**Android ADB example**:
+
 ![DebugView++ Screenshot](art/logcat_example.png "DebugView++ Screenshot")
 
 Screenshot demonstrating connecting to ADB logcat (Android Debug Bridge)
