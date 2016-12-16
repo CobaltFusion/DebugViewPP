@@ -9,7 +9,7 @@ Sysinternals DebugView. But can also be attached to virtually any other kind of 
 - serial ports (using plink)
 - sockets, telnet or ssh ports (also using plink)
 - it can listen for UDP messages, handy in distributed systems
-- see example below
+See examples below.
 
 Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
 - bugfixes
@@ -117,7 +117,7 @@ More examples
 
 **Connect any pipe**:
 
-To connect directly to a port or service, [plink] can be used:
+To connect directly to a port or service, [plink] can be used, make sure an instance of debugview++ is already running before running this command:
 
 > plink -ssh -batch -v 192.168.0.1 2>&1 | debugview++
 
