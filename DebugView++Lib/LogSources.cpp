@@ -110,6 +110,7 @@ void LogSources::InternalRemove(LogSource* pLogSource)
 
 std::vector<LogSource*> LogSources::GetSources() const
 {
+	assert(m_executor.IsExecutorThread());
 	std::vector<LogSource*> sources;
 	std::lock_guard<std::mutex> lock(m_mutex);
 	for (auto& pSource : m_sources)
@@ -220,6 +221,7 @@ void LogSources::ListenUntilUpdateEvent()
 
 void LogSources::UpdateSources()
 {
+	assert(m_executor.IsExecutorThread());
 	std::vector<LogSource*> sources;
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
@@ -318,6 +320,7 @@ Lines LogSources::GetLines()
 
 DBWinReader* LogSources::AddDBWinReader(bool global)
 {
+	assert(m_executor.IsExecutorThread());
 	auto pDbWinReader = std::make_unique<DBWinReader>(m_timer, m_linebuffer, global);
 	auto pResult = pDbWinReader.get();
 	Add(std::move(pDbWinReader));
@@ -326,6 +329,7 @@ DBWinReader* LogSources::AddDBWinReader(bool global)
 
 TestSource* LogSources::AddTestSource()
 {
+	assert(m_executor.IsExecutorThread());
 	auto pTestSource = std::make_unique<TestSource>(m_timer, m_linebuffer);
 	auto pResult = pTestSource.get();
 	Add(std::move(pTestSource));
@@ -334,6 +338,7 @@ TestSource* LogSources::AddTestSource()
 
 ProcessReader* LogSources::AddProcessReader(const std::wstring& pathName, const std::wstring& args)
 {
+	assert(m_executor.IsExecutorThread());
 	auto pProcessReader = std::make_unique<ProcessReader>(m_timer, m_linebuffer, pathName, args);
 	auto pResult = pProcessReader.get();
 	Add(std::move(pProcessReader));
@@ -343,6 +348,7 @@ ProcessReader* LogSources::AddProcessReader(const std::wstring& pathName, const 
 // AddFileReader() is never used
 FileReader* LogSources::AddFileReader(const std::wstring& filename)
 {
+	assert(m_executor.IsExecutorThread());
 	auto pFilereader = std::make_unique<FileReader>(m_timer, m_linebuffer, IdentifyFile(filename), filename);
 	auto pResult = pFilereader.get();
 	Add(std::move(pFilereader));
@@ -351,6 +357,7 @@ FileReader* LogSources::AddFileReader(const std::wstring& filename)
 
 BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 {
+	assert(m_executor.IsExecutorThread());
 	auto filetype = IdentifyFile(filename);
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 	auto pFileReader = std::make_unique<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
@@ -363,6 +370,7 @@ BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 // we should choose to either rename DBLogReader, or move the FileType::AsciiText out of DBLogReader
 DBLogReader* LogSources::AddDBLogReader(const std::wstring& filename)
 {
+	assert(m_executor.IsExecutorThread());
 	auto filetype = IdentifyFile(filename);
 	if (filetype == FileType::Unknown)
 	{
@@ -379,6 +387,7 @@ DBLogReader* LogSources::AddDBLogReader(const std::wstring& filename)
 
 PipeReader* LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 {
+	assert(m_executor.IsExecutorThread());
 	auto pPipeReader = std::make_unique<PipeReader>(m_timer, m_linebuffer, hPipe, pid, Str(ProcessInfo::GetProcessNameByPid(pid)).str(), 40);
 	auto pResult = pPipeReader.get();
 	Add(std::move(pPipeReader));
@@ -387,6 +396,7 @@ PipeReader* LogSources::AddPipeReader(DWORD pid, HANDLE hPipe)
 
 DbgviewReader* LogSources::AddDbgviewReader(const std::string& hostname)
 {
+	assert(m_executor.IsExecutorThread());
 	auto pDbgViewReader = std::make_unique<DbgviewReader>(m_timer, m_linebuffer, hostname);
 	m_loopback->AddMessage(stringbuilder() << "Source '" << pDbgViewReader->GetDescription() << "' was added.");
 	auto pResult = pDbgViewReader.get();
@@ -396,6 +406,7 @@ DbgviewReader* LogSources::AddDbgviewReader(const std::string& hostname)
 
 SocketReader* LogSources::AddUDPReader(int port)
 {
+	assert(m_executor.IsExecutorThread());
 	auto pSocketReader = std::make_unique<SocketReader>(m_timer, m_linebuffer, port);
 	m_loopback->AddMessage(stringbuilder() << "Source '" << pSocketReader->GetDescription() << "' was added.");
 	auto pResult = pSocketReader.get();
