@@ -4,7 +4,12 @@ DebugView++
 ----------
 
 DebugView++ is primarily a viewer for Win32 OutputDebugString based logging in the style of
-Sysinternals DebugView. But can also be attached to virtually any other kind of logging.
+Sysinternals DebugView. But can also be attached to virtually any other kind of logging, such as:
+- Android ADB (basically any console based standand output)
+- serial ports (using plink)
+- sockets, telnet or ssh ports (also using plink)
+- it can listen for UDP messages, handy in distributed systems
+- see example below
 
 Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
 - bugfixes
