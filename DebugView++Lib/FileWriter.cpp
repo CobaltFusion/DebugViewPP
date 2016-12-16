@@ -23,7 +23,6 @@ FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
 void FileWriter::Run()
 {
 	//todo: we need locking on Logfile, think of ClearLog() 
-	// also, reading the .dblog file does not work correctly
 	size_t writeIndex = 0;
 	for (;;)
 	{

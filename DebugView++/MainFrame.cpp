@@ -927,7 +927,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	if (dlg.DoModal() == IDOK)
 	{
 		if (dlg.Option())
-			LoadAsync(dlg.m_szFileName); // todo: tails by default, should be made optional, also suppress internal messages about 'removed' logsource
+			LoadAsync(dlg.m_szFileName);
 		else
 			Load(std::wstring(dlg.m_szFileName));
 	}

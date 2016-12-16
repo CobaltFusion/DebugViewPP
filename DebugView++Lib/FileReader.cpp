@@ -22,7 +22,7 @@ FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type fil
 	m_filename(Str(filename).str()),
 	m_fileType(filetype),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
-	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().string()),
 	m_initialized(false)
