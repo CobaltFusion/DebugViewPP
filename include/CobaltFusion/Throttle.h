@@ -31,6 +31,7 @@ private:
 	Clock::time_point m_lastScheduledCallTimePoint;
 	bool m_callPending;
 	std::function<void()> m_fn;
+	std::mutex m_mutex;
 	IExecutor& m_executor;
 };
 

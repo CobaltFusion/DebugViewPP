@@ -25,6 +25,7 @@ Throttle::Throttle(IExecutor& executor, int callsPerSecond, std::function<void()
 
 void Throttle::operator()()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	m_lastCallTimePoint = Clock::now();
 	if (!m_callPending)
 	{
@@ -37,6 +38,7 @@ void Throttle::operator()()
 void Throttle::PendingCall()
 {
 	m_fn();
+	std::lock_guard<std::mutex> lock(m_mutex);
 	if (m_lastCallTimePoint > m_lastScheduledCallTimePoint)
 	{
 		m_lastScheduledCallTimePoint = Clock::now();
