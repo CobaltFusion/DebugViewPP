@@ -47,7 +47,6 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
 	m_linebuffer(64 * 1024),
 	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
-	m_updatePending(false),
 	m_executor(executor),
 	m_throttledUpdate(m_executor, 25, [&] { m_update(); }),
 	m_listenThread(startListening ? std::make_unique<fusion::thread>([this] { Listen(); }) : nullptr)
@@ -212,8 +211,7 @@ void LogSources::ListenUntilUpdateEvent()
 				assert((index < static_cast<int>(sources.size())) && "res.index out of range");
 				auto logsource = sources[index];
 				logsource->Notify();
-				if (!m_updatePending)
-					m_throttledUpdate();
+				m_throttledUpdate();
 			}
 		}
 	}

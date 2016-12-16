@@ -112,7 +112,6 @@ private:
 	Timer m_timer;
 
 	IExecutor& m_executor;
-	bool m_updatePending;
 	Update m_update;
 	Throttle m_throttledUpdate;
 
