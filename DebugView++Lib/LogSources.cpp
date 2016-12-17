@@ -232,6 +232,7 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 {
 	m_executor.CallAsync([this, pid, handle]
 	{
+		m_update();
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
 		for (auto& line : flushedLines)
 			m_loopback->Add(line.pid, line.processName, line.message);
