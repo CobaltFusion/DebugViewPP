@@ -122,15 +122,20 @@ bool LogSources::GetAutoNewLine() const
 
 void LogSources::Abort()
 {
-	m_end = true;
-
-	for (auto& pSource : m_sources)
+	if (!m_end)
 	{
-		pSource->Abort();
-	}
+		assert(m_executor.IsExecutorThread());
+		m_end = true;
 
+		m_update.disconnect_all_slots();
+		for (auto& pSource : m_sources)
+		{
+			pSource->Abort();
+		}
+	}
 	Win32::SetEvent(m_updateEvent);
 	if (m_listenThread) m_listenThread->join();
+	m_listenThread.reset();
 }
 
 void LogSources::Reset()

@@ -134,6 +134,8 @@ CMainFrame::CMainFrame() :
 
 CMainFrame::~CMainFrame()
 {
+	m_logSources.Abort();
+	m_GuiExecutorClient.reset();
 }
 
 void CMainFrame::SetLogging()
@@ -220,6 +222,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 void CMainFrame::OnClose()
 {
+	m_logSources.Abort();
 	m_GuiExecutorClient.reset();
 	SaveSettings();
 	DestroyWindow();

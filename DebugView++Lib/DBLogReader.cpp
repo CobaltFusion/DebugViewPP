@@ -72,7 +72,7 @@ void DBLogReader::AddLine(const std::string& data)
 		ReadLogFileMessage(data, line);
 		break;
 	default:
-		assert(false);
+		assert(false && "Unknown Filetype in DBLogReader");
 	}
 
 	Add(line.time, line.systemTime, line.pid, line.processName, line.message);
