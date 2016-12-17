@@ -86,17 +86,6 @@ Download latest version (stable, dated 20 Sept 2015)
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
 
-Experimental version (9 Dec 2016)
------------------------
-+ [DebugView v1.7.x Zipped executables](https://github.com/djeedjay/DebugViewPP/releases/download/v1.7-alpha/DebugView.zip)
-+ [DebugView v1.7.x Win32 installer](https://github.com/djeedjay/DebugViewPP/releases/download/v1.7-alpha/DebugView.msi)
-
-Older version
--------------------------------
-
-+ [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
-+ [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
-
 Screenshot demonstrating bookmarks and highlighting features.
 
 **Highlighted**:
