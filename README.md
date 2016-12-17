@@ -11,8 +11,8 @@ Sysinternals DebugView. But can also be attached to virtually any other kind of 
 - it can listen for UDP messages, handy in distributed systems
 See examples below.
 
-Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
-- bugfixes
+Expected changes in next stable version 1.8.x (upcoming ~ Jan 1 2017):
+- many bugfixes
 - last version with (official) XP support
 - internal refactoring from boost to C++11/14 constructs
 - no features planned, if you're missing something you need, file an issue!
