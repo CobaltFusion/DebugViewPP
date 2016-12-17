@@ -64,6 +64,7 @@ void PolledLogSource::Abort()
 	LogSource::Abort();
 	if (m_thread) m_thread->join();
 	m_thread.reset();
+	Notify();
 }
 
 void PolledLogSource::Loop()
