@@ -25,7 +25,7 @@ Here is a list of current features:
 
 - single selfcontaining executable, setup is provided but not required
 - runs without prerequisites on WinXPSP3 (v1.5 and earlier also on WinXPSP2), Vista and 7/8.x
-- after v1.7 we drop WindowsXP support if it becomes a problem to maintain
+- after v1.8 we drop WindowsXP support if it becomes a problem to maintain
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve PID to process name
