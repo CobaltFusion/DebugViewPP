@@ -7,14 +7,14 @@
 
 #pragma once
 
-#include "PassiveLogSource.h"
+#include "PolledLogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
 
-class PipeReader : public PassiveLogSource
+class PipeReader : public PolledLogSource
 {
 public:
 	PipeReader(Timer& timer, ILineBuffer& lineBuffer, HANDLE hPipe, DWORD pid, const std::string& processName, long pollFrequency);
@@ -22,7 +22,7 @@ public:
 
 	bool AtEnd() const override;
 	void Poll() override;
-	void Poll(PassiveLogSource& logSource);
+	void Poll(PolledLogSource& logSource);
 
 private:
 	HANDLE m_hPipe;

@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/stringbuilder.h"
-#include "DebugView++Lib/PassiveLogSource.h"
+#include "DebugView++Lib/PolledLogSource.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 
@@ -19,7 +19,7 @@ namespace debugviewpp {
 const std::string SysinternalsDebugViewAgentPort = "2020";
 
 DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname)
-	: PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40)
+	: PolledLogSource(timer, SourceType::Pipe, linebuffer, 40)
 	, m_hostname(hostname)
 	, m_thread([this] { Loop(); })
 {

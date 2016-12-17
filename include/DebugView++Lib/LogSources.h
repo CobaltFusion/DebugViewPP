@@ -90,14 +90,11 @@ public:
 	boost::signals2::connection SubscribeToUpdate(Update::slot_type slot);
 
 private:
-	void WorkaroundForIssue221();
 	void UpdateSources();
 	void InternalRemove(LogSource*);
 	void UpdateSettings(const std::unique_ptr<LogSource>& pSource);
 	void Add(std::unique_ptr<LogSource> pSource);
 	void OnProcessEnded(DWORD pid, HANDLE handle);
-	Loopback* CreateLoopback(Timer& timer, ILineBuffer& lineBuffer);
-	bool LogSourceExists(const LogSource* pLogSource) const;
 
 	bool m_autoNewLine;
 	mutable std::mutex m_mutex;
@@ -108,7 +105,7 @@ private:
 	PidMap m_pidMap;
 	ProcessMonitor m_processMonitor;
 	NewlineFilter m_newlineFilter;
-	Loopback* m_loopback;
+	std::unique_ptr<Loopback> m_loopback;
 	Timer m_timer;
 
 	IExecutor& m_executor;

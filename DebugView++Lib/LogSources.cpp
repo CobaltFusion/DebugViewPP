@@ -46,7 +46,7 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_autoNewLine(true),
 	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
 	m_linebuffer(64 * 1024),
-	m_loopback(CreateLoopback(m_timer, m_linebuffer)),
+	m_loopback(std::make_unique<Loopback>(m_timer, m_linebuffer)),
 	m_executor(executor),
 	m_throttledUpdate(m_executor, 25, [&] { m_update(); }),
 	m_listenThread(startListening ? std::make_unique<fusion::thread>([this] { Listen(); }) : nullptr)
@@ -59,25 +59,12 @@ LogSources::~LogSources()
 	Abort();
 }
 
-Loopback* LogSources::CreateLoopback(Timer& timer, ILineBuffer& lineBuffer)
-{
-	auto loopback = std::make_unique<Loopback>(timer, lineBuffer);
-	auto result = loopback.get();
-	m_sources.emplace_back(std::move(loopback));
-	return result;
-}
-
-void LogSources::WorkaroundForIssue221()
-{
-	m_update();
-}
 
 void LogSources::AddMessage(const std::string& message)
 {
 	assert(m_executor.IsExecutorThread());
-	m_loopback->AddMessage(message);
-	m_loopback->Signal();
-	WorkaroundForIssue221();
+	m_loopback->AddInternal(message);
+	m_throttledUpdate();
 }
 
 void LogSources::UpdateSettings(const std::unique_ptr<LogSource>& pSource)
@@ -198,7 +185,6 @@ void LogSources::ListenUntilUpdateEvent()
 	waitHandles.push_back(m_updateEvent.get());
 	while (!m_end)
 	{
-		m_loopback->Signal();
 		auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
 		if (m_end) return;
 
@@ -236,6 +222,7 @@ void LogSources::UpdateSources()
 		if (pSource->AtEnd())
 		{
 			pSource->Abort();
+			m_update();
 			InternalRemove(pSource);
 		}
 	}
@@ -243,27 +230,16 @@ void LogSources::UpdateSources()
 
 void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 {
-	WorkaroundForIssue221();
 	m_executor.CallAsync([this, pid, handle]
 	{
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
 		for (auto& line : flushedLines)
-			m_loopback->AddMessage(line.pid, line.processName, line.message);
-		m_loopback->Signal();
+			m_loopback->Add(line.pid, line.processName, line.message);
+		m_throttledUpdate();
 		auto it = m_pidMap.find(pid);
 		if (it != m_pidMap.end())
 			m_pidMap.erase(it);
 	});
-}
-
-bool LogSources::LogSourceExists(const LogSource* pLogSource) const
-{
-	for (auto& pSource : m_sources)
-	{
-		if (pLogSource == pSource.get())
-			return true;
-	}
-	return false;
 }
 
 Lines LogSources::GetLines()
@@ -274,8 +250,6 @@ Lines LogSources::GetLines()
 	Lines lines;
 	for (auto& inputLine : inputLines)
 	{
-		if (!LogSourceExists(inputLine.pLogSource)) continue;
-
 		// let the logsource decide how to create processname
 		if (inputLine.pLogSource)
 		{
@@ -398,7 +372,7 @@ DbgviewReader* LogSources::AddDbgviewReader(const std::string& hostname)
 {
 	assert(m_executor.IsExecutorThread());
 	auto pDbgViewReader = std::make_unique<DbgviewReader>(m_timer, m_linebuffer, hostname);
-	m_loopback->AddMessage(stringbuilder() << "Source '" << pDbgViewReader->GetDescription() << "' was added.");
+	m_loopback->Add(stringbuilder() << "Source '" << pDbgViewReader->GetDescription() << "' was added.");
 	auto pResult = pDbgViewReader.get();
 	Add(std::move(pDbgViewReader));
 	return pResult;
@@ -408,7 +382,7 @@ SocketReader* LogSources::AddUDPReader(int port)
 {
 	assert(m_executor.IsExecutorThread());
 	auto pSocketReader = std::make_unique<SocketReader>(m_timer, m_linebuffer, port);
-	m_loopback->AddMessage(stringbuilder() << "Source '" << pSocketReader->GetDescription() << "' was added.");
+	m_loopback->Add(stringbuilder() << "Source '" << pSocketReader->GetDescription() << "' was added.");
 	auto pResult = pSocketReader.get();
 	Add(std::move(pSocketReader));
 	return pResult;

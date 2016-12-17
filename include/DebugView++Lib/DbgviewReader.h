@@ -8,7 +8,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include "PassiveLogSource.h"
+#include "PolledLogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -29,7 +29,7 @@ void Write(S& is, T t)
 	is.write(reinterpret_cast<const char*>(&t), sizeof(t));
 }
 
-class DbgviewReader : public PassiveLogSource
+class DbgviewReader : public PolledLogSource
 {
 public:
 	DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);

@@ -15,7 +15,7 @@ namespace fusion {
 namespace debugviewpp {
 
 PipeReader::PipeReader(Timer& timer, ILineBuffer& linebuffer, HANDLE hPipe, DWORD pid, const std::string& processName, long pollFrequency) :
-	PassiveLogSource(timer, SourceType::Pipe, linebuffer, pollFrequency),
+	PolledLogSource(timer, SourceType::Pipe, linebuffer, pollFrequency),
 	m_hPipe(hPipe),
 	m_pid(pid),
 	m_process(processName)
@@ -38,7 +38,7 @@ void PipeReader::Poll()
 	Poll(*this);
 }
 
-void PipeReader::Poll(PassiveLogSource& logsource)
+void PipeReader::Poll(PolledLogSource& logsource)
 {
 	char buf[4096];
 	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf);

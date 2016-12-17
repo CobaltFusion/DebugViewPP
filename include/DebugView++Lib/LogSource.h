@@ -60,7 +60,7 @@ public:
 	// used when reading from files
 	void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
 
-	// used by PassiveLogsources writing internal status messages
+	// used by Loopback and PolledLogSources writing internal status messages
 	void AddInternal(const std::string& message);
 
 	// used by FileReader

@@ -7,7 +7,7 @@
 
 #include "stdafx.h"
 #include "CobaltFusion/Str.h"
-#include "DebugView++Lib/PassiveLogSource.h"
+#include "DebugView++Lib/PolledLogSource.h"
 #include "DebugView++Lib/ProcessReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 
@@ -15,7 +15,7 @@ namespace fusion {
 namespace debugviewpp {
 
 ProcessReader::ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args) :
-	PassiveLogSource(timer, SourceType::Pipe, linebuffer, 40),
+	PolledLogSource(timer, SourceType::Pipe, linebuffer, 40),
 	m_process(pathName, args),
 	m_stdout(timer, linebuffer, m_process.GetStdOut(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stdout", 0),
 	m_stderr(timer, linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr", 0)
@@ -31,7 +31,7 @@ ProcessReader::~ProcessReader()
 void ProcessReader::Abort()
 {
 	AddMessage(m_process.GetProcessId(), Str(m_process.GetName()).str(), "<process terminated>");
-	PassiveLogSource::Abort();
+	PolledLogSource::Abort();
 }
 
 bool ProcessReader::AtEnd() const

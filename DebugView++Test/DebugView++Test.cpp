@@ -677,6 +677,35 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderEmptyLines)
 	}
 }
 
+BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
+{
+	using namespace std::chrono_literals;
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	LogSources logsources(*executor, true);
+	auto filename = CreateAsciiTestFile();
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddMessage("Loopback message 1"); });
+	executor->Call([&] { logsources.AddMessage("Loopback message 2"); });
+	executor->Call([&] { logsources.AddMessage("Loopback message 3"); });
+	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	std::this_thread::sleep_for(200ms);
+	Lines lines;
+	executor->Call([&] { lines = logsources.GetLines(); });
+
+	BOOST_TEST(lines.at(0).message == "Loopback message 1");
+	BOOST_TEST(lines.at(1).message == "Loopback message 2");
+	BOOST_TEST(lines.at(2).message == "Loopback message 3");
+	BOOST_TEST(lines.at(3).message.find("tailing") != std::string::npos);
+	BOOST_TEST(lines.at(4).message.find("first") != std::string::npos);
+	BOOST_TEST(lines.at(5).message == "", "The expected newline is gone!");
+	BOOST_TEST(lines.at(6).message.find("last") != std::string::npos);
+	for (auto& line : lines)
+	{
+		std::cout << line.message << std::endl;
+	}
+}
+
+
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
 

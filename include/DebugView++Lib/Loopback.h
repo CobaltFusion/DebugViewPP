@@ -7,18 +7,21 @@
 
 #pragma once
 
-#include "DebugView++Lib/PassiveLogSource.h"
+#include "DebugView++Lib/PolledLogSource.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
 
-class Loopback : public PassiveLogSource
+class Loopback : public LogSource
 {
 public:
 	Loopback(Timer& timer, ILineBuffer& lineBuffer);
 	virtual ~Loopback();
+
+	virtual HANDLE GetHandle() const { throw std::exception("should never be called"); }
+	virtual void Notify() {}
 
 	virtual bool GetAutoNewLine() const;
 	virtual void PreProcess(Line& line) const;

@@ -8,7 +8,7 @@
 #pragma once
 
 #include "PipeReader.h"
-#include "PassiveLogSource.h"
+#include "PolledLogSource.h"
 #include "Win32/Process.h"
 
 namespace fusion {
@@ -16,7 +16,7 @@ namespace debugviewpp {
 
 class ILineBuffer;
 
-class ProcessReader : public PassiveLogSource
+class ProcessReader : public PolledLogSource
 {
 public:
 	ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);

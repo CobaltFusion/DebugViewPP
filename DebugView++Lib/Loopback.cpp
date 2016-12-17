@@ -11,7 +11,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-Loopback::Loopback(Timer& timer, ILineBuffer& linebuffer) : PassiveLogSource(timer, SourceType::System, linebuffer, 0)
+Loopback::Loopback(Timer& timer, ILineBuffer& linebuffer) : LogSource(timer, SourceType::System, linebuffer)
 {
 	SetDescription(L"Loopback");
 }
