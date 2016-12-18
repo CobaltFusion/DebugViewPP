@@ -11,8 +11,8 @@ Sysinternals DebugView. But can also be attached to virtually any other kind of 
 - it can listen for UDP messages, handy in distributed systems
 See examples below.
 
-Expected changes in next version 1.7.x (upcoming ~ Jan 1 2017):
-- bugfixes
+Expected changes in next stable version 1.8.x (upcoming ~ Jan 1 2017):
+- many bugfixes
 - last version with (official) XP support
 - internal refactoring from boost to C++11/14 constructs
 - no features planned, if you're missing something you need, file an issue!
@@ -25,7 +25,7 @@ Here is a list of current features:
 
 - single selfcontaining executable, setup is provided but not required
 - runs without prerequisites on WinXPSP3 (v1.5 and earlier also on WinXPSP2), Vista and 7/8.x
-- after v1.7 we drop WindowsXP support if it becomes a problem to maintain
+- after v1.8 we drop WindowsXP support if it becomes a problem to maintain
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve PID to process name
@@ -85,17 +85,6 @@ Download latest version (stable, dated 20 Sept 2015)
 -----------------------
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
-
-Experimental version (9 Dec 2016)
------------------------
-+ [DebugView v1.7.x Zipped executables](https://github.com/djeedjay/DebugViewPP/releases/download/v1.7-alpha/DebugView.zip)
-+ [DebugView v1.7.x Win32 installer](https://github.com/djeedjay/DebugViewPP/releases/download/v1.7-alpha/DebugView.msi)
-
-Older version
--------------------------------
-
-+ [DebugView v1.2 Zipped executables](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.zip)
-+ [DebugView v1.2 Win32 installer](http://www.myquest.nl/sites/debugview/Release_v1.2/DebugView++.msi)
 
 Screenshot demonstrating bookmarks and highlighting features.
 
