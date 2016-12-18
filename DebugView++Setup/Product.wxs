@@ -14,6 +14,7 @@
               <Shortcut Id="DesktopDebugViewPP" Directory="DesktopFolder" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewPP.ico" IconIndex="0" Advertise="yes" />
             </File>
             <File Id="DebugViewPPConsole" Name="DebugViewConsole.exe" Source="$(var.SolutionDir)\$(var.Configuration)\DebugViewConsole.exe" />
+            <File Id="DebugViewPPForwarder" Name="OutputForwarderVSIX.vsix" Source="$(var.SolutionDir)\$(var.Configuration)\OutputForwarderVSIX.vsix" />
             <ProgId Id="CobaltFusion.DebugViewPPLog" Description="DebugView++ File">
               <Extension Id="dblog">
                 <Verb Id="open" Command="open" TargetFile="DebugViewPPEXE" Argument="'%1'"/>
