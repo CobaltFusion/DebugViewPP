@@ -80,18 +80,18 @@ void DeviceContext::Rectangle(int x, int y, int width, int height)
 
 void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int width)
 {
-	DrawTextOut(name, x, y);
+	DrawTextOut(name, x, y -15);
 	auto textWidth = 150;
-	MoveTo(x + textWidth, y + 15);
-	LineTo(x + textWidth + width, y + 15);
+	MoveTo(x + textWidth, y);
+	LineTo(x + textWidth + width, y);
 }
 
 void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 {
 	MoveTo(x, y);
-	LineTo(x, y - 15);
-	LineTo(x + 7, y - 10);
-	LineTo(x, y - 7);
+	LineTo(x, y - 20);
+	LineTo(x + 7, y - 16);
+	LineTo(x, y - 12);
 }
 
 

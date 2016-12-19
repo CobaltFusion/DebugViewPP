@@ -9,9 +9,9 @@ namespace fusion
 
 void DoPaint(graphics::DeviceContextEx dc)
 {
-	dc.DrawTimeline(L"Move Sequence", 15, 40, 500);
-	dc.DrawFlag(L"tag", 200, 40 + 15);
-	dc.DrawTimeline(L"Arbitrary data", 15, 70, 500);
+	dc.DrawTimeline(L"Move Sequence", 15, 60, 500);
+	dc.DrawFlag(L"tag", 200, 60);
+	dc.DrawTimeline(L"Arbitrary data", 15, 80, 500);
 }
 
 PAINTSTRUCT ps;
