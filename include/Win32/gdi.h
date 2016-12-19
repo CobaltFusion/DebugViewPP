@@ -57,6 +57,7 @@ public:
 
 	void DrawTimeline(const std::wstring& name, int x, int y, int width);
 	void DrawFlag(const std::wstring& /* tooltip */, int x, int y);
+	void DrawFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF color);
 };
 
 

@@ -99,5 +99,12 @@ void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 	LineTo(x, y - 12);
 }
 
+void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF color)
+{
+	HPEN hBluePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
+	SelectObject(hDC, hBluePen);
+	DrawFlag(tooltip, x, y);
+}
+
 } // namespace graphics
 } // namespace fusion
