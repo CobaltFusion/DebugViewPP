@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:VSExtension="http://schemas.microsoft.com/wix/VSExtension">
   <?include $(var.SolutionDir)\DebugView++\version.wxi ?>
   <Product Id="*" Name="DebugView++ $(var.ProductVersion.Major).$(var.ProductVersion.Minor)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Cobalt Fusion" UpgradeCode="523333bf-842d-442f-94c2-ae6caad5f714">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
@@ -49,11 +49,34 @@
     <Feature Id="FeatureProgramMenuDir" Title="Add to Start menu" Level="1">
       <ComponentRef Id="ProgramMenuDir" />
     </Feature>
+    <!--
+    <Feature Id="FeatureVisualStudioOWFExtension" Title="Install Visual Studio Output Window Forwarder" Level="10">
+      <ComponentRef Id="VisualStudioOWF" />
+    </Feature>
+    -->
     <Feature Id="FeatureDebugviewppFilters" Title="XML Filters" Level="1">
       <ComponentRef Id="SYSTEMNOISEFILTER.XML" />
     </Feature>
     <Property Id="ARPPRODUCTICON" Value="DebugViewPP.ico" />
-    <UI />
+
+    <UI>
+       <!--  CFWixUI_FeatureTree is a customized UI that can install the Visual Studio extention, however, it does not uninstall the extention at all, 
+             as if Permanent="yes" was set. Until we find out why, I disabled the UI completely.
+       -->
+      
+       <!--  <UIRef Id="CFWixUI_FeatureTree" />  -->
+    </UI>
     <Icon Id="DebugViewPP.ico" SourceFile="$(var.SolutionDir)\DebugView++\res\DebugView++.ico" />
   </Product>
+  
+  <!-- see: http://blog.majcica.com/2015/02/04/installing-vsix-package-via-wix-installer/ -->
+  <!--
+  <Fragment>
+    <Component Id="VisualStudioOWF" Guid="3CBE1BE9-42EB-4F04-96AF-58EAD5D9827D" Directory="INSTALLFOLDER">
+      <VSExtension:VsixPackage File="OutputForwarderVSIX.vsix" PackageId="48C6483D-573B-4FBF-AADC-2F25CCB4AFB3" Vital="no" Permanent="no" />
+      <File Id="OutputForwarderVSIX.vsix" Name="$(var.OutputForwarderVSIX.TargetName).vsix" Source="$(var.OutputForwarderVSIX.TargetDir)$(var.OutputForwarderVSIX.TargetName).vsix" Hidden="no" />
+    </Component>
+  </Fragment>
+  -->
+
 </Wix>

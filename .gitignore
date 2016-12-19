@@ -15,3 +15,6 @@ bin
 *.class
 *.db
 *.opendb
+/OutputForwarderVSIX/packages
+/DebugView++Test/SaveLoadLogFile_unique_test_filename
+/VsSDK.props
