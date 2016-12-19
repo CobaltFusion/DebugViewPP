@@ -129,7 +129,8 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 		}
 		else if (boost::iequals(args[i], L"/log"))
 		{
-			//wndMain.SetLogging();		// todo: implement: this feature is not usuable now.
+			//wndMain.SetLogging();		// todo: implement: FileWriter needs to concurrently access m_logfile, it now causes a crash if DbgMsgSrc -1 is run
+			// this should be replaced by the new streaming-to-disk feature we discussed.
 		}
 		else if (args[i][0] != '/')
 		{

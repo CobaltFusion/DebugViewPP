@@ -140,7 +140,7 @@ CMainFrame::~CMainFrame()
 
 void CMainFrame::SetLogging()
 {
-	m_logWriter = std::make_unique<FileWriter>(GetPersonalPath() + L"\\DebugView++ Logfiles\\debugview.dblog", m_logFile);
+	m_logWriter = std::make_unique<FileWriter>(L"debugview.dblog", m_logFile);
 }
 
 void CMainFrame::OnException()
