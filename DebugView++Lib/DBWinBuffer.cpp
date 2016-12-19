@@ -12,7 +12,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-// this method is use to prevent acquiring the global DBLogReader on XP, which will otherwise popup a MessageBox with a tip to 'Run As Administator'
+// this method is used to prevent acquiring the global DBLogReader on XP, which will otherwise popup a MessageBox with a tip to 'Run As Administator'
 // however, that does not apply to WindowsXP, as there are no 'global' messages there.
 bool IsWindowsVistaOrGreater()
 {
@@ -21,7 +21,7 @@ bool IsWindowsVistaOrGreater()
 	// http://stackoverflow.com/questions/27246562/how-to-get-the-os-version-in-win8-1-as-getversion-getversionex-are-deprecated
 	// it looks like we can safely suppress this warning
 	#pragma warning(suppress: 4996)
-	GetVersionEx(&osvi);	
+	GetVersionEx(&osvi);
 	return (osvi.dwMajorVersion > 5);
 }
 

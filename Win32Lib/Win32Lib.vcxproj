@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Win32\Com.h" />
+    <ClInclude Include="..\include\Win32\gdi.h" />
     <ClInclude Include="..\include\Win32\Process.h" />
     <ClInclude Include="..\include\Win32\Registry.h" />
     <ClInclude Include="..\include\Win32\Socket.h" />
@@ -145,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Com.cpp" />
+    <ClCompile Include="gdi.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Socket.cpp" />
