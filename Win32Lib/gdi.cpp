@@ -78,6 +78,11 @@ void DeviceContext::Rectangle(int x, int y, int width, int height)
 	::Rectangle(hDC, x, y, width, height);
 }
 
+void DeviceContext::DrawPolygon(const std::vector<POINT>& points)
+{
+	::Polygon(hDC, points.data(), points.size());
+}
+
 void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int width)
 {
 	DrawTextOut(name, x, y -15);
@@ -93,8 +98,6 @@ void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 	LineTo(x + 7, y - 16);
 	LineTo(x, y - 12);
 }
-
-
 
 } // namespace graphics
 } // namespace fusion

@@ -9,6 +9,7 @@
 
 #include "windows.h"
 #include <string>
+#include <vector>
 
 namespace fusion {
 namespace graphics {
@@ -40,6 +41,7 @@ public:
 	void LineTo(int x, int y);
 	void DrawTextOut(const std::wstring& str, int x, int y);
 	void Rectangle(int x, int y, int width, int height);
+	void DrawPolygon(const std::vector<POINT>& points);
 
 protected:
 	HDC hDC;

@@ -11,7 +11,12 @@ void DoPaint(graphics::DeviceContextEx dc)
 {
 	dc.DrawTimeline(L"Move Sequence", 15, 60, 500);
 	dc.DrawFlag(L"tag", 200, 60);
+	dc.DrawFlag(L"tag", 250, 60);
+	dc.DrawFlag(L"tag", 260, 60);
+	dc.DrawFlag(L"tag", 270, 60);
 	dc.DrawTimeline(L"Arbitrary data", 15, 80, 500);
+	int x = 90;
+	dc.DrawPolygon({ {x,90}, { 290, 290 }, { x, 390 } });
 }
 
 PAINTSTRUCT ps;
