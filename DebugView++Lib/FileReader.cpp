@@ -6,6 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
+#include <cassert>
 #include <filesystem>
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/FileIO.h"
@@ -16,13 +17,13 @@
 namespace fusion {
 namespace debugviewpp {
 
-FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) :
+FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
 	LogSource(timer, SourceType::File, linebuffer),
 	m_end(false),
 	m_filename(Str(filename).str()),
 	m_fileType(filetype),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
-	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+	m_handle(keeptailing ? FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE) : nullptr), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().string()),
 	m_initialized(false)
@@ -58,6 +59,7 @@ HANDLE FileReader::GetHandle() const
 
 void FileReader::Notify()
 {
+	assert(m_handle);
 	ReadUntilEof();
 	FindNextChangeNotification(m_handle.get());
 }
@@ -117,7 +119,7 @@ void FileReader::SafeAddLine(const std::string& line)
 
 void FileReader::AddLine(const std::string& line)
 {
-	// DBLogReader and BinaryFileReader override this method
+	// AnyFileReader and BinaryFileReader override this method
 	Add(line);
 }
 

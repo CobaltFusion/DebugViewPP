@@ -101,13 +101,13 @@
     <ClInclude Include="..\include\DebugView++Lib\BinaryFileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\DebugView++Lib\DBLogReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\DebugView++Lib\ProcessMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\DebugView++Lib\PolledLogSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugView++Lib\AnyFileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -193,9 +193,6 @@
     <ClCompile Include="Conversions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DBLogReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BinaryFileReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -206,6 +203,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PolledLogSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnyFileReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

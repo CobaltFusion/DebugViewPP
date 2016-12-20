@@ -483,7 +483,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 		}
 		else
 		{
-			m_logSources.AddDBLogReader(file);
+			m_logSources.AddAnyFileReader(file, true);
 		}
 	}
 }
@@ -969,7 +969,7 @@ void CMainFrame::LoadAsync(const std::wstring& filename)
 	SetTitle(filename);
 	if (!IsPaused()) Pause();
 	ClearLog();
-	m_logSources.AddDBLogReader(filename);
+	m_logSources.AddAnyFileReader(filename, true);
 }
 
 void CMainFrame::SetTitle(const std::wstring& title)

@@ -12,7 +12,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-// this method is used to prevent acquiring the global DBLogReader on XP, which will otherwise popup a MessageBox with a tip to 'Run As Administator'
+// this method is used to prevent acquiring the global AnyFileReader on XP, which will otherwise popup a MessageBox with a tip to 'Run As Administator'
 // however, that does not apply to WindowsXP, as there are no 'global' messages there.
 bool IsWindowsVistaOrGreater()
 {

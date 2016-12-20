@@ -544,14 +544,14 @@ void RemoveLinesFromFile(const std::string& filename, int linesToRemove)
 	Win32::HFile(GetTestFileName()).resize(offset);
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBLogReader)
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReader)
 {
 	using namespace std::chrono_literals;
 	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	auto filename = CreateTestFile();
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
-	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 	std::this_thread::sleep_for(200ms);
 
 	Lines lines;
@@ -559,14 +559,14 @@ BOOST_AUTO_TEST_CASE(LogSourceDBLogReader)
 	BOOST_TEST(lines.size() == 5);
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderResychronizeShrinkingFile)
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderResychronizeShrinkingFile)
 {
 	using namespace std::chrono_literals;
 	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	auto filename = CreateTestFile();
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
-	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 	std::this_thread::sleep_for(200ms);
 
 	Lines lines;
@@ -591,14 +591,14 @@ std::string GetTestFileAsString()
 	return ss.str();
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderRewriteByteByByte)
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte)
 {
 	using namespace std::chrono_literals;
 	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	auto filename = CreateTestFile();
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
-	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 	std::this_thread::sleep_for(200ms);
 
 	{
@@ -651,14 +651,14 @@ std::string CreateAsciiTestFile()
 	return filename;
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBLogReaderEmptyLines)
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyLines)
 {
 	using namespace std::chrono_literals;
 	auto executor = std::make_unique<ActiveExecutorClient>();
 	LogSources logsources(*executor, true);
 	auto filename = CreateAsciiTestFile();
 	executor->Call([&] { logsources.SetAutoNewLine(true); });
-	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 	std::this_thread::sleep_for(200ms);
 
 	{
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 	executor->Call([&] { logsources.AddMessage("Loopback message 1"); });
 	executor->Call([&] { logsources.AddMessage("Loopback message 2"); });
 	executor->Call([&] { logsources.AddMessage("Loopback message 3"); });
-	executor->Call([&] { logsources.AddDBLogReader(WStr(filename)); });
+	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 	std::this_thread::sleep_for(200ms);
 	Lines lines;
 	executor->Call([&] { lines = logsources.GetLines(); });

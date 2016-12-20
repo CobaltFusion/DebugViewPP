@@ -28,7 +28,7 @@ namespace debugviewpp {
 class DBWinReader;
 class ProcessReader;
 class FileReader;
-class DBLogReader;
+class AnyFileReader;
 class BinaryFileReader;
 class PipeReader;
 class TestSource;
@@ -79,9 +79,8 @@ public:
 
 	DBWinReader* AddDBWinReader(bool global);
 	ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
-	FileReader* AddFileReader(const std::wstring& filename);
 	BinaryFileReader* AddBinaryFileReader(const std::wstring& filename);
-	DBLogReader* AddDBLogReader(const std::wstring& filename);
+	AnyFileReader* AddAnyFileReader(const std::wstring& filename, bool keeptailing);
 	DbgviewReader* AddDbgviewReader(const std::string& hostname);
 	SocketReader* AddUDPReader(int port);
 	PipeReader* AddPipeReader(DWORD pid, HANDLE hPipe);

@@ -20,7 +20,7 @@ class ILineBuffer;
 class FileReader : public LogSource
 {
 public:
-	FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename);
+	FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing);
 	~FileReader() override;
 
 	void Initialize() override;

@@ -20,7 +20,7 @@
 #include "DebugView++Lib/PipeReader.h"
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/BinaryFileReader.h"
-#include "DebugView++Lib/DBLogReader.h"
+#include "DebugView++Lib/AnyFileReader.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/SocketReader.h"
@@ -325,16 +325,6 @@ ProcessReader* LogSources::AddProcessReader(const std::wstring& pathName, const 
 	return pResult;
 }
 
-// AddFileReader() is never used
-FileReader* LogSources::AddFileReader(const std::wstring& filename)
-{
-	assert(m_executor.IsExecutorThread());
-	auto pFilereader = std::make_unique<FileReader>(m_timer, m_linebuffer, IdentifyFile(filename), filename);
-	auto pResult = pFilereader.get();
-	Add(std::move(pFilereader));
-	return pResult;
-}
-
 BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 {
 	assert(m_executor.IsExecutorThread());
@@ -346,9 +336,7 @@ BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 	return pResult;
 }
 
-// todo: DBLogReader is now always used for all types of files.
-// we should choose to either rename DBLogReader, or move the FileType::AsciiText out of DBLogReader
-DBLogReader* LogSources::AddDBLogReader(const std::wstring& filename)
+AnyFileReader* LogSources::AddAnyFileReader(const std::wstring& filename, bool keeptailing)
 {
 	assert(m_executor.IsExecutorThread());
 	auto filetype = IdentifyFile(filename);
@@ -359,9 +347,9 @@ DBLogReader* LogSources::AddDBLogReader(const std::wstring& filename)
 	}
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 
-	auto pDbLogReader = std::make_unique<DBLogReader>(m_timer, m_linebuffer, filetype, filename);
-	auto pResult = pDbLogReader.get();
-	Add(std::move(pDbLogReader));
+	auto pAnyFileReader = std::make_unique<AnyFileReader>(m_timer, m_linebuffer, filetype, filename, keeptailing);
+	auto pResult = pAnyFileReader.get();
+	Add(std::move(pAnyFileReader));
 	return pResult;
 }
 
