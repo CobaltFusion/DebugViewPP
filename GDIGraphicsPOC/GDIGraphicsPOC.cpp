@@ -10,17 +10,16 @@ namespace fusion
 void DoPaint(graphics::DeviceContextEx dc)
 {
 	int y = 60;
-	dc.DrawTimeline(L"Move Sequence", 15, y, 500);
+
+	auto grey = RGB(160, 160, 170);
+	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
 	dc.DrawFlag(L"tag", 200, y);
 	dc.DrawFlag(L"tag", 250, y);
-	dc.DrawFlag(L"tag", 260, y);
+	dc.DrawSolidFlag(L"tag", 260, y, RGB(255, 0, 0), RGB(0, 255, 0));
 	dc.DrawFlag(L"tag", 270, y);
 
-	dc.DrawTimeline(L"Arbitrary data", 15, 90, 500);
-	int x = 90;
-	dc.DrawPolygon({ {x,90}, { 290, 290 }, { x, 390 } });
-
-	dc.DrawFlag(L"blueFlag", 470, 90, RGB(0, 0, 255));
+	dc.DrawTimeline(L"Arbitrary data", 15, 90, 500, grey);
+	dc.DrawFlag(L"blueFlag", 470, 90, RGB(0, 0, 255), true);
 }
 
 PAINTSTRUCT ps;

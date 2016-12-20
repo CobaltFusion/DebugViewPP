@@ -55,9 +55,11 @@ class DeviceContextEx : public DeviceContext
 	using DeviceContext::DeviceContext;
 public:
 
-	void DrawTimeline(const std::wstring& name, int x, int y, int width);
+	void DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color);
 	void DrawFlag(const std::wstring& /* tooltip */, int x, int y);
-	void DrawFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF color);
+	void DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y);
+	void DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF border, COLORREF fill);
+	void DrawFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF color, bool solid);
 };
 
 

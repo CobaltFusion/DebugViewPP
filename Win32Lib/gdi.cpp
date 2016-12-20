@@ -83,12 +83,13 @@ void DeviceContext::DrawPolygon(const std::vector<POINT>& points)
 	::Polygon(hDC, points.data(), points.size());
 }
 
-void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int width)
+void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color)
 {
+	auto pen = CreatePen(PS_SOLID, 1, color);
+	::SelectObject(hDC, pen);
 	DrawTextOut(name, x, y -15);
 	auto textWidth = 150;
-	MoveTo(x + textWidth, y);
-	LineTo(x + textWidth + width, y);
+	::Rectangle(hDC, x + textWidth, y, x + textWidth + width, y + 2);
 }
 
 void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
@@ -99,11 +100,30 @@ void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 	LineTo(x, y - 12);
 }
 
-void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF color)
+void DeviceContextEx::DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y)
 {
-	HPEN hBluePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
-	SelectObject(hDC, hBluePen);
-	DrawFlag(tooltip, x, y);
+	DrawPolygon({ { x, y - 20 },{ x + 7, y - 16 },{ x, y - 12 } });
+	MoveTo(x, y);
+	LineTo(x, y - 20);
+}
+
+void DeviceContextEx::DrawSolidFlag(const std::wstring& tooltip, int x, int y, COLORREF border, COLORREF fill)
+{
+	auto pen = CreatePen(PS_SOLID, 1, border);
+	::SelectObject(hDC, pen);
+	auto b = ::CreateSolidBrush(fill);
+	::SelectObject(hDC, b);
+	DrawSolidFlag(tooltip, x, y);
+}
+
+void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF color, bool solid)
+{
+	auto pen = CreatePen(PS_SOLID, 1, color);
+	::SelectObject(hDC, pen);
+	if (solid)
+		DrawSolidFlag(tooltip, x, y);
+	else
+		DrawFlag(tooltip, x, y);
 }
 
 } // namespace graphics
