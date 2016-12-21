@@ -929,10 +929,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 	dlg.m_ofn.lpstrTitle = L"Load Log File";
 	if (dlg.DoModal() == IDOK)
 	{
-		if (dlg.Option())
-			LoadAsync(dlg.m_szFileName);
-		else
-			Load(std::wstring(dlg.m_szFileName));
+		Load(std::wstring(dlg.m_szFileName), dlg.Option());
 	}
 }
 
@@ -952,24 +949,12 @@ void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	Run();
 }
 
-void CMainFrame::Load(const std::wstring& filename)
-{
-	std::ifstream file(filename);
-	if (!file)
-		Win32::ThrowLastError(filename);
-
-	WIN32_FILE_ATTRIBUTE_DATA fileInfo = { 0 };
-	GetFileAttributesEx(filename.c_str(), GetFileExInfoStandard, &fileInfo);
-	SetTitle(filename);
-	Load(file, std::experimental::filesystem::path(filename).filename().string(), fileInfo.ftCreationTime);
-}
-
-void CMainFrame::LoadAsync(const std::wstring& filename)
+void CMainFrame::Load(const std::wstring& filename, bool keeptailing)
 {
 	SetTitle(filename);
 	if (!IsPaused()) Pause();
 	ClearLog();
-	m_logSources.AddAnyFileReader(filename, true);
+	m_logSources.AddAnyFileReader(WStr(std::experimental::filesystem::path(filename).filename().string()), keeptailing);
 }
 
 void CMainFrame::SetTitle(const std::wstring& title)
@@ -1109,7 +1094,6 @@ bool CMainFrame::IsPaused() const
 void CMainFrame::Pause()
 {
 	SetTitle(L"Paused");
-	m_logSources.AddMessage("<paused>");
 	if (m_pLocalReader)
 	{
 		m_logSources.Remove(m_pLocalReader);
@@ -1120,6 +1104,7 @@ void CMainFrame::Pause()
 		m_logSources.Remove(m_pGlobalReader);
 		m_pGlobalReader = nullptr;
 	}
+	m_logSources.AddMessage("<paused>");
 }
 
 void CMainFrame::Resume()

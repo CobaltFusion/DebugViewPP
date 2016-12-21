@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "DebugView++Lib/PolledLogSource.h"
+#include "DebugView++Lib/LogSource.h"
 
 namespace fusion {
 namespace debugviewpp {

@@ -48,10 +48,11 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	m_linebuffer(64 * 1024),
 	m_loopback(std::make_unique<Loopback>(m_timer, m_linebuffer)),
 	m_executor(executor),
-	m_throttledUpdate(m_executor, 25, [&] { m_update(); }),
-	m_listenThread(startListening ? std::make_unique<fusion::thread>([this] { Listen(); }) : nullptr)
+	m_throttledUpdate(m_executor, 25, [&] { m_update(); })
 {
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
+	if (startListening)
+		m_listenThread.CallAsync([this] { Listen(); });
 }
 	
 LogSources::~LogSources()
@@ -134,8 +135,7 @@ void LogSources::Abort()
 		}
 	}
 	Win32::SetEvent(m_updateEvent);
-	if (m_listenThread) m_listenThread->join();
-	m_listenThread.reset();
+	m_listenThread.Synchronize();
 }
 
 void LogSources::Reset()
@@ -155,8 +155,9 @@ void LogSources::Listen()
 {
 	try
 	{
-		while (!m_end)
-			ListenUntilUpdateEvent();
+		ListenUntilUpdateEvent();
+		if (!m_end) 
+			m_listenThread.CallAsync([this] { Listen(); });
 	}
 	catch (const std::exception& e)
 	{
@@ -345,7 +346,15 @@ AnyFileReader* LogSources::AddAnyFileReader(const std::wstring& filename, bool k
 		AddMessage(stringbuilder() << "Unable to open '" << filename <<"'\n");
 		return nullptr;
 	}
-	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
+
+	if (keeptailing)
+	{
+		AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
+	}
+	else
+	{
+		AddMessage(stringbuilder() << "Loading " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
+	}
 
 	auto pAnyFileReader = std::make_unique<AnyFileReader>(m_timer, m_linebuffer, filetype, filename, keeptailing);
 	auto pResult = pAnyFileReader.get();

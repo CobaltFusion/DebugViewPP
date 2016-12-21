@@ -147,7 +147,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	if (boost::algorithm::iends_with(fileName, ".dbconf"))
 		wndMain.LoadConfiguration(fileName);
 	else if (!fileName.empty())
-		wndMain.Load(fileName);
+		wndMain.Load(fileName, false);
 	else if (hFile)
 		wndMain.Load(hFile);
 	else if (hPipe)

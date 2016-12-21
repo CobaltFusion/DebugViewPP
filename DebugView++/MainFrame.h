@@ -110,7 +110,7 @@ public:
 	void SetLogging();
 	void LoadConfiguration(const std::wstring& fileName);
 	void SaveConfiguration(const std::wstring& fileName);
-	void Load(const std::wstring& fileName);
+	void Load(const std::wstring& fileName, bool keeptailing);
 	void LoadAsync(const std::wstring& fileName);
 	void Load(HANDLE hFile);
 	void Load(std::istream& is, const std::string& name, FILETIME fileTime);

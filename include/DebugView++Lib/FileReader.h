@@ -45,6 +45,7 @@ private:
 	std::string m_filenameOnly;
 	bool m_initialized;
 	std::string m_line;
+	bool m_keeptailing;
 };
 
 } // namespace debugviewpp 

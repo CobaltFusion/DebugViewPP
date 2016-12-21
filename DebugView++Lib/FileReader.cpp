@@ -19,14 +19,15 @@ namespace debugviewpp {
 
 FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
 	LogSource(timer, SourceType::File, linebuffer),
-	m_end(false),
 	m_filename(Str(filename).str()),
 	m_fileType(filetype),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
-	m_handle(keeptailing ? FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE) : nullptr), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+	m_end(false),
+	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().string()),
-	m_initialized(false)
+	m_initialized(false),
+	m_keeptailing(keeptailing)
 {
 	SetDescription(filename);
 }
@@ -61,6 +62,11 @@ void FileReader::Notify()
 {
 	assert(m_handle);
 	ReadUntilEof();
+	if (!m_keeptailing)
+	{
+		m_end = true;
+		return;
+	}
 	FindNextChangeNotification(m_handle.get());
 }
 

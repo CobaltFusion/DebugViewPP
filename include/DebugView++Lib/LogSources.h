@@ -112,7 +112,7 @@ private:
 	Throttle m_throttledUpdate;
 
 	// make sure this thread is last to initialize
-	std::unique_ptr<fusion::thread> m_listenThread;
+	ActiveExecutorClient m_listenThread;
 };
 
 } // namespace debugviewpp 
