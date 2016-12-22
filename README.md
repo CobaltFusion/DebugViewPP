@@ -192,9 +192,9 @@ The resolution should not be confused with accuracy here, the recorded timestamp
 How to build
 ------------
 
-This is a Visual Studio 2010 project with the following dependencies (download and install separately)
+This is a Visual Studio 2015 project with the following dependencies (download and install separately)
 - boost 1.63, https://sourceforge.net/projects/boost/files/boost/1.63.0.beta.1/boost_1_63_0_b1.zip
-- WTL 8.0, http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
+- WTL 9.1, http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
 
 The libraries must be installed in /Libraries and zip.exe installed, add the binary directory to your path.
@@ -202,7 +202,7 @@ The libraries must be installed in /Libraries and zip.exe installed, add the bin
 Build dependencies
 ------------------
 - WiX Toolset: install the latest binary from http://wixtoolset.org/
-- boost: see the install.sh in the boost archive
+- boost 1.63: see the install.sh in the boost archive
     - install visual studio 2015 
     - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
     - unzip boost_1_63_0.zip to c:\downloads\boost_1_63_0
@@ -216,7 +216,7 @@ Build dependencies
     - "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\setenv.cmd" /Release /x64
     - b2.exe address-model=64 --build-type=complete stage install
     - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\x64    
-- WTL and zip: decompress the archives and you're done (add zip.exe to the path)
+- WTL 9.1 and 'zip.exe': decompress the archives and you're done (add zip.exe to the path)
 
 -= Cobalt Fusion =-
 
