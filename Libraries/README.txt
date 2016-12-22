@@ -1,8 +1,7 @@
 Put here symlinks or copies of these libraries:
 
-boost 1.43.0 or later as "boost". Download: http://www.boost.org/
-wtl 8.0 or later as "wtl". Download: http://sourceforge.net/projects/wtl/
-gtest 1.7.0 or later as "gtest-1.7.0". Download: https://code.google.com/p/googletest/downloads/detail?name=gtest-1.7.0.zip
+boost 1.62.0 or later as "boost". Download: http://www.boost.org/
+wtl 9.1 or later as "wtl". Download: http://sourceforge.net/projects/wtl/
 
 These libraries are included in the archive:
 

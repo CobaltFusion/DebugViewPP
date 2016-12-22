@@ -16,6 +16,7 @@ namespace debugviewpp {
 // however, that does not apply to WindowsXP, as there are no 'global' messages there.
 bool IsWindowsVistaOrGreater()
 {
+	// consider using ::AtlIsOldWindows? needs to be tested on XP
 	OSVERSIONINFO osvi = {0};
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	// http://stackoverflow.com/questions/27246562/how-to-get-the-os-version-in-win8-1-as-getversion-getversionex-are-deprecated
