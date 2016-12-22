@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Win32/gdi.h"
+#include "gdi.h"
 
 namespace fusion
 {
