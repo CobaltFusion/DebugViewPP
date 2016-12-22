@@ -3,19 +3,32 @@ Cobalt Fusion presents:
 DebugView++
 ----------
 
-DebugView++ is primarily a viewer for Win32 OutputDebugString based logging in the style of
-Sysinternals DebugView. But can also be attached to virtually any other kind of logging, such as:
-- Android ADB (basically any console based standand output)
+DebugView++ started a viewer for Win32 OutputDebugString based logging in the style of
+Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
+- tailing txt logfiles (just drag it onto the window)
+- Android ADB (basically any console based standard output)
 - serial ports (using plink)
 - sockets, telnet or ssh ports (also using plink)
 - it can listen for UDP messages, handy in distributed systems
+
 See examples below.
 
 Expected changes in next stable version 1.8.x (upcoming ~ Jan 1 2017):
-- many bugfixes
+- bugfixes
 - last version with (official) XP support
 - internal refactoring from boost to C++11/14 constructs
 - no features planned, if you're missing something you need, file an issue!
+
+Features we dream about and will create when we choose to spend the time:
+- a timedoctor-like 'view' 
+- a better plugin based input system
+- transparent background streaming to disk
+- proper memory limits
+
+Known issues:
+- the history limit doesn't work right, this is troublesome for long-running duration-tests.
+  A workaround is to send 'DBGVIEWCLEAR' before each test-cycle (this clears all logs from memory).
+- 
 
 Screenshot
 -----------
@@ -24,7 +37,14 @@ Screenshot
 Here is a list of current features:
 
 - single selfcontaining executable, setup is provided but not required
+- minimal delay of the traced application, compared to debugview a factor of 10 better.
+- fast and responsive user-interface, even with +50.000 incoming lines per second
 - runs without prerequisites on WinXPSP3 (v1.5 and earlier also on WinXPSP2), Vista and 7/8.x
+- memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
+- tailing files (drag an ascii file into debugview to tail it)
+
+And more features:
+
 - after v1.8 we drop WindowsXP support if it becomes a problem to maintain
 - capture both Win32 and Global Win32 messages
 - tabbed views
@@ -32,25 +52,17 @@ Here is a list of current features:
 - filter by process or message
 - advanced filtering, exclude, track, stop, clear (optionally using regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
-- minimal delay of the traced application, compared to debugview a factor of 10 better.
-- fast and responsive user-interface, even with +50.000 incoming lines per second
 - SAIT (search-as-I-type) + token highlighting
 - bookmarks
 - statusbar shows detailed log/view/selection information
 - open saved logs for post-mortum analysis
-- memory compressed logbuffer using google snappy (-50% RAM consumed)
 - commandline version
-- tailing files (drag an ascii file into debugview to tail it)
 - capture stdin piped messages, allows you to connect any kind of logging
-- redesign of the monitoring code, more flexible and efficient, enable use of any
-  collection as linebuffer
-- add beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
+- beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
 - clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
   for a very long time)
-- continuous logging to file commandline option (experimental)
-- tailing our own logfiles over samba network (experimental)
-- support for reading and tailing Sysinternals Debugview logfiles (the four most common formats)
-- implemented tailing overwritten/skrinking logfiles
+- tailing logfiles over samba network (experimental)
+- support for reading and tailing Sysinternals Debugview logfiles (in the four most common formats)
 
 Added in 1.5:
 
@@ -58,8 +70,6 @@ Added in 1.5:
 - several minor UI bugs fixed
 - dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
-- better logging to files 
-- history (memory consumption) limits
 - fixed troubles with tabs (highlighting/logfile/regex)
 - timezone independent and human readable timestamps in the logfiles
 - save filters after changing instead of only at exit
