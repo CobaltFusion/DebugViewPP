@@ -102,30 +102,30 @@ std::wstring MultiByteToWideChar(const char* str, int len)
 
 std::wstring MultiByteToWideChar(const char* str)
 {
-	return MultiByteToWideChar(str, strlen(str));
+	return MultiByteToWideChar(str, static_cast<int>(strlen(str)));
 }
 
 std::wstring MultiByteToWideChar(const std::string& str)
 {
-	return MultiByteToWideChar(str.c_str(), str.size());
+	return MultiByteToWideChar(str.c_str(), static_cast<int>(str.size()));
 }
 
 std::string WideCharToMultiByte(const wchar_t* str, int len)
 {
 	int buf_size = len*2 + 2;
 	std::vector<char> buf(buf_size);
-	int write_len = ::WideCharToMultiByte(0, 0, str, len, buf.data(), buf.size(), nullptr, nullptr);
+	int write_len = ::WideCharToMultiByte(0, 0, str, len, buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
 	return std::string(buf.data(), buf.data() + write_len);
 }
 
 std::string WideCharToMultiByte(const wchar_t* str)
 {
-	return WideCharToMultiByte(str, wcslen(str));
+	return WideCharToMultiByte(str, static_cast<int>(wcslen(str)));
 }
 
 std::string WideCharToMultiByte(const std::wstring& str)
 {
-	return WideCharToMultiByte(str.c_str(), str.size());
+	return WideCharToMultiByte(str.c_str(), static_cast<int>(str.size()));
 }
 
 Win32Error::Win32Error(DWORD error, const std::string& what) :
@@ -303,7 +303,7 @@ WaitResult::WaitResult(bool signaled, int index) :
 WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool waitAll, DWORD milliSeconds)
 {
 	size_t count = end - begin;
-	auto rc = ::WaitForMultipleObjects(count, begin, waitAll, milliSeconds);
+	auto rc = ::WaitForMultipleObjects(static_cast<DWORD>(count), begin, waitAll, milliSeconds);
 	if (rc == WAIT_TIMEOUT)
 		return WaitResult(false);
 	if (rc == WAIT_FAILED)

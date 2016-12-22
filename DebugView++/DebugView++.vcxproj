@@ -165,7 +165,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libraries\boost\lib64\;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\boost\lib\$(Platform);$(Outdir)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Message>
@@ -264,7 +264,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\Libraries\boost\lib64\;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Libraries\boost\lib\$(Platform);$(Outdir)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>

@@ -251,8 +251,8 @@ void SeparateProcessTest()
 	std::cerr << "SeparateProcessTest\n";
 	for (;;)
 	{
-		auto result = (int) ShellExecute(0, L"open", L"DbgMsgSrc.exe", L"-n", nullptr, SW_HIDE);
-		if (result <= 32)
+		auto result = ShellExecute(0, L"open", L"DbgMsgSrc.exe", L"-n", nullptr, SW_HIDE);
+		if (result <= HINSTANCE(32))
 		{
 			std::cerr << "error starting DbgMsgSrc.exe\n";
 			break;
@@ -294,7 +294,7 @@ void UdpTest(const std::string& address, int port)
 	sa.sin_addr.s_addr = inet_addr(address.c_str());
 
 	std::string message = "DbgMsgSrc UDP message";
-	auto rc = sendto(s, message.data(), message.size(), 0, reinterpret_cast<const sockaddr*>(&sa), sizeof(sa));
+	auto rc = sendto(s, message.data(), static_cast<int>(message.size()), 0, reinterpret_cast<const sockaddr*>(&sa), sizeof(sa));
 	if (rc == SOCKET_ERROR)
 		Win32::WSAThrowLastError("sendto");
 
