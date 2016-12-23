@@ -38,7 +38,7 @@ private:
 
 
 // see https://www.codeproject.com/Articles/12999/WTL-for-MFC-Programmers-Part-IX-GDI-Classes-Common
-
+// https://www.codeproject.com/KB/wtl/#Beginners
 
 class DeviceContextEx : public CWindowDC
 {
