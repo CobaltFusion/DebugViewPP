@@ -19,26 +19,6 @@
 namespace fusion {
 namespace gdi {
 
-class Window
-{
-public:
-	Window(HINSTANCE hInstance, WNDPROC messageHandler, const std::wstring& uniqueClassName, const std::wstring& title, int width, int height);
-	void Show(int nCmdShow);
-
-private:
-	WNDCLASSEX wc;
-	HWND hwnd;
-};
-
-class MessageLoop
-{
-public:
-	int run();
-private:
-	MSG msg;
-};
-
-
 // see https://www.codeproject.com/Articles/12999/WTL-for-MFC-Programmers-Part-IX-GDI-Classes-Common
 // https://www.codeproject.com/KB/wtl/#Beginners
 
