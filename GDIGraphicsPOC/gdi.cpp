@@ -66,5 +66,28 @@ void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORR
 		DrawFlag(tooltip, x, y);
 }
 
+LRESULT CTimelineView::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	using namespace fusion;
+	PAINTSTRUCT ps;
+	graphics::DeviceContextEx dc(BeginPaint(&ps));
+	int y = 25;
+	auto grey = RGB(160, 160, 170);
+	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
+	dc.DrawFlag(L"tag", 200, y);
+	dc.DrawFlag(L"tag", 250, y);
+	dc.DrawSolidFlag(L"tag", 260, y, RGB(255, 0, 0), RGB(0, 255, 0));
+	dc.DrawFlag(L"tag", 270, y);
+
+	y = 50;
+	dc.DrawTimeline(L"Arbitrary data", 15, y, 500, grey);
+	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
+
+	EndPaint(&ps);
+	bHandled = true;
+	return 1;
+}
+
+
 } // namespace graphics
 } // namespace fusion
