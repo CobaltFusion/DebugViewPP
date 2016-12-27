@@ -24,8 +24,7 @@ namespace fusion
 
 void DrawSomeTestData(graphics::DeviceContextEx dc)
 {
-	int y = 60;
-
+	int y = 25;
 	auto grey = RGB(160, 160, 170);
 	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
 	dc.DrawFlag(L"tag", 200, y);
@@ -33,8 +32,9 @@ void DrawSomeTestData(graphics::DeviceContextEx dc)
 	dc.DrawSolidFlag(L"tag", 260, y, RGB(255, 0, 0), RGB(0, 255, 0));
 	dc.DrawFlag(L"tag", 270, y);
 
-	dc.DrawTimeline(L"Arbitrary data", 15, 90, 500, grey);
-	dc.DrawFlag(L"blueFlag", 470, 90, RGB(0, 0, 255), true);
+	y = 50;
+	dc.DrawTimeline(L"Arbitrary data", 15, y, 500, grey);
+	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 }
 
 PAINTSTRUCT ps;
@@ -96,10 +96,10 @@ protected:
 };
 
 
-class CMyWindow : public CWindowImpl<CMyWindow, CWindow, CFrameWinTraits>
+class CMyWindow : public CWindowImpl<CMyWindow, CWindow>
 {
 public:
-	DECLARE_WND_CLASS(_T("My Window Class"))
+	DECLARE_WND_CLASS(_T("CMyWindow Class"))
 
 	BEGIN_MSG_MAP(CMyWindow)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -108,21 +108,19 @@ public:
 	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		using namespace fusion;
-		HDC  dc = (HDC)wParam;
-		BeginPaint(&ps);
+		auto dc = BeginPaint(&ps);
 		DrawSomeTestData(graphics::DeviceContextEx(dc));
 		EndPaint(&ps);
 		bHandled = true;
-		return 0;
+		return 1;
 	}
-
 };
 
-
-class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CPaintBkgnd<CMainFrame, RGB(0, 0, 255)>
+class CMainFrame :public CFrameWindowImpl<CMainFrame>, 
+	public CPaintBkgnd<CMainFrame, RGB(0, 0, 255)>
 {
 public:
-	DECLARE_WND_CLASS(_T("My Window Class"))
+	DECLARE_WND_CLASS(_T("CMainFrame Class"))
 
 	typedef CPaintBkgnd<CMainFrame, RGB(0, 0, 255)> CPaintBkgndBase;
 
@@ -135,16 +133,25 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		m_split.Create(*this, rcDefault);
-		m_hWndClient = m_split;
+		auto rc = RECT();
+		//GetClientRect(&rc);
+		rc.top = 100;
+		rc.left = 100;
+		rc.right = 800;
+		rc.bottom = 200;
+
+		m_userwindow.Create(m_hWnd, rc, CMyWindow::GetWndClassName(),
+			WS_CHILD | WS_VISIBLE | SS_OWNERDRAW);
+
+		m_hWndClient = m_userwindow;
 
 		//// Set the splitter as the client area window, and resize
 		//// the splitter to match the frame size.
-		m_top.Create(m_split, L"Top Pane");
-		m_bottom.Create(m_split, L"Bottom Pane");
-		m_split.SetSplitterPanes(m_top, m_bottom, true);
-		UpdateLayout();
-		m_split.SetSplitterPos(600);
+		//m_top.Create(m_split, L"Top Pane");
+		//m_bottom.Create(m_split, L"Bottom Pane");
+		//m_split.SetSplitterPanes(m_top, m_bottom, true);
+		//UpdateLayout();
+		//m_split.SetSplitterPos(600);
 
 		//m_timelineView.Create(m_bottom, rcDefault);
 		//m_bottom.SetClient(m_timelineView);
@@ -185,8 +192,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev,
 	MSG msg;
 
 	// Create & show our main window
-	if (NULL == wndMain.Create(NULL, CWindow::rcDefault,
-		_T("My First ATL Window")))
+	if (NULL == wndMain.Create(NULL, CWindow::rcDefault, _T("WTL Frame")))
 	{
 		// Bad news, window creation failed
 		return 1;
