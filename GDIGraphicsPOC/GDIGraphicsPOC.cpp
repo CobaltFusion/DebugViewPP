@@ -140,21 +140,22 @@ public:
 		rc.right = 800;
 		rc.bottom = 200;
 
-		m_userwindow.Create(m_hWnd, rc, CMyWindow::GetWndClassName(),
-			WS_CHILD | WS_VISIBLE | SS_OWNERDRAW);
-
-		m_hWndClient = m_userwindow;
+		m_split.Create(m_hWnd, rcDefault);
+		m_hWndClient = m_split;
 
 		//// Set the splitter as the client area window, and resize
 		//// the splitter to match the frame size.
-		//m_top.Create(m_split, L"Top Pane");
-		//m_bottom.Create(m_split, L"Bottom Pane");
-		//m_split.SetSplitterPanes(m_top, m_bottom, true);
-		//UpdateLayout();
-		//m_split.SetSplitterPos(600);
+		m_top.Create(m_split, L"Top Pane");
+		m_bottom.Create(m_split, L"Bottom Pane");
+		m_split.SetSplitterPanes(m_top, m_bottom, true);
+		UpdateLayout();
+		m_split.SetSplitterPos(600);
+
+		m_userwindow.Create(m_bottom, rc, CMyWindow::GetWndClassName(),
+			WS_CHILD | WS_VISIBLE | SS_OWNERDRAW);
 
 		//m_timelineView.Create(m_bottom, rcDefault);
-		//m_bottom.SetClient(m_timelineView);
+		m_bottom.SetClient(m_userwindow);
 
 		return 0;
 	}
