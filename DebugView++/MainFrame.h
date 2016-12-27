@@ -48,26 +48,6 @@ private:
 	 std::shared_ptr<CLogView> m_pView;
 };
 
-class CMultiPaneStatusBarCtrlFlickerFree :
-	public CMultiPaneStatusBarCtrlImpl<CMultiPaneStatusBarCtrlFlickerFree>,
-	public CDoubleBufferImpl<CMultiPaneStatusBarCtrlFlickerFree>
-{
-public:
-	DECLARE_WND_SUPERCLASS(nullptr, CMultiPaneStatusBarCtrlImpl<CMultiPaneStatusBarCtrlFlickerFree>::GetWndClassName())  
-
-	BEGIN_MSG_MAP(CMultiPaneStatusBarCtrlFlickerFree)
-		CHAIN_MSG_MAP(CDoubleBufferImpl<CMultiPaneStatusBarCtrlFlickerFree>)
-	END_MSG_MAP()
-
-	void DoPaint(CDCHandle dc)
-	{
-		RECT rect;
-		dc.GetClipBox(&rect);
-		dc.FillSolidRect(&rect, Colors::BackGround);
-		DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
-	}
-};
-
 class CMainFrame :
 	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>>,
 	public CUpdateUI<CMainFrame>,
@@ -212,7 +192,11 @@ private:
 
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
-	CMultiPaneStatusBarCtrl m_statusBar; // CMultiPaneStatusBarCtrlFlickerFree /  CMultiPaneStatusBarCtrl
+	CMultiPaneStatusBarCtrl m_statusBar;
+	CHorSplitterWindow m_split;
+	CPaneContainer m_top;
+	CPaneContainer m_bottom;
+
 	LogFile m_logFile;
 	std::unique_ptr<FileWriter> m_logWriter;
 	int m_filterNr;

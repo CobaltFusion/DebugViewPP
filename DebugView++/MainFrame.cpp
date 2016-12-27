@@ -196,10 +196,22 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	m_statusBar.SetPanes(paneIds, 5, false);
 	UIAddStatusBar(m_hWndStatusBar);
 
-	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+	m_split.Create(*this, rcDefault);
+	m_hWndClient = m_split;
+	m_top.Create(m_split, L"Top Pane");
+	m_bottom.Create(m_split, L"Bottom Pane");
+
+	m_split.SetSplitterPanes(m_top, m_bottom, true);
+	m_hWndClient = m_split;
+	m_split.SetSplitterPos(600);
+
+	m_top.SetClient(m_TabCtrl);
+	CreateTabWindow(m_top, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+	UpdateLayout();
 
 	AddFilterView(L"View");
-	HideTabControl();
+	//HideTabControl();
+
 
 	SetLogFont();
 	LoadSettings();

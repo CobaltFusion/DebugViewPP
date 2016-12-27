@@ -22,7 +22,7 @@
 namespace fusion
 {
 
-void DoPaint(graphics::DeviceContextEx dc)
+void DrawSomeTestData(graphics::DeviceContextEx dc)
 {
 	int y = 60;
 
@@ -49,7 +49,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_PAINT:
 		BeginPaint(hwnd, &ps);
-		DoPaint(graphics::DeviceContextEx(GetWindowDC(hwnd)));
+		DrawSomeTestData(graphics::DeviceContextEx(GetWindowDC(hwnd)));
 		EndPaint(hwnd, &ps);
 		break;
 
@@ -67,8 +67,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
-
-} // namespace fusion
 
 
 template <class T, COLORREF t_crBrushColor>
@@ -97,6 +95,30 @@ protected:
 	HBRUSH m_hbrBkgnd;
 };
 
+
+class CMyWindow : public CWindowImpl<CMyWindow, CWindow, CFrameWinTraits>
+{
+public:
+	DECLARE_WND_CLASS(_T("My Window Class"))
+
+	BEGIN_MSG_MAP(CMyWindow)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+	END_MSG_MAP()
+
+	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		using namespace fusion;
+		HDC  dc = (HDC)wParam;
+		BeginPaint(&ps);
+		DrawSomeTestData(graphics::DeviceContextEx(dc));
+		EndPaint(&ps);
+		bHandled = true;
+		return 0;
+	}
+
+};
+
+
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CPaintBkgnd<CMainFrame, RGB(0, 0, 255)>
 {
 public:
@@ -111,21 +133,21 @@ public:
 		CHAIN_MSG_MAP(CPaintBkgndBase)
 	END_MSG_MAP()
 
-
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		m_split.Create(*this, rcDefault);
-
-		// Set the splitter as the client area window, and resize
-		// the splitter to match the frame size.
 		m_hWndClient = m_split;
-		//m_split.SetSinglePaneMode(SPLIT_PANE_NONE);
+
+		//// Set the splitter as the client area window, and resize
+		//// the splitter to match the frame size.
 		m_top.Create(m_split, L"Top Pane");
 		m_bottom.Create(m_split, L"Bottom Pane");
-
 		m_split.SetSplitterPanes(m_top, m_bottom, true);
 		UpdateLayout();
 		m_split.SetSplitterPos(600);
+
+		//m_timelineView.Create(m_bottom, rcDefault);
+		//m_bottom.SetClient(m_timelineView);
 
 		return 0;
 	}
@@ -146,8 +168,12 @@ public:
 	CHorSplitterWindow m_split;
 	CPaneContainer m_top;
 	CPaneContainer m_bottom;
+	CMyWindow m_userwindow;
+	gdi::CTimelineView m_timelineView;
 
 };
+
+} // namespace fusion
 
 
 CComModule _Module;
@@ -155,7 +181,7 @@ CComModule _Module;
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev,
 	LPSTR szCmdLine, int nCmdShow)
 {
-	CMainFrame wndMain;
+	fusion::CMainFrame wndMain;
 	MSG msg;
 
 	// Create & show our main window

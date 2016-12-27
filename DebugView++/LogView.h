@@ -109,12 +109,12 @@ public:
 	}
 };
 
+
 class CLogView :
-	public CWindowImpl<CLogView, CListViewCtrl,
+	public CDoubleBufferWindowImpl<CLogView, CListViewCtrl,
 		CWinTraitsOR<
 			LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
 			LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
-	public CDoubleBufferImpl<CLogView>,
 	public COwnerDraw<CLogView>,
 	public ExceptionHandler<CLogView, std::exception>
 {
