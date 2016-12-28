@@ -13,6 +13,7 @@
 #include "atlapp.h"
 #include "atlgdi.h"
 #include "atlframe.h"
+#include "atlcrack.h"
 #include "atlscrl.h"
 #include "Win32/gdi.h"
 
@@ -43,6 +44,8 @@ class CTimelineView : public CWindowImpl<CTimelineView, CWindow>
 {
 public:
 	DECLARE_WND_CLASS(_T("CTimelineView Class"))
+
+	// todo: cant get MSG_WM_PAINT to work, find out why...
 
 	BEGIN_MSG_MAP(CTimelineView)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)

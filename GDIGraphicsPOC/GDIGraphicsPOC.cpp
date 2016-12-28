@@ -52,7 +52,7 @@ public:
 		m_split.SetSplitterPos(600);
 
 		m_timelineView.Create(m_bottom, rc, gdi::CTimelineView::GetWndClassName(),
-			WS_CHILD | WS_VISIBLE | SS_OWNERDRAW);
+			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
 		m_bottom.SetClient(m_timelineView);
 		return 0;
