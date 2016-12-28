@@ -14,6 +14,8 @@
 #include "atlgdi.h"
 #include "atlframe.h"
 #include "atlcrack.h"
+#include "atlctrls.h"
+#include "atlmisc.h"
 #include "atlscrl.h"
 #include "Win32/gdi.h"
 
@@ -48,10 +50,18 @@ public:
 	BEGIN_MSG_MAP(CTimelineView)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_PAINT(OnPaint)
+		MSG_WM_MOUSEWHEEL(OnMouseWheel)
+		MSG_WM_HSCROLL(OnHScroll)
 	END_MSG_MAP()
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnPaint(CDCHandle dc);
+	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
+
+private:
+	LONG GetTrackPos32(int nBar);
+	SCROLLINFO m_scrollInfo;
 };
 
 class Timeline

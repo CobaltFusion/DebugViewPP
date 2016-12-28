@@ -18,6 +18,7 @@
 #include <atlwin.h>         // ATL windowing classes
 #include <atlsplit.h>
 #include <atlframe.h>
+#include "CobaltFusion/dbgstream.h"
 
 namespace fusion
 {
@@ -31,7 +32,15 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MSG_WM_MOUSEWHEEL(OnMouseWheel)
+
 	END_MSG_MAP()
+
+	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+	{
+		cdbg << "CMainFrame::OnMouseWheel: " << zDelta << "\n";
+		return TRUE;
+	}
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{

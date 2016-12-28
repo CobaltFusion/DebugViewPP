@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "gdi.h"
 #include <string>
+#include "CobaltFusion/dbgstream.h"
 
 namespace fusion {
 namespace gdi {
@@ -66,8 +67,33 @@ void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORR
 		DrawFlag(tooltip, x, y);
 }
 
+
+LONG CTimelineView::GetTrackPos32(int nBar)
+{
+	SCROLLINFO si = { sizeof(si), SIF_TRACKPOS };
+	GetScrollInfo(nBar, &si);
+	return si.nTrackPos;
+}
+
+BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	cdbg << "OnMouseWheel, zDelta: " << zDelta << "\n";			// todo: find out why these events are not captured like in CMainFrame::OnMouseWheel
+	return TRUE;
+}
+
+void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
+{
+	if (nSBCode == SB_THUMBTRACK)
+	{
+		cdbg << "OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100
+		SetScrollPos(SB_HORZ, nPos);
+		Invalidate();
+	}
+}
+
 BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
+	SetScrollRange(SB_HORZ, 1, 500);	// no effect??
 	return 1;
 }
 
@@ -77,7 +103,7 @@ void CTimelineView::OnPaint(CDCHandle cdc)
 	PAINTSTRUCT ps;
 	BeginPaint(&ps);
 	graphics::DeviceContextEx dc(GetWindowDC());
-	int y = 25;
+	int y = 25 + GetTrackPos32(SB_HORZ);
 	auto grey = RGB(160, 160, 170);
 	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
 	dc.DrawFlag(L"tag", 200, y);
@@ -85,7 +111,7 @@ void CTimelineView::OnPaint(CDCHandle cdc)
 	dc.DrawSolidFlag(L"tag", 260, y, RGB(255, 0, 0), RGB(0, 255, 0));
 	dc.DrawFlag(L"tag", 270, y);
 
-	y = 50;
+	y += 25;
 	dc.DrawTimeline(L"Arbitrary data", 15, y, 500, grey);
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 
