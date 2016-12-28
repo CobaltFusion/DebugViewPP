@@ -66,11 +66,17 @@ void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORR
 		DrawFlag(tooltip, x, y);
 }
 
-LRESULT CTimelineView::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+{
+	return 1;
+}
+
+void CTimelineView::OnPaint(CDCHandle cdc)
 {
 	using namespace fusion;
 	PAINTSTRUCT ps;
-	graphics::DeviceContextEx dc(BeginPaint(&ps));
+	BeginPaint(&ps);
+	graphics::DeviceContextEx dc(GetWindowDC());
 	int y = 25;
 	auto grey = RGB(160, 160, 170);
 	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
@@ -84,10 +90,7 @@ LRESULT CTimelineView::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 
 	EndPaint(&ps);
-	bHandled = true;
-	return 1;
 }
-
 
 } // namespace graphics
 } // namespace fusion

@@ -45,13 +45,13 @@ class CTimelineView : public CWindowImpl<CTimelineView, CWindow>
 public:
 	DECLARE_WND_CLASS(_T("CTimelineView Class"))
 
-	// todo: cant get MSG_WM_PAINT to work, find out why...
-
 	BEGIN_MSG_MAP(CTimelineView)
-		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MSG_WM_INITDIALOG(OnInitDialog)
+		MSG_WM_PAINT(OnPaint)
 	END_MSG_MAP()
 
-	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
+	void OnPaint(CDCHandle dc);
 };
 
 class Timeline
