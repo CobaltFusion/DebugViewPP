@@ -42,31 +42,31 @@ public:
 		return TRUE;
 	}
 
+	void DisablePaneHeader(CPaneContainer& panecontainer)
+	{
+		panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
+		panecontainer.m_cxyHeader = 0;
+	}
+
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		auto rc = RECT();
-		//GetClientRect(&rc);
-		rc.top = 100;
-		rc.left = 100;
-		rc.right = 800;
-		rc.bottom = 200;
-
 		m_split.Create(m_hWnd, rcDefault);
 		m_hWndClient = m_split;
 
 		m_top.Create(m_split, L"Top Pane");
-		m_bottom.Create(m_split, L"Bottom Pane");
+		m_bottom.Create(m_split, L"");
+		DisablePaneHeader(m_bottom);
 		m_split.SetSplitterPanes(m_top, m_bottom, true);
 		UpdateLayout();
 		m_split.SetSplitterPos(600);
+		//m_split.SetSinglePaneMode(SPLIT_PANE_TOP);  // this hides the bottom pane and the splitter
 
-		m_timelineView.Create(m_bottom, rc, gdi::CTimelineView::GetWndClassName(),
+		m_timelineView.Create(m_bottom, rcDefault, gdi::CTimelineView::GetWndClassName(),
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
 		m_bottom.SetClient(m_timelineView);
 		return 0;
 	}
-
 
 	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
