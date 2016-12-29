@@ -196,6 +196,13 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	m_statusBar.SetPanes(paneIds, 5, false);
 	UIAddStatusBar(m_hWndStatusBar);
 
+	// splitter is not working for some reason
+	m_split.Create(*this, rcDefault);
+	m_top.Create(m_split, L"");
+	m_bottom.Create(m_split, L"");
+	m_split.SetSplitterPanes(m_top, m_bottom, true);
+	//CreateTabWindow(m_top, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 	AddFilterView(L"View");
 	HideTabControl();
