@@ -108,7 +108,7 @@ void CSourceDlg::UpdateUI()
 {
 	auto sourceType = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
 	GetDlgItem(IDC_PORT).EnableWindow(sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
-	GetDlgItem(IDC_IPADDRESS).EnableWindow(sourceType == SourceType::DebugViewAgent);
+	GetDlgItem(IDC_IPADDRESS).EnableWindow(sourceType == SourceType::DebugViewAgent || sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
 }
 
 } // namespace debugviewpp 
