@@ -1,6 +1,7 @@
 Debug/
 Release/
 ipch/
+packages/
 *.vcxproj.user
 *.opensdf
 *.sdf
@@ -18,3 +19,5 @@ bin
 /OutputForwarderVSIX/packages
 /DebugView++Test/SaveLoadLogFile_unique_test_filename
 /VsSDK.props
+Libraries/boost
+Libraries/wtl
