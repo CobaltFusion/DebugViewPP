@@ -15,59 +15,6 @@
 namespace fusion {
 namespace gdi {
 
-BOOL DeviceContextEx::DrawTextOut(const std::wstring& str, int x, int y)
-{
-	return CDC::TextOut(x, y, str.c_str(), str.size());
-}
-
-BOOL DeviceContextEx::DrawPolygon(const std::vector<POINT>& points)
-{
-	return CDC::Polygon(points.data(), points.size());
-}
-
-void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color)
-{
-	auto pen = CreatePen(PS_SOLID, 1, color);
-	SelectPen(pen);
-	DrawTextOut(name, x, y -15);
-	auto textWidth = 150;
-	Rectangle(x + textWidth, y, x + textWidth + width, y + 2);
-}
-
-void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
-{
-	MoveTo(x, y);
-	LineTo(x, y - 20);
-	LineTo(x + 7, y - 16);
-	LineTo(x, y - 12);
-}
-
-void DeviceContextEx::DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y)
-{
-	DrawPolygon({ { x, y - 20 },{ x + 7, y - 16 },{ x, y - 12 } });
-	MoveTo(x, y);
-	LineTo(x, y - 20);
-}
-
-void DeviceContextEx::DrawSolidFlag(const std::wstring& tooltip, int x, int y, COLORREF border, COLORREF fill)
-{
-	auto pen = CreatePen(PS_SOLID, 1, border);
-	SelectPen(pen);
-	auto b = ::CreateSolidBrush(fill);
-	SelectBrush(b);
-	DrawSolidFlag(tooltip, x, y);
-}
-
-void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF color, bool solid)
-{
-	auto pen = CreatePen(PS_SOLID, 1, color);
-	SelectPen(pen);
-	if (solid)
-		DrawSolidFlag(tooltip, x, y);
-	else
-		DrawFlag(tooltip, x, y);
-}
-
 Artifact::Artifact(int position, Artifact::Type type) :
 	m_position(position),
 	m_type(type),
@@ -178,15 +125,22 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	return 1;
 }
 
-void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
+RECT CTimelineView::GetClientArea()
 {
 	RECT rect;
 	GetClientRect(&rect);
+	return rect;
+}
+
+void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
+{
+	auto textWidth = 150;
+	auto width = GetClientArea().right - textWidth;
 
 	int y = 25;
-	int x = 20;
+	int x = textWidth;
 
-	int minorTicks = rect.right / m_minorTickPixels;
+	int minorTicks = width / m_minorTickPixels;
 	for (int i = 0; i < minorTicks; ++i)
 	{
 		dc.MoveTo(x, y);
@@ -194,9 +148,9 @@ void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 		x += m_minorTickPixels;
 	}
 
-	x = 20;
+	x = textWidth;
 	int pos = m_start;
-	int majorTicks = rect.right / (m_minorTicksPerMajorTick *m_minorTickPixels);
+	int majorTicks = width / (m_minorTicksPerMajorTick *m_minorTickPixels);
 	for (int i = 0; i < majorTicks; ++i)
 	{
 		std::wstring s = wstringbuilder() << pos << m_unit;
@@ -211,15 +165,14 @@ void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 
 void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
 {
-	RECT rect;
-	GetClientRect(&rect);
+	auto rect = GetClientArea();
 
 	int y = 50;
 	y += GetTrackPos32(SB_HORZ);
 	for (auto& line : m_lines)
 	{
 		auto grey = RGB(160, 160, 170);
-		dc.DrawTimeline(line.GetName(), 15, y, rect.right - 200, grey);
+		dc.DrawTimeline(line.GetName(), 0, y, rect.right - 200, grey);
 		for (auto& artifact : line.GetArtifacts())
 		{
 			dc.DrawSolidFlag(L"tag", artifact.GetPosition(), y, artifact.GetColor(), artifact.GetFillColor());
@@ -228,14 +181,14 @@ void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
 	}
 	
 	auto grey = RGB(160, 160, 170);
-	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
+	dc.DrawTimeline(L"Move Sequence", 0, y, 500, grey);
 	dc.DrawFlag(L"tag", 200, y);
 	dc.DrawFlag(L"tag", 250, y);
 	dc.DrawSolidFlag(L"tag", 260, y, RGB(255, 0, 0), RGB(0, 255, 0));
 	dc.DrawFlag(L"tag", 270, y);
 
 	y += 25;
-	dc.DrawTimeline(L"Arbitrary data", 15, y, 500, grey);
+	dc.DrawTimeline(L"Arbitrary data", 0, y, 500, grey);
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 }
 

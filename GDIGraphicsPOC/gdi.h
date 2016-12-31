@@ -25,22 +25,6 @@ namespace gdi {
 // see https://www.codeproject.com/Articles/12999/WTL-for-MFC-Programmers-Part-IX-GDI-Classes-Common
 // https://www.codeproject.com/KB/wtl/#Beginners
 
-class DeviceContextEx : public CWindowDC
-{
-	using CWindowDC::CWindowDC;
-public:
-	// wrappers
-	BOOL DrawPolygon(const std::vector<POINT>& points);
-	BOOL DrawTextOut(const std::wstring& str, int x, int y);
-
-	// extentions
-	void DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color);
-	void DrawFlag(const std::wstring& /* tooltip */, int x, int y);
-	void DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y);
-	void DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF border, COLORREF fill);
-	void DrawFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF color, bool solid);
-};
-
 class Artifact
 {
 public:
@@ -103,6 +87,7 @@ private:
 	void PaintScale(graphics::DeviceContextEx& dc);
 	void PaintTimelines(graphics::DeviceContextEx& dc);
 	LONG GetTrackPos32(int nBar);
+	RECT GetClientArea();
 
 	int m_start;
 	int m_end;

@@ -87,7 +87,7 @@ void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int w
 {
 	auto pen = CreatePen(PS_SOLID, 1, color);
 	::SelectObject(hDC, pen);
-	DrawTextOut(name, x, y -15);
+	DrawTextOut(name, x + 15, y -15);
 	auto textWidth = 150;
 	::Rectangle(hDC, x + textWidth, y, x + textWidth + width, y + 2);
 }
