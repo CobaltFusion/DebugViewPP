@@ -137,12 +137,15 @@ std::vector<Artifact> Line::GetArtifacts() const
 	return m_artifacts;
 }
 
-void CTimelineView::Initialize(int start, int end, int majorTickInterval, int minorTickInterval, std::wstring unit)
+// start, end, minorTicksPerMajorTick, minorTickSize, minorTickPixels, unit);
+
+void CTimelineView::Initialize(int start, int end, int minorTicksPerMajorTick, int minorTickSize, int minorTickPixels, std::wstring unit)
 {
 	m_start = start;
 	m_end = end;
-	m_majorTickInterval = majorTickInterval;
-	m_minorTickInterval = minorTickInterval;
+	m_minorTicksPerMajorTick = minorTicksPerMajorTick;
+	m_minorTickSize = minorTickSize;
+	m_minorTickPixels = minorTickPixels;
 	m_unit = unit;
 }
 
@@ -182,24 +185,28 @@ void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 
 	int y = 25;
 	int x = 20;
-	int majorTickcount = (m_majorTickInterval * rect.right) / (m_end - m_start);
-	for (int pos = m_start; pos < m_end; pos += m_majorTickInterval)
-	{
-		std::wstring s = wstringbuilder() << pos << m_unit;
-		dc.DrawTextOut(s, x - 10, y - 25);
-		dc.MoveTo(x, y);
-		dc.LineTo(x, y - 7);
-		x += majorTickcount;
-	}
 
-	x = 20;
-	int minorTickcount = majorTickcount / m_minorTickInterval;
-	for (int pos = m_start; pos < m_end; pos += m_minorTickInterval)
+	int minorTicks = rect.right / m_minorTickPixels;
+	for (int i = 0; i < minorTicks; ++i)
 	{
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 3);
-		x += minorTickcount;
+		x += m_minorTickPixels;
 	}
+
+	x = 20;
+	int pos = m_start;
+	int majorTicks = rect.right / (m_minorTicksPerMajorTick *m_minorTickPixels);
+	for (int i = 0; i < majorTicks; ++i)
+	{
+		std::wstring s = wstringbuilder() << pos << m_unit;
+		dc.DrawTextOut(s, x - 15, y - 25);
+		dc.MoveTo(x, y);
+		dc.LineTo(x, y - 7);
+		x += (m_minorTicksPerMajorTick *m_minorTickPixels);
+		pos += (m_minorTicksPerMajorTick * 2);
+	}
+
 }
 
 void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)

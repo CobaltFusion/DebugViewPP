@@ -90,7 +90,7 @@ public:
 		MSG_WM_HSCROLL(OnHScroll)
 	END_MSG_MAP()
 
-	void Initialize(int start, int end, int majorTickInterval, int minorTickInterval, const std::wstring unit);
+	void Initialize(int start, int end, int minorTicksPerMajorTick, int minorTickSize, int minorTickPixels, const std::wstring unit);
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnPaint(CDCHandle dc);
@@ -106,8 +106,9 @@ private:
 
 	int m_start;
 	int m_end;
-	int m_majorTickInterval;
-	int m_minorTickInterval;
+	int m_minorTickSize;
+	int m_minorTicksPerMajorTick;
+	int m_minorTickPixels;
 	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
 	std::vector<Line> m_lines;
