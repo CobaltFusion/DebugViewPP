@@ -7,7 +7,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-
 #include <Shellapi.h>
 
 #include <atlctrls.h>
@@ -63,6 +62,14 @@ public:
 
 		m_timelineView.Create(m_bottom, rcDefault, gdi::CTimelineView::GetWndClassName(),
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+
+		m_timelineView.Initialize(200, 2000, 5, 5);
+		auto& info = m_timelineView.Add("Some info");
+
+		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(350, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(550, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(650, gdi::Artifact::Type::Flag));
 
 		m_bottom.SetClient(m_timelineView);
 		return 0;

@@ -9,6 +9,7 @@
 #include "gdi.h"
 #include <string>
 #include "CobaltFusion/dbgstream.h"
+#include "CobaltFusion/Str.h"
 
 namespace fusion {
 namespace gdi {
@@ -67,6 +68,44 @@ void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORR
 		DrawFlag(tooltip, x, y);
 }
 
+Artifact::Artifact(int position, Artifact::Type type) :
+	m_position(position),
+	m_type(type)
+{
+}
+
+int Artifact::GetPosition() const
+{
+	return m_position;
+}
+
+Line::Line(const std::wstring& name) :
+	m_name(name)
+{
+}
+
+std::wstring Line::GetName() const
+{
+	return m_name;
+}
+
+void Line::Add(Artifact artifact)
+{
+	m_artifacts.emplace_back(artifact);
+}
+
+std::vector<Artifact> Line::GetArtifacts() const
+{
+	return m_artifacts;
+}
+
+void CTimelineView::Initialize(int start, int end, int majorTickInterval, int minorTickInterval)
+{
+	m_start = start;
+	m_end = end;
+	m_majorTickInterval = majorTickInterval;
+	m_minorTickInterval = minorTickInterval;
+}
 
 LONG CTimelineView::GetTrackPos32(int nBar)
 {
@@ -97,13 +136,29 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	return 1;
 }
 
-void CTimelineView::OnPaint(CDCHandle cdc)
+void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 {
-	using namespace fusion;
-	PAINTSTRUCT ps;
-	BeginPaint(&ps);
-	graphics::DeviceContextEx dc(GetWindowDC());
-	int y = 25 + GetTrackPos32(SB_HORZ);
+
+}
+
+void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
+{
+	RECT rect;
+	GetClientRect(&rect);
+
+	int y = 25;
+	y += GetTrackPos32(SB_HORZ);
+	for (auto& line : m_lines)
+	{
+		auto grey = RGB(160, 160, 170);
+		dc.DrawTimeline(line.GetName(), 15, y, rect.right - 200, grey);
+		for (auto& artifact : line.GetArtifacts())
+		{
+			dc.DrawFlag(L"tag", artifact.GetPosition(), y);
+		}
+		y += 25;
+	}
+	
 	auto grey = RGB(160, 160, 170);
 	dc.DrawTimeline(L"Move Sequence", 15, y, 500, grey);
 	dc.DrawFlag(L"tag", 200, y);
@@ -114,8 +169,23 @@ void CTimelineView::OnPaint(CDCHandle cdc)
 	y += 25;
 	dc.DrawTimeline(L"Arbitrary data", 15, y, 500, grey);
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
+}
 
+void CTimelineView::OnPaint(CDCHandle cdc)
+{
+	using namespace fusion;
+	PAINTSTRUCT ps;
+	BeginPaint(&ps);
+	graphics::DeviceContextEx dc(GetWindowDC());
+	PaintScale(dc);
+	PaintTimelines(dc);
 	EndPaint(&ps);
+}
+
+Line& CTimelineView::Add(const std::string& name)
+{
+	m_lines.emplace_back(WStr(name));
+	return m_lines.back();
 }
 
 } // namespace graphics

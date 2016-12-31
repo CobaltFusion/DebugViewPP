@@ -41,6 +41,44 @@ public:
 	void DrawFlag(const std::wstring& /* tooltip */, int x, int y, COLORREF color, bool solid);
 };
 
+class Artifact
+{
+public:
+	enum class Type { Flag, StartStopEvent };
+
+	Artifact(int position, Artifact::Type type);
+	int GetPosition() const;
+
+private:
+	int m_position;
+	Type m_type;
+};
+
+class Line
+{
+public:
+	Line(const std::wstring& name);
+	void Add(Artifact artifact);
+	std::wstring GetName() const;
+	std::vector<Artifact> GetArtifacts() const;
+
+private:
+	std::wstring m_name;
+	std::vector<Artifact> m_artifacts;
+};
+
+//// a Timeline represents 
+//class Timeline
+//{
+//public:
+//	Timeline(int start, int end, int minorTickInterval);
+//	void Add(Line line);		// order of addition is used to define z-order of the drawing
+//private:
+//
+//
+//	// zoomable->conceptually new, the size of the view can become as large as the entire buffer.
+//	//  panneble->horizonal scrolling : similar to page - up / down in existing view
+//}
 
 class CTimelineView : public CWindowImpl<CTimelineView, CWindow>
 {
@@ -54,20 +92,26 @@ public:
 		MSG_WM_HSCROLL(OnHScroll)
 	END_MSG_MAP()
 
+	void Initialize(int start, int end, int majorTickInterval, int minorTickInterval);
+
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnPaint(CDCHandle dc);
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 
-private:
-	LONG GetTrackPos32(int nBar);
-	SCROLLINFO m_scrollInfo;
-};
+	Line& Add(const std::string& name);
 
-class Timeline
-{
-	// zoomable->conceptually new, the size of the view can become as large as the entire buffer.
-	//  panneble->horizonal scrolling : similar to page - up / down in existing view
+private:
+	void PaintScale(graphics::DeviceContextEx& dc);
+	void PaintTimelines(graphics::DeviceContextEx& dc);
+	LONG GetTrackPos32(int nBar);
+
+	int m_start;
+	int m_end;
+	int m_majorTickInterval;
+	int m_minorTickInterval;
+	SCROLLINFO m_scrollInfo;
+	std::vector<Line> m_lines;
 };
 
 } // namespace gdi
