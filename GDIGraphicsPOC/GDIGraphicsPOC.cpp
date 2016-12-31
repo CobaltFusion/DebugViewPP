@@ -64,7 +64,7 @@ public:
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
 		// start, end, minorTicksPerMajorTick, minorTickSize, minorTickPixels, unit);
-		m_timelineView.Initialize(95, 150, 5, 2, 15, L"ms");
+		m_timelineView.Initialize(200, 700, 5, 10, 15, L"ms");
 		auto& info = m_timelineView.Add("Some info");
 
 		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));

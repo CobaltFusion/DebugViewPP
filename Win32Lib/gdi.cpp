@@ -88,8 +88,7 @@ void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int w
 	auto pen = CreatePen(PS_SOLID, 1, color);
 	::SelectObject(hDC, pen);
 	DrawTextOut(name, x + 15, y -15);
-	auto textWidth = 150;
-	::Rectangle(hDC, x + textWidth, y, x + textWidth + width, y + 2);
+	::Rectangle(hDC, x + s_drawTimelineMax, y, x + s_drawTimelineMax + width, y + 2);
 }
 
 void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)

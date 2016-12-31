@@ -49,6 +49,7 @@ protected:
 
 // see http://www.informit.com/articles/article.aspx?p=328647&seqNum=2
 
+static const int s_drawTimelineMax = 150;
 
 class DeviceContextEx : public DeviceContext
 {

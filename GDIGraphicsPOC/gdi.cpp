@@ -134,11 +134,9 @@ RECT CTimelineView::GetClientArea()
 
 void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 {
-	auto textWidth = 150;
-	auto width = GetClientArea().right - textWidth;
-
+	auto width = GetClientArea().right - graphics::s_drawTimelineMax;
 	int y = 25;
-	int x = textWidth;
+	int x = graphics::s_drawTimelineMax;
 
 	int minorTicks = width / m_minorTickPixels;
 	for (int i = 0; i < minorTicks; ++i)
@@ -148,19 +146,18 @@ void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 		x += m_minorTickPixels;
 	}
 
-	x = textWidth;
+	x = graphics::s_drawTimelineMax;
 	int pos = m_start;
-	int majorTicks = width / (m_minorTicksPerMajorTick *m_minorTickPixels);
+	int majorTicks = width / (m_minorTicksPerMajorTick * m_minorTickPixels);
 	for (int i = 0; i < majorTicks; ++i)
 	{
 		std::wstring s = wstringbuilder() << pos << m_unit;
 		dc.DrawTextOut(s, x - 15, y - 25);
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 7);
-		x += (m_minorTicksPerMajorTick *m_minorTickPixels);
-		pos += (m_minorTicksPerMajorTick * 2);
+		x += (m_minorTicksPerMajorTick * m_minorTickPixels);
+		pos += (m_minorTicksPerMajorTick * m_minorTickSize);
 	}
-
 }
 
 void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
