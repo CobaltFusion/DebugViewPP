@@ -63,7 +63,7 @@ public:
 		m_timelineView.Create(m_bottom, rcDefault, gdi::CTimelineView::GetWndClassName(),
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
-		m_timelineView.Initialize(200, 2000, 5, 5);
+		m_timelineView.Initialize(95, 150, 5, 5, L"ms");
 		auto& info = m_timelineView.Add("Some info");
 
 		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));

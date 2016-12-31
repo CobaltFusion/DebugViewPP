@@ -75,19 +75,9 @@ private:
 	std::vector<Artifact> m_artifacts;
 };
 
-//// a Timeline represents 
-//class Timeline
-//{
-//public:
-//	Timeline(int start, int end, int minorTickInterval);
-//	void Add(Line line);		// order of addition is used to define z-order of the drawing
-//private:
-//
-//
-//	// zoomable->conceptually new, the size of the view can become as large as the entire buffer.
-//	//  panneble->horizonal scrolling : similar to page - up / down in existing view
-//}
-
+// zooming and panning is not part of the CTimelineView responsibility.
+// it is a 'dumb' drawing class that deals with positioning and formatting
+// it has no concept of time, just position which is scaled to window-pixels.
 class CTimelineView : public CWindowImpl<CTimelineView, CWindow>
 {
 public:
@@ -100,7 +90,7 @@ public:
 		MSG_WM_HSCROLL(OnHScroll)
 	END_MSG_MAP()
 
-	void Initialize(int start, int end, int majorTickInterval, int minorTickInterval);
+	void Initialize(int start, int end, int majorTickInterval, int minorTickInterval, const std::wstring unit);
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnPaint(CDCHandle dc);
@@ -118,6 +108,7 @@ private:
 	int m_end;
 	int m_majorTickInterval;
 	int m_minorTickInterval;
+	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
 	std::vector<Line> m_lines;
 };

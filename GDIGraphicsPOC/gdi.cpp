@@ -10,6 +10,7 @@
 #include <string>
 #include "CobaltFusion/dbgstream.h"
 #include "CobaltFusion/Str.h"
+#include "CobaltFusion/stringbuilder.h"
 
 namespace fusion {
 namespace gdi {
@@ -18,7 +19,6 @@ BOOL DeviceContextEx::DrawTextOut(const std::wstring& str, int x, int y)
 {
 	return CDC::TextOut(x, y, str.c_str(), str.size());
 }
-
 
 BOOL DeviceContextEx::DrawPolygon(const std::vector<POINT>& points)
 {
@@ -137,12 +137,13 @@ std::vector<Artifact> Line::GetArtifacts() const
 	return m_artifacts;
 }
 
-void CTimelineView::Initialize(int start, int end, int majorTickInterval, int minorTickInterval)
+void CTimelineView::Initialize(int start, int end, int majorTickInterval, int minorTickInterval, std::wstring unit)
 {
 	m_start = start;
 	m_end = end;
 	m_majorTickInterval = majorTickInterval;
 	m_minorTickInterval = minorTickInterval;
+	m_unit = unit;
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -176,7 +177,29 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 
 void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 {
+	RECT rect;
+	GetClientRect(&rect);
 
+	int y = 25;
+	int x = 20;
+	int majorTickcount = (m_majorTickInterval * rect.right) / (m_end - m_start);
+	for (int pos = m_start; pos < m_end; pos += m_majorTickInterval)
+	{
+		std::wstring s = wstringbuilder() << pos << m_unit;
+		dc.DrawTextOut(s, x - 10, y - 25);
+		dc.MoveTo(x, y);
+		dc.LineTo(x, y - 7);
+		x += majorTickcount;
+	}
+
+	x = 20;
+	int minorTickcount = majorTickcount / m_minorTickInterval;
+	for (int pos = m_start; pos < m_end; pos += m_minorTickInterval)
+	{
+		dc.MoveTo(x, y);
+		dc.LineTo(x, y - 3);
+		x += minorTickcount;
+	}
 }
 
 void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
@@ -184,7 +207,7 @@ void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
 	RECT rect;
 	GetClientRect(&rect);
 
-	int y = 25;
+	int y = 50;
 	y += GetTrackPos32(SB_HORZ);
 	for (auto& line : m_lines)
 	{
