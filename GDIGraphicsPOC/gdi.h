@@ -47,11 +47,19 @@ public:
 	enum class Type { Flag, StartStopEvent };
 
 	Artifact(int position, Artifact::Type type);
+	Artifact(int position, Artifact::Type type, COLORREF color);
+	Artifact(int position, Artifact::Type type, COLORREF color, COLORREF fillcolor);
 	int GetPosition() const;
 
+	void SetColor(COLORREF color);
+	void SetFillColor(COLORREF color);
+	COLORREF GetColor() const;
+	COLORREF GetFillColor() const;
 private:
 	int m_position;
 	Type m_type;
+	COLORREF m_color;
+	COLORREF m_fillcolor;
 };
 
 class Line

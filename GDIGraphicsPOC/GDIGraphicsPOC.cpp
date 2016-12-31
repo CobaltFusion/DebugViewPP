@@ -66,8 +66,8 @@ public:
 		m_timelineView.Initialize(200, 2000, 5, 5);
 		auto& info = m_timelineView.Add("Some info");
 
-		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag));
-		info.Add(gdi::Artifact(350, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		info.Add(gdi::Artifact(350, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
 		info.Add(gdi::Artifact(550, gdi::Artifact::Type::Flag));
 		info.Add(gdi::Artifact(650, gdi::Artifact::Type::Flag));
 

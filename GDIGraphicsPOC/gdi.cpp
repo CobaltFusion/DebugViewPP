@@ -70,8 +70,46 @@ void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORR
 
 Artifact::Artifact(int position, Artifact::Type type) :
 	m_position(position),
-	m_type(type)
+	m_type(type),
+	m_color(RGB(0, 0, 0)),
+	m_fillcolor(RGB(255, 255, 255))
 {
+}
+
+Artifact::Artifact(int position, Artifact::Type type, COLORREF color) :
+	m_position(position),
+	m_type(type),
+	m_color(color),
+	m_fillcolor(RGB(255, 255, 255))
+{
+}
+
+Artifact::Artifact(int position, Artifact::Type type, COLORREF color, COLORREF fillcolor) :
+	m_position(position),
+	m_type(type),
+	m_color(color),
+	m_fillcolor(fillcolor)
+{
+}
+
+void Artifact::SetColor(COLORREF color)
+{
+	m_color = color;
+}
+
+void Artifact::SetFillColor(COLORREF color)
+{
+	m_fillcolor = color;
+}
+
+COLORREF Artifact::GetColor() const
+{
+	return m_color;
+}
+
+COLORREF Artifact::GetFillColor() const
+{
+	return m_fillcolor;
 }
 
 int Artifact::GetPosition() const
@@ -154,7 +192,7 @@ void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
 		dc.DrawTimeline(line.GetName(), 15, y, rect.right - 200, grey);
 		for (auto& artifact : line.GetArtifacts())
 		{
-			dc.DrawFlag(L"tag", artifact.GetPosition(), y);
+			dc.DrawSolidFlag(L"tag", artifact.GetPosition(), y, artifact.GetColor(), artifact.GetFillColor());
 		}
 		y += 25;
 	}
