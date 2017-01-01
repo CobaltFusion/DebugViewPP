@@ -145,16 +145,9 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	return 1;
 }
 
-RECT CTimelineView::GetClientArea(graphics::TimelineDC& dc)
-{
-	RECT rect;
-	dc.GetClipBox(&rect); // GetClipBox?
-	return rect;
-}
-
 void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 {
-	auto width = GetClientArea(dc).right - graphics::s_drawTimelineMax;
+	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
 	int y = 25;
 	int x = graphics::s_drawTimelineMax;
 
@@ -182,13 +175,13 @@ void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 
 void CTimelineView::PaintCursor(graphics::TimelineDC& dc)
 {
-	auto rect = GetClientArea(dc);
+	auto rect = dc.GetClientArea();
 	dc.Rectangle(m_cursorX, 0, m_cursorX+1, rect.bottom);
 }
 
 void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 {
-	auto rect = GetClientArea(dc);
+	auto rect = dc.GetClientArea();
 
 	int y = 50;
 	y += GetTrackPos32(SB_HORZ);
@@ -220,7 +213,11 @@ void CTimelineView::OnPaint(CDCHandle cdc)	// why is this cdc broken? contains a
 	using namespace fusion;
 	PAINTSTRUCT ps;
 	BeginPaint(&ps);
-	graphics::TimelineDC dc(GetWindowDC());
+	graphics::TimelineDC dc(GetDC());
+
+	auto rect = dc.GetClientArea();
+	dc.Rectangle(&rect);
+
 	PaintScale(dc);
 	PaintTimelines(dc);
 	PaintCursor(dc);

@@ -92,7 +92,6 @@ private:
 	void PaintTimelines(graphics::TimelineDC& dc);
 	void PaintCursor(graphics::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
-	RECT GetClientArea(graphics::TimelineDC& dc);
 	int GetXforPosition(graphics::TimelineDC& dc, int pos) const;
 
 	int m_start;

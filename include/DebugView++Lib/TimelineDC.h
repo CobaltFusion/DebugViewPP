@@ -17,25 +17,6 @@
 namespace fusion {
 namespace graphics {
 
-class Window
-{
-public:
-	Window(HINSTANCE hInstance, WNDPROC messageHandler, const std::wstring& uniqueClassName, const std::wstring& title, int width, int height);
-	void Show(int nCmdShow);
-
-private:
-	WNDCLASSEX wc;
-	HWND hwnd;
-};
-
-class MessageLoop
-{
-public:
-	int run();
-private:
-	MSG msg;
-};
-
 // see http://www.informit.com/articles/article.aspx?p=328647&seqNum=2
 
 static const int s_drawTimelineMax = 150;
