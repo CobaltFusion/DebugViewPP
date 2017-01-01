@@ -23,18 +23,12 @@
     <ClInclude Include="GDIGraphicsPOC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CTimelineView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GDIGraphicsPOC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CTimelineView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -110,6 +110,12 @@
     <ClInclude Include="..\include\DebugView++Lib\AnyFileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\DebugView++Lib\CTimelineView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\DebugView++Lib\TimelineDC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -206,6 +212,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AnyFileReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimelineDC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CTimelineView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "CTimelineView.h"
+#include "DebugView++Lib/CTimelineView.h"
 #include <string>
 #include <cassert>
 #include "CobaltFusion/dbgstream.h"

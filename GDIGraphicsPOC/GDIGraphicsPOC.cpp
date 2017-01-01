@@ -2,8 +2,8 @@
 #include "windows.h"
 #include <string>
 
-#include "Win32/TimelineDC.h"
-#include "CTimelineView.h"
+#include "DebugView++Lib/TimelineDC.h"
+#include "DebugView++Lib/CTimelineView.h"
 
 #define WIN32_LEAN_AND_MEAN
 

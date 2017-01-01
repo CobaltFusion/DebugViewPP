@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include "Win32/TimelineDC.h"
+#include "DebugView++Lib/TimelineDC.h"
 #include <string>
 #include <cassert>
 
