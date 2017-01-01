@@ -17,7 +17,7 @@
 #include "atlctrls.h"
 #include "atlmisc.h"
 #include "atlscrl.h"
-#include "Win32/gdi.h"
+#include "Win32/TimelineDC.h"
 
 namespace fusion {
 namespace gdi {

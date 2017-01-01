@@ -23,7 +23,7 @@
     <ClInclude Include="GDIGraphicsPOC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gdi.h">
+    <ClInclude Include="CTimelineView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -34,7 +34,7 @@
     <ClCompile Include="GDIGraphicsPOC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gdi.cpp">
+    <ClCompile Include="CTimelineView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

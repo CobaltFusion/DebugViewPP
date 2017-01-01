@@ -2,8 +2,8 @@
 #include "windows.h"
 #include <string>
 
-#include "Win32/gdi.h"
-#include "gdi.h"
+#include "Win32/TimelineDC.h"
+#include "CTimelineView.h"
 
 #define WIN32_LEAN_AND_MEAN
 
