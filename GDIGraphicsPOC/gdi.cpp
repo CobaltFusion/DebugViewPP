@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "gdi.h"
 #include <string>
+#include <cassert>
 #include "CobaltFusion/dbgstream.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/stringbuilder.h"
@@ -85,7 +86,6 @@ std::vector<Artifact> Line::GetArtifacts() const
 }
 
 // start, end, minorTicksPerMajorTick, minorTickSize, minorTickPixels, unit);
-
 void CTimelineView::Initialize(int start, int end, int minorTicksPerMajorTick, int minorTickSize, int minorTickPixels, std::wstring unit)
 {
 	m_start = start;
@@ -94,6 +94,7 @@ void CTimelineView::Initialize(int start, int end, int minorTicksPerMajorTick, i
 	m_minorTickSize = minorTickSize;
 	m_minorTickPixels = minorTickPixels;
 	m_unit = unit;
+	m_cursorX = 0;
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -101,6 +102,12 @@ LONG CTimelineView::GetTrackPos32(int nBar)
 	SCROLLINFO si = { sizeof(si), SIF_TRACKPOS };
 	GetScrollInfo(nBar, &si);
 	return si.nTrackPos;
+}
+
+void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	m_cursorX = point.x;
+	Invalidate();
 }
 
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
@@ -119,22 +126,35 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 	}
 }
 
+int CTimelineView::GetXforPosition(graphics::TimelineDC& dc, int pos) const
+{
+	assert((pos >= m_start && pos <= m_end) && "position not in current range");
+	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
+
+	cdbg << " client width: " << width << "\n";
+	cdbg << " (m_end - m_start): " << (m_end - m_start) << "\n";
+
+	auto result = ((pos - m_start) * width) / (m_end - m_start);
+	cdbg << " pos: " << pos << ", result: " << result << "\n";
+	return result;
+}
+
 BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
 	SetScrollRange(SB_HORZ, 1, 500);	// no effect??
 	return 1;
 }
 
-RECT CTimelineView::GetClientArea()
+RECT CTimelineView::GetClientArea(graphics::TimelineDC& dc)
 {
 	RECT rect;
-	GetClientRect(&rect);
+	dc.GetClipBox(&rect); // GetClipBox?
 	return rect;
 }
 
-void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
+void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 {
-	auto width = GetClientArea().right - graphics::s_drawTimelineMax;
+	auto width = GetClientArea(dc).right - graphics::s_drawTimelineMax;
 	int y = 25;
 	int x = graphics::s_drawTimelineMax;
 
@@ -160,9 +180,15 @@ void CTimelineView::PaintScale(graphics::DeviceContextEx& dc)
 	}
 }
 
-void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
+void CTimelineView::PaintCursor(graphics::TimelineDC& dc)
 {
-	auto rect = GetClientArea();
+	auto rect = GetClientArea(dc);
+	dc.Rectangle(m_cursorX, 0, m_cursorX+1, rect.bottom);
+}
+
+void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
+{
+	auto rect = GetClientArea(dc);
 
 	int y = 50;
 	y += GetTrackPos32(SB_HORZ);
@@ -172,7 +198,7 @@ void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
 		dc.DrawTimeline(line.GetName(), 0, y, rect.right - 200, grey);
 		for (auto& artifact : line.GetArtifacts())
 		{
-			dc.DrawSolidFlag(L"tag", artifact.GetPosition(), y, artifact.GetColor(), artifact.GetFillColor());
+			dc.DrawSolidFlag(L"tag", GetXforPosition(dc, artifact.GetPosition()), y, artifact.GetColor(), artifact.GetFillColor());
 		}
 		y += 25;
 	}
@@ -189,14 +215,15 @@ void CTimelineView::PaintTimelines(graphics::DeviceContextEx& dc)
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 }
 
-void CTimelineView::OnPaint(CDCHandle cdc)
+void CTimelineView::OnPaint(CDCHandle cdc)	// why is this cdc broken? contains a nullptr
 {
 	using namespace fusion;
 	PAINTSTRUCT ps;
 	BeginPaint(&ps);
-	graphics::DeviceContextEx dc(GetWindowDC());
+	graphics::TimelineDC dc(GetWindowDC());
 	PaintScale(dc);
 	PaintTimelines(dc);
+	PaintCursor(dc);
 	EndPaint(&ps);
 }
 

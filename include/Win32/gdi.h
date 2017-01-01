@@ -8,6 +8,9 @@
 #pragma once
 
 #include "windows.h"
+#include <atlbase.h>
+#include "atlapp.h"
+#include "atlgdi.h"
 #include <string>
 #include <vector>
 
@@ -33,29 +36,19 @@ private:
 	MSG msg;
 };
 
-class DeviceContext
-{
-public:
-	explicit DeviceContext(HDC hDC);
-	void MoveTo(int x, int y);
-	void LineTo(int x, int y);
-	void DrawTextOut(const std::wstring& str, int x, int y);
-	void Rectangle(int x, int y, int width, int height);
-	void DrawPolygon(const std::vector<POINT>& points);
-
-protected:
-	HDC hDC;
-};
-
 // see http://www.informit.com/articles/article.aspx?p=328647&seqNum=2
 
 static const int s_drawTimelineMax = 150;
 
-class DeviceContextEx : public DeviceContext
-{
-	using DeviceContext::DeviceContext;
-public:
+using ManagedCDC = CDCT<true>;
 
+class TimelineDC : public ManagedCDC
+{
+	using ManagedCDC::ManagedCDC;
+public:
+	RECT GetClientArea();
+	void DrawTextOut(const std::wstring& str, int x, int y);
+	void DrawPolygon(const std::vector<POINT>& points);
 	void DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color);
 	void DrawFlag(const std::wstring& /* tooltip */, int x, int y);
 	void DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y);

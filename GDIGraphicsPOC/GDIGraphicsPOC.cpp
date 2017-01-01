@@ -31,9 +31,21 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove_Wm)
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
-
+		MSG_WM_MOUSEMOVE(OnMouseMove)
 	END_MSG_MAP()
+
+	BOOL OnMouseMove_Wm(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		cdbg << "OnMouseMove:: " << lParam << ", " << wParam << "\n";
+		return 1;
+	}
+
+	void OnMouseMove(UINT nFlags, CPoint point)
+	{
+		cdbg << "OnMouseMove:: " << point.x << ", " << point.y << "\n";
+	}
 
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	{

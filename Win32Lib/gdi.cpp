@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "Win32/gdi.h"
 #include <string>
+#include <cassert>
 
 namespace fusion {
 namespace graphics {
@@ -53,45 +54,34 @@ int MessageLoop::run()
 	}
 }
 
-DeviceContext::DeviceContext(HDC hDC) : 
-	hDC(hDC)
+// todo: find out how this works (DECLARE_HANDLE(HDC); 
+// ::GetClientRect(m_hDC, &rect); is a compiler-time error, which is pretty cool
+RECT TimelineDC::GetClientArea()
 {
+	RECT rect;
+	GetClipBox(&rect);
+	return rect;
 }
 
-void DeviceContext::MoveTo(int x, int y)
+void TimelineDC::DrawTextOut(const std::wstring& str, int x, int y)
 {
-	::MoveToEx(hDC, x, y, NULL);
+	TextOut(x, y, str.c_str(), str.size());
 }
 
-void DeviceContext::LineTo(int x, int y)
+void TimelineDC::DrawPolygon(const std::vector<POINT>& points)
 {
-	::LineTo(hDC, x, y);
+	Polygon(points.data(), points.size());
 }
 
-void DeviceContext::DrawTextOut(const std::wstring& str, int x, int y)
+void TimelineDC::DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color)
 {
-	::TextOut(hDC, x, y, str.c_str(), str.size());
-}
-
-void DeviceContext::Rectangle(int x, int y, int width, int height)
-{
-	::Rectangle(hDC, x, y, width, height);
-}
-
-void DeviceContext::DrawPolygon(const std::vector<POINT>& points)
-{
-	::Polygon(hDC, points.data(), points.size());
-}
-
-void DeviceContextEx::DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color)
-{
-	auto pen = CreatePen(PS_SOLID, 1, color);
-	::SelectObject(hDC, pen);
+	CPen pen(CreatePen(PS_SOLID, 1, color));
+	SelectPen(pen);
 	DrawTextOut(name, x + 15, y -15);
-	::Rectangle(hDC, x + s_drawTimelineMax, y, x + s_drawTimelineMax + width, y + 2);
+	Rectangle(x + s_drawTimelineMax, y, x + s_drawTimelineMax + width, y + 2);
 }
 
-void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
+void TimelineDC::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 {
 	MoveTo(x, y);
 	LineTo(x, y - 20);
@@ -99,26 +89,26 @@ void DeviceContextEx::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 	LineTo(x, y - 12);
 }
 
-void DeviceContextEx::DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y)
+void TimelineDC::DrawSolidFlag(const std::wstring& /* tooltip */, int x, int y)
 {
 	DrawPolygon({ { x, y - 20 },{ x + 7, y - 16 },{ x, y - 12 } });
 	MoveTo(x, y);
 	LineTo(x, y - 20);
 }
 
-void DeviceContextEx::DrawSolidFlag(const std::wstring& tooltip, int x, int y, COLORREF border, COLORREF fill)
+void TimelineDC::DrawSolidFlag(const std::wstring& tooltip, int x, int y, COLORREF border, COLORREF fill)
 {
-	auto pen = CreatePen(PS_SOLID, 1, border);
-	::SelectObject(hDC, pen);
-	auto b = ::CreateSolidBrush(fill);
-	::SelectObject(hDC, b);
+	CPen pen(CreatePen(PS_SOLID, 1, border));
+	SelectPen(pen);
+	CBrush b(CreateSolidBrush(fill));
+	SelectBrush(b);
 	DrawSolidFlag(tooltip, x, y);
 }
 
-void DeviceContextEx::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF color, bool solid)
+void TimelineDC::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF color, bool solid)
 {
-	auto pen = CreatePen(PS_SOLID, 1, color);
-	::SelectObject(hDC, pen);
+	CPen pen(CreatePen(PS_SOLID, 1, color));
+	SelectPen(pen);
 	if (solid)
 		DrawSolidFlag(tooltip, x, y);
 	else

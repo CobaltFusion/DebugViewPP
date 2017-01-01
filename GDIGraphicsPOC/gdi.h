@@ -62,7 +62,8 @@ private:
 // zooming and panning is not part of the CTimelineView responsibility.
 // it is a 'dumb' drawing class that deals with positioning and formatting
 // it has no concept of time, just position which is scaled to window-pixels.
-class CTimelineView : public CWindowImpl<CTimelineView, CWindow>
+// also no centering or end-of-range behaviour is implemented, this is client responsibility.
+class CTimelineView : public CDoubleBufferWindowImpl<CTimelineView, CWindow>
 {
 public:
 	DECLARE_WND_CLASS(_T("CTimelineView Class"))
@@ -71,6 +72,7 @@ public:
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_PAINT(OnPaint)
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
+		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_HSCROLL(OnHScroll)
 	END_MSG_MAP()
 
@@ -81,19 +83,24 @@ public:
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 
+	void OnMouseMove(UINT nFlags, CPoint point); // exp
+
 	Line& Add(const std::string& name);
 
 private:
-	void PaintScale(graphics::DeviceContextEx& dc);
-	void PaintTimelines(graphics::DeviceContextEx& dc);
+	void PaintScale(graphics::TimelineDC& dc);
+	void PaintTimelines(graphics::TimelineDC& dc);
+	void PaintCursor(graphics::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
-	RECT GetClientArea();
+	RECT GetClientArea(graphics::TimelineDC& dc);
+	int GetXforPosition(graphics::TimelineDC& dc, int pos) const;
 
 	int m_start;
 	int m_end;
 	int m_minorTickSize;
 	int m_minorTicksPerMajorTick;
 	int m_minorTickPixels;
+	LONG m_cursorX;
 	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
 	std::vector<Line> m_lines;
