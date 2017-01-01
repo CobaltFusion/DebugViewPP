@@ -97,14 +97,18 @@ void CTimelineView::SetView(Location start, Location end, Anchor anchor, int min
 	m_cursorX = 0;
 	m_viewWidth = 0;
 	m_minorTickPixels = 0;
+	m_pixelsPerLocation = 0;
 }
 
 void CTimelineView::Recalculate(graphics::TimelineDC& dc)
 {
 	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
-	int pixelsPerLocation = m_viewWidth / (m_end - m_start);
-	assert((pixelsPerLocation > 1) && "This egde-case has not been implemented");
-	m_minorTickPixels = pixelsPerLocation * m_minorTickSize;
+	cdbg << "m_viewWidth: " << m_viewWidth << " - scale width: " << m_end - m_start << "\n";
+	m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
+	cdbg << "m_pixelsPerLocation: " << m_pixelsPerLocation << "\n";
+	assert((m_pixelsPerLocation > 1) && "This egde-case has not been implemented");
+	m_minorTickPixels = m_pixelsPerLocation * m_minorTickSize;
+	cdbg << "m_minorTickPixels: " << m_minorTickPixels << "\n";
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -117,6 +121,7 @@ LONG CTimelineView::GetTrackPos32(int nBar)
 void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	m_cursorX = point.x;
+	cdbg << "OnMouseMove, m_cursorX: " << m_cursorX << "\n";
 	Invalidate();
 }
 
@@ -132,19 +137,14 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 	{
 		cdbg << "OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100
 		SetScrollPos(SB_HORZ, nPos);
-		//Invalidate();
+		Invalidate();
 	}
 }
 
-int CTimelineView::GetXforPosition(graphics::TimelineDC& dc, int pos) const
+Pixel CTimelineView::GetX(Location pos) const
 {
 	assert((pos >= m_start && pos <= m_end) && "position not in current range");
-	cdbg << " client width: " << m_viewWidth << "\n";
-	cdbg << " (m_end - m_start): " << (m_end - m_start) << "\n";
-
-	auto result = graphics::s_drawTimelineMax + (((pos - m_start) * m_viewWidth) / (m_end - m_start));
-	cdbg << " pos: " << pos << ", result: " << result << "\n";
-	return result;
+	return graphics::s_drawTimelineMax + (m_pixelsPerLocation * (pos - m_start));
 }
 
 BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
@@ -155,7 +155,7 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 
 void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 {
-	assert((m_viewWidth != 0) && (m_minorTickPixels !=0) && "Recalculate must be called before PaintScale()");
+	assert((m_viewWidth != 0) && (m_minorTickPixels != 0) && (m_pixelsPerLocation != 0) && "Recalculate must be called before PaintScale()");
 	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
 	int y = 25;
 	int x = graphics::s_drawTimelineMax;
@@ -200,7 +200,7 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 		dc.DrawTimeline(line.GetName(), 0, y, rect.right - 200, grey);
 		for (auto& artifact : line.GetArtifacts())
 		{
-			dc.DrawSolidFlag(L"tag", GetXforPosition(dc, artifact.GetPosition()), y, artifact.GetColor(), artifact.GetFillColor());
+			dc.DrawSolidFlag(L"tag", GetX(artifact.GetPosition()), y, artifact.GetColor(), artifact.GetFillColor());
 		}
 		y += 25;
 	}

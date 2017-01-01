@@ -100,16 +100,21 @@ private:
 	void PaintTimelines(graphics::TimelineDC& dc);
 	void PaintCursor(graphics::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
-	int GetXforPosition(graphics::TimelineDC& dc, int pos) const;
+	Pixel GetX(Location pos) const;
 	void Recalculate(graphics::TimelineDC& dc);
 
+	// input
 	int m_start;
 	int m_end;
 	Anchor m_anchor;
 	int m_minorTickSize;
 	int m_minorTicksPerMajorTick;
+
+	// calculated 
 	int m_minorTickPixels;
 	int m_viewWidth;
+	int m_pixelsPerLocation;
+
 	LONG m_cursorX;
 	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;

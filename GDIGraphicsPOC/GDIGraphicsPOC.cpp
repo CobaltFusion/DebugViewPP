@@ -79,13 +79,15 @@ public:
 
 		//todo: the minorTickPixels is too much information, it must be derived from the current view + start + end)
 		//      and it can be because it is determined by view / 500 = pixels / location-unit 
-		m_timelineView.SetView(200, 700, gdi::CTimelineView::Anchor::Left, 5, 10, L"ms");
+		m_timelineView.SetView(600, 1000, gdi::CTimelineView::Anchor::Left, 10, 5, L"ms");
 		auto& info = m_timelineView.Add("Some info");
 
-		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-		info.Add(gdi::Artifact(350, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		info.Add(gdi::Artifact(550, gdi::Artifact::Type::Flag));
-		info.Add(gdi::Artifact(650, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		info.Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		info.Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
+		info.Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
 
 		m_bottom.SetClient(m_timelineView);
 		return 0;
