@@ -59,13 +59,21 @@ private:
 	std::vector<Artifact> m_artifacts;
 };
 
+using Pixel = int;
+using Location = int;
+
 // zooming and panning is not part of the CTimelineView responsibility.
 // it is a 'dumb' drawing class that deals with positioning and formatting
 // it has no concept of time, just position which is scaled to window-pixels.
 // also no centering or end-of-range behaviour is implemented, this is client responsibility.
 class CTimelineView : public CDoubleBufferWindowImpl<CTimelineView, CWindow>
 {
+
+//  todo: use public COwnerDraw<CLogView> and override DoPaint()
+
 public:
+	enum class Anchor { Left, Right, Center };
+
 	DECLARE_WND_CLASS(_T("CTimelineView Class"))
 
 	BEGIN_MSG_MAP(CTimelineView)
@@ -76,7 +84,7 @@ public:
 		MSG_WM_HSCROLL(OnHScroll)
 	END_MSG_MAP()
 
-	void Initialize(int start, int end, int minorTicksPerMajorTick, int minorTickSize, int minorTickPixels, const std::wstring unit);
+	void SetView(Location start, Location end, Anchor anchorOffset, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit);
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnPaint(CDCHandle dc);
@@ -93,17 +101,21 @@ private:
 	void PaintCursor(graphics::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
 	int GetXforPosition(graphics::TimelineDC& dc, int pos) const;
+	void Recalculate(graphics::TimelineDC& dc);
 
 	int m_start;
 	int m_end;
+	Anchor m_anchor;
 	int m_minorTickSize;
 	int m_minorTicksPerMajorTick;
 	int m_minorTickPixels;
+	int m_viewWidth;
 	LONG m_cursorX;
 	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
 	std::vector<Line> m_lines;
 };
+
 
 } // namespace gdi
 } // namespace fusion

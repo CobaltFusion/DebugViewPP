@@ -85,16 +85,26 @@ std::vector<Artifact> Line::GetArtifacts() const
 	return m_artifacts;
 }
 
-// start, end, minorTicksPerMajorTick, minorTickSize, minorTickPixels, unit);
-void CTimelineView::Initialize(int start, int end, int minorTicksPerMajorTick, int minorTickSize, int minorTickPixels, std::wstring unit)
+// start = 200, end = 700, anchor = Left, minorTicksPerMajorTick = 5, minorTickSize = 10, unit = "ms"
+void CTimelineView::SetView(Location start, Location end, Anchor anchor, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit)
 {
-	m_start = start;
-	m_end = end;
+	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
+	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
+	m_anchor = anchor;		// anchor location (left, right, center)
 	m_minorTicksPerMajorTick = minorTicksPerMajorTick;
 	m_minorTickSize = minorTickSize;
-	m_minorTickPixels = minorTickPixels;
 	m_unit = unit;
 	m_cursorX = 0;
+	m_viewWidth = 0;
+	m_minorTickPixels = 0;
+}
+
+void CTimelineView::Recalculate(graphics::TimelineDC& dc)
+{
+	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
+	int pixelsPerLocation = m_viewWidth / (m_end - m_start);
+	assert((pixelsPerLocation > 1) && "This egde-case has not been implemented");
+	m_minorTickPixels = pixelsPerLocation * m_minorTickSize;
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -129,12 +139,10 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 int CTimelineView::GetXforPosition(graphics::TimelineDC& dc, int pos) const
 {
 	assert((pos >= m_start && pos <= m_end) && "position not in current range");
-	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
-
-	cdbg << " client width: " << width << "\n";
+	cdbg << " client width: " << m_viewWidth << "\n";
 	cdbg << " (m_end - m_start): " << (m_end - m_start) << "\n";
 
-	auto result = ((pos - m_start) * width) / (m_end - m_start);
+	auto result = graphics::s_drawTimelineMax + (((pos - m_start) * m_viewWidth) / (m_end - m_start));
 	cdbg << " pos: " << pos << ", result: " << result << "\n";
 	return result;
 }
@@ -147,6 +155,7 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 
 void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 {
+	assert((m_viewWidth != 0) && (m_minorTickPixels !=0) && "Recalculate must be called before PaintScale()");
 	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
 	int y = 25;
 	int x = graphics::s_drawTimelineMax;
@@ -218,6 +227,7 @@ void CTimelineView::OnPaint(CDCHandle cdc)	// why is this cdc broken? contains a
 	auto rect = dc.GetClientArea();
 	dc.Rectangle(&rect);
 
+	Recalculate(dc);
 	PaintScale(dc);
 	PaintTimelines(dc);
 	PaintCursor(dc);

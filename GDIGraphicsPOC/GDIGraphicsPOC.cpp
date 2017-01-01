@@ -75,8 +75,11 @@ public:
 		m_timelineView.Create(m_bottom, rcDefault, gdi::CTimelineView::GetWndClassName(),
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
-		// start, end, minorTicksPerMajorTick, minorTickSize, minorTickPixels, unit);
-		m_timelineView.Initialize(200, 700, 5, 10, 15, L"ms");
+		// start, end, anchor, minorTicksPerMajorTick, minorTickSize,  unit);
+
+		//todo: the minorTickPixels is too much information, it must be derived from the current view + start + end)
+		//      and it can be because it is determined by view / 500 = pixels / location-unit 
+		m_timelineView.SetView(200, 700, gdi::CTimelineView::Anchor::Left, 5, 10, L"ms");
 		auto& info = m_timelineView.Add("Some info");
 
 		info.Add(gdi::Artifact(250, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
