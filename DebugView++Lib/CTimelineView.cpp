@@ -217,7 +217,7 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 }
 
-void CTimelineView::DoPaint(CDCHandle cdc)	// why is this cdc broken? contains a nullptr
+void CTimelineView::DoPaint(CDCHandle cdc)
 {
 	using namespace fusion;
 	graphics::TimelineDC dc(cdc);
