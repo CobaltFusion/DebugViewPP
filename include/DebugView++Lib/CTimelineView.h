@@ -66,11 +66,10 @@ using Location = int;
 // it is a 'dumb' drawing class that deals with positioning and formatting
 // it has no concept of time, just position which is scaled to window-pixels.
 // also no centering or end-of-range behaviour is implemented, this is client responsibility.
-class CTimelineView : public CDoubleBufferWindowImpl<CTimelineView, CWindow>
+class CTimelineView : 
+	public CDoubleBufferWindowImpl<CTimelineView, CWindow>,
+	public COwnerDraw<CTimelineView>
 {
-
-//  todo: use public COwnerDraw<CLogView> and override DoPaint()
-
 public:
 	enum class Anchor { Left, Right, Center };
 
@@ -78,16 +77,17 @@ public:
 
 	BEGIN_MSG_MAP(CTimelineView)
 		MSG_WM_INITDIALOG(OnInitDialog)
-		MSG_WM_PAINT(OnPaint)
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
 		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_HSCROLL(OnHScroll)
+		CHAIN_MSG_MAP_ALT(COwnerDraw<CTimelineView>, 1)
+		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	END_MSG_MAP()
 
 	void SetView(Location start, Location end, Anchor anchorOffset, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit);
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
-	void OnPaint(CDCHandle dc);
+	void DoPaint(CDCHandle dc);
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 

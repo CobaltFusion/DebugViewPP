@@ -21,7 +21,7 @@ namespace graphics {
 
 static const int s_drawTimelineMax = 150;
 
-using ManagedCDC = CDCT<true>;
+using ManagedCDC = CDCT<false>;
 
 class TimelineDC : public ManagedCDC
 {

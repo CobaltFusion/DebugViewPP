@@ -132,7 +132,7 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 	{
 		cdbg << "OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100
 		SetScrollPos(SB_HORZ, nPos);
-		Invalidate();
+		//Invalidate();
 	}
 }
 
@@ -217,21 +217,17 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 }
 
-void CTimelineView::OnPaint(CDCHandle cdc)	// why is this cdc broken? contains a nullptr
+void CTimelineView::DoPaint(CDCHandle cdc)	// why is this cdc broken? contains a nullptr
 {
 	using namespace fusion;
-	PAINTSTRUCT ps;
-	BeginPaint(&ps);
-	graphics::TimelineDC dc(GetDC());
-
-	auto rect = dc.GetClientArea();
-	dc.Rectangle(&rect);
+	graphics::TimelineDC dc(cdc);
+	auto backgroundArea = dc.GetClientArea();
+	dc.FillSolidRect(&backgroundArea, RGB(255, 255, 255));
 
 	Recalculate(dc);
 	PaintScale(dc);
 	PaintTimelines(dc);
 	PaintCursor(dc);
-	EndPaint(&ps);
 }
 
 Line& CTimelineView::Add(const std::string& name)
