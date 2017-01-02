@@ -76,18 +76,26 @@ public:
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
 		// start, end, anchor, minorTicksPerMajorTick, minorTickSize,  unit);
-
-		//todo: the minorTickPixels is too much information, it must be derived from the current view + start + end)
-		//      and it can be because it is determined by view / 500 = pixels / location-unit 
 		m_timelineView.SetView(600, 1000, gdi::CTimelineView::Anchor::Left, 10, 5, L"ms");
 		auto& info = m_timelineView.Add("Some info");
-
 		info.Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
 		info.Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
 		info.Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
 		info.Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
 		info.Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
 		info.Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
+
+		auto& sequence = m_timelineView.Add("Move Sequence");
+		sequence.Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+		sequence.Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+		sequence.Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		sequence.Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+
+		auto& data = m_timelineView.Add("Arbitrary data");
+		data.Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
+
+
+		// info.Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));		// todo: adding this line crashes the app, find out why
 
 		m_bottom.SetClient(m_timelineView);
 		return 0;

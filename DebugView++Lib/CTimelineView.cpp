@@ -135,7 +135,7 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 {
 	if (nSBCode == SB_THUMBTRACK)
 	{
-		cdbg << "OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100
+		cdbg << "OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100, unaffected by SetScrollRange ?
 		SetScrollPos(SB_HORZ, nPos);
 		Invalidate();
 	}
@@ -204,17 +204,6 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 		}
 		y += 25;
 	}
-	
-	auto grey = RGB(160, 160, 170);
-	dc.DrawTimeline(L"Move Sequence", 0, y, 500, grey);
-	dc.DrawFlag(L"tag", 200, y);
-	dc.DrawFlag(L"tag", 250, y);
-	dc.DrawSolidFlag(L"tag", 260, y, RGB(255, 0, 0), RGB(0, 255, 0));
-	dc.DrawFlag(L"tag", 270, y);
-
-	y += 25;
-	dc.DrawTimeline(L"Arbitrary data", 0, y, 500, grey);
-	dc.DrawFlag(L"blueFlag", 470, y, RGB(0, 0, 255), true);
 }
 
 void CTimelineView::DoPaint(CDCHandle cdc)
@@ -233,7 +222,7 @@ void CTimelineView::DoPaint(CDCHandle cdc)
 Line& CTimelineView::Add(const std::string& name)
 {
 	m_lines.emplace_back(WStr(name));
-	return m_lines.back();
+	return m_lines[m_lines.size() - 1];
 }
 
 } // namespace graphics

@@ -18,6 +18,7 @@
 #include "atlmisc.h"
 #include "atlscrl.h"
 #include "DebugView++Lib/TimelineDC.h"
+#include "boost/noncopyable.hpp"
 
 namespace fusion {
 namespace gdi {
@@ -46,10 +47,10 @@ private:
 	COLORREF m_fillcolor;
 };
 
-class Line
+class Line // : boost::noncopyable
 {
 public:
-	Line(const std::wstring& name);
+	explicit Line(const std::wstring& name);
 	void Add(Artifact artifact);
 	std::wstring GetName() const;
 	std::vector<Artifact> GetArtifacts() const;
