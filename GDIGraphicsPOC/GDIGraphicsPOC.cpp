@@ -48,7 +48,6 @@ public:
 	{
 		cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
 		UpdateLayout();
-
 		return 1;
 	}
 
@@ -77,14 +76,15 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		m_split.Create(*this, rcDefault, NULL, 0, WS_EX_CLIENTEDGE);
+		RECT rect = RECT();
+		GetClientRect(&rect);
+		m_split.Create(*this, rect, NULL, 0, WS_EX_CLIENTEDGE);
 		m_hWndClient = m_split;
 
 		m_top.Create(m_split, L"Top Pane");
 		m_bottom.Create(m_split, L"");
 		DisablePaneHeader(m_bottom);
 		m_split.SetSplitterPanes(m_top, m_bottom, true);
-		UpdateLayout();
 		m_split.SetSplitterPos(600);
 		//m_split.SetSinglePaneMode(SPLIT_PANE_TOP);  // this hides the bottom pane and the splitter
 
