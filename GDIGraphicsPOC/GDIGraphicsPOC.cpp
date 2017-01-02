@@ -22,7 +22,13 @@
 namespace fusion
 {
 
-class CMainFrame :public CFrameWindowImpl<CMainFrame>
+	enum ControlIds
+	{
+		IDC_SPLITTER = 100		// todo: CDialogResize is not working at all, and this IDC_SPLITTER is made up, so might be bullshit? maybe just add a proper resourceID ?
+	};
+
+class CMainFrame : 
+	public CFrameWindowImpl<CMainFrame>
 {
 public:
 	DECLARE_WND_CLASS(_T("CMainFrame Class"))
@@ -34,7 +40,14 @@ public:
 		MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove_Wm)
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
 		MSG_WM_MOUSEMOVE(OnMouseMove)
+		MSG_WM_SIZE(OnSize)
 	END_MSG_MAP()
+
+	LRESULT OnSize(UINT nType, CSize Extent)
+	{
+		cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
+		return 1;
+	}
 
 	BOOL OnMouseMove_Wm(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
@@ -61,7 +74,7 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		m_split.Create(m_hWnd, rcDefault);
+		m_split.Create(m_hWnd, rcDefault, 0, 0, 0, IDC_SPLITTER);
 		m_hWndClient = m_split;
 
 		m_top.Create(m_split, L"Top Pane");

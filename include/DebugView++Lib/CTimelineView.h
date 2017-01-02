@@ -70,6 +70,7 @@ using Location = int;
 class CTimelineView : 
 	public CDoubleBufferWindowImpl<CTimelineView, CWindow>,
 	public COwnerDraw<CTimelineView>
+	//public CDialogResize<CTimelineView>		// todo: the splitter must resize relative to the frame, and if the splitter does not reize us automatically, we might need this
 {
 public:
 	enum class Anchor { Left, Right, Center };
@@ -83,6 +84,7 @@ public:
 		MSG_WM_HSCROLL(OnHScroll)
 		CHAIN_MSG_MAP_ALT(COwnerDraw<CTimelineView>, 1)
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
+		//CHAIN_MSG_MAP(CDialogResize<CTimelineView>)
 	END_MSG_MAP()
 
 	void SetView(Location start, Location end, Anchor anchorOffset, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit);
