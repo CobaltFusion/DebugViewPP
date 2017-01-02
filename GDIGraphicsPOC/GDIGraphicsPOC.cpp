@@ -37,9 +37,7 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove_Wm)
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
-		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_SIZE(OnSize)
 		DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
@@ -51,20 +49,20 @@ public:
 		return 1;
 	}
 
-	BOOL OnMouseMove_Wm(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		cdbg << "OnMouseMove:: " << lParam << ", " << wParam << "\n";
-		return 1;
-	}
-
-	void OnMouseMove(UINT nFlags, CPoint point)
-	{
-		cdbg << "OnMouseMove:: " << point.x << ", " << point.y << "\n";
-	}
-
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	{
-		cdbg << "CMainFrame::OnMouseWheel: " << zDelta << "\n";
+		if (zDelta > 0)
+		{
+			// zoom in 
+			if (m_zoomFactor < 1.0)
+				m_zoomFactor += 0.02;
+		}
+		else
+		{
+			if (m_zoomFactor > 0.3)
+				m_zoomFactor -= 0.02;
+		}
+		m_timelineView.SetView(600, int(1000* m_zoomFactor), gdi::CTimelineView::Anchor::Left, 10, 5, L"ms");
 		return TRUE;
 	}
 
@@ -76,6 +74,7 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		m_zoomFactor = 1.0;
 		RECT rect = RECT();
 		GetClientRect(&rect);
 		m_split.Create(*this, rect, NULL, 0, WS_EX_CLIENTEDGE);
@@ -133,6 +132,7 @@ public:
 	CPaneContainer m_top;
 	CPaneContainer m_bottom;
 	gdi::CTimelineView m_timelineView;
+	double m_zoomFactor;
 
 };
 

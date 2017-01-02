@@ -70,7 +70,6 @@ using Location = int;
 class CTimelineView : 
 	public CDoubleBufferWindowImpl<CTimelineView, CWindow>,
 	public COwnerDraw<CTimelineView>
-	//public CDialogResize<CTimelineView>		// todo: the splitter must resize relative to the frame, and if the splitter does not reize us automatically, we might need this
 {
 public:
 	enum class Anchor { Left, Right, Center };
@@ -84,7 +83,6 @@ public:
 		MSG_WM_HSCROLL(OnHScroll)
 		CHAIN_MSG_MAP_ALT(COwnerDraw<CTimelineView>, 1)
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
-		//CHAIN_MSG_MAP(CDialogResize<CTimelineView>)
 	END_MSG_MAP()
 
 	void SetView(Location start, Location end, Anchor anchorOffset, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit);
@@ -94,7 +92,7 @@ public:
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 
-	void OnMouseMove(UINT nFlags, CPoint point); // exp
+	void OnMouseMove(UINT nFlags, CPoint point);
 
 	Line& Add(const std::string& name);
 
@@ -104,6 +102,7 @@ private:
 	void PaintCursor(graphics::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
 	Pixel GetX(Location pos) const;
+	bool InRange(Location pos) const;
 	void Recalculate(graphics::TimelineDC& dc);
 
 	// input
@@ -114,11 +113,11 @@ private:
 	int m_minorTicksPerMajorTick;
 
 	// calculated 
-	int m_minorTickPixels;
-	int m_viewWidth;
-	int m_pixelsPerLocation;
+	int m_minorTickPixels = 0;
+	int m_viewWidth = 0;
+	int m_pixelsPerLocation = 0;
 
-	LONG m_cursorX;
+	LONG m_cursorX = 0;
 	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
 	std::vector<Line> m_lines;

@@ -88,27 +88,22 @@ std::vector<Artifact> Line::GetArtifacts() const
 // start = 200, end = 700, anchor = Left, minorTicksPerMajorTick = 5, minorTickSize = 10, unit = "ms"
 void CTimelineView::SetView(Location start, Location end, Anchor anchor, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit)
 {
+	assert(((end - start) > 0) && "view range must be > 0");
 	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
 	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
 	m_anchor = anchor;		// anchor location (left, right, center)
 	m_minorTicksPerMajorTick = minorTicksPerMajorTick;
 	m_minorTickSize = minorTickSize;
 	m_unit = unit;
-	m_cursorX = 0;
-	m_viewWidth = 0;
-	m_minorTickPixels = 0;
-	m_pixelsPerLocation = 0;
+	Invalidate();
 }
 
 void CTimelineView::Recalculate(graphics::TimelineDC& dc)
 {
 	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
-	cdbg << "m_viewWidth: " << m_viewWidth << " - scale width: " << m_end - m_start << "\n";
 	m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
-	cdbg << "m_pixelsPerLocation: " << m_pixelsPerLocation << "\n";
 	assert((m_pixelsPerLocation > 1) && "This egde-case has not been implemented");
 	m_minorTickPixels = m_pixelsPerLocation * m_minorTickSize;
-	cdbg << "m_minorTickPixels: " << m_minorTickPixels << "\n";
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -121,13 +116,13 @@ LONG CTimelineView::GetTrackPos32(int nBar)
 void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	m_cursorX = point.x;
-	cdbg << "OnMouseMove, m_cursorX: " << m_cursorX << "\n";
+	cdbg << "CTimelineView::OnMouseMove, m_cursorX: " << m_cursorX << "\n";
 	Invalidate();
 }
 
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	cdbg << "OnMouseWheel, zDelta: " << zDelta << "\n";			// todo: find out why these events are not captured like in CMainFrame::OnMouseWheel
+	cdbg << "CTimelineView::OnMouseWheel, zDelta: " << zDelta << "\n";			// todo: find out why these events are not captured like in CMainFrame::OnMouseWheel
 	return TRUE;
 }
 
@@ -143,8 +138,13 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 
 Pixel CTimelineView::GetX(Location pos) const
 {
-	assert((pos >= m_start && pos <= m_end) && "position not in current range");
+	assert(InRange(pos) && "position not in current range");
 	return graphics::s_drawTimelineMax + (m_pixelsPerLocation * (pos - m_start));
+}
+
+bool CTimelineView::InRange(Location pos) const
+{
+	return (pos >= m_start && pos <= m_end);
 }
 
 BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
@@ -200,7 +200,11 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 		dc.DrawTimeline(line.GetName(), 0, y, rect.right - 200, grey);
 		for (auto& artifact : line.GetArtifacts())
 		{
-			dc.DrawSolidFlag(L"tag", GetX(artifact.GetPosition()), y, artifact.GetColor(), artifact.GetFillColor());
+			if (InRange(artifact.GetPosition()))
+			{
+				dc.DrawSolidFlag(L"tag", GetX(artifact.GetPosition()), y, artifact.GetColor(), artifact.GetFillColor());
+			}
+			
 		}
 		y += 25;
 	}
