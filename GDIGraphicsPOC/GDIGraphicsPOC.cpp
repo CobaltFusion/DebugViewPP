@@ -41,11 +41,14 @@ public:
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
 		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_SIZE(OnSize)
+		DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
 
 	LRESULT OnSize(UINT nType, CSize Extent)
 	{
 		cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
+		UpdateLayout();
+
 		return 1;
 	}
 
@@ -74,7 +77,7 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		m_split.Create(m_hWnd, rcDefault, 0, 0, 0, IDC_SPLITTER);
+		m_split.Create(*this, rcDefault, NULL, 0, WS_EX_CLIENTEDGE);
 		m_hWndClient = m_split;
 
 		m_top.Create(m_split, L"Top Pane");
