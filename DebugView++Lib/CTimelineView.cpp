@@ -85,25 +85,31 @@ std::vector<Artifact> Line::GetArtifacts() const
 	return m_artifacts;
 }
 
-// start = 200, end = 700, anchor = Left, minorTicksPerMajorTick = 5, minorTickSize = 10, unit = "ms"
-void CTimelineView::SetView(Location start, Location end, Anchor anchor, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit)
+void CTimelineView::SetView(Location start, Location end, const std::wstring unit)
 {
 	assert(((end - start) > 0) && "view range must be > 0");
 	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
 	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
-	m_anchor = anchor;		// anchor location (left, right, center)
-	m_minorTicksPerMajorTick = minorTicksPerMajorTick;
-	m_minorTickSize = minorTickSize;
 	m_unit = unit;
+	m_minorTickSize = 15;				//todo: must not be fixed
+	m_minorTicksPerMajorTick = 5;		//todo: must not be fixed
+	m_pixelsPerLocation = 10;
 	Invalidate();
 }
 
 void CTimelineView::Recalculate(graphics::TimelineDC& dc)
 {
+	cdbg << " Recalculate\n";
 	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
-	m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
-	assert((m_pixelsPerLocation > 1) && "This egde-case has not been implemented");
+	//m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
+
+	//m_pixelsPerLocation = std::max(1, m_pixelsPerLocation);
+
+	assert((m_pixelsPerLocation > 0) && "This egde-case has not been implemented");
 	m_minorTickPixels = m_pixelsPerLocation * m_minorTickSize;
+
+	cdbg << " m_viewWidth: " << m_viewWidth << "\n";
+	cdbg << " m_minorTickPixels: " << m_minorTickPixels << "\n";
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -116,7 +122,47 @@ LONG CTimelineView::GetTrackPos32(int nBar)
 void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	m_cursorX = point.x;
-	cdbg << "CTimelineView::OnMouseMove, m_cursorX: " << m_cursorX << "\n";
+	Invalidate();
+}
+
+void CTimelineView::Zoom(double factor)
+{
+	auto zoomCenter = m_start + ((m_cursorX - graphics::s_drawTimelineMax) / m_pixelsPerLocation);
+	cdbg << "zoomCenter: " << zoomCenter << "\n";
+	cdbg << "m_start: " << m_start << "\n";
+	cdbg << "m_end: " << m_end << "\n";
+
+	auto relStart = m_start - zoomCenter;
+	auto relEnd = m_end - zoomCenter;
+
+	cdbg << "relStart: " << relStart << "\n";
+	cdbg << "relEnd: " << relEnd << "\n";
+
+	auto relStartPx = relStart * m_pixelsPerLocation;
+	auto relEndPx = relEnd * m_pixelsPerLocation;
+
+	if (factor > 1.0)
+	{
+		if (m_pixelsPerLocation > 1)
+			m_pixelsPerLocation = m_pixelsPerLocation / 2;
+	}
+	else
+	{
+		if (m_pixelsPerLocation < std::pow(2, 24))
+			m_pixelsPerLocation = m_pixelsPerLocation * 2;
+
+	}
+
+	relStart = relStartPx / m_pixelsPerLocation;
+	relEnd = relEnd / m_pixelsPerLocation;
+
+	m_start = relStart + zoomCenter;
+	m_end = relEnd + zoomCenter;
+
+	cdbg << "    m_pixelsPerLocation: " << m_pixelsPerLocation << "\n";
+	cdbg << "    m_start: " << m_start << "\n";
+	cdbg << "    m_end: " << m_end << "\n";
+
 	Invalidate();
 }
 
@@ -155,31 +201,46 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 
 void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 {
+	// zooming should be done by: 
+	// - changing the m_pixelsPerLocation value
+	// - keeping the cursur position fixed (pixel precise)
+	// - offsetting the scale to match the timeline, not the other way around, this way the numbers on the scale can always remain powers of 10 
+	//   while the cursor-position is some arbitrary value.
+
+	// zooming does not work because PaintScale() always starts at m_start and we now have a fixed  m_minorTickSize = 15; m_minorTicksPerMajorTick = 5;
+	// PaintScale() must draw the scale relative to a fixed zoompoint and in such a way that the pixel-location of the zoompoint stays exactly fixed and scale
+	// is fitted around it accoording to the available view-size.
+
 	assert((m_viewWidth != 0) && (m_minorTickPixels != 0) && (m_pixelsPerLocation != 0) && "Recalculate must be called before PaintScale()");
 	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
 	int y = 25;
 	int x = graphics::s_drawTimelineMax;
+	int lastX = x;
 
-	int minorTicks = width / m_minorTickPixels;
-	for (int i = 0; i < minorTicks; ++i)
-	{
-		dc.MoveTo(x, y);
-		dc.LineTo(x, y - 3);
-		x += m_minorTickPixels;
-	}
-
-	x = graphics::s_drawTimelineMax;
 	int pos = m_start;
-	int majorTicks = width / (m_minorTicksPerMajorTick * m_minorTickPixels);
+	int majorTicks = (width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1; // also add one at the end
 	for (int i = 0; i < majorTicks; ++i)
 	{
 		std::wstring s = wstringbuilder() << pos << m_unit;
 		dc.DrawTextOut(s, x - 15, y - 25);
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 7);
+		lastX = x;
 		x += (m_minorTicksPerMajorTick * m_minorTickPixels);
 		pos += (m_minorTicksPerMajorTick * m_minorTickSize);
 	}
+
+	x = graphics::s_drawTimelineMax;
+	int minorTicks = width / m_minorTickPixels;
+	for (;x < lastX;)
+	{
+		dc.MoveTo(x, y);
+		dc.LineTo(x, y - 3);
+		x += m_minorTickPixels;
+	}
+	m_end = ((lastX - graphics::s_drawTimelineMax) / m_pixelsPerLocation) + m_start;
+
+	cdbg << "Scale ends: " << m_end << "\n";
 }
 
 void CTimelineView::PaintCursor(graphics::TimelineDC& dc)
@@ -204,7 +265,6 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 			{
 				dc.DrawSolidFlag(L"tag", GetX(artifact.GetPosition()), y, artifact.GetColor(), artifact.GetFillColor());
 			}
-			
 		}
 		y += 25;
 	}

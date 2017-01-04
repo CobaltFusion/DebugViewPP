@@ -72,8 +72,6 @@ class CTimelineView :
 	public COwnerDraw<CTimelineView>
 {
 public:
-	enum class Anchor { Left, Right, Center };
-
 	DECLARE_WND_CLASS(_T("CTimelineView Class"))
 
 	BEGIN_MSG_MAP(CTimelineView)
@@ -85,7 +83,7 @@ public:
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	END_MSG_MAP()
 
-	void SetView(Location start, Location end, Anchor anchorOffset, int minorTicksPerMajorTick, Location minorTickSize, const std::wstring unit);
+	void SetView(Location start, Location end, const std::wstring unit);
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void DoPaint(CDCHandle dc);
@@ -95,7 +93,7 @@ public:
 	void OnMouseMove(UINT nFlags, CPoint point);
 
 	Line& Add(const std::string& name);
-
+	void Zoom(double factor);
 private:
 	void PaintScale(graphics::TimelineDC& dc);
 	void PaintTimelines(graphics::TimelineDC& dc);
@@ -108,7 +106,6 @@ private:
 	// input
 	int m_start;
 	int m_end;
-	Anchor m_anchor;
 	int m_minorTickSize;
 	int m_minorTicksPerMajorTick;
 

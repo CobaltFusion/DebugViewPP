@@ -22,11 +22,6 @@
 namespace fusion
 {
 
-	enum ControlIds
-	{
-		IDC_SPLITTER = 100		// todo: CDialogResize is not working at all, and this IDC_SPLITTER is made up, so might be bullshit? maybe just add a proper resourceID ?
-	};
-
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>
 {
@@ -49,20 +44,46 @@ public:
 		return 1;
 	}
 
+	class ScaleData
+	{
+	public:
+		ScaleData()
+		{
+		}
+
+		int startBase = 0;
+		int startPower = 1;
+
+		int endBase = 1;
+		int endPower = -3;
+
+		int GetStart()
+		{
+			return startBase;
+		}
+
+		int GetEnd()
+		{
+			return endBase;
+		}
+
+		std::string GetUnit()
+		{
+			return "ms";
+		}
+
+	};
+
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	{
 		if (zDelta > 0)
 		{
-			// zoom in 
-			if (m_zoomFactor < 1.0)
-				m_zoomFactor += 0.02;
+			m_timelineView.Zoom(1.01);
 		}
 		else
 		{
-			if (m_zoomFactor > 0.3)
-				m_zoomFactor -= 0.02;
+			m_timelineView.Zoom(0.99);
 		}
-		m_timelineView.SetView(600, int(1000* m_zoomFactor), gdi::CTimelineView::Anchor::Left, 10, 5, L"ms");
 		return TRUE;
 	}
 
@@ -91,7 +112,7 @@ public:
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
 		// start, end, anchor, minorTicksPerMajorTick, minorTickSize,  unit);
-		m_timelineView.SetView(600, 1000, gdi::CTimelineView::Anchor::Left, 10, 5, L"ms");
+		m_timelineView.SetView(600, 1000, L"ms");
 		auto& info = m_timelineView.Add("Some info");
 		info.Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
 		info.Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
@@ -110,7 +131,7 @@ public:
 		data.Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
 
 
-		// info.Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));		// todo: adding this line crashes the app, find out why
+		// info.Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));		// todo: adding this line crashes the app, m_timelineView.Add invalidates the returned &? find out why
 
 		m_bottom.SetClient(m_timelineView);
 		return 0;
