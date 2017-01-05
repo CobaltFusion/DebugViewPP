@@ -19,6 +19,7 @@
 #include "atlscrl.h"
 #include "DebugView++Lib/TimelineDC.h"
 #include "boost/noncopyable.hpp"
+#include <memory>
 
 namespace fusion {
 namespace gdi {
@@ -29,6 +30,13 @@ namespace gdi {
 class Artifact
 {
 public:
+	Artifact() = default;
+	Artifact(const Artifact&) = default;
+	Artifact& operator = (const Artifact&) = default;
+
+	Artifact(Artifact&&) = default;
+	Artifact& operator = (Artifact&&) = default;
+
 	enum class Type { Flag, StartStopEvent };
 
 	Artifact(int position, Artifact::Type type);
@@ -47,10 +55,18 @@ private:
 	COLORREF m_fillcolor;
 };
 
-class Line // : boost::noncopyable
+class Line
 {
 public:
 	explicit Line(const std::wstring& name);
+
+	Line() = delete;
+	Line(const Line&) = delete;
+	Line& operator = (const Line&) = delete;
+
+	Line(Line&&) = default;
+	Line& operator = (Line&&) = default;
+
 	void Add(Artifact artifact);
 	std::wstring GetName() const;
 	std::vector<Artifact> GetArtifacts() const;
@@ -80,10 +96,10 @@ public:
 		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_HSCROLL(OnHScroll)
 		CHAIN_MSG_MAP_ALT(COwnerDraw<CTimelineView>, 1)
-		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
+		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)
 	END_MSG_MAP()
 
-	void SetView(Location start, Location end, const std::wstring unit);
+	void SetView(Location start, Location end, int exponent);
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void DoPaint(CDCHandle dc);
@@ -92,7 +108,7 @@ public:
 
 	void OnMouseMove(UINT nFlags, CPoint point);
 
-	Line& Add(const std::string& name);
+	std::shared_ptr<Line> Add(const std::string& name);
 	void Zoom(double factor);
 private:
 	void PaintScale(graphics::TimelineDC& dc);
@@ -117,7 +133,7 @@ private:
 	LONG m_cursorX = 0;
 	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
-	std::vector<Line> m_lines;
+	std::vector<std::shared_ptr<Line>> m_lines;
 };
 
 

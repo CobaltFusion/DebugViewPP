@@ -85,31 +85,25 @@ std::vector<Artifact> Line::GetArtifacts() const
 	return m_artifacts;
 }
 
-void CTimelineView::SetView(Location start, Location end, const std::wstring unit)
+void CTimelineView::SetView(Location start, Location end, int exponent)
 {
 	assert(((end - start) > 0) && "view range must be > 0");
 	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
 	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
-	m_unit = unit;
+
+	m_pixelsPerLocation = 0;		// will cause Recalculate() to re-initialize it
+	m_unit = L"ns";
 	m_minorTickSize = 15;				//todo: must not be fixed
+	m_minorTickPixels = 15;
 	m_minorTicksPerMajorTick = 5;		//todo: must not be fixed
-	m_pixelsPerLocation = 10;
 	Invalidate();
 }
 
 void CTimelineView::Recalculate(graphics::TimelineDC& dc)
 {
-	cdbg << " Recalculate\n";
 	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
-	//m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
-
-	//m_pixelsPerLocation = std::max(1, m_pixelsPerLocation);
-
-	assert((m_pixelsPerLocation > 0) && "This egde-case has not been implemented");
-	m_minorTickPixels = m_pixelsPerLocation * m_minorTickSize;
-
-	cdbg << " m_viewWidth: " << m_viewWidth << "\n";
-	cdbg << " m_minorTickPixels: " << m_minorTickPixels << "\n";
+	if (m_pixelsPerLocation == 0)
+		m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
 }
 
 LONG CTimelineView::GetTrackPos32(int nBar)
@@ -148,7 +142,7 @@ void CTimelineView::Zoom(double factor)
 	}
 	else
 	{
-		if (m_pixelsPerLocation < std::pow(2, 24))
+		if (m_pixelsPerLocation < 16)
 			m_pixelsPerLocation = m_pixelsPerLocation * 2;
 
 	}
@@ -255,11 +249,11 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 
 	int y = 50;
 	y += GetTrackPos32(SB_HORZ);
-	for (auto& line : m_lines)
+	for (auto line : m_lines)
 	{
 		auto grey = RGB(160, 160, 170);
-		dc.DrawTimeline(line.GetName(), 0, y, rect.right - 200, grey);
-		for (auto& artifact : line.GetArtifacts())
+		dc.DrawTimeline(line->GetName(), 0, y, rect.right - 200, grey);
+		for (auto& artifact : line->GetArtifacts())
 		{
 			if (InRange(artifact.GetPosition()))
 			{
@@ -283,10 +277,10 @@ void CTimelineView::DoPaint(CDCHandle cdc)
 	PaintCursor(dc);
 }
 
-Line& CTimelineView::Add(const std::string& name)
+std::shared_ptr<Line> CTimelineView::Add(const std::string& name)
 {
-	m_lines.emplace_back(WStr(name));
-	return m_lines[m_lines.size() - 1];
+	m_lines.emplace_back(std::make_shared<Line>(WStr(name)));
+	return m_lines.back();
 }
 
 } // namespace graphics
