@@ -85,27 +85,6 @@ std::vector<Artifact> Line::GetArtifacts() const
 	return m_artifacts;
 }
 
-void CTimelineView::SetView(Location start, Location end, int exponent)
-{
-	assert(((end - start) > 0) && "view range must be > 0");
-	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
-	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
-
-	m_pixelsPerLocation = 0;		// will cause Recalculate() to re-initialize it
-	m_unit = L"ns";
-	m_minorTickSize = 15;				//todo: must not be fixed
-	m_minorTickPixels = 15;
-	m_minorTicksPerMajorTick = 5;		//todo: must not be fixed
-	Invalidate();
-}
-
-void CTimelineView::Recalculate(graphics::TimelineDC& dc)
-{
-	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
-	if (m_pixelsPerLocation == 0)
-		m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
-}
-
 LONG CTimelineView::GetTrackPos32(int nBar)
 {
 	SCROLLINFO si = { sizeof(si), SIF_TRACKPOS };
@@ -119,45 +98,13 @@ void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 	Invalidate();
 }
 
-void CTimelineView::Zoom(double factor)
+int GetOffsetTillNextMultiple(int value, int multiplier)
 {
-	auto zoomCenter = m_start + ((m_cursorX - graphics::s_drawTimelineMax) / m_pixelsPerLocation);
-	cdbg << "zoomCenter: " << zoomCenter << "\n";
-	cdbg << "m_start: " << m_start << "\n";
-	cdbg << "m_end: " << m_end << "\n";
-
-	auto relStart = m_start - zoomCenter;
-	auto relEnd = m_end - zoomCenter;
-
-	cdbg << "relStart: " << relStart << "\n";
-	cdbg << "relEnd: " << relEnd << "\n";
-
-	auto relStartPx = relStart * m_pixelsPerLocation;
-	auto relEndPx = relEnd * m_pixelsPerLocation;
-
-	if (factor > 1.0)
-	{
-		if (m_pixelsPerLocation > 1)
-			m_pixelsPerLocation = m_pixelsPerLocation / 2;
-	}
-	else
-	{
-		if (m_pixelsPerLocation < 16)
-			m_pixelsPerLocation = m_pixelsPerLocation * 2;
-
-	}
-
-	relStart = relStartPx / m_pixelsPerLocation;
-	relEnd = relEnd / m_pixelsPerLocation;
-
-	m_start = relStart + zoomCenter;
-	m_end = relEnd + zoomCenter;
-
-	cdbg << "    m_pixelsPerLocation: " << m_pixelsPerLocation << "\n";
-	cdbg << "    m_start: " << m_start << "\n";
-	cdbg << "    m_end: " << m_end << "\n";
-
-	Invalidate();
+	auto modulus = value % multiplier;
+	if (modulus)
+		return (multiplier - modulus);
+	return 0;
+	
 }
 
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
@@ -193,6 +140,90 @@ BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	return 1;
 }
 
+void CTimelineView::DoPaint(CDCHandle cdc)
+{
+	using namespace fusion;
+	graphics::TimelineDC dc(cdc);
+	auto backgroundArea = dc.GetClientArea();
+	dc.FillSolidRect(&backgroundArea, RGB(255, 255, 255));
+
+	Recalculate(dc);
+	PaintScale(dc);
+	PaintTimelines(dc);
+	PaintCursor(dc);
+}
+
+std::shared_ptr<Line> CTimelineView::Add(const std::string& name)
+{
+	m_lines.emplace_back(std::make_shared<Line>(WStr(name)));
+	return m_lines.back();
+}
+
+void CTimelineView::SetView(Location start, Location end, int exponent)
+{
+	assert(((end - start) > 0) && "view range must be > 0");
+	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
+	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
+
+	m_pixelsPerLocation = 0;		// will cause Recalculate() to re-initialize it
+	m_unit = L"ms";
+	m_minorTickPixels = 10;			// fixed
+	m_minorTicksPerMajorTick = 10;	// fixed
+	m_tickOffset = 0;
+
+	m_minorTickSize = 10;				//todo: must not be fixed
+	Invalidate();
+}
+
+void CTimelineView::Zoom(double factor)
+{
+	auto zoomCenter = m_start + ((m_cursorX - graphics::s_drawTimelineMax) / m_pixelsPerLocation);
+	cdbg << "zoomCenter: " << zoomCenter << "\n";
+	cdbg << "m_start: " << m_start << "\n";
+	cdbg << "m_end: " << m_end << "\n";
+
+	auto relStart = m_start - zoomCenter;
+	auto relEnd = m_end - zoomCenter;
+
+	cdbg << "relStart: " << relStart << "\n";
+	cdbg << "relEnd: " << relEnd << "\n";
+
+	auto relStartPx = relStart * m_pixelsPerLocation;
+	auto relEndPx = relEnd * m_pixelsPerLocation;
+
+	if (factor > 1.0)
+	{
+		if (m_pixelsPerLocation > 1)
+			m_pixelsPerLocation = m_pixelsPerLocation / 2;
+	}
+	else
+	{
+		if (m_pixelsPerLocation < 16)
+			m_pixelsPerLocation = m_pixelsPerLocation * 2;
+	}
+
+	relStart = relStartPx / m_pixelsPerLocation;
+	relEnd = relEnd / m_pixelsPerLocation;
+
+	m_start = relStart + zoomCenter;
+	m_end = relEnd + zoomCenter;
+
+	m_tickOffset = GetOffsetTillNextMultiple(m_start, m_minorTicksPerMajorTick * m_minorTickSize);
+
+	cdbg << "    m_pixelsPerLocation: " << m_pixelsPerLocation << "\n";
+	cdbg << "    m_start: " << m_start << "\n";
+	cdbg << "    m_end: " << m_end << "\n";
+
+	Invalidate();
+}
+
+void CTimelineView::Recalculate(graphics::TimelineDC& dc)
+{
+	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
+	if (m_pixelsPerLocation == 0)
+		m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
+}
+
 void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 {
 	// zooming should be done by: 
@@ -208,10 +239,10 @@ void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 	assert((m_viewWidth != 0) && (m_minorTickPixels != 0) && (m_pixelsPerLocation != 0) && "Recalculate must be called before PaintScale()");
 	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
 	int y = 25;
-	int x = graphics::s_drawTimelineMax;
-	int lastX = x;
+	int x = graphics::s_drawTimelineMax + (m_tickOffset * m_pixelsPerLocation);
+	int lastX = 0;
 
-	int pos = m_start;
+	int pos = m_start + m_tickOffset;
 	int majorTicks = (width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1; // also add one at the end
 	for (int i = 0; i < majorTicks; ++i)
 	{
@@ -264,24 +295,7 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 	}
 }
 
-void CTimelineView::DoPaint(CDCHandle cdc)
-{
-	using namespace fusion;
-	graphics::TimelineDC dc(cdc);
-	auto backgroundArea = dc.GetClientArea();
-	dc.FillSolidRect(&backgroundArea, RGB(255, 255, 255));
 
-	Recalculate(dc);
-	PaintScale(dc);
-	PaintTimelines(dc);
-	PaintCursor(dc);
-}
-
-std::shared_ptr<Line> CTimelineView::Add(const std::string& name)
-{
-	m_lines.emplace_back(std::make_shared<Line>(WStr(name)));
-	return m_lines.back();
-}
 
 } // namespace graphics
 } // namespace fusion

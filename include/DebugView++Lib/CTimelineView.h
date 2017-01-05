@@ -99,31 +99,31 @@ public:
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)
 	END_MSG_MAP()
 
-	void SetView(Location start, Location end, int exponent);
-
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void DoPaint(CDCHandle dc);
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
-
 	void OnMouseMove(UINT nFlags, CPoint point);
 
 	std::shared_ptr<Line> Add(const std::string& name);
+
+	void SetView(Location start, Location end, int exponent);
 	void Zoom(double factor);
 private:
+	void Recalculate(graphics::TimelineDC& dc);
 	void PaintScale(graphics::TimelineDC& dc);
 	void PaintTimelines(graphics::TimelineDC& dc);
 	void PaintCursor(graphics::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
 	Pixel GetX(Location pos) const;
 	bool InRange(Location pos) const;
-	void Recalculate(graphics::TimelineDC& dc);
 
 	// input
-	int m_start;
-	int m_end;
-	int m_minorTickSize;
-	int m_minorTicksPerMajorTick;
+	int m_start = 0;
+	int m_end = 0;
+	int m_minorTickSize = 0;
+	int m_minorTicksPerMajorTick = 0;
+	int m_tickOffset = 0;
 
 	// calculated 
 	int m_minorTickPixels = 0;
