@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "DebugView++Lib/CTimelineView.h"
 #include <string>
+#include <iomanip>
 #include <cassert>
 #include "CobaltFusion/dbgstream.h"
 #include "CobaltFusion/Str.h"
@@ -123,10 +124,15 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 	}
 }
 
+Pixel ToPixel(double value)
+{
+	return static_cast<int>(std::floor(value));
+}
+
 Pixel CTimelineView::GetX(Location pos) const
 {
 	assert(InRange(pos) && "position not in current range");
-	return graphics::s_drawTimelineMax + (m_pixelsPerLocation * (pos - m_start));
+	return ToPixel(gdi::s_drawTimelineMax + (m_pixelsPerLocation * (pos - m_start)));
 }
 
 bool CTimelineView::InRange(Location pos) const
@@ -136,14 +142,14 @@ bool CTimelineView::InRange(Location pos) const
 
 BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
-	SetScrollRange(SB_HORZ, 1, 500);	// no effect??
+	//SetScrollRange(SB_HORZ, 1, 500);	// no effect??
 	return 1;
 }
 
 void CTimelineView::DoPaint(CDCHandle cdc)
 {
 	using namespace fusion;
-	graphics::TimelineDC dc(cdc);
+	gdi::TimelineDC dc(cdc);
 	auto backgroundArea = dc.GetClientArea();
 	dc.FillSolidRect(&backgroundArea, RGB(255, 255, 255));
 
@@ -153,20 +159,23 @@ void CTimelineView::DoPaint(CDCHandle cdc)
 	PaintCursor(dc);
 }
 
-std::shared_ptr<Line> CTimelineView::Add(const std::string& name)
+void CTimelineView::SetFormatter(formatFunction f)
 {
-	m_lines.emplace_back(std::make_shared<Line>(WStr(name)));
-	return m_lines.back();
+	m_formatFunction = f;
 }
 
-void CTimelineView::SetView(Location start, Location end, int exponent)
+void CTimelineView::SetDataProvider(dataProvider f)
+{
+	m_dataProvider = f;
+}
+
+void CTimelineView::SetView(Location start, Location end)
 {
 	assert(((end - start) > 0) && "view range must be > 0");
 	m_start = start;		// start of the scale (the scale maybe become larger, but at least this much will fit)
 	m_end = end;			// end of the scale (the scale maybe become larger, but at least this much will fit)
 
 	m_pixelsPerLocation = 0;		// will cause Recalculate() to re-initialize it
-	m_unit = L"ms";
 	m_minorTickPixels = 10;			// fixed
 	m_minorTicksPerMajorTick = 10;	// fixed
 	m_tickOffset = 0;
@@ -175,9 +184,17 @@ void CTimelineView::SetView(Location start, Location end, int exponent)
 	Invalidate();
 }
 
+double relativeFloor(double value)
+{
+	return value;
+	//auto e = std::floor(std::log10(std::abs(value)));
+	//auto base = value / std::pow(10, e);
+	//return std::pow(10, e) * std::floor(base);
+}
+
 void CTimelineView::Zoom(double factor)
 {
-	auto zoomCenter = m_start + ((m_cursorX - graphics::s_drawTimelineMax) / m_pixelsPerLocation);
+	auto zoomCenter = m_start + ((m_cursorX - gdi::s_drawTimelineMax) / m_pixelsPerLocation);
 	cdbg << "zoomCenter: " << zoomCenter << "\n";
 	cdbg << "m_start: " << m_start << "\n";
 	cdbg << "m_end: " << m_end << "\n";
@@ -191,24 +208,15 @@ void CTimelineView::Zoom(double factor)
 	auto relStartPx = relStart * m_pixelsPerLocation;
 	auto relEndPx = relEnd * m_pixelsPerLocation;
 
-	if (factor > 1.0)
-	{
-		if (m_pixelsPerLocation > 1)
-			m_pixelsPerLocation = m_pixelsPerLocation / 2;
-	}
-	else
-	{
-		if (m_pixelsPerLocation < 16)
-			m_pixelsPerLocation = m_pixelsPerLocation * 2;
-	}
+	m_pixelsPerLocation = m_pixelsPerLocation * factor;
 
 	relStart = relStartPx / m_pixelsPerLocation;
 	relEnd = relEnd / m_pixelsPerLocation;
 
-	m_start = relStart + zoomCenter;
-	m_end = relEnd + zoomCenter;
+	m_start = relativeFloor(relStart + zoomCenter);
+	m_end = relativeFloor(relEnd + zoomCenter);
 
-	m_tickOffset = GetOffsetTillNextMultiple(m_start, m_minorTicksPerMajorTick * m_minorTickSize);
+//	m_tickOffset = GetOffsetTillNextMultiple(m_start, m_minorTicksPerMajorTick * m_minorTickSize);
 
 	cdbg << "    m_pixelsPerLocation: " << m_pixelsPerLocation << "\n";
 	cdbg << "    m_start: " << m_start << "\n";
@@ -217,14 +225,14 @@ void CTimelineView::Zoom(double factor)
 	Invalidate();
 }
 
-void CTimelineView::Recalculate(graphics::TimelineDC& dc)
+void CTimelineView::Recalculate(gdi::TimelineDC& dc)
 {
-	m_viewWidth = dc.GetClientArea().right - graphics::s_drawTimelineMax;
+	m_viewWidth = dc.GetClientArea().right - gdi::s_drawTimelineMax;
 	if (m_pixelsPerLocation == 0)
 		m_pixelsPerLocation = m_viewWidth / (m_end - m_start);
 }
 
-void CTimelineView::PaintScale(graphics::TimelineDC& dc)
+void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 {
 	// zooming should be done by: 
 	// - changing the m_pixelsPerLocation value
@@ -237,16 +245,18 @@ void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 	// is fitted around it accoording to the available view-size.
 
 	assert((m_viewWidth != 0) && (m_minorTickPixels != 0) && (m_pixelsPerLocation != 0) && "Recalculate must be called before PaintScale()");
-	auto width = dc.GetClientArea().right - graphics::s_drawTimelineMax;
+	Pixel width = dc.GetClientArea().right - gdi::s_drawTimelineMax;
 	int y = 25;
-	int x = graphics::s_drawTimelineMax + (m_tickOffset * m_pixelsPerLocation);
+	auto x = gdi::s_drawTimelineMax + FloorTo<int>(m_tickOffset * m_pixelsPerLocation);
 	int lastX = 0;
 
-	int pos = m_start + m_tickOffset;
+	auto pos = m_start + m_tickOffset;
 	int majorTicks = (width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1; // also add one at the end
 	for (int i = 0; i < majorTicks; ++i)
 	{
-		std::wstring s = wstringbuilder() << pos << m_unit;
+		cdbg << " pos: " << std::fixed << std::setprecision(9) << "\n";
+
+		std::wstring s = wstringbuilder() << m_formatFunction(pos);
 		dc.DrawTextOut(s, x - 15, y - 25);
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 7);
@@ -255,7 +265,7 @@ void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 		pos += (m_minorTicksPerMajorTick * m_minorTickSize);
 	}
 
-	x = graphics::s_drawTimelineMax;
+	x = gdi::s_drawTimelineMax;
 	int minorTicks = width / m_minorTickPixels;
 	for (;x < lastX;)
 	{
@@ -263,24 +273,24 @@ void CTimelineView::PaintScale(graphics::TimelineDC& dc)
 		dc.LineTo(x, y - 3);
 		x += m_minorTickPixels;
 	}
-	m_end = ((lastX - graphics::s_drawTimelineMax) / m_pixelsPerLocation) + m_start;
+	m_end = ((lastX - gdi::s_drawTimelineMax) / m_pixelsPerLocation) + m_start;
 
 	cdbg << "Scale ends: " << m_end << "\n";
 }
 
-void CTimelineView::PaintCursor(graphics::TimelineDC& dc)
+void CTimelineView::PaintCursor(gdi::TimelineDC& dc)
 {
 	auto rect = dc.GetClientArea();
 	dc.Rectangle(m_cursorX, 0, m_cursorX+1, rect.bottom);
 }
 
-void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
+void CTimelineView::PaintTimelines(gdi::TimelineDC& dc)
 {
 	auto rect = dc.GetClientArea();
 
 	int y = 50;
 	y += GetTrackPos32(SB_HORZ);
-	for (auto line : m_lines)
+	for (auto line : m_dataProvider(m_start, m_end))
 	{
 		auto grey = RGB(160, 160, 170);
 		dc.DrawTimeline(line->GetName(), 0, y, rect.right - 200, grey);
@@ -296,6 +306,5 @@ void CTimelineView::PaintTimelines(graphics::TimelineDC& dc)
 }
 
 
-
-} // namespace graphics
+} // namespace gdi
 } // namespace fusion

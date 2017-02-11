@@ -15,11 +15,14 @@
 #include <vector>
 
 namespace fusion {
-namespace graphics {
+namespace gdi {
 
 // see http://www.informit.com/articles/article.aspx?p=328647&seqNum=2
 
-static const int s_drawTimelineMax = 150;
+using Pixel = int;
+using Location = double;
+
+static const Pixel s_drawTimelineMax = 150;
 
 using ManagedCDC = CDCT<false>;
 
@@ -38,5 +41,5 @@ public:
 };
 
 
-} // namespace graphics
+} // namespace gdi
 } // namespace fusion

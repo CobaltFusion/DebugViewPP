@@ -18,9 +18,57 @@
 #include <atlsplit.h>
 #include <atlframe.h>
 #include "CobaltFusion/dbgstream.h"
+#include "CobaltFusion/Str.h"
+#include "CobaltFusion/stringbuilder.h"
+#include <iomanip>
 
 namespace fusion
 {
+
+std::wstring FormatUnits(int n, const std::wstring& unit)
+{
+	if (n == 0)
+		return L"";
+	if (n == 1)
+		return wstringbuilder() << n << " " << unit;
+	return wstringbuilder() << n << " " << unit << "s";
+}
+
+std::wstring FormatDuration(double seconds)
+{
+	return wstringbuilder() << seconds;
+}
+
+std::wstring FormatDuration2(double seconds)
+{
+	int minutes = FloorTo<int>(seconds / 60);
+	seconds -= 60 * minutes;
+
+	int hours = minutes / 60;
+	minutes -= 60 * hours;
+
+	int days = hours / 24;
+	hours -= 24 * days;
+
+	if (days > 0)
+		return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
+
+	if (hours > 0)
+		return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
+
+	if (minutes > 0)
+		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
+
+	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
+	const wchar_t** unit = units;
+	while (*unit != nullptr && seconds > 0 && seconds < 1)
+	{
+		seconds *= 1e3;
+		++unit;
+	}
+
+	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
+}
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>
@@ -78,11 +126,11 @@ public:
 	{
 		if (zDelta > 0)
 		{
-			m_timelineView.Zoom(1.01);
+			m_timelineView.Zoom(2.0);
 		}
 		else
 		{
-			m_timelineView.Zoom(0.99);
+			m_timelineView.Zoom(0.5);
 		}
 		return TRUE;
 	}
@@ -111,28 +159,40 @@ public:
 		m_timelineView.Create(m_bottom, rcDefault, gdi::CTimelineView::GetWndClassName(),
 			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
-		// start, end, exponent
-		m_timelineView.SetView(0, 1000, -3);
-		auto info = m_timelineView.Add("Some info");
-		info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-		info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
-		info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
-		info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
-		info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
+		m_timelineView.SetFormatter([] (gdi::Location l) 
+		{
+			return Str(FormatDuration(l));
+		});
 
-		auto sequence = m_timelineView.Add("Move Sequence");
-		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-		sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-		sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		m_timelineView.SetDataProvider([] (gdi::Location start, gdi::Location end) -> gdi::TimeLines {
+			auto info = std::make_shared<gdi::Line>(L"Some info");
+			info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+			info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+			info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
+			info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
+			info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
+			info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
 
-		auto data = m_timelineView.Add("Arbitrary data");
-		data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
+			auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
+			sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+			sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+			sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+			sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
 
+			auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
+			data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
+			info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
 
-		info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));		// todo: adding this line crashes the app, m_timelineView.Add invalidates the returned &? find out why
+			gdi::TimeLines lines;
+			lines.emplace_back(info);
+			lines.emplace_back(sequence);
+			lines.emplace_back(data);
+			return lines;
+		
+		});
 
+		// start, end
+		m_timelineView.SetView(0.0, 1000.0);
 		m_bottom.SetClient(m_timelineView);
 		return 0;
 	}

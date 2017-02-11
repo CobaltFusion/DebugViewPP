@@ -11,7 +11,7 @@
 #include <cassert>
 
 namespace fusion {
-namespace graphics {
+namespace gdi {
 
 // todo: find out how this works (DECLARE_HANDLE(HDC); 
 // ::GetClientRect(m_hDC, &rect); is a compiler-time error, which is pretty cool
@@ -74,5 +74,5 @@ void TimelineDC::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF co
 		DrawFlag(tooltip, x, y);
 }
 
-} // namespace graphics
+} // namespace gdi
 } // namespace fusion

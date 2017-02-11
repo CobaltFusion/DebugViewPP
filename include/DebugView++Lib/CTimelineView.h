@@ -18,8 +18,10 @@
 #include "atlmisc.h"
 #include "atlscrl.h"
 #include "DebugView++Lib/TimelineDC.h"
+#include "CobaltFusion/Math.h"
 #include "boost/noncopyable.hpp"
 #include <memory>
+#include <functional>
 
 namespace fusion {
 namespace gdi {
@@ -76,8 +78,7 @@ private:
 	std::vector<Artifact> m_artifacts;
 };
 
-using Pixel = int;
-using Location = int;
+using TimeLines = std::vector<std::shared_ptr<Line>>;
 
 // zooming and panning is not part of the CTimelineView responsibility.
 // it is a 'dumb' drawing class that deals with positioning and formatting
@@ -105,35 +106,40 @@ public:
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 	void OnMouseMove(UINT nFlags, CPoint point);
 
-	std::shared_ptr<Line> Add(const std::string& name);
-
-	void SetView(Location start, Location end, int exponent);
+	void SetView(Location start, Location end);
 	void Zoom(double factor);
+
+	using formatFunction = std::function<std::string(Location)>;
+	void SetFormatter(formatFunction f);
+
+	using dataProvider = std::function<TimeLines(Location start, Location end)>;
+	void SetDataProvider(dataProvider f);
+
 private:
-	void Recalculate(graphics::TimelineDC& dc);
-	void PaintScale(graphics::TimelineDC& dc);
-	void PaintTimelines(graphics::TimelineDC& dc);
-	void PaintCursor(graphics::TimelineDC& dc);
+	void Recalculate(gdi::TimelineDC& dc);
+	void PaintScale(gdi::TimelineDC& dc);
+	void PaintTimelines(gdi::TimelineDC& dc);
+	void PaintCursor(gdi::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
 	Pixel GetX(Location pos) const;
 	bool InRange(Location pos) const;
 
 	// input
-	int m_start = 0;
-	int m_end = 0;
-	int m_minorTickSize = 0;
-	int m_minorTicksPerMajorTick = 0;
-	int m_tickOffset = 0;
+	double m_start = 0;
+	double m_end = 0;
+	double m_minorTickSize = 0;
+	double m_minorTicksPerMajorTick = 0;
+	double m_tickOffset = 0;
 
 	// calculated 
-	int m_minorTickPixels = 0;
+	double m_minorTickPixels = 0;
 	int m_viewWidth = 0;
-	int m_pixelsPerLocation = 0;
+	double m_pixelsPerLocation = 0;
 
 	LONG m_cursorX = 0;
-	std::wstring m_unit;
 	SCROLLINFO m_scrollInfo;
-	std::vector<std::shared_ptr<Line>> m_lines;
+	formatFunction m_formatFunction;
+	dataProvider m_dataProvider;
 };
 
 

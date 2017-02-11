@@ -52,7 +52,7 @@ void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
 					e.cbegin(), 
 					e.cend(), 
 					p.get()
-					) != e.end();
+					) != e.cend();
 			}),
 		v.end()
 	);
