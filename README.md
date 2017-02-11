@@ -5,13 +5,13 @@ DebugView++
 
 DebugView++ started a viewer for Win32 OutputDebugString based logging in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
-- tailing txt logfiles (just drag it onto the window)
+- tailing ascii and UTF logfiles (just drag it onto the window)
 - Android ADB (basically any console based standard output)
 - serial ports (using plink)
 - sockets, telnet or ssh ports (also using plink)
 - it can listen for UDP messages, handy in distributed systems
 
-See examples below.
+See examples down below.
 
 Expected changes in next stable version 1.8.x (upcoming ~ Jan 1 2017):
 - bugfixes
