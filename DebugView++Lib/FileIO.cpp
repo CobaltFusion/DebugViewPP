@@ -56,18 +56,32 @@ FILETIME MakeFileTime(uint64_t t)
 	return ft;
 }
 
-FILETIME MakeFileTime(const std::string text)
+// very old debugview++ version wrote the clocktime time as a 64-bit number
+FILETIME MakeFileTimeFromV1TimeStamp(const std::string& text)
 {
-	SYSTEMTIME st = { 0 };
+	return MakeFileTime(boost::lexical_cast<uint64_t>(text));
+}
+
+FILETIME MakeFileTimeFromDateTime(const std::string& text)
+{
+	auto st = SYSTEMTIME();
 	std::istringstream is(text);
 	char c1, c2, c3, c4, c5, c6;
-	if (!((is >> st.wYear >> c1 >> st.wMonth >> c2 >> st.wDay >> std::noskipws >> c3 >> st.wHour >> c4 >> st.wMinute >> c5 >> st.wSecond >> c6 >> st.wMilliseconds) 
-		&& c1 == '/' && c2 == '/' && c3 == ' ' && c4 == ':' && c5 == ':' && c6 == '.'))
+	if (!((is >> st.wYear >> c1 >> st.wMonth >> c2 >> st.wDay >> std::noskipws >> c3 >> st.wHour >> c4 >> st.wMinute >> c5 >> st.wSecond >> c6 >> st.wMilliseconds) && c1 == '/' && c2 == '/' && c3 == ' ' && c4 == ':' && c5 == ':' && c6 == '.'))
 	{
 		st = Win32::FileTimeToSystemTime(FILETIME());
 	}
 
 	return Win32::LocalFileTimeToFileTime(Win32::SystemTimeToFileTime(st));
+}
+
+FILETIME MakeFileTimeBackwardsCompatible(const std::string& text)
+{
+	if (text.find('/') != std::string::npos)
+	{
+		return MakeFileTimeFromDateTime(text);
+	}
+	return MakeFileTimeFromV1TimeStamp(text);
 }
 
 bool ReadTime(const std::string& s, double& time)
@@ -255,7 +269,7 @@ bool ReadLogFileMessage(const std::string& data, Line& line)
 	{
 		TabSplitter split(data);
 		line.time = std::stod(split.GetNext());
-		line.systemTime = MakeFileTime(split.GetNext());
+		line.systemTime = MakeFileTimeBackwardsCompatible(split.GetNext());
 		line.pid = std::stoul(split.GetNext());
 		line.processName = split.GetNext();
 		line.message = split.GetTail();
