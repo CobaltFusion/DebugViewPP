@@ -23,7 +23,7 @@ namespace debugviewpp {
 
 BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) :
 	LogSource(timer, SourceType::File, linebuffer),
-	m_end(true),
+	m_end(false),
 	m_filename(filename),
 	m_fileType(filetype),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
