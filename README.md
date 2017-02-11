@@ -28,7 +28,8 @@ Features we dream about and will create when we choose to spend the time:
 Known issues:
 - the history limit doesn't work right, this is troublesome for long-running duration-tests.
   A workaround is to send 'DBGVIEWCLEAR' before each test-cycle (this clears all logs from memory).
-- 
+- there is no 'pass-through' mode like the original dbgview had, if you can help me implement this, please contact me.
+- same goes for catch kernel messages, help wanted.
 
 Screenshot
 -----------
