@@ -31,7 +31,7 @@ protected:
 		if (!m_writeBuffer.empty())
 		{
 			DWORD written;
-			if (!WriteFile(m_handle, m_writeBuffer.data(), m_writeBuffer.size(), &written, nullptr))
+			if (!WriteFile(m_handle, m_writeBuffer.data(), static_cast<DWORD>(m_writeBuffer.size()), &written, nullptr))
 				return traits_type::eof();
 
 			m_writeBuffer.clear();
@@ -68,7 +68,7 @@ protected:
 		// start is now the start of the buffer, proper.
 		// Read from m_handle in to the provided buffer
 		DWORD read;
-		if (!ReadFile(m_handle, start, (m_readBuffer.size() - (start - base))*sizeof(Elem), &read, nullptr) || read == 0)
+		if (!ReadFile(m_handle, start, static_cast<DWORD>((m_readBuffer.size() - (start - base))*sizeof(Elem)), &read, nullptr) || read == 0)
 			return traits_type::eof();
 
 		// Set buffer pointers

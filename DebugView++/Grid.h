@@ -35,7 +35,7 @@ CPropertyListItem* CreateEnumTypeItem(const wchar_t* name, const Enum* types, si
 	{
 		items[i] = EnumToWCharPtr(types[i]);
 		if (types[i] == value)
-			index = i;
+			index = static_cast<int>(i);
 	}
 	items[count] = nullptr;
 	auto pItem = PropCreateList(name, items.data());

@@ -50,13 +50,13 @@ boost::signals2::connection ProcessMonitor::ConnectProcessEnded(ProcessEnded::sl
 
 void ProcessMonitor::Run()
 {
-	int offset = 0;
+	size_t offset = 0;
 	while (!m_end)
 	{
 		std::array<HANDLE, MAXIMUM_WAIT_OBJECTS> handles;
 		handles[0] = m_event.get();
-		int processCount = m_processes.size();
-		int count = std::min(processCount, MAXIMUM_WAIT_OBJECTS - 1);
+		size_t processCount = m_processes.size();
+		auto count = std::min<size_t>(processCount, MAXIMUM_WAIT_OBJECTS - 1);
 		for (int i = 0; i < count; ++i)
 			handles[i + 1] = m_processes[(offset + i) % processCount].handle;
 		DWORD timeout = static_cast<size_t>(count) < m_processes.size() ? 1000 : INFINITE;
@@ -72,7 +72,7 @@ void ProcessMonitor::Run()
 		}
 		else
 		{
-			int i = (offset + result.index - 1) % processCount;
+			size_t i = (offset + result.index - 1) % processCount;
 			m_processEnded(m_processes[i].pid, m_processes[i].handle);
 			m_processes[i] = m_processes.back();
 			m_processes.resize(processCount - 1);

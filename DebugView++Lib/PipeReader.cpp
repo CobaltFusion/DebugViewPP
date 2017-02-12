@@ -46,7 +46,7 @@ void PipeReader::Poll(PolledLogSource& logsource)
 	DWORD avail = 0;
 	while (PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, &avail, nullptr) && avail > 0)
 	{
-		auto size = buf + sizeof(buf) - start;
+		auto size = static_cast<DWORD>(buf + sizeof(buf) - start);
 		DWORD read = 0;
 		ReadFile(m_hPipe, start, size, &read, nullptr);
 

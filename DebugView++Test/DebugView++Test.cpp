@@ -38,7 +38,7 @@ namespace debugviewpp {
 
 BOOST_AUTO_TEST_SUITE(DebugViewPlusPlusLib)
 
-std::string GetTestString(int i)
+std::string GetTestString(size_t i)
 {
 	return stringbuilder() << "BB_TEST_ABCDEFGHI_EE_" << i;
 }
@@ -93,8 +93,8 @@ std::string SaveLogFile(const LogFile& logfile)
 	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Truncate);
-	int count = logfile.Count();
-	for (int i = 0; i < count; ++i)
+	size_t count = logfile.Count();
+	for (size_t i = 0; i < count; ++i)
 	{
 		auto msg = logfile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -108,8 +108,8 @@ std::string AppendLogFile(const LogFile& logfile)
 	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Append);
-	int count = logfile.Count();
-	for (int i = 0; i < count; ++i)
+	size_t count = logfile.Count();
+	for (size_t i = 0; i < count; ++i)
 	{
 		auto msg = logfile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -147,8 +147,8 @@ bool AreEqual(const LogFile& a, const LogFile& b)
 {
 	if (a.Count() != b.Count())
 		return false;
-	int count = a.Count();
-	for (int i = 0; i < count; ++i)
+	size_t count = a.Count();
+	for (size_t i = 0; i < count; ++i)
 	{
 		if (!AreEqual(a[i], b[i]))
 			return false;
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 	auto testMax = testSize - 1;
 
 	std::mt19937 generator;
-	std::uniform_int_distribution<int> distribution(0, testMax);
+	std::uniform_int_distribution<size_t> distribution(0, testMax);
 	SnappyStorage s;
 	for (size_t i = 0; i < testSize; ++i)
 		s.Add(GetTestString(i));

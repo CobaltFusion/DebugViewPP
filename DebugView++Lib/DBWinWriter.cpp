@@ -28,7 +28,7 @@ void DBWinWriter::Write(DWORD pid, const std::string& message)
 
 	auto pData = static_cast<DbWinBuffer*>(m_dbWinView.Ptr());
 	pData->processId = pid;
-	int length = std::min<int>(message.size(), sizeof(pData->data) - 1);
+	size_t length = std::min<size_t>(message.size(), sizeof(pData->data) - 1);
 	std::copy(message.data(), message.data() + length, pData->data);
 	pData->data[length] = '\0';
 

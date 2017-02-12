@@ -23,7 +23,7 @@ SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :
 	SetDescription(wstringbuilder() << L"Listening at UDP port " << port);
 
 	m_overlapped.hEvent = m_event.get();
-	m_wsaBuf[0].len = m_buffer.size();
+	m_wsaBuf[0].len = static_cast<LONG>(m_buffer.size());
 	m_wsaBuf[0].buf = m_buffer.data();
 
 	sockaddr_in sa;
