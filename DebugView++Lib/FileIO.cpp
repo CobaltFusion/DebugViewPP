@@ -16,6 +16,7 @@
 #include "DebugView++Lib/LogFile.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/Conversions.h"
+#include <boost/lexical_cast.hpp>
 
 namespace fusion {
 namespace debugviewpp {
