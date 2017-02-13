@@ -62,7 +62,7 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	Handle stdInRd2(stdInRd);
 	m_stdIn.reset(stdInWr);
 	if (!SetHandleInformation(stdInWr, HANDLE_FLAG_INHERIT, 0))
-		ThrowLastError("SetHandleInformation");
+		ThrowLastError("SetHandleInformation stdInWr");
 
 	HANDLE stdOutRd, stdOutWr;
 	if (!CreatePipe(&stdOutRd, &stdOutWr, &saAttr, 0))
@@ -70,7 +70,7 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	Handle stdOutWr2(stdOutWr);
 	m_stdOut.reset(stdOutRd);
 	if (!SetHandleInformation(stdOutRd, HANDLE_FLAG_INHERIT, 0))
-		ThrowLastError("SetHandleInformation");
+		ThrowLastError("SetHandleInformation stdOutRd");
 
 	HANDLE stdErrRd, stdErrWr;
 	if (!CreatePipe(&stdErrRd, &stdErrWr, &saAttr, 0))
@@ -78,7 +78,7 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	Handle stdErrWr2(stdErrWr);
 	m_stdErr.reset(stdErrRd);
 	if (!SetHandleInformation(stdErrRd, HANDLE_FLAG_INHERIT, 0))
-		ThrowLastError("SetHandleInformation");
+		ThrowLastError("SetHandleInformation stdErrRd");
 
 	STARTUPINFO startupInfo;
 	startupInfo.cb = sizeof(startupInfo);
@@ -110,10 +110,10 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 		true,
 		0,
 		nullptr,
-		nullptr,
+		0,
 		&startupInfo,
 		&processInformation))
-		ThrowLastError("SetHandleInformation");
+		ThrowLastError("CreateProcess");
 
 	m_hProcess.reset(processInformation.hProcess);
 	m_hThread.reset(processInformation.hThread);
