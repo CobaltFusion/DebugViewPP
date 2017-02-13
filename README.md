@@ -13,9 +13,9 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 
 See examples down below.
 
-Expected changes in next stable version 1.8.x (upcoming ~ Jan 1 2017):
+Expected changes in next stable version 1.8.x (upcoming ~ March 2017):
 - bugfixes
-- last version with (official) XP support
+- last version with (official) XP support (v140_xp target)
 - internal refactoring from boost to C++11/14 constructs
 - no features planned, if you're missing something you need, file an issue!
 
@@ -29,27 +29,27 @@ Known issues:
 - the history limit doesn't work right, this is troublesome for long-running duration-tests.
   A workaround is to send 'DBGVIEWCLEAR' before each test-cycle (this clears all logs from memory).
 - there is no 'pass-through' mode like the original dbgview had, if you can help me implement this, please contact me.
-- same goes for catch kernel messages, help wanted.
+- same goes for catching kernel messages, help wanted.
 
 Screenshot
 -----------
 ![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
 
-Here is a list of current features:
+Here are some features:
 
 - single selfcontaining executable, setup is provided but not required
-- minimal delay of the traced application, compared to debugview a factor of 10 better.
+- minimal delay of the traced application, compared to the original dbgview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
-- runs without prerequisites on WinXPSP3 (v1.5 and earlier also on WinXPSP2), Vista and 7/8.x
+- runs without prerequisites on WinXPSP3 and up (v1.5 and earlier also on WinXPSP2)
 - memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
-- tailing files (drag an ascii file into debugview to tail it)
+- tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
 
 - after v1.8 we drop WindowsXP support if it becomes a problem to maintain
 - capture both Win32 and Global Win32 messages
 - tabbed views
-- resolve PID to process name
+- resolve process PID to name and track their lifetime
 - filter by process or message
 - advanced filtering, exclude, track, stop, clear (optionally using regular expressions) 
 - line and token highlighting (create your own syntax highlighting)
@@ -60,10 +60,10 @@ And more features:
 - commandline version
 - capture stdin piped messages, allows you to connect any kind of logging
 - beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
-- clear Log now releases the message buffer instead of reusing the memory (might be useful when running debugview 
+- clear Log now releases the message buffer instead of reusing the memory (useful when running debugview 
   for a very long time)
 - tailing logfiles over samba network (experimental)
-- support for reading and tailing Sysinternals Debugview logfiles (in the four most common formats)
+- support for reading and tailing Sysinternals Dbgview logfiles (in the four most common formats)
 
 Added in 1.5:
 
