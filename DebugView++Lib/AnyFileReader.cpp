@@ -11,13 +11,15 @@
 #include "DebugView++Lib/AnyFileReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/Line.h"
+#include "CobaltFusion/Str.h"
 
 namespace fusion {
 namespace debugviewpp {
 
 AnyFileReader::AnyFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
 	FileReader(timer, linebuffer, filetype, filename, keeptailing),
-	m_linenumber(0)
+	m_linenumber(0),
+	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().wstring())
 {
 }
 
@@ -80,7 +82,7 @@ void AnyFileReader::AddLine(const std::string& data)
 
 void AnyFileReader::PreProcess(Line& line) const
 {
-	// intentionally empty (will negate the default behavior)
+	line.processName = Str(m_filenameOnly).str();
 }
 
 } // namespace debugviewpp 

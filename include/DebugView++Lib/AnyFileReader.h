@@ -9,6 +9,7 @@
 
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileReader.h"
+#include <filesystem>
 
 namespace fusion {
 namespace debugviewpp {
@@ -28,6 +29,7 @@ private:
 	long m_linenumber;
 	FILETIME m_firstFiletime;
 	USTimeConverter m_converter;
+	std::wstring m_filenameOnly;
 };
 
 } // namespace debugviewpp 
