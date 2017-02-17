@@ -169,6 +169,7 @@ public:
 	void LoadSettings(CRegKey& reg);
 	void SaveSettings(CRegKey& reg);
 	void Save(const std::wstring& fileName) const;
+	void SaveSelection(const std::wstring& fileName) const;
 	
 	SelectionInfo GetViewRange() const;
 	SelectionInfo GetSelectedRange() const;

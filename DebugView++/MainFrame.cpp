@@ -78,6 +78,7 @@ BEGIN_MSG_MAP2(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
 	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)	
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
 	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
@@ -119,7 +120,7 @@ CMainFrame::CMainFrame() :
 	m_lineBuffer(7000),
 	m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
 	m_logFileName(L"DebugView++.dblog"),
-	m_txtFileName(L"MessagesInTheCurrentView.dblog"),
+	m_txtFileName(L"Messages.dblog"),
 	m_configFileName(L"DebugView++.dbconf"),
 	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
 	m_logfont(GetDefaultLogFont()),
@@ -824,13 +825,22 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 
 void CMainFrame::SaveViewFile(const std::wstring& filename)
 {
-	UISetText(0, WStr(wstringbuilder() << "Saving " << filename));
+	UISetText(0, WStr(wstringbuilder() << "Saving view to " << filename));
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 	GetView().Save(filename);
 	m_txtFileName = filename;
 	UpdateStatusBar();
 }
 
+void CMainFrame::SaveViewSelection(const std::wstring& filename)
+{
+	UISetText(0, WStr(wstringbuilder() << "Saving selection to " << filename));
+	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
+	GetView().SaveSelection(filename);
+	m_txtFileName = filename;
+	UpdateStatusBar();
+
+}
 struct View
 {
 	int index;
@@ -1020,6 +1030,17 @@ void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd
 	dlg.m_ofn.lpstrTitle = L"Save the messages in the current view";
 	if (dlg.DoModal() == IDOK)
 		SaveViewFile(dlg.m_szFileName);
+}
+
+void CMainFrame::OnFileSaveViewSelection(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	CFileDialog dlg(false, L".dblog", m_txtFileName.c_str(), OFN_OVERWRITEPROMPT,
+		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
+		L"All Files (*.*)\0*.*\0\0");
+	dlg.m_ofn.nFilterIndex = 0;
+	dlg.m_ofn.lpstrTitle = L"Save the messages selected in the current view";
+	if (dlg.DoModal() == IDOK)
+		SaveViewSelection(dlg.m_szFileName);
 }
 
 void CMainFrame::OnFileLoadConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

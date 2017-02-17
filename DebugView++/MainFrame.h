@@ -145,6 +145,7 @@ private:
 	void ClearLog();
 	void SaveLogFile(const std::wstring& fileName);
 	void SaveViewFile(const std::wstring& fileName);
+	void SaveViewSelection(const std::wstring& fileName);
 
 	void OnContextMenu(HWND /*hWnd*/, CPoint pt);
 	LRESULT OnSysCommand(UINT nCommand, CPoint);
@@ -162,6 +163,7 @@ private:
 	void OnFileSaveLog(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnFileExit(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnFileSaveView(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnFileSaveViewSelection(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnFileLoadConfiguration(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnFileSaveConfiguration(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLinkViews(UINT uNotifyCode, int nID, CWindow wndCtl);

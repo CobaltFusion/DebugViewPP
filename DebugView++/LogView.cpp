@@ -1664,6 +1664,27 @@ void CLogView::SaveSettings(CRegKey& reg)
 		SaveFilterSettings(m_filter.processFilters, regFilters);
 }
 
+void CLogView::SaveSelection(const std::wstring& fileName) const
+{
+	if (!m_highlightText.empty()) return; // token selection is invalid input for SaveSelection
+
+	std::ofstream fs;
+	OpenLogFile(fs, fileName);
+
+
+	int item = -1;
+	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+	{
+		int line = m_logLines[item].line;
+		const Message& msg = m_logFile[line];
+		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
+	}
+
+	fs.close();
+	if (!fs)
+		Win32::ThrowLastError(fileName);
+}
+
 void CLogView::Save(const std::wstring& filename) const
 {
 	std::ofstream fs;
