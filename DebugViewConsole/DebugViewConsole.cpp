@@ -67,10 +67,21 @@ void OutputDetails(Settings settings, const Line& line)
 }
 
 static bool g_quit = false;
+static Win32::Handle g_quitMessageHandle;
 
 void Quit()
 {
 	g_quit = true;
+}
+
+bool IsQuitMessage(const std::string& line)
+{
+	return line.find("<DebugviewConsoleQuitMessage>") != std::string::npos;
+}
+
+bool IsEventSet(Win32::Handle& handle)
+{
+	return Win32::WaitForSingleObject(handle, 0);
 }
 
 void LogMessages(Settings settings)
@@ -105,7 +116,7 @@ void LogMessages(Settings settings)
 	});
 
 	std::string separator = settings.tabs ? "\t" : " ";
-	while (!g_quit)
+	while (!g_quit && (!IsEventSet(g_quitMessageHandle)))
 	{
 		Lines lines;
 		executor.Call([&] {
@@ -114,6 +125,11 @@ void LogMessages(Settings settings)
 		int linenumber = 0;
 		for (auto& line : lines)
 		{
+			if (IsQuitMessage(line.message))
+			{
+				Quit();
+				break;
+			}
 			if (settings.console)
 			{
 				if (settings.linenumber)
@@ -136,6 +152,7 @@ void LogMessages(Settings settings)
 		}
 		std::this_thread::sleep_for(250ms);
 	}
+
 	std::cout.flush();
 }
 
@@ -189,6 +206,7 @@ try
 		std::cout << "  -v: verbose output\n";
 		std::cout << "  -d <file>: write to .dblog file\n";
 		std::cout << "  -c enable console output\n";
+		std::cout << "  -x stop debugviewconsole instances\n";
 		std::cout << "console output options: (do not effect the dblog file)\n";
 		//std::cout << "-u: send a UDP test-message (used only for debugging)\n";
 		std::cout << "  -l: prefix line number\n";
@@ -261,6 +279,15 @@ try
 		if (verbose)
 			std::cout << "-c: enable console output\n";
 		settings.console = true;
+	}
+
+	g_quitMessageHandle = fusion::Win32::CreateEvent(nullptr, true, false, L"DebugViewConsoleQuitEvent");
+	if (cmdOptionExists(argv, argv + argc, "-x"))
+	{
+		if (verbose)
+			std::cout << "-x: sending terminate signal to all DebugViewConsole instances\n";
+		SetEvent(g_quitMessageHandle);
+		return 0;
 	}
 
 	if (cmdOptionExists(argv, argv + argc, "-d"))
