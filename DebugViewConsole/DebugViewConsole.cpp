@@ -41,6 +41,7 @@ struct Settings
 	bool autonewline;
 	bool flush;
 	bool linenumber;
+	bool kernelMessages;
 	bool console;
 	std::string filename;
 };
@@ -206,6 +207,7 @@ try
 		std::cout << "  -v: verbose output\n";
 		std::cout << "  -d <file>: write to .dblog file\n";
 		std::cout << "  -c enable console output\n";
+		std::cout << "  -k log kernel messages\n";
 		std::cout << "  -x stop debugviewconsole instances\n";
 		std::cout << "console output options: (do not effect the dblog file)\n";
 		//std::cout << "-u: send a UDP test-message (used only for debugging)\n";
@@ -279,6 +281,12 @@ try
 		if (verbose)
 			std::cout << "-c: enable console output\n";
 		settings.console = true;
+	}
+	if (cmdOptionExists(argv, argv + argc, "-k"))
+	{
+		if (verbose)
+			std::cout << "-k: log kernel messages\n";
+		settings.kernelMessages = true;
 	}
 
 	g_quitMessageHandle = fusion::Win32::CreateEvent(nullptr, true, false, L"DebugViewConsoleQuitEvent");

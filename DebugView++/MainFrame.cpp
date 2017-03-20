@@ -135,8 +135,6 @@ CMainFrame::CMainFrame() :
 
 CMainFrame::~CMainFrame()
 {
-	m_logSources.Abort();
-	m_GuiExecutorClient.reset();
 }
 
 void CMainFrame::SetLogging()
@@ -229,8 +227,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 void CMainFrame::OnClose()
 {
-	m_logSources.Abort();
-	m_GuiExecutorClient.reset();
 	SaveSettings();
 	DestroyWindow();
 
@@ -1236,6 +1232,10 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 		{
 			std::string cmd = stringbuilder() << "start \"\" " << dbgview << " /a";
 			system(cmd.c_str());
+		}
+		else
+		{
+			m_logSources.AddMessage("dbgview.exe not found");
 		}
 		m_pDbgviewReader = m_logSources.AddDbgviewReader("127.0.0.1");
 	}

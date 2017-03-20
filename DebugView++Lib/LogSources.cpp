@@ -57,7 +57,10 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	
 LogSources::~LogSources()
 {
-	m_executor.Call([&] { Abort(); });
+	if (m_executor.IsExecutorThread())	// this is true when the GuiExector is used
+		Abort();
+	else
+		m_executor.Call([&] { Abort(); });
 }
 
 
@@ -125,7 +128,6 @@ void LogSources::Abort()
 {
 	if (!m_end)
 	{
-		assert(m_executor.IsExecutorThread());
 		m_end = true;
 
 		m_update.disconnect_all_slots();

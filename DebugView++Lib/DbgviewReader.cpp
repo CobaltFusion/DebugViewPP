@@ -23,6 +23,7 @@ DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::s
 	, m_hostname(hostname)
 	, m_thread([this] { Loop(); })
 {
+	SetDescription(wstringbuilder() << "Dbgview Agent at " << m_hostname);
 }
 
 std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
