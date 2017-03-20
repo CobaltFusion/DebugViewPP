@@ -57,7 +57,7 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 	
 LogSources::~LogSources()
 {
-	Abort();
+	m_executor.Call([&] { Abort(); });
 }
 
 
