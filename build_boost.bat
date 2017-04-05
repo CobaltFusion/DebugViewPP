@@ -1,3 +1,15 @@
+**********************************************************************
+** Visual Studio 2017 Developer Command Prompt v15.0.26228.4
+** Copyright (c) 2017 Microsoft Corporation
+**********************************************************************
+[vcvarsall.bat] Environment initialized for: 'x86'
+
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community>d:
+
+D:\project\boost_1_63_0\boost_1_63_0>bootstrap.bat
+Building Boost.Build engine
+
+
 1) ./bootstrap.bat
 
 2) look at project-config.jam, and set the path to visual studio:

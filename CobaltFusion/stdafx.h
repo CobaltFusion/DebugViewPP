@@ -17,7 +17,7 @@
 #define _SCL_SECURE_NO_WARNINGS	// suprresses boost warnings we cannot work around
 
 #ifdef _DEBUG
-#include <boost/noncopyable.hpp>
+#include <boost/core/noncopyable.hpp>
 #endif
 
 #include <thread>
