@@ -8,7 +8,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/noncopyable.hpp>
+#include <boost/core/noncopyable.hpp>
 #include "winsock2.h"
 
 namespace fusion {

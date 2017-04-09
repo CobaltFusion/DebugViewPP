@@ -8,7 +8,7 @@
 #pragma once
 
 #include <string>
-#include <boost/noncopyable.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <system_error>
 #include <windows.h>
 #include <memory>

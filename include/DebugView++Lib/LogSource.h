@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <boost/noncopyable.hpp>
+#include <boost/core/noncopyable.hpp>
 #include "DebugView++Lib/Line.h"
 #include "DebugView++Lib/SourceType.h"
 #include "Win32/Utilities.h"

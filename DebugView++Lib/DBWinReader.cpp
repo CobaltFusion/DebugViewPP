@@ -69,6 +69,7 @@ void DBWinReader::Notify()
 		// there might be performance to be gained by:
 		// - making a non-virtual Notice() method
 		// - copying the information from m_dbWinBuffer->data and calling SetEvent(m_dbWinBufferReady.get()); before _any_ other operation.
+		// - check the m_dbWinDataReady is already set again after Add() 
 		if (handle)
 			Add(handle, m_dbWinBuffer->data);
 		else
