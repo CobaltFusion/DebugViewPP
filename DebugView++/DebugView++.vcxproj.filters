@@ -135,5 +135,6 @@
     <None Include="res\DragDrop.cur">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
