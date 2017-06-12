@@ -204,15 +204,16 @@ How to build
 ------------
 This is a Visual Studio 2017 project targeted to v140_XP, we plan to move to v141 soon.
 The projects are configured to use Nuget to get there dependencies (boost and WTL)
-This means that after cloning the GIT repository, you get press 'build', visual studio will download boost and WTL the first time only  and then build the project. It is as simple as that... (if it is not, contact me, so I can fix any remaining issues)
+This means that after cloning the GIT repository, you get press 'build', visual studio will download boost and WTL the first time only  and then build the project. It is as simple as that... if it is not, contact me (jan), so I can fix any remaining issues.
 
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
  decompress the archive and you're done (add zip.exe to the path)
 
 -= Cobalt Fusion =-
 
+Jan Wilmans
+mailto:janwilmans _at_ gmail.com
+
 Gert-Jan de Vos
 mailto:boosttestui@on.nl
 
-Jan Wilmans
-mailto:janwilmans _at_ gmail.com
