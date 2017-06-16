@@ -222,7 +222,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Create release zip</Message>
-      <Command>zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetDir)DebugView++.exe $(TargetDir)DebugViewConsole.exe $(TargetDir)*.vsix</Command>
+      <Command>$(ProjectDir)..\zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetDir)DebugView++.exe $(TargetDir)DebugViewConsole.exe $(TargetDir)*.vsix</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
