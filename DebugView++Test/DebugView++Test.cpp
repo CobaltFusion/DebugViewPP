@@ -11,9 +11,11 @@
 
 #define _SCL_SECURE_NO_WARNINGS
 #include <boost/test/unit_test_gui.hpp>
+
 #include <filesystem>
 #include <random>
 #include <fstream>
+#include <iostream>
 
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
@@ -315,11 +317,17 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 		s.Add(GetTestString(i));
 
 	// random access can be somewhat slow in debug-mode, this is expected behaviour
+	bool failed = false;
 	for (size_t i = 0; i < testSize/10; ++i)
 	{
 		size_t j = distribution(generator);  // generates number in the range 0..testMax 
-		BOOST_TEST(s[j] == GetTestString(j));
+		if (s[j] != GetTestString(j))
+		{
+			failed = true;
+			break;
+		};
 	}
+	BOOST_TEST(!failed);
 }
 
 BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
@@ -504,8 +512,6 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
 		BOOST_TEST_MESSAGE("done.");
 		std::this_thread::sleep_for(200ms);
 		executor->Call([&] { logsources.Abort(); });
-
-
 		executor->Call([&] { lines = logsources.GetLines(); });
 	}
 	executor.reset();
@@ -710,17 +716,43 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(LoadUTF8BE)
+std::string CreateUTF16LETestFile(int linecount)
 {
-	//std::locale utf8_locale(std::locale(), new gel::stdx::utf8cvt<true>);
-	//std::wfstream fs;
-	//fs.imbue(utf8_locale);
-	//fs.open("debugviewtest_LoadUTF8.txt", mode);
-	//fs << "dit is een test";
-	//fs.close();
+	auto filename = GetTestFileName();
+	std::wfstream fs;
+	fs.imbue(std::locale(fs.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::little_endian>));
+	fs.open(filename, std::ios::binary | std::ios::trunc | std::ios::in | std::ios::out);
+	for (int i = 0; i < linecount; ++i)
+	{
+		fs << "This is line number [" << i + 1 << "]\n";
+	}
+	fs.close();
+	return filename;
 }
 
+BOOST_AUTO_TEST_CASE(LoadUTF16LE)
+{
+	using namespace std::chrono_literals;
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	LogSources logsources(*executor, true);
+	int lineCount = 65000;
+	auto filename = CreateUTF16LETestFile(lineCount);
+	executor->Call([&] { logsources.SetAutoNewLine(true); });
+	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 
+	// assumption: should be done in 4 seconds, even in debug mode
+	int totalLines = 0; 
+	for (int i=0; i<20;++i)
+	{
+		std::this_thread::sleep_for(200ms);
+		Lines lines;
+		executor->Call([&] { lines = logsources.GetLines(); });
+		totalLines += lines.size();
+	}
+
+	// (lineCount + 1) because the first line looks like: "Started tailing ....txt identified as '...'
+	BOOST_TEST(totalLines == (lineCount + 1));
+}
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
 
