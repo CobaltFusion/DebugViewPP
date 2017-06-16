@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:VSExtension="http://schemas.microsoft.com/wix/VSExtension">
   <?include $(var.SolutionDir)\DebugView++\version.wxi ?>
+
+  <?if $(var.Platform) = x64 ?>
+  <?define Win64 = "yes" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+  <?define PlatformOutDir = "x64\Release" ?>
+  <?else ?>
+  <?define Win64 = "no" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?define PlatformOutDir = "Release" ?>
+  <?endif?>  
+  
   <Product Id="*" Name="DebugView++ $(var.ProductVersion.Major).$(var.ProductVersion.Minor)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Cobalt Fusion" UpgradeCode="523333bf-842d-442f-94c2-ae6caad5f714">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <Media Id="1" Cabinet="DebugViewPP.cab" EmbedCab="yes" DiskPrompt="Media" />
     <Property Id="DiskPrompt" Value="Cobalt Fusion DebugView++ Installation" />
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
         <Directory Id="INSTALLFOLDER" Name="DebugView++">
           <Component Id="MainExecutable" Guid="b08d6606-883f-4661-813c-1ecbed9b65de">
-            <File Id="DebugViewPPEXE" Name="DebugView++.exe" Source="$(var.SolutionDir)\$(var.Configuration)\DebugView++.exe" KeyPath="yes">
+            <File Id="DebugViewPPEXE" Name="DebugView++.exe" Source="$(var.SolutionDir)\$(var.PlatformOutDir)\DebugView++.exe" KeyPath="yes">
               <Shortcut Id="StartMenuDebugViewPP" Directory="ProgramMenuDir" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewPP.ico" IconIndex="0" Advertise="yes" />
               <Shortcut Id="DesktopDebugViewPP" Directory="DesktopFolder" Name="DebugView++" WorkingDirectory="INSTALLDIR" Icon="DebugViewPP.ico" IconIndex="0" Advertise="yes" />
             </File>
-            <File Id="DebugViewPPConsole" Name="DebugViewConsole.exe" Source="$(var.SolutionDir)\$(var.Configuration)\DebugViewConsole.exe" />
-            <File Id="DebugViewPPForwarder" Name="OutputForwarderVSIX.vsix" Source="$(var.SolutionDir)\$(var.Configuration)\OutputForwarderVSIX.vsix" />
+            <File Id="DebugViewPPConsole" Name="DebugViewConsole.exe" Source="$(var.SolutionDir)\$(var.PlatformOutDir)\DebugViewConsole.exe" />
+            <File Id="DebugViewPPForwarder" Name="OutputForwarderVSIX.vsix" Source="$(var.SolutionDir)\$(var.PlatformOutDir)\OutputForwarderVSIX.vsix" />
             <ProgId Id="CobaltFusion.DebugViewPPLog" Description="DebugView++ File">
               <Extension Id="dblog">
                 <!--  
