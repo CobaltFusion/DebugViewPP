@@ -465,18 +465,20 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 	BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
-	auto executor = std::make_unique<ActiveExecutorClient>();
-	LogSources logsources(*executor, true);
-	executor->Call([&] { logsources.AddDBWinReader(false); });
-	executor->Call([&] { logsources.SetAutoNewLine(true); });
-
-	executor->Call([&] { logsources.AddMessage("Test message 1"); });
-	executor->Call([&] { logsources.AddMessage("Test message 2"); });
-	std::this_thread::sleep_for(200ms);
-	executor->Call([&] { logsources.Abort(); });
-
 	Lines lines;
-	executor->Call([&] { lines = logsources.GetLines(); });
+	auto executor = std::make_unique<ActiveExecutorClient>();
+	{
+		LogSources logsources(*executor, true);
+		executor->Call([&] { logsources.AddDBWinReader(false); });
+		executor->Call([&] { logsources.SetAutoNewLine(true); });
+
+		executor->Call([&] { logsources.AddMessage("Test message 1"); });
+		executor->Call([&] { logsources.AddMessage("Test message 2"); });
+		std::this_thread::sleep_for(200ms);
+		executor->Call([&] { logsources.Abort(); });
+
+		executor->Call([&] { lines = logsources.GetLines(); });
+	}
 	executor.reset();
 
 	BOOST_TEST(lines.size() == 2);
@@ -491,18 +493,21 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
 	std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
 
 	auto executor = std::make_unique<ActiveExecutorClient>();
-	LogSources logsources(*executor, true);
-	executor->Call([&] { logsources.SetAutoNewLine(true); });
-	executor->Call([&] { logsources.AddDBWinReader(false); });
-
-	BOOST_TEST_MESSAGE("cmd: " << cmd);
-	system((cmd + "-n").c_str());
-	BOOST_TEST_MESSAGE("done.");
-	std::this_thread::sleep_for(200ms);
-	executor->Call([&] { logsources.Abort(); });
-
 	Lines lines;
-	executor->Call([&] { lines = logsources.GetLines(); });
+	{
+		LogSources logsources(*executor, true);
+		executor->Call([&] { logsources.SetAutoNewLine(true); });
+		executor->Call([&] { logsources.AddDBWinReader(false); });
+
+		BOOST_TEST_MESSAGE("cmd: " << cmd);
+		system((cmd + "-n").c_str());
+		BOOST_TEST_MESSAGE("done.");
+		std::this_thread::sleep_for(200ms);
+		executor->Call([&] { logsources.Abort(); });
+
+
+		executor->Call([&] { lines = logsources.GetLines(); });
+	}
 	executor.reset();
 
 	BOOST_TEST(lines.size() == 1);
@@ -703,6 +708,16 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 	{
 		std::cout << line.message << std::endl;
 	}
+}
+
+BOOST_AUTO_TEST_CASE(LoadUTF8BE)
+{
+	//std::locale utf8_locale(std::locale(), new gel::stdx::utf8cvt<true>);
+	//std::wfstream fs;
+	//fs.imbue(utf8_locale);
+	//fs.open("debugviewtest_LoadUTF8.txt", mode);
+	//fs << "dit is een test";
+	//fs.close();
 }
 
 
