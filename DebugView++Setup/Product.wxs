@@ -17,7 +17,10 @@
             <File Id="DebugViewPPForwarder" Name="OutputForwarderVSIX.vsix" Source="$(var.SolutionDir)\$(var.Configuration)\OutputForwarderVSIX.vsix" />
             <ProgId Id="CobaltFusion.DebugViewPPLog" Description="DebugView++ File">
               <Extension Id="dblog">
-                <Verb Id="open" Command="open" TargetFile="DebugViewPPEXE" Argument="'%1'"/>
+                <!--  
+                // Argument='"%1"' using the outside-singlequotes, includes the double-quotes in the argument, this is required for paths with spaces
+                -->
+                <Verb Id="open" Command="open" TargetFile="DebugViewPPEXE" Argument='"%1"'/>
               </Extension>
               <Extension Id="dbconf" />
             </ProgId>
