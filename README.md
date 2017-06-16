@@ -5,7 +5,7 @@ DebugView++
 
 [Download latest here](https://github.com/djeedjay/DebugViewPP/releases/tag/v1.8-alpha)
 
-DebugView++ started a viewer for Win32 OutputDebugString based logging in the style of
+DebugView++ started as a viewer for Win32 OutputDebugString message in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
 - tailing ascii and UTF logfiles (just drag it onto the window)
 - Android ADB (basically any console based standard output)
