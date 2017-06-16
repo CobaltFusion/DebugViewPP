@@ -10,6 +10,7 @@
 #include <fstream>
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LogSource.h"
+#include <boost/signals2.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -29,6 +30,9 @@ public:
 	void PreProcess(Line& line) const override;
 	void AddLine(const std::string& line);
 
+	typedef boost::signals2::signal<void()> UpdateSignal;
+	boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
+
 protected:
 	std::wstring m_filename;
 	std::string m_name;
@@ -42,6 +46,7 @@ private:
 	std::wifstream m_wifstream;
 	std::wstring m_filenameOnly;
 	bool m_initialized;
+	UpdateSignal m_update;
 };
 
 } // namespace debugviewpp 

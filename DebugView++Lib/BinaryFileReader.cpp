@@ -10,13 +10,13 @@
 #include <locale>
 #include <codecvt>
 #include <filesystem>
+#include <iostream>
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/BinaryFileReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/Line.h"
-
 
 namespace fusion {
 namespace debugviewpp {
@@ -89,8 +89,13 @@ void BinaryFileReader::Notify()
 void BinaryFileReader::ReadUntilEof()
 {
 	std::wstring line;
+	int i = 0;
 	while (std::getline(m_wifstream, line))
+	{
+		if ((++i % 100) == 0) m_update();
 		AddLine(Str(line));
+	}
+	m_update();
 
 	if (m_wifstream.eof()) 
 	{
@@ -121,6 +126,11 @@ void BinaryFileReader::AddLine(const std::string& line)
 void BinaryFileReader::PreProcess(Line& line) const
 {
 	line.processName = Str(m_filenameOnly).str();
+}
+
+boost::signals2::connection BinaryFileReader::SubscribeToUpdate(UpdateSignal::slot_type slot)
+{
+	return m_update.connect(slot);
 }
 
 // todo: Reading support for more filetypes, maybe not, who logs in unicode anyway?

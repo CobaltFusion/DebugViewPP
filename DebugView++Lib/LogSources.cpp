@@ -145,7 +145,7 @@ void LogSources::Reset()
 	m_timer.Reset();
 }
 
-boost::signals2::connection LogSources::SubscribeToUpdate(Update::slot_type slot)
+boost::signals2::connection LogSources::SubscribeToUpdate(UpdateSignal::slot_type slot)
 {
 	return m_update.connect(slot);
 }
@@ -193,7 +193,9 @@ void LogSources::ListenUntilUpdateEvent()
 	waitHandles.push_back(m_updateEvent.get());
 	while (!m_end)
 	{
+		std::cout << "WaitForAnyObject blocking..." << std::endl;
 		auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
+		std::cout << "WaitForAnyObject done..." << std::endl;
 		if (m_end) return;
 
 		if (res.signaled)
@@ -206,7 +208,9 @@ void LogSources::ListenUntilUpdateEvent()
 				assert((index < static_cast<int>(sources.size())) && "res.index out of range");
 				auto logsource = sources[index];
 				logsource->Notify();
+				std::cout << "logsource->Notify();" << std::endl;
 				m_throttledUpdate();
+				std::cout << "m_throttledUpdate done." << std::endl;
 			}
 		}
 	}
@@ -334,6 +338,8 @@ BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 	auto filetype = IdentifyFile(filename);
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 	auto pFileReader = std::make_unique<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
+	pFileReader->SubscribeToUpdate([&] () { m_throttledUpdate(); });
+
 	auto pResult = pFileReader.get();
 	Add(std::move(pFileReader));
 	return pResult;

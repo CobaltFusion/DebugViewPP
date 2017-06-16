@@ -61,7 +61,7 @@ void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
 class LogSources
 {
 public:
-	typedef boost::signals2::signal<bool ()> Update;
+	typedef boost::signals2::signal<bool ()> UpdateSignal;
 
 	LogSources(IExecutor& executor, bool startListening = true);
 	~LogSources();
@@ -86,7 +86,7 @@ public:
 	PipeReader* AddPipeReader(DWORD pid, HANDLE hPipe);
 	TestSource* AddTestSource();		// for unittesting
 	void AddMessage(const std::string& message);
-	boost::signals2::connection SubscribeToUpdate(Update::slot_type slot);
+	boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
 private:
 	void UpdateSources();
@@ -108,7 +108,7 @@ private:
 	Timer m_timer;
 
 	IExecutor& m_executor;
-	Update m_update;
+	UpdateSignal m_update;
 	Throttle m_throttledUpdate;
 
 	// make sure this thread is last to initialize
