@@ -43,12 +43,12 @@ Here are some features:
 - minimal delay of the traced application, compared to the original dbgview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
 - runs without prerequisites on WinXPSP3 and up (v1.5 and earlier also on WinXPSP2)
-- memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
+- in-memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
 - tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
 
-- after v1.8 we drop WindowsXP support if it becomes a problem to maintain
+- after v1.8 we drop WindowsXP support, allowing us to move to C++17 or at least the parts that are available in vs2017/ v141 
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve process PID to name and track their lifetime
