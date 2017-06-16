@@ -3,7 +3,9 @@ Cobalt Fusion presents:
 DebugView++
 ----------
 
-DebugView++ started a viewer for Win32 OutputDebugString based logging in the style of
+[Download latest here](https://github.com/djeedjay/DebugViewPP/releases/tag/v1.8-alpha)
+
+DebugView++ started as a viewer for Win32 OutputDebugString message in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
 - tailing ascii and UTF logfiles (just drag it onto the window)
 - Android ADB (basically any console based standard output)
@@ -41,12 +43,12 @@ Here are some features:
 - minimal delay of the traced application, compared to the original dbgview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
 - runs without prerequisites on WinXPSP3 and up (v1.5 and earlier also on WinXPSP2)
-- memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
+- in-memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
 - tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
 
-- after v1.8 we drop WindowsXP support if it becomes a problem to maintain
+- after v1.8 we drop WindowsXP support, allowing us to move to C++17 or at least the parts that are available in vs2017/ v141 
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve process PID to name and track their lifetime
@@ -202,37 +204,18 @@ The resolution should not be confused with accuracy here, the recorded timestamp
 
 How to build
 ------------
+This is a Visual Studio 2017 project targeted to v140_XP, we plan to move to v141 soon.
+The projects are configured to use Nuget to get there dependencies (boost and WTL)
+This means that after cloning the GIT repository, you get press 'build', visual studio will download boost and WTL the first time only  and then build the project. It is as simple as that... if it is not, contact me (jan), so I can fix any remaining issues.
 
-This is a Visual Studio 2015 project with the following dependencies (download and install separately)
-- boost 1.63, https://sourceforge.net/projects/boost/files/boost/1.63.0.beta.1/boost_1_63_0_b1.zip
-- WTL 9.1, http://sourceforge.net/projects/wtl/, choose WTL80_sf.exe
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
-
-The libraries must be installed in /Libraries and zip.exe installed, add the binary directory to your path.
-
-Build dependencies
-------------------
-- WiX Toolset: install the latest binary from http://wixtoolset.org/
-- boost 1.63: see the install.sh in the boost archive
-    - install visual studio 2015 
-    - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
-    - unzip boost_1_63_0.zip to c:\downloads\boost_1_63_0
-    - cd c:\downloads\boost_1_63_0
-    - run c:\downloads\boost_1_63_0\bootstrap.bat (~1 minute)
-    - b2.exe --build-type=complete stage install (~45 minutes)
-    - find the results in c:\boost
-    - copy C:\boost\include\boost-1_63\boost -> DebugViewpp\Libraries\boost\boost
-    - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\win32
-    - for some reason I have to copy boost_1_63_0\stage\lib\*.* to \Libraries\boost\lib\win32\*.* to get the vc???-mt-sgd libraries.
-    - "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\setenv.cmd" /Release /x64
-    - b2.exe address-model=64 --build-type=complete stage install
-    - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\x64    
-- WTL 9.1 and 'zip.exe': decompress the archives and you're done (add zip.exe to the path)
+ decompress the archive and you're done (add zip.exe to the path)
 
 -= Cobalt Fusion =-
+
+Jan Wilmans
+mailto:janwilmans _at_ gmail.com
 
 Gert-Jan de Vos
 mailto:boosttestui@on.nl
 
-Jan Wilmans
-mailto:janwilmans _at_ gmail.com
