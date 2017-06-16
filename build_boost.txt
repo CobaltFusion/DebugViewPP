@@ -1,0 +1,53 @@
+# Building boost is nolonger needed to build debugview++ 
+# Use nuget package manager to get boost 1.63 v140 from Nuget, these libraries are binaries compatible with both vs2015 and vs2017
+
+**********************************************************************
+** Visual Studio 2017 Developer Command Prompt v15.0.26228.4
+** Copyright (c) 2017 Microsoft Corporation
+**********************************************************************
+[vcvarsall.bat] Environment initialized for: 'x86'
+
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community>d:
+
+D:\project\boost_1_63_0\boost_1_63_0>bootstrap.bat
+Building Boost.Build engine
+
+
+1) ./bootstrap.bat
+
+2) look at project-config.jam, and set the path to visual studio:
+
+import option ; 
+
+using msvc : 14.0 : "c:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.10.24728\bin\HostX64\x64\cl.exe"; 
+
+option.set keep-going : false ;
+
+3) Run b2 from the visual studio command prompt
+
+32bit: b2 toolset=msvc-14.0 address-model=32 --build-type=complete stage install
+64bit: b2 toolset=msvc-14.0 address-model=64 --build-type=complete stage install
+
+rem this output its results into c:\boost 
+rem however, static libs are found in a boost-subdirectory and must be copied manually
+
+
+
+notes:
+"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\setenv.cmd"  /Release  /x64
+
+
+- boost 1.63: see the install.sh in the boost archive
+    - install visual studio 2015 
+    - open developer console (cmd.exe + run C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat)
+    - unzip boost_1_63_0.zip to c:\downloads\boost_1_63_0
+    - cd c:\downloads\boost_1_63_0
+    - run c:\downloads\boost_1_63_0\bootstrap.bat (~1 minute)
+    - b2.exe --build-type=complete stage install (~45 minutes)
+    - find the results in c:\boost
+    - copy C:\boost\include\boost-1_63\boost -> DebugViewpp\Libraries\boost\boost
+    - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\win32
+    - for some reason I have to copy boost_1_63_0\stage\lib\*.* to \Libraries\boost\lib\win32\*.* to get the vc???-mt-sgd libraries.
+    - "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\setenv.cmd" /Release /x64
+    - b2.exe address-model=64 --build-type=complete stage install
+    - copy C:\Boost\lib -> DebugViewPP\Libraries\Boost\lib\x64    
