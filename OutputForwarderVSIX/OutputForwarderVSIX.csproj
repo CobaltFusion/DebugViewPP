@@ -170,7 +170,8 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="packages\Microsoft.VSSDK.BuildTools.14.3.25407\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('packages\Microsoft.VSSDK.BuildTools.14.3.25407\build\Microsoft.VSSDK.BuildTools.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy  /f /y $(TargetDir)\$(TargetName).vsix $(ProjectDir)..\Release\</PostBuildEvent>
+    <PostBuildEvent>xcopy  /f /y $(TargetDir)\$(TargetName).vsix $(ProjectDir)..\Release\
+xcopy  /f /y $(TargetDir)\$(TargetName).vsix $(ProjectDir)..\x64\Release\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
