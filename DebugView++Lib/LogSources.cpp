@@ -193,9 +193,7 @@ void LogSources::ListenUntilUpdateEvent()
 	waitHandles.push_back(m_updateEvent.get());
 	while (!m_end)
 	{
-		std::cout << "WaitForAnyObject blocking..." << std::endl;
 		auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
-		std::cout << "WaitForAnyObject done..." << std::endl;
 		if (m_end) return;
 
 		if (res.signaled)
@@ -208,9 +206,7 @@ void LogSources::ListenUntilUpdateEvent()
 				assert((index < static_cast<int>(sources.size())) && "res.index out of range");
 				auto logsource = sources[index];
 				logsource->Notify();
-				std::cout << "logsource->Notify();" << std::endl;
 				m_throttledUpdate();
-				std::cout << "m_throttledUpdate done." << std::endl;
 			}
 		}
 	}
