@@ -210,7 +210,7 @@ void LogSources::ListenUntilUpdateEvent()
 			}
 		}
 	}
-	m_executor.Call([this] { UpdateSources(); });
+	m_executor.CallAsync([this] { UpdateSources(); });  // should be Call() instead of CallAsync, however, that will introduce issue #277 (startup delay on some W10 machines)
 }
 
 void LogSources::UpdateSources()
