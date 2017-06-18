@@ -22,7 +22,7 @@ Expected changes in next stable version 1.8.x (upcoming ~ March 2017):
 - no features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
-- a timedoctor-like 'view' 
+- a timedoctor-like view, it is a horzontal timeline, with flags/signs on it to identify events
 - a better plugin based input system
 - transparent background streaming to disk
 - proper memory limits
