@@ -10,7 +10,6 @@ packages/
 *.log
 *.VC.opendb
 *.VC.db
-
 DebugView++/version.wxi
 bin
 *.class
@@ -21,3 +20,5 @@ bin
 /VsSDK.props
 Libraries/boost
 Libraries/wtl
+*.user
+.vs/
