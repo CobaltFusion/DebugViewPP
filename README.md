@@ -33,6 +33,10 @@ Known issues:
 - there is no 'pass-through' mode like the original dbgview had, if you can help me implement this, please contact me.
 - same goes for catching kernel messages, help wanted.
 
+References
+----------
+[OutputDebugString on MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa363362(v=vs.85).aspx)
+
 Screenshot
 -----------
 ![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
