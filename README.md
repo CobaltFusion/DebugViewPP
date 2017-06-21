@@ -5,15 +5,20 @@ DebugView++
 
 [Download latest here](https://github.com/djeedjay/DebugViewPP/releases)
 
-DebugView++ started as a viewer for Win32 OutputDebugString message in the style of
+DebugView++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
 - tailing ascii and UTF logfiles (just drag it onto the window)
-- Android ADB (basically any console based standard output)
+- Android ADB (or any console based standard output)
 - serial ports (using plink)
 - sockets, telnet or ssh ports (also using plink)
 - it can listen for UDP messages, handy in distributed systems
 
 See examples down below.
+
+So why is this usefull and why not just use a debugger?
+- first of all, this way you can see messages from different processes, not just 'attached' processes.
+- alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
+- finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
 Expected changes in next stable version 1.8.x (upcoming ~ March 2017):
 - bugfixes
@@ -32,6 +37,10 @@ Known issues:
   A workaround is to send 'DBGVIEWCLEAR' before each test-cycle (this clears all logs from memory).
 - there is no 'pass-through' mode like the original dbgview had, if you can help me implement this, please contact me.
 - same goes for catching kernel messages, help wanted.
+
+References
+----------
+[OutputDebugString on MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa363362(v=vs.85).aspx)
 
 Screenshot
 -----------
