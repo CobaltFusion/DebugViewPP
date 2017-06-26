@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -15,6 +15,11 @@
 #include "MainFrame.h"
 #include <iostream>
 
+//#define ENABLE_CRASHPAD
+#ifdef ENABLE_CRASHPAD
+    #include "crashpad.h"
+#endif
+
 //#define CONSOLE_DEBUG
 
 CAppModule _Module;
@@ -25,8 +30,8 @@ namespace debugviewpp {
 class CAppModuleInitialization
 {
 public:
-	CAppModuleInitialization(CAppModule& module, HINSTANCE hInstance) :
-		m_module(module)
+	CAppModuleInitialization(CAppModule& module, HINSTANCE hInstance)
+		: m_module(module)
 	{
 		HRESULT hr = m_module.Init(nullptr, hInstance);
 		if (FAILED(hr))
@@ -45,8 +50,8 @@ private:
 class MessageLoop
 {
 public:
-	explicit MessageLoop(CAppModule& module) :
-		m_module(module)
+	explicit MessageLoop(CAppModule& module)
+		: m_module(module)
 	{
 		module.AddMessageLoop(&m_loop);
 	}
@@ -92,7 +97,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(nullptr, 0, 0, 0L);
 
-	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls
+	AtlInitCommonControls(ICC_BAR_CLASSES); // add flags to support other controls
 
 #ifdef CONSOLE_DEBUG
 	FILE* standardOut;
@@ -108,8 +113,12 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	HANDLE hFile = nullptr, hPipe = nullptr;
 	switch (GetFileType(hStdIn))
 	{
-	case FILE_TYPE_DISK: hFile = hStdIn; break;
-	case FILE_TYPE_PIPE: hPipe = hStdIn; break;
+		case FILE_TYPE_DISK:
+			hFile = hStdIn;
+			break;
+		case FILE_TYPE_PIPE:
+			hPipe = hStdIn;
+			break;
 	}
 
 	if (hPipe && IsDBWinViewerActive())
@@ -156,12 +165,15 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	return theLoop.Run();
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCmdLine, int nCmdShow)
-try
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCmdLine, int nCmdShow) try
 {
+#ifdef ENABLE_CRASHPAD
+	initializeCrashPad();
+#endif
 	return fusion::debugviewpp::Main(hInstance, hPrevInstance, lpstrCmdLine, nCmdShow);
 }
 catch (std::exception& ex)

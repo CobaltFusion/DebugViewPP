@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -61,48 +61,48 @@ CLogView& CLogViewTabItem::GetView()
 }
 
 BEGIN_MSG_MAP2(CMainFrame)
-	MSG_WM_CREATE(OnCreate)
-	MSG_WM_CLOSE(OnClose)
-	MSG_WM_QUERYENDSESSION(OnQueryEndSession)
-	MSG_WM_ENDSESSION(OnEndSession)
-	MSG_WM_MOUSEWHEEL(OnMouseWheel)
-	MSG_WM_CONTEXTMENU(OnContextMenu)
-	MSG_WM_DROPFILES(OnDropFiles)
-	MSG_WM_SYSCOMMAND(OnSysCommand)
-	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
-	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
-	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
-	COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
-	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
-	COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
-	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)	
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
-	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
-	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
-	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
-	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
-	COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
-	COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
-	COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
-	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
-	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
-	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
-	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
-	NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
-	CHAIN_MSG_MAP(TabbedFrame)
-	CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
-	REFLECT_NOTIFICATIONS()
+MSG_WM_CREATE(OnCreate)
+MSG_WM_CLOSE(OnClose)
+MSG_WM_QUERYENDSESSION(OnQueryEndSession)
+MSG_WM_ENDSESSION(OnEndSession)
+MSG_WM_MOUSEWHEEL(OnMouseWheel)
+MSG_WM_CONTEXTMENU(OnContextMenu)
+MSG_WM_DROPFILES(OnDropFiles)
+MSG_WM_SYSCOMMAND(OnSysCommand)
+MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
+COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
+COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
+COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
+COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
+COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
+COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
+COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)
+COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
+COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
+COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
+COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
+COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
+COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
+COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
+COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
+COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
+COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
+COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
+COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
+COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
+COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
+COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
+COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
+COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
+COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
+NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
+NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
+NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
+NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
+CHAIN_MSG_MAP(TabbedFrame)
+CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
+REFLECT_NOTIFICATIONS()
 END_MSG_MAP()
 
 LOGFONT& GetDefaultLogFont()
@@ -112,23 +112,23 @@ LOGFONT& GetDefaultLogFont()
 	return lf;
 }
 
-CMainFrame::CMainFrame() :
-	m_filterNr(1),
-	m_findDlg(*this),
-	m_linkViews(false),
-	m_hide(false),
-	m_lineBuffer(7000),
-	m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
-	m_logFileName(L"DebugView++.dblog"),
-	m_txtFileName(L"Messages.dblog"),
-	m_configFileName(L"DebugView++.dbconf"),
-	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
-	m_logfont(GetDefaultLogFont()),
-	m_pLocalReader(nullptr),
-	m_pGlobalReader(nullptr),
-	m_pDbgviewReader(nullptr),
-	m_GuiExecutorClient(std::make_unique<GuiExecutorClient>()),
-	m_logSources(*m_GuiExecutorClient)
+CMainFrame::CMainFrame()
+	: m_filterNr(1)
+	, m_findDlg(*this)
+	, m_linkViews(false)
+	, m_hide(false)
+	, m_lineBuffer(7000)
+	, m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights())
+	, m_logFileName(L"DebugView++.dblog")
+	, m_txtFileName(L"Messages.dblog")
+	, m_configFileName(L"DebugView++.dbconf")
+	, m_initialPrivateBytes(ProcessInfo::GetPrivateBytes())
+	, m_logfont(GetDefaultLogFont())
+	, m_pLocalReader(nullptr)
+	, m_pGlobalReader(nullptr)
+	, m_pDbgviewReader(nullptr)
+	, m_GuiExecutorClient(std::make_unique<GuiExecutorClient>())
+	, m_logSources(*m_GuiExecutorClient)
 {
 	m_notifyIconData.cbSize = 0;
 }
@@ -179,7 +179,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	AddSimpleReBarBand(hWndCmdBar);
 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE);	 // DrMemory: LEAK 1696 direct bytes 
+	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE); // DrMemory: LEAK 1696 direct bytes
 	AddSimpleReBarBand(hWndToolBar, nullptr, true);
 	UIAddToolBar(hWndToolBar);
 
@@ -191,7 +191,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	rebar.SetNotifyWnd(*this);
 
 	m_hWndStatusBar = m_statusBar.Create(*this);
-	int paneIds[] = { ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE };
+	int paneIds[] = {ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE};
 	m_statusBar.SetPanes(paneIds, 5, false);
 	UIAddStatusBar(m_hWndStatusBar);
 
@@ -205,7 +205,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 	AddFilterView(L"View");
 	HideTabControl();
-	
+
 	SetLogFont();
 	LoadSettings();
 
@@ -244,7 +244,7 @@ void CMainFrame::OnClose()
 
 LRESULT CMainFrame::OnQueryEndSession(WPARAM, LPARAM)
 {
-	// MSDN: 
+	// MSDN:
 	// The WM_QUERYENDSESSION message is sent when the user chooses to end the session or when an application calls one of the system shutdown functions
 	// When an application returns TRUE for this message, it receives the WM_ENDSESSION message.
 	// Each application should return TRUE or FALSE immediately upon receiving this message, and defer any cleanup operations until it receives the WM_ENDSESSION message.
@@ -309,7 +309,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
+	static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -339,7 +339,7 @@ std::wstring FormatDateTime(const FILETIME& fileTime)
 
 std::wstring FormatBytes(size_t size)
 {
-	static const wchar_t* units[] = { L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr };
+	static const wchar_t* units[] = {L"bytes", L"kB", L"MB", L"GB", L"TB", L"PB", L"EB", nullptr};
 	const wchar_t** unit = units;
 	const int kb = 1024;
 	while (size / kb > 0 && unit[1] != nullptr)
@@ -348,7 +348,7 @@ std::wstring FormatBytes(size_t size)
 		++unit;
 	}
 
-	return wstringbuilder() << size << L" " << *unit; 
+	return wstringbuilder() << size << L" " << *unit;
 }
 
 std::wstring CMainFrame::GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const
@@ -464,7 +464,8 @@ void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
-	if (!IsPaused()) Pause();
+	if (!IsPaused())
+		Pause();
 	SetTitle(file);
 	using boost::algorithm::iequals;
 	auto ext = std::experimental::filesystem::path(file).extension().wstring();
@@ -507,26 +508,26 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
 {
 	switch (nCommand)
 	{
-	case SC_MINIMIZE:
-		if (!m_hide)
-			break;
-
-		if (!m_notifyIconData.cbSize)
-		{
-			m_notifyIconData.cbSize = sizeof(m_notifyIconData);
-			m_notifyIconData.hWnd = *this;
-			m_notifyIconData.uID = 1;
-			m_notifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-			m_notifyIconData.uCallbackMessage = WM_SYSTEMTRAYICON;
-			m_notifyIconData.hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON));
-			CString sWindowText;
-			GetWindowText(sWindowText);
-			_tcscpy_s(m_notifyIconData.szTip, sWindowText);
-			if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData))
+		case SC_MINIMIZE:
+			if (!m_hide)
 				break;
-		}
-		ShowWindow(SW_HIDE);
-		return 0;
+
+			if (!m_notifyIconData.cbSize)
+			{
+				m_notifyIconData.cbSize = sizeof(m_notifyIconData);
+				m_notifyIconData.hWnd = *this;
+				m_notifyIconData.uID = 1;
+				m_notifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+				m_notifyIconData.uCallbackMessage = WM_SYSTEMTRAYICON;
+				m_notifyIconData.hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON));
+				CString sWindowText;
+				GetWindowText(sWindowText);
+				_tcscpy_s(m_notifyIconData.szTip, sWindowText);
+				if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData))
+					break;
+			}
+			ShowWindow(SW_HIDE);
+			return 0;
 	}
 
 	SetMsgHandled(false);
@@ -539,10 +540,10 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
 	wParam;
 	switch (lParam)
 	{
-	case WM_LBUTTONDBLCLK:
-		SendMessage(WM_COMMAND, SC_RESTORE);
-		break;
-	case WM_RBUTTONUP:
+		case WM_LBUTTONDBLCLK:
+			SendMessage(WM_COMMAND, SC_RESTORE);
+			break;
+		case WM_RBUTTONUP:
 		{
 			SetForegroundWindow(m_hWnd);
 			CMenuHandle menu = GetSystemMenu(false);
@@ -617,7 +618,7 @@ bool CMainFrame::LoadSettings()
 	int fontSize = Win32::RegGetDWORDValue(reg, L"FontSize", 8);
 	if (!fontName.empty())
 	{
-		LOGFONT lf = { 0 };
+		LOGFONT lf = {0};
 		m_logfont = lf;
 		std::copy(fontName.begin(), fontName.end(), m_logfont.lfFaceName);
 		m_logfont.lfHeight = LogFontSizeFromPointSize(fontSize);
@@ -627,7 +628,7 @@ bool CMainFrame::LoadSettings()
 	CRegKey regViews;
 	if (regViews.Open(reg, L"Views") == ERROR_SUCCESS)
 	{
-		for (size_t i = 0; ; ++i)
+		for (size_t i = 0;; ++i)
 		{
 			CRegKey regView;
 			if (regView.Open(regViews, WStr(wstringbuilder() << L"View" << i)) != ERROR_SUCCESS)
@@ -762,7 +763,7 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 
 	int line = GetView(nmhdr.iItem1).GetFocusLine();
 	GetView(nmhdr.iItem2).SetFocusLine(line);
-	
+
 	return 0;
 }
 
@@ -772,7 +773,7 @@ void CMainFrame::SetModifiedMark(int tabindex, bool modified)
 	if (modified)
 		name += L"*";
 
-//	GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
+	//	GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
 	GetTabCtrl().GetItem(tabindex)->SetText(name.c_str());
 }
 
@@ -835,7 +836,6 @@ void CMainFrame::SaveViewSelection(const std::wstring& filename)
 	GetView().SaveSelection(filename);
 	m_txtFileName = filename;
 	UpdateStatusBar();
-
 }
 struct View
 {
@@ -964,7 +964,8 @@ void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 void CMainFrame::Load(const std::wstring& filename, bool keeptailing)
 {
 	SetTitle(filename);
-	if (!IsPaused()) Pause();
+	if (!IsPaused())
+		Pause();
 	ClearLog();
 	m_logSources.AddAnyFileReader(WStr(std::experimental::filesystem::path(filename).filename().string()), keeptailing);
 }
@@ -986,7 +987,8 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 {
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	if (!IsPaused()) Pause();
+	if (!IsPaused())
+		Pause();
 	ClearLog();
 
 	Line line;
@@ -1010,7 +1012,8 @@ void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 {
 	CFileDialog dlg(false, L".dblog", m_logFileName.c_str(), OFN_OVERWRITEPROMPT,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
-		L"All Files (*.*)\0*.*\0\0", 0);
+		L"All Files (*.*)\0*.*\0\0",
+		0);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save all messages in memory buffer";
 	if (dlg.DoModal() == IDOK)
@@ -1136,7 +1139,7 @@ void CMainFrame::Resume()
 
 	if (!m_pLocalReader)
 	{
-		try 
+		try
 		{
 			m_pLocalReader = m_logSources.AddDBWinReader(false);
 		}
@@ -1179,7 +1182,7 @@ void CMainFrame::Resume()
 	else if (m_pLocalReader)
 	{
 		title = L"Capture Win32";
-	} 
+	}
 	else if (m_pGlobalReader)
 	{
 		title = L"Capture Global Win32";
@@ -1198,7 +1201,7 @@ void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_tryGlobal = !m_pGlobalReader;
-	
+
 	if (m_pLocalReader && m_tryGlobal)
 	{
 		Resume();
@@ -1219,7 +1222,7 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 std::wstring GetExecutePath()
 {
-	auto path = std::experimental::filesystem::system_complete(std::experimental::filesystem::path( Win32::GetCommandLineArguments()[0]));
+	auto path = std::experimental::filesystem::system_complete(std::experimental::filesystem::path(Win32::GetCommandLineArguments()[0]));
 	return path.remove_filename().c_str();
 }
 
@@ -1273,13 +1276,7 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	auto pSources = m_logSources.GetSources();
-	for (auto& pSource : pSources)
-	{
-		if (dynamic_cast<DbgviewReader*>(pSource) || dynamic_cast<SocketReader*>(pSource))
-			m_logSources.Remove(pSource);
-	}
-
+	m_logSources.RemoveAllSources();
 	auto sourceInfos = dlg.GetSourceInfos();
 	for (auto& sourceInfo : sourceInfos)
 	{
@@ -1293,17 +1290,17 @@ void CMainFrame::AddLogSource(const SourceInfo& info)
 {
 	switch (info.type)
 	{
-	case SourceType::DebugViewAgent:
-		m_logSources.AddDbgviewReader(Str(info.address));
-		break;
-	case SourceType::Udp:
-		m_logSources.AddUDPReader(info.port);
-		break;
-	case SourceType::Tcp:
-		throw std::exception("SourceType::Tcp not implememted");
-	default:
-		// do nothing
-		throw std::exception("SourceType not implememted");
+		case SourceType::DebugViewAgent:
+			m_logSources.AddDbgviewReader(Str(info.address));
+			break;
+		case SourceType::Udp:
+			m_logSources.AddUDPReader(info.port);
+			break;
+		case SourceType::Tcp:
+			throw std::exception("SourceType::Tcp not implememted");
+		default:
+			// do nothing
+			throw std::exception("SourceType not implememted");
 	}
 }
 
@@ -1389,5 +1386,5 @@ void CMainFrame::AddMessage(const Message& message)
 		GetView(i).Add(beginIndex, index, message);
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

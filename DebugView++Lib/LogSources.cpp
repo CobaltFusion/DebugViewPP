@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -34,30 +34,30 @@
 // class Logsources has a vector<LogSource> and start a thread for LogSources::Listen()
 // - Listen() exectues every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
 // - LogSource::Notify reads input en writes to linebuffer (passed at construction)
-// 
+//
 
 namespace fusion {
 namespace debugviewpp {
 
 using namespace std::chrono_literals;
 
-LogSources::LogSources(IExecutor& executor, bool startListening) :
-	m_end(false),
-	m_autoNewLine(true),
-	m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
-	m_linebuffer(64 * 1024),
-	m_loopback(std::make_unique<Loopback>(m_timer, m_linebuffer)),
-	m_executor(executor),
-	m_throttledUpdate(m_executor, 25, [&] { m_update(); })
+LogSources::LogSources(IExecutor& executor, bool startListening)
+	: m_end(false)
+	, m_autoNewLine(true)
+	, m_updateEvent(CreateEvent(nullptr, false, false, nullptr))
+	, m_linebuffer(64 * 1024)
+	, m_loopback(std::make_unique<Loopback>(m_timer, m_linebuffer))
+	, m_executor(executor)
+	, m_throttledUpdate(m_executor, 25, [&] { m_update(); })
 {
 	m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
 	if (startListening)
 		m_listenThread.CallAsync([this] { Listen(); });
 }
-	
+
 LogSources::~LogSources()
 {
-	if (m_executor.IsExecutorThread())	// this is true when the GuiExector is used
+	if (m_executor.IsExecutorThread()) // this is true when the GuiExector is used
 		Abort();
 	else
 		m_executor.Call([&] { Abort(); });
@@ -66,7 +66,6 @@ LogSources::~LogSources()
 
 void LogSources::AddMessage(const std::string& message)
 {
-	assert(m_executor.IsExecutorThread());
 	m_loopback->AddInternal(message);
 	m_throttledUpdate();
 }
@@ -78,38 +77,32 @@ void LogSources::UpdateSettings(const std::unique_ptr<LogSource>& pSource)
 
 void LogSources::Add(std::unique_ptr<LogSource> pSource)
 {
-	assert(m_executor.IsExecutorThread());
-	std::lock_guard<std::mutex> lock(m_mutex);
-	UpdateSettings(pSource);
-	m_sources.emplace_back(std::move(pSource));
-	Win32::SetEvent(m_updateEvent);
-}
-
-void LogSources::Remove(LogSource* pLogSource)
-{
-	pLogSource->Abort();
+	{
+		std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+		m_sourcesScheduleToAdd.emplace_back(std::move(pSource));
+	}
 	Win32::SetEvent(m_updateEvent);
 }
 
 void LogSources::InternalRemove(LogSource* pLogSource)
 {
-	assert(m_executor.IsExecutorThread());
 	auto description = pLogSource->GetDescription();
-	EraseElements(m_sources, { pLogSource });
+	EraseElements(m_sources, {pLogSource});
 	AddMessage(stringbuilder() << "Source '" << description << "' was removed.");
 }
 
-std::vector<LogSource*> LogSources::GetSources() const
+void LogSources::Remove(LogSource* pLogSource)
 {
-	assert(m_executor.IsExecutorThread());
-	std::vector<LogSource*> sources;
-	std::lock_guard<std::mutex> lock(m_mutex);
+	m_sourcesScheduledToRemove.push_back(pLogSource);
+	Win32::SetEvent(m_updateEvent);
+}
+
+void LogSources::RemoveAllSources()
+{
+	std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
 	for (auto& pSource : m_sources)
-	{
-		if (!dynamic_cast<Loopback*>(pSource.get()))
-			sources.push_back(pSource.get());
-	}
-	return sources;
+		m_sourcesScheduledToRemove.push_back(pSource.get());
+	Win32::SetEvent(m_updateEvent);
 }
 
 void LogSources::SetAutoNewLine(bool value)
@@ -128,13 +121,8 @@ void LogSources::Abort()
 {
 	if (!m_end)
 	{
-		m_end = true;
-
 		m_update.disconnect_all_slots();
-		for (auto& pSource : m_sources)
-		{
-			pSource->Abort();
-		}
+		m_end = true;
 	}
 	Win32::SetEvent(m_updateEvent);
 	m_listenThread.Synchronize();
@@ -150,7 +138,7 @@ boost::signals2::connection LogSources::SubscribeToUpdate(UpdateSignal::slot_typ
 	return m_update.connect(slot);
 }
 
-// default behaviour: 
+// default behaviour:
 // LogSources starts with 1 logsource, the loopback source
 // At startup normally 1 DBWinReader is added by m_logSources.AddDBWinReader
 void LogSources::Listen()
@@ -158,7 +146,7 @@ void LogSources::Listen()
 	try
 	{
 		ListenUntilUpdateEvent();
-		if (!m_end) 
+		if (!m_end)
 			m_listenThread.CallAsync([this] { Listen(); });
 	}
 	catch (const std::exception& e)
@@ -170,13 +158,15 @@ void LogSources::Listen()
 
 void LogSources::ListenUntilUpdateEvent()
 {
+	UpdateSources();
+
 	std::vector<HANDLE> waitHandles;
 	std::vector<LogSource*> sources;
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
 		for (auto& source : m_sources)
 		{
-			if (source->AtEnd()) continue;
+			if (source->AtEnd())
+				continue;
 			HANDLE handle = source->GetHandle();
 			if (handle != INVALID_HANDLE_VALUE)
 			{
@@ -189,12 +179,13 @@ void LogSources::ListenUntilUpdateEvent()
 		}
 	}
 
-	auto updateEventIndex = waitHandles.size(); 
+	auto updateEventIndex = waitHandles.size();
 	waitHandles.push_back(m_updateEvent.get());
 	while (!m_end)
 	{
 		auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
-		if (m_end) return;
+		if (m_end)
+			return;
 
 		if (res.signaled)
 		{
@@ -210,36 +201,54 @@ void LogSources::ListenUntilUpdateEvent()
 			}
 		}
 	}
-	m_executor.Call([this] { UpdateSources(); });  // should be Call() instead of CallAsync, however, that will introduce issue #277 (startup delay on some W10 machines)
+
+	// problem:
+	// LogSources::Abort calls m_listenThread.Synchronize() (on the ~LogSources call coming from the ui-thread)
+	// in order for m_listenThread.Synchronize() to complete, it waits for m_executor.Call([this] { UpdateSources(); });
+	// but that has to happen on the ui-thread ==>> resulting in a deadlock (process still alive in the processlist after the window is closed)
+
+	// possible solution:
+	// maybe it is
 }
 
 void LogSources::UpdateSources()
 {
-	assert(m_executor.IsExecutorThread());
-	std::vector<LogSource*> sources;
+	std::vector<std::unique_ptr<LogSource>> sourcesToAdd;
+	std::vector<LogSource*> sourcesToRemove;
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		for (auto& pSource : m_sources)
-		{
-			sources.push_back(pSource.get());
-		}
+		std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+		std::swap(sourcesToAdd, m_sourcesScheduleToAdd);
+		std::swap(sourcesToRemove, m_sourcesScheduledToRemove);
 	}
 
-	for (auto& pSource : sources)
+	if (m_end)
 	{
-		if (pSource->AtEnd())
+		for (auto const& pLogSource : m_sources)
 		{
-			pSource->Abort();
-			m_update();
-			InternalRemove(pSource);
+			pLogSource->Abort();
 		}
+		m_sources.clear();
+		return;
 	}
+
+	for (auto pLogSource : sourcesToRemove)
+	{
+		pLogSource->Abort();
+		InternalRemove(pLogSource);
+	}
+
+	for (auto& pLogSource : sourcesToAdd)
+	{
+		UpdateSettings(pLogSource);
+		m_sources.emplace_back(std::move(pLogSource));
+	}
+
+	m_throttledUpdate(); // notify observers to process internal messages
 }
 
 void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 {
-	m_executor.CallAsync([this, pid, handle]
-	{
+	m_executor.CallAsync([this, pid, handle] {
 		m_update();
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
 		for (auto& line : flushedLines)
@@ -269,7 +278,7 @@ Lines LogSources::GetLines()
 		{
 			Win32::Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);
-			
+
 			auto it = m_pidMap.find(inputLine.pid);
 			if (it == m_pidMap.end())
 			{
@@ -334,7 +343,7 @@ BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 	auto filetype = IdentifyFile(filename);
 	AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
 	auto pFileReader = std::make_unique<BinaryFileReader>(m_timer, m_linebuffer, filetype, filename);
-	pFileReader->SubscribeToUpdate([&] () { m_throttledUpdate(); });
+	pFileReader->SubscribeToUpdate([&]() { m_throttledUpdate(); });
 
 	auto pResult = pFileReader.get();
 	Add(std::move(pFileReader));
@@ -347,7 +356,7 @@ AnyFileReader* LogSources::AddAnyFileReader(const std::wstring& filename, bool k
 	auto filetype = IdentifyFile(filename);
 	if (filetype == FileType::Unknown)
 	{
-		AddMessage(stringbuilder() << "Unable to open '" << filename <<"'\n");
+		AddMessage(stringbuilder() << "Unable to open '" << filename << "'\n");
 		return nullptr;
 	}
 
@@ -395,5 +404,5 @@ SocketReader* LogSources::AddUDPReader(int port)
 	return pResult;
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

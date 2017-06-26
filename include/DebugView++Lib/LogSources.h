@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -38,30 +38,27 @@ class SocketReader;
 
 typedef std::vector<HANDLE> LogSourceHandles;
 
-template<typename T>
+template <typename T>
 void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
 {
 	v.erase(
 		std::remove_if( // Selectively remove elements in the second vector...
 			v.begin(),
 			v.end(),
-			[&] (std::unique_ptr<T> const& p)
-			{   // This predicate checks whether the element is contained
+			[&](std::unique_ptr<T> const& p) { // This predicate checks whether the element is contained
 				// in the second vector of pointers to be removed...
 				return std::find(
-					e.cbegin(), 
-					e.cend(), 
-					p.get()
-					) != e.cend();
+						   e.cbegin(),
+						   e.cend(),
+						   p.get()) != e.cend();
 			}),
-		v.end()
-	);
+		v.end());
 }
 
 class LogSources
 {
 public:
-	typedef boost::signals2::signal<bool ()> UpdateSignal;
+	typedef boost::signals2::signal<bool()> UpdateSignal;
 
 	LogSources(IExecutor& executor, bool startListening = true);
 	~LogSources();
@@ -75,7 +72,8 @@ public:
 	void Abort();
 	Lines GetLines();
 	void Remove(LogSource* pLogSource);
-	std::vector<LogSource*> GetSources() const;
+	//std::vector<LogSource*> GetSources() const;
+	void RemoveAllSources();
 
 	DBWinReader* AddDBWinReader(bool global);
 	ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
@@ -84,7 +82,7 @@ public:
 	DbgviewReader* AddDbgviewReader(const std::string& hostname);
 	SocketReader* AddUDPReader(int port);
 	PipeReader* AddPipeReader(DWORD pid, HANDLE hPipe);
-	TestSource* AddTestSource();		// for unittesting
+	TestSource* AddTestSource(); // for unittesting
 	void AddMessage(const std::string& message);
 	boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
@@ -96,8 +94,14 @@ private:
 	void OnProcessEnded(DWORD pid, HANDLE handle);
 
 	bool m_autoNewLine;
-	mutable std::mutex m_mutex;
-	std::vector<std::unique_ptr<LogSource>> m_sources;
+
+	mutable std::mutex m_sources_mutex; // protects access to m_sources
+	std::vector<std::unique_ptr<LogSource>> m_sources; // owned by the thread that calls Listen(), nobody else is allowed to read/write it.
+
+	mutable std::mutex m_sourcesSchedule_mutex; // protects access to m_sourcesSchedule* vectors
+	std::vector<std::unique_ptr<LogSource>> m_sourcesScheduleToAdd;
+	std::vector<LogSource*> m_sourcesScheduledToRemove;
+
 	Win32::Handle m_updateEvent;
 	bool m_end;
 	VectorLineBuffer m_linebuffer;
@@ -115,5 +119,5 @@ private:
 	ActiveExecutorClient m_listenThread;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion
