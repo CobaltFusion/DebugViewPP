@@ -20,11 +20,11 @@ So why is this usefull and why not just use a debugger?
 - alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
-Expected changes in next stable version 1.8.x (upcoming ~ March 2017):
+Expected changes in next stable version 1.8.x:
 - bugfixes
 - last version with (official) XP support (v140_xp target)
 - internal refactoring from boost to C++11/14 constructs
-- no features planned, if you're missing something you need, file an issue!
+- no new features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
 - a timedoctor-like view, it is a horzontal timeline, with flags/signs on it to identify events
