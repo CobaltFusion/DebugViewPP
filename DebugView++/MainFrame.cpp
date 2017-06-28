@@ -1276,7 +1276,14 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	if (dlg.DoModal() != IDOK)
 		return;
 
-	m_logSources.RemoveAllSources();
+	m_logSources.RemoveSources([this](LogSource* logsource) {
+		if (logsource == m_pLocalReader)
+			return false;
+		if (logsource == m_pGlobalReader)
+			return false;
+		return true;
+	});
+
 	auto sourceInfos = dlg.GetSourceInfos();
 	for (auto& sourceInfo : sourceInfos)
 	{

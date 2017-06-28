@@ -307,12 +307,13 @@ try
 
 	if (cmdOptionExists(argv, argv + argc, "-u"))
 	{
-		if (verbose)
-			std::cout << "Send UDP test message...\n";
+        std::string msg = argv[2];
+        msg += "\n";
+        std::cout << "Broadcast to 255.255.255.255 on UDP port 2020, message: " << msg;
 		using namespace boost::asio::ip;
 		boost::asio::io_service io_service;
 		udp::resolver resolver(io_service);
-		udp::resolver::query query(udp::v4(), "255.255.255.255", "2999");
+		udp::resolver::query query(udp::v4(), "255.255.255.255", "2020");
 		udp::endpoint receiver_endpoint = *resolver.resolve(query);
 		udp::socket socket(io_service);
 		socket.open(udp::v4());
@@ -321,9 +322,8 @@ try
 		boost::asio::socket_base::broadcast option(true);
 		socket.set_option(option);
 
-		std::string msg = argv[1];
-		std::cout << msg << std::endl;
 		socket.send_to(boost::asio::buffer(msg), receiver_endpoint);
+        std::cout << "Done." << std::endl;
 	}
 	else
 	{

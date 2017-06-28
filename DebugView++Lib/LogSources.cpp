@@ -63,7 +63,6 @@ LogSources::~LogSources()
 		m_executor.Call([&] { Abort(); });
 }
 
-
 void LogSources::AddMessage(const std::string& message)
 {
 	m_loopback->AddInternal(message);
@@ -97,11 +96,12 @@ void LogSources::Remove(LogSource* pLogSource)
 	Win32::SetEvent(m_updateEvent);
 }
 
-void LogSources::RemoveAllSources()
+void LogSources::RemoveSources(std::function<bool(LogSource*)> predicate)
 {
 	std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
 	for (auto& pSource : m_sources)
-		m_sourcesScheduledToRemove.push_back(pSource.get());
+		if (predicate(pSource.get()))
+			m_sourcesScheduledToRemove.push_back(pSource.get());
 	Win32::SetEvent(m_updateEvent);
 }
 
@@ -201,14 +201,6 @@ void LogSources::ListenUntilUpdateEvent()
 			}
 		}
 	}
-
-	// problem:
-	// LogSources::Abort calls m_listenThread.Synchronize() (on the ~LogSources call coming from the ui-thread)
-	// in order for m_listenThread.Synchronize() to complete, it waits for m_executor.Call([this] { UpdateSources(); });
-	// but that has to happen on the ui-thread ==>> resulting in a deadlock (process still alive in the processlist after the window is closed)
-
-	// possible solution:
-	// maybe it is
 }
 
 void LogSources::UpdateSources()
@@ -239,7 +231,7 @@ void LogSources::UpdateSources()
 
 	for (auto& pLogSource : sourcesToAdd)
 	{
-		UpdateSettings(pLogSource);
+        UpdateSettings(pLogSource);
 		m_sources.emplace_back(std::move(pLogSource));
 	}
 
