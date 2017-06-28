@@ -49,7 +49,7 @@ std::wstring GetPersonalPath()
 	return path;
 }
 
-void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
+void CLogViewTabItem::SetView(std::shared_ptr<CLogView> pView)
 {
 	m_pView = pView;
 	SetTabView(*pView);
@@ -58,6 +58,39 @@ void CLogViewTabItem::SetView(const std::shared_ptr<CLogView>& pView)
 CLogView& CLogViewTabItem::GetView()
 {
 	return *m_pView;
+}
+
+void DisablePaneHeader(CPaneContainer& panecontainer)
+{
+    panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
+    panecontainer.m_cxyHeader = 0;
+}
+
+void CLogViewTabItem2::Create(HWND parent)
+{
+    m_split.Create(parent, CWindow::rcDefault);
+    SetTabView(m_split);
+    m_top.Create(m_split, L"");
+    m_bottom.Create(m_split, L"");
+    DisablePaneHeader(m_top);
+    DisablePaneHeader(m_bottom);
+    m_split.SetSplitterPanes(m_top, m_bottom, true);
+    m_split.SetSinglePaneMode(SPLIT_PANE_TOP);          // comment this line to start rendering m_timelineView (breaks because it needs to be configured)
+
+    m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
+        WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+    m_bottom.SetClient(m_timelineView);
+}
+
+void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
+{
+    m_pView = pView;
+    m_top.SetClient(*m_pView);
+}
+
+CLogView& CLogViewTabItem2::GetView()
+{
+    return *m_pView;
 }
 
 BEGIN_MSG_MAP2(CMainFrame)
@@ -194,13 +227,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	int paneIds[] = {ID_DEFAULT_PANE, ID_SELECTION_PANE, ID_VIEW_PANE, ID_LOGFILE_PANE, ID_MEMORY_PANE};
 	m_statusBar.SetPanes(paneIds, 5, false);
 	UIAddStatusBar(m_hWndStatusBar);
-
-	// splitter is not working because class MainFrame is a 'TabbedFrame' and now the tabs need to move inside the PaneContainer m_top
-	//m_split.Create(*this, rcDefault);
-	//m_top.Create(m_split, L"");
-	//m_bottom.Create(m_split, L"");
-	//m_split.SetSplitterPanes(m_top, m_bottom, true);
-	//CreateTabWindow(m_top, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 
 	CreateTabWindow(*this, rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
 	AddFilterView(L"View");
@@ -726,16 +752,18 @@ void CMainFrame::AddFilterView()
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
-	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
-	pView->Create(*this, rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+    auto pTabItem = std::make_unique<SelectedTabItem>();
+    pTabItem->Create(*this);
+    
+    auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
+    pView->Create(pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 	pView->SetFont(m_hFont.get());
 
-	auto pItem = std::make_unique<CLogViewTabItem>();
-	pItem->SetText(name.c_str());
-	pItem->SetView(pView);
+    pTabItem->SetText(name.c_str());
+    pTabItem->SetView(pView);
 
 	int newIndex = GetTabCtrl().GetItemCount();
-	GetTabCtrl().InsertItem(newIndex, pItem.release());
+	GetTabCtrl().InsertItem(newIndex, pTabItem.release());
 	GetTabCtrl().SetCurSel(newIndex);
 	ShowTabControl();
 }

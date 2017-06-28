@@ -344,7 +344,7 @@ int CLogView::TextHighlightHitTest(int iItem, const POINT& pt)
 
 void CLogView::OnDropFiles(HDROP hDropInfo)
 {
-	// Need to maunally forward to CMainFrame, don't understand why
+	// forward it to the CMainFrame
 	m_mainFrame.OnDropFiles(hDropInfo);
 }
 

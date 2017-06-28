@@ -28,6 +28,7 @@ namespace WTL { using ATL::CString; };
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/FileWriter.h"
+#include "DebugView++Lib/CTimelineView.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
 #include "LogView.h"
@@ -41,22 +42,44 @@ class DbgviewReader;
 class CLogViewTabItem : public CTabViewTabItem
 {
 public:
-	void SetView(const std::shared_ptr<CLogView>& pView);
+	void SetView(std::shared_ptr<CLogView> pView);
 	CLogView& GetView();
 
+    void Create(HWND parent) { m_parent = parent;  }
+    HWND GetLogViewParent() { return m_parent; }
 private:
 	 std::shared_ptr<CLogView> m_pView;
+     HWND m_parent;
 };
 
+class CLogViewTabItem2 : public CTabViewTabItem
+{
+public:
+    void SetView(std::shared_ptr<CLogView> pView);
+    CLogView& GetView();
+
+    void Create(HWND parent);
+    HWND GetLogViewParent() { return m_top; }
+
+private:
+    std::shared_ptr<CLogView> m_pView;
+    CHorSplitterWindow m_split;
+    CPaneContainer m_top;
+    CPaneContainer m_bottom;
+    gdi::CTimelineView m_timelineView;
+};
+
+using SelectedTabItem = CLogViewTabItem;
+
 class CMainFrame :
-	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>>,
+	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>>,
 	public CUpdateUI<CMainFrame>,
 	public ExceptionHandler<CMainFrame, std::exception>,
 	public CMessageFilter,
 	public CIdleHandler
 {
 public:
-	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem>> TabbedFrame;
+	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>> TabbedFrame;
 
 	CMainFrame();
 	~CMainFrame();
@@ -195,9 +218,6 @@ private:
 	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;
-	CHorSplitterWindow m_split;
-	CPaneContainer m_top;
-	CPaneContainer m_bottom;
 
 	LogFile m_logFile;
 	std::unique_ptr<FileWriter> m_logWriter;
