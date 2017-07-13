@@ -449,7 +449,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 
 	int x0 = GetSubItemRect(info.iItem, info.iSubItem, LVIR_BOUNDS).left + GetHeader().GetBitmapMargin();
 	auto line = TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)));
-	auto pos = 0;
+	size_t pos = 0;
 	int min = 1000 * 1000;
 	bool found = false;
 	for (;;)

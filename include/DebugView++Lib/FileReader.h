@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -11,6 +11,7 @@
 #include "FileIO.h"
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
+#include <boost/signals2.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -24,7 +25,10 @@ public:
 	~FileReader() override;
 
 	void Initialize() override;
-	bool AtEnd() const override;
+    typedef boost::signals2::signal<void()> UpdateSignal;
+    boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
+    
+    bool AtEnd() const override;
 	HANDLE GetHandle() const override;
 	void Notify() override;
 	void PreProcess(Line& line) const override;
@@ -36,6 +40,7 @@ protected:
 	FileType::type m_fileType;
 
 private:
+
 	void SafeAddLine(const std::string& line);
 	void ReadUntilEof();
 
@@ -46,7 +51,8 @@ private:
 	bool m_initialized;
 	std::string m_line;
 	bool m_keeptailing;
+	UpdateSignal m_update;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

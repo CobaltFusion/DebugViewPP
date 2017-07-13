@@ -92,7 +92,7 @@ void BinaryFileReader::ReadUntilEof()
 	int i = 0;
 	while (std::getline(m_wifstream, line))
 	{
-		if ((++i % 100) == 0) m_update();
+		if ((++i % 1500) == 0) m_update();
 		AddLine(Str(line));
 	}
 	m_update();

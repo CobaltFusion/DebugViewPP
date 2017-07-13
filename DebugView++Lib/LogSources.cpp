@@ -362,6 +362,7 @@ AnyFileReader* LogSources::AddAnyFileReader(const std::wstring& filename, bool k
 	}
 
 	auto pAnyFileReader = std::make_unique<AnyFileReader>(m_timer, m_linebuffer, filetype, filename, keeptailing);
+    pAnyFileReader->SubscribeToUpdate([&]() { m_throttledUpdate(); });
 	auto pResult = pAnyFileReader.get();
 	Add(std::move(pAnyFileReader));
 	return pResult;

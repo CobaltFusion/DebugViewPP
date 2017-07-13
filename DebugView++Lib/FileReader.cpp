@@ -48,6 +48,11 @@ void FileReader::Initialize()
 	}
 }
 
+boost::signals2::connection FileReader::SubscribeToUpdate(UpdateSignal::slot_type slot)
+{
+    return m_update.connect(slot);
+}
+
 bool FileReader::AtEnd() const
 {
 	return m_end;
@@ -73,19 +78,22 @@ void FileReader::Notify()
 void FileReader::ReadUntilEof()
 {
 	std::string line;
+    int count = 0;
 	while (std::getline(m_ifstream, line))
 	{
+        m_line += line;
+        if ((++count % 1500) == 0) m_update();
 		if (m_ifstream.eof())
 		{
-			// the line ended without a newline character, store the line particle
-			m_line += line;
+			// the line ended without a newline character
 		}
 		else
 		{
-			SafeAddLine(m_line + line);
+			SafeAddLine(m_line);
 			m_line.clear();
 		}
 	}
+    m_update();
 
 	if (m_ifstream.eof()) 
 	{
