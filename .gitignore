@@ -10,15 +10,11 @@ packages/
 *.log
 *.VC.opendb
 *.VC.db
-DebugView++/version.wxi
 bin
 *.class
 *.db
 *.opendb
-/OutputForwarderVSIX/packages
 /DebugView++Test/SaveLoadLogFile_unique_test_filename
 /VsSDK.props
-Libraries/boost
-Libraries/wtl
 *.user
 .vs/
