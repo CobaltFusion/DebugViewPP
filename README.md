@@ -16,15 +16,15 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 See examples down below.
 
 This project is sponsored by:
-- Jetbrains https://www.jetbrains.com/ Resharper C++
-- Backtrace https://backtrace.io/ 
+
+[![Resharper logo](art/resharpercpp_logo.png)](https://www.jetbrains.com/)
+[![Backtrace logo](art/backtrace_logo.png)](https://backtrace.io/ )
 
 and soon also:
 
-![DebugView++ Screenshot](art/incredi_logo.png "Incredibuild logo")
+[![Incredibuild logo](art/incredi_logo.png)](https://www.incredibuild.com/)
 
-
-So why is this usefull and why not just use a debugger?
+So why is this Debugview++ usefull and why not just use a debugger?
 - first of all, this way you can see messages from different processes, not just 'attached' processes.
 - alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
@@ -36,7 +36,7 @@ Expected changes in next stable version 1.8.x:
 - no new features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
-- a timedoctor-like view, it is a horzontal timeline, with flags/signs on it to identify events
+- a gantt chart-like view, a horzontal timeline, with bars/flags/signs on it to identify events
 - a better plugin based input system
 - transparent background streaming to disk
 - proper memory limits
