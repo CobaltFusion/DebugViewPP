@@ -15,6 +15,15 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 
 See examples down below.
 
+This project is sponsored by:
+- Jetbrains https://www.jetbrains.com/ Resharper C++
+- Backtrace https://backtrace.io/ 
+
+and soon also:
+
+![DebugView++ Screenshot](art/incredi_logo.png "Incredibuild logo")
+
+
 So why is this usefull and why not just use a debugger?
 - first of all, this way you can see messages from different processes, not just 'attached' processes.
 - alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
