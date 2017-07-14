@@ -25,10 +25,10 @@ public:
 	~FileReader() override;
 
 	void Initialize() override;
-    typedef boost::signals2::signal<void()> UpdateSignal;
-    boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
-    
-    bool AtEnd() const override;
+	typedef boost::signals2::signal<void()> UpdateSignal;
+	boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
+
+	bool AtEnd() const override;
 	HANDLE GetHandle() const override;
 	void Notify() override;
 	void PreProcess(Line& line) const override;
@@ -40,7 +40,6 @@ protected:
 	FileType::type m_fileType;
 
 private:
-
 	void SafeAddLine(const std::string& line);
 	void ReadUntilEof();
 

@@ -11,11 +11,8 @@
 #include <boost/signals2.hpp>
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/LogSource.h"
-#include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/VectorLineBuffer.h"
-#include "CobaltFusion/CircularBuffer.h"
 #include "CobaltFusion/ExecutorClient.h"
-#include "CobaltFusion/thread.h"
 #include "DebugView++Lib/NewlineFilter.h"
 #include "DebugView++Lib/ProcessMonitor.h"
 #include "CobaltFusion/Throttle.h"
