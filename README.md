@@ -24,7 +24,7 @@ and soon also:
 ![DebugView++ Screenshot](art/incredi_logo.png "Incredibuild logo")
 
 
-So why is this usefull and why not just use a debugger?
+So why is this Debugview++ usefull and why not just use a debugger?
 - first of all, this way you can see messages from different processes, not just 'attached' processes.
 - alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
