@@ -21,6 +21,8 @@ This project is sponsored by:
 
 and soon also:
 
+https://www.incredibuild.com/
+
 ![DebugView++ Screenshot](art/incredi_logo.png "Incredibuild logo")
 
 
