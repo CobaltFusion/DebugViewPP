@@ -18,7 +18,12 @@ See examples down below.
 This project is sponsored by:
 
 [![Resharper logo](art/resharpercpp_logo.png)](https://www.jetbrains.com/)
+
+Build in code analysis, handy auto-fixes and refactoring options
+
 [![Backtrace logo](art/backtrace_logo.png)](https://backtrace.io/ )
+
+Gather and analyse crash information.
 
 and soon also:
 
