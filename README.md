@@ -21,10 +21,7 @@ This project is sponsored by:
 
 and soon also:
 
-https://www.incredibuild.com/
-
-![DebugView++ Screenshot](art/incredi_logo.png "Incredibuild logo")
-
+![(https://www.incredibuild.com/)](art/incredi_logo.png "Incredibuild logo")
 
 So why is this Debugview++ usefull and why not just use a debugger?
 - first of all, this way you can see messages from different processes, not just 'attached' processes.
