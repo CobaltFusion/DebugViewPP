@@ -16,8 +16,9 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 See examples down below.
 
 This project is sponsored by:
-- Jetbrains https://www.jetbrains.com/ Resharper C++
-- Backtrace https://backtrace.io/ 
+
+[![Resharper logo](art/resharpercpp_logo.png)](https://www.jetbrains.com/)
+[![Backtrace logo](art/backtrace_logo.png)](https://backtrace.io/ )
 
 and soon also:
 
