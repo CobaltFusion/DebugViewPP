@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26401.1
+VisualStudioVersion = 15.0.26606.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\DebugView++.vcxproj", "{E37BA0C9-8A2F-4F2E-BBF8-839F3429D3A7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C824932A-2819-4148-B54F-214D65015C54} = {C824932A-2819-4148-B54F-214D65015C54}
 		{5E5B7C33-8076-4E21-ADF3-D56C8C28822A} = {5E5B7C33-8076-4E21-ADF3-D56C8C28822A}
+		{F7F5DB6E-B52D-46C1-9E40-43934514AEEB} = {F7F5DB6E-B52D-46C1-9E40-43934514AEEB}
 		{218AB179-4C19-4264-BD55-DF89A9F321CA} = {218AB179-4C19-4264-BD55-DF89A9F321CA}
 	EndProjectSection
 EndProject
@@ -139,7 +140,6 @@ Global
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|Mixed Platforms.Build.0 = Release|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|Win32.ActiveCfg = Release|x86
-		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|Win32.Build.0 = Release|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|x64.ActiveCfg = Release|x64
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|x64.Build.0 = Release|x64
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Release|x86.ActiveCfg = Release|x86
