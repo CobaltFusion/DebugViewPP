@@ -84,6 +84,7 @@
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -225,11 +226,13 @@
     </Link>
     <PostBuildEvent>
       <Message>Create release zip</Message>
-      <Command>$(ProjectDir)..\zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetDir)DebugView++.exe $(TargetDir)DebugViewConsole.exe $(TargetDir)*.vsix</Command>
+      <Command>$(ProjectDir)..\createzip.bat $(TargetDir)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
-      <Message>Update version numbers</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -273,7 +276,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Create release zip</Message>
-      <Command>$(ProjectDir)..\zip.exe -j $(TargetDir)/$(TargetName).zip $(TargetDir)DebugView++.exe $(TargetDir)DebugViewConsole.exe $(TargetDir)*.vsix</Command>
+      <Command>$(ProjectDir)..\createzip.bat $(TargetDir)</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>$(ComSpec) /c UpdateBuildNr.cmd version.h version.wxi</Command>
