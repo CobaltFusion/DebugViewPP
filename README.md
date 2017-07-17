@@ -15,6 +15,9 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 
 See examples down below.
 
+Sponsors
+--------
+
 This project is sponsored by:
 
 [![Resharper logo](art/resharpercpp_logo.png)](https://www.jetbrains.com/)
@@ -25,9 +28,9 @@ Build in code analysis, handy auto-fixes and refactoring options
 
 Gather and analyse crash information.
 
-and soon also:
-
 [![Incredibuild logo](art/incredi_logo.png)](https://www.incredibuild.com/)
+
+We use Incredibuild to make use of all cores of multiple machines to accelerate building our C++ projects.
 
 So why is this Debugview++ usefull and why not just use a debugger?
 - first of all, this way you can see messages from different processes, not just 'attached' processes.
