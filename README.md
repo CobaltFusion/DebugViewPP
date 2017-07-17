@@ -32,9 +32,11 @@ Gather and analyse crash information.
 
 We use Incredibuild to make use of all cores of multiple machines to accelerate building our C++ projects.
 
-So why is this Debugview++ usefull and why not just use a debugger?
-- first of all, this way you can see messages from different processes, not just 'attached' processes.
-- alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
+So when is this Debugview++ thing usefull?
+------------------------------------------
+
+- first of all, with debugview++ you can see messages from different processes, not just 'attached' processes.
+- also: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
 Expected changes in next stable version 1.8.x:
