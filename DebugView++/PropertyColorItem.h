@@ -106,7 +106,7 @@ public:
 		m_dlg.ShowAuto(show);
 	}
 
-	BOOL Activate(UINT action, LPARAM /*lParam*/)
+    virtual BOOL Activate(UINT action, LPARAM /*lParam*/) override
 	{
 		if (!IsEnabled())
 			return FALSE;
@@ -127,7 +127,7 @@ public:
 		return TRUE;
 	}
 
-	void DrawValue(PROPERTYDRAWINFO& di)
+    virtual void DrawValue(PROPERTYDRAWINFO& di) override
 	{
 		CDCHandle dc(di.hDC);
 		RECT rect = di.rcItem;
@@ -152,13 +152,13 @@ public:
 		}
 	}
 
-	BOOL GetValue(VARIANT* pValue) const
+    virtual BOOL GetValue(VARIANT* pValue) const override
 	{
 		CComVariant var(GetColor());
 		return SUCCEEDED(var.Detach(pValue));
 	}
 
-	BOOL SetValue(const VARIANT& value)
+    virtual BOOL SetValue(const VARIANT& value) override
 	{
 		CComVariant var;
 		if (FAILED(VariantChangeType(&var, &value, 0, VT_COLOR)))

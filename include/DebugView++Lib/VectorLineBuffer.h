@@ -17,10 +17,10 @@ class VectorLineBuffer : public ILineBuffer
 public:
 	explicit VectorLineBuffer(size_t size);
 
-	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource);
-	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource);
-	Lines GetLines();
-	virtual bool Empty() const;
+	virtual void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource) override;
+	virtual void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource) override;
+    virtual Lines GetLines() override;
+	virtual bool Empty() const override;
 
 private:
 	std::mutex m_linesMutex;

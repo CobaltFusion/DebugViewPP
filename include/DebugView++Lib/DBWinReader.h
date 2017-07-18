@@ -31,8 +31,8 @@ class DBWinReader : public LogSource
 public:
 	DBWinReader(Timer& timer, ILineBuffer& lineBuffer, bool global);
 
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
+	virtual HANDLE GetHandle() const override;
+	virtual void Notify() override;
 
 private:
 	Win32::Handle m_hBuffer;

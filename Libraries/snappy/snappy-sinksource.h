@@ -107,9 +107,9 @@ class ByteArraySource : public Source {
  public:
   ByteArraySource(const char* p, size_t n) : ptr_(p), left_(n) { }
   virtual ~ByteArraySource();
-  virtual size_t Available() const;
-  virtual const char* Peek(size_t* len);
-  virtual void Skip(size_t n);
+  virtual size_t Available() const override;
+  virtual const char* Peek(size_t* len) override;
+  virtual void Skip(size_t n) override;
  private:
   const char* ptr_;
   size_t left_;
@@ -120,8 +120,8 @@ class UncheckedByteArraySink : public Sink {
  public:
   explicit UncheckedByteArraySink(char* dest) : dest_(dest) { }
   virtual ~UncheckedByteArraySink();
-  virtual void Append(const char* data, size_t n);
-  virtual char* GetAppendBuffer(size_t len, char* scratch);
+  virtual void Append(const char* data, size_t n) override;
+  virtual char* GetAppendBuffer(size_t len, char* scratch) override;
 
   // Return the current output pointer so that a caller can see how
   // many bytes were produced.

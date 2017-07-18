@@ -26,7 +26,7 @@ public:
 	}
 
 protected:
-	int sync()
+    virtual int sync() override
 	{
 		if (!m_writeBuffer.empty())
 		{
@@ -39,7 +39,7 @@ protected:
 		return 0;
 	}
 
-	int_type overflow(int_type c)
+    virtual int_type overflow(int_type c) override
 	{
 		if (c == traits_type::eof())
 			return c;
@@ -50,7 +50,7 @@ protected:
 		return c;
 	}
 
-	int_type underflow()
+    virtual int_type underflow() override
 	{
 		if (gptr() < egptr()) // buffer not exhausted
 			return traits_type::to_int_type(*gptr());

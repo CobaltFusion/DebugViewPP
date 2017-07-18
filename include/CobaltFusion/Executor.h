@@ -151,7 +151,7 @@ public:
 	ScheduledCall CallAfter(const Duration& interval, std::function<void ()> fn);
 	ScheduledCall CallEvery(const Duration& interval, std::function<void ()> fn);
 
-	virtual void Cancel(const ScheduledCall& call);
+	virtual void Cancel(const ScheduledCall& call) override;
 
 	void RunOne();
 

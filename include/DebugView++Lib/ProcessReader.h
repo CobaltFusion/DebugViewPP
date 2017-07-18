@@ -21,11 +21,11 @@ class ProcessReader : public PolledLogSource
 public:
 	ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
 	virtual ~ProcessReader() override;
-	virtual void Abort();
-	virtual bool AtEnd() const;
+	virtual void Abort() override;
+	virtual bool AtEnd() const override;
 
 private:
-	virtual void Poll();
+	virtual void Poll() override;
 
 	Win32::Process m_process;
 	PipeReader m_stdout;

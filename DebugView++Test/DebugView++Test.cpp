@@ -9,7 +9,6 @@
 
 #define BOOST_TEST_MODULE DebugView++Lib Unit Test
 
-#define _SCL_SECURE_NO_WARNINGS
 #include <boost/test/unit_test_gui.hpp>
 
 #include <filesystem>
@@ -33,7 +32,6 @@
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/Conversions.h"
 #include "CobaltFusion/scope_guard.h"
-#undef _SCL_SECURE_NO_WARNINGS
 
 namespace fusion {
 namespace debugviewpp {

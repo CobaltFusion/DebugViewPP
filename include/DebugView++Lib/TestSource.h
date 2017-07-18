@@ -19,9 +19,9 @@ class TestSource : public LogSource
 public:
 	TestSource(Timer& timer, ILineBuffer& linebuffer);
 
-	virtual bool AtEnd() const;
-	virtual HANDLE GetHandle() const;
-	virtual void Notify();
+	virtual bool AtEnd() const override;
+	virtual HANDLE GetHandle() const override;
+	virtual void Notify() override;
 };
 
 } // namespace debugviewpp 

@@ -14,8 +14,6 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #define NOMINMAX
 
-#define _SCL_SECURE_NO_WARNINGS	// suprresses boost warnings we cannot work around
-
 #ifdef _DEBUG
 #include <boost/core/noncopyable.hpp>
 #endif

@@ -7,9 +7,10 @@
 
 #pragma once
 
-#include <boost/asio.hpp>
-
+#define _WIN32_WINNT 0x0501
 #include "targetver.h"
+
+#include <boost/asio.hpp>
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
 

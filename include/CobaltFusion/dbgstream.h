@@ -35,14 +35,14 @@ template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allo
 class basic_debugbuf : public std::basic_streambuf<Elem, Tr>
 {
 protected:
-	int sync()
+    virtual int sync() override
 	{
 		output(m_buf.c_str());
 		m_buf.clear();
 		return 0;
 	}
 
-	int_type overflow(int_type c)
+    virtual int_type overflow(int_type c) override
 	{
 		if (c == traits_type::eof())
 			return 0;
