@@ -15,6 +15,9 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 
 See examples down below.
 
+Sponsors
+--------
+
 This project is sponsored by:
 
 [![Resharper logo](art/resharpercpp_logo.png)](https://www.jetbrains.com/)
@@ -25,13 +28,15 @@ Build in code analysis, handy auto-fixes and refactoring options
 
 Gather and analyse crash information.
 
-and soon also:
-
 [![Incredibuild logo](art/incredi_logo.png)](https://www.incredibuild.com/)
 
-So why is this Debugview++ usefull and why not just use a debugger?
-- first of all, this way you can see messages from different processes, not just 'attached' processes.
-- alos: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
+We use Incredibuild to make use of all cores of multiple machines to accelerate building our C++ projects.
+
+So when is this Debugview++ thing usefull?
+------------------------------------------
+
+- first of all, with debugview++ you can see messages from different processes, not just 'attached' processes.
+- also: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
 Expected changes in next stable version 1.8.x:
