@@ -3,7 +3,7 @@ Cobalt Fusion presents:
 DebugView++
 ----------
 
-[Download latest here](releases)
+[Download latest here](https://github.com/djeedjay/DebugViewPP/releases)
 
 DebugView++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
@@ -15,7 +15,7 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 
 See examples down below.
 
-Any Feedback? leave an issue or comments [here](issues/283)
+Any Feedback? leave an issue or comments [here](https://github.com/djeedjay/DebugViewPP/issues/283)
 
 Sponsors
 --------
