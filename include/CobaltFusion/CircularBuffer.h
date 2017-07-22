@@ -34,7 +34,7 @@ public:
 
 	void Clear();
 	void Swap(CircularBuffer& circularBuffer);
-	void DumpStats();
+	void DumpStats() const;
 
 private:
 	size_t NextPosition(size_t offset) const;
@@ -42,7 +42,6 @@ private:
 	char* WritePointer() const;
 	void IncreaseReadPointer();
 	void IncreaseWritePointer();
-	void AssignBuffer(std::unique_ptr<char[]> buffer, size_t size, size_t readOffset, size_t writeOffset);
 
 	size_t m_capacity; // important: m_buffer must be initialized after m_capacity
 	std::unique_ptr<char[]> m_buffer;

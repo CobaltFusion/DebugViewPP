@@ -5,8 +5,6 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
-
 #include "stdafx.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/VectorLineBuffer.h"

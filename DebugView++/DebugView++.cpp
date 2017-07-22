@@ -17,7 +17,7 @@
 
 //#define ENABLE_CRASHPAD
 #ifdef ENABLE_CRASHPAD
-    #include "crashpad.h"
+#include "crashpad.h"
 #endif
 
 //#define CONSOLE_DEBUG
@@ -30,8 +30,8 @@ namespace debugviewpp {
 class CAppModuleInitialization
 {
 public:
-	CAppModuleInitialization(CAppModule& module, HINSTANCE hInstance)
-		: m_module(module)
+	CAppModuleInitialization(CAppModule& module, HINSTANCE hInstance) :
+		m_module(module)
 	{
 		HRESULT hr = m_module.Init(nullptr, hInstance);
 		if (FAILED(hr))
@@ -50,8 +50,8 @@ private:
 class MessageLoop
 {
 public:
-	explicit MessageLoop(CAppModule& module)
-		: m_module(module)
+	explicit MessageLoop(CAppModule& module) :
+		m_module(module)
 	{
 		module.AddMessageLoop(&m_loop);
 	}
@@ -113,13 +113,11 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	HANDLE hFile = nullptr, hPipe = nullptr;
 	switch (GetFileType(hStdIn))
 	{
-		case FILE_TYPE_DISK:
-			hFile = hStdIn;
-			break;
-		case FILE_TYPE_PIPE:
-			hPipe = hStdIn;
-			break;
+	case FILE_TYPE_DISK: hFile = hStdIn; break;
+	case FILE_TYPE_PIPE: hPipe = hStdIn; break;
+	default: break;
 	}
+	assert((hFile != nullptr) && "unknown file type");
 
 	if (hPipe && IsDBWinViewerActive())
 		return ForwardMessagesFromPipe(hPipe);

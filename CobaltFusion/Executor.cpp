@@ -18,7 +18,7 @@ ExecutorBase::~ExecutorBase()
 {
 }
 
-unsigned ExecutorBase::GetId(const ScheduledCall& call) const
+unsigned ExecutorBase::GetId(const ScheduledCall& call)
 {
 	return call.GetId();
 }

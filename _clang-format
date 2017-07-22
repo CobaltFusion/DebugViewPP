@@ -8,7 +8,7 @@ AlignOperands: true
 AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
@@ -32,11 +32,11 @@ BraceWrapping:
   BeforeElse:      true
   IndentBraces:    false
 BreakBeforeBinaryOperators: None
-BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: true
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: AfterColon
 ColumnLimit: 0
 CommentPragmas: '^ IWYU pragma:'
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
@@ -44,12 +44,12 @@ DerivePointerAlignment: false
 DisableFormat: false
 ExperimentalAutoDetectBinPacking: false
 ForEachMacros: [ foreach, Q_FOREACH, BOOST_FOREACH ]
-IndentCaseLabels: true
+IndentCaseLabels: false
 IndentWidth: 4
-IndentWrappedFunctionNames: false
-KeepEmptyLinesAtTheStartOfBlocks: true
-MacroBlockBegin: ''
-MacroBlockEnd: ''
+IndentWrappedFunctionNames: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+MacroBlockBegin: '^BEGIN_MSG_MAP2|^BEGIN_UPDATE_UI_MAP'
+MacroBlockEnd: '^END_MSG_MAP|^END_UPDATE_UI_MAP'
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: None
 PenaltyBreakBeforeFirstCallParameter: 100

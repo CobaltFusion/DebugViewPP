@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -19,24 +19,24 @@
 namespace fusion {
 namespace debugviewpp {
 
-static COLORREF HighlightColors[16] = 
-{
-	RGB(255, 255, 255), // white
-	RGB(192, 192, 192), // light-grey
-	RGB(128, 128, 128), // mid-grey
-	RGB( 64,  64,  64), // dark-grey
-	RGB(  0,   0,   0), // black
-	RGB( 27, 161, 226), // blue
-	RGB(160,  80,   0), // brown
-	RGB( 51, 153,  51), // green
-	RGB(162, 193,  57), // lime
-	RGB(216,   0, 115), // magenta
-	RGB(240, 150,   9), // mango (orange)
-	RGB(230, 113, 184), // pink
-	RGB(162,   0, 255), // purple
-	RGB(229,  20,   0), // red
-	RGB(  0, 171, 169), // teal (viridian)
-	RGB(255, 255, 255), // white
+static COLORREF HighlightColors[16] =
+	{
+		RGB(255, 255, 255), // white
+		RGB(192, 192, 192), // light-grey
+		RGB(128, 128, 128), // mid-grey
+		RGB(64, 64, 64), // dark-grey
+		RGB(0, 0, 0), // black
+		RGB(27, 161, 226), // blue
+		RGB(160, 80, 0), // brown
+		RGB(51, 153, 51), // green
+		RGB(162, 193, 57), // lime
+		RGB(216, 0, 115), // magenta
+		RGB(240, 150, 9), // mango (orange)
+		RGB(230, 113, 184), // pink
+		RGB(162, 0, 255), // purple
+		RGB(229, 20, 0), // red
+		RGB(0, 171, 169), // teal (viridian)
+		RGB(255, 255, 255), // white
 };
 
 void InitializeCustomColors()
@@ -77,30 +77,22 @@ static const FilterType::type MessageFilterTypes[] =
 };
 
 static const FilterType::type ProcessFilterTypes[] =
-{
-	FilterType::Include,
-	FilterType::Exclude,
-	FilterType::Highlight,
-	FilterType::Stop,
-	FilterType::Track,
-	FilterType::Once,
-	FilterType::Beep
-};
+	{
+		FilterType::Include,
+		FilterType::Exclude,
+		FilterType::Highlight,
+		FilterType::Stop,
+		FilterType::Track,
+		FilterType::Once,
+		FilterType::Beep};
 
-static const MatchType::type MessageMatchTypes[] =
-{
-	MatchType::Simple,
-	MatchType::Wildcard,
-	MatchType::Regex,
-	MatchType::RegexGroups
-};
+static const MatchType::type MessageMatchTypes[] = {MatchType::Simple, MatchType::Wildcard, MatchType::Regex, MatchType::RegexGroups};
 
 static const MatchType::type ProcessMatchTypes[] =
-{
-	MatchType::Simple,
-	MatchType::Wildcard,
-	MatchType::Regex
-};
+	{
+		MatchType::Simple,
+		MatchType::Wildcard,
+		MatchType::Regex};
 
 CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :
 	m_messagePage(MessageFilterTypes, MessageMatchTypes, true),
@@ -212,7 +204,8 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		L"XML Files (*.xml)\0*.xml\0"
 		L"JSON Files (*.json)\0*.json\0"
 		L"All Files\0*.*\0"
-		L"\0", 0);
+		L"\0",
+		nullptr);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save DebugView Filter";
 	if (dlg.DoModal() != IDOK)
@@ -237,16 +230,15 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 		L"XML Files (*.xml)\0*.xml\0"
 		L"JSON Files (*.json)\0*.json\0"
 		L"All Files\0*.*\0"
-		L"\0", 0);
+		L"\0",
+		nullptr);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load DebugView Filter";
 
-	// notice subtle behaviour, see http://msdn.microsoft.com/en-us/library/ms646839 at lpstrInitialDir 
-	std::wstring path;
 	wchar_t szPath[MAX_PATH];
 	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
 	{
-		path = szPath;
+		std::wstring path = szPath;
 		path += L"\\DebugView++ Filters";
 		dlg.m_ofn.lpstrInitialDir = path.c_str();
 	}
@@ -331,5 +323,5 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	EndDialog(nID);
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

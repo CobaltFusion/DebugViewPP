@@ -16,7 +16,8 @@ namespace fusion {
 class IExecutor
 {
 public:
-	typedef std::chrono::steady_clock Clock;
+    virtual ~IExecutor() = default;
+    typedef std::chrono::steady_clock Clock;
 	virtual void Call(std::function<void()> fn) = 0;
 	virtual void CallAsync(std::function<void()> fn) = 0;
 	virtual ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) = 0;
@@ -34,6 +35,7 @@ class GuiExecutorClient : public IExecutor
 {
 public:
 	GuiExecutorClient();
+    virtual ~GuiExecutorClient() = default;
 	virtual void Call(std::function<void()> fn) override;
 	virtual void CallAsync(std::function<void()> fn) override;
 	virtual ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) override;
@@ -52,6 +54,7 @@ class ActiveExecutorClient : public IExecutor
 {
 public:
 	ActiveExecutorClient();
+    virtual ~ActiveExecutorClient() = default;
 	virtual void Call(std::function<void()> fn) override;
 	virtual void CallAsync(std::function<void()> fn) override;
 	virtual ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) override;

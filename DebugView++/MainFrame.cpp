@@ -62,80 +62,81 @@ CLogView& CLogViewTabItem::GetView()
 
 void DisablePaneHeader(CPaneContainer& panecontainer)
 {
-    panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
-    panecontainer.m_cxyHeader = 0;
+	panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
+	panecontainer.m_cxyHeader = 0;
 }
 
 void CLogViewTabItem2::Create(HWND parent)
 {
-    m_split.Create(parent, CWindow::rcDefault);
-    SetTabView(m_split);
-    m_top.Create(m_split, L"");
-    m_bottom.Create(m_split, L"");
-    DisablePaneHeader(m_top);
-    DisablePaneHeader(m_bottom);
-    m_split.SetSplitterPanes(m_top, m_bottom, true);
-    m_split.SetSinglePaneMode(SPLIT_PANE_TOP);          // comment this line to start rendering m_timelineView (breaks because it needs to be configured)
+	m_split.Create(parent, CWindow::rcDefault);
+	SetTabView(m_split);
+	m_top.Create(m_split, L"");
+	m_bottom.Create(m_split, L"");
+	DisablePaneHeader(m_top);
+	DisablePaneHeader(m_bottom);
+	m_split.SetSplitterPanes(m_top, m_bottom, true);
+	m_split.SetSinglePaneMode(
+		SPLIT_PANE_TOP); // comment this line to start rendering m_timelineView (breaks because it needs to be configured)
 
-    m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
-        WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-    m_bottom.SetClient(m_timelineView);
+	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
+		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+	m_bottom.SetClient(m_timelineView);
 }
 
 void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
 {
-    m_pView = pView;
-    m_top.SetClient(*m_pView);
+	m_pView = pView;
+	m_top.SetClient(*m_pView);
 }
 
 CLogView& CLogViewTabItem2::GetView()
 {
-    return *m_pView;
+	return *m_pView;
 }
 
 BEGIN_MSG_MAP2(CMainFrame)
-MSG_WM_CREATE(OnCreate)
-MSG_WM_CLOSE(OnClose)
-MSG_WM_QUERYENDSESSION(OnQueryEndSession)
-MSG_WM_ENDSESSION(OnEndSession)
-MSG_WM_MOUSEWHEEL(OnMouseWheel)
-MSG_WM_CONTEXTMENU(OnContextMenu)
-MSG_WM_DROPFILES(OnDropFiles)
-MSG_WM_SYSCOMMAND(OnSysCommand)
-MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
-COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
-COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
-COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
-COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
-COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
-COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
-COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)
-COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
-COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
-COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
-COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
-COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
-COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
-COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
-COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
-COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
-COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
-COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
-COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
-COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
-COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
-COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
-COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
-COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
-COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
-COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
-NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
-NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
-NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
-NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
-CHAIN_MSG_MAP(TabbedFrame)
-CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
-REFLECT_NOTIFICATIONS()
+	MSG_WM_CREATE(OnCreate)
+	MSG_WM_CLOSE(OnClose)
+	MSG_WM_QUERYENDSESSION(OnQueryEndSession)
+	MSG_WM_ENDSESSION(OnEndSession)
+	MSG_WM_MOUSEWHEEL(OnMouseWheel)
+	MSG_WM_CONTEXTMENU(OnContextMenu)
+	MSG_WM_DROPFILES(OnDropFiles)
+	MSG_WM_SYSCOMMAND(OnSysCommand)
+	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
+	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
+	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
+	COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
+	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
+	COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
+	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
+	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
+	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
+	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
+	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
+	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
+	COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
+	COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
+	COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
+	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
+	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
+	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
+	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
+	NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
+	CHAIN_MSG_MAP(TabbedFrame)
+	CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
+	REFLECT_NOTIFICATIONS()
 END_MSG_MAP()
 
 LOGFONT& GetDefaultLogFont()
@@ -145,30 +146,28 @@ LOGFONT& GetDefaultLogFont()
 	return lf;
 }
 
-CMainFrame::CMainFrame()
-	: m_filterNr(1)
-	, m_findDlg(*this)
-	, m_linkViews(false)
-	, m_hide(false)
-	, m_lineBuffer(7000)
-	, m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights())
-	, m_logFileName(L"DebugView++.dblog")
-	, m_txtFileName(L"Messages.dblog")
-	, m_configFileName(L"DebugView++.dbconf")
-	, m_initialPrivateBytes(ProcessInfo::GetPrivateBytes())
-	, m_logfont(GetDefaultLogFont())
-	, m_pLocalReader(nullptr)
-	, m_pGlobalReader(nullptr)
-	, m_pDbgviewReader(nullptr)
-	, m_GuiExecutorClient(std::make_unique<GuiExecutorClient>())
-	, m_logSources(*m_GuiExecutorClient)
+CMainFrame::CMainFrame() :
+	m_filterNr(1),
+	m_findDlg(*this),
+	m_linkViews(false),
+	m_hide(false),
+	m_lineBuffer(7000),
+	m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
+	m_logFileName(L"DebugView++.dblog"),
+	m_txtFileName(L"Messages.dblog"),
+	m_configFileName(L"DebugView++.dbconf"),
+	m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
+	m_logfont(GetDefaultLogFont()),
+	m_pLocalReader(nullptr),
+	m_pGlobalReader(nullptr),
+	m_pDbgviewReader(nullptr),
+	m_GuiExecutorClient(std::make_unique<GuiExecutorClient>()),
+	m_logSources(*m_GuiExecutorClient)
 {
 	m_notifyIconData.cbSize = 0;
 }
 
-CMainFrame::~CMainFrame()
-{
-}
+CMainFrame::~CMainFrame() {}
 
 void CMainFrame::SetLogging()
 {
@@ -205,14 +204,15 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_cmdBar.AttachMenu(GetMenu());
 	m_cmdBar.LoadImages(IDR_MAINFRAME);
-	SetMenu(nullptr);
+	// SetMenu(nullptr);   //todo: ask gert-jan what this does?
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	CReBarCtrl rebar(m_hWndToolBar);
 
 	AddSimpleReBarBand(hWndCmdBar);
 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE); // DrMemory: LEAK 1696 direct bytes
+	HWND hWndToolBar =
+		CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE); // DrMemory: LEAK 1696 direct bytes
 	AddSimpleReBarBand(hWndToolBar, nullptr, true);
 	UIAddToolBar(hWndToolBar);
 
@@ -271,9 +271,10 @@ void CMainFrame::OnClose()
 LRESULT CMainFrame::OnQueryEndSession(WPARAM, LPARAM)
 {
 	// MSDN:
-	// The WM_QUERYENDSESSION message is sent when the user chooses to end the session or when an application calls one of the system shutdown functions
-	// When an application returns TRUE for this message, it receives the WM_ENDSESSION message.
-	// Each application should return TRUE or FALSE immediately upon receiving this message, and defer any cleanup operations until it receives the WM_ENDSESSION message.
+	// The WM_QUERYENDSESSION message is sent when the user chooses to end the session or when an application calls one of the system
+	// shutdown functions When an application returns TRUE for this message, it receives the WM_ENDSESSION message. Each application should
+	// return TRUE or FALSE immediately upon receiving this message, and defer any cleanup operations until it receives the WM_ENDSESSION
+	// message.
 	return TRUE;
 }
 
@@ -401,8 +402,7 @@ void CMainFrame::UpdateStatusBar()
 {
 	auto isearch = GetView().GetHighlightText();
 	std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
-	UISetText(ID_DEFAULT_PANE,
-		isearch.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
+	UISetText(ID_DEFAULT_PANE, isearch.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
 	UISetText(ID_SELECTION_PANE, GetSelectionInfoText(L"Selected", GetView().GetSelectedRange()).c_str());
 	UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
 	UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());
@@ -534,26 +534,27 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
 {
 	switch (nCommand)
 	{
-		case SC_MINIMIZE:
-			if (!m_hide)
-				break;
+	case SC_MINIMIZE:
+		if (!m_hide)
+			break;
 
-			if (!m_notifyIconData.cbSize)
-			{
-				m_notifyIconData.cbSize = sizeof(m_notifyIconData);
-				m_notifyIconData.hWnd = *this;
-				m_notifyIconData.uID = 1;
-				m_notifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-				m_notifyIconData.uCallbackMessage = WM_SYSTEMTRAYICON;
-				m_notifyIconData.hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON));
-				CString sWindowText;
-				GetWindowText(sWindowText);
-				_tcscpy_s(m_notifyIconData.szTip, sWindowText);
-				if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData))
-					break;
-			}
-			ShowWindow(SW_HIDE);
-			return 0;
+		if (!m_notifyIconData.cbSize)
+		{
+			m_notifyIconData.cbSize = sizeof(m_notifyIconData);
+			m_notifyIconData.hWnd = *this;
+			m_notifyIconData.uID = 1;
+			m_notifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+			m_notifyIconData.uCallbackMessage = WM_SYSTEMTRAYICON;
+			m_notifyIconData.hIcon =
+				AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON));
+			CString sWindowText;
+			GetWindowText(sWindowText);
+			_tcscpy_s(m_notifyIconData.szTip, sWindowText);
+			if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData))
+				break;
+		}
+		ShowWindow(SW_HIDE);
+		return 0;
 	}
 
 	SetMsgHandled(false);
@@ -566,23 +567,21 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
 	wParam;
 	switch (lParam)
 	{
-		case WM_LBUTTONDBLCLK:
-			SendMessage(WM_COMMAND, SC_RESTORE);
-			break;
-		case WM_RBUTTONUP:
-		{
-			SetForegroundWindow(m_hWnd);
-			CMenuHandle menu = GetSystemMenu(false);
-			menu.EnableMenuItem(SC_RESTORE, MF_BYCOMMAND | MF_ENABLED);
-			menu.EnableMenuItem(SC_MOVE, MF_BYCOMMAND | MF_GRAYED);
-			menu.EnableMenuItem(SC_SIZE, MF_BYCOMMAND | MF_GRAYED);
-			menu.EnableMenuItem(SC_MINIMIZE, MF_BYCOMMAND | MF_GRAYED);
-			menu.EnableMenuItem(SC_MAXIMIZE, MF_BYCOMMAND | MF_GRAYED);
-			menu.EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
-			POINT position = Win32::GetCursorPos();
-			menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, position.x, position.y, m_hWnd);
-		}
-		break;
+	case WM_LBUTTONDBLCLK: SendMessage(WM_COMMAND, SC_RESTORE); break;
+	case WM_RBUTTONUP:
+	{
+		SetForegroundWindow(m_hWnd);
+		CMenuHandle menu = GetSystemMenu(false);
+		menu.EnableMenuItem(SC_RESTORE, MF_BYCOMMAND | MF_ENABLED);
+		menu.EnableMenuItem(SC_MOVE, MF_BYCOMMAND | MF_GRAYED);
+		menu.EnableMenuItem(SC_SIZE, MF_BYCOMMAND | MF_GRAYED);
+		menu.EnableMenuItem(SC_MINIMIZE, MF_BYCOMMAND | MF_GRAYED);
+		menu.EnableMenuItem(SC_MAXIMIZE, MF_BYCOMMAND | MF_GRAYED);
+		menu.EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
+		POINT position = Win32::GetCursorPos();
+		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, position.x, position.y, m_hWnd);
+	}
+	break;
 	}
 	return 0;
 }
@@ -752,15 +751,16 @@ void CMainFrame::AddFilterView()
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
-    auto pTabItem = std::make_unique<SelectedTabItem>();
-    pTabItem->Create(*this);
-    
-    auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
-    pView->Create(pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+	auto pTabItem = std::make_unique<SelectedTabItem>();
+	pTabItem->Create(*this);
+
+	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
+	pView->Create(
+		pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 	pView->SetFont(m_hFont.get());
 
-    pTabItem->SetText(name.c_str());
-    pTabItem->SetView(pView);
+	pTabItem->SetText(name.c_str());
+	pTabItem->SetView(pView);
 
 	int newIndex = GetTabCtrl().GetItemCount();
 	GetTabCtrl().InsertItem(newIndex, pTabItem.release());
@@ -784,9 +784,8 @@ LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 	if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
 		SetModifiedMark(nmhdr.iItem2, false);
 
-	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 ||
-		nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() ||
-		nmhdr.iItem2 < 0 || nmhdr.iItem2 >= GetViewCount())
+	if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 || nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() || nmhdr.iItem2 < 0 ||
+		nmhdr.iItem2 >= GetViewCount())
 		return 0;
 
 	int line = GetView(nmhdr.iItem1).GetFocusLine();
@@ -1082,8 +1081,8 @@ void CMainFrame::OnFileLoadConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWin
 
 void CMainFrame::OnFileSaveConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	CFileDialog dlg(false, L".dbconf", m_configFileName.c_str(), OFN_OVERWRITEPROMPT,
-		L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
+	CFileDialog dlg(
+		false, L".dbconf", m_configFileName.c_str(), OFN_OVERWRITEPROMPT, L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save View Configuration";
 	if (dlg.DoModal() == IDOK)
@@ -1173,10 +1172,9 @@ void CMainFrame::Resume()
 		}
 		catch (std::exception&)
 		{
-			MessageBox(
-				L"Unable to capture Win32 Messages.\n"
-				L"\n"
-				L"Another DebugView++ (or similar application) might be running.\n",
+			MessageBox(L"Unable to capture Win32 Messages.\n"
+					   L"\n"
+					   L"Another DebugView++ (or similar application) might be running.\n",
 				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			return;
 		}
@@ -1190,13 +1188,12 @@ void CMainFrame::Resume()
 		}
 		catch (std::exception&)
 		{
-			MessageBox(
-				L"Unable to capture Global Win32 Messages.\n"
-				L"\n"
-				L"Make sure you have appropriate permissions.\n"
-				L"\n"
-				L"You may need to start this application by right-clicking it and selecting\n"
-				L"'Run As Administator' even if you have administrator rights.",
+			MessageBox(L"Unable to capture Global Win32 Messages.\n"
+					   L"\n"
+					   L"Make sure you have appropriate permissions.\n"
+					   L"\n"
+					   L"You may need to start this application by right-clicking it and selecting\n"
+					   L"'Run As Administator' even if you have administrator rights.",
 				m_applicationName.c_str(), MB_ICONERROR | MB_OK);
 			m_tryGlobal = false;
 		}
@@ -1325,17 +1322,12 @@ void CMainFrame::AddLogSource(const SourceInfo& info)
 {
 	switch (info.type)
 	{
-		case SourceType::DebugViewAgent:
-			m_logSources.AddDbgviewReader(Str(info.address));
-			break;
-		case SourceType::Udp:
-			m_logSources.AddUDPReader(info.port);
-			break;
-		case SourceType::Tcp:
-			throw std::exception("SourceType::Tcp not implememted");
-		default:
-			// do nothing
-			throw std::exception("SourceType not implememted");
+	case SourceType::DebugViewAgent: m_logSources.AddDbgviewReader(Str(info.address)); break;
+	case SourceType::Udp: m_logSources.AddUDPReader(info.port); break;
+	case SourceType::Tcp: throw std::exception("SourceType::Tcp not implememted");
+	default:
+		// do nothing
+		throw std::exception("SourceType not implememted");
 	}
 }
 

@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -28,7 +28,10 @@ BEGIN_MSG_MAP2(CSourceDlg)
 END_MSG_MAP()
 
 CSourceDlg::CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port) :
-	m_name(name), m_sourceType(sourceType), m_address(address), m_port(port)
+	m_name(name),
+	m_sourceType(sourceType),
+	m_address(address),
+	m_port(port)
 {
 }
 
@@ -111,5 +114,5 @@ void CSourceDlg::UpdateUI()
 	GetDlgItem(IDC_IPADDRESS).EnableWindow(sourceType == SourceType::DebugViewAgent || sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

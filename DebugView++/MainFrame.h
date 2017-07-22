@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -11,10 +11,12 @@
 
 #include "atlgdix.h"
 #include "atlcoll.h"
-namespace WTL { using ATL::CString; };
+namespace WTL {
+using ATL::CString;
+};
 
 #pragma warning(push, 3)
-#pragma warning (disable: 4838)
+#pragma warning(disable : 4838)
 
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
@@ -45,38 +47,38 @@ public:
 	void SetView(std::shared_ptr<CLogView> pView);
 	CLogView& GetView();
 
-    void Create(HWND parent) { m_parent = parent;  }
-    HWND GetLogViewParent() { return m_parent; }
+	void Create(HWND parent) { m_parent = parent; }
+	HWND GetLogViewParent() { return m_parent; }
+
 private:
-	 std::shared_ptr<CLogView> m_pView;
-     HWND m_parent;
+	std::shared_ptr<CLogView> m_pView;
+	HWND m_parent;
 };
 
 class CLogViewTabItem2 : public CTabViewTabItem
 {
 public:
-    void SetView(std::shared_ptr<CLogView> pView);
-    CLogView& GetView();
+	void SetView(std::shared_ptr<CLogView> pView);
+	CLogView& GetView();
 
-    void Create(HWND parent);
-    HWND GetLogViewParent() { return m_top; }
+	void Create(HWND parent);
+	HWND GetLogViewParent() { return m_top; }
 
 private:
-    std::shared_ptr<CLogView> m_pView;
-    CHorSplitterWindow m_split;
-    CPaneContainer m_top;
-    CPaneContainer m_bottom;
-    gdi::CTimelineView m_timelineView;
+	std::shared_ptr<CLogView> m_pView;
+	CHorSplitterWindow m_split;
+	CPaneContainer m_top;
+	CPaneContainer m_bottom;
+	gdi::CTimelineView m_timelineView;
 };
 
 using SelectedTabItem = CLogViewTabItem;
 
-class CMainFrame :
-	public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>>,
-	public CUpdateUI<CMainFrame>,
-	public ExceptionHandler<CMainFrame, std::exception>,
-	public CMessageFilter,
-	public CIdleHandler
+class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>>,
+				   public CUpdateUI<CMainFrame>,
+				   public ExceptionHandler<CMainFrame, std::exception>,
+				   public CMessageFilter,
+				   public CIdleHandler
 {
 public:
 	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>> TabbedFrame;
@@ -243,5 +245,5 @@ private:
 	LogSources m_logSources;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

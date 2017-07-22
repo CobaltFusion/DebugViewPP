@@ -26,13 +26,13 @@ public:
 private:
 	DECLARE_MSG_MAP()
 
-	void OnException();
-	void OnException(const std::exception& ex);
+	void OnException() const;
+	void OnException(const std::exception& ex) const;
 	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
 	void OnUnlimited(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/);
 	void OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 	void OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
-	void UpdateUi();
+	void UpdateUi() const;
 
 	int m_historySize;
 	bool m_unlimited;

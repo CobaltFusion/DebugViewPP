@@ -417,15 +417,16 @@ void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 	SetPrivilege(hToken.get(), privilege, enablePrivilege);
 }
 
+// this retrieves the GetParentProcessId on platforms that support it
 ULONG_PTR GetParentProcessId()
 {
 	ULONG_PTR pbi[6];
 	ULONG ulSize = 0;
 	long (WINAPI* NtQueryInformationProcess)(HANDLE ProcessHandle, ULONG ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* pReturnLength);
-	*(FARPROC *)&NtQueryInformationProcess = GetProcAddress(LoadLibraryA("NTDLL.DLL"), "NtQueryInformationProcess");
+	*reinterpret_cast<FARPROC *>(&NtQueryInformationProcess) = GetProcAddress(LoadLibraryA("NTDLL.DLL"), "NtQueryInformationProcess");
 	if (NtQueryInformationProcess && NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
 		return pbi[5];
-	return (ULONG_PTR)-1;
+	return static_cast<ULONG_PTR>(-1);
 }
 
 std::vector<std::wstring> GetCommandLineArguments()
@@ -497,7 +498,7 @@ size_t HFile::size() const
 	return size;
 }
 
-void HFile::resize(size_t size)
+void HFile::resize(size_t size) const
 {
 	if (_chsize_s(m_handle, size) != 0)
 		ThrowLastError("_chsize");

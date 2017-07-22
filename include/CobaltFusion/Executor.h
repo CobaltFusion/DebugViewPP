@@ -25,7 +25,7 @@ public:
 
 protected:
 	virtual ~ExecutorBase();
-	unsigned GetId(const ScheduledCall& call) const;
+    static unsigned GetId(const ScheduledCall& call);
 	ScheduledCall MakeScheduledCall(unsigned id);
 
 	static unsigned GetCallId();
@@ -50,7 +50,7 @@ class ScopedScheduledCall
 {
 public:
 	ScopedScheduledCall();
-	ScopedScheduledCall(const ScheduledCall& call);
+	explicit ScopedScheduledCall(const ScheduledCall& call);
 	ScopedScheduledCall(ScopedScheduledCall&& call);
 	~ScopedScheduledCall();
 
@@ -118,8 +118,7 @@ public:
 	bool IsExecutorThread() const;
 	bool IsIdle() const;
 
-	void RunOne();
-	void Clear();
+    virtual void RunOne();
 	void Synchronize();
 
 protected:
@@ -153,7 +152,7 @@ public:
 
 	virtual void Cancel(const ScheduledCall& call) override;
 
-	void RunOne();
+    virtual void RunOne() override;
 
 private:
 	typedef TimedCalls::CallData CallData;

@@ -159,6 +159,7 @@ bool GuiWaitFor(std::function<bool ()> pred)
 		{
 		case -1: Win32::ThrowLastError("GetMessage");
 		case 0: return false;
+        default: break;
 		}
 
 		TranslateMessage(&msg);

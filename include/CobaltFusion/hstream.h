@@ -16,7 +16,7 @@ template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allo
 class basic_handlebuf : public std::basic_streambuf<Elem, Tr>
 {
 public:
-	basic_handlebuf(HANDLE handle, std::size_t buff_sz = 256, std::size_t put_back = 8) :
+    explicit basic_handlebuf(HANDLE handle, std::size_t buff_sz = 256, std::size_t put_back = 8) :
 		m_handle(handle),
 		m_put_back(std::max<std::size_t>(put_back, 1)),
 		m_readBuffer(std::max(buff_sz, m_put_back) + m_put_back)
@@ -88,7 +88,7 @@ template <class Elem, class Tr = std::char_traits<Elem>>
 class basic_handlestream : public std::basic_iostream<Elem, Tr>
 {
 public:
-	basic_handlestream(HANDLE handle) :
+    explicit basic_handlestream(HANDLE handle) :
 		std::basic_iostream<Elem, Tr>(&m_buf),
 		m_buf(handle)
 	{

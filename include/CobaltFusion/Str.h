@@ -45,12 +45,12 @@ public:
 		return m_str.c_str();
 	}
 
-	operator std::string() const
+    operator std::string() const
 	{
 		return m_str;
 	}
 
-	operator const char*() const
+    operator const char*() const
 	{
 		return m_str.c_str();
 	}
@@ -82,12 +82,12 @@ public:
 		return m_str.c_str();
 	}
 
-	operator std::wstring() const
+    operator std::wstring() const
 	{
 		return m_str;
 	}
 
-	operator const wchar_t*() const
+    operator const wchar_t*() const
 	{
 		return m_str.c_str();
 	}

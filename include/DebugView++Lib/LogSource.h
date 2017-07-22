@@ -52,7 +52,7 @@ public:
 	SourceType::type GetSourceType() const;
 
 	// for DBWIN messages
-	void Add(HANDLE handle, const std::string& message);
+	void Add(HANDLE handle, const std::string& message) const;
 
 	// for Loopback messages and DBWIN kernel message that have no PID
 	void Add(DWORD pid, const std::string& processName, const std::string& message);
@@ -61,7 +61,7 @@ public:
 	void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
 
 	// used by Loopback and PolledLogSources writing internal status messages
-	void AddInternal(const std::string& message);
+	void AddInternal(const std::string& message) const;
 
 	// used by FileReader
 	void Add(const std::string& message);

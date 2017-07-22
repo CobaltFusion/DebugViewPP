@@ -43,8 +43,8 @@ std::string VectorStorage::operator[](size_t i) const
 }
 
 SnappyStorage::SnappyStorage() :
-	m_readBlockIndex(-1),
-	m_writeBlockIndex(0)
+	m_writeBlockIndex(0),
+	m_readBlockIndex(-1)
 {
 }
 
@@ -92,12 +92,12 @@ std::string SnappyStorage::operator[](size_t i)
 	return GetString(i);
 }
 
-size_t SnappyStorage::GetBlockIndex(size_t index) const
+size_t SnappyStorage::GetBlockIndex(size_t index)
 {
 	return index / blockSize;
 }
 
-size_t SnappyStorage::GetRelativeIndex(size_t index) const
+size_t SnappyStorage::GetRelativeIndex(size_t index)
 {
 	return index % blockSize;
 }
@@ -136,7 +136,7 @@ std::string SnappyStorage::Compress(const std::vector<std::string>& value) const
 	return data;
 }
 
-std::vector<std::string> SnappyStorage::Decompress(const std::string& value) const
+std::vector<std::string> SnappyStorage::Decompress(const std::string& value)
 {
 	std::vector<std::string> vec;
 

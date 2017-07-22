@@ -102,7 +102,7 @@ public:
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void DoPaint(CDCHandle dc);
-	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+    static BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 	void OnMouseMove(UINT nFlags, CPoint point);
 

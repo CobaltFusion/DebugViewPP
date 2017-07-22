@@ -24,7 +24,7 @@ class CFilterDlg :
 	public ExceptionHandler<CFilterDlg, std::exception>
 {
 public:
-	CFilterDlg(const std::wstring& name, const LogFilter& filter = LogFilter());
+    explicit CFilterDlg(const std::wstring& name, const LogFilter& filter = LogFilter());
 
 	std::wstring GetName() const;
 	LogFilter GetFilters() const;

@@ -42,18 +42,18 @@ public:
 	void OnDestroy();
 	LRESULT OnHeaderItemStateIconClick(NMHDR* phdr);
 	LRESULT OnDrag(NMHDR* phdr);
-	void OnMouseMove(UINT nFlags, CPoint point);
+	void OnMouseMove(UINT nFlags, CPoint point) const;
 	void OnLButtonUp(UINT nFlags, CPoint point);
 	void OnSize(UINT type, CSize size);
 
 private:
 	DECLARE_MSG_MAP()
 
-	void OnException();
-	void OnException(const std::exception& ex);
+	void OnException() const;
+	void OnException(const std::exception& ex) const;
 
 	bool SupportsAutoColor(FilterType::type filterType) const;
-	void UpdateGridColors(int item);
+	void UpdateGridColors(int item) const;
 	void InsertFilter(int item, const Filter& filter);
 	void AddFilter(const Filter& filter);
 	std::wstring GetFilterText(int iItem) const;
@@ -62,7 +62,7 @@ private:
 	COLORREF GetFilterBgColor(int iItem) const;
 	COLORREF GetFilterFgColor(int iItem) const;
 	bool GetFilterEnable(int iItem) const;
-	void SetFilterEnable(int iItem, bool value);
+	void SetFilterEnable(int iItem, bool value) const;
 	Filter GetFilter(int item) const;
 	void UpdateGrid(int focus = 0);
 	void CheckAllItems(bool checked);

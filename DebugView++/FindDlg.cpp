@@ -43,12 +43,12 @@ void CFindDlg::OnDestroy()
 	pLoop->RemoveMessageFilter(this);
 }
 
-void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
+void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/) const
 {
 	m_mainFrame.FindNext(Win32::GetDlgItemText(*this, IDC_TEXT));
 }
 
-void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
+void CFindDlg::OnPrevious(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/) const
 {
 	m_mainFrame.FindPrevious(Win32::GetDlgItemText(*this, IDC_TEXT));
 }

@@ -15,7 +15,12 @@ namespace fusion {
 namespace debugviewpp {
 
 Message::Message(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& msg, COLORREF color) :
-	time(time), systemTime(systemTime), processId(pid), processName(processName), text(msg), color(color)
+	time(time),
+	systemTime(systemTime),
+	processId(pid),
+	processName(processName),
+	text(msg),
+	color(color)
 {
 }
 

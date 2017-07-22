@@ -46,12 +46,10 @@ public:
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 	BOOL PreTranslateMessage(MSG* pMsg) override;
-	int OnCreate(CREATESTRUCT* pCreate);
 	void OnDestroy();
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
-	void OnTextChange(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
-	void OnPrevious(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
-	void OnNext(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/);
+	void OnPrevious(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/) const;
+	void OnNext(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/) const;
 
 private:
 	CMainFrame& m_mainFrame;

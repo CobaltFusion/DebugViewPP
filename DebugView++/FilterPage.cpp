@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -17,16 +17,17 @@
 namespace fusion {
 namespace debugviewpp {
 
-namespace SubItem
-{
-	const int Text = 0;
-	const int Enable = 1;
-	const int Match = 2;
-	const int Type = 3;
-	const int Background = 4;
-	const int Foreground = 5;
-	const int Remove = 6;
-};
+namespace SubItem {
+
+const int Text = 0;
+const int Enable = 1;
+const int Match = 2;
+const int Type = 3;
+const int Background = 4;
+const int Foreground = 5;
+const int Remove = 6;
+
+} // namespace SubItem
 
 template <typename T>
 size_t GetArrayIndex(T value, const T a[], size_t size)
@@ -41,15 +42,21 @@ bool SupportsColor(FilterType::type filterType)
 {
 	switch (filterType)
 	{
-	case FilterType::Exclude: return false;
-	default: return true;
+	case FilterType::Exclude:
+		return false;
+	default:
+		return true;
 	}
 }
 
 CFilterPageImpl::CFilterPageImpl(const FilterType::type* filterTypes, size_t filterTypeCount, const MatchType::type* matchTypes, size_t matchTypeCount, bool supportAutoBg) :
-	m_filterTypes(filterTypes), m_filterTypeCount(filterTypeCount),
-	m_matchTypes(matchTypes), m_matchTypeCount(matchTypeCount),
-	m_supportAutoBg(supportAutoBg)
+	m_filterTypes(filterTypes),
+	m_filterTypeCount(filterTypeCount),
+	m_matchTypes(matchTypes),
+	m_matchTypeCount(matchTypeCount),
+	m_supportAutoBg(supportAutoBg),
+	m_dragItem(0),
+	m_preResizeWidth(0)
 {
 }
 
@@ -68,12 +75,12 @@ BEGIN_MSG_MAP2(CFilterPageImpl)
 	CHAIN_MSG_MAP(CDialogResize<CFilterPageImpl>)
 END_MSG_MAP()
 
-void CFilterPageImpl::OnException()
+void CFilterPageImpl::OnException() const
 {
 	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
-void CFilterPageImpl::OnException(const std::exception& ex)
+void CFilterPageImpl::OnException(const std::exception& ex) const
 {
 	FUSION_REPORT_EXCEPTION(ex.what());
 }
@@ -98,7 +105,7 @@ bool CFilterPageImpl::SupportsAutoColor(FilterType::type filterType) const
 	}
 }
 
-void CFilterPageImpl::UpdateGridColors(int item)
+void CFilterPageImpl::UpdateGridColors(int item) const
 {
 	auto& text = dynamic_cast<CPropertyEditItem&>(*m_grid.GetProperty(item, SubItem::Text));
 	auto& bg = dynamic_cast<CPropertyColorItem&>(*m_grid.GetProperty(item, SubItem::Background));
@@ -175,7 +182,7 @@ BOOL CFilterPageImpl::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 
 	// Now, we can update the format for the first header item,
 	// which corresponds to the first column
-	HDITEM hdi = { 0 };
+	HDITEM hdi = {0};
 	hdi.mask = HDI_FORMAT;
 	header.GetItem(SubItem::Enable, &hdi);
 	hdi.fmt |= HDF_CHECKBOX | HDF_FIXEDWIDTH;
@@ -211,7 +218,7 @@ void CFilterPageImpl::SetHeaderCheckbox()
 	}
 
 	auto header = m_grid.GetHeader();
-	HDITEM hdi = { 0 };
+	HDITEM hdi = {0};
 	hdi.mask = HDI_FORMAT;
 	header.GetItem(SubItem::Enable, &hdi);
 	if (checked)
@@ -244,10 +251,10 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
 		return 0;
 
 	m_dragItem = lv.iItem;
-	POINT pt = { 0 };
+	POINT pt = {0};
 	m_dragImage = m_grid.CreateDragImage(lv.iItem, &pt);
 
-	RECT rect = { 0 };
+	RECT rect = {0};
 	m_grid.GetItemRect(lv.iItem, &rect, LVIR_BOUNDS);
 	m_dragImage.BeginDrag(0, lv.ptAction.x - rect.left, lv.ptAction.y - rect.top);
 	m_dragImage.DragEnter(*this, lv.ptAction);
@@ -256,7 +263,7 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
 	return 0;
 }
 
-void CFilterPageImpl::OnMouseMove(UINT /*nFlags*/, CPoint point)
+void CFilterPageImpl::OnMouseMove(UINT /*nFlags*/, CPoint point) const
 {
 	if (!m_dragImage.IsNull())
 	{
@@ -286,7 +293,7 @@ void CFilterPageImpl::OnLButtonUp(UINT /*nFlags*/, CPoint point)
 }
 
 void CFilterPageImpl::OnSize(UINT /*type*/, CSize size)
-{	
+{
 	m_grid.SetColumnWidth(SubItem::Text, m_grid.GetColumnWidth(SubItem::Text) + size.cx - m_preResizeWidth);
 	m_preResizeWidth = size.cx;
 	SetMsgHandled(false);
@@ -326,7 +333,7 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 	int iSubItem;
 	if (!m_grid.FindProperty(nmhdr.prop, iItem, iSubItem))
 		return FALSE;
-	
+
 	if (iSubItem == SubItem::Match)
 	{
 		auto& type = dynamic_cast<CPropertyListItem&>(*m_grid.GetProperty(iItem, SubItem::Type));
@@ -363,7 +370,7 @@ bool CFilterPageImpl::GetFilterEnable(int iItem) const
 	return val.boolVal != VARIANT_FALSE;
 }
 
-void CFilterPageImpl::SetFilterEnable(int iItem, bool value)
+void CFilterPageImpl::SetFilterEnable(int iItem, bool value) const
 {
 	CComVariant val(value);
 	GetGridItem<CPropertyCheckButtonItem>(m_grid, iItem, SubItem::Enable).SetValue(val);
@@ -439,5 +446,5 @@ void CFilterPageImpl::UpdateGrid(int focus)
 	m_grid.SelectItem(focus);
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

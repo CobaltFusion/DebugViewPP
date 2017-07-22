@@ -29,12 +29,12 @@ CHistoryDlg::CHistoryDlg(int historySize, bool unlimited) :
 {
 }
 
-void CHistoryDlg::OnException()
+void CHistoryDlg::OnException() const
 {
 	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
-void CHistoryDlg::OnException(const std::exception& ex)
+void CHistoryDlg::OnException(const std::exception& ex) const
 {
 	FUSION_REPORT_EXCEPTION(ex.what());
 }
@@ -59,7 +59,7 @@ void CHistoryDlg::OnUnlimited(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 	UpdateUi();
 }
 
-void CHistoryDlg::UpdateUi()
+void CHistoryDlg::UpdateUi() const
 {
 	GetDlgItem(IDC_HISTORY).EnableWindow(!m_unlimited);
 }

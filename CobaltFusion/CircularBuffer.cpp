@@ -5,8 +5,6 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
-
 #include "stdafx.h"
 #include <iostream>
 #include "CobaltFusion/CircularBuffer.h"
@@ -168,7 +166,7 @@ void CircularBuffer::Write(char value)
 	IncreaseWritePointer();
 }
 
-void CircularBuffer::DumpStats()
+void CircularBuffer::DumpStats() const
 {
 	std::cerr << "  m_readOffset:  " << m_readOffset << "\n";
 	std::cerr << "  m_writeOffset: " << m_writeOffset << "\n";

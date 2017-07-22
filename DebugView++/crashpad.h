@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "..\Libraries\crashpad\include\client\crashpad_client.h"
+#include "../Libraries/crashpad/include/client/crashpad_client.h"
 
 #pragma comment(lib, "crashpad_util.lib")
 #pragma comment(lib, "base.lib")
@@ -17,7 +17,6 @@ static bool initializeCrashPad()
 {
     using namespace crashpad;
     CrashpadClient client;
-    bool rc;
 
     std::map<std::string, std::string> annotations;
     std::vector<std::string> arguments;
@@ -75,14 +74,14 @@ static bool initializeCrashPad()
     base::FilePath db(db_path);
     base::FilePath handler(handler_path);
 
-    rc = client.StartHandler(handler,
-        db,
-        db,
-        url,
-        annotations,
-        arguments,
-        true,
-        true);
+    bool rc = client.StartHandler(handler,
+                                  db,
+                                  db,
+                                  url,
+                                  annotations,
+                                  arguments,
+                                  true,
+                                  true);
     if (rc == false)
         return false;
 

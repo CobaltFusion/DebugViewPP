@@ -12,9 +12,9 @@
 namespace fusion {
 
 Timer::Timer() :
-	m_offset(0),
+	m_timerUnit(0.0),
 	m_init(false),
-	m_timerUnit(0.0)
+	m_offset(0)
 {
 	LARGE_INTEGER li;
 	QueryPerformanceFrequency(&li);
@@ -41,7 +41,7 @@ double Timer::Get()
 	return (ticks - m_offset)*m_timerUnit;
 }
 
-long long Timer::GetTicks() const
+long long Timer::GetTicks()
 {
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);

@@ -15,7 +15,7 @@ namespace fusion {
 class thread : private std::thread
 {
 public:
-	thread(std::function<void()> fn) : std::thread(fn)
+    explicit thread(std::function<void()> fn) : std::thread(fn)
 	{
 	}
 
@@ -37,7 +37,7 @@ public:
 
 	id get_id() const
 	{
-		std::thread::get_id();
+		return std::thread::get_id();
 	}
 };
 

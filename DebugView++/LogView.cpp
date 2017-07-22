@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -33,6 +33,7 @@ unsigned GetTextAlign(const HDITEM& item)
 	case HDF_LEFT: return DT_LEFT;
 	case HDF_CENTER: return DT_CENTER;
 	case HDF_RIGHT: return DT_RIGHT;
+	default: break;
 	}
 	return HDF_LEFT;
 }
@@ -81,27 +82,36 @@ void AddEllipsis(HDC hdc, std::wstring& text, int width)
 }
 
 SelectionInfo::SelectionInfo() :
-	beginLine(0), endLine(0), count(0)
+	beginLine(0),
+	endLine(0),
+	count(0)
 {
 }
 
 SelectionInfo::SelectionInfo(int beginLine, int endLine, int count) :
-	beginLine(beginLine), endLine(endLine), count(count)
+	beginLine(beginLine),
+	endLine(endLine),
+	count(count)
 {
 }
 
 TextColor::TextColor(COLORREF back, COLORREF fore) :
-	back(back), fore(fore)
+	back(back),
+	fore(fore)
 {
 }
 
 Highlight::Highlight(int id, int begin, int end, const TextColor& color) :
-	id(id), begin(begin), end(end), color(color)
+	id(id),
+	begin(begin),
+	end(end),
+	color(color)
 {
 }
 
 LogLine::LogLine(int line) :
-	bookmark(false), line(line)
+	bookmark(false),
+	line(line)
 {
 }
 
@@ -159,7 +169,7 @@ BEGIN_MSG_MAP2(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR_BOOKMARKS, OnViewClearBookmarks)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
-	CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>)		//DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
+	CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>) //DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP()
 
@@ -194,6 +204,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 	m_autoScrollDown(true),
 	m_autoScrollStop(true),
 	m_dirty(false),
+	m_changed(false),
 	m_hBookmarkIcon(static_cast<HICON>(LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_BOOKMARK), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR))),
 	m_hBeamCursor(LoadCursor(nullptr, IDC_IBEAM)),
 	m_dragStart(0, 0),
@@ -203,7 +214,7 @@ CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& log
 {
 }
 
-void CLogView::OnException()
+void CLogView::OnException() const
 {
 	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
@@ -265,7 +276,7 @@ void CLogView::UpdateColumns()
 
 ColumnInfo MakeColumn(Column::type column, const wchar_t* name, int format, int width)
 {
-	ColumnInfo info;
+	ColumnInfo info = {0};
 	info.enable = true;
 	info.column.iSubItem = column;
 	info.column.iOrder = column;
@@ -342,7 +353,7 @@ int CLogView::TextHighlightHitTest(int iItem, const POINT& pt)
 	return 0;
 }
 
-void CLogView::OnDropFiles(HDROP hDropInfo)
+void CLogView::OnDropFiles(HDROP hDropInfo) const
 {
 	// forward it to the CMainFrame
 	m_mainFrame.OnDropFiles(hDropInfo);
@@ -392,7 +403,7 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 		case Column::Message:
 			menuId = TextHighlightHitTest(info.iItem, pt) == 1 ? IDR_HIGHLIGHT_CONTEXTMENU : IDR_VIEW_CONTEXTMENU;
 			break;
-		default:	
+		default:
 			menuId = IDR_VIEW_CONTEXTMENU;
 			break;
 		}
@@ -570,7 +581,7 @@ void CLogView::OnTimer(UINT_PTR nIDEvent)
 	Scroll(CSize(m_scrollX, 0));
 }
 
-void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
+void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct) const
 {
 	CClientDC dc(*this);
 
@@ -580,7 +591,7 @@ void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 	pMeasureItemStruct->itemHeight = metric.tmHeight;
 }
 
-void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct)
+void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const
 {
 	DrawItem(pDrawItemStruct->hDC, pDrawItemStruct->itemID, pDrawItemStruct->itemState);
 }
@@ -590,7 +601,7 @@ void CLogView::DeleteItem(DELETEITEMSTRUCT* lParam)
 	COwnerDraw<CLogView>::DeleteItem(lParam);
 }
 
-int CLogView::GetTextIndex(int iItem, int xPos)
+int CLogView::GetTextIndex(int iItem, int xPos) const
 {
 	CClientDC dc(*this);
 	Win32::GdiObjectSelection font(dc, GetFont());
@@ -639,7 +650,7 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMLISTVIEW*>(pnmh);
 
 	if ((nmhdr.uNewState & LVIS_FOCUSED) == 0 ||
-		nmhdr.iItem < 0  ||
+		nmhdr.iItem < 0 ||
 		static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
 		return 0;
 
@@ -762,7 +773,7 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 	AddEllipsis(hdc, text, rect.right - rect.left);
 
 	int height = GetTextSize(hdc, text, text.size()).cy;
-	POINT pos = { rect.left, rect.top + (rect.bottom - rect.top - height)/2 };
+	POINT pos = {rect.left, rect.top + (rect.bottom - rect.top - height) / 2};
 	RECT rcHighlight = rect;
 	for (auto& highlight : highlights)
 	{
@@ -787,7 +798,7 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 	if (!m_logLines[iItem].bookmark)
 		return;
 	RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
-	dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16)/2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
+	dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16) / 2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
 }
 
 ItemData CLogView::GetItemData(int iItem) const
@@ -809,9 +820,9 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 {
 	auto rect = GetSubItemRect(iItem, ColumnToSubItem(Column::Message), LVIR_BOUNDS);
 	auto dragStart = m_dragStart;
-	dragStart.x -=  GetScrollPos(SB_HORZ);
+	dragStart.x -= GetScrollPos(SB_HORZ);
 	auto dragEnd = m_dragEnd;
-	dragEnd.x -=  GetScrollPos(SB_HORZ);
+	dragEnd.x -= GetScrollPos(SB_HORZ);
 	if (!m_dragging || !Contains(rect, dragStart))
 		return Highlight(0, 0, 0, TextColor(0, 0));
 
@@ -877,6 +888,7 @@ std::string CLogView::GetColumnText(int iItem, Column::type column) const
 	case Column::Pid: return std::to_string(msg.processId + 0ULL);
 	case Column::Process: return Str(msg.processName).str();
 	case Column::Message: return msg.text;
+	default: break;
 	}
 	return std::string();
 }
@@ -905,8 +917,7 @@ SelectionInfo CLogView::GetSelectedRange() const
 	{
 		last = item;
 		item = GetNextItem(item, LVNI_SELECTED);
-	}
-	while (item > 0);
+	} while (item > 0);
 
 	return SelectionInfo(m_logLines[first].line, m_logLines[last].line, last - first + 1);
 }
@@ -938,7 +949,7 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 	auto& nmhdr = *reinterpret_cast<NMLVFINDITEM*>(pnmh);
 
 	std::string text(Str(nmhdr.lvfi.psz).str());
-//	int line = nmhdr.iStart; // Does not work as specified...
+	//	int line = nmhdr.iStart; // Does not work as specified...
 	int line = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
 	while (line != static_cast<int>(m_logLines.size()))
 	{
@@ -979,7 +990,7 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	StopTracking();
 
 	SetCapture();
-	m_dragging = true; 
+	m_dragging = true;
 	m_dragStart = nmhdr.ptAction;
 	m_dragStart.x += GetScrollPos(SB_HORZ);
 	m_dragEnd = nmhdr.ptAction;
@@ -1232,7 +1243,7 @@ void CLogView::DoPaint(CDCHandle dc)
 	RECT rect;
 	dc.GetClipBox(&rect);
 	dc.FillSolidRect(&rect, Colors::BackGround);
- 
+
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 }
 
@@ -1321,7 +1332,7 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
 		return;
 
 	if (IsBeepMessage(msg))
-		MessageBeep(0xFFFFFFFF);	// A simple beep. If the sound card is not available, the sound is generated using the speaker.
+		MessageBeep(0xFFFFFFFF); // A simple beep. If the sound card is not available, the sound is generated using the speaker.
 
 	m_dirty = true;
 	m_changed = true;
@@ -1335,8 +1346,7 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
 
 	if (m_autoScrollDown && MatchFilterType(FilterType::Stop, msg))
 	{
-		m_stop = [this, viewline] ()
-		{
+		m_stop = [this, viewline]() {
 			StopScrolling();
 			ScrollToIndex(viewline, true);
 		};
@@ -1346,8 +1356,7 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
 	if (MatchFilterType(FilterType::Track, msg))
 	{
 		m_autoScrollDown = false;
-		m_track = [this, viewline] () 
-		{ 
+		m_track = [this, viewline]() {
 			return ScrollToIndex(viewline, true);
 		};
 	}
@@ -1369,12 +1378,12 @@ bool CLogView::EndUpdate()
 		m_dirty = false;
 	}
 
-	if (m_stop) 
+	if (m_stop)
 	{
 		m_stop();
 		m_stop = nullptr;
 	}
-	if (m_track) 
+	if (m_track)
 	{
 		if (m_track())
 		{
@@ -1436,11 +1445,11 @@ bool CLogView::ScrollToIndex(int index, bool center)
 	int paddingLines = GetCountPerPage() / 2;
 	int minTopIndex = std::max(0, index - paddingLines);
 
-	// this ensures the line is visible and not at the top of the view 
+	// this ensures the line is visible and not at the top of the view
 	// if it does not need to be, also when coming from a higher index
 	EnsureVisible(minTopIndex, false);
 	EnsureVisible(index, false);
-	
+
 	if (index > paddingLines)
 	{
 		// if there are more items above the index then half a page, then centering may be possible.
@@ -1497,12 +1506,7 @@ std::wstring CLogView::GetItemWText(int item, int subItem) const
 
 std::string CLogView::GetItemText(int item) const
 {
-	return stringbuilder() <<
-		GetColumnText(item, Column::Line) << "\t" <<
-		GetColumnText(item, Column::Time) << "\t" <<
-		GetColumnText(item, Column::Pid) << "\t" <<
-		GetColumnText(item, Column::Process) << "\t" <<
-		GetColumnText(item, Column::Message);
+	return stringbuilder() << GetColumnText(item, Column::Line) << "\t" << GetColumnText(item, Column::Time) << "\t" << GetColumnText(item, Column::Pid) << "\t" << GetColumnText(item, Column::Process) << "\t" << GetColumnText(item, Column::Message);
 }
 
 void CLogView::Copy()
@@ -1569,8 +1573,7 @@ int CLogView::FindLine(Predicate pred, int direction) const
 
 		if (pred(m_logLines[line]))
 			return line;
-	}
-	while (line != begin);
+	} while (line != begin);
 
 	return -1;
 }
@@ -1666,7 +1669,8 @@ void CLogView::SaveSettings(CRegKey& reg)
 
 void CLogView::SaveSelection(const std::wstring& fileName) const
 {
-	if (!m_highlightText.empty()) return; // token selection is invalid input for SaveSelection
+	if (!m_highlightText.empty())
+		return; // token selection is invalid input for SaveSelection
 
 	std::ofstream fs;
 	OpenLogFile(fs, fileName);
@@ -1752,7 +1756,7 @@ void CLogView::ApplyFilters()
 	auto itBookmark = bookmarks.begin();
 
 	std::deque<LogLine> logLines;
-//	logLines.reserve(m_logLines.size());
+	//	logLines.reserve(m_logLines.size());
 	int count = m_logFile.Count();
 	int line = m_firstLine;
 	int item = 0;
@@ -1855,10 +1859,9 @@ bool CLogView::IsIncluded(const Message& msg)
 bool CLogView::MatchFilterType(FilterType::type type, const Message& msg) const
 {
 	using debugviewpp::MatchFilterType;
-	return
-		MatchFilterType(m_filter.messageFilters, type, msg.text) ||
-		MatchFilterType(m_filter.processFilters, type, msg.processName);
+	return MatchFilterType(m_filter.messageFilters, type, msg.text) ||
+		   MatchFilterType(m_filter.processFilters, type, msg.processName);
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

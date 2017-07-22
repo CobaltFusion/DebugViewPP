@@ -458,12 +458,8 @@ int Main(int argc, char* argv[])
 				UdpTest(argv[i + 1], std::stoi(argv[i + 2]));
 				return 0;
 			}
-			else
-			{
-				PrintUsage();
-				return -1;
-			}
-			return 0;
+			PrintUsage();
+			return -1;
 		}
 		else if (arg == "-B")
 		{

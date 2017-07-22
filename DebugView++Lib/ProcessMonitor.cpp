@@ -5,8 +5,6 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
-
 #include "stdafx.h"
 #include <array>
 #include "Win32/Win32Lib.h"

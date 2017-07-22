@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -201,7 +201,7 @@ void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
 
 struct WaitResult
 {
-	WaitResult(bool signaled = false, int index = 0);
+	explicit WaitResult(bool signaled = false, int index = 0);
 	bool signaled;
 	int index;
 };
@@ -291,7 +291,7 @@ public:
 	explicit HFile(const std::string& filename);
 	~HFile();
 	size_t size() const;
-	void resize(size_t size);
+	void resize(size_t size) const;
 
 private:
 	int m_handle;

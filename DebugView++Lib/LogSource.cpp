@@ -5,8 +5,6 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#pragma once
-
 #include "stdafx.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/LogSource.h"
@@ -16,9 +14,9 @@
 namespace fusion {
 namespace debugviewpp {
 
-LogSource::LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer) : 
+LogSource::LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer) :
 	m_timer(timer),
-	m_sourceType(sourceType), 
+	m_sourceType(sourceType),
 	m_linebuffer(linebuffer),
 	m_autoNewLine(true),
 	m_end(false)
@@ -84,7 +82,7 @@ void LogSource::Add(DWORD pid, const std::string& processName, const std::string
 	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), pid, processName, message, this);
 }
 
-void LogSource::Add(HANDLE handle, const std::string& message)
+void LogSource::Add(HANDLE handle, const std::string& message) const
 {
 	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), handle, message, this);
 }
@@ -94,7 +92,7 @@ void LogSource::Add(const std::string& message)
 	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "", message, this);
 }
 
-void LogSource::AddInternal(const std::string& message)
+void LogSource::AddInternal(const std::string& message) const
 {
 	m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "[internal]", message, this);
 }

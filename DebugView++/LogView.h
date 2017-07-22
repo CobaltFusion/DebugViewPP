@@ -174,17 +174,17 @@ public:
 	SelectionInfo GetViewRange() const;
 	SelectionInfo GetSelectedRange() const;
 
-	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct);
-	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct);
+	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct) const;
+	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const;
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 
 private:
 	DECLARE_MSG_MAP()
 
-	void OnException();
+	void OnException() const;
 	void OnException(const std::exception& ex);
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
-	void OnDropFiles(HDROP hDropInfo);
+	void OnDropFiles(HDROP hDropInfo) const;
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	void OnLButtonDown(UINT flags, CPoint point);
 	void OnMouseMove(UINT flags, CPoint point);
@@ -240,7 +240,7 @@ private:
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;
 	Column::type SubItemToColumn(int iSubItem) const;
-	int GetTextIndex(int iItem, int xPos);
+	int GetTextIndex(int iItem, int xPos) const;
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	int TextHighlightHitTest(int iItem, const POINT& pt);
 	double GetRelativeTime(int iItem);

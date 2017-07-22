@@ -110,7 +110,7 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 		true,
 		0,
 		nullptr,
-		0,
+		nullptr,
 		&startupInfo,
 		&processInformation))
 		ThrowLastError("CreateProcess");

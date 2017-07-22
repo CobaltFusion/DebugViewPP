@@ -21,7 +21,7 @@ public:
 	double Get();
 
 private:
-	long long GetTicks() const;
+    static long long GetTicks();
 
 	double m_timerUnit;
 	bool m_init;
