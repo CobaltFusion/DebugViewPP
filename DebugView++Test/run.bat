@@ -1,3 +1,7 @@
 @echo on
 set
 
+dir %BUILD_BINARIESDIRECTORY%
+
+%BUILD_BINARIESDIRECTORY%\CobaltFusionTest.exe
+%BUILD_BINARIESDIRECTORY%\DebugView++Test.exe
