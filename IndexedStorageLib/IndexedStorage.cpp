@@ -153,5 +153,12 @@ std::vector<std::string> SnappyStorage::Decompress(const std::string& value)
 	return vec;
 }
 
+void SnappyStorage::shrink_to_fit()
+{
+    m_readList.shrink_to_fit();
+    m_writeList.shrink_to_fit();
+    m_storage.shrink_to_fit();
+}
+
 } // namespace indexedstorage 
 } // namespace fusion

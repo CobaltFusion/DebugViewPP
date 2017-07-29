@@ -117,7 +117,6 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	case FILE_TYPE_PIPE: hPipe = hStdIn; break;
 	default: break;
 	}
-	assert((hFile != nullptr) && "unknown file type");
 
 	if (hPipe && IsDBWinViewerActive())
 		return ForwardMessagesFromPipe(hPipe);

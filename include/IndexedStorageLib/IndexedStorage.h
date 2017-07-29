@@ -41,7 +41,7 @@ public:
 
 	std::string Compress(const std::vector<std::string>& value) const;
     static std::vector<std::string> Decompress(const std::string& value);
-
+    void shrink_to_fit();
 private:
     static size_t GetBlockIndex(size_t index);
     static size_t GetRelativeIndex(size_t index);
@@ -51,7 +51,6 @@ private:
 	size_t m_readBlockIndex;
 	std::vector<std::string> m_readList;
 	std::vector<std::string> m_writeList;
-
 	std::vector<std::string> m_storage;
 };
 
