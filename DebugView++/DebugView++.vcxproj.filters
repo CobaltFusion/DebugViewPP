@@ -60,6 +60,9 @@
     <ClCompile Include="FileOptionDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DropTargetSupport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -114,6 +117,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crashpad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DropTargetSupport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

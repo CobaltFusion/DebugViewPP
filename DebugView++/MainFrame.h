@@ -15,6 +15,9 @@ namespace WTL {
 using ATL::CString;
 };
 
+#include <atlcom.h>
+#include "DropTargetSupport.h"
+
 #pragma warning(push, 3)
 #pragma warning(disable : 4838)
 
@@ -243,6 +246,7 @@ private:
 	std::vector<SourceInfo> m_sourceInfos;
 	std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;
 	LogSources m_logSources;
+    CComObject<DropTargetSupport> * m_pDropTargetSupport;
 };
 
 } // namespace debugviewpp

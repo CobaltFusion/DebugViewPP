@@ -294,6 +294,7 @@
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="DebugView++.cpp" />
+    <ClCompile Include="DropTargetSupport.cpp" />
     <ClCompile Include="FileOptionDlg.cpp" />
     <ClCompile Include="FilterDlg.cpp" />
     <ClCompile Include="FindDlg.cpp" />
@@ -316,6 +317,7 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="crashpad.h" />
+    <ClInclude Include="DropTargetSupport.h" />
     <ClInclude Include="FileOptionDlg.h" />
     <ClInclude Include="FilterDlg.h" />
     <ClInclude Include="FindDlg.h" />
