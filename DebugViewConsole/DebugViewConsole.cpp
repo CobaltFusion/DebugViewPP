@@ -50,8 +50,11 @@ struct Settings
 	bool console;
 	bool verbose;
 	std::string filename;
-	std::vector<std::string> include;
-	std::vector<std::string> exclude;
+    std::vector<std::string> include;
+    std::vector<std::string> exclude;
+    std::vector<std::string> includeprocesses;
+    std::vector<std::string> excludeprocesses;
+    std::string quitmessage;
 };
 
 void OutputDetails(Settings settings, const Line& line)
@@ -83,9 +86,10 @@ void Quit()
 	g_quit = true;
 }
 
-bool IsQuitMessage(const std::string& line)
+bool ContainsText(const std::string& line, const std::string& message)
 {
-	return line.find("<DebugviewConsoleQuitMessage>") != std::string::npos;
+	if (message.empty()) return false;
+	return line.find(message) != std::string::npos;
 }
 
 bool IsEventSet(Win32::Handle& handle)
@@ -98,6 +102,13 @@ void AddMessageFilter(LogFilter& filter, FilterType::type filterType, const std:
     auto bgColor = COLORREF();
     auto fgColor = COLORREF();
     filter.messageFilters.push_back(Filter(pattern, MatchType::Simple, filterType, bgColor, fgColor));
+}
+
+void AddProcessFilter(LogFilter& filter, FilterType::type filterType, const std::string pattern)
+{
+    auto bgColor = COLORREF();
+    auto fgColor = COLORREF();
+    filter.processFilters.push_back(Filter(pattern, MatchType::Simple, filterType, bgColor, fgColor));
 }
 
 bool IsIncluded(LogFilter& filter, const Line& line)
@@ -129,6 +140,16 @@ void LogMessages(Settings settings)
 		AddMessageFilter(filter, FilterType::Exclude, value);
 	}
 
+	for (const auto& value : settings.includeprocesses)
+	{
+		AddProcessFilter(filter, FilterType::Include, value);
+	}
+
+	for (const auto& value : settings.excludeprocesses)
+	{
+		AddProcessFilter(filter, FilterType::Exclude, value);
+	}
+
 	std::ofstream fs;
 	if (!settings.filename.empty())
 	{
@@ -156,7 +177,7 @@ void LogMessages(Settings settings)
 		int linenumber = 0;
 		for (const auto& line : lines)
 		{
-			if (IsQuitMessage(line.message))
+			if (ContainsText(line.message, settings.quitmessage))
 			{
 				Quit();
 				break;
@@ -224,7 +245,7 @@ static const char USAGE[] =
 R"(DebugviewConsole )" VERSION_STR
 R"(
     Usage:
-        DebugviewConsole [-acflsqtpnv] [-d <file>] [-i <pattern>, --include <pattern>]... [-e <pattern>, --exclude <pattern>]... 
+        DebugviewConsole [-acflsqtpnv] [-d <file>] [-i <pattern>]... [-e <pattern>]... [-m <message>] [--include-process <pattern>]... [--exclude-process <pattern>]...
         DebugviewConsole (-h | --help)
         DebugviewConsole [-x]
         DebugviewConsole [-u]
@@ -233,6 +254,8 @@ R"(
         -h, --help                          show this screen
         -i <pattern>, --include <pattern>   include filter, may be specified multiple times
         -e <pattern>, --exclude <pattern>   exclude filter, may be specified multiple times
+        --include-process <pattern>         include filter for process names
+        --exclude-process <pattern>         exclude filter for process names
         -a              auto-newline, most people want this
         -c              enable console output
         -d <file>       write to .dblog file
@@ -250,6 +273,7 @@ R"(
         -f              aggressively flush buffers, if unsure, do not use
         -x              stop all running debugviewconsole instances
         -u              send a UDP test-message, used only for debugging
+        -m <message>, --quit-message <message>  if this message is received the application exits
 )";
 
 fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt::value>& args)
@@ -267,8 +291,12 @@ fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt:
 	settings.tabs = args.at("-q").asBool();
 	settings.pid = args.at("-p").asBool();
 	settings.processName = args.at("-n").asBool();
-	settings.include = args.at("--include").asStringList();
-	settings.exclude = args.at("--exclude").asStringList();
+    settings.include = args.at("--include").asStringList();
+    settings.exclude = args.at("--exclude").asStringList();
+    settings.includeprocesses = args.at("--include-process").asStringList();
+    settings.excludeprocesses = args.at("--exclude-process").asStringList();
+    auto quitmessageEntry = args.at("--quit-message");
+	settings.quitmessage = (quitmessageEntry) ? quitmessageEntry.asString() : "";
 	return settings;
 }
 
