@@ -1,11 +1,11 @@
 Cobalt Fusion presents:
 
-DebugView++
+Debugview++
 ----------
 
 [Download latest here](https://github.com/djeedjay/DebugViewPP/releases)
 
-DebugView++ started as a viewer for Win32 OutputDebugString messages in the style of
+Debugview++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
 - tailing ascii and UTF logfiles (just drag it onto the window)
 - Android ADB (or any console based standard output)
@@ -98,7 +98,7 @@ And more features:
 
 Added in 1.5:
 
-- added console version (DebugViewConsole.exe) for use without UI
+- added console version (DebugviewConsole.exe) for use without UI
 - several minor UI bugs fixed
 - dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
