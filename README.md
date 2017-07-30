@@ -1,11 +1,11 @@
 Cobalt Fusion presents:
 
-DebugView++
+Debugview++
 ----------
 
 [Download latest here](https://github.com/djeedjay/DebugViewPP/releases)
 
-DebugView++ started as a viewer for Win32 OutputDebugString messages in the style of
+Debugview++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
 - tailing ascii and UTF logfiles (just drag it onto the window)
 - Android ADB (or any console based standard output)
@@ -42,10 +42,13 @@ So when is this Debugview++ thing usefull?
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
 Expected changes in next stable version 1.8.x:
-- bugfixes
-- last version with (official) XP support (v140_xp target)
+- bugfixes (namely in file-tailing)
+- tested on windows 10
+- last version with (official) XP support (v141_xp target)
 - internal refactoring from boost to C++11/14 constructs
-- no new features planned, if you're missing something you need, file an issue!
+- better commandline support using docopt.cpp
+- added filtering command line options
+- no other new features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
 - a gantt chart-like view, a horzontal timeline, with bars/flags/signs on it to identify events
@@ -77,8 +80,7 @@ Here are some features:
 - tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
-
-- after v1.8 we drop WindowsXP support, allowing us to move to C++17 or at least the parts that are available in vs2017/ v141 
+ 
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve process PID to name and track their lifetime
@@ -99,7 +101,7 @@ And more features:
 
 Added in 1.5:
 
-- added console version (DebugViewConsole.exe) for use without UI
+- added console version (DebugviewConsole.exe) for use without UI
 - several minor UI bugs fixed
 - dbgview agent client mode allowing logging of kernel messages
 - added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
@@ -124,7 +126,7 @@ Changes in 1.7.x so far:
 - fixed all tests
 - fixed threading-issues
 
-Download latest version (stable, dated 20 Sept 2015)
+Download old version (stable, dated 20 Sept 2015)
 -----------------------
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
