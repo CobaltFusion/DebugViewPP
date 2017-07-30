@@ -17,7 +17,20 @@
         <Edition>Pro</Edition>
       </VisualStudio>
       <VisualStudio Version="14.0">
-        <Edition>Community</Edition>
+         <Edition>Community</Edition>
+          <Edition>Pro</Edition>
+      </VisualStudio>
+      <VisualStudio Version="15.0">  <!-- VS 2017-->
+          <Edition>Community</Edition>
+          <Edition>Pro</Edition>
+      </VisualStudio>
+      <VisualStudio Version="16.0">  <!-- VS 20.. future version? -->
+          <Edition>Community</Edition>
+          <Edition>Pro</Edition>
+      </VisualStudio>
+      <VisualStudio Version="17.0">  <!-- VS 20.. future version? -->
+          <Edition>Community</Edition>
+          <Edition>Pro</Edition>
       </VisualStudio>
     </SupportedProducts>
     <SupportedFrameworkRuntimeEdition MinVersion="4.0" />
