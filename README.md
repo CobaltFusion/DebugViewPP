@@ -45,7 +45,9 @@ Expected changes in next stable version 1.8.x:
 - bugfixes
 - last version with (official) XP support (v141_xp target)
 - internal refactoring from boost to C++11/14 constructs
-- no new features planned, if you're missing something you need, file an issue!
+- better commandline support using docopt.cpp
+- added filtering command line options
+- no other new features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
 - a gantt chart-like view, a horzontal timeline, with bars/flags/signs on it to identify events
