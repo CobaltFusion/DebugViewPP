@@ -42,7 +42,8 @@ So when is this Debugview++ thing usefull?
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
 Expected changes in next stable version 1.8.x:
-- bugfixes
+- bugfixes (namely in file-tailing)
+- tested on windows 10
 - last version with (official) XP support (v141_xp target)
 - internal refactoring from boost to C++11/14 constructs
 - better commandline support using docopt.cpp
