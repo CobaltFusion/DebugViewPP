@@ -43,7 +43,7 @@ So when is this Debugview++ thing usefull?
 
 Expected changes in next stable version 1.8.x:
 - bugfixes
-- last version with (official) XP support (v140_xp target)
+- last version with (official) XP support (v141_xp target)
 - internal refactoring from boost to C++11/14 constructs
 - no new features planned, if you're missing something you need, file an issue!
 
@@ -77,8 +77,7 @@ Here are some features:
 - tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
-
-- after v1.8 we drop WindowsXP support, allowing us to move to C++17 or at least the parts that are available in vs2017/ v141 
+ 
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve process PID to name and track their lifetime
@@ -124,7 +123,7 @@ Changes in 1.7.x so far:
 - fixed all tests
 - fixed threading-issues
 
-Download latest version (stable, dated 20 Sept 2015)
+Download old version (stable, dated 20 Sept 2015)
 -----------------------
 + [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
 + [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
