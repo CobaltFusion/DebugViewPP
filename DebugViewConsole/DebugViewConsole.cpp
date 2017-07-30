@@ -27,6 +27,11 @@
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
+
+#include "DebugView++Lib/Filter.h"
+#include "DebugView++Lib/LogFile.h"
+
+#define DOCOPT_HEADER_ONLY
 #include "docopt.h"
 
 namespace fusion {
@@ -88,10 +93,23 @@ bool IsEventSet(Win32::Handle& handle)
 	return Win32::WaitForSingleObject(handle, 0);
 }
 
+void AddMessageFilter(LogFilter& filter, FilterType::type filterType, const std::string pattern)
+{
+    auto bgColor = COLORREF();
+    auto fgColor = COLORREF();
+    filter.messageFilters.push_back(Filter(pattern, MatchType::Simple, filterType, bgColor, fgColor));
+}
+
+bool IsIncluded(LogFilter& filter, const Line& line)
+{
+    MatchColors matchcolors; //  not used on the command-line
+    return IsIncluded(filter.processFilters, line.processName, matchcolors) && IsIncluded(filter.messageFilters, line.message, matchcolors);
+}
+
 void LogMessages(Settings settings)
 {
 	using namespace std::chrono_literals;
-
+	LogFilter filter;
 	ActiveExecutorClient executor;
 	LogSources logsources(executor);
 	executor.Call([&] {
@@ -100,6 +118,16 @@ void LogMessages(Settings settings)
 			logsources.AddDBWinReader(true);
 		logsources.SetAutoNewLine(settings.autonewline);
 	});
+
+	for (const auto& value : settings.include)
+	{
+		AddMessageFilter(filter, FilterType::Include, value);
+	}
+
+	for (const auto& value : settings.exclude)
+	{
+		AddMessageFilter(filter, FilterType::Exclude, value);
+	}
 
 	std::ofstream fs;
 	if (!settings.filename.empty())
@@ -126,13 +154,17 @@ void LogMessages(Settings settings)
 			lines = logsources.GetLines();
 		});
 		int linenumber = 0;
-		for (auto& line : lines)
+		for (const auto& line : lines)
 		{
 			if (IsQuitMessage(line.message))
 			{
 				Quit();
 				break;
 			}
+
+			if (!debugviewpp::IsIncluded(filter, line))
+				continue;
+
 			if (settings.console)
 			{
 				if (settings.linenumber)
@@ -191,9 +223,8 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 static const char USAGE[] =
 R"(DebugviewConsole )" VERSION_STR
 R"(
-    Usage: 
-        DebugviewConsole [-i <pattern>, --include <pattern>]... [-e <pattern>, --exclude <pattern>]... 
-        DebugviewConsole [-acflsqtpnv] [-d <file>]
+    Usage:
+        DebugviewConsole [-acflsqtpnv] [-d <file>] [-i <pattern>, --include <pattern>]... [-e <pattern>, --exclude <pattern>]... 
         DebugviewConsole (-h | --help)
         DebugviewConsole [-x]
         DebugviewConsole [-u]
@@ -224,9 +255,8 @@ R"(
 fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt::value>& args)
 {
 	auto settings = fusion::debugviewpp::Settings();
-
-    auto filenameEntry = args.at("-d");
-    settings.filename = (filenameEntry) ? filenameEntry.asString() : "";
+	auto filenameEntry = args.at("-d");
+	settings.filename = (filenameEntry) ? filenameEntry.asString() : "";
 	settings.autonewline = args.at("-a").asBool();
 	settings.flush = args.at("-f").asBool();
 	settings.console = args.at("-c").asBool();
@@ -237,6 +267,8 @@ fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt:
 	settings.tabs = args.at("-q").asBool();
 	settings.pid = args.at("-p").asBool();
 	settings.processName = args.at("-n").asBool();
+	settings.include = args.at("--include").asStringList();
+	settings.exclude = args.at("--exclude").asStringList();
 	return settings;
 }
 
@@ -297,11 +329,11 @@ try
 		return 0;
 	}
 
-    if (settings.filename.empty() && settings.console == false)
-    {
-        std::cout << "Neither output to logfile or console was specified, noting to do...\n";
-        return 1;
-    }
+	if (settings.filename.empty() && settings.console == false)
+	{
+		std::cout << "Neither output to logfile or console was specified, noting to do...\n";
+		return 1;
+	}
 
 	std::cout << "Listening for OutputDebugString messages..." << std::endl;
 	LogMessages(settings);
