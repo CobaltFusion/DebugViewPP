@@ -75,12 +75,10 @@ void CLogViewTabItem2::Create(HWND parent)
 	DisablePaneHeader(m_top);
 	DisablePaneHeader(m_bottom);
 	m_split.SetSplitterPanes(m_top, m_bottom, true);
-	m_split.SetSinglePaneMode(
-		SPLIT_PANE_TOP); // comment this line to start rendering m_timelineView (breaks because it needs to be configured)
 
 	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
 		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-	m_bottom.SetClient(m_timelineView);
+	//m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
 }
 
 void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
