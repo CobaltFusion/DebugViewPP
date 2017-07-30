@@ -38,8 +38,9 @@ void LogFile::Clear()
 {
 	m_messages.clear();
 	m_messages.shrink_to_fit();
-	m_storage.Clear();
-	m_processInfo.Clear();
+    m_storage.Clear();
+    m_storage.shrink_to_fit();
+    m_processInfo.Clear();
 }
 
 void LogFile::Add(const Message& msg)

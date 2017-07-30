@@ -204,7 +204,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_cmdBar.AttachMenu(GetMenu());
 	m_cmdBar.LoadImages(IDR_MAINFRAME);
-	// SetMenu(nullptr);   //todo: ask gert-jan what this does?
+	SetMenu(nullptr);   //disable second menu bar
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	CReBarCtrl rebar(m_hWndToolBar);

@@ -48,7 +48,7 @@ IndentCaseLabels: false
 IndentWidth: 4
 IndentWrappedFunctionNames: true
 KeepEmptyLinesAtTheStartOfBlocks: false
-MacroBlockBegin: '^BEGIN_MSG_MAP2|^BEGIN_UPDATE_UI_MAP'
+MacroBlockBegin: '^BEGIN_MSG_MAP|^BEGIN_UPDATE_UI_MAP'
 MacroBlockEnd: '^END_MSG_MAP|^END_UPDATE_UI_MAP'
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: None

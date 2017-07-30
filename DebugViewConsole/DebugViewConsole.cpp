@@ -27,6 +27,7 @@
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "../DebugView++/version.h"
+#include "docopt.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -41,9 +42,11 @@ struct Settings
 	bool autonewline;
 	bool flush;
 	bool linenumber;
-	bool kernelMessages;
 	bool console;
+	bool verbose;
 	std::string filename;
+	std::vector<std::string> include;
+	std::vector<std::string> exclude;
 };
 
 void OutputDetails(Settings settings, const Line& line)
@@ -99,7 +102,6 @@ void LogMessages(Settings settings)
 	});
 
 	std::ofstream fs;
-
 	if (!settings.filename.empty())
 	{
 		OpenLogFile(fs, WStr(settings.filename));
@@ -153,7 +155,6 @@ void LogMessages(Settings settings)
 		}
 		std::this_thread::sleep_for(250ms);
 	}
-
 	std::cout.flush();
 }
 
@@ -187,6 +188,58 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 	return FALSE;
 }
 
+static const char USAGE[] =
+R"(DebugviewConsole )" VERSION_STR
+R"(
+    Usage: 
+        DebugviewConsole [-i <pattern>, --include <pattern>]... [-e <pattern>, --exclude <pattern>]... 
+        DebugviewConsole [-acflsqtpnv] [-d <file>]
+        DebugviewConsole (-h | --help)
+        DebugviewConsole [-x]
+        DebugviewConsole [-u]
+
+    Options:
+        -h, --help                          show this screen
+        -i <pattern>, --include <pattern>   include filter, may be specified multiple times
+        -e <pattern>, --exclude <pattern>   exclude filter, may be specified multiple times
+        -a              auto-newline, most people want this
+        -c              enable console output
+        -d <file>       write to .dblog file
+        -v              verbose
+
+    Console options:    (no effect on .dblog file)
+        -l              prefix line number
+        -s              prefix messages with system time
+        -q              prefix message with high-precision (<1us) offset from QueryPerformanceCounter
+        -t              tab-separated output
+        -p              add PID (process ID)
+        -n              add process name
+
+    Advanced options:
+        -f              aggressively flush buffers, if unsure, do not use
+        -x              stop all running debugviewconsole instances
+        -u              send a UDP test-message, used only for debugging
+)";
+
+fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt::value>& args)
+{
+	auto settings = fusion::debugviewpp::Settings();
+
+    auto filenameEntry = args.at("-d");
+    settings.filename = (filenameEntry) ? filenameEntry.asString() : "";
+	settings.autonewline = args.at("-a").asBool();
+	settings.flush = args.at("-f").asBool();
+	settings.console = args.at("-c").asBool();
+	settings.verbose = args.at("-v").asBool();
+	settings.linenumber = args.at("-l").asBool();
+	settings.timestamp = args.at("-s").asBool();
+	settings.performanceCounter = args.at("-t").asBool();
+	settings.tabs = args.at("-q").asBool();
+	settings.pid = args.at("-p").asBool();
+	settings.processName = args.at("-n").asBool();
+	return settings;
+}
+
 int main(int argc, char* argv[])
 try
 {
@@ -195,121 +248,38 @@ try
 	// install CTRL-C handler
 	SetConsoleCtrlHandler(ConsoleHandler, TRUE);
 
-	Settings settings = {0};
-	std::cout << "DebugViewConsole v" << VERSION_STR << std::endl;
-	settings.timestamp = false;
-	if (cmdOptionExists(argv, argv+argc, "-h") || cmdOptionExists(argv, argv+argc, "--help"))
+	const auto args = docopt::docopt(USAGE, {argv + 1, argv + argc}, true, "DebugviewConsole " VERSION_STR);
+	auto settings = CreateSettings(args);
+
+	if (settings.verbose)
 	{
-		std::cout << "options:\n";
-		std::cout << "  -h: this help message\n";
-		std::cout << "  -a: auto-newline (automatically adds newline to messages without a newline, most people want this on)\n";
-		std::cout << "  -f: flush (aggressively flush buffers, if unsure, do not use)\n";
-		std::cout << "  -v: verbose output\n";
-		std::cout << "  -d <file>: write to .dblog file\n";
-		std::cout << "  -c enable console output\n";
-		std::cout << "  -k log kernel messages\n";
-		std::cout << "  -x stop debugviewconsole instances\n";
-		std::cout << "console output options: (do not effect the dblog file)\n";
-		//std::cout << "-u: send a UDP test-message (used only for debugging)\n";
-		std::cout << "  -l: prefix line number\n";
-		std::cout << "  -s: prefix messages with system time\n";
-		std::cout << "  -q: prefix message with high-precision (<1us) offset (from QueryPerformanceCounter)\n";
-		std::cout << "  -t: tab-separated output\n";
-		std::cout << "  -p: add PID (process ID)\n";
-		std::cout << "  -n: add process name\n";
-		exit(0);
+		for (auto const& arg : args)
+		{
+			if (arg.second.isStringList())
+			{
+				std::cout << arg.first << "  is a list: " << arg.second << std::endl;
+			}
+			else
+				std::cout << arg.first << " " << arg.second << std::endl;
+		}
 	}
 
-	bool verbose = false;
-	if (cmdOptionExists(argv, argv + argc, "-v"))
-	{
-		if (verbose) std::cout << "-s: verbose output\n";
-		verbose = true;
-	}
-
-	if (cmdOptionExists(argv, argv + argc, "-l"))
-	{
-		if (verbose)
-			std::cout << "-l: prefix line number\n";
-		settings.linenumber = true;
-	}
-
-	if (cmdOptionExists(argv, argv + argc, "-s"))
-	{
-		if (verbose)
-			std::cout << "-s: including systemtime\n";
-		settings.timestamp = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-q"))
-	{
-		if (verbose)
-			std::cout << "-q: including relative high-precision offset\n";
-		settings.performanceCounter = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-t"))
-	{
-		if (verbose)
-			std::cout << "-t: output tab-separated output\n";
-		settings.tabs = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-p"))
-	{
-		if (verbose)
-			std::cout << "-p: add PID (process ID)\n";
-		settings.pid = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-n"))
-	{
-		if (verbose)
-			std::cout << "-n: add process name\n";
-		settings.processName = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-a"))
-	{
-		if (verbose)
-			std::cout << "-a: auto-newline (each message will add a new line even if it does not end with a newline-character)\n";
-		settings.autonewline = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-f"))
-	{
-		if (verbose)
-			std::cout << "-f: auto flush (write to disk more often)\n";
-		settings.flush = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-c"))
-	{
-		if (verbose)
-			std::cout << "-c: enable console output\n";
-		settings.console = true;
-	}
-	if (cmdOptionExists(argv, argv + argc, "-k"))
-	{
-		if (verbose)
-			std::cout << "-k: log kernel messages\n";
-		settings.kernelMessages = true;
-	}
+	std::cout << "DebugViewConsole " << VERSION_STR << std::endl;
 
 	g_quitMessageHandle = fusion::Win32::CreateEvent(nullptr, true, false, L"DebugViewConsoleQuitEvent");
-	if (cmdOptionExists(argv, argv + argc, "-x"))
+	if (args.at("-x").asBool())
 	{
-		if (verbose)
+		if (settings.verbose)
 			std::cout << "-x: sending terminate signal to all DebugViewConsole instances\n";
 		SetEvent(g_quitMessageHandle);
 		return 0;
 	}
 
-	if (cmdOptionExists(argv, argv + argc, "-d"))
+	if (args.at("-u").asBool())
 	{
-		settings.filename = getCmdOption(argv, argv + argc, "-d");
-		if (verbose)
-			std::cout << "-d: write to: " << settings.filename << "\n";
-	}
-
-	if (cmdOptionExists(argv, argv + argc, "-u"))
-	{
-        std::string msg = argv[2];
-        msg += "\n";
-        std::cout << "Broadcast to 255.255.255.255 on UDP port 2020, message: " << msg;
+		std::string msg = argv[2];
+		msg += "\n";
+		std::cout << "Broadcast to 255.255.255.255 on UDP port 2020, message: " << msg;
 		using namespace boost::asio::ip;
 		boost::asio::io_service io_service;
 		udp::resolver resolver(io_service);
@@ -323,14 +293,19 @@ try
 		socket.set_option(option);
 
 		socket.send_to(boost::asio::buffer(msg), receiver_endpoint);
-        std::cout << "Done." << std::endl;
+		std::cout << "Done." << std::endl;
+		return 0;
 	}
-	else
-	{
-		std::cout << "Listening for OutputDebugString messages..." << std::endl;
-		LogMessages(settings);
-		std::cout << "Process ended normally.\n";
-	}
+
+    if (settings.filename.empty() && settings.console == false)
+    {
+        std::cout << "Neither output to logfile or console was specified, noting to do...\n";
+        return 1;
+    }
+
+	std::cout << "Listening for OutputDebugString messages..." << std::endl;
+	LogMessages(settings);
+	std::cout << "Process ended normally.\n";
 	return 0;
 }
 catch (std::exception& e)

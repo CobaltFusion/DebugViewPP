@@ -426,7 +426,7 @@ int Main(int argc, char* argv[])
 		else if (arg == "-7")
 		{
 			DbgMsgTest();
-			return 0;
+            return 7;
 		}
 		else if (arg == "-8")
 		{
