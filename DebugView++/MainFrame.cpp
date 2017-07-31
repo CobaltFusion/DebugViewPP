@@ -1105,6 +1105,7 @@ void CMainFrame::ClearLog()
 		GetTabCtrl().UpdateLayout();
 		GetTabCtrl().Invalidate();
 	}
+    UpdateStatusBar();
 }
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
