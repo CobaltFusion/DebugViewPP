@@ -199,11 +199,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	m_notifyIconData.cbSize = 0;
 
-    // todo: find out why DropTargetSupport::DragEnter is never called...
-	//CComObject<DropTargetSupport>::CreateInstance(&m_pDropTargetSupport);
-    //m_pDropTargetSupport->AddRef();
-    //m_pDropTargetSupport->Register(*this);
-
 	HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	m_cmdBar.AttachMenu(GetMenu());
 	m_cmdBar.LoadImages(IDR_MAINFRAME);

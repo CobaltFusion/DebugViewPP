@@ -16,7 +16,6 @@ using ATL::CString;
 };
 
 #include <atlcom.h>
-#include "DropTargetSupport.h"
 
 #pragma warning(push, 3)
 #pragma warning(disable : 4838)
@@ -87,7 +86,7 @@ public:
 	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>> TabbedFrame;
 
 	CMainFrame();
-	~CMainFrame();
+    ~CMainFrame();
 
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
@@ -119,7 +118,6 @@ public:
 	void LoadConfiguration(const std::wstring& fileName);
 	void SaveConfiguration(const std::wstring& fileName);
 	void Load(const std::wstring& fileName, bool keeptailing);
-	void LoadAsync(const std::wstring& fileName);
 	void Load(HANDLE hFile);
 	void Load(std::istream& is, const std::string& name, FILETIME fileTime);
 	void CapturePipe(HANDLE hPipe);
@@ -246,7 +244,6 @@ private:
 	std::vector<SourceInfo> m_sourceInfos;
 	std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;
 	LogSources m_logSources;
-    CComObject<DropTargetSupport> * m_pDropTargetSupport;
 };
 
 } // namespace debugviewpp

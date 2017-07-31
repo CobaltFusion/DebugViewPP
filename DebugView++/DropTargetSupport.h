@@ -12,23 +12,29 @@
 namespace fusion {
 namespace debugviewpp {
 
-class DropTargetSupport : public CComObjectRootEx<CComSingleThreadModel>, public IDropTarget
+class ATL_NO_VTABLE DropTargetSupport : public CComObjectRootEx<CComSingleThreadModel>, public IDropTarget
 {
 public:
 	BEGIN_COM_MAP(DropTargetSupport)
 		COM_INTERFACE_ENTRY(IDropTarget)
 	END_COM_MAP()
 
+	DropTargetSupport();
+	void Register(HWND hwnd);
+	void Unregister();
+
+	//   HRESULT QueryInterface(REFIID riid, void **ppvObject)
+	//{
+	//       CComObjectRootBase::QueryInterface(riid, ppvObject);
+	//}
+
 	STDMETHOD(DragEnter)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 	STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 	STDMETHOD(DragLeave)();
 	STDMETHOD(Drop)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
-	DropTargetSupport() = default;
-	void Register(HWND hwnd);
-	void Unregister();
-
 private:
+	FORMATETC m_fe;
 	HWND m_hwnd;
 };
 

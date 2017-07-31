@@ -14,6 +14,7 @@
 #include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogFile.h"
 #include "FilterDlg.h"
+#include "DropTargetSupport.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -297,6 +298,7 @@ private:
 	bool m_dragging;
 	int m_scrollX;
 	std::wstring m_dispInfoText;
+    CComObject<DropTargetSupport> * m_pDropTargetSupport;
 };
 
 } // namespace debugviewpp 

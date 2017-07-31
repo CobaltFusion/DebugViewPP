@@ -306,6 +306,11 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	ApplyFilters();
 
+	// todo: find out why DropTargetSupport::DragEnter is never called...
+	CComObject<DropTargetSupport>::CreateInstance(&m_pDropTargetSupport);
+	m_pDropTargetSupport->AddRef();
+	m_pDropTargetSupport->Register(*this);
+
 	return 0;
 }
 

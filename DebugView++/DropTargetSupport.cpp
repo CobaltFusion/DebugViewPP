@@ -11,6 +11,12 @@
 namespace fusion {
 namespace debugviewpp {
 
+DropTargetSupport::DropTargetSupport()
+    : m_fe({0})
+    , m_hwnd(nullptr)
+{
+}
+
 void DropTargetSupport::Register(HWND hwnd)
 {
 	m_hwnd = hwnd;
@@ -22,19 +28,22 @@ void DropTargetSupport::Unregister()
 	RevokeDragDrop(m_hwnd);
 }
 
-FORMATETC fe = {0};
 STDMETHODIMP DropTargetSupport::DragEnter(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
 {
+
+    *pdwEffect = DROPEFFECT_SCROLL;
 	CComPtr<IEnumFORMATETC> pEnum;
 	pDataObject->EnumFormatEtc(DATADIR_GET, &pEnum);
-	while (pEnum->Next(1, &fe, nullptr) == NO_ERROR)
+	while (pEnum->Next(1, &m_fe, nullptr) == NO_ERROR)
 	{
-		if (fe.cfFormat == CF_TEXT)
+		if (m_fe.cfFormat == CF_TEXT)
 		{
 			*pdwEffect = DROPEFFECT_COPY;
 			break;
 		}
 	}
+    *pdwEffect = DROPEFFECT_COPY;
+
 	return S_OK;
 }
 
@@ -52,7 +61,7 @@ STDMETHODIMP DropTargetSupport::DragLeave()
 STDMETHODIMP DropTargetSupport::Drop(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
 {
     auto stg = STGMEDIUM();
-	pDataObject->GetData(&fe, &stg);
+	pDataObject->GetData(&m_fe, &stg);
 	auto lpData = static_cast<LPCTSTR>(GlobalLock(stg.hGlobal));
 
 	//m_view.SetWindowText(lpData);
