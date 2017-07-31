@@ -30,8 +30,6 @@ void DropTargetSupport::Unregister()
 
 STDMETHODIMP DropTargetSupport::DragEnter(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
 {
-
-    *pdwEffect = DROPEFFECT_SCROLL;
 	CComPtr<IEnumFORMATETC> pEnum;
 	pDataObject->EnumFormatEtc(DATADIR_GET, &pEnum);
 	while (pEnum->Next(1, &m_fe, nullptr) == NO_ERROR)
@@ -42,8 +40,6 @@ STDMETHODIMP DropTargetSupport::DragEnter(IDataObject* pDataObject, DWORD /*grfK
 			break;
 		}
 	}
-    *pdwEffect = DROPEFFECT_COPY;
-
 	return S_OK;
 }
 
@@ -60,13 +56,14 @@ STDMETHODIMP DropTargetSupport::DragLeave()
 
 STDMETHODIMP DropTargetSupport::Drop(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
 {
-    auto stg = STGMEDIUM();
+	auto stg = STGMEDIUM();
 	pDataObject->GetData(&m_fe, &stg);
-	auto lpData = static_cast<LPCTSTR>(GlobalLock(stg.hGlobal));
+	auto lpData = static_cast<char*>(GlobalLock(stg.hGlobal));
 
 	//m_view.SetWindowText(lpData);
-    OutputDebugString(lpData);
+	OutputDebugStringA(lpData);
 	GlobalUnlock(stg.hGlobal);
+	ReleaseStgMedium(&stg);
 
 	*pdwEffect = DROPEFFECT_COPY;
 	return S_OK;

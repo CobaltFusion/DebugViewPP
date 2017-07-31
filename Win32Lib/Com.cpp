@@ -17,10 +17,12 @@ ComInitialization::ComInitialization(CoInit init)
 	HRESULT hr = CoInitializeEx(nullptr, init);		//DrMemory: LEAK 264 direct bytes
 	if (FAILED(hr))
 		throw Win32Error(hr, "CoInitializeEx");
+    OleInitialize(nullptr);
 }
 
 ComInitialization::~ComInitialization()
 {
+    OleUninitialize();
 	CoUninitialize();
 }
 
