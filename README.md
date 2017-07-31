@@ -41,7 +41,7 @@ So when is this Debugview++ thing usefull?
 - also: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
 
-Expected changes in next stable version 1.8.x:
+New in stable version 1.8.x:
 - bugfixes (namely in file-tailing)
 - tested on windows 10
 - last version with (official) XP support (v141_xp target)
