@@ -7,13 +7,19 @@
 
 #include "stdafx.h"
 #include "DropTargetSupport.h"
+#include "CobaltFusion/Str.h"
 
 namespace fusion {
 namespace debugviewpp {
 
-DropTargetSupport::DropTargetSupport()
-    : m_fe({0})
-    , m_hwnd(nullptr)
+/* class inspired by:
+ * http://www.catch22.net/tuts/drag-and-drop-introduction
+ * and also:
+ * https://www.codeproject.com/Articles/840/How-to-Implement-Drag-and-Drop-Between-Your-Progra
+ */
+
+DropTargetSupport::DropTargetSupport() :
+	m_hwnd(nullptr)
 {
 }
 
@@ -28,17 +34,19 @@ void DropTargetSupport::Unregister()
 	RevokeDragDrop(m_hwnd);
 }
 
+bool QueryDataObject(IDataObject* pDataObject, CLIPFORMAT format)
+{
+	FORMATETC fmtetc = {format, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+
+	// does the data object support CF_TEXT using a HGLOBAL?
+	return pDataObject->QueryGetData(&fmtetc) == S_OK ? true : false;
+}
+
 STDMETHODIMP DropTargetSupport::DragEnter(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
 {
-	CComPtr<IEnumFORMATETC> pEnum;
-	pDataObject->EnumFormatEtc(DATADIR_GET, &pEnum);
-	while (pEnum->Next(1, &m_fe, nullptr) == NO_ERROR)
+	if (QueryDataObject(pDataObject, CF_TEXT) || QueryDataObject(pDataObject, CF_HDROP))
 	{
-		if (m_fe.cfFormat == CF_TEXT)
-		{
-			*pdwEffect = DROPEFFECT_COPY;
-			break;
-		}
+		*pdwEffect = DROPEFFECT_COPY;
 	}
 	return S_OK;
 }
@@ -54,18 +62,67 @@ STDMETHODIMP DropTargetSupport::DragLeave()
 	return S_OK;
 }
 
+std::string GetCF_TEXT(IDataObject* pDataObject)
+{
+	std::string result;
+	// construct a FORMATETC object
+	FORMATETC fmtetc = {CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+	STGMEDIUM stgmed;
+
+	if (pDataObject->GetData(&fmtetc, &stgmed) == S_OK)
+	{
+		// we asked for the data as a HGLOBAL, so access it appropriately
+		PVOID data = GlobalLock(stgmed.hGlobal);
+		result = std::string(static_cast<char*>(data));
+		GlobalUnlock(stgmed.hGlobal);
+
+		// release the data using the COM API
+		ReleaseStgMedium(&stgmed);
+	}
+	return result;
+}
+
+std::string GetCF_HDROP(IDataObject* pDataObject)
+{
+	std::wstring result;
+	// construct a FORMATETC object
+	FORMATETC fmtetc = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+	STGMEDIUM stgmed;
+
+	if (pDataObject->GetData(&fmtetc, &stgmed) == S_OK)
+	{
+		// we asked for the data as a HGLOBAL, so access it appropriately
+		auto hDropInfo = static_cast<HDROP>(GlobalLock(stgmed.hGlobal));
+
+		if (DragQueryFile(hDropInfo, 0xFFFFFFFF, nullptr, 0) == 1)
+		{
+			std::vector<wchar_t> filename(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
+			if (DragQueryFile(hDropInfo, 0, filename.data(), filename.size()))
+				result = std::wstring(filename.data());
+		}
+		GlobalUnlock(stgmed.hGlobal);
+
+		// release the data using the COM API
+		ReleaseStgMedium(&stgmed);
+	}
+	return Str(result);
+}
+
 STDMETHODIMP DropTargetSupport::Drop(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
 {
-	auto stg = STGMEDIUM();
-	pDataObject->GetData(&m_fe, &stg);
-	auto lpData = static_cast<char*>(GlobalLock(stg.hGlobal));
+	if (QueryDataObject(pDataObject, CF_TEXT))
+	{
+		*pdwEffect = DROPEFFECT_COPY;
+		OutputDebugStringA(GetCF_TEXT(pDataObject).c_str());
+		return S_OK;
+	}
 
-	//m_view.SetWindowText(lpData);
-	OutputDebugStringA(lpData);
-	GlobalUnlock(stg.hGlobal);
-	ReleaseStgMedium(&stg);
+	if (QueryDataObject(pDataObject, CF_HDROP))
+	{
+		*pdwEffect = DROPEFFECT_COPY;
+		OutputDebugStringA(GetCF_HDROP(pDataObject).c_str());
+	}
 
-	*pdwEffect = DROPEFFECT_COPY;
 	return S_OK;
 }
 
