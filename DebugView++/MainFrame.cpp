@@ -525,6 +525,10 @@ void CMainFrame::OnDropped(const std::wstring uri)
 		{
 			Win32::Process process(httpmonitor, uri);
 		}
+        else
+        {
+            m_logSources.AddMessage(stringbuilder() << httpmonitor << " missing, dropped url ignored\n");
+        }
 	}
 }
 
@@ -580,8 +584,10 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
 		menu.EnableMenuItem(SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);
 		POINT position = Win32::GetCursorPos();
 		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, position.x, position.y, m_hWnd);
+		break;
 	}
-	break;
+	default:
+		break;
 	}
 	return 0;
 }
