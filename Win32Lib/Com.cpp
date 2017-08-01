@@ -14,16 +14,14 @@ namespace Win32 {
 
 ComInitialization::ComInitialization(CoInit init)
 {
-	HRESULT hr = CoInitializeEx(nullptr, init);		//DrMemory: LEAK 264 direct bytes
+	HRESULT hr = OleInitialize(nullptr);
 	if (FAILED(hr))
-		throw Win32Error(hr, "CoInitializeEx");
-    OleInitialize(nullptr);
+		throw Win32Error(hr, "OleInitialize");
 }
 
 ComInitialization::~ComInitialization()
 {
-    OleUninitialize();
-	CoUninitialize();
+	OleUninitialize();
 }
 
 } // namespace Win32

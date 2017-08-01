@@ -202,7 +202,16 @@ namespace HttpMonitor
 			Console.WriteLine("Monitoring...");
 
 			Log log = new Log(url);
-			log.Monitor();
+
+			try
+			{
+				log.Monitor();
+			}
+			catch (Exception e)
+			{
+				Util.DebugWrite(e.ToString());
+			}
+			Util.DebugWrite("Monitoring " + url + " ended.");
 		}
 	}
 }
