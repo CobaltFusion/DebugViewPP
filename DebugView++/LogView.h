@@ -186,7 +186,6 @@ private:
 	void OnException(const std::exception& ex);
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
     void OnClose();
-	void OnDropFiles(HDROP hDropInfo) const;
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	void OnLButtonDown(UINT flags, CPoint point);
 	void OnMouseMove(UINT flags, CPoint point);

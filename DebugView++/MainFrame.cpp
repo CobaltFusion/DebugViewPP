@@ -99,7 +99,6 @@ BEGIN_MSG_MAP2(CMainFrame)
 	MSG_WM_ENDSESSION(OnEndSession)
 	MSG_WM_MOUSEWHEEL(OnMouseWheel)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
-	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_SYSCOMMAND(OnSysCommand)
 	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
 	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
@@ -240,7 +239,6 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	pLoop->AddIdleHandler(this);
 
 	m_logSources.SubscribeToUpdate([this] { return OnUpdate(); });
-	DragAcceptFiles(true);
 
 	// Resume can throw if a second debugview is running
 	// so do not rely on any commands executed afterwards
@@ -513,18 +511,6 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 		{
 			m_logSources.AddAnyFileReader(file, true);
 		}
-	}
-}
-
-void CMainFrame::OnDropFiles(HDROP hDropInfo)
-{
-	auto guard = make_guard([hDropInfo]() { DragFinish(hDropInfo); });
-
-	if (DragQueryFile(hDropInfo, 0xFFFFFFFF, nullptr, 0) == 1)
-	{
-		std::vector<wchar_t> filename(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
-		if (DragQueryFile(hDropInfo, 0, filename.data(), filename.size()))
-			HandleDroppedFile(std::wstring(filename.data()));
 	}
 }
 

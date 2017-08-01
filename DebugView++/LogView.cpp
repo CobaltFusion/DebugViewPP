@@ -123,7 +123,6 @@ ItemData::ItemData() :
 BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_CREATE(OnCreate)
     MSG_WM_CLOSE(OnClose)
-	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_LBUTTONDOWN(OnLButtonDown)
@@ -364,12 +363,6 @@ int CLogView::TextHighlightHitTest(int iItem, const POINT& pt)
 	if (it != highlights.end() && it->begin <= pos)
 		return it->id;
 	return 0;
-}
-
-void CLogView::OnDropFiles(HDROP hDropInfo) const
-{
-	// forward it to the CMainFrame
-	m_mainFrame.OnDropFiles(hDropInfo);
 }
 
 std::vector<std::string> CLogView::GetSelectedMessages() const
