@@ -516,17 +516,16 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 
 void CMainFrame::OnDropped(const std::wstring uri)
 {
-    if (std::experimental::filesystem::is_regular_file(uri))
-        HandleDroppedFile(uri);
-    else
-    {
-
-        std::wstring httpmonitor = wstringbuilder() << Win32::GetExecutionPath() << "\\debugview++plugins\\HttpMonitor.exe";
-        if (std::experimental::filesystem::exists(httpmonitor))
-        {
-            Win32::Process process(httpmonitor, uri);
-        }
-    }
+	if (std::experimental::filesystem::is_regular_file(uri))
+		HandleDroppedFile(uri);
+	else
+	{
+		std::wstring httpmonitor = wstringbuilder() << Win32::GetExecutionPath() << "\\debugview++plugins\\HttpMonitor.exe";
+		if (std::experimental::filesystem::exists(httpmonitor))
+		{
+			Win32::Process process(httpmonitor, uri);
+		}
+	}
 }
 
 LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
