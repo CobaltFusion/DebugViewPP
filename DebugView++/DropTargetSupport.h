@@ -8,6 +8,7 @@
 #pragma once
 
 #include <atlcom.h>
+#include <boost/signals2/signal.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -23,19 +24,18 @@ public:
 	void Register(HWND hwnd);
 	void Unregister();
 
-	//   HRESULT QueryInterface(REFIID riid, void **ppvObject)
-	//{
-	//       CComObjectRootBase::QueryInterface(riid, ppvObject);
-	//}
-
 	STDMETHOD(DragEnter)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 	STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 	STDMETHOD(DragLeave)();
 	STDMETHOD(Drop)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
+	typedef boost::signals2::signal<void(const std::wstring& uri)> DroppedSignal;
+	boost::signals2::connection SubscribeToDropped(DroppedSignal::slot_type slot);
+
 private:
 	FORMATETC m_fe;
 	HWND m_hwnd;
+	DroppedSignal m_onDropped;
 };
 
 } // namespace debugviewpp 

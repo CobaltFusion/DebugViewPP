@@ -122,6 +122,7 @@ ItemData::ItemData() :
 
 BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_CREATE(OnCreate)
+    MSG_WM_CLOSE(OnClose)
 	MSG_WM_DROPFILES(OnDropFiles)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_SETCURSOR(OnSetCursor)
@@ -306,11 +307,19 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	ApplyFilters();
 
-	//CComObject<DropTargetSupport>::CreateInstance(&m_pDropTargetSupport);
-	//m_pDropTargetSupport->AddRef();
-	//m_pDropTargetSupport->Register(*this);
-
+	CComObject<DropTargetSupport>::CreateInstance(&m_pDropTargetSupport);
+	m_pDropTargetSupport->AddRef();
+	m_pDropTargetSupport->Register(*this);
+	m_pDropTargetSupport->SubscribeToDropped([this](const std::wstring& uri) {
+		m_mainFrame.OnDropped(uri);
+	});
 	return 0;
+}
+
+void CLogView::OnClose()
+{
+    m_pDropTargetSupport->Unregister();
+    m_pDropTargetSupport->Release();
 }
 
 bool Contains(const RECT& rect, const POINT& pt)

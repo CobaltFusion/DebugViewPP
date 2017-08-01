@@ -82,7 +82,7 @@ std::string GetCF_TEXT(IDataObject* pDataObject)
 	return result;
 }
 
-std::string GetCF_HDROP(IDataObject* pDataObject)
+std::wstring GetCF_HDROP(IDataObject* pDataObject)
 {
 	std::wstring result;
 	// construct a FORMATETC object
@@ -105,7 +105,7 @@ std::string GetCF_HDROP(IDataObject* pDataObject)
 		// release the data using the COM API
 		ReleaseStgMedium(&stgmed);
 	}
-	return Str(result);
+	return result;
 }
 
 STDMETHODIMP DropTargetSupport::Drop(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
@@ -113,17 +113,22 @@ STDMETHODIMP DropTargetSupport::Drop(IDataObject* pDataObject, DWORD /*grfKeySta
 	if (QueryDataObject(pDataObject, CF_TEXT))
 	{
 		*pdwEffect = DROPEFFECT_COPY;
-		OutputDebugStringA(GetCF_TEXT(pDataObject).c_str());
+		m_onDropped(WStr(GetCF_TEXT(pDataObject)));
 		return S_OK;
 	}
 
 	if (QueryDataObject(pDataObject, CF_HDROP))
 	{
 		*pdwEffect = DROPEFFECT_COPY;
-		OutputDebugStringA(GetCF_HDROP(pDataObject).c_str());
+		m_onDropped(GetCF_HDROP(pDataObject));
 	}
 
 	return S_OK;
+}
+
+boost::signals2::connection DropTargetSupport::SubscribeToDropped(DroppedSignal::slot_type slot)
+{
+    return m_onDropped.connect(slot);
 }
 
 } // namespace debugviewpp

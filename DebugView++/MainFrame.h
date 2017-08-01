@@ -124,6 +124,8 @@ public:
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
 	void OnDropFiles(HDROP hDropInfo);
+    void OnDropped(const std::wstring uri);
+
 
 private:
 	enum

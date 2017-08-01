@@ -528,6 +528,11 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	}
 }
 
+void CMainFrame::OnDropped(const std::wstring uri)
+{
+    HandleDroppedFile(uri);
+}
+
 LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
 {
 	switch (nCommand)
