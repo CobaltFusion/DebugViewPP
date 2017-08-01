@@ -516,7 +516,10 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 
 void CMainFrame::OnDropped(const std::wstring uri)
 {
-    HandleDroppedFile(uri);
+    if (std::experimental::filesystem::is_regular_file(uri))
+        HandleDroppedFile(uri);
+    else
+        OutputDebugStringW(uri.c_str());
 }
 
 LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
