@@ -10,9 +10,14 @@
 #include <string>
 #include <vector>
 #include "Win32/Win32Lib.h"
+#include <psapi.h>
 
 namespace fusion {
 namespace Win32 {
+
+std::wstring GetModuleFilename();
+std::wstring GetExecutionPath();
+std::wstring GetModuleFilenameUnspoofable();
 
 class Process
 {

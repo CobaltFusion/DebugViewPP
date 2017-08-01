@@ -519,7 +519,14 @@ void CMainFrame::OnDropped(const std::wstring uri)
     if (std::experimental::filesystem::is_regular_file(uri))
         HandleDroppedFile(uri);
     else
-        OutputDebugStringW(uri.c_str());
+    {
+
+        std::wstring httpmonitor = wstringbuilder() << Win32::GetExecutionPath() << "\\debugview++plugins\\HttpMonitor.exe";
+        if (std::experimental::filesystem::exists(httpmonitor))
+        {
+            Win32::Process process(httpmonitor, uri);
+        }
+    }
 }
 
 LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
@@ -547,6 +554,8 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
 		}
 		ShowWindow(SW_HIDE);
 		return 0;
+	default:
+		break;
 	}
 
 	SetMsgHandled(false);
@@ -1238,18 +1247,18 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 		m_logFile.SetHistorySize(dlg.GetHistorySize());
 }
 
-std::wstring GetExecutePath()
+std::wstring GetExecutionPath()
 {
-	auto path = std::experimental::filesystem::system_complete(std::experimental::filesystem::path(Win32::GetCommandLineArguments()[0]));
-	return path.remove_filename().c_str();
+    auto path = std::experimental::filesystem::system_complete(Win32::GetModuleFilename());
+    return path.remove_filename().c_str();
 }
 
 void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	if (!m_pDbgviewReader)
 	{
-		std::string dbgview = stringbuilder() << GetExecutePath() << "\\dbgview.exe";
-		if (FileExists(dbgview.c_str()))
+		std::string dbgview = stringbuilder() << Win32::GetExecutionPath() << "\\dbgview.exe";
+		if (std::experimental::filesystem::exists(dbgview.c_str()))
 		{
 			std::string cmd = stringbuilder() << "start \"\" " << dbgview << " /a";
 			system(cmd.c_str());
@@ -1269,7 +1278,7 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	int tabIdx = GetTabCtrl().GetCurSel();
+    int tabIdx = GetTabCtrl().GetCurSel();
 
 	CFilterDlg dlg(GetView().GetName(), GetView().GetFilters());
 	if (dlg.DoModal() != IDOK)

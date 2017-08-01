@@ -11,9 +11,30 @@
 #include <vector>
 #include "Win32/Win32Lib.h"
 #include "Win32/Process.h"
+#include <filesystem>
 
 namespace fusion {
 namespace Win32 {
+
+std::wstring GetModuleFilename()
+{
+    std::vector<wchar_t> data(260);
+    ::GetModuleFileName(NULL, data.data(), data.size());
+    return std::experimental::filesystem::canonical(data.data());
+}
+
+std::wstring GetExecutionPath()
+{
+    return std::experimental::filesystem::system_complete(Win32::GetModuleFilename()).remove_filename();
+}
+
+// unspoofable, but in \Device\HarddiskVolume4\project\DebugViewPP\Debug\DebugView++.exe form
+std::wstring GetModuleFilenameUnspoofable()
+{
+    std::vector<wchar_t> data(260);
+    GetMappedFileName(GetCurrentProcess(), GetModuleFilename, data.data(), data.size());
+    return data.data();
+}
 
 Process::Process(const std::wstring& pathName, const std::vector<std::wstring>& args)
 {

@@ -340,13 +340,6 @@ void PrintUsage()
 int Main(int argc, char* argv[])
 {
 	std::cout << "DbgMsgSrc, pid: " << GetCurrentProcessId() << std::endl;
-	//OutputDebugStringA("ping");
-	//return 0;
-
-	// get un-spoofable executable file name 
-	//char buf[260];
-	//GetMappedFileName(GetCurrentProcess(), _tmain, buf, sizeof(buf));
-	//printf("%S\n", buf);
 
 	//HANDLE handle1 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	//HANDLE handle2 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
