@@ -1,7 +1,7 @@
 Cobalt Fusion presents:
 
-Debugview++
-----------
+Debugview++, currently at v1.8
+------------------------------
 
 [Download latest here](https://github.com/djeedjay/DebugViewPP/releases)
 
