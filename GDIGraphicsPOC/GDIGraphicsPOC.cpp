@@ -143,7 +143,6 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		m_zoomFactor = 1.0;
 		RECT rect = RECT();
 		GetClientRect(&rect);
 		m_split.Create(*this, rect, NULL, 0, WS_EX_CLIENTEDGE);
@@ -164,7 +163,7 @@ public:
 			return Str(FormatDuration(l));
 		});
 
-		m_timelineView.SetDataProvider([] (gdi::Location start, gdi::Location end) -> gdi::TimeLines {
+		m_timelineView.SetDataProvider([] (gdi::Location start, gdi::Location end)  {
 			auto info = std::make_shared<gdi::Line>(L"Some info");
 			info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
 			info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
@@ -213,7 +212,6 @@ public:
 	CPaneContainer m_top;
 	CPaneContainer m_bottom;
 	gdi::CTimelineView m_timelineView;
-	double m_zoomFactor;
 
 };
 

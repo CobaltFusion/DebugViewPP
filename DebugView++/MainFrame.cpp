@@ -66,6 +66,45 @@ void DisablePaneHeader(CPaneContainer& panecontainer)
 	panecontainer.m_cxyHeader = 0;
 }
 
+std::wstring FormatUnits(int n, const std::wstring& unit)
+{
+    if (n == 0)
+        return L"";
+    if (n == 1)
+        return wstringbuilder() << n << " " << unit;
+    return wstringbuilder() << n << " " << unit << "s";
+}
+
+std::wstring FormatDuration(double seconds)
+{
+    int minutes = FloorTo<int>(seconds / 60);
+    seconds -= 60 * minutes;
+
+    int hours = minutes / 60;
+    minutes -= 60 * hours;
+
+    int days = hours / 24;
+    hours -= 24 * days;
+
+    if (days > 0)
+        return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
+
+    if (hours > 0)
+        return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
+
+    if (minutes > 0)
+        return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
+
+    static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
+    const wchar_t** unit = units;
+    while (*unit != nullptr && seconds > 0 && seconds < 1)
+    {
+        seconds *= 1e3;
+        ++unit;
+    }
+
+    return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
+}
 void CLogViewTabItem2::Create(HWND parent)
 {
 	m_split.Create(parent, CWindow::rcDefault);
@@ -76,9 +115,42 @@ void CLogViewTabItem2::Create(HWND parent)
 	DisablePaneHeader(m_bottom);
 	m_split.SetSplitterPanes(m_top, m_bottom, true);
 
+	m_timelineView.SetFormatter([](gdi::Location l) {
+		return Str(FormatDuration(l));
+	});
+
+	m_timelineView.SetDataProvider([](gdi::Location, gdi::Location) {
+		auto info = std::make_shared<gdi::Line>(L"Some info");
+		info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
+
+		auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
+		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+		sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+		sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+
+		auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
+		data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
+		info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
+
+		gdi::TimeLines lines;
+		lines.emplace_back(info);
+		lines.emplace_back(sequence);
+		lines.emplace_back(data);
+		return lines;
+
+	});
+
 	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
 		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-	//m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
+
+	m_timelineView.SetView(0.0, 1000.0);
+	m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
 }
 
 void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
@@ -183,7 +255,7 @@ void CMainFrame::OnException(const std::exception& ex)
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-	return TabbedFrame::PreTranslateMessage(pMsg);
+    return TabbedFrame::PreTranslateMessage(pMsg);
 }
 
 BOOL CMainFrame::OnIdle()
@@ -301,46 +373,6 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
 	UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
 	UISetCheck(ID_LOG_GLOBAL, m_tryGlobal);
-}
-
-std::wstring FormatUnits(int n, const std::wstring& unit)
-{
-	if (n == 0)
-		return L"";
-	if (n == 1)
-		return wstringbuilder() << n << " " << unit;
-	return wstringbuilder() << n << " " << unit << "s";
-}
-
-std::wstring FormatDuration(double seconds)
-{
-	int minutes = FloorTo<int>(seconds / 60);
-	seconds -= 60 * minutes;
-
-	int hours = minutes / 60;
-	minutes -= 60 * hours;
-
-	int days = hours / 24;
-	hours -= 24 * days;
-
-	if (days > 0)
-		return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
-
-	if (hours > 0)
-		return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
-
-	if (minutes > 0)
-		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
-
-	static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
-	const wchar_t** unit = units;
-	while (*unit != nullptr && seconds > 0 && seconds < 1)
-	{
-		seconds *= 1e3;
-		++unit;
-	}
-
-	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 
 std::wstring FormatDateTime(const SYSTEMTIME& systemTime)
