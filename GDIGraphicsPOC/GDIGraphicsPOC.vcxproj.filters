@@ -20,10 +20,13 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GDIGraphicsPOC.h">
+    <ClInclude Include="Logview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Logview.h">
+    <ClInclude Include="TabItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -31,10 +34,10 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GDIGraphicsPOC.cpp">
+    <ClCompile Include="Logview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Logview.cpp">
+    <ClCompile Include="MainFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
