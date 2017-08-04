@@ -23,12 +23,18 @@
     <ClInclude Include="GDIGraphicsPOC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Logview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GDIGraphicsPOC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Logview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

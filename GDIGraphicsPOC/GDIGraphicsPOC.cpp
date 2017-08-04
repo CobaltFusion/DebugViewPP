@@ -2,28 +2,42 @@
 #include "windows.h"
 #include <string>
 
-#include "DebugView++Lib/TimelineDC.h"
-#include "DebugView++Lib/CTimelineView.h"
-
 #define WIN32_LEAN_AND_MEAN
 
 #include <Shellapi.h>
 
+#include <atlapp.h>
 #include <atlctrls.h>
-#include <atlctrlw.h>
 #include <atlctrlx.h>
 
-#include <atlbase.h>        // Base ATL classes
-#include <atlwin.h>         // ATL windowing classes
+#include <atlbase.h> // Base ATL classes
+#include <atlwin.h> // ATL windowing classes
 #include <atlsplit.h>
 #include <atlframe.h>
 #include "CobaltFusion/dbgstream.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "Logview.h"
 #include <iomanip>
 
-namespace fusion
-{
+#pragma warning(push, 3)
+#pragma warning(disable : 4838)
+
+
+#include <atlgdix.h> // CustomTabCtrl.h prerequisites
+#include "atlcoll.h"
+#include "CustomTabCtrl.h"
+#include "DotNetTabCtrl.h"
+#include "TabbedFrame.h"
+
+#include "AtlWinExt.h"
+#pragma warning(pop)
+
+
+#include "DebugView++Lib/TimelineDC.h"
+#include "DebugView++Lib/CTimelineView.h"
+
+namespace fusion {
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
 {
@@ -59,7 +73,7 @@ std::wstring FormatDuration2(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
+	static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -70,8 +84,89 @@ std::wstring FormatDuration2(double seconds)
 	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 
-class CMainFrame : 
-	public CFrameWindowImpl<CMainFrame>
+class CLogViewTabItem2 : public CTabViewTabItem
+{
+public:
+	CLogView& GetView();
+	gdi::CTimelineView& GetTimeLineView() { return m_timelineView; }
+	void Create(HWND parent);
+    void InitTimeLine();
+private:
+	
+	CLogView m_logview;
+	CHorSplitterWindow m_split;
+	CPaneContainer m_top;
+	CPaneContainer m_bottom;
+	gdi::CTimelineView m_timelineView;
+};
+
+void CLogViewTabItem2::InitTimeLine()
+{
+	m_timelineView.SetFormatter([](gdi::Location l) {
+		return Str(FormatDuration(l));
+	});
+
+	m_timelineView.SetDataProvider([](gdi::Location, gdi::Location) {
+		auto info = std::make_shared<gdi::Line>(L"Some info");
+		info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
+
+		auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
+		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+		sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
+		sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+
+		auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
+		data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
+		info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
+
+		gdi::TimeLines lines;
+		lines.emplace_back(info);
+		lines.emplace_back(sequence);
+		lines.emplace_back(data);
+		return lines;
+	});
+}
+
+void CLogViewTabItem2::Create(HWND parent)
+{
+	auto client = RECT();
+	GetClientRect(parent, &client);
+
+	m_split.Create(parent, client);
+	SetTabView(m_split);
+
+	m_top.Create(m_split, L"top panel");
+	GetClientRect(m_top, &client);
+
+	m_logview.Create(m_top, client);
+	m_top.SetClient(m_logview);
+	m_top.SetTitle(L"top label");
+
+	m_bottom.Create(m_split, L"bottom panel");
+	m_split.SetSplitterPanes(m_top, m_bottom, true);
+	m_split.SetSplitterPos(500);
+
+	InitTimeLine();
+
+	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
+		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+
+	m_timelineView.SetView(0.0, 1000.0);
+	m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
+}
+
+CLogView& CLogViewTabItem2::GetView()
+{
+	return m_logview;
+}
+
+class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem2>>
 {
 public:
 	DECLARE_WND_CLASS(_T("CMainFrame Class"))
@@ -119,19 +214,18 @@ public:
 		{
 			return "ms";
 		}
-
 	};
 
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	{
-		if (zDelta > 0)
-		{
-			m_timelineView.Zoom(2.0);
-		}
-		else
-		{
-			m_timelineView.Zoom(0.5);
-		}
+		//if (zDelta > 0)
+		//{
+		//	m_timelineView.Zoom(2.0);
+		//}
+		//else
+		//{
+		//	m_timelineView.Zoom(0.5);
+		//}
 		return TRUE;
 	}
 
@@ -141,58 +235,39 @@ public:
 		panecontainer.m_cxyHeader = 0;
 	}
 
+	void AddTab(const std::wstring name)
+	{
+		auto lvi = std::make_shared<CLogViewTabItem2>();
+		m_tabitems.push_back(lvi);
+		lvi->Create(*this);
+		lvi->SetText(name.c_str());
+
+		int newIndex = GetTabCtrl().GetItemCount();
+		GetTabCtrl().InsertItem(newIndex, lvi.get());
+		GetTabCtrl().SetCurSel(newIndex);
+	}
+
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		RECT rect = RECT();
+		auto rect = RECT();
 		GetClientRect(&rect);
-		m_split.Create(*this, rect, NULL, 0, WS_EX_CLIENTEDGE);
-		m_hWndClient = m_split;
 
-		m_top.Create(m_split, L"Top Pane");
-		m_bottom.Create(m_split, L"");
-		DisablePaneHeader(m_bottom);
-		m_split.SetSplitterPanes(m_top, m_bottom, true);
-		m_split.SetSplitterPos(600);
-		//m_split.SetSinglePaneMode(SPLIT_PANE_TOP);  // this hides the bottom pane and the splitter
+		// block 1
+		//auto lvi = std::make_shared<CLogViewTabItem2>();
+		//m_tabitems.push_back(lvi);
+		//auto& timeline = lvi->GetTimeLineView();
+  //      lvi->InitTimeLine();
+  //      timeline.Create(*this, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
+  //          WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 
-		m_timelineView.Create(m_bottom, rcDefault, gdi::CTimelineView::GetWndClassName(),
-			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+  //      timeline.SetView(0.0, 1000.0);
 
-		m_timelineView.SetFormatter([] (gdi::Location l) 
-		{
-			return Str(FormatDuration(l));
-		});
+		// block 2
+		CreateTabWindow(*this, rect, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+		AddTab(L"Tab1");
+		AddTab(L"Tab2");
 
-		m_timelineView.SetDataProvider([] (gdi::Location start, gdi::Location end)  {
-			auto info = std::make_shared<gdi::Line>(L"Some info");
-			info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-			info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-			info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
-			info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
-			info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
-			info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
-
-			auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
-			sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-			sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-			sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-			sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-
-			auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
-			data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
-			info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
-
-			gdi::TimeLines lines;
-			lines.emplace_back(info);
-			lines.emplace_back(sequence);
-			lines.emplace_back(data);
-			return lines;
-		
-		});
-
-		// start, end
-		m_timelineView.SetView(0.0, 1000.0);
-		m_bottom.SetClient(m_timelineView);
+		ShowTabControl();
 		return 0;
 	}
 
@@ -207,12 +282,8 @@ public:
 		PostQuitMessage(0);
 		return 0;
 	}
-
-	CHorSplitterWindow m_split;
-	CPaneContainer m_top;
-	CPaneContainer m_bottom;
-	gdi::CTimelineView m_timelineView;
-
+	std::vector<std::shared_ptr<CLogViewTabItem2>> m_tabitems;
+	CLogView m_logview;
 };
 
 } // namespace fusion
