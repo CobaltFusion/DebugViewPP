@@ -122,7 +122,7 @@ ItemData::ItemData() :
 
 BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_CREATE(OnCreate)
-    MSG_WM_CLOSE(OnClose)
+	MSG_WM_CLOSE(OnClose)
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_LBUTTONDOWN(OnLButtonDown)
@@ -290,10 +290,7 @@ ColumnInfo MakeColumn(Column::type column, const wchar_t* name, int format, int 
 LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
-
-	SetExtendedListViewStyle(GetWndExStyle(0));
 	m_hdr.SubclassWindow(GetHeader());
-
 	m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
 	m_columns.push_back(MakeColumn(Column::Line, L"Line", LVCFMT_RIGHT, 60));
 	m_columns.push_back(MakeColumn(Column::Date, L"Date", LVCFMT_RIGHT, 90));
@@ -317,8 +314,9 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 void CLogView::OnClose()
 {
-    m_pDropTargetSupport->Unregister();
-    m_pDropTargetSupport->Release();
+    // todo: why is OnClose() never called?
+	m_pDropTargetSupport->Unregister();
+	m_pDropTargetSupport->Release();
 }
 
 bool Contains(const RECT& rect, const POINT& pt)

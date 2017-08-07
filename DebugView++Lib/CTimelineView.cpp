@@ -272,8 +272,6 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 		x += m_minorTickPixels;
 	}
 	m_end = ((lastX - gdi::s_drawTimelineMax) / m_pixelsPerLocation) + m_start;
-
-	cdbg << "Scale ends: " << m_end << "\n";
 }
 
 void CTimelineView::PaintCursor(gdi::TimelineDC& dc)

@@ -146,11 +146,9 @@ void CLogViewTabItem2::Create(HWND parent)
 
 	});
 
-	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
-		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-
+	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 	m_timelineView.SetView(0.0, 1000.0);
-	m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
+	m_bottom.SetClient(m_timelineView);
 }
 
 void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
@@ -793,8 +791,7 @@ void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter
 	pTabItem->Create(*this);
 
 	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
-	pView->Create(
-		pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+	pView->Create(pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	pView->SetFont(m_hFont.get());
 
 	pTabItem->SetText(name.c_str());
