@@ -254,8 +254,6 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	int majorTicks = (width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1; // also add one at the end
 	for (int i = 0; i < majorTicks; ++i)
 	{
-		cdbg << " pos: " << std::fixed << std::setprecision(9) << "\n";
-
 		std::wstring s = wstringbuilder() << m_formatFunction(pos);
 		dc.DrawTextOut(s, x - 15, y - 25);
 		dc.MoveTo(x, y);
