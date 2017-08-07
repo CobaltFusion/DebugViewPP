@@ -14,6 +14,7 @@ namespace Win32 {
 
 ComInitialization::ComInitialization(CoInit init)
 {
+    // OleInitialize/OleUninitialize is used instead of CoInitialize/CoUninitialize because we use IDropTarget's Drag and Drop functions
 	HRESULT hr = OleInitialize(nullptr);
 	if (FAILED(hr))
 		throw Win32Error(hr, "OleInitialize");
