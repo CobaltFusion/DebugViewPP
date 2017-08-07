@@ -85,8 +85,7 @@ using TimeLines = std::vector<std::shared_ptr<Line>>;
 // it has no concept of time, just position which is scaled to window-pixels.
 // also no centering or end-of-range behaviour is implemented, this is client responsibility.
 class CTimelineView : 
-	public CDoubleBufferWindowImpl<CTimelineView, CWindow>,
-	public COwnerDraw<CTimelineView>
+	public CDoubleBufferWindowImpl<CTimelineView, CWindow>
 {
 public:
 	DECLARE_WND_CLASS(_T("CTimelineView Class"))
@@ -96,7 +95,6 @@ public:
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
 		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_HSCROLL(OnHScroll)
-		CHAIN_MSG_MAP_ALT(COwnerDraw<CTimelineView>, 1)
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)
 	END_MSG_MAP()
 

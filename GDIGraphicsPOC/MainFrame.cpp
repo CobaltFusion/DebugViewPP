@@ -44,7 +44,7 @@ LRESULT fusion::CMainFrame::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, B
 
 LRESULT fusion::CMainFrame::OnSize(UINT nType, CSize Extent)
 {
-	cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
+    cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
 	UpdateLayout();
 	return 1;
 }
@@ -75,9 +75,6 @@ void fusion::CMainFrame::AddTab(const std::wstring name)
 	lvi->SetText(name.c_str());
 	lvi->Create(*this);
 
-    //timeline.Create(*this, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-
-
 	int newIndex = GetTabCtrl().GetItemCount();
 	GetTabCtrl().InsertItem(newIndex, lvi.get());
 	GetTabCtrl().SetCurSel(newIndex);
@@ -87,16 +84,6 @@ LRESULT fusion::CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
 	auto rect = RECT();
 	GetClientRect(&rect);
-
-	// block 1
-	//auto lvi = std::make_shared<CLogViewTabItem2>();
-	//m_tabitems.push_back(lvi);
-	//auto& timeline = lvi->GetTimeLineView();
-	//lvi->InitTimeLine();
-	//timeline.Create(*this, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-
-	//timeline.SetView(0.0, 1000.0);
- //   timeline.ShowWindow(true);
 
 	// block 2
 	CreateTabWindow(*this, rect, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);

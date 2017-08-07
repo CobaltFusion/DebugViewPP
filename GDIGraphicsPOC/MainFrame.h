@@ -54,7 +54,6 @@ public:
 
 private:
 	std::vector<std::shared_ptr<CLogViewTabItem2>> m_tabitems;
-	CLogView m_logview;
 };
 
 } // namespace fusion

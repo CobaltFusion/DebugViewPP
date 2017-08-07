@@ -40,18 +40,10 @@ LRESULT fusion::CMainFrame2::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, B
 {
     auto rect = RECT();
     GetClientRect(&rect);
-    m_listviewctrl.Create(*this, rect, nullptr, WS_CHILD | WS_CLIPCHILDREN);
-
-    //m_list.SetItemCount(5);
-    m_listviewctrl.SetBkColor(RGB(10, 10, 255));
-
-    m_listviewctrl.InsertColumn(0, _T("Scoobies"), LVCFMT_LEFT, 100, 0);
-    m_listviewctrl.InsertItem(0, _T("Willow"));
-    m_listviewctrl.InsertItem(1, _T("Buffy"));
-    m_listviewctrl.InsertItem(2, _T("Giles"));
-    m_listviewctrl.SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
-    m_listviewctrl.ShowWindow(true);
-
+    rect.bottom = 600;
+    m_logview.Create(*this, rect, CListViewCtrl::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW, WS_EX_CLIENTEDGE);
+    AddDummyContent(m_logview);
+    m_logview.SetBkColor(RGB(10, 10, 255));
     return 0;
 }
 

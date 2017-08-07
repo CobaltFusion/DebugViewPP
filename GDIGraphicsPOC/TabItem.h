@@ -88,22 +88,16 @@ public:
 		auto client = RECT();
 		GetClientRect(parent, &client);
 		client.top += 25;
-		m_split.Create(parent, client);
+		m_split.Create(parent, client, 0, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_OWNERDRAW);
 
 		SetTabView(m_split);
 
 		std::wstring tlabel = GetText();
 		tlabel += L" top panel";
-		m_top.Create(m_split, tlabel.c_str());
-		m_logview.Create(m_top, CWindow::rcDefault, T::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+		m_top.Create(m_split, tlabel.c_str(), WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_OWNERDRAW);
+		m_logview.Create(m_top, CWindow::rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 		m_top.SetClient(m_logview);
-
-		m_logview.InsertColumn(0, _T("Scoobies"), LVCFMT_LEFT, 100, 0);
-		m_logview.InsertItem(0, _T("Willow"));
-		m_logview.InsertItem(1, _T("Buffy"));
-		m_logview.InsertItem(2, _T("Giles"));
-		//m_logview.SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
-		m_logview.ShowWindow(true);
+        fusion::AddDummyContent(m_logview);
 
 		std::wstring blabel = GetText();
 		blabel += L" bottom panel";
@@ -112,10 +106,7 @@ public:
 		m_split.SetSplitterPos(500);
 
 		InitTimeLine();
-
-		m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(),
-			WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-
+		m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 		m_timelineView.SetView(0.0, 1000.0);
 		m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
 	}

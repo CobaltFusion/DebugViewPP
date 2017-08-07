@@ -11,6 +11,8 @@
 #include "CobaltFusion/fusionassert.h"
 #include "LogView.h"
 #include <atlcrack.h>
+#include <atlmisc.h>
+#include <winbase.h>
 
 namespace fusion {
 
@@ -24,7 +26,7 @@ BEGIN_MSG_MAP2(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
 
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
-	CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>) //DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
+	//CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>) //DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
 	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP()
 
@@ -46,22 +48,28 @@ void CLogView::DeleteItem(DELETEITEMSTRUCT* lParam)
     COwnerDraw<CLogView>::DeleteItem(lParam);
 }
 
-Column::type CLogView::SubItemToColumn(int iSubItem) const
-{
-	LVCOLUMN column;
-	column.mask = LVCF_SUBITEM;
-	GetColumn(iSubItem, &column);
-	return static_cast<Column::type>(column.iSubItem);
-}
-
 LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
 	DefWindowProc();
 	SetExtendedListViewStyle(GetWndExStyle(0));
-
-    SetItemCountEx(10, LVSICF_NOSCROLL);
-    SetItemState(5, LVIS_FOCUSED, LVIS_FOCUSED);
 	return 0;
+}
+
+void CLogView::SetFont(HFONT hFont)
+{
+    CListViewCtrl::SetFont(hFont);
+    GetHeader().Invalidate();
+
+    // Trigger WM_MEASUREPOS
+    // See: http://www.codeproject.com/Articles/1401/Changing-Row-Height-in-an-owner-drawn-Control
+    CRect rect;
+    GetWindowRect(&rect);
+    WINDOWPOS wp;
+    wp.hwnd = *this;
+    wp.cx = rect.Width();
+    wp.cy = rect.Height();
+    wp.flags = SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER;
+    SendMessage(WM_WINDOWPOSCHANGED, 0, reinterpret_cast<LPARAM>(&wp));
 }
 
 void CLogView::OnClose()
@@ -75,8 +83,9 @@ void CLogView::OnTimer(UINT_PTR nIDEvent)
 
 }
 
-void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct) const
+void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 {
+    OutputDebugStringA("CLogView::MeasureItem - debug");
 	CClientDC dc(*this);
 
 	Win32::GdiObjectSelection font(dc, GetFont());
@@ -85,8 +94,10 @@ void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct) const
 	pMeasureItemStruct->itemHeight = metric.tmHeight;
 }
 
-void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const
+void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct)
 {
+    OutputDebugStringA("CLogView::DrawItem - debug");
+
 	DrawItem(pDrawItemStruct->hDC, pDrawItemStruct->itemID, pDrawItemStruct->itemState);
 }
 
@@ -97,23 +108,9 @@ RECT CLogView::GetItemRect(int iItem, unsigned code) const
     return rect;
 }
 
-void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
+void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/)
 {
-	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
-	//auto data = GetItemData(iItem);
-
-	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
-	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
-    auto bkColor = selected ? Colors::ItemHighlight : Colors::BackGround;
-    auto txColor = selected ? Colors::ItemHighlightText : Colors::Text;
-
-	rect.left += GetColumnWidth(0);
-	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
-
-	Win32::ScopedBkColor bcol(dc, bkColor);
-	Win32::ScopedTextColor tcol(dc, txColor);
-    if (focused)
-	    dc.DrawFocusRect(&rect);
+    SetMsgHandled(false);
 }
 
 
@@ -142,5 +139,6 @@ void CLogView::DoPaint(CDCHandle dc)
 
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
 }
+
 
 } // namespace fusion

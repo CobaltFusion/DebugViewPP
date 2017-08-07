@@ -67,7 +67,7 @@ public:
     LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
-    CLogView m_listviewctrl;
+    CLogView m_logview;
 };
 
 class MainWnd : public CWindowImpl<MainWnd>
