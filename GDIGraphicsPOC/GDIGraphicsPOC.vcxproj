@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CMainFrame2.h" />
     <ClInclude Include="Logview.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="Resource.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CMainFrame2.cpp" />
     <ClCompile Include="Logview.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="stdafx.cpp">

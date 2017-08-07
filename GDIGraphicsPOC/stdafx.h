@@ -6,12 +6,10 @@
 #pragma once
 
 #include "targetver.h"
+#include "resource.h"
 
-#include <boost/asio.hpp>
-
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-// Windows Header Files:
-#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
 
 // C RunTime Header Files
 #include <stdlib.h>
