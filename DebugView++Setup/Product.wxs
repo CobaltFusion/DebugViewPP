@@ -43,7 +43,7 @@
                     <Directory Id="PLUGINS" Name="debugview++plugins">
                         <Component Id="HTTPMONITOR_PLUGIN" DiskId="1" Guid="3ae28137-a48e-48a2-ba4d-d6a35eebdedb">
                                 <RemoveFolder Id="PLUGINS" On="uninstall" />
-                                <File Id="HTTPMONITOR_PLUGIN" Name="HttpMonitor.exe" Source="$(var.SolutionDir)\$(var.PlatformOutDir)\debugview++plugins\HttpMonitor.exe" />
+                                <File Id="HTTPMONITOR_PLUGIN" Name="HttpMonitor.exe" Source="$(var.SolutionDir)\$(var.PlatformOutDir32)\debugview++plugins\HttpMonitor.exe" />
                         </Component>
                     </Directory>
                 </Directory>
