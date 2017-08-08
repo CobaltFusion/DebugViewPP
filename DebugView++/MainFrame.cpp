@@ -114,6 +114,7 @@ void CLogViewTabItem2::Create(HWND parent)
 	DisablePaneHeader(m_top);
 	DisablePaneHeader(m_bottom);
 	m_split.SetSplitterPanes(m_top, m_bottom, true);
+    m_split.SetSplitterPos(400);
 
 	m_timelineView.SetFormatter([](gdi::Location l) {
 		return Str(FormatDuration(l));
