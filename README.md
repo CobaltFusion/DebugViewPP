@@ -5,18 +5,7 @@ Debugview++, currently at v1.8
 
 [Download latest here](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
-Questions? Tweet me at [**@janwilmans**](https://twitter.com/janwilmans) or chat on skype to
-
-<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
-<div id="SkypeButton_Call_janwilmans_1">
- <script type="text/javascript">
- Skype.ui({
- "name": "chat",
- "element": "SkypeButton_Call_janwilmans_1",
- "participants": ["janwilmans"]
- });
- </script>
-</div>
+Questions? Tweet me at [**@janwilmans**](https://twitter.com/janwilmans) or chat on skype at 'janwilmans'.
 
 Debugview++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
@@ -27,8 +16,6 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 - it can listen for UDP messages, handy in distributed systems
 
 See examples down below.
-
-[skypelink]: <skype:janwilmans?chat>
 
 Sponsors
 --------
