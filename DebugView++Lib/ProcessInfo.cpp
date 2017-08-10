@@ -68,7 +68,7 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 	return name;
 }
 
-std::wstring ProcessInfo::GetProcessInfo(HANDLE handle)
+std::wstring ProcessInfo::GetStartTime(HANDLE handle)
 {
 	FILETIME creation = { 0 };
 	FILETIME exit = { 0 };

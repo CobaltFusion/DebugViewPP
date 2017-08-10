@@ -88,6 +88,7 @@ private:
 	void UpdateSettings(const std::unique_ptr<LogSource>& pSource);
 	void Add(std::unique_ptr<LogSource> pSource);
 	void OnProcessEnded(DWORD pid, HANDLE handle);
+    void AddTerminateMessage(DWORD pid, HANDLE handle) const;
 
 	bool m_autoNewLine;
 

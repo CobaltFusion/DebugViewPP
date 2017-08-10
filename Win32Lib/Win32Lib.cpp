@@ -12,6 +12,7 @@
 #include <shellapi.h>
 #include <io.h>
 #include <fcntl.h>
+#include "comdef.h"
 
 #include "Win32/Win32Lib.h"
 
@@ -502,6 +503,67 @@ void HFile::resize(size_t size) const
 {
 	if (_chsize_s(m_handle, size) != 0)
 		ThrowLastError("_chsize");
+}
+
+std::wstring GetSEHcodeDescription(DWORD code)
+{
+    switch (code) {
+    case EXCEPTION_ACCESS_VIOLATION:         return L"EXCEPTION_ACCESS_VIOLATION";
+    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    return L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED";
+    case EXCEPTION_BREAKPOINT:               return L"EXCEPTION_BREAKPOINT";
+    case EXCEPTION_DATATYPE_MISALIGNMENT:    return L"EXCEPTION_DATATYPE_MISALIGNMENT";
+    case EXCEPTION_FLT_DENORMAL_OPERAND:     return L"EXCEPTION_FLT_DENORMAL_OPERAND";
+    case EXCEPTION_FLT_DIVIDE_BY_ZERO:       return L"EXCEPTION_FLT_DIVIDE_BY_ZERO";
+    case EXCEPTION_FLT_INEXACT_RESULT:       return L"EXCEPTION_FLT_INEXACT_RESULT";
+    case EXCEPTION_FLT_INVALID_OPERATION:    return L"EXCEPTION_FLT_INVALID_OPERATION";
+    case EXCEPTION_FLT_OVERFLOW:             return L"EXCEPTION_FLT_OVERFLOW";
+    case EXCEPTION_FLT_STACK_CHECK:          return L"EXCEPTION_FLT_STACK_CHECK";
+    case EXCEPTION_FLT_UNDERFLOW:            return L"EXCEPTION_FLT_UNDERFLOW";
+    case EXCEPTION_ILLEGAL_INSTRUCTION:      return L"EXCEPTION_ILLEGAL_INSTRUCTION";
+    case EXCEPTION_IN_PAGE_ERROR:            return L"EXCEPTION_IN_PAGE_ERROR";
+    case EXCEPTION_INT_DIVIDE_BY_ZERO:       return L"EXCEPTION_INT_DIVIDE_BY_ZERO";
+    case EXCEPTION_INT_OVERFLOW:             return L"EXCEPTION_INT_OVERFLOW";
+    case EXCEPTION_INVALID_DISPOSITION:      return L"EXCEPTION_INVALID_DISPOSITION";
+    case EXCEPTION_NONCONTINUABLE_EXCEPTION: return L"EXCEPTION_NONCONTINUABLE_EXCEPTION";
+    case EXCEPTION_PRIV_INSTRUCTION:         return L"EXCEPTION_PRIV_INSTRUCTION";
+    case EXCEPTION_SINGLE_STEP:              return L"EXCEPTION_SINGLE_STEP";
+    case EXCEPTION_STACK_OVERFLOW:           return L"EXCEPTION_STACK_OVERFLOW";
+    case 0xC0000142:                         return L"DllMain returned false";
+    case 0xC0000022:                         return L"executable or one of the dependant dlls do not have execute rights";
+    default: return L"UNKNOWN EXCEPTION";
+    }
+}
+
+std::wstring GetHresultMessage(HRESULT hr)
+{
+    _com_error err(hr);
+    return err.ErrorMessage();
+}
+
+std::wstring GetHresultName(HRESULT hr)
+{
+    switch (hr) {
+    case E_FAIL:            return L"E_FAIL";
+    case E_ACCESSDENIED:    return L"E_ACCESSDENIED";
+    case E_ABORT:           return L"E_ABORT";
+    case E_NOTIMPL:         return L"E_NOTIMPL";
+    case E_OUTOFMEMORY:     return L"E_OUTOFMEMORY";
+    case E_INVALIDARG:      return L"E_INVALIDARG";
+    case E_NOINTERFACE:     return L"E_NOINTERFACE";
+    case E_POINTER:         return L"E_POINTER";
+    case E_HANDLE:          return L"E_HANDLE";
+    case E_UNEXPECTED:      return L"E_UNEXPECTED";
+    default: break;
+    }
+    return L"";
+}
+
+std::wstring GetHresultDescription(HRESULT hr)
+{
+    auto msg = GetHresultMessage(hr);
+    auto name = GetHresultName(hr);
+    if (name.empty()) return msg;
+    return name + L", " + msg;
 }
 
 } // namespace Win32

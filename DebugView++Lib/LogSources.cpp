@@ -231,11 +231,52 @@ void LogSources::UpdateSources()
 
 	for (auto& pLogSource : sourcesToAdd)
 	{
-        UpdateSettings(pLogSource);
+		UpdateSettings(pLogSource);
 		m_sources.emplace_back(std::move(pLogSource));
 	}
 
 	m_throttledUpdate(); // notify observers to process internal messages
+}
+
+std::string FormatExitCode(DWORD exitCode)
+{
+	auto longCode = static_cast<long>(exitCode);
+	if (std::abs(longCode) < 16)
+	{
+		if (longCode < 0)
+			return stringbuilder() << "exit code " << longCode << " (" << std::hex << std::showbase << std::internal << exitCode << ")";
+		return stringbuilder() << "exit code " << longCode;
+	}
+	if (exitCode >= 0xC0000000) // >= 0xC0000000 in case of an SEH exception
+	{
+		return stringbuilder() << std::hex << std::showbase << std::internal << exitCode << " (" << Win32::GetSEHcodeDescription(exitCode) << ")";
+	}
+	if (exitCode >= 0x80000000) // >= 0x80000000 in case of a HRESULT rethrown as an SEH
+	{
+		return stringbuilder() << "HRESULT " << std::hex << std::showbase << std::internal << exitCode << " (" << Win32::GetHresultDescription(exitCode) << ")";
+	}
+	return stringbuilder() << "exit code " << longCode << " (" << std::hex << std::showbase << std::internal << exitCode << ")";
+}
+
+void LogSources::AddTerminateMessage(DWORD pid, HANDLE handle) const
+{
+	auto processName = Str(ProcessInfo::GetProcessName(handle)).str();
+	auto startTime = ProcessInfo::GetStartTime(handle);
+
+	std::string terminateMessage = stringbuilder() << "<process started at " << startTime << " has terminated";
+	DWORD exitCode = 0;
+	auto result = ::GetExitCodeProcess(handle, &exitCode);
+	if (result == 0)
+	{
+		terminateMessage += " with unknown exit code";
+	}
+	else
+	{
+		terminateMessage += " with ";
+		terminateMessage += FormatExitCode(exitCode);
+	}
+	terminateMessage += ">";
+	m_loopback->Add(pid, processName, terminateMessage);
 }
 
 void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
@@ -245,6 +286,7 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 		auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
 		for (auto& line : flushedLines)
 			m_loopback->Add(line.pid, line.processName, line.message);
+		AddTerminateMessage(pid, handle);
 		m_throttledUpdate();
 		auto it = m_pidMap.find(pid);
 		if (it != m_pidMap.end())

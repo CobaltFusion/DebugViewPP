@@ -297,6 +297,10 @@ private:
 	int m_handle;
 };
 
+std::wstring GetSEHcodeDescription(DWORD code);
+std::wstring GetHresultMessage(HRESULT hr);
+std::wstring GetHresultName(HRESULT hr);
+std::wstring GetHresultDescription(HRESULT hr);
 
 } // namespace Win32
 

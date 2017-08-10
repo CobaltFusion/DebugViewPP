@@ -63,14 +63,6 @@ Lines NewlineFilter::FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle)
 		}
 		m_lineBuffers.erase(pid);
 	}
-
-	DWORD exitCode = 0;
-	::GetExitCodeProcess(handle, &exitCode);
-
-	auto processName = Str(ProcessInfo::GetProcessName(handle)).str();
-	auto info = ProcessInfo::GetProcessInfo(handle);
-	std::string infoStr = stringbuilder() << "<process started at " << info << " has now terminated with exit code " << exitCode << ">";
-	lines.push_back(Line(0, FILETIME(), pid, processName, infoStr, nullptr));
 	return lines;
 }
 

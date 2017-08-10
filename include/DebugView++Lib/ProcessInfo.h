@@ -42,7 +42,7 @@ public:
 	void Clear();
 	static size_t GetPrivateBytes();
 	static std::wstring GetProcessName(HANDLE handle);
-	static std::wstring GetProcessInfo(HANDLE handle);
+	static std::wstring GetStartTime(HANDLE handle);
 	static std::wstring GetProcessNameByPid(DWORD processId);
 
 	DWORD GetUid(DWORD processId, const std::wstring& processName);
