@@ -25,25 +25,13 @@ LRESULT fusion::CMainFrame2::OnSize(UINT nType, CSize Extent)
     return 1;
 }
 
-BOOL fusion::CMainFrame2::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
-{
-    return TRUE;
-}
-
-void fusion::CMainFrame2::DisablePaneHeader(CPaneContainer& panecontainer)
-{
-    panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
-    panecontainer.m_cxyHeader = 0;
-}
-
 LRESULT fusion::CMainFrame2::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     auto rect = RECT();
     GetClientRect(&rect);
-    rect.bottom = 600;
-    m_logview.Create(*this, rect, CListViewCtrl::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW, WS_EX_CLIENTEDGE);
+    rect.bottom = 540; // 40x 13 = 520, + 20 for colomn header
+    m_logview.Create(*this, rect, CListViewCtrl::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL, WS_EX_CLIENTEDGE);
     AddDummyContent(m_logview);
-    m_logview.SetBkColor(RGB(10, 10, 255));
     return 0;
 }
 

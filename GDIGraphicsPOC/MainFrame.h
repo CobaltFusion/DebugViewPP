@@ -30,6 +30,10 @@ extern CAppModule _Module; // WTL version of CComModule
 
 namespace fusion {
 
+class ReflectorWindow : public CWindowWithReflectorImpl<ReflectorWindow>
+{
+};
+
 class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem2>>
 {
 public:
@@ -39,14 +43,12 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		MSG_WM_MOUSEWHEEL(OnMouseWheel)
 		MSG_WM_SIZE(OnSize)
-		DEFAULT_REFLECTION_HANDLER()
+        REFLECT_NOTIFICATIONS();
+        DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
 
 	LRESULT OnSize(UINT nType, CSize Extent);
-	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-	void DisablePaneHeader(CPaneContainer& panecontainer);
 	void AddTab(const std::wstring name);
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

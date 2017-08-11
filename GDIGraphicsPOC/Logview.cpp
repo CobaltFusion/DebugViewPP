@@ -17,75 +17,39 @@
 namespace fusion {
 
 
-BEGIN_MSG_MAP2(CLogView)
-	MSG_WM_CREATE(OnCreate)
-	MSG_WM_CLOSE(OnClose)
-	MSG_WM_TIMER(OnTimer)
-
-	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
-	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
-
-	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
-	//CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>) //DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
-	DEFAULT_REFLECTION_HANDLER()
-END_MSG_MAP()
-
-
 CLogView::CLogView()
-{
-}
-
-void CLogView::OnException() const
-{
-}
-
-void CLogView::OnException(const std::exception& ex)
 {
 }
 
 void CLogView::DeleteItem(DELETEITEMSTRUCT* lParam)
 {
-    COwnerDraw<CLogView>::DeleteItem(lParam);
-}
-
-LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
-{
-	DefWindowProc();
-	SetExtendedListViewStyle(GetWndExStyle(0));
-	return 0;
+	COwnerDraw<CLogView>::DeleteItem(lParam);
 }
 
 void CLogView::SetFont(HFONT hFont)
 {
-    CListViewCtrl::SetFont(hFont);
-    GetHeader().Invalidate();
+	CListViewCtrl::SetFont(hFont);
+	GetHeader().Invalidate();
 
-    // Trigger WM_MEASUREPOS
-    // See: http://www.codeproject.com/Articles/1401/Changing-Row-Height-in-an-owner-drawn-Control
-    CRect rect;
-    GetWindowRect(&rect);
-    WINDOWPOS wp;
-    wp.hwnd = *this;
-    wp.cx = rect.Width();
-    wp.cy = rect.Height();
-    wp.flags = SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER;
-    SendMessage(WM_WINDOWPOSCHANGED, 0, reinterpret_cast<LPARAM>(&wp));
+	// Trigger WM_MEASUREPOS
+	// See: http://www.codeproject.com/Articles/1401/Changing-Row-Height-in-an-owner-drawn-Control
+	CRect rect;
+	GetWindowRect(&rect);
+	WINDOWPOS wp;
+	wp.hwnd = *this;
+	wp.cx = rect.Width();
+	wp.cy = rect.Height();
+	wp.flags = SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER;
+	SendMessage(WM_WINDOWPOSCHANGED, 0, reinterpret_cast<LPARAM>(&wp));
 }
 
 void CLogView::OnClose()
 {
 }
 
-void CLogView::OnTimer(UINT_PTR nIDEvent)
-{
-	if (nIDEvent != 1)
-		return;
-
-}
-
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 {
-    OutputDebugStringA("CLogView::MeasureItem - debug");
+	OutputDebugStringA("CLogView::MeasureItem - debug");
 	CClientDC dc(*this);
 
 	Win32::GdiObjectSelection font(dc, GetFont());
@@ -96,48 +60,36 @@ void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 
 void CLogView::DrawItem(DRAWITEMSTRUCT* pDrawItemStruct)
 {
-    OutputDebugStringA("CLogView::DrawItem - debug");
-
+	OutputDebugStringA("CLogView::DrawItem - debug");
 	DrawItem(pDrawItemStruct->hDC, pDrawItemStruct->itemID, pDrawItemStruct->itemState);
 }
 
 RECT CLogView::GetItemRect(int iItem, unsigned code) const
 {
-    RECT rect;
-    CListViewCtrl::GetItemRect(iItem, &rect, code);
-    return rect;
+	RECT rect;
+	CListViewCtrl::GetItemRect(iItem, &rect, code);
+	return rect;
 }
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/)
 {
-    SetMsgHandled(false);
-}
+	auto rect = GetItemRect(iItem, LVIR_BOUNDS);
 
+	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
+	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
+	auto bkColor = selected ? RGB(255, 200, 200) : RGB(255, 255, 255);
+	auto txColor = RGB(0, 0, 0);
 
-LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
-{
-	auto& nmhdr = *reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
-	nmhdr;
+	dc.FillSolidRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, bkColor);
 
-	return 0;
-}
+	Win32::ScopedBkColor bcol(dc, bkColor);
+	Win32::ScopedTextColor tcol(dc, txColor);
 
-LRESULT CLogView::OnOdCacheHint(NMHDR* pnmh)
-{
-	auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
-	nmhdr;
-	return 0;
-}
+	std::wstring text = wstringbuilder() << iItem +1 << L" If the logview is rendered correctly then exactly 40 lines will fit";
+	dc.DrawText(text.c_str(), text.size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 
-void CLogView::DoPaint(CDCHandle dc)
-{
-	RECT rect;
-	dc.GetClipBox(&rect);
-
-    auto fill = RGB(10, 10, 255); //Colors::BackGround
-	dc.FillSolidRect(&rect, fill);
-
-	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
+	if (focused)
+		dc.DrawFocusRect(&rect);
 }
 
 

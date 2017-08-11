@@ -83,33 +83,35 @@ public:
 		return m_timelineView;
 	}
 
+	void DisablePaneHeader(CPaneContainer& panecontainer)
+	{
+		panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
+		panecontainer.m_cxyHeader = 0;
+	}
+
 	void Create(HWND parent)
 	{
 		auto client = RECT();
 		GetClientRect(parent, &client);
-		client.top += 25;
-		m_split.Create(parent, client, 0, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_OWNERDRAW);
+		m_split.Create(parent, client, nullptr);
 
 		SetTabView(m_split);
-
-		std::wstring tlabel = GetText();
-		tlabel += L" top panel";
-		m_top.Create(m_split, tlabel.c_str(), WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | SS_OWNERDRAW);
-		m_logview.Create(m_top, CWindow::rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+		m_top.Create(m_split, L"");
+		m_logview.Create(m_top, CWindow::rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL);
 		m_top.SetClient(m_logview);
-        fusion::AddDummyContent(m_logview);
+		fusion::AddDummyContent(m_logview);
 
-		std::wstring blabel = GetText();
-		blabel += L" bottom panel";
-		m_bottom.Create(m_split, blabel.c_str());
+		m_bottom.Create(m_split, L"");
 		m_split.SetSplitterPanes(m_top, m_bottom, true);
-		m_split.SetSplitterPos(500);
+		m_split.SetSplitterPos(560);
 
 		InitTimeLine();
-		m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
+		m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL);
 		m_timelineView.SetView(0.0, 1000.0);
 		m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
-	}
+        DisablePaneHeader(m_top);
+        DisablePaneHeader(m_bottom);
+    }
 
 	void InitTimeLine()
 	{
@@ -152,8 +154,8 @@ private:
 	gdi::CTimelineView m_timelineView;
 };
 
-//using CLogViewTabItem2 = TabItem<CLogView>;
-using CLogViewTabItem2 = TabItem<CListViewCtrl>;
+using CLogViewTabItem2 = TabItem<CLogView>;
+//using CLogViewTabItem2 = TabItem<CListViewCtrl>;
 
 
 } // namespace fusion

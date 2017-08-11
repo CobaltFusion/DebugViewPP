@@ -8,7 +8,6 @@ CAppModule _Module;
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPSTR szCmdLine, int nCmdShow)
 {
     fusion::CMainFrame wndMain;
-    //fusion::MainWnd wndMain;
 
     // Create & show our main window
     if (nullptr == wndMain.Create(nullptr, CWindow::rcDefault, _T("WTL Frame"), WS_OVERLAPPEDWINDOW))
@@ -47,25 +46,6 @@ LRESULT fusion::CMainFrame::OnSize(UINT nType, CSize Extent)
     cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
 	UpdateLayout();
 	return 1;
-}
-
-BOOL fusion::CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
-{
-	//if (zDelta > 0)
-	//{
-	//	m_timelineView.Zoom(2.0);
-	//}
-	//else
-	//{
-	//	m_timelineView.Zoom(0.5);
-	//}
-	return TRUE;
-}
-
-void fusion::CMainFrame::DisablePaneHeader(CPaneContainer& panecontainer)
-{
-	panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
-	panecontainer.m_cxyHeader = 0;
 }
 
 void fusion::CMainFrame::AddTab(const std::wstring name)

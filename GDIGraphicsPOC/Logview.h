@@ -16,6 +16,7 @@
 #include "atlframe.h"
 #include "atlctrls.h"
 #include "AtlWinExt.h"
+#include <atlcrack.h>
 
 
 namespace fusion {
@@ -23,7 +24,7 @@ namespace fusion {
 template <typename T>
 void AddDummyContent(T& t)
 {
-    t.InsertColumn(0, _T("Scoobies"), LVCFMT_LEFT, 100, 0);
+    t.InsertColumn(0, _T("Scoobies2"), LVCFMT_LEFT, -1, -1);
     t.InsertItem(0, _T("01 Willow is een test regel met een hoop tekens er achter"));
     t.InsertItem(1, _T("02 Buffy is een test regel met een hoop tekens er achter"));
     t.InsertItem(2, _T("03 Giles is een test regel met een hoop tekens er achter"));
@@ -70,38 +71,31 @@ void AddDummyContent(T& t)
     t.SetFont(font);
 }
 
-class CLogView : public WTL::CDoubleBufferWindowImpl<CLogView, CListViewCtrl,
+class CLogView : public CWindowImpl<CLogView, CListViewCtrl,
 					 CWinTraitsOR<
 						 LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
 						 LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
-				 public WTL::COwnerDraw<CLogView>,
-				 ExceptionHandler<CLogView, std::exception>
+				 public WTL::COwnerDraw<CLogView>
 {
 public:
 	CLogView();
 
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	void DoPaint(WTL::CDCHandle dc);
+    BEGIN_MSG_MAP(CLogView)
+        MSG_WM_CLOSE(OnClose)
+        CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
+        DEFAULT_REFLECTION_HANDLER()
+    END_MSG_MAP()
+
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
-
-
 	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct);
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct);
 	void SetFont(HFONT hFont);
+
 private:
-	DECLARE_MSG_MAP()
-
-	void OnException() const;
-	void OnException(const std::exception& ex);
-	LRESULT OnCreate(const CREATESTRUCT* pCreate);
 	void OnClose();
-	void OnTimer(UINT_PTR nIDEvent);
-
-	LRESULT OnOdStateChanged(NMHDR* pnmh);
-	LRESULT OnOdCacheHint(NMHDR* pnmh);
 	RECT GetItemRect(int iItem, unsigned code) const;
-
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState);
 };
 
