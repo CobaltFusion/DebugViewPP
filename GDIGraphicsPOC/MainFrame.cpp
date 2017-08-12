@@ -29,47 +29,52 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPSTR szCmdLine, int nC
     return msg.wParam;
 }
 
-LRESULT fusion::CMainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+namespace fusion
 {
-	DestroyWindow();
-	return 0;
-}
 
-LRESULT fusion::CMainFrame::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	PostQuitMessage(0);
-	return 0;
-}
+    LRESULT CMainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+    {
+        DestroyWindow();
+        return 0;
+    }
 
-LRESULT fusion::CMainFrame::OnSize(UINT nType, CSize Extent)
-{
-    cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
-	UpdateLayout();
-	return 1;
-}
+    LRESULT CMainFrame::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
 
-void fusion::CMainFrame::AddTab(const std::wstring name)
-{
-	auto lvi = std::make_shared<CLogViewTabItem2>();
-	m_tabitems.push_back(lvi);
-	lvi->SetText(name.c_str());
-	lvi->Create(*this);
+    LRESULT CMainFrame::OnSize(UINT nType, CSize Extent)
+    {
+        cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
+        UpdateLayout();
+        return 1;
+    }
 
-	int newIndex = GetTabCtrl().GetItemCount();
-	GetTabCtrl().InsertItem(newIndex, lvi.get());
-	GetTabCtrl().SetCurSel(newIndex);
-}
+    void CMainFrame::AddTab(const std::wstring name)
+    {
+        auto lvi = std::make_shared<CLogViewTabItem2>();
+        m_tabitems.push_back(lvi);
+        lvi->SetText(name.c_str());
+        lvi->Create(*this);
 
-LRESULT fusion::CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	auto rect = RECT();
-	GetClientRect(&rect);
+        int newIndex = GetTabCtrl().GetItemCount();
+        GetTabCtrl().InsertItem(newIndex, lvi.get());
+        GetTabCtrl().SetCurSel(newIndex);
+    }
 
-	// block 2
-	CreateTabWindow(*this, rect, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
-	AddTab(L"Tab1");
-	AddTab(L"Tab2");
+    LRESULT CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+    {
+        auto rect = RECT();
+        GetClientRect(&rect);
 
-	ShowTabControl();
-	return 0;
+        // block 2
+        CreateTabWindow(*this, rect, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+        AddTab(L"Tab1");
+        AddTab(L"Tab2");
+
+        ShowTabControl();
+        return 0;
+    }
+
 }

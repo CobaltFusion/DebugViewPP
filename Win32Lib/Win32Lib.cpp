@@ -566,6 +566,41 @@ std::wstring GetHresultDescription(HRESULT hr)
     return name + L", " + msg;
 }
 
+JobObject::JobObject()
+    : m_jobHandle(::CreateJobObject(nullptr, nullptr))
+{
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
+
+    jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    if (0 == ::SetInformationJobObject(m_jobHandle.get(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+    {
+        ThrowLastError("SetInformationJobObject");
+    }
+}
+
+HANDLE JobObject::get() const
+{
+    return m_jobHandle.get();
+}
+
+void JobObject::AddProcessById(DWORD pid) const
+{
+    Handle processHandle(OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid));
+    ::AssignProcessToJobObject(m_jobHandle.get(), processHandle.get());
+}
+
+void JobObject::AddProcessByHandle(HANDLE processHandle) const
+{
+    ::AssignProcessToJobObject(m_jobHandle.get(), processHandle);
+}
+
+Handle DuplicateHandle(HANDLE handle)
+{
+    HANDLE result;
+    ::DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(), &result, 0, FALSE, DUPLICATE_SAME_ACCESS);
+    return Handle(result);
+}
+
 } // namespace Win32
 
 bool operator==(const FILETIME& ft1, const FILETIME& ft2)

@@ -302,6 +302,20 @@ std::wstring GetHresultMessage(HRESULT hr);
 std::wstring GetHresultName(HRESULT hr);
 std::wstring GetHresultDescription(HRESULT hr);
 
+class JobObject
+{
+public:
+    JobObject();
+    HANDLE get() const;
+    void AddProcessById(DWORD processId) const;
+    void AddProcessByHandle(HANDLE processHandle) const;
+
+private:
+    Handle m_jobHandle;
+};
+
+Handle DuplicateHandle(HANDLE handle);
+
 } // namespace Win32
 
 bool operator==(const FILETIME& ft1, const FILETIME& ft2);

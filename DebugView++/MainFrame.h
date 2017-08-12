@@ -245,6 +245,8 @@ private:
 	std::vector<SourceInfo> m_sourceInfos;
 	std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;
 	LogSources m_logSources;
+    Win32::JobObject m_jobs;
+    Win32::Handle m_httpMonitorHandle;
 };
 
 } // namespace debugviewpp

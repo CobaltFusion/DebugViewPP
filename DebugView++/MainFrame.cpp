@@ -554,12 +554,19 @@ void CMainFrame::OnDropped(const std::wstring uri)
 		std::wstring httpmonitor = wstringbuilder() << Win32::GetExecutionPath() << "\\debugview++plugins\\HttpMonitor.exe";
 		if (std::experimental::filesystem::exists(httpmonitor))
 		{
+			if (m_httpMonitorHandle)
+			{
+				::TerminateProcess(m_httpMonitorHandle.get(), 0);
+			}
+
 			Win32::Process process(httpmonitor, uri);
+			m_httpMonitorHandle = Win32::DuplicateHandle(process.GetProcessHandle());
+			m_jobs.AddProcessByHandle(m_httpMonitorHandle.get());
 		}
-        else
-        {
-            m_logSources.AddMessage(stringbuilder() << httpmonitor << " missing, dropped url ignored\n");
-        }
+		else
+		{
+			m_logSources.AddMessage(stringbuilder() << httpmonitor << " missing, dropped url ignored\n");
+		}
 	}
 }
 
