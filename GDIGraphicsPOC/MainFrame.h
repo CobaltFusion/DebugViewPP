@@ -30,9 +30,6 @@ extern CAppModule _Module; // WTL version of CComModule
 
 namespace fusion {
 
-class ReflectorWindow : public CWindowWithReflectorImpl<ReflectorWindow>
-{
-};
 
 class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem2>>
 {

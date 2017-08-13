@@ -18,8 +18,16 @@
 #include "AtlWinExt.h"
 #include <atlcrack.h>
 
-
 namespace fusion {
+
+class Reflector : public CWindowImpl<Reflector>
+{
+public:
+    DECLARE_WND_CLASS_EX(_T("MyReflectorWindow"), 0, -1)
+    BEGIN_MSG_MAP(Reflector)
+        REFLECT_NOTIFICATIONS()
+    END_MSG_MAP()
+};
 
 template <typename T>
 void AddDummyContent(T& t)

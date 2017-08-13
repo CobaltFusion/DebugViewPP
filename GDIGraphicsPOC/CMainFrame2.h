@@ -38,7 +38,6 @@ public:
         MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
         MSG_WM_SIZE(OnSize)
         CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame2>)
-        REFLECT_NOTIFICATIONS();
         DEFAULT_REFLECTION_HANDLER()
     END_MSG_MAP()
 
@@ -49,6 +48,7 @@ public:
 
 private:
     CLogView m_logview;
+    Reflector m_reflector;
 };
 
 } // namespace fusion

@@ -7,7 +7,10 @@ CAppModule _Module;
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPSTR szCmdLine, int nCmdShow)
 {
-    fusion::CMainFrame wndMain;
+    // CMainFrame is a CTabbedFrameImpl<> and does not render as intended
+    // CMainFrame2 is a CFrameWindowImpl<> and _does_ render as intended
+    
+    fusion::CMainFrame2 wndMain;
 
     // Create & show our main window
     if (nullptr == wndMain.Create(nullptr, CWindow::rcDefault, _T("WTL Frame"), WS_OVERLAPPEDWINDOW))
