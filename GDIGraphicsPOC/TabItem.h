@@ -105,45 +105,8 @@ public:
 		m_split.SetSplitterPanes(m_top, m_bottom, true);
 		m_split.SetSplitterPos(560);
 
-		InitTimeLine();
-		m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL);
-		m_timelineView.SetView(0.0, 1000.0);
-		m_bottom.SetClient(m_timelineView);
 		DisablePaneHeader(m_top);
 		DisablePaneHeader(m_bottom);
-	}
-
-	void InitTimeLine()
-	{
-		m_timelineView.SetFormatter([](gdi::Location l) {
-			return Str(FormatDuration(l));
-		});
-
-		m_timelineView.SetDataProvider([](gdi::Location, gdi::Location) {
-			auto info = std::make_shared<gdi::Line>(L"Some info");
-			info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-			info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-			info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
-			info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
-			info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
-			info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
-
-			auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
-			sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-			sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-			sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-			sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-
-			auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
-			data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
-			info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
-
-			gdi::TimeLines lines;
-			lines.emplace_back(info);
-			lines.emplace_back(sequence);
-			lines.emplace_back(data);
-			return lines;
-		});
 	}
 
 private:
@@ -151,11 +114,8 @@ private:
 	CHorSplitterWindow m_split;
 	CPaneContainer m_top;
 	CPaneContainer m_bottom;
-	gdi::CTimelineView m_timelineView;
 };
 
 using CLogViewTabItem2 = TabItem<CLogView>;
-//using CLogViewTabItem2 = TabItem<CListViewCtrl>;
-
 
 } // namespace fusion
