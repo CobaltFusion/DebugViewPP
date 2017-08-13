@@ -43,6 +43,11 @@ void CLogView::SetFont(HFONT hFont)
 	SendMessage(WM_WINDOWPOSCHANGED, 0, reinterpret_cast<LPARAM>(&wp));
 }
 
+void CLogView::Create(HWND hWndParent, ATL::_U_RECT rect)
+{
+    __super::Create(hWndParent, rect, CListViewCtrl::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL, WS_EX_CLIENTEDGE);
+}
+
 void CLogView::OnClose()
 {
 }
@@ -85,7 +90,7 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/)
 	Win32::ScopedBkColor bcol(dc, bkColor);
 	Win32::ScopedTextColor tcol(dc, txColor);
 
-	std::wstring text = wstringbuilder() << iItem +1 << L" If the logview is rendered correctly then exactly 40 lines will fit";
+	std::wstring text = wstringbuilder() << iItem + 1 << L" If the logview is rendered correctly then exactly 40 lines will fit";
 	dc.DrawText(text.c_str(), text.size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 
 	if (focused)

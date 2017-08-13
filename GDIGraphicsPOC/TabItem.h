@@ -97,7 +97,7 @@ public:
 
 		SetTabView(m_split);
 		m_top.Create(m_split, L"");
-		m_logview.Create(m_top, CWindow::rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL);
+		m_logview.Create(m_top, CWindow::rcDefault);
 		m_top.SetClient(m_logview);
 		fusion::AddDummyContent(m_logview);
 
@@ -108,10 +108,10 @@ public:
 		InitTimeLine();
 		m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL);
 		m_timelineView.SetView(0.0, 1000.0);
-		m_bottom.SetClient(m_timelineView); //uncomment this line to start rendering m_timelineView (breaks because it needs to be configured)
-        DisablePaneHeader(m_top);
-        DisablePaneHeader(m_bottom);
-    }
+		m_bottom.SetClient(m_timelineView);
+		DisablePaneHeader(m_top);
+		DisablePaneHeader(m_bottom);
+	}
 
 	void InitTimeLine()
 	{

@@ -30,7 +30,7 @@ LRESULT fusion::CMainFrame2::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, B
     auto rect = RECT();
     GetClientRect(&rect);
     rect.bottom = 540; // 40x 13 = 520, + 20 for colomn header
-    m_logview.Create(*this, rect, CListViewCtrl::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL, WS_EX_CLIENTEDGE);
+    m_logview.Create(*this, rect);
     AddDummyContent(m_logview);
     return 0;
 }
