@@ -10,7 +10,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPSTR szCmdLine, int nC
     // CMainFrame is a CTabbedFrameImpl<> and does not render as intended
     // CMainFrame2 is a CFrameWindowImpl<> and _does_ render as intended
     
-    fusion::CMainFrame2 wndMain;
+    fusion::CMainFrame wndMain;
 
     // Create & show our main window
     if (nullptr == wndMain.Create(nullptr, CWindow::rcDefault, _T("WTL Frame"), WS_OVERLAPPEDWINDOW))
@@ -68,14 +68,9 @@ namespace fusion
 
     LRESULT CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        auto rect = RECT();
-        GetClientRect(&rect);
-
-        // block 2
-        CreateTabWindow(*this, rect, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+        CreateTabWindow(*this, CWindow::rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
         AddTab(L"Tab1");
         AddTab(L"Tab2");
-
         ShowTabControl();
         return 0;
     }

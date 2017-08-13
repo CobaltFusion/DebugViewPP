@@ -93,7 +93,7 @@ public:
 	{
 		auto client = RECT();
 		GetClientRect(parent, &client);
-		m_split.Create(parent, client, nullptr);
+		m_split.Create(parent, client);
 
 		SetTabView(m_split);
 		m_top.Create(m_split, L"");
