@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26606.0
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\DebugView++.vcxproj", "{E37BA0C9-8A2F-4F2E-BBF8-839F3429D3A7}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,6 +18,7 @@ EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DebugView++Setup", "DebugView++Setup\DebugView++Setup.wixproj", "{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C824932A-2819-4148-B54F-214D65015C54} = {C824932A-2819-4148-B54F-214D65015C54}
+		{229C866B-8DD9-49FF-91D0-0B8B30448F03} = {229C866B-8DD9-49FF-91D0-0B8B30448F03}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CobaltFusion", "CobaltFusion\CobaltFusion.vcxproj", "{218AB179-4C19-4264-BD55-DF89A9F321CA}"
@@ -320,5 +321,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{229C866B-8DD9-49FF-91D0-0B8B30448F03} = {997ACF6D-C484-4738-AD85-9259543F8F9C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A816EEC4-C2DC-4B8B-92C7-C17F773426A0}
 	EndGlobalSection
 EndGlobal
