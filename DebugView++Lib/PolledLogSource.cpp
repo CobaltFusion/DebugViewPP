@@ -14,6 +14,17 @@
 namespace fusion {
 namespace debugviewpp {
 
+
+PollLine::PollLine(Win32::Handle handle, const std::string& message, const LogSource* pLogSource) :
+    timesValid(false),
+    time(0.0),
+    systemTime(FILETIME()),
+    handle(std::move(handle)),
+    message(message),
+    pLogSource(pLogSource)
+{
+}
+
 PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
 	timesValid(false),
 	time(0.0),
@@ -95,7 +106,9 @@ void PolledLogSource::Notify()
 
 	for (auto& line : m_backBuffer)
 	{
-		if (line.timesValid)
+		if (line.handle)
+			Add(line.handle.release(), line.message);
+		else if (line.timesValid)
 			Add(line.time, line.systemTime, line.pid, line.processName, line.message);
 		else
 			Add(line.pid, line.processName, line.message);
@@ -105,6 +118,12 @@ void PolledLogSource::Notify()
 
 void PolledLogSource::Poll()
 {
+}
+
+void PolledLogSource::AddMessage(Win32::Handle handle, const std::string& message)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_lines.push_back(PollLine(std::move(handle), message, this));
 }
 
 void PolledLogSource::AddMessage(DWORD pid, const std::string& processName, const std::string& message)

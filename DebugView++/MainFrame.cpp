@@ -517,19 +517,15 @@ void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
 
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
-	if (!IsPaused())
-		Pause();
 	SetTitle(file);
 	using boost::algorithm::iequals;
 	auto ext = std::experimental::filesystem::path(file).extension().wstring();
 	if (iequals(ext, L".exe"))
 	{
-		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
 		Run(file);
 	}
 	else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
 	{
-		m_logSources.AddMessage(stringbuilder() << "Started capturing output of " << Str(file) << "\n");
 		m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C \"" << file << "\"");
 	}
 	else
@@ -560,7 +556,7 @@ void CMainFrame::OnDropped(const std::wstring uri)
 			}
 
 			Win32::Process process(httpmonitor, uri);
-			m_httpMonitorHandle = Win32::DuplicateHandle(process.GetProcessHandle());
+            m_httpMonitorHandle = Win32::DuplicateHandle(process.GetProcessHandle());
 			m_jobs.AddProcessByHandle(m_httpMonitorHandle.get());
 		}
 		else

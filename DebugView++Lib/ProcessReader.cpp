@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -21,6 +21,8 @@ ProcessReader::ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::w
 	m_stderr(timer, linebuffer, m_process.GetStdErr(), m_process.GetProcessId(), Str(m_process.GetName()).str() + ":stderr", 0)
 {
 	SetDescription(m_process.GetName() + L" stdout/stderr");
+	AddMessage(Win32::DuplicateHandle(m_process.GetProcessHandle()), "Started capturing output of stdout/stderr");
+	Signal();
 	StartThread();
 }
 
@@ -30,7 +32,8 @@ ProcessReader::~ProcessReader()
 
 void ProcessReader::Abort()
 {
-	AddMessage(m_process.GetProcessId(), Str(m_process.GetName()).str(), "<process terminated>");
+	AddMessage(m_process.GetProcessId(), Str(m_process.GetName()).str(), "<process reader aborted>");
+	Signal();
 	PolledLogSource::Abort();
 }
 
@@ -45,5 +48,5 @@ void ProcessReader::Poll()
 	m_stderr.Poll(*this);
 }
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

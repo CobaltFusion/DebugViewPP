@@ -18,13 +18,15 @@ class ILineBuffer;
 
 struct PollLine
 {
-	PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
-	PollLine(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
+    PollLine(Win32::Handle handle, const std::string& message, const LogSource* pLogSource);
+    PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
+    PollLine(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
 
 	bool timesValid;
 	double time;
 	FILETIME systemTime;
-	DWORD pid;
+    Win32::Handle handle;
+    DWORD pid;
 	std::string processName;
 	std::string message;
 	const LogSource* pLogSource;
@@ -43,8 +45,9 @@ public:
 
 	// in contrast to the LogSource::Add methdods, these methods are de-coupled using m_backBuffer so they 
 	// can be used to add messages from any thread. The typical use-case are messages from the UI thread.
-	void AddMessage(DWORD pid, const std::string& processName, const std::string& message);
-	void AddMessage(const std::string& message);
+    void AddMessage(Win32::Handle handle, const std::string& message);
+    void AddMessage(DWORD pid, const std::string& processName, const std::string& message);
+    void AddMessage(const std::string& message);
 	void AddMessage(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
 
 	void Signal();

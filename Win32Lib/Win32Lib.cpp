@@ -505,6 +505,7 @@ void HFile::resize(size_t size) const
 		ThrowLastError("_chsize");
 }
 
+// SEH (Structured Exception Handling) return codes are in the 0xC000000-0xfffff00 range
 std::wstring GetSEHcodeDescription(DWORD code)
 {
     switch (code) {
@@ -528,6 +529,8 @@ std::wstring GetSEHcodeDescription(DWORD code)
     case EXCEPTION_PRIV_INSTRUCTION:         return L"EXCEPTION_PRIV_INSTRUCTION";
     case EXCEPTION_SINGLE_STEP:              return L"EXCEPTION_SINGLE_STEP";
     case EXCEPTION_STACK_OVERFLOW:           return L"EXCEPTION_STACK_OVERFLOW";
+
+    // undocumented? but regularly seen codes
     case 0xC0000142:                         return L"DllMain returned false";
     case 0xC0000022:                         return L"executable or one of the dependant dlls do not have execute rights";
     default: return L"UNKNOWN EXCEPTION";
@@ -540,6 +543,7 @@ std::wstring GetHresultMessage(HRESULT hr)
     return err.ErrorMessage();
 }
 
+// RESULT return codes are in the 0x8000000-0xbffffff range
 std::wstring GetHresultName(HRESULT hr)
 {
     switch (hr) {
