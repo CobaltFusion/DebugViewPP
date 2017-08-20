@@ -57,7 +57,7 @@ void DBWinReader::Notify()
 	}
 	else
 	{
-		HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, m_dbWinBuffer->processId);
+		HANDLE handle = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, FALSE, m_dbWinBuffer->processId);
 #ifdef OPENPROCESS_DEBUG
 		if (!handle)
 		{
