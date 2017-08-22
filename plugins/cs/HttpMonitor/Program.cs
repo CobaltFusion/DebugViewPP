@@ -201,6 +201,10 @@ namespace HttpMonitor
 			Console.WriteLine("URL: " + url);
 			Console.WriteLine("Monitoring...");
 
+			//Trust all certificates
+			System.Net.ServicePointManager.ServerCertificateValidationCallback =
+				((sender, certificate, chain, sslPolicyErrors) => true);
+
 			Log log = new Log(url);
 
 			try
