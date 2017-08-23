@@ -178,6 +178,7 @@ public:
 	void MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct) const;
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const;
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
+	void ResetToLine(int line);
 
 private:
 	DECLARE_MSG_MAP()
@@ -235,7 +236,6 @@ private:
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	std::vector<std::string> GetSelectedMessages() const;
-	void ResetToLine(int line);
 	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;

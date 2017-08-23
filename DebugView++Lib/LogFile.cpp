@@ -82,5 +82,19 @@ void LogFile::SetHistorySize(size_t size)
 	m_historySize = size;
 }
 
+void LogFile::Copy(size_t beginIndex, size_t endIndex, LogFile& logfile)
+{
+	for (size_t i = beginIndex; i <= endIndex; ++i)
+		logfile.Add((*this)[i]);
+}
+
+void LogFile::Swap(LogFile& logfile)
+{
+	std::swap(m_messages, logfile.m_messages);
+	std::swap(m_processInfo, logfile.m_processInfo);
+	std::swap(m_storage, logfile.m_storage);
+	std::swap(m_historySize, logfile.m_historySize);
+}
+
 } // namespace debugviewpp 
 } // namespace fusion

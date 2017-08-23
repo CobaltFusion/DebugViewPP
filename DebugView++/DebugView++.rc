@@ -105,7 +105,7 @@ BEGIN
     POPUP "&Log"
     BEGIN
         MENUITEM "&Clear Log\tCtrl+Shift+X",    ID_LOG_CLEAR
-//        MENUITEM "Crop Log to &Selection",      ID_LOG_CROP
+        MENUITEM "Crop Log to &Selection",      ID_LOG_CROP
         MENUITEM "&Pause\tPause",               ID_LOG_PAUSE
         MENUITEM "Capture &Global Win32",       ID_LOG_GLOBAL
         MENUITEM "Connect DebugView &Agent",    ID_LOG_DEBUGVIEW_AGENT

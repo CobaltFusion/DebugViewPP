@@ -1151,19 +1151,22 @@ void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	auto selection = GetView().GetSelectedRange();
 	if (selection.count < 2) return;
 
-	//LogFile temp = m_logFile.Copy(selection.beginLine, selection.endLine);
-	//m_logFile.Swap(temp);
-	//
-	//m_logSources.ResetTimer();
-	//int views = GetViewCount();
-	//for (int i = 0; i < views; ++i)
-	//{
-	//	GetView(i).Clear();
-	//	SetModifiedMark(i, false);
-	//	GetTabCtrl().UpdateLayout();
-	//	GetTabCtrl().Invalidate();
-	//}
-	//UpdateStatusBar();
+	LogFile temp;
+	m_logFile.Copy(selection.beginLine, selection.endLine, temp);
+	std::swap(temp, m_logFile);
+	
+	m_logSources.ResetTimer();
+	int views = GetViewCount();
+	for (int i = 0; i < views; ++i)
+	{
+		auto& view = GetView(i);
+		view.Clear();
+		view.ResetToLine(0);
+		SetModifiedMark(i, false);
+		GetTabCtrl().UpdateLayout();
+		GetTabCtrl().Invalidate();
+	}
+	UpdateStatusBar();
 }
 
 void CMainFrame::OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

@@ -43,6 +43,9 @@ public:
 	size_t GetHistorySize() const;
 	void SetHistorySize(size_t size);
 
+	void Copy(size_t beginIndex, size_t endIndex, LogFile&);
+	void Swap(LogFile& logfile);
+
 private:
 	struct InternalMessage
 	{
