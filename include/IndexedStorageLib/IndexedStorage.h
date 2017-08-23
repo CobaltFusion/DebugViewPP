@@ -40,11 +40,12 @@ public:
 	std::string operator[](size_t i);
 
 	std::string Compress(const std::vector<std::string>& value) const;
-    static std::vector<std::string> Decompress(const std::string& value);
-    void shrink_to_fit();
+	static std::vector<std::string> Decompress(const std::string& value);
+	void shrink_to_fit();
+
 private:
-    static size_t GetBlockIndex(size_t index);
-    static size_t GetRelativeIndex(size_t index);
+	static size_t GetBlockIndex(size_t index);
+	static size_t GetRelativeIndex(size_t index);
 	std::string GetString(size_t index);
 
 	size_t m_writeBlockIndex;

@@ -198,6 +198,7 @@ private:
 	void OnHide(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnAlwaysOnTop(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLogClear(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnLogCrop(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLogPause(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLogGlobal(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLogHistory(UINT uNotifyCode, int nID, CWindow wndCtl);

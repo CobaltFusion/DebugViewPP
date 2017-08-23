@@ -184,6 +184,7 @@ BEGIN_MSG_MAP2(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
 	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
 	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
+	COMMAND_ID_HANDLER_EX(ID_LOG_CROP, OnLogCrop)
 	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
 	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
 	COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
@@ -1031,8 +1032,6 @@ void CMainFrame::OnFileRun(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 void CMainFrame::Load(const std::wstring& filename, bool keeptailing)
 {
 	SetTitle(filename);
-	if (!IsPaused())
-		Pause();
 	ClearLog();
 	m_logSources.AddAnyFileReader(WStr(std::experimental::filesystem::path(filename).filename().string()), keeptailing);
 }
@@ -1054,8 +1053,6 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 {
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	if (!IsPaused())
-		Pause();
 	ClearLog();
 
 	Line line;
@@ -1131,9 +1128,8 @@ void CMainFrame::OnFileSaveConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWin
 
 void CMainFrame::ClearLog()
 {
-	// First Clear LogFile so views reset their m_firstLine:
 	m_logFile.Clear();
-	m_logSources.Reset();
+	m_logSources.ResetTimer();
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
 	{
@@ -1148,6 +1144,26 @@ void CMainFrame::ClearLog()
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	ClearLog();
+}
+
+void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	auto selection = GetView().GetSelectedRange();
+	if (selection.count < 2) return;
+
+	//LogFile temp = m_logFile.Copy(selection.beginLine, selection.endLine);
+	//m_logFile.Swap(temp);
+	//
+	//m_logSources.ResetTimer();
+	//int views = GetViewCount();
+	//for (int i = 0; i < views; ++i)
+	//{
+	//	GetView(i).Clear();
+	//	SetModifiedMark(i, false);
+	//	GetTabCtrl().UpdateLayout();
+	//	GetTabCtrl().Invalidate();
+	//}
+	//UpdateStatusBar();
 }
 
 void CMainFrame::OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

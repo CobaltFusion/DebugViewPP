@@ -1003,15 +1003,9 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
 	return 0;
 }
 
-void CLogView::ClearView()
-{
-	m_firstLine = m_logFile.Count();
-	Clear();
-}
-
 void CLogView::OnViewClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	ClearView();
+	Clear();
 }
 
 void CLogView::OnViewReset(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1302,6 +1296,7 @@ void CLogView::SetAutoScrollStop(bool enable)
 
 void CLogView::Clear()
 {
+	m_firstLine = m_logFile.Count();
 	SetItemCount(0);
 	m_dirty = false;
 	m_logLines.clear();
@@ -1330,7 +1325,7 @@ void CLogView::SetFocusLine(int line)
 void CLogView::Add(int beginIndex, int line, const Message& msg)
 {
 	if (IsClearMessage(msg))
-		ClearView();
+		Clear();
 
 	if (!IsIncluded(msg))
 		return;

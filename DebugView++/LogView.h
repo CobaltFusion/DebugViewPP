@@ -236,7 +236,6 @@ private:
 
 	std::vector<std::string> GetSelectedMessages() const;
 	void ResetToLine(int line);
-	void ClearView();
 	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;

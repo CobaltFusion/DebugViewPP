@@ -63,7 +63,7 @@ public:
 	void SetAutoNewLine(bool value);
 	bool GetAutoNewLine() const;
 
-	void Reset();
+	void ResetTimer();
 	void Listen();
 	void ListenUntilUpdateEvent();
 	void Abort();

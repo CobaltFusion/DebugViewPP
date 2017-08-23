@@ -128,7 +128,7 @@ void LogSources::Abort()
 	m_listenThread.Synchronize();
 }
 
-void LogSources::Reset()
+void LogSources::ResetTimer()
 {
 	m_timer.Reset();
 }
