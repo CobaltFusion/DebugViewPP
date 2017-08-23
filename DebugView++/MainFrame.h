@@ -206,6 +206,7 @@ private:
 	void OnViewFont(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewFilter(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewClose(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewDuplicate(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnSources(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnAppAbout(UINT uNotifyCode, int nID, CWindow wndCtl);
 

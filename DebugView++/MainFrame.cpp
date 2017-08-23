@@ -191,6 +191,7 @@ BEGIN_MSG_MAP2(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_DUPLICATE, OnViewDuplicate)
 	COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
@@ -1316,12 +1317,11 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
 
 void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    int tabIdx = GetTabCtrl().GetCurSel();
-
 	CFilterDlg dlg(GetView().GetName(), GetView().GetFilters());
 	if (dlg.DoModal() != IDOK)
 		return;
 
+	int tabIdx = GetTabCtrl().GetCurSel();
 	GetTabCtrl().GetItem(tabIdx)->SetText(dlg.GetName().c_str());
 	GetTabCtrl().UpdateLayout();
 	GetTabCtrl().Invalidate();
@@ -1333,6 +1333,17 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 void CMainFrame::OnViewClose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	CloseView(GetTabCtrl().GetCurSel());
+}
+
+void CMainFrame::OnViewDuplicate(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	auto name = GetView().GetName() + L" (copy)";
+	CFilterDlg dlg(name, GetView().GetFilters());
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	AddFilterView(dlg.GetName(), dlg.GetFilters());
+	SaveSettings();
 }
 
 void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
