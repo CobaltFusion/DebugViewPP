@@ -208,7 +208,12 @@ Include, exclude, once and highlight filters are the most intuitive filters to u
 **stop**: this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
 
 Other features:
---------------------
+----------------
+
+**views**:
+- reset view; make the first line in the logbuffer the first line in the view
+- reset view to this line; make the current like the first line in the view
+- clear view; make next incoming message the first line in the view
 
 **link views**: the selected line in the current view is located re-selected when you switch to another view. This is done on a best-effort bases, so if the exact line is not found, the nearest line is selected. In that case switching views will cause the currently selected line to change.
 
