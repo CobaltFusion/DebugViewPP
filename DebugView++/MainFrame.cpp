@@ -1153,6 +1153,9 @@ void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 
 	LogFile temp;
 	m_logFile.Copy(selection.beginLine, selection.endLine, temp);
+
+	// notice although this looks efficient, it is not, class LogFile and its composites are 'moveable' only because they are copyable.
+	// so this might temporarily allocate quite a bit of memory
 	std::swap(temp, m_logFile);
 	
 	m_logSources.ResetTimer();
