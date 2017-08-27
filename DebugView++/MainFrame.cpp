@@ -793,15 +793,19 @@ void CMainFrame::AddFilterView()
 
 void CMainFrame::AddFilterView(const std::wstring& name, const LogFilter& filter)
 {
+	AddFilterView(std::make_shared<CLogView>(name, *this, m_logFile, filter));
+}
+
+void CMainFrame::AddFilterView(std::shared_ptr<CLogView> logview)
+{
 	auto pTabItem = std::make_unique<SelectedTabItem>();
 	pTabItem->Create(*this);
 
-	auto pView = std::make_shared<CLogView>(name, *this, m_logFile, filter);
-	pView->Create(pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-	pView->SetFont(m_hFont.get());
-
-	pTabItem->SetText(name.c_str());
-	pTabItem->SetView(pView);
+	logview->Create(pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	logview->SetFont(m_hFont.get());
+	
+	pTabItem->SetText(logview->GetName().c_str());
+	pTabItem->SetView(logview);
 
 	int newIndex = GetTabCtrl().GetItemCount();
 	GetTabCtrl().InsertItem(newIndex, pTabItem.release());
@@ -1365,6 +1369,12 @@ void CMainFrame::OnViewDuplicate(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
 		return;
 
 	AddFilterView(dlg.GetName(), dlg.GetFilters());
+
+	//auto &view = GetView();
+	//auto newLogView = std::make_shared<CLogView>(view);		// no copy constructor available
+	//newLogView->SetName(view.GetName() + L" (copy)");
+	//AddFilterView(newLogView);
+
 	SaveSettings();
 }
 

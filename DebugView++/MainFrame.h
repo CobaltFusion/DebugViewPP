@@ -86,7 +86,7 @@ public:
 	typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>> TabbedFrame;
 
 	CMainFrame();
-    ~CMainFrame();
+	~CMainFrame();
 
 	DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
@@ -123,8 +123,7 @@ public:
 	void CapturePipe(HANDLE hPipe);
 	void FindNext(const std::wstring& text);
 	void FindPrevious(const std::wstring& text);
-    void OnDropped(const std::wstring uri);
-
+	void OnDropped(const std::wstring uri);
 
 private:
 	enum
@@ -166,6 +165,7 @@ private:
 
 	void AddFilterView();
 	void AddFilterView(const std::wstring& name, const LogFilter& filter = LogFilter());
+	void AddFilterView(std::shared_ptr<CLogView> logview);
 	void AddMessage(const Message& message);
 
 	void SetModifiedMark(int tabindex, bool modified);
@@ -247,8 +247,8 @@ private:
 	std::vector<SourceInfo> m_sourceInfos;
 	std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;
 	LogSources m_logSources;
-    Win32::JobObject m_jobs;
-    Win32::Handle m_httpMonitorHandle;
+	Win32::JobObject m_jobs;
+	Win32::Handle m_httpMonitorHandle;
 };
 
 } // namespace debugviewpp
