@@ -1341,7 +1341,10 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
 	m_logLines.erase(m_logLines.begin(), it);
 
 	int viewline = m_logLines.size();
-	m_logLines.push_back(LogLine(line));
+
+	LogLine logline(line);
+	logline.bookmark = MatchFilterType(FilterType::Bookmark, msg);
+	m_logLines.push_back(logline);
 
 	if (m_autoScrollDown && MatchFilterType(FilterType::Stop, msg))
 	{

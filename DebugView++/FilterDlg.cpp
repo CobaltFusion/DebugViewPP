@@ -68,6 +68,7 @@ static const FilterType::type MessageFilterTypes[] =
 	FilterType::Include,
 	FilterType::Exclude,
 	FilterType::Highlight,
+	FilterType::Bookmark,
 	FilterType::Token,
 	FilterType::Stop,
 	FilterType::Track,

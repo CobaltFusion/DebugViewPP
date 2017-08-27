@@ -18,6 +18,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -79,6 +80,7 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -234,7 +236,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\DebugView++.ico"
+
 IDR_BOOKMARK            ICON                    "res\\Bookmark.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -242,7 +246,7 @@ IDR_BOOKMARK            ICON                    "res\\Bookmark.ico"
 //
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 210, 127
-STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About DebugView++"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
@@ -256,31 +260,31 @@ BEGIN
     CTEXT           "http://debugviewpp.wordpress.com/",IDC_DEBUGVIEW_URL,16,82,156,8
 END
 
-IDD_FILTER DIALOGEX 0, 0, 304, 215
-STYLE DS_SHELLFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+IDD_FILTER DIALOGEX 0, 0, 381, 241
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "View / Filter Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_NAME,51,7,94,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_TAB,"SysTabControl32",0x0,7,28,290,144
-    DEFPUSHBUTTON   "OK",IDOK,194,194,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,247,194,50,14
+    CONTROL         "",IDC_TAB,"SysTabControl32",0x0,7,28,367,168
+    DEFPUSHBUTTON   "OK",IDOK,269,220,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,324,220,50,14
     LTEXT           "View name:",IDC_STATIC,7,8,42,8
-    PUSHBUTTON      "&Save...",IDC_FILTER_SAVE,7,177,50,14
-    PUSHBUTTON      "&Load...",IDC_FILTER_LOAD,7,194,50,14
-    PUSHBUTTON      "&Remove All",IDC_FILTER_REMOVEALL,61,194,50,14
-    PUSHBUTTON      "RegEx...",IDC_FILTER_REGEX,62,177,50,14
+    PUSHBUTTON      "&Save...",IDC_FILTER_SAVE,7,202,50,14
+    PUSHBUTTON      "&Load...",IDC_FILTER_LOAD,7,220,50,14
+    PUSHBUTTON      "&Remove All",IDC_FILTER_REMOVEALL,61,220,50,14
+    PUSHBUTTON      "RegEx...",IDC_FILTER_REGEX,62,202,50,14
 END
 
 IDD_FILTER_PAGE DIALOGEX 0, 0, 276, 109
-STYLE DS_SHELLFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_FILTER_GRID,"SysListView32",LVS_SINGLESEL | WS_TABSTOP,0,0,276,109
 END
 
 IDD_SOURCES DIALOGEX 0, 0, 321, 158
-STYLE DS_SHELLFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Input Sources"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -291,7 +295,7 @@ BEGIN
 END
 
 IDD_FIND DIALOGEX 0, 0, 145, 12
-STYLE DS_SHELLFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_TEXT,0,0,68,12,ES_AUTOHSCROLL
@@ -300,7 +304,7 @@ BEGIN
 END
 
 IDD_RUN DIALOGEX 0, 0, 306, 68
-STYLE DS_SHELLFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Run"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -314,7 +318,7 @@ BEGIN
 END
 
 IDD_HISTORY DIALOGEX 0, 0, 118, 78
-STYLE DS_SHELLFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Log History"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -327,7 +331,7 @@ BEGIN
 END
 
 IDD_REGEX DIALOGEX 0, 0, 335, 188
-STYLE DS_SHELLFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ECMAScript Regular Expression Reference"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -406,7 +410,7 @@ BEGIN
 END
 
 IDD_SOURCE DIALOGEX 0, 0, 299, 91
-STYLE DS_SHELLFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Add Log Source"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
@@ -442,9 +446,9 @@ BEGIN
     IDD_FILTER, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 297
+        RIGHTMARGIN, 374
         TOPMARGIN, 7
-        BOTTOMMARGIN, 208
+        BOTTOMMARGIN, 234
     END
 
     IDD_FILTER_PAGE, DIALOG
@@ -546,6 +550,18 @@ END
 
 IDC_DRAGDROP            CURSOR                  "res\\DragDrop.cur"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_FILTER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
@@ -564,10 +580,16 @@ BEGIN
     ID_FILE_RUN             "Run program\nRun"
     ID_FILE_SAVE_LOG        "Save log contents\nSave Log"
     ID_FILE_SAVE_VIEW       "Save view contents\nSave View"
-    ID_FILE_SAVE_VIEW_SELECTION "Save view selection\nSave Selection"
     ID_FILE_LOAD_CONFIGURATION "Load view configuration\nLoad Configuration"
     ID_FILE_SAVE_CONFIGURATION "Save view configuration\nSave Configuration"
     ID_LOG_CLEAR            "Clear Log Storage\nClear Log"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_PROCESSCOLORS   "Highlight processes\nProcess Colors"
+    ID_LOG_SOURCES          "Configure log sources\nSources"
+    ID_FILE_SAVE_VIEW_SELECTION "Save view selection\nSave Selection"
 END
 
 STRINGTABLE
@@ -635,12 +657,6 @@ END
 STRINGTABLE
 BEGIN
     ID_FILE_OPEN            "Open log file\nOpen Log File"
-END
-
-STRINGTABLE
-BEGIN
-    ID_VIEW_PROCESSCOLORS   "Highlight processes\nProcess Colors"
-    ID_LOG_SOURCES          "Configure log sources\nSources"
 END
 
 #endif    // English (United States) resources

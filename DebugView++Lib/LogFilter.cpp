@@ -106,11 +106,7 @@ FilterData MakeFilterData(const ptree& pt)
 
 void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter)
 {
-#if BOOST_VERSION < 105600
-	boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#else
 	boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#endif
 	FilterData view = { name, filter };
 	write_xml(fileName, MakePTree(view), std::locale(), settings);
 }

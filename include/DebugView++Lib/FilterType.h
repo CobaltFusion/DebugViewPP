@@ -25,7 +25,8 @@ namespace debugviewpp {
 	FILTER_TYPE(Once, 6) \
 	FILTER_TYPE(Clear, 7) \
 	FILTER_TYPE(Beep, 8) \
-	FILTER_TYPE(MatchColor, 9)
+	FILTER_TYPE(MatchColor, 9) \
+	FILTER_TYPE(Bookmark, 10)
 
 struct FilterType
 {
