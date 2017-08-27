@@ -21,6 +21,3 @@
 
 #include <atlbase.h>
 #include <atlstr.h>
-
-#pragma comment(lib, "CobaltFusion.lib")
-#pragma comment(lib, "Win32Lib.lib")
