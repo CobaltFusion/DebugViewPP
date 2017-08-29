@@ -170,6 +170,8 @@ BEGIN_MSG_MAP2(CLogView)
 	COMMAND_RANGE_HANDLER_EX(ID_VIEW_COLUMN_FIRST, ID_VIEW_COLUMN_LAST, OnViewColumn)
 	CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
 	CHAIN_MSG_MAP(CDoubleBufferImpl<CLogView>) //DrMemory: GDI USAGE ERROR: DC 0x3e011cca that contains selected object being deleted
+
+	// Provides a default handler that will receive reflected messages; the handler will properly pass unhandled messages to DefWindowProc.
 	DEFAULT_REFLECTION_HANDLER()
 END_MSG_MAP()
 

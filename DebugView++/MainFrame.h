@@ -57,6 +57,17 @@ private:
 	HWND m_parent;
 };
 
+class CMyPaneContainer : public CPaneContainerImpl<CMyPaneContainer>
+{
+public:
+	DECLARE_WND_CLASS_EX(_T("MY_PaneContainer"), 0, -1)
+
+	BEGIN_MSG_MAP(CMyPaneContainerImpl)
+		REFLECT_NOTIFICATIONS()
+		CHAIN_MSG_MAP(CPaneContainerImpl<CMyPaneContainer>)
+	END_MSG_MAP()
+};
+
 class CLogViewTabItem2 : public CTabViewTabItem
 {
 public:
@@ -69,8 +80,8 @@ public:
 private:
 	std::shared_ptr<CLogView> m_pView;
 	CHorSplitterWindow m_split;
-	CPaneContainer m_top;
-	CPaneContainer m_bottom;
+	CMyPaneContainer m_top;
+	CMyPaneContainer m_bottom;
 	gdi::CTimelineView m_timelineView;
 };
 

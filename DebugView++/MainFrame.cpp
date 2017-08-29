@@ -60,7 +60,7 @@ CLogView& CLogViewTabItem::GetView()
 	return *m_pView;
 }
 
-void DisablePaneHeader(CPaneContainer& panecontainer)
+void DisablePaneHeader(CMyPaneContainer& panecontainer)
 {
 	panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
 	panecontainer.m_cxyHeader = 0;
