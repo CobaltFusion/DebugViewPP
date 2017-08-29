@@ -71,6 +71,7 @@ public:
 class CLogViewTabItem2 : public CTabViewTabItem
 {
 public:
+	~CLogViewTabItem2();
 	void SetView(std::shared_ptr<CLogView> pView);
 	CLogView& GetView();
 

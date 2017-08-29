@@ -57,7 +57,7 @@ namespace fusion
     void CMainFrame::AddTab(const std::wstring name)
     {
         auto lvi = std::make_shared<CLogViewTabItem2>();
-        m_tabitems.push_back(lvi);
+        m_tabitems.push_back(lvi);	// InsertItem takes ownership of the raw pointer, so this is not correct 
         lvi->SetText(name.c_str());
         lvi->Create(*this);
 

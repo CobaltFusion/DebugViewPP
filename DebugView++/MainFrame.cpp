@@ -152,6 +152,12 @@ void CLogViewTabItem2::Create(HWND parent)
 	m_bottom.SetClient(m_timelineView);
 }
 
+CLogViewTabItem2::~CLogViewTabItem2()
+{
+	m_split.DestroyWindow();
+}
+
+
 void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
 {
 	m_pView = pView;
@@ -807,6 +813,8 @@ void CMainFrame::AddFilterView(std::shared_ptr<CLogView> logview)
 	pTabItem->SetView(logview);
 
 	int newIndex = GetTabCtrl().GetItemCount();
+
+	// notice: InsertItem takes ownership of the raw pointer, DeleteItem calls delete
 	GetTabCtrl().InsertItem(newIndex, pTabItem.release());
 	GetTabCtrl().SetCurSel(newIndex);
 	ShowTabControl();
@@ -1418,6 +1426,7 @@ void CMainFrame::CloseView(int i)
 	int views = GetViewCount();
 	if (i >= 0 && i < views)
 	{
+		// DeleteItem actually calls delete on the contained item
 		GetTabCtrl().DeleteItem(i, false);
 		GetTabCtrl().SetCurSel(i == views - 1 ? i - 1 : i);
 		if (GetViewCount() == 1)
