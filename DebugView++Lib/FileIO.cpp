@@ -119,7 +119,7 @@ FileType::type IdentifyFile(const std::wstring& filename)
 		// Encoding detection is very complex, see #107
 		std::ifstream fs(filename, std::ios::binary);
 		std::vector<unsigned char> buffer(3);
-		fs.read((char*)buffer.data(), buffer.size());
+		fs.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
 		if (buffer[0] == 0xfe && buffer[1] == 0xff)
 		{
 			return FileType::UTF16BE;

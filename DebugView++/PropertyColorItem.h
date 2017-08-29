@@ -106,7 +106,7 @@ public:
 		m_dlg.ShowAuto(show);
 	}
 
-    virtual BOOL Activate(UINT action, LPARAM /*lParam*/) override
+	virtual BOOL Activate(UINT action, LPARAM /*lParam*/) override
 	{
 		if (!IsEnabled())
 			return FALSE;
@@ -119,15 +119,16 @@ public:
 			if (m_dlg.DoModal(m_hWndOwner) == IDOK)
 			{
 				// Let control owner know
-				NMPROPERTYITEM nmh = { m_hWndOwner, ::GetDlgCtrlID(m_hWndOwner), PIN_ITEMCHANGED, this };
-				::SendMessage(::GetParent(m_hWndOwner), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM) &nmh);
+				NMPROPERTYITEM nmh = {m_hWndOwner, ::GetDlgCtrlID(m_hWndOwner), PIN_ITEMCHANGED, this};
+				::SendMessage(::GetParent(m_hWndOwner), WM_NOTIFY, nmh.hdr.idFrom, reinterpret_cast<LPARAM>(&nmh));
 			}
 			break;
+		default: break;
 		}
 		return TRUE;
 	}
 
-    virtual void DrawValue(PROPERTYDRAWINFO& di) override
+	virtual void DrawValue(PROPERTYDRAWINFO& di) override
 	{
 		CDCHandle dc(di.hDC);
 		RECT rect = di.rcItem;
@@ -152,13 +153,13 @@ public:
 		}
 	}
 
-    virtual BOOL GetValue(VARIANT* pValue) const override
+	virtual BOOL GetValue(VARIANT* pValue) const override
 	{
 		CComVariant var(GetColor());
 		return SUCCEEDED(var.Detach(pValue));
 	}
 
-    virtual BOOL SetValue(const VARIANT& value) override
+	virtual BOOL SetValue(const VARIANT& value) override
 	{
 		CComVariant var;
 		if (FAILED(VariantChangeType(&var, &value, 0, VT_COLOR)))

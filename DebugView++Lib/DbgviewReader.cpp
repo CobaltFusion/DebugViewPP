@@ -64,7 +64,7 @@ std::string ToHex(const T& s)
 	result << "[" << s.size() << "] ";
 
 	for (size_t i = 0; i < s.size(); ++i)
-		result << std::hex << std::setfill('0') << std::setw(2) << std::uppercase << ((int)s[i] & 0xff) << " ";
+		result << std::hex << std::setfill('0') << std::setw(2) << std::uppercase << (static_cast<int>(s[i]) & 0xff) << " ";
 	return result.str();
 }
 
@@ -78,7 +78,7 @@ std::string ToChar(const T& s)
 	{
 		if (s[i] > 32)
 		{
-			result << std::setfill(' ') << std::setw(2) << (char)s[i] << " ";
+			result << std::setfill(' ') << std::setw(2) << static_cast<char>(s[i]) << " ";
 		}
 		else
 		{

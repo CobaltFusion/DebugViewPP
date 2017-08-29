@@ -126,7 +126,7 @@ namespace HttpMonitor
 
 	static class Util
 	{
-		static public void DebugWrite(string msg)
+		public static void DebugWrite(string msg)
 		{
 			Console.WriteLine(msg);
 			Trace.WriteLine(msg);
@@ -135,9 +135,9 @@ namespace HttpMonitor
 
 	static class Settings
 	{
-		static public bool Verbose;
-		static public int PollInterval = 5000;
-		static public int HttpTimeout = 5000;
+		public static bool Verbose;
+		public static int PollInterval = 5000;
+		public static int HttpTimeout = 5000;
 	}
 
 	class DebugViewPlugin

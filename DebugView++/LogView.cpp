@@ -278,7 +278,7 @@ void CLogView::UpdateColumns()
 
 ColumnInfo MakeColumn(Column::type column, const wchar_t* name, int format, int width)
 {
-	ColumnInfo info = {0};
+	auto info = ColumnInfo();
 	info.enable = true;
 	info.column.iSubItem = column;
 	info.column.iOrder = column;
@@ -1801,6 +1801,7 @@ bool FilterSupportsColor(FilterType::type value)
 	case FilterType::Stop:
 	case FilterType::Once:
 		return true;
+	default: break;
 	}
 	return false;
 }

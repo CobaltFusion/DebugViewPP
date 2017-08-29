@@ -57,7 +57,7 @@ PolledLogSource::PolledLogSource(Timer& timer, SourceType::type sourceType, ILin
 
 PolledLogSource::~PolledLogSource()
 {
-	Abort();
+	PolledLogSource::Abort();
 }
 
 void PolledLogSource::StartThread()

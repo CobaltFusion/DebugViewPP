@@ -291,11 +291,11 @@ fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt:
 	settings.tabs = args.at("-q").asBool();
 	settings.pid = args.at("-p").asBool();
 	settings.processName = args.at("-n").asBool();
-    settings.include = args.at("--include").asStringList();
-    settings.exclude = args.at("--exclude").asStringList();
-    settings.includeprocesses = args.at("--include-process").asStringList();
-    settings.excludeprocesses = args.at("--exclude-process").asStringList();
-    auto quitmessageEntry = args.at("--quit-message");
+	settings.include = args.at("--include").asStringList();
+	settings.exclude = args.at("--exclude").asStringList();
+	settings.includeprocesses = args.at("--include-process").asStringList();
+	settings.excludeprocesses = args.at("--exclude-process").asStringList();
+	auto quitmessageEntry = args.at("--quit-message");
 	settings.quitmessage = (quitmessageEntry) ? quitmessageEntry.asString() : "";
 	return settings;
 }

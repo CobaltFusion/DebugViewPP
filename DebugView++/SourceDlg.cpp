@@ -68,7 +68,7 @@ void CSourceDlg::OnException(const std::exception& ex)
 BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
 	CenterWindow(GetParent());
-	CComboBox combo = GetDlgItem(IDC_TYPE);
+	CComboBox combo(GetDlgItem(IDC_TYPE));
 	combo.AddString(WStr(SourceTypeToString(SourceType::Udp)));
 	combo.AddString(WStr(SourceTypeToString(SourceType::Tcp)));
 	combo.AddString(WStr(SourceTypeToString(SourceType::DebugViewAgent)));

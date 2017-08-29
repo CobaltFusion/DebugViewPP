@@ -41,6 +41,7 @@ COLORREF HsvToRgb(double h, double s, double v)
 	case 3: return RGB(pi, qi, vi);
 	case 4: return RGB(ti, pi, vi);
 	case 5: return RGB(vi, pi, qi);
+	default: break;
 	}
 	return 0;
 }
