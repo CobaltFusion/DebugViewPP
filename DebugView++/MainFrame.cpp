@@ -436,9 +436,8 @@ void CMainFrame::UpdateStatusBar()
 	UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
 	UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());
 
-	size_t memoryUsage = ProcessInfo::GetPrivateBytes() - m_initialPrivateBytes;
-	if (memoryUsage < 0)
-		memoryUsage = 0;
+	auto currentUsage = ProcessInfo::GetPrivateBytes();
+	auto memoryUsage = currentUsage > m_initialPrivateBytes ? currentUsage - m_initialPrivateBytes : 0;
 	UISetText(ID_MEMORY_PANE, FormatBytes(memoryUsage).c_str());
 }
 

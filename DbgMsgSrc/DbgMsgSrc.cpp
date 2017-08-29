@@ -30,7 +30,7 @@ class WinsockInitialization : boost::noncopyable
 public:
 	explicit WinsockInitialization(int major = 2, int minor = 2)
 	{
-		WSADATA wsaData = { 0 };
+		WSADATA wsaData = {0};
 		int rc = WSAStartup(MAKEWORD(major, minor), &wsaData);
 		if (rc != 0)
 			ThrowWin32Error(rc, "WSAStartup");
@@ -59,7 +59,7 @@ void DbgMsgSrc(double freq)
 	for (;;)
 	{
 		Sleep(10);
-		while (count < (GetTickCount() - t0)*msgPerTick)
+		while (count < (GetTickCount() - t0) * msgPerTick)
 		{
 			if (count % 10 == 0)
 				cdbg << "Een, twee, drie, vier, vijf, zes, zeven, acht, negen, tien, elf, twaalf, dertien, veertien, vijftien, zestien, zeventien, achttien, negentien, twintig, eenentwintig, tweeentwintig, drieentwintig, vierentwintig, vijfentwintig, zesentwintig, zevenentwintig, achtentwintig, negenentwintig, dertig.\n";
@@ -135,16 +135,16 @@ void DbgMsgClearTest()
 	char buffer[200];
 
 	int line = 1;
-	for (int i=0; i< 400; ++i)
+	for (int i = 0; i < 400; ++i)
 	{
 		sprintf_s(buffer, "Message %d", line);
 		OutputDebugStringA(buffer);
 		++line;
 	}
-	
+
 	OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
 
-	for (int i=0; i< 10; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		sprintf_s(buffer, "Message %d", line);
 		OutputDebugStringA(buffer);
@@ -170,8 +170,8 @@ void testLongString()
 		ss << "X";
 
 	ss << "\n";
-	test = ss.str();	
-	
+	test = ss.str();
+
 	OutputDebugStringA(test.c_str());
 }
 
@@ -212,7 +212,7 @@ void Output(const std::string& filename)
 
 void EndlessTest()
 {
-	int length = 40;		//260
+	int length = 40; //260
 	std::ostringstream ss;
 	ss << "123456:jan-7890_ABC__DEF-te m_test";
 	ss << length;
@@ -263,7 +263,7 @@ void SeparateProcessTest()
 
 void CoutCerrTest()
 {
-	for (int i=1; i <= 5; ++i)
+	for (int i = 1; i <= 5; ++i)
 	{
 		std::cout << "========= cycle " << i << "/5 ========\n";
 		std::cout << "Message on cout 1\n";
@@ -310,31 +310,30 @@ void CoutCerrTest2()
 
 void PrintUsage()
 {
-	std::cout <<
-		"Usage: DbgMsgSrc <opt>\n"
-		"\n"
-		"  -1 read 'titan_crash_debugview_43mb.log' and output it through OutputDebugStringA\n"
-		"  -2 <filename> read <filename> and output it through OutputDebugStringA\n"
-		"  -3 run endless test\n"
-		"  -s run -n repeatedly (10x / second) in separate processes)\n"
-		"  -w Send OutputDebugStringA 'WithoutNewLine'\n"
-		"  -n Send OutputDebugStringA 'WithNewLine\\n'\n"
-		"  -e Send empty OutputDebugStringA message (does not trigger DBwinMutex!)\n"
-		// about -4: 
-		// we cannot guarantee what happens if 1x OutputDebugStringA is send
-		// the process might already be gone be time we handle the message
-		// however, if 2 messages are send, the process is guarenteed to be alive
-		// at least after receiving the first message but before setting the m_dbWinBufferReady flag..
-		// (because before setting the flag the traced process is still waiting for the flag)
-		// this means sending 2 messages and dieing ASAP afterwards is the worst-case we can still handle reliablely.
-		"  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n"
-		"  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
-		"  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
-		"  -7 DbgMsgTest, sends 5 different test lines, using different newlines styles\n"
-		"  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
-		"  -9 DBGVIEWCLEAR test\n"
-		"  -A cout/cerr test\n"
-		"  -u <address> <port> Send UDP messsages to address:port\n";
+	std::cout << "Usage: DbgMsgSrc <opt>\n"
+				 "\n"
+				 "  -1 read 'titan_crash_debugview_43mb.log' and output it through OutputDebugStringA\n"
+				 "  -2 <filename> read <filename> and output it through OutputDebugStringA\n"
+				 "  -3 run endless test\n"
+				 "  -s run -n repeatedly (10x / second) in separate processes)\n"
+				 "  -w Send OutputDebugStringA 'WithoutNewLine'\n"
+				 "  -n Send OutputDebugStringA 'WithNewLine\\n'\n"
+				 "  -e Send empty OutputDebugStringA message (does not trigger DBwinMutex!)\n"
+				 // about -4:
+				 // we cannot guarantee what happens if 1x OutputDebugStringA is send
+				 // the process might already be gone be time we handle the message
+				 // however, if 2 messages are send, the process is guarenteed to be alive
+				 // at least after receiving the first message but before setting the m_dbWinBufferReady flag..
+				 // (because before setting the flag the traced process is still waiting for the flag)
+				 // this means sending 2 messages and dieing ASAP afterwards is the worst-case we can still handle reliablely.
+				 "  -4 Send 2x OutputDebugStringA 'WithNewLine\\n' (process handle cache test)\n"
+				 "  -5 Send OutputDebugStringA '1\\n2\\n3\\n'\n"
+				 "  -6 Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages\n"
+				 "  -7 DbgMsgTest, sends 5 different test lines, using different newlines styles\n"
+				 "  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
+				 "  -9 DBGVIEWCLEAR test\n"
+				 "  -A cout/cerr test\n"
+				 "  -u <address> <port> Send UDP messsages to address:port\n";
 }
 
 int Main(int argc, char* argv[])
@@ -346,122 +345,129 @@ int Main(int argc, char* argv[])
 	//HANDLE handle3 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	//printf(" %p, %p, %p\n", handle1, handle2, handle3);
 
-	int i = 0;
-	std::string arg(argv[i]);
-	if (arg == "-1")
+	for (int i = 1; i < argc; ++i)
 	{
-		Output("titan_crash_debugview_43mb.log");
-		return 0;
-	}
-	else if (arg == "-2")
-	{
-		if (i + 1 < argc)
+		std::string arg(argv[i]);
+		if (arg == "-1")
 		{
-			Output(argv[i + 1]);
-		}
-		else
-		{
-			PrintUsage();
-			return -1;
-		}
-		return 0;
-	}
-	else if (arg == "-3")
-	{
-		EndlessTest();
-		return 0;
-	}
-	else if (arg == "-s")		// run separate process test
-	{
-		SeparateProcessTest();
-		return 0;
-	}
-	else if (arg == "-w")
-	{
-		std::cout << "Send OutputDebugStringA 'WithoutNewLine ' (15 bytes)\n";
-		OutputDebugStringA("WithoutNewLine ");
-		return 0;
-	}
-	else if (arg == "-n")
-	{
-		std::cout << "Send OutputDebugStringA 'With-a-NewLine \\n' (16 bytes)\n";
-		OutputDebugStringA("With-a-NewLine \n");
-		return 0;
-	}
-	else if (arg == "-e")
-	{
-		std::cout << "Send empty OutputDebugStringA message (0 bytes)\n";
-		OutputDebugStringA("");			//empty message
-		return 0;
-	}
-	else if (arg == "-4")
-	{
-		std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n (24 bytes)'\n";
-		OutputDebugStringA("WithNewLine\n");
-		OutputDebugStringA("WithNewLine\n");
-		return 0;
-	}
-	else if (arg == "-5")
-	{
-		std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n' (6 bytes)\n";
-		OutputDebugStringA("1\n2\n3\n");
-		return 0;
-	}
-	else if (arg == "-6")
-	{
-		std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages (6 bytes)\n";
-		OutputDebugStringA("1 ");
-		OutputDebugStringA("2 ");
-		OutputDebugStringA("3\n");
-		return 0;
-	}
-	else if (arg == "-7")
-	{
-		DbgMsgTest();
-        return 7;
-	}
-	else if (arg == "-8")
-	{
-		if (i + 1 < argc)
-		{
-			DbgMsgSrc(std::stoi(argv[i + 1]));
-		}
-		else
-		{
-			PrintUsage();
-			return -1;
-		}
-		return 0;
-	}
-	else if (arg == "-9")
-	{
-		DbgMsgClearTest();
-		return 0;
-	}
-	else if (arg == "-A")
-	{
-		CoutCerrTest();
-		return 0;
-	}
-	else if (arg == "-u")
-	{
-		if (i + 2 < argc)
-		{
-			UdpTest(argv[i + 1], std::stoi(argv[i + 2]));
+			Output("titan_crash_debugview_43mb.log");
 			return 0;
 		}
-		PrintUsage();
-		return -1;
-	}
-	else if (arg == "-B")
-	{
-		CoutCerrTest2();
-		return 0;
-	}
-	else if (arg == "-C")
-	{
-		SocketTest();
-		return 0;
+		else if (arg == "-2")
+		{
+			if (i + 1 < argc)
+			{
+				Output(argv[i + 1]);
+			}
+			else
+			{
+				PrintUsage();
+				return -1;
+			}
+			return 0;
+		}
+		else if (arg == "-3")
+		{
+			EndlessTest();
+			return 0;
+		}
+		else if (arg == "-s") // run separate process test
+		{
+			SeparateProcessTest();
+			return 0;
+		}
+		else if (arg == "-w")
+		{
+			std::cout << "Send OutputDebugStringA 'WithoutNewLine ' (15 bytes)\n";
+			OutputDebugStringA("WithoutNewLine ");
+			return 0;
+		}
+		else if (arg == "-n")
+		{
+			std::cout << "Send OutputDebugStringA 'With-a-NewLine \\n' (16 bytes)\n";
+			OutputDebugStringA("With-a-NewLine \n");
+			return 0;
+		}
+		else if (arg == "-e")
+		{
+			std::cout << "Send empty OutputDebugStringA message (0 bytes)\n";
+			OutputDebugStringA(""); //empty message
+			return 0;
+		}
+		else if (arg == "-4")
+		{
+			std::cout << "Send 2x OutputDebugStringA 'WithNewLine\\n (24 bytes)'\n";
+			OutputDebugStringA("WithNewLine\n");
+			OutputDebugStringA("WithNewLine\n");
+			return 0;
+		}
+		else if (arg == "-5")
+		{
+			std::cout << "Send OutputDebugStringA '1\\n2\\n3\\n' (6 bytes)\n";
+			OutputDebugStringA("1\n2\n3\n");
+			return 0;
+		}
+		else if (arg == "-6")
+		{
+			std::cout << "Send OutputDebugStringA '1 ' '2 ' '3\\n' in separate messages (6 bytes)\n";
+			OutputDebugStringA("1 ");
+			OutputDebugStringA("2 ");
+			OutputDebugStringA("3\n");
+			return 0;
+		}
+		else if (arg == "-7")
+		{
+			DbgMsgTest();
+			return 7;
+		}
+		else if (arg == "-8")
+		{
+			if (i + 1 < argc)
+			{
+				DbgMsgSrc(std::stoi(argv[i + 1]));
+			}
+			else
+			{
+				PrintUsage();
+				return -1;
+			}
+			return 0;
+		}
+		else if (arg == "-9")
+		{
+			DbgMsgClearTest();
+			return 0;
+		}
+		else if (arg == "-A")
+		{
+			CoutCerrTest();
+			return 0;
+		}
+		else if (arg == "-u")
+		{
+			if (i + 2 < argc)
+			{
+				UdpTest(argv[i + 1], std::stoi(argv[i + 2]));
+				return 0;
+			}
+			PrintUsage();
+			return -1;
+		}
+		else if (arg == "-B")
+		{
+			CoutCerrTest2();
+			return 0;
+		}
+		else if (arg == "-C")
+		{
+			SocketTest();
+			return 0;
+		}
+		else
+		{
+			Output(arg);
+			return 0;
+		}
 	}
 	PrintUsage();
 	return EXIT_SUCCESS;
@@ -470,8 +476,7 @@ int Main(int argc, char* argv[])
 } // namespace DbgMsgSrc
 } // namespace fusion
 
-int main(int argc, char* argv[])
-try
+int main(int argc, char* argv[]) try
 {
 	return fusion::DbgMsgSrc::Main(argc, argv);
 }

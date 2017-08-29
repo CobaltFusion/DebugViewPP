@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // <copyright file="Forwarder.cs" company="Company">
 //     Copyright (c) Company.  All rights reserved.
 // </copyright>
@@ -46,14 +46,14 @@ namespace OutputForwarderVSIX
         {
             if (package == null)
             {
-                throw new ArgumentNullException("package");
+                throw new ArgumentNullException("package is null");
             }
 
             this.package = package;
             InstallForwarder(package);
         }
 
-        private void InstallForwarder(Package package)
+        private void InstallForwarder(Package)
         {
             IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
             Guid paneGuid = VSConstants.GUID_OutWindowDebugPane;    // codenotes: GUID_BuildOutputWindowPane / GUID_OutWindowDebugPane
@@ -74,7 +74,7 @@ namespace OutputForwarderVSIX
             Trace.AutoFlush = true;
         }
 
-        void TextBuffer_Changed(object sender, Microsoft.VisualStudio.Text.TextContentChangedEventArgs e)
+        private void TextBuffer_Changed(object sender, Microsoft.VisualStudio.Text.TextContentChangedEventArgs e)
         {
             foreach (var change in e.Changes)
             {
