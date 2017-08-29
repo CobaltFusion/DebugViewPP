@@ -13,13 +13,7 @@ namespace Win32 {
 class ComInitialization : boost::noncopyable
 {
 public:
-	enum CoInit
-	{
-		ApartmentThreaded = COINIT_APARTMENTTHREADED,
-		Multithreaded = COINIT_MULTITHREADED
-	};
-
-	explicit ComInitialization(CoInit init);
+	explicit ComInitialization();
 	~ComInitialization();
 };
 

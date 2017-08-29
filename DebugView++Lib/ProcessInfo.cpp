@@ -21,7 +21,8 @@ namespace fusion {
 namespace debugviewpp {
 
 InternalProcessProperties::InternalProcessProperties() :
-	pid(0)
+	pid(0),
+	color(0)
 {
 }
 

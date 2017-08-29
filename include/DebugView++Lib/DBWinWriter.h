@@ -5,10 +5,10 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
+#pragma once
+
 #include <string>
 #include "Win32/Win32Lib.h"
-
-#pragma once
 
 namespace fusion {
 namespace debugviewpp {

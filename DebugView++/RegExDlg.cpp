@@ -22,12 +22,12 @@ BEGIN_MSG_MAP2(CRegExDlg)
 	REFLECT_NOTIFICATIONS()
 END_MSG_MAP()
 
-void CRegExDlg::OnException()
+void CRegExDlg::OnException() const
 {
 	FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
-void CRegExDlg::OnException(const std::exception& ex)
+void CRegExDlg::OnException(const std::exception& ex) const
 {
 	FUSION_REPORT_EXCEPTION(ex.what());
 }

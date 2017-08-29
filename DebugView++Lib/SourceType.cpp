@@ -14,12 +14,19 @@ namespace fusion {
 namespace debugviewpp {
 
 SourceInfo::SourceInfo(const std::wstring& description, SourceType::type type) :
-	enabled(false), description(description), type(type)
+	enabled(false),
+	description(description),
+	type(type),
+	port(0)
 {
 }
 
 SourceInfo::SourceInfo(const std::wstring& description, SourceType::type type, const std::wstring& address, int port) :
-	enabled(false), description(description), type(type), address(address), port(port)
+	enabled(false),
+	description(description),
+	type(type),
+	address(address),
+	port(port)
 {
 }
 

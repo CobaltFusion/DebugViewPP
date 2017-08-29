@@ -23,8 +23,8 @@ public:
 private:
 	DECLARE_MSG_MAP()
 
-	void OnException();
-	void OnException(const std::exception& ex);
+	void OnException() const;
+	void OnException(const std::exception& ex) const;
 
 	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
 	void OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);

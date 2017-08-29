@@ -30,7 +30,7 @@ class TimelineDC : public ManagedCDC
 {
 	using ManagedCDC::ManagedCDC;
 public:
-	RECT GetClientArea();
+	RECT GetClientArea() const;
 	void DrawTextOut(const std::wstring& str, int x, int y);
 	void DrawPolygon(const std::vector<POINT>& points);
 	void DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color);

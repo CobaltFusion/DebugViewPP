@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -8,16 +8,16 @@ using System.Threading;
 
 namespace HttpMonitor
 {
-	class Log
+    internal class Log
 	{
 		public Log(string url)
 		{
 			this.url = url;
 		}
 
-		public HttpWebRequest CreateWebRequest(string url)
+		public HttpWebRequest CreateWebRequest(string urlString)
 		{
-			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+		    var request = WebRequest.Create(urlString) as HttpWebRequest;
 			request.Timeout = Settings.HttpTimeout;
 			request.ProtocolVersion = HttpVersion.Version11;
 			return request;
@@ -29,18 +29,16 @@ namespace HttpMonitor
 			var request = CreateWebRequest(url);
 			//request.Accept = "image/*";
 			request.AddRange(0,1);
-			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+		    var response = request.GetResponse() as HttpWebResponse;
 
-			if (Settings.Verbose)
-			{
-				Console.WriteLine("StatusCode: " + response.StatusCode + " (" + (int)response.StatusCode + ")");
+		    if (!Settings.Verbose) return (response.StatusCode == HttpStatusCode.PartialContent);
+		    Console.WriteLine("StatusCode: " + response.StatusCode + " (" + (int)response.StatusCode + ")");
 
-				foreach (var headerkey in response.Headers.AllKeys)
-				{
-					Console.WriteLine(headerkey + " : " + response.Headers[headerkey]);
-				}
-			}
-			return (response.StatusCode == HttpStatusCode.PartialContent);
+		    foreach (var headerkey in response.Headers.AllKeys)
+		    {
+		        Console.WriteLine(headerkey + " : " + response.Headers[headerkey]);
+		    }
+		    return (response.StatusCode == HttpStatusCode.PartialContent);
 		}
 
 		public void TraceDiff(List<string> lastLines, List<string> lines)

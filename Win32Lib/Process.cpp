@@ -19,7 +19,7 @@ namespace Win32 {
 std::wstring GetModuleFilename()
 {
     std::vector<wchar_t> data(260);
-    ::GetModuleFileName(NULL, data.data(), data.size());
+    ::GetModuleFileName(nullptr, data.data(), data.size());
     return std::experimental::filesystem::canonical(data.data());
 }
 

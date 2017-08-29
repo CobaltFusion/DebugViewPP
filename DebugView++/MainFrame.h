@@ -13,7 +13,7 @@
 #include "atlcoll.h"
 namespace WTL {
 using ATL::CString;
-};
+}
 
 #include <atlcom.h>
 
@@ -54,7 +54,7 @@ public:
 
 private:
 	std::shared_ptr<CLogView> m_pView;
-	HWND m_parent;
+	HWND m_parent = HWND();
 };
 
 class CMyPaneContainer : public CPaneContainerImpl<CMyPaneContainer>

@@ -30,7 +30,7 @@ namespace fusion {
 class CMainFrame2 : public WTL::CFrameWindowImpl<CMainFrame2, ATL::CWindow, ATL::CFrameWinTraits>
 {
 public:
-	DECLARE_FRAME_WND_CLASS(_T("First WTL window"), IDR_MAINFRAME);
+	DECLARE_FRAME_WND_CLASS(_T("First WTL window"), IDR_MAINFRAME)
 
 	BEGIN_MSG_MAP(CMainFrame2)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)

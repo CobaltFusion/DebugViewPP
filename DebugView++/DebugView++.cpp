@@ -92,7 +92,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 	Win32::SetPrivilege(SE_DEBUG_NAME, true);
 	Win32::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
 
-	Win32::ComInitialization com(Win32::ComInitialization::ApartmentThreaded);
+	Win32::ComInitialization com;
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(nullptr, 0, 0, 0L);

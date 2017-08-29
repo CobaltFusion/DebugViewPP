@@ -18,7 +18,7 @@ class LogSource;
 struct Line
 {
 	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pLogSource);
-	Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = std::string(), const std::string& message = std::string(), const LogSource* pLogSource = nullptr);
+	explicit Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = std::string(), const std::string& message = std::string(), const LogSource* pLogSource = nullptr);
 
 	double time;
 	FILETIME systemTime;

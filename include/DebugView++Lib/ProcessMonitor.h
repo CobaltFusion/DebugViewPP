@@ -32,7 +32,7 @@ public:
 private:
 	struct ProcessInfo
 	{
-		ProcessInfo(DWORD pid = 0, HANDLE handle = nullptr);
+		explicit ProcessInfo(DWORD pid = 0, HANDLE handle = nullptr);
 
 		DWORD pid;
 		HANDLE handle;

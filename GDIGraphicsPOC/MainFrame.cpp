@@ -5,7 +5,7 @@
 
 CAppModule _Module;
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPSTR szCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hInstPrev*/, LPSTR /*szCmdLine*/, int nCmdShow)
 {
     // CMainFrame is a CTabbedFrameImpl<> and does not render as intended
     // CMainFrame2 is a CFrameWindowImpl<> and _does_ render as intended

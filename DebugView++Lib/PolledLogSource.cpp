@@ -16,12 +16,13 @@ namespace debugviewpp {
 
 
 PollLine::PollLine(Win32::Handle handle, const std::string& message, const LogSource* pLogSource) :
-    timesValid(false),
-    time(0.0),
-    systemTime(FILETIME()),
-    handle(std::move(handle)),
-    message(message),
-    pLogSource(pLogSource)
+	timesValid(false),
+	time(0.0),
+	systemTime(FILETIME()),
+	handle(std::move(handle)),
+	pid(0),
+	message(message),
+	pLogSource(pLogSource)
 {
 }
 

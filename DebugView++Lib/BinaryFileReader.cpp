@@ -23,10 +23,10 @@ namespace debugviewpp {
 
 BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename) :
 	LogSource(timer, SourceType::File, linebuffer),
-	m_end(false),
 	m_filename(filename),
-	m_fileType(filetype),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
+	m_fileType(filetype),
+	m_end(false),
 	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_wifstream(m_filename, std::ios::binary),
 	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().wstring()),
