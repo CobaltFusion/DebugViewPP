@@ -30,25 +30,25 @@ namespace fusion {
 class CMainFrame2 : public WTL::CFrameWindowImpl<CMainFrame2, ATL::CWindow, ATL::CFrameWinTraits>
 {
 public:
-    DECLARE_FRAME_WND_CLASS(_T("First WTL window"), IDR_MAINFRAME);
+	DECLARE_FRAME_WND_CLASS(_T("First WTL window"), IDR_MAINFRAME);
 
-    BEGIN_MSG_MAP(CMainFrame2)
-        MESSAGE_HANDLER(WM_CREATE, OnCreate)
-        MESSAGE_HANDLER(WM_CLOSE, OnClose)
-        MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-        MSG_WM_SIZE(OnSize)
-        CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame2>)
-        DEFAULT_REFLECTION_HANDLER()
-    END_MSG_MAP()
+	BEGIN_MSG_MAP(CMainFrame2)
+		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_CLOSE, OnClose)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MSG_WM_SIZE(OnSize)
+		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame2>)
+		DEFAULT_REFLECTION_HANDLER()
+		REFLECT_NOTIFICATIONS()
+	END_MSG_MAP()
 
-    LRESULT OnSize(UINT nType, CSize Extent);
-    LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-    LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-    LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnSize(UINT nType, CSize Extent);
+	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
-    CLogView m_logview;
-    Reflector m_reflector;
+	CLogView m_logview;
 };
 
 } // namespace fusion

@@ -31,10 +31,7 @@ LRESULT fusion::CMainFrame2::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, B
     GetClientRect(&rect);
     rect.bottom = 540; // 40x 13 = 520, + 20 for colomn header
 
-    // here class Reflector is used, but I could also just have added REFLECT_NOTIFICATIONS() to the MSG_MAP of class CMainFrame2 (tested both, both work)
-    m_reflector.Create(*this, rect, L"", WS_CHILD | WS_VISIBLE);
-    m_reflector.GetClientRect(&rect);
-    m_logview.Create(m_reflector, rect);
+    m_logview.Create(*this, rect);
     AddDummyContent(m_logview);
     return 0;
 }

@@ -69,6 +69,17 @@ inline std::wstring FormatDuration(double seconds)
 	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 
+class CMyPaneContainer : public CPaneContainerImpl<CMyPaneContainer>
+{
+public:
+	DECLARE_WND_CLASS_EX(_T("MY_PaneContainer"), 0, -1)
+
+	BEGIN_MSG_MAP(CMyPaneContainerImpl)
+		REFLECT_NOTIFICATIONS()
+		CHAIN_MSG_MAP(CPaneContainerImpl<CMyPaneContainer>)
+	END_MSG_MAP()
+};
+
 template <typename T>
 class TabItem : public CTabViewTabItem
 {
@@ -83,7 +94,7 @@ public:
 		return m_timelineView;
 	}
 
-	void DisablePaneHeader(CPaneContainer& panecontainer)
+	void DisablePaneHeader(CMyPaneContainer& panecontainer)
 	{
 		panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
 		panecontainer.m_cxyHeader = 0;
@@ -104,6 +115,8 @@ public:
 		m_bottom.Create(m_split, L"");
 		m_split.SetSplitterPanes(m_top, m_bottom, true);
 		m_split.SetSplitterPos(560);
+		m_split.UpdateProportionalPos();
+		m_split.Invalidate();
 
 		DisablePaneHeader(m_top);
 		DisablePaneHeader(m_bottom);
@@ -112,8 +125,8 @@ public:
 private:
 	T m_logview;
 	CHorSplitterWindow m_split;
-	CPaneContainer m_top;
-	CPaneContainer m_bottom;
+	CMyPaneContainer m_top;
+	CMyPaneContainer m_bottom;
 };
 
 using CLogViewTabItem2 = TabItem<CLogView>;
