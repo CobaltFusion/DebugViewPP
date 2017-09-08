@@ -53,7 +53,7 @@ namespace OutputForwarderVSIX
             InstallForwarder(package);
         }
 
-        private void InstallForwarder(Package)
+        private void InstallForwarder(Package package)
         {
             IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
             Guid paneGuid = VSConstants.GUID_OutWindowDebugPane;    // codenotes: GUID_BuildOutputWindowPane / GUID_OutWindowDebugPane

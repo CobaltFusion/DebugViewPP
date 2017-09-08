@@ -157,9 +157,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DbgMsgSrc.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbgstream.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Win32Lib\Win32Lib.vcxproj">

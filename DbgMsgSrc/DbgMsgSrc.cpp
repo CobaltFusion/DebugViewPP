@@ -17,6 +17,7 @@
 #include <sys/timeb.h>
 #include "Win32/Win32Lib.h"
 #include "dbgstream.h"
+#include "Timer.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "psapi.lib")
@@ -194,20 +195,14 @@ void Output(const std::string& filename)
 	fs.close();
 
 	std::cout << "writing... " << lines.size() << " lines\n";
-
-	int i = 0;
-	long t1 = getMilliCount();
-
-	for (auto s = lines.begin(); s != lines.end(); ++s)
+	Timer timer;
+	auto t1 = timer.now();
+	for (const auto& s : lines)
 	{
-		++i;
-		//auto t = s + "\n";
-		OutputDebugStringA(s->c_str());
-		//Sleep(50);
+		OutputDebugStringA(s.c_str());
 	}
-	long t2 = getMilliCount();
-
-	std::cout << "OutputDebugStringA " << i << " lines, took: " << t2 - t1 << " ms\n";
+	auto elepsed = timer.now() - t1;
+	std::cout << "OutputDebugStringA " << lines.size() << " lines, took: " << static_cast<int>(Timer::ToMs(elepsed)) << " ms\n";
 }
 
 void EndlessTest()
