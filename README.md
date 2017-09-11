@@ -36,7 +36,7 @@ Gather and analyse crash information.
 
 We use Incredibuild to make use of all cores of multiple machines to accelerate building our C++ projects.
 
-So when is this Debugview++ thing usefull?
+So when is this Debugview++ thing useful?
 ------------------------------------------
 
 - first of all, with debugview++ you can see messages from different processes, not just 'attached' processes.
