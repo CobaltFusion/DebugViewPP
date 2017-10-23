@@ -131,8 +131,8 @@ Changes in 1.7.x so far:
 
 Download old version (stable, dated 20 Sept 2015)
 -----------------------
-+ [DebugView v1.5.x Zipped executables](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.zip)
-+ [DebugView v1.5.x Win32 installer](http://www.myquest.nl/sites/debugview/DebugView++v1.5._2016_03_12.msi)
++ [DebugView v1.5.x Zipped executables](https://github.com/CobaltFusion/DebugViewPP/files/1408599/DebugView.v1.5.zip)
++ [DebugView v1.5.x Win32 installer](https://github.com/CobaltFusion/DebugViewPP/files/1408607/DebugView.v1.5_msi.zip)
 
 Screenshot demonstrating bookmarks and highlighting features.
 
