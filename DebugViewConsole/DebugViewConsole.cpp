@@ -125,7 +125,7 @@ void LogMessages(Settings settings)
 	LogSources logsources(executor);
 	executor.Call([&] {
 		logsources.AddDBWinReader(false);
-		if (HasGlobalDBWinReaderRights())
+		if (IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights())
 			logsources.AddDBWinReader(true);
 		logsources.SetAutoNewLine(settings.autonewline);
 	});
