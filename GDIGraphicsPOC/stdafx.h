@@ -8,7 +8,6 @@
 #include "targetver.h"
 #include "resource.h"
 
-#define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
 // C RunTime Header Files

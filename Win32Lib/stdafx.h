@@ -8,8 +8,5 @@
 #pragma once
 
 #include "targetver.h"
-
-#define NOMINMAX
-
 #include "winsock2.h"
 #include "windows.h"

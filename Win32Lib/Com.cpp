@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "Win32/Win32Lib.h"
 #include "Win32/Com.h"
+#include <Ole2.h>
 
 namespace fusion {
 namespace Win32 {
