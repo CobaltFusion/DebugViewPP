@@ -1,13 +1,12 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 #include <string>
-#include <iostream>
 #include <vector>
 #include "Win32/Win32Lib.h"
 #include "Win32/Process.h"
@@ -18,22 +17,22 @@ namespace Win32 {
 
 std::wstring GetModuleFilename()
 {
-    std::vector<wchar_t> data(260);
-    ::GetModuleFileName(nullptr, data.data(), data.size());
-    return std::experimental::filesystem::canonical(data.data());
+	std::vector<wchar_t> data(260);
+	::GetModuleFileName(nullptr, data.data(), data.size());
+	return std::experimental::filesystem::canonical(data.data());
 }
 
 std::wstring GetExecutionPath()
 {
-    return std::experimental::filesystem::system_complete(Win32::GetModuleFilename()).remove_filename();
+	return std::experimental::filesystem::system_complete(Win32::GetModuleFilename()).remove_filename();
 }
 
 // unspoofable, but in \Device\HarddiskVolume4\project\DebugViewPP\Debug\DebugView++.exe form
 std::wstring GetModuleFilenameUnspoofable()
 {
-    std::vector<wchar_t> data(260);
-    GetMappedFileName(GetCurrentProcess(), GetModuleFilename, data.data(), data.size());
-    return data.data();
+	std::vector<wchar_t> data(260);
+	GetMappedFileName(GetCurrentProcess(), GetModuleFilename, data.data(), data.size());
+	return data.data();
 }
 
 Process::Process(const std::wstring& pathName, const std::vector<std::wstring>& args)
@@ -72,10 +71,10 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 		commandLine += args;
 	}
 
-	SECURITY_ATTRIBUTES saAttr; 
-	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
-	saAttr.bInheritHandle = true; 
-	saAttr.lpSecurityDescriptor = nullptr; 
+	SECURITY_ATTRIBUTES saAttr;
+	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+	saAttr.bInheritHandle = true;
+	saAttr.lpSecurityDescriptor = nullptr;
 
 	HANDLE stdInRd, stdInWr;
 	if (!CreatePipe(&stdInRd, &stdInWr, &saAttr, 0))
@@ -124,16 +123,16 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 	PROCESS_INFORMATION processInformation;
 
 	if (!CreateProcess(
-		nullptr,
-		const_cast<wchar_t*>(commandLine.c_str()),
-		nullptr,
-		nullptr,
-		true,
-		0,
-		nullptr,
-		nullptr,
-		&startupInfo,
-		&processInformation))
+			nullptr,
+			const_cast<wchar_t*>(commandLine.c_str()),
+			nullptr,
+			nullptr,
+			true,
+			0,
+			nullptr,
+			nullptr,
+			&startupInfo,
+			&processInformation))
 		ThrowLastError("CreateProcess");
 
 	m_hProcess.reset(processInformation.hProcess);
@@ -182,7 +181,7 @@ unsigned Process::GetThreadId() const
 	return m_threadId;
 }
 
-bool Process::IsRunning() const	// todo: check advantages of this against bool win32::IsProcessRunning(HANDLE handle);
+bool Process::IsRunning() const // todo: check advantages of this against bool win32::IsProcessRunning(HANDLE handle);
 {
 	return GetExitCodeProcess(m_hProcess) == STILL_ACTIVE;
 }

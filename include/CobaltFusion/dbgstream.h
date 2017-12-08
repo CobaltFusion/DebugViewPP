@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -8,7 +8,7 @@
 // OutputDebugString as an ostream:
 // cdbg << "Hello " << name << std::endl;
 // wcdbg << L"Hello " << wname << std::endl;
-// 
+//
 // cnull and wcnull are do-nothing stremas that support macro based logging on/off selection:
 //
 // #ifdef NDEBUG
@@ -31,23 +31,26 @@
 
 namespace dbgstream {
 
-template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allocator<Elem> >
+template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allocator<Elem>>
 class basic_debugbuf : public std::basic_streambuf<Elem, Tr>
 {
+	using _int_type = typename std::basic_streambuf<Elem, Tr>::int_type;
+	using _traits_type = typename std::basic_streambuf<Elem, Tr>::traits_type;
+
 protected:
-    virtual int sync() override
+	virtual int sync() override
 	{
 		output(m_buf.c_str());
 		m_buf.clear();
 		return 0;
 	}
 
-    virtual int_type overflow(int_type c) override
+	virtual _int_type overflow(_int_type c) override
 	{
-		if (c == traits_type::eof())
+		if (c == _traits_type::eof())
 			return 0;
 
-		m_buf += traits_type::to_char_type(c);
+		m_buf += _traits_type::to_char_type(c);
 		if (c == '\n')
 			sync();
 		return c;
@@ -67,11 +70,12 @@ private:
 	}
 };
 
-template <class Elem, class Tr = std::char_traits<Elem> >
+template <class Elem, class Tr = std::char_traits<Elem>>
 class basic_dbgstream : public std::basic_ostream<Elem, Tr>
 {
 public:
-	basic_dbgstream() : std::basic_ostream<Elem, Tr>(&buf)
+	basic_dbgstream() :
+		std::basic_ostream<Elem, Tr>(&buf)
 	{
 	}
 
@@ -79,16 +83,17 @@ private:
 	basic_debugbuf<Elem, Tr> buf;
 };
 
-template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allocator<Elem> >
+template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allocator<Elem>>
 class basic_nullbuf : public std::basic_streambuf<Elem, Tr>
 {
 };
 
-template <class Elem, class Tr = std::char_traits<Elem> >
+template <class Elem, class Tr = std::char_traits<Elem>>
 class basic_nullstream : public std::basic_ostream<Elem, Tr>
 {
 public:
-	basic_nullstream() : std::basic_ostream<Elem, Tr>(&buf)
+	basic_nullstream() :
+		std::basic_ostream<Elem, Tr>(&buf)
 	{
 	}
 
