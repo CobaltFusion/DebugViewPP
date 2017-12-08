@@ -43,7 +43,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OutputForwarderVSIX</RootNamespace>
     <AssemblyName>OutputForwarderVSIX</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
