@@ -359,7 +359,7 @@ try
 
 	if (settings.filename.empty() && settings.console == false)
 	{
-		std::cout << "Neither output to logfile or console was specified, noting to do...\n";
+		std::cout << "Neither output to logfile or console was specified, nothing to do...\n";
 		return 1;
 	}
 
