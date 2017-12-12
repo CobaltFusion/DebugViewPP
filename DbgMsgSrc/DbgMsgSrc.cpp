@@ -458,6 +458,15 @@ int Main(int argc, char* argv[])
 			SocketTest();
 			return 0;
 		}
+		else if (arg == "-D")
+		{
+			OutputDebugStringA("test1\n");
+			OutputDebugStringA("\n");
+			OutputDebugStringA("\n\n");
+			OutputDebugStringA("test2\n\n");
+			OutputDebugStringA("test3\n");
+			return 0;
+		}
 		else
 		{
 			Output(arg);
