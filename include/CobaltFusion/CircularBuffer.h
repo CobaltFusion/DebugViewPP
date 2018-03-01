@@ -9,13 +9,13 @@
 
 #include <memory>
 #include <string>
-#include <boost/core/noncopyable.hpp>
+#include "Win32/Utilities.h"
 
 #pragma comment(lib, "CobaltFusion.lib")
 
 namespace fusion {
 
-class CircularBuffer : boost::noncopyable
+class CircularBuffer : fusion::noncopyable
 {
 public:
 	explicit CircularBuffer(size_t capacity);

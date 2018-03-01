@@ -14,7 +14,7 @@
 namespace fusion {
 namespace Win32 {
 
-class WinsockInitialization : boost::noncopyable
+class WinsockInitialization : fusion::noncopyable
 {
 public:
 	explicit WinsockInitialization(int major = 2, int minor = 2);

@@ -10,7 +10,7 @@
 namespace fusion {
 namespace Win32 {
 
-class ComInitialization : boost::noncopyable
+class ComInitialization
 {
 public:
 	explicit ComInitialization();

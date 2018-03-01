@@ -10,7 +10,7 @@
 namespace fusion {
 
 template <typename F>
-class scope_guard : boost::noncopyable
+class scope_guard : fusion::noncopyable
 {
 public: 
 	explicit scope_guard(const F& x) :
@@ -43,6 +43,7 @@ public:
 		}
 		catch (...)
 		{
+			assert(false && "exception in guard clean up");
 		}
 	}
 

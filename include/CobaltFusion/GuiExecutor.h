@@ -11,7 +11,7 @@
 #include <atlbase.h>
 #include <atlwin.h>
 #include "CobaltFusion/Executor.h"
-#include "CobaltFusion/dbgstream.h"
+#include <cassert>
 
 namespace fusion {
 
@@ -80,7 +80,7 @@ protected:
 	virtual ~GuiExecutorBase();
 };
 
-class GuiExecutor : boost::noncopyable,
+class GuiExecutor :
 	private ExecutorBase,
 	private GuiExecutorBase
 {

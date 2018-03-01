@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include <string>
-#include <boost/core/noncopyable.hpp>
-#include <system_error>
+//#include <single-header/system_error2.hpp>
 #include <windows.h>
+#include "Utilities.h"
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -115,7 +115,7 @@ private:
 	void* m_ptr;
 };
 
-class GdiObjectSelection : boost::noncopyable
+class GdiObjectSelection : fusion::noncopyable
 {
 public:
 	GdiObjectSelection(HDC hdc, HGDIOBJ hObject);
@@ -126,7 +126,7 @@ private:
 	HGDIOBJ m_hObject;
 };
 
-class ScopedTextColor : boost::noncopyable
+class ScopedTextColor : fusion::noncopyable
 {
 public:
 	ScopedTextColor(HDC hdc, COLORREF color);
@@ -137,7 +137,7 @@ private:
 	COLORREF m_color;
 };
 
-class ScopedBkColor : boost::noncopyable
+class ScopedBkColor : fusion::noncopyable
 {
 public:
 	ScopedBkColor(HDC hdc, COLORREF color);
@@ -148,7 +148,7 @@ private:
 	COLORREF m_color;
 };
 
-class ScopedTextAlign : boost::noncopyable
+class ScopedTextAlign : fusion::noncopyable
 {
 public:
 	ScopedTextAlign(HDC hdc, UINT align);
@@ -237,7 +237,7 @@ WaitResult WaitForAllObjects(const Coll& handles, DWORD milliSeconds)
 
 bool IsProcessRunning(HANDLE handle);
 
-class MutexLock : boost::noncopyable
+class MutexLock : fusion::noncopyable
 {
 public:
 	explicit MutexLock(HANDLE hMutex);
@@ -249,7 +249,7 @@ private:
 	HANDLE m_hMutex;
 };
 
-class MappedViewOfFile : boost::noncopyable
+class MappedViewOfFile : fusion::noncopyable
 {
 public:
 	MappedViewOfFile(HANDLE hFileMappingObject, DWORD access, DWORD offsetHigh, DWORD offsetLow, size_t bytesToMap);
@@ -262,7 +262,7 @@ private:
 	void* m_ptr;
 };
 
-class ScopedCursor : boost::noncopyable
+class ScopedCursor : fusion::noncopyable
 {
 public:
 	explicit ScopedCursor(HCURSOR hCursor);
@@ -272,8 +272,6 @@ public:
 private:
 	HCURSOR m_hCursor;
 };
-
-std::wstring LoadString(int id);
 
 ULONG_PTR GetParentProcessId();
 std::vector<std::wstring> GetCommandLineArguments();
@@ -285,7 +283,7 @@ std::wstring GetWindowText(HWND hWnd);
 std::wstring GetDlgItemText(HWND hDlg, int idc);
 bool IsGUIThread();
 
-class HFile : boost::noncopyable
+class HFile : fusion::noncopyable
 {
 public:
 	explicit HFile(const std::string& filename);
