@@ -11,6 +11,6 @@
 
 #ifdef _DEBUG
 #include <boost/core/noncopyable.hpp>
+#include <thread>
 #endif
 
-#include <thread>

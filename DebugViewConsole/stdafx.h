@@ -7,7 +7,9 @@
 
 #pragma once
 
+#ifndef __clang__
 #include "targetver.h"
+#endif
 
 #include <boost/asio.hpp>
 

@@ -21,7 +21,9 @@ template <typename Observer>
 class HiddenWindow :
 	public ATL::CWindowImpl<HiddenWindow<Observer>, ATL::CWindow, ATL::CNullTraits>
 {
-public:
+	using Base = ATL::CWindowImpl<HiddenWindow<Observer>, ATL::CWindow, ATL::CNullTraits>;
+
+	public:
 	explicit HiddenWindow(Observer& observer) :
 		m_pObserver(&observer)
 	{
@@ -39,17 +41,17 @@ public:
 
 	void Notify()
 	{
-		PostMessage(WM_APP);
+		Base::PostMessage(WM_APP);
 	}
 
 	void ClearTimer()
 	{
-		KillTimer(1);
+		Base::KillTimer(1);
 	}
 
 	void SetTimerMs(unsigned ms)
 	{
-		SetTimer(1, ms);
+		Base::SetTimer(1, ms);
 	}
 
 	LRESULT OnMessage(UINT, WPARAM, LPARAM, BOOL&)

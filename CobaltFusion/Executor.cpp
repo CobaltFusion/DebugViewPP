@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2015.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -41,7 +41,7 @@ bool TimedCalls::IsEmpty() const
 
 void TimedCalls::Insert(CallData&& call)
 {
-	auto it = std::lower_bound(m_scheduledCalls.begin(), m_scheduledCalls. end(), call, [](const CallData& a, const CallData& b) { return a.at > b.at; });
+	auto it = std::lower_bound(m_scheduledCalls.begin(), m_scheduledCalls.end(), call, [](const CallData& a, const CallData& b) { return a.at > b.at; });
 	m_scheduledCalls.insert(it, call);
 }
 
@@ -67,7 +67,7 @@ TimedCalls::CallData TimedCalls::Pop()
 	return call;
 }
 
-TimedCalls::CallData::CallData(unsigned id, TimePoint at, std::function<void ()> fn) :
+TimedCalls::CallData::CallData(unsigned id, TimePoint at, std::function<void()> fn) :
 	id(id),
 	at(at),
 	interval(Duration::zero()),
@@ -75,7 +75,7 @@ TimedCalls::CallData::CallData(unsigned id, TimePoint at, std::function<void ()>
 {
 }
 
-TimedCalls::CallData::CallData(unsigned id, TimePoint at, Duration interval, std::function<void ()> fn) :
+TimedCalls::CallData::CallData(unsigned id, TimePoint at, Duration interval, std::function<void()> fn) :
 	id(id),
 	at(at),
 	interval(interval),
@@ -84,12 +84,14 @@ TimedCalls::CallData::CallData(unsigned id, TimePoint at, Duration interval, std
 }
 
 ScheduledCall::ScheduledCall() :
-	pExec(nullptr), id(0)
+	pExec(nullptr),
+	id(0)
 {
 }
 
 ScheduledCall::ScheduledCall(ExecutorBase& exec, unsigned id) :
-	pExec(&exec), id(id)
+	pExec(&exec),
+	id(id)
 {
 }
 
@@ -179,7 +181,7 @@ void Executor::SetExecutorThread(std::thread::id id)
 	m_threadId = id;
 }
 
-void Executor::Add(std::function<void ()> fn)
+void Executor::Add(std::function<void()> fn)
 {
 	m_q.Push(fn);
 }
@@ -189,28 +191,26 @@ void Executor::Synchronize()
 	Call([] {});
 }
 
-ScheduledCall TimedExecutor::CallAt(const TimePoint& at, std::function<void ()> fn)
+ScheduledCall TimedExecutor::CallAt(const TimePoint& at, std::function<void()> fn)
 {
 	unsigned id = GetCallId();
-	Add([this, id, at, fn]()
-	{
+	Add([this, id, at, fn]() {
 		m_scheduledCalls.Insert(TimedExecutor::CallData(id, at, fn));
 	});
 	return MakeScheduledCall(id);
 }
 
-ScheduledCall TimedExecutor::CallAfter(const Duration& interval, std::function<void ()> fn)
+ScheduledCall TimedExecutor::CallAfter(const Duration& interval, std::function<void()> fn)
 {
 	return CallAt(std::chrono::steady_clock::now() + interval, fn);
 }
 
-ScheduledCall TimedExecutor::CallEvery(const Duration& interval, std::function<void ()> fn)
+ScheduledCall TimedExecutor::CallEvery(const Duration& interval, std::function<void()> fn)
 {
 	assert(interval > Duration::zero());
 
 	unsigned id = GetCallId();
-	Add([this, id, interval, fn]()
-	{
+	Add([this, id, interval, fn]() {
 		m_scheduledCalls.Insert(TimedExecutor::CallData(id, std::chrono::steady_clock::now() + interval, interval, fn));
 	});
 	return MakeScheduledCall(id);
