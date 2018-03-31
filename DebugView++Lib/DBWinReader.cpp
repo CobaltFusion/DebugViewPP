@@ -11,8 +11,6 @@
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/LineBuffer.h"
 #include "CobaltFusion/stringbuilder.h"
-#include <AccCtrl.h>
-#include <Aclapi.h>
 
 namespace fusion {
 namespace debugviewpp {
@@ -30,7 +28,7 @@ Win32::Handle CreateDBWinBufferMapping(bool global)
 	Win32::Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		throw std::runtime_error("CreateDBWinBufferMapping");
-	SetSecurityInfo(hMap.get(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
+	Win32::SetSecurityInfo(hMap.get(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
     return hMap;
 }
 
@@ -45,8 +43,8 @@ DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
 {
 	SetDescription(global ? L"Global Win32 Messages" : L"Win32 Messages");
 
-	SetSecurityInfo(m_dbWinBufferReady.get(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
-	SetSecurityInfo(m_dbWinDataReady.get(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
+	Win32::SetSecurityInfo(m_dbWinBufferReady.get(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
+	Win32::SetSecurityInfo(m_dbWinDataReady.get(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
 
 	Win32::SetEvent(m_dbWinBufferReady);
 }

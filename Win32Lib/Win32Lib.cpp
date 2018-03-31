@@ -261,6 +261,12 @@ Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwne
 	return hMutex;
 }
 
+void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, const PSID psidOwner, const PSID psidGroup, const PACL pDacl, const PACL pSacl) {
+	if (::SetSecurityInfo(hObject, ObjectType, SecurityInfo, psidOwner, psidGroup, pDacl, pSacl) != ERROR_SUCCESS) {
+		ThrowLastError("SetSecurityInfo");
+	}
+}
+
 void WaitForSingleObject(HANDLE hObject)
 {
 	auto rc = ::WaitForSingleObject(hObject, INFINITE);
