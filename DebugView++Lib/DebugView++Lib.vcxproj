@@ -125,6 +125,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -199,7 +200,10 @@
     <ClCompile Include="AnyFileReader.cpp" />
     <ClCompile Include="CTimelineView.cpp" />
     <ClCompile Include="DBWinBuffer.cpp" />
-    <ClCompile Include="DBWinReader.cpp" />
+    <ClCompile Include="DBWinReader.cpp">
+      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Speed</FavorSizeOrSpeed>
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OmitFramePointers>
+    </ClCompile>
     <ClCompile Include="DBWinWriter.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FileReader.cpp" />

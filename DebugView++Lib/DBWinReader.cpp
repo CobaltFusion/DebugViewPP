@@ -48,6 +48,8 @@ HANDLE DBWinReader::GetHandle() const
 	return m_dbWinDataReady.get();
 }
 
+// by forcing Notify() to be not inlined, it will have a better change of being aligned correctly
+// in the instruction cache. __declspec(noinline), however measurements do not show any differences
 void DBWinReader::Notify()
 {
 	static_assert(systemProcessNamesCount == Win32::fixedNumberOfSystemPids, "The size of the systemProcessNames array must be 'fixedNumberOfSystemPids' (5)");
