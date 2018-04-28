@@ -43,7 +43,8 @@ protected:
 		return 0;
 	}
 
-    virtual int_type overflow(int_type c) override
+	using int_type = std::basic_streambuf<Elem, Tr>::int_type;
+	virtual int_type overflow(int_type c) override
 	{
 		if (c == traits_type::eof())
 			return 0;
