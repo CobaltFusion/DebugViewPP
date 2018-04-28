@@ -200,6 +200,8 @@ void SetEvent(HANDLE hEvent);
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
 
 void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, const PSID psidOwner, const PSID psidGroup, const PACL pDacl, const PACL pSacl);
+void DeleteObjectDACL(HANDLE hObject);
+void AdjustObjectDACL(HANDLE hObject);
 
 void SetPrivilege(const wchar_t* privilege, bool enablePrivilege);
 void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege);

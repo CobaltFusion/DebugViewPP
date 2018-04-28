@@ -15,6 +15,7 @@
 #include "comdef.h"
 
 #include "Win32/Win32Lib.h"
+#include <AccCtrl.h>
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
 
@@ -265,6 +266,41 @@ void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMA
 	if (::SetSecurityInfo(hObject, ObjectType, SecurityInfo, psidOwner, psidGroup, pDacl, pSacl) != ERROR_SUCCESS) {
 		ThrowLastError("SetSecurityInfo");
 	}
+}
+
+//delete DACL at all, so permit Full Access for Everyone
+void DeleteObjectDACL(HANDLE hObject)
+{
+	Win32::SetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
+}
+
+//add necessary permissions for "Authenticated Users" group (all non-anonymous users)
+void AdjustObjectDACL(HANDLE hObject)
+{
+	ACL* pOldDACL;
+	SECURITY_DESCRIPTOR* pSD = nullptr;
+	GetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, &pOldDACL, nullptr, reinterpret_cast<void**>(&pSD));
+
+	PSID pSid = nullptr;
+	SID_IDENTIFIER_AUTHORITY authNt = SECURITY_NT_AUTHORITY;
+	AllocateAndInitializeSid(&authNt, 1, SECURITY_AUTHENTICATED_USER_RID, 0, 0, 0, 0, 0, 0, 0, &pSid);
+
+	EXPLICIT_ACCESS ea = { 0 };
+	ea.grfAccessMode = GRANT_ACCESS;
+	ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE;
+	ea.grfInheritance = NO_INHERITANCE;
+	ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+	ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	ea.Trustee.ptstrName = static_cast<LPTSTR>(pSid);
+
+	ACL* pNewDACL = nullptr;
+	SetEntriesInAcl(1, &ea, pOldDACL, &pNewDACL);
+
+	Win32::SetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, pNewDACL, nullptr);
+
+	FreeSid(pSid);
+	LocalFree(pNewDACL);
+	LocalFree(pSD);
 }
 
 void WaitForSingleObject(HANDLE hObject)

@@ -23,42 +23,6 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 	return global ? L"Global\\" + name : name;
 }
 
-//delete DACL at all, so permit Full Access for Everyone
-void DeleteObjectDACL(HANDLE hObject)
-{
-	Win32::SetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
-}
-
-//add necessary permissions for "Authenticated Users" group (all non-anonymous users)
-void AdjustObjectDACL(HANDLE hObject)
-{
-	ACL* pOldDACL;
-	SECURITY_DESCRIPTOR* pSD = NULL;
-	GetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, &pOldDACL, nullptr, (void**)&pSD);
-
-	PSID pSid = NULL;
-	SID_IDENTIFIER_AUTHORITY authNt = SECURITY_NT_AUTHORITY;
-	AllocateAndInitializeSid(&authNt, 1, SECURITY_AUTHENTICATED_USER_RID, 0, 0, 0, 0, 0, 0, 0, &pSid);
-
-	EXPLICIT_ACCESS ea = { 0 };
-	ea.grfAccessMode = GRANT_ACCESS;
-	ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE;
-	ea.grfInheritance = NO_INHERITANCE;
-	ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-	ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-	ea.Trustee.ptstrName = (LPTSTR)pSid;
-
-	ACL* pNewDACL = 0;
-	SetEntriesInAcl(1, &ea, pOldDACL, &pNewDACL);
-
-	Win32::SetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, pNewDACL, nullptr);
-
-	FreeSid(pSid);
-	LocalFree(pNewDACL);
-	LocalFree(pSD);
-	LocalFree(pOldDACL);
-}
-
 Win32::Handle CreateDBWinBufferMapping(bool global)
 {
 	Win32::Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
@@ -79,14 +43,14 @@ DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
 	SetDescription(global ? L"Global Win32 Messages" : L"Win32 Messages");
 
 	//Option 1:
-	AdjustObjectDACL(m_hBuffer.get());
-	AdjustObjectDACL(m_dbWinBufferReady.get());
-	AdjustObjectDACL(m_dbWinDataReady.get());
+	//Win32::AdjustObjectDACL(m_hBuffer.get());
+	//Win32::AdjustObjectDACL(m_dbWinBufferReady.get());
+	//Win32::AdjustObjectDACL(m_dbWinDataReady.get());
 
 	//Option 2:
-	//DeleteObjectDACL(m_hBuffer.get());
-	//DeleteObjectDACL(m_dbWinBufferReady.get());
-	//DeleteObjectDACL(m_dbWinDataReady.get());
+	//Win32::DeleteObjectDACL(m_hBuffer.get());
+	//Win32::DeleteObjectDACL(m_dbWinBufferReady.get());
+	//Win32::DeleteObjectDACL(m_dbWinDataReady.get());
 
 	//TODO: Please test this and choose one
 
