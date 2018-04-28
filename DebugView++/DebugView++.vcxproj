@@ -104,7 +104,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -151,7 +151,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -196,7 +196,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Full</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -248,7 +248,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Full</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
