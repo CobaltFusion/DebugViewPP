@@ -227,7 +227,6 @@ CMainFrame::CMainFrame() :
 	m_findDlg(*this),
 	m_linkViews(false),
 	m_hide(false),
-	m_lineBuffer(7000),
 	m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
 	m_logFileName(L"DebugView++.dblog"),
 	m_txtFileName(L"Messages.dblog"),
@@ -1066,7 +1065,7 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
 
 	ClearLog();
 
-	Line line;
+	Line line(0.0);
 	line.processName = name;
 	line.systemTime = fileTime;
 	while (ReadLogFileMessage(file, line))

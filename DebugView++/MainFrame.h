@@ -233,7 +233,6 @@ private:
 	void AddLogSource(const SourceInfo& info);
 	void CloseView(int i);
 
-	LineBuffer m_lineBuffer;
 	CCommandBarCtrl m_cmdBar;
 	CMultiPaneStatusBarCtrl m_statusBar;
 
