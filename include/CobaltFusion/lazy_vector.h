@@ -12,26 +12,45 @@
 
 #include <vector>
 
+namespace fusion {
+
 template <typename T>
 class lazy_vector
 {
 private:
-	using vec = std::vector<T>;
+	using lazy_vector_t = std::vector<T>;
 
 public:
-	typename vec::iterator begin()
+	typename lazy_vector_t::iterator begin()
 	{
 		return m_vector.begin();
 	}
 
-	typename vec::iterator end()
+	typename lazy_vector_t::iterator end()
 	{
 		return m_vector.begin() + m_size;
 	}
 
-	T& operator[](int index)
+	typename lazy_vector_t::const_iterator begin() const
+	{
+		return m_vector.begin();
+	}
+
+	typename lazy_vector_t::const_iterator end() const
+	{
+		return m_vector.begin() + m_size;
+	}
+
+	T& operator[](size_t index)
 	{
 		return m_vector[index];
+	}
+
+	T& at(size_t index)
+	{
+		if (index < m_size)
+			return m_vector[index];
+		throw std::runtime_error("invalid lazy_vector<T> subscript");
 	}
 
 	void push_back(const T& t)
@@ -92,6 +111,11 @@ public:
 		return m_size;
 	}
 
+	bool empty() const
+	{
+		return m_size == 0;
+	}
+
 	void shrink_to_fit()
 	{
 		m_vector.resize(m_size);
@@ -100,7 +124,9 @@ public:
 
 private:
 	size_t m_size = 0;
-	std::vector<T> m_vector;
+	lazy_vector_t m_vector;
 };
+
+} // namespace fusion
 
 #endif // #ifndef LAZY_VECTOR_H
