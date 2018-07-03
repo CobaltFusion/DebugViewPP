@@ -13,11 +13,17 @@
 namespace fusion {
 namespace debugviewpp {
 
+// todo: initialize these members ?
+//WSAOVERLAPPED m_overlapped;
+//WSABUF m_wsaBuf[1];
+//sockaddr_in m_from;
+
 SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :
 	LogSource(timer, SourceType::Udp, lineBuffer),
 	m_wsa(2, 2),
 	m_socket( Win32::WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, WSA_FLAG_OVERLAPPED) ),
 	m_event( Win32::CreateEvent(nullptr, false, true, nullptr) ),
+	m_fromLen(0),
 	m_busy(false)
 {
 	SetDescription(wstringbuilder() << L"Listening at UDP port " << port);
