@@ -147,7 +147,7 @@ std::vector<std::string> SnappyStorage::Decompress(const std::string& value)
 	{
 		auto begin = it;
 		while (*it)
-			++it;
+			++it;		// cppcheck : Message: The iterator incrementing is suspicious - it is incremented at line 150 and then at line 146. The loop might unintentionally skip an element in the container. There is no comparison between these increments to prevent that the iterator is incremented beyond the end.
 		vec.emplace_back(begin, it);
 	}
 	return vec;

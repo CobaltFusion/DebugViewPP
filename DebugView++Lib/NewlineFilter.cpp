@@ -16,7 +16,7 @@ namespace debugviewpp {
 
 Lines NewlineFilter::Process(const Line& line)
 {
-	Line outputLine = line;
+	Line outputLine = line; //copy assignment
 	auto& message = m_lineBuffers[line.pid];
 	message.reserve(4000);
 	Lines lines;
@@ -27,7 +27,7 @@ Lines NewlineFilter::Process(const Line& line)
 
 		if (c == '\n')
 		{
-			outputLine.message = message;
+			outputLine.message = message; // copy assignment
 			message.clear();
 			lines.push_back(outputLine);
 		}
