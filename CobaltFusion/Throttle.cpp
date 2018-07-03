@@ -18,7 +18,7 @@ using namespace std::chrono_literals;
 Throttle::Throttle(IExecutor& executor, int callsPerSecond, std::function<void()> fn) :
 	m_delta(std::chrono::milliseconds(1000/callsPerSecond)),
 	m_callPending(false),
-	m_fn(fn),
+	m_fn(std::move(fn)),
 	m_executor(executor)
 {
 }

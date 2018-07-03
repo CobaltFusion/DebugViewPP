@@ -15,8 +15,8 @@ namespace fusion {
 class Str
 {
 public:
-	explicit Str(const std::string& s) :
-		m_str(s)
+	explicit Str(std::string s) :
+		m_str(std::move(s))
 	{
 	}
 

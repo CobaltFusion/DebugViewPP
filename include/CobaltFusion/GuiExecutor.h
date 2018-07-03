@@ -92,7 +92,7 @@ public:
 	typedef Clock::duration Duration;
 
 	GuiExecutor();
-	virtual ~GuiExecutor();
+	~GuiExecutor() override;
 
 	template <typename Fn>
 	auto Call(Fn fn)

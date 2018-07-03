@@ -164,7 +164,7 @@ class ActiveExecutor : public TimedExecutor
 {
 public:
 	ActiveExecutor();
-	~ActiveExecutor();
+	~ActiveExecutor() override;
 
 private:
 	void Run();

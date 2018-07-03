@@ -29,11 +29,11 @@ public:
 	// Performance can be improved by doing block-operations, for example using a Duff-device
 	char Read();
 	std::string ReadStringZ();
-	void Write(char c);
+	void Write(char value);
 	void WriteStringZ(const char* message);
 
 	void Clear();
-	void Swap(CircularBuffer& circularBuffer);
+	void Swap(CircularBuffer& cb);
 	void DumpStats() const;
 
 private:

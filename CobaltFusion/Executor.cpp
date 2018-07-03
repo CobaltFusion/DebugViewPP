@@ -25,7 +25,7 @@ unsigned ExecutorBase::GetId(const ScheduledCall& call)
 
 ScheduledCall ExecutorBase::MakeScheduledCall(unsigned id)
 {
-	return ScheduledCall(*this, id);
+	return {*this, id};
 }
 
 unsigned ExecutorBase::GetCallId()
@@ -71,7 +71,7 @@ TimedCalls::CallData::CallData(unsigned id, TimePoint at, std::function<void()> 
 	id(id),
 	at(at),
 	interval(Duration::zero()),
-	fn(fn)
+	fn(std::move(fn))
 {
 }
 
