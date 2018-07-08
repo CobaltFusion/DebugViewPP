@@ -43,9 +43,9 @@ DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
 	SetDescription(global ? L"Global Win32 Messages" : L"Win32 Messages");
 
 	//Option 1:
-	//Win32::AdjustObjectDACL(m_hBuffer.get());
-	//Win32::AdjustObjectDACL(m_dbWinBufferReady.get());
-	//Win32::AdjustObjectDACL(m_dbWinDataReady.get());
+	Win32::AdjustObjectDACL(m_hBuffer.get());
+	Win32::AdjustObjectDACL(m_dbWinBufferReady.get());
+	Win32::AdjustObjectDACL(m_dbWinDataReady.get());
 
 	//Option 2:
 	//Win32::DeleteObjectDACL(m_hBuffer.get());
