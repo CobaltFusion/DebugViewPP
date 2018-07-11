@@ -48,25 +48,25 @@ public:
 
 	bool Empty() const
 	{
-		std::unique_lock<std::mutex> lock(m_mtx);
+		std::lock_guard<std::mutex> lock(m_mtx);
 		return m_buffer.Empty();
 	}
 
 	bool Full() const
 	{
-		std::unique_lock<std::mutex> lock(m_mtx);
+		std::lock_guard<std::mutex> lock(m_mtx);
 		return m_buffer.Full();
 	}
 
 	size_t Available() const
 	{
-		std::unique_lock<std::mutex> lock(m_mtx);
+		std::lock_guard<std::mutex> lock(m_mtx);
 		return m_buffer.Available();
 	}
 
 	size_t Size() const
 	{
-		std::unique_lock<std::mutex> lock(m_mtx);
+		std::lock_guard<std::mutex> lock(m_mtx);
 		return m_buffer.Size();
 	}
 	

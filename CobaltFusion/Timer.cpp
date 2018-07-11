@@ -32,7 +32,7 @@ void Timer::Reset()
 double Timer::Get()
 {
 	auto ticks = GetTicks();
-	std::unique_lock<std::mutex> lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	if (!m_init)
 	{
 		m_offset = ticks;

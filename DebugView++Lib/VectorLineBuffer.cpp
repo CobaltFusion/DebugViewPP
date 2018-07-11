@@ -19,14 +19,14 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 
 void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource)
 {
-	std::unique_lock<std::mutex> lock(m_linesMutex);
-	m_buffer.push_back(Line(time, systemTime, handle, message, pSource));	//todo: temp copy
+	std::lock_guard<std::mutex> lock(m_linesMutex);
+	m_buffer.emplace_back(time, systemTime, handle, message, pSource);
 }
 
 void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource)
 {
-	std::unique_lock<std::mutex> lock(m_linesMutex);
-	m_buffer.push_back(Line(time, systemTime, pid, processName, message, pSource));
+	std::lock_guard<std::mutex> lock(m_linesMutex);
+	m_buffer.emplace_back(time, systemTime, pid, processName, message, pSource);
 }
 
 // m_backingBuffer can not be moved since it is a member variabele and only rvalues can be moved.
@@ -36,7 +36,7 @@ Lines VectorLineBuffer::GetLines()
 	// the swap trick used here is very important to unblock the calling process asap.
 	m_backingBuffer.clear();
 	{
-		std::unique_lock<std::mutex> lock(m_linesMutex);
+		std::lock_guard<std::mutex> lock(m_linesMutex);
 		m_buffer.swap(m_backingBuffer);
 	}
 	return m_backingBuffer;

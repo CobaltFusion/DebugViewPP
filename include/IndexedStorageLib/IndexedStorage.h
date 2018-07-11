@@ -23,6 +23,7 @@ public:
 	size_t Add(const std::string& value);
 	size_t Count() const;
 	std::string operator[](size_t i) const;
+	void shrink_to_fit();
 
 private:
 	std::vector<std::string> m_storage;

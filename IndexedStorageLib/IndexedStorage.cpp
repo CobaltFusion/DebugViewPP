@@ -42,6 +42,11 @@ std::string VectorStorage::operator[](size_t i) const
 	return m_storage[i];
 }
 
+void VectorStorage::shrink_to_fit()
+{
+	m_storage.shrink_to_fit();
+}
+
 SnappyStorage::SnappyStorage() :
 	m_writeBlockIndex(0),
 	m_readBlockIndex(-1)
