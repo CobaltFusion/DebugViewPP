@@ -68,42 +68,42 @@ void DisablePaneHeader(CMyPaneContainer& panecontainer)
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
 {
-    if (n == 0)
-        return L"";
-    if (n == 1)
-        return wstringbuilder() << n << " " << unit;
-    return wstringbuilder() << n << " " << unit << "s";
+	if (n == 0)
+		return L"";
+	if (n == 1)
+		return wstringbuilder() << n << " " << unit;
+	return wstringbuilder() << n << " " << unit << "s";
 }
 
 std::wstring FormatDuration(double seconds)
 {
-    int minutes = FloorTo<int>(seconds / 60);
-    seconds -= 60 * minutes;
+	int minutes = FloorTo<int>(seconds / 60);
+	seconds -= 60 * minutes;
 
-    int hours = minutes / 60;
-    minutes -= 60 * hours;
+	int hours = minutes / 60;
+	minutes -= 60 * hours;
 
-    int days = hours / 24;
-    hours -= 24 * days;
+	int days = hours / 24;
+	hours -= 24 * days;
 
-    if (days > 0)
-        return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
+	if (days > 0)
+		return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
 
-    if (hours > 0)
-        return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
+	if (hours > 0)
+		return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
 
-    if (minutes > 0)
-        return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
+	if (minutes > 0)
+		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-    static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
-    const wchar_t** unit = units;
-    while (*unit != nullptr && seconds > 0 && seconds < 1)
-    {
-        seconds *= 1e3;
-        ++unit;
-    }
+	static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
+	const wchar_t** unit = units;
+	while (*unit != nullptr && seconds > 0 && seconds < 1)
+	{
+		seconds *= 1e3;
+		++unit;
+	}
 
-    return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
+	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
 void CLogViewTabItem2::Create(HWND parent)
 {
@@ -114,7 +114,7 @@ void CLogViewTabItem2::Create(HWND parent)
 	DisablePaneHeader(m_top);
 	DisablePaneHeader(m_bottom);
 	m_split.SetSplitterPanes(m_top, m_bottom, true);
-    m_split.SetSplitterPos(400);
+	m_split.SetSplitterPos(400);
 
 	m_timelineView.SetFormatter([](gdi::Location l) {
 		return Str(FormatDuration(l));
@@ -144,7 +144,6 @@ void CLogViewTabItem2::Create(HWND parent)
 		lines.emplace_back(sequence);
 		lines.emplace_back(data);
 		return lines;
-
 	});
 
 	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
@@ -251,17 +250,17 @@ void CMainFrame::SetLogging()
 
 void CMainFrame::OnException()
 {
-	FUSION_REPORT_EXCEPTION("Unknown Exception");
+	errormessage("No additional information available", "Exception occurred");
 }
 
 void CMainFrame::OnException(const std::exception& ex)
 {
-	FUSION_REPORT_EXCEPTION(ex.what());
+	errormessage(ex.what(), "Exception occurred");
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-    return TabbedFrame::PreTranslateMessage(pMsg);
+	return TabbedFrame::PreTranslateMessage(pMsg);
 }
 
 BOOL CMainFrame::OnIdle()
@@ -562,7 +561,7 @@ void CMainFrame::OnDropped(const std::wstring uri)
 			}
 
 			Win32::Process process(httpmonitor, uri);
-            m_httpMonitorHandle = Win32::DuplicateHandle(process.GetProcessHandle());
+			m_httpMonitorHandle = Win32::DuplicateHandle(process.GetProcessHandle());
 			m_jobs.AddProcessByHandle(m_httpMonitorHandle.get());
 		}
 		else
@@ -807,7 +806,7 @@ void CMainFrame::AddFilterView(std::shared_ptr<CLogView> logview)
 
 	logview->Create(pTabItem->GetLogViewParent(), rcDefault, nullptr, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	logview->SetFont(m_hFont.get());
-	
+
 	pTabItem->SetText(logview->GetName().c_str());
 	pTabItem->SetView(logview);
 
@@ -940,13 +939,12 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		{
 			View view;
 			auto& viewPt = item.second;
-			view.index = viewPt.get<bool>("Index");
+			view.index = viewPt.get<int>("Index");
 			view.name = viewPt.get<std::string>("Name");
 			view.clockTime = viewPt.get<bool>("ClockTime");
 			view.processColors = viewPt.get<bool>("ProcessColors");
 			view.filters.messageFilters = MakeFilters(viewPt.get_child("MessageFilters"));
 			view.filters.processFilters = MakeFilters(viewPt.get_child("ProcessFilters"));
-
 			views.push_back(view);
 		}
 	}
@@ -1148,7 +1146,7 @@ void CMainFrame::ClearLog()
 		GetTabCtrl().UpdateLayout();
 		GetTabCtrl().Invalidate();
 	}
-    UpdateStatusBar();
+	UpdateStatusBar();
 }
 
 void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1159,7 +1157,8 @@ void CMainFrame::OnLogClear(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	auto selection = GetView().GetSelectedRange();
-	if (selection.count < 2) return;
+	if (selection.count < 2)
+		return;
 
 	LogFile temp;
 	m_logFile.Copy(selection.beginLine, selection.endLine, temp);
@@ -1167,7 +1166,7 @@ void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	// notice although this looks efficient, it is not, class LogFile and its composites are 'moveable' only because they are copyable.
 	// so this might temporarily allocate quite a bit of memory
 	std::swap(temp, m_logFile);
-	
+
 	m_logSources.ResetTimer();
 	int views = GetViewCount();
 	for (int i = 0; i < views; ++i)
@@ -1320,8 +1319,8 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 std::wstring GetExecutionPath()
 {
-    auto path = std::experimental::filesystem::system_complete(Win32::GetModuleFilename());
-    return path.remove_filename().c_str();
+	auto path = std::experimental::filesystem::system_complete(Win32::GetModuleFilename());
+	return path.remove_filename().c_str();
 }
 
 void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
