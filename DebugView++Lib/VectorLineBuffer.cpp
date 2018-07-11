@@ -20,7 +20,7 @@ VectorLineBuffer::VectorLineBuffer(size_t)
 void VectorLineBuffer::Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource)
 {
 	std::unique_lock<std::mutex> lock(m_linesMutex);
-	m_buffer.push_back(Line(time, systemTime, handle, message, pSource));
+	m_buffer.push_back(Line(time, systemTime, handle, message, pSource));	//todo: temp copy
 }
 
 void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource)

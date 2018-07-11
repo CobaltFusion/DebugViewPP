@@ -15,7 +15,12 @@
 #include "comdef.h"
 
 #include "Win32/Win32Lib.h"
+
+//#define DACL_MODIFY
+
+#ifdef DACL_MODIFY
 #include <AccCtrl.h>
+#endif
 
 #pragma comment(lib, "advapi32.lib")	// SetPrivilege
 
@@ -268,6 +273,8 @@ void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMA
 	}
 }
 
+#ifdef DACL_MODIFY	// currently disabled because ant-virus heuristics are trigger by it
+
 //delete DACL at all, so permit Full Access for Everyone
 void DeleteObjectDACL(HANDLE hObject)
 {
@@ -302,6 +309,8 @@ void AdjustObjectDACL(HANDLE hObject)
 	LocalFree(pNewDACL);
 	LocalFree(pSD);
 }
+
+#endif
 
 void WaitForSingleObject(HANDLE hObject)
 {
