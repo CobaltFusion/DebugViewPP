@@ -46,10 +46,10 @@ protected:
 	using int_type = std::basic_streambuf<Elem, Tr>::int_type;
 	virtual int_type overflow(int_type c) override
 	{
-		if (c == traits_type::eof())
+		if (c == std::basic_streambuf<Elem, Tr>::traits_type::eof())
 			return 0;
 
-		m_buf += traits_type::to_char_type(c);
+		m_buf += std::basic_streambuf<Elem, Tr>::traits_type::to_char_type(c);
 		if (c == '\n')
 			sync();
 		return c;

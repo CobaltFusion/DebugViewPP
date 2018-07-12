@@ -32,7 +32,7 @@ protected:
 		{
 			DWORD written;
 			if (!WriteFile(m_handle, m_writeBuffer.data(), static_cast<DWORD>(m_writeBuffer.size()), &written, nullptr))
-				return traits_type::eof();
+				return std::basic_streambuf<Elem, Tr>::traits_type::eof();
 
 			m_writeBuffer.clear();
 		}
@@ -41,10 +41,10 @@ protected:
 
     virtual int_type overflow(int_type c) override
 	{
-		if (c == traits_type::eof())
+		if (c == std::basic_streambuf<Elem, Tr>::traits_type::eof())
 			return c;
 
-		m_writeBuffer.push_back(traits_type::to_char_type(c));
+		m_writeBuffer.push_back(std::basic_streambuf<Elem, Tr>::traits_type::to_char_type(c));
 		if (c == '\n')
 			sync();
 		return c;
@@ -53,7 +53,7 @@ protected:
     virtual int_type underflow() override
 	{
 		if (gptr() < egptr()) // buffer not exhausted
-			return traits_type::to_int_type(*gptr());
+			return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*gptr());
 
 		Elem* base = &m_readBuffer.front();
 		Elem* start = base;
@@ -69,12 +69,12 @@ protected:
 		// Read from m_handle in to the provided buffer
 		DWORD read;
 		if (!ReadFile(m_handle, start, static_cast<DWORD>((m_readBuffer.size() - (start - base))*sizeof(Elem)), &read, nullptr) || read == 0)
-			return traits_type::eof();
+			return std::basic_streambuf<Elem, Tr>::traits_type::eof();
 
 		// Set buffer pointers
 		setg(base, start, start + read/sizeof(Elem));
 
-		return traits_type::to_int_type(*gptr());
+		return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*gptr());
 	}
 
 private:
