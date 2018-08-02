@@ -18,9 +18,7 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 - sockets, telnet or ssh ports (also using plink)
 - it can listen for UDP messages, handy in distributed systems
 
-```cpp
- void foo();
-```
+Dit is ```cpp  void foo(); ```
 
 See examples down below.
 
