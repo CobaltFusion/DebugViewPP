@@ -1,9 +1,5 @@
 Cobalt Fusion presents:
 
-# header 1
-
-## header 2
-
 Debugview++, currently at v1.8
 ------------------------------
 
@@ -21,6 +17,10 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 - serial ports (using plink)
 - sockets, telnet or ssh ports (also using plink)
 - it can listen for UDP messages, handy in distributed systems
+
+```cpp
+ void foo();
+```
 
 See examples down below.
 
