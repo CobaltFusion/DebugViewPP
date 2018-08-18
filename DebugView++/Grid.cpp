@@ -13,7 +13,7 @@ namespace debugviewpp {
 
 std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubItem)
 {
-	const int BufSize = 1024;
+	const int BufSize = 4192;
 	wchar_t buf[BufSize];
 	if (grid.GetItemText(iItem, iSubItem, buf, BufSize))
 		return buf;
