@@ -1508,7 +1508,7 @@ Win32::HGlobal MakeGlobalString(const std::string& str)
 {
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
 	Win32::GlobalLock<char> lock(handle);
-	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<char*>(lock.Ptr(), str.size()));
+	memcpy(lock.Ptr(), str.data(), str.size());
 	lock.Ptr()[str.size()] = '\0';
 	return handle;
 }
@@ -1518,7 +1518,7 @@ Win32::HGlobal MakeGlobalUTF16String(const std::wstring& str)
 	auto size = str.size() * sizeof(str[0]);
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, size + 1));
 	Win32::GlobalLock<wchar_t> lock(handle);
-	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<wchar_t*>(lock.Ptr(), size));
+	memcpy(lock.Ptr(), str.data(), size);
 	lock.Ptr()[size] = '\0';
 	return handle;
 }	
