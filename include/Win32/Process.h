@@ -31,8 +31,8 @@ public:
 	HANDLE GetStdErr() const;
 	HANDLE GetProcessHandle() const;
 	HANDLE GetThreadHandle() const;
-	unsigned GetProcessId() const;
-	unsigned GetThreadId() const;
+	unsigned long GetProcessId() const;
+	unsigned long GetThreadId() const;
 
 	bool IsRunning() const;
 	void Wait() const;
@@ -46,8 +46,8 @@ private:
 	Handle m_stdErr;
 	Handle m_hProcess;
 	Handle m_hThread;
-	unsigned m_processId;
-	unsigned m_threadId;
+	unsigned long m_processId;
+	unsigned long m_threadId;
 };
 
 } // namespace Win32

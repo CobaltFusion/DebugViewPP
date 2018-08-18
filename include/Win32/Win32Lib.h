@@ -283,7 +283,7 @@ private:
 	HCURSOR m_hCursor;
 };
 
-ULONG_PTR GetParentProcessId();
+DWORD GetParentProcessId();
 std::vector<std::wstring> GetCommandLineArguments();
 
 DWORD GetExitCodeProcess(HANDLE hProcess);

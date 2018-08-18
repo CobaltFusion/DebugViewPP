@@ -1571,22 +1571,24 @@ int CLogView::FindLine(Predicate pred, int direction) const
 	SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
-	int line = begin;
+	size_t begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
+	size_t line = begin;
 
 	if (m_logLines.empty())
 		return -1;
 
+	auto size = m_logLines.size();
 	do
 	{
 		line += direction;
 		if (line < 0)
-			line += m_logLines.size();
-		if (line >= static_cast<int>(m_logLines.size()))
-			line -= m_logLines.size();
+			line += size;
+
+		if (line >= size)
+			line -= size;
 
 		if (pred(m_logLines[line]))
-			return line;
+			return static_cast<int>(line);
 	} while (line != begin);
 
 	return -1;

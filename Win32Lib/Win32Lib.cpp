@@ -480,15 +480,15 @@ void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 }
 
 // this retrieves the GetParentProcessId on platforms that support it
-ULONG_PTR GetParentProcessId()
+DWORD GetParentProcessId()
 {
 	ULONG_PTR pbi[6];
 	ULONG ulSize = 0;
 	long (WINAPI* NtQueryInformationProcess)(HANDLE ProcessHandle, ULONG ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* pReturnLength);
 	*reinterpret_cast<FARPROC *>(&NtQueryInformationProcess) = GetProcAddress(LoadLibraryA("NTDLL.DLL"), "NtQueryInformationProcess");
 	if (NtQueryInformationProcess && NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
-		return pbi[5];
-	return static_cast<ULONG_PTR>(-1);
+		return static_cast<DWORD>(pbi[5]);
+	return static_cast<DWORD>(-1);
 }
 
 std::vector<std::wstring> GetCommandLineArguments()
