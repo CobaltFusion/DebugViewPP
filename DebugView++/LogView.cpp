@@ -1513,11 +1513,11 @@ Win32::HGlobal MakeGlobalString(const std::string& str)
 	return handle;
 }
 
-Win32::HGlobal MakeGlobalUTF16String(const std::wstring& str)	//todo: fix, checked_array_iterator<char*>
+Win32::HGlobal MakeGlobalUTF16String(const std::wstring& str)
 {
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
-	Win32::GlobalLock<char> lock(handle);
-	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<char*>(lock.Ptr(), str.size()));
+	Win32::GlobalLock<wchar_t> lock(handle);
+	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<wchar_t*>(lock.Ptr(), str.size()));
 	lock.Ptr()[str.size()] = '\0';
 	return handle;
 }
