@@ -28,7 +28,7 @@ public:
 
 	basic_stringbuilder& operator<<(const std::wstring& str)
 	{
-		m_ss << Str(str).str().c_str();
+		m_ss << Str(str).c_str();
 		return *this;
 	}
 
@@ -45,7 +45,7 @@ public:
 
 	const CharType* c_str() const
 	{
-		return m_ss.str().c_str();
+		return m_ss.c_str();
 	}
 
 	operator string_type() const
