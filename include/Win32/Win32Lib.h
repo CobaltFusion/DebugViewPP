@@ -169,6 +169,7 @@ public:
 };
 
 std::wstring MultiByteToWideChar(const char* str, int len);
+std::wstring MultiByteToWideChar2(const char* str, int len);
 std::wstring MultiByteToWideChar(const char* str);
 std::wstring MultiByteToWideChar(const std::string& str);
 

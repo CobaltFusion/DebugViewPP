@@ -13,6 +13,8 @@
 #include <io.h>
 #include <fcntl.h>
 #include "comdef.h"
+#include <clocale>
+#include <stdlib.h>
 
 #include "Win32/Win32Lib.h"
 
@@ -105,6 +107,14 @@ std::wstring MultiByteToWideChar(const char* str, int len)
 	std::vector<wchar_t> buf(buf_size);
 	int write_len = ::MultiByteToWideChar(0, 0, str, len, buf.data(), buf_size);
 	return std::wstring(buf.data(), buf.data() + write_len);
+}
+
+std::wstring MultiByteToWideChar2(const char* str, int len)
+{
+	std::setlocale(LC_ALL, "");
+	std::wstring ws(2*len, L'\0');
+	ws.resize(std::mbstowcs(&ws[0], str, len)); // Shrink to fit.
+	return ws;
 }
 
 std::wstring MultiByteToWideChar(const char* str)
