@@ -1515,20 +1515,21 @@ Win32::HGlobal MakeGlobalString(const std::string& str)
 
 Win32::HGlobal MakeGlobalUTF16String(const std::wstring& str)
 {
-	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
+	auto size = str.size() * sizeof(str[0]);
+	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, size + 1));
 	Win32::GlobalLock<wchar_t> lock(handle);
-	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<wchar_t*>(lock.Ptr(), str.size()));
-	lock.Ptr()[str.size()] = '\0';
+	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<wchar_t*>(lock.Ptr(), size));
+	lock.Ptr()[size] = '\0';
 	return handle;
-}
+}	
 
 void CLogView::CopyToClipboard(const std::wstring& str)
 {
 	if (OpenClipboard())
 	{
 		EmptyClipboard();
-		auto gstr = MakeGlobalString(Str(str).c_str());	// use CF_UNICODETEXT
-		SetClipboardData(CF_TEXT, gstr.release());
+		auto gstr = MakeGlobalUTF16String(str);
+		SetClipboardData(CF_UNICODETEXT, gstr.release());
 		CloseClipboard();
 	}
 }
