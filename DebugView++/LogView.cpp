@@ -1506,17 +1506,17 @@ std::wstring CLogView::GetLineAsText(int item) const
 
 Win32::HGlobal MakeGlobalString(const std::string& str)
 {
-	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
+	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, str.size() + 1));
 	Win32::GlobalLock<char> lock(handle);
 	memcpy(lock.Ptr(), str.data(), str.size());
 	lock.Ptr()[str.size()] = '\0';
 	return handle;
 }
 
-Win32::HGlobal MakeGlobalUTF16String(const std::wstring& str)
+Win32::HGlobal MakeGlobalWidetring(const std::wstring& str)
 {
 	auto size = str.size() * sizeof(str[0]);
-	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, size + 1));
+	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, size + 1));
 	Win32::GlobalLock<wchar_t> lock(handle);
 	memcpy(lock.Ptr(), str.data(), size);
 	lock.Ptr()[size] = '\0';
@@ -1528,7 +1528,7 @@ void CLogView::CopyToClipboard(const std::wstring& str)
 	if (OpenClipboard())
 	{
 		EmptyClipboard();
-		auto gstr = MakeGlobalUTF16String(str);
+		auto gstr = MakeGlobalWidetring(str);
 		SetClipboardData(CF_UNICODETEXT, gstr.release());
 		CloseClipboard();
 	}
