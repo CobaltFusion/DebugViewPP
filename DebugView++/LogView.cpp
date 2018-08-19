@@ -1515,11 +1515,13 @@ Win32::HGlobal MakeGlobalString(const std::string& str)
 
 Win32::HGlobal MakeGlobalWidetring(const std::wstring& str)
 {
-	auto size = str.size() * sizeof(str[0]);
-	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, size + 1));
+	auto charbytes = str.size() * sizeof(str[0]);
+	auto allocsize = (str.size() +1) * sizeof(str[0]);
+	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, allocsize));
 	Win32::GlobalLock<wchar_t> lock(handle);
-	memcpy(lock.Ptr(), str.data(), size);
-	lock.Ptr()[size] = '\0';
+	memcpy(lock.Ptr(), str.data(), charbytes);
+	lock.Ptr()[charbytes] = '\0';
+	lock.Ptr()[charbytes+1] = '\0';
 	return handle;
 }	
 

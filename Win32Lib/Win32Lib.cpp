@@ -101,7 +101,7 @@ ScopedTextAlign::~ScopedTextAlign()
 	::SetTextAlign(m_hdc, m_align);
 }
 
-std::wstring MultiByteToWideChar(const char* str, int len)
+std::wstring MultiByteToWideChar_win32(const char* str, int len)
 {
 	int buf_size = len + 2;
 	std::vector<wchar_t> buf(buf_size);
@@ -109,7 +109,7 @@ std::wstring MultiByteToWideChar(const char* str, int len)
 	return std::wstring(buf.data(), buf.data() + write_len);
 }
 
-std::wstring MultiByteToWideChar2(const char* str, int len)
+std::wstring MultiByteToWideChar_std(const char* str, int len) // supposedly more reliable, but not working. 
 {
 	std::setlocale(LC_ALL, "");
 	std::wstring ws(2*len, L'\0');
@@ -119,12 +119,12 @@ std::wstring MultiByteToWideChar2(const char* str, int len)
 
 std::wstring MultiByteToWideChar(const char* str)
 {
-	return MultiByteToWideChar(str, static_cast<int>(strlen(str)));
+	return MultiByteToWideChar_win32(str, static_cast<int>(strlen(str)));
 }
 
 std::wstring MultiByteToWideChar(const std::string& str)
 {
-	return MultiByteToWideChar(str.c_str(), static_cast<int>(str.size()));
+	return MultiByteToWideChar_win32(str.c_str(), static_cast<int>(str.size()));
 }
 
 std::string WideCharToMultiByte(const wchar_t* str, int len)
