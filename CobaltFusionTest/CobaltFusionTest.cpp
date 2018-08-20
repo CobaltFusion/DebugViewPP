@@ -1,4 +1,4 @@
-// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+﻿// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -22,6 +22,7 @@
 #include "CobaltFusion/CircularBuffer.h"
 #include "CobaltFusion/Throttle.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/tohex.h"
 
 namespace fusion {
 
@@ -288,6 +289,19 @@ std::ostream & operator<<(std::ostream &os, const std::chrono::steady_clock::dur
 {
 	using namespace std::chrono;
 	return os << duration_cast<milliseconds>(p).count() << "ms";
+}
+
+BOOST_AUTO_TEST_CASE(RoundTripUnicodeTest)
+{
+	std::wstring chineseLanguage = L"中文";
+	std::string s = Str(chineseLanguage);
+	std::wstring w = WStr(s);
+	BOOST_REQUIRE(w == chineseLanguage);
+
+	//std::wstring wsb = wstringbuilder() << chineseLanguage;
+	//std::cerr << to_hex(chineseLanguage) << "\n";
+	//std::cerr << to_hex(wsb) << "\n";
+	//BOOST_REQUIRE(wsb == chineseLanguage);
 }
 
 BOOST_AUTO_TEST_CASE(ThrottleTest)

@@ -1501,13 +1501,21 @@ std::wstring CLogView::GetItemWText(int item, int subItem) const
 
 std::wstring CLogView::GetLineAsText(int item) const
 {
-	return wstringbuilder() << GetColumnText(item, Column::Line) << "\t" << GetColumnText(item, Column::Time) << "\t" << GetColumnText(item, Column::Pid) << "\t" << GetColumnText(item, Column::Process) << "\t" << GetColumnText(item, Column::Message);
+	return GetColumnText(item, Column::Line) + L"\t" + GetColumnText(item, Column::Time) + L"\t" + GetColumnText(item, Column::Pid) + L"\t" + GetColumnText(item, Column::Process) + L"\t" + GetColumnText(item, Column::Message);
 }
+
+// todo: find out why the wstringbuilder() screws up unicode characters
+//std::wstring CLogView::GetLineAsText(int item) const
+//{
+//	return wstringbuilder() << GetColumnText(item, Column::Line) << "\t" << GetColumnText(item, Column::Time) << "\t" << GetColumnText(item, Column::Pid) << "\t" << GetColumnText(item, Column::Process) << "\t" << GetColumnText(item, Column::Message);
+//}
+
 
 Win32::HGlobal MakeGlobalString(const std::string& str)
 {
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, str.size() + 1));
 	Win32::GlobalLock<char> lock(handle);
+
 	memcpy(lock.Ptr(), str.data(), str.size());
 	lock.Ptr()[str.size()] = '\0';
 	return handle;
@@ -1521,7 +1529,6 @@ Win32::HGlobal MakeGlobalWidetring(const std::wstring& str)
 	Win32::GlobalLock<wchar_t> lock(handle);
 	memcpy(lock.Ptr(), str.data(), charbytes);
 	lock.Ptr()[charbytes] = '\0';
-	lock.Ptr()[charbytes+1] = '\0';
 	return handle;
 }	
 

@@ -65,6 +65,9 @@
     <ClInclude Include="..\include\CobaltFusion\fusionassert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CobaltFusion\tohex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

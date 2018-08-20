@@ -26,9 +26,9 @@ public:
 		return *this;
 	}
 
-	basic_stringbuilder& operator<<(const std::wstring& str)
+	basic_stringbuilder& operator<<(const std::wstring& str)		// todo: basic_stringbuilder<wchar_t> wstringbuilder; does not need this...
 	{
-		m_ss << Str(str).c_str();
+		m_ss << Str(str).c_str();		//todo : is the temporary guaranteed to live long enough?
 		return *this;
 	}
 
