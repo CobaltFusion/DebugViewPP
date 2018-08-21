@@ -179,7 +179,7 @@ public:
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const;
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 	void ResetToLine(int line);
-	void CopyToClipboard(const std::wstring& str);
+	void CopyToClipboard(std::wstring_view str);
 	void CopyMessagesToClipboard();
 	std::wstring GetSelectedMessagesAsWString() const;
 private:

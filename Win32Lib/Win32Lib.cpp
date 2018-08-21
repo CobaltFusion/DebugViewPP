@@ -101,48 +101,28 @@ ScopedTextAlign::~ScopedTextAlign()
 	::SetTextAlign(m_hdc, m_align);
 }
 
-std::wstring MultiByteToWideChar_win32(const char* str, int len)
+std::wstring MultiByteToWideChar(std::string_view str)
 {
-	int buf_size = len + 2;
+	int buf_size = str.size() + 2;
 	std::vector<wchar_t> buf(buf_size);
-	int write_len = ::MultiByteToWideChar(0, 0, str, len, buf.data(), buf_size);
+	int write_len = ::MultiByteToWideChar(0, 0, str.data(), str.size(), buf.data(), buf_size);
 	return std::wstring(buf.data(), buf.data() + write_len);
 }
 
-std::wstring MultiByteToWideChar_std(const char* str, int len) // supposedly more reliable, but not working. 
+std::wstring MultiByteToWideChar_std(std::string_view str) // supposedly more reliable, but not working. 
 {
 	std::setlocale(LC_ALL, "");
-	std::wstring ws(2*len, L'\0');
-	ws.resize(std::mbstowcs(&ws[0], str, len)); // Shrink to fit.
+	std::wstring ws(2*str.size(), L'\0');
+	ws.resize(std::mbstowcs(&ws[0], str.data() , str.size())); // Shrink to fit.
 	return ws;
 }
 
-std::wstring MultiByteToWideChar(const char* str)
+std::string WideCharToMultiByte(std::wstring_view str)
 {
-	return MultiByteToWideChar_win32(str, static_cast<int>(strlen(str)));
-}
-
-std::wstring MultiByteToWideChar(const std::string& str)
-{
-	return MultiByteToWideChar_win32(str.c_str(), static_cast<int>(str.size()));
-}
-
-std::string WideCharToMultiByte(const wchar_t* str, int len)
-{
-	int buf_size = len*2 + 2;
+	int buf_size = str.size()*2 + 2;
 	std::vector<char> buf(buf_size);
-	int write_len = ::WideCharToMultiByte(0, 0, str, len, buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
+	int write_len = ::WideCharToMultiByte(0, 0, str.data(), str.size(), buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
 	return std::string(buf.data(), buf.data() + write_len);
-}
-
-std::string WideCharToMultiByte(const wchar_t* str)
-{
-	return WideCharToMultiByte(str, static_cast<int>(wcslen(str)));
-}
-
-std::string WideCharToMultiByte(const std::wstring& str)
-{
-	return WideCharToMultiByte(str.c_str(), static_cast<int>(str.size()));
 }
 
 Win32Error::Win32Error(DWORD error, const std::string& what) :

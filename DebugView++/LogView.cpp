@@ -376,7 +376,7 @@ std::vector<std::string> CLogView::GetSelectedMessages() const
 	std::vector<std::string> messages;
 	int item = -1;
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-		messages.push_back(Str(GetColumnText(item, Column::Message)).c_str());
+		messages.push_back(Str(GetColumnText(item, Column::Message)));
 	return messages;
 }
 
@@ -895,11 +895,11 @@ std::wstring CLogView::GetColumnText(int iItem, Column::type column) const
 	switch (column)
 	{
 	case Column::Line: return std::to_wstring(iItem + 1ULL);
-	case Column::Date: return WStr(GetDateText(msg.systemTime)).c_str();
-	case Column::Time: return WStr(m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time)).c_str();
+	case Column::Date: return WStr(GetDateText(msg.systemTime));
+	case Column::Time: return WStr(m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time));
 	case Column::Pid: return std::to_wstring(msg.processId + 0ULL);
-	case Column::Process: return WStr(msg.processName).c_str();
-	case Column::Message: return WStr(msg.text).c_str();
+	case Column::Process: return WStr(msg.processName);
+	case Column::Message: return WStr(msg.text);
 	default: break;
 	}
 	return L"";
@@ -1518,7 +1518,7 @@ std::wstring CLogView::GetLineAsText(int item) const
 //}
 
 
-Win32::HGlobal MakeGlobalString(const std::string& str)
+Win32::HGlobal MakeGlobalString(std::string_view str)
 {
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, str.size() + 1));
 	Win32::GlobalLock<char> lock(handle);
@@ -1528,7 +1528,7 @@ Win32::HGlobal MakeGlobalString(const std::string& str)
 	return handle;
 }
 
-Win32::HGlobal MakeGlobalWidetring(const std::wstring& str)
+Win32::HGlobal MakeGlobalWideString(std::wstring_view str)
 {
 	auto charbytes = str.size() * sizeof(str[0]);
 	auto allocsize = (str.size() +1) * sizeof(str[0]);
@@ -1539,12 +1539,12 @@ Win32::HGlobal MakeGlobalWidetring(const std::wstring& str)
 	return handle;
 }	
 
-void CLogView::CopyToClipboard(const std::wstring& str)
+void CLogView::CopyToClipboard(std::wstring_view str)
 {
 	if (OpenClipboard())
 	{
 		EmptyClipboard();
-		auto gstr = MakeGlobalWidetring(str);
+		auto gstr = MakeGlobalWideString(str);
 		SetClipboardData(CF_UNICODETEXT, gstr.release());
 		CloseClipboard();
 	}

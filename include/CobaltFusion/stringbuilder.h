@@ -28,7 +28,7 @@ public:
 
 	basic_stringbuilder& operator<<(const std::wstring& str)		// todo: basic_stringbuilder<wchar_t> wstringbuilder; does not need this...
 	{
-		m_ss << Str(str).c_str();		//todo : is the temporary guaranteed to live long enough?
+		m_ss << Str(str); // replace with string_cast<>
 		return *this;
 	}
 
