@@ -163,8 +163,8 @@ public:
 	void SetFilters(const LogFilter& filter);
 
 	using CListViewCtrl::GetItemText;
-	std::string GetItemText(int item, int subItem) const;
-	std::string GetItemText(int item) const;
+	//std::string GetItemText(int item) const;
+	std::wstring GetLineAsText(int item) const;
 	std::wstring GetItemWText(int item, int subItem) const;
 
 	void LoadSettings(CRegKey& reg);
@@ -179,6 +179,7 @@ public:
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const;
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 	void ResetToLine(int line);
+	void CopyToClipboard(const std::wstring& str);
 
 private:
 	DECLARE_MSG_MAP()
@@ -197,7 +198,6 @@ private:
 	LRESULT OnClick(NMHDR* pnmh);
 	LRESULT OnDblClick(NMHDR* pnmh);
 	LRESULT OnItemChanged(NMHDR* pnmh);
-	LRESULT OnOdStateChanged(NMHDR* pnmh);
 	LRESULT OnIncrementalSearch(NMHDR* pnmh);
 	LRESULT OnOdCacheHint(NMHDR* pnmh);
 	LRESULT OnBeginDrag(NMHDR* pnmh);
@@ -236,6 +236,7 @@ private:
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 
 	std::vector<std::string> GetSelectedMessages() const;
+	std::wstring GetSelectedLines() const;
 	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;
@@ -244,7 +245,7 @@ private:
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	int TextHighlightHitTest(int iItem, const POINT& pt);
 	double GetRelativeTime(int iItem);
-	std::string GetColumnText(int iItem, Column::type column) const;
+	std::wstring GetColumnText(int iItem, Column::type column) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;

@@ -58,7 +58,7 @@ void CSourcesDlg::UpdateGrid()
 		if (sourceInfo.type == SourceType::System)
 			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
 		else
-			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"×"));
+			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"x"));
 	}
 }
 

@@ -965,8 +965,9 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		logView.SetViewProcessColors(views[i].processColors);
 	}
 
-	size_t i = GetViewCount();
-	while (i > views.size())
+	int i = GetViewCount();
+	auto size = static_cast<int>(views.size());
+	while (i > size)
 	{
 		--i;
 		CloseView(i);

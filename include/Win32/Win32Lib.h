@@ -168,7 +168,8 @@ public:
 	Win32Error(DWORD error, const std::string& what);
 };
 
-std::wstring MultiByteToWideChar(const char* str, int len);
+std::wstring MultiByteToWideChar_win32(const char* str, int len);
+std::wstring MultiByteToWideChar_std(const char* str, int len);
 std::wstring MultiByteToWideChar(const char* str);
 std::wstring MultiByteToWideChar(const std::string& str);
 
@@ -282,7 +283,7 @@ private:
 	HCURSOR m_hCursor;
 };
 
-ULONG_PTR GetParentProcessId();
+DWORD GetParentProcessId();
 std::vector<std::wstring> GetCommandLineArguments();
 
 DWORD GetExitCodeProcess(HANDLE hProcess);

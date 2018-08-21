@@ -18,7 +18,7 @@ namespace Win32 {
 std::wstring GetModuleFilename()
 {
 	std::vector<wchar_t> data(260);
-	::GetModuleFileName(nullptr, data.data(), data.size());
+	::GetModuleFileName(nullptr, data.data(), static_cast<DWORD>(data.size()));
 	return std::experimental::filesystem::canonical(data.data());
 }
 
@@ -31,7 +31,7 @@ std::wstring GetExecutionPath()
 std::wstring GetModuleFilenameUnspoofable()
 {
 	std::vector<wchar_t> data(260);
-	GetMappedFileName(GetCurrentProcess(), GetModuleFilename, data.data(), data.size());
+	GetMappedFileName(GetCurrentProcess(), GetModuleFilename, data.data(), static_cast<DWORD>(data.size()));
 	return data.data();
 }
 
@@ -171,12 +171,12 @@ HANDLE Process::GetThreadHandle() const
 	return m_hThread.get();
 }
 
-unsigned Process::GetProcessId() const
+unsigned long Process::GetProcessId() const
 {
 	return m_processId;
 }
 
-unsigned Process::GetThreadId() const
+unsigned long Process::GetThreadId() const
 {
 	return m_threadId;
 }

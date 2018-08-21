@@ -142,7 +142,7 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
 	m_grid.SetSubItem(item, SubItem::Type, pFilter);
 	m_grid.SetSubItem(item, SubItem::Background, pBkColor);
 	m_grid.SetSubItem(item, SubItem::Foreground, pTxColor);
-	m_grid.SetSubItem(item, SubItem::Remove, PropCreateReadOnlyItem(L"", L"×"));
+	m_grid.SetSubItem(item, SubItem::Remove, PropCreateReadOnlyItem(L"", L"x"));
 	UpdateGridColors(item);
 	m_grid.SelectItem(item);
 }

@@ -133,7 +133,6 @@ BEGIN_MSG_MAP2(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
-	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODSTATECHANGED, OnOdStateChanged)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnBeginDrag)
@@ -370,7 +369,7 @@ std::vector<std::string> CLogView::GetSelectedMessages() const
 	std::vector<std::string> messages;
 	int item = -1;
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-		messages.push_back(GetColumnText(item, Column::Message));
+		messages.push_back(Str(GetColumnText(item, Column::Message)).c_str());
 	return messages;
 }
 
@@ -881,22 +880,22 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 		dc.DrawFocusRect(&rect);
 }
 
-std::string CLogView::GetColumnText(int iItem, Column::type column) const
+std::wstring CLogView::GetColumnText(int iItem, Column::type column) const
 {
 	int line = m_logLines[iItem].line;
 	const Message& msg = m_logFile[line];
 
 	switch (column)
 	{
-	case Column::Line: return std::to_string(iItem + 1ULL);
-	case Column::Date: return GetDateText(msg.systemTime);
-	case Column::Time: return m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time);
-	case Column::Pid: return std::to_string(msg.processId + 0ULL);
-	case Column::Process: return Str(msg.processName).str();
-	case Column::Message: return msg.text;
+	case Column::Line: return std::to_wstring(iItem + 1ULL);
+	case Column::Date: return WStr(GetDateText(msg.systemTime)).c_str();
+	case Column::Time: return WStr(m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time)).c_str();
+	case Column::Pid: return std::to_wstring(msg.processId + 0ULL);
+	case Column::Process: return WStr(msg.processName).c_str();
+	case Column::Message: return WStr(msg.text).c_str();
 	default: break;
 	}
-	return std::string();
+	return L"";
 }
 
 LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
@@ -906,8 +905,8 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 	if ((item.mask & LVIF_TEXT) == 0 || item.iItem >= static_cast<int>(m_logLines.size()))
 		return 0;
 
-	m_dispInfoText = WStr(GetColumnText(item.iItem, SubItemToColumn(item.iSubItem))).str();
-	item.pszText = const_cast<wchar_t*>(m_dispInfoText.c_str());
+	m_dispInfoText = GetColumnText(item.iItem, SubItemToColumn(item.iSubItem));
+	item.pszText = &m_dispInfoText[0];
 	return 0;
 }
 
@@ -934,14 +933,6 @@ SelectionInfo CLogView::GetViewRange() const
 		return SelectionInfo();
 
 	return SelectionInfo(m_logLines.front().line, m_logLines.back().line, m_logLines.size());
-}
-
-LRESULT CLogView::OnOdStateChanged(NMHDR* pnmh)
-{
-	auto& nmhdr = *reinterpret_cast<NMLVODSTATECHANGE*>(pnmh);
-	nmhdr;
-
-	return 0;
 }
 
 bool Contains(const std::string& text, const std::string& substring)
@@ -1508,37 +1499,65 @@ std::wstring CLogView::GetItemWText(int item, int subItem) const
 	return std::wstring(bstr.m_str, bstr.m_str + bstr.Length());
 }
 
-std::string CLogView::GetItemText(int item) const
+std::wstring CLogView::GetLineAsText(int item) const
 {
-	return stringbuilder() << GetColumnText(item, Column::Line) << "\t" << GetColumnText(item, Column::Time) << "\t" << GetColumnText(item, Column::Pid) << "\t" << GetColumnText(item, Column::Process) << "\t" << GetColumnText(item, Column::Message);
+	return GetColumnText(item, Column::Line) + L"\t" + GetColumnText(item, Column::Time) + L"\t" + GetColumnText(item, Column::Pid) + L"\t" + GetColumnText(item, Column::Process) + L"\t" + GetColumnText(item, Column::Message);
+}
+
+// todo: find out why the wstringbuilder() screws up unicode characters
+//std::wstring CLogView::GetLineAsText(int item) const
+//{
+//	return wstringbuilder() << GetColumnText(item, Column::Line) << "\t" << GetColumnText(item, Column::Time) << "\t" << GetColumnText(item, Column::Pid) << "\t" << GetColumnText(item, Column::Process) << "\t" << GetColumnText(item, Column::Message);
+//}
+
+
+Win32::HGlobal MakeGlobalString(const std::string& str)
+{
+	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, str.size() + 1));
+	Win32::GlobalLock<char> lock(handle);
+
+	memcpy(lock.Ptr(), str.data(), str.size());
+	lock.Ptr()[str.size()] = '\0';
+	return handle;
+}
+
+Win32::HGlobal MakeGlobalWidetring(const std::wstring& str)
+{
+	auto charbytes = str.size() * sizeof(str[0]);
+	auto allocsize = (str.size() +1) * sizeof(str[0]);
+	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, allocsize));
+	Win32::GlobalLock<wchar_t> lock(handle);
+	memcpy(lock.Ptr(), str.data(), charbytes);
+	lock.Ptr()[charbytes] = '\0';
+	return handle;
+}	
+
+void CLogView::CopyToClipboard(const std::wstring& str)
+{
+	if (OpenClipboard())
+	{
+		EmptyClipboard();
+		auto gstr = MakeGlobalWidetring(str);
+		SetClipboardData(CF_UNICODETEXT, gstr.release());
+		CloseClipboard();
+	}
+}
+
+std::wstring CLogView::GetSelectedLines() const
+{
+	std::wostringstream ss;
+	int item = -1;
+	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+		ss << GetLineAsText(item) << "\r\n";
+	return ss.str();
 }
 
 void CLogView::Copy()
 {
-	std::ostringstream ss;
-
-	if (!m_highlightText.empty())
-	{
-		ss << Str(m_highlightText);
-	}
+	if (m_highlightText.empty())
+		CopyToClipboard(GetSelectedLines());
 	else
-	{
-		int item = -1;
-		while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
-			ss << GetItemText(item) << "\r\n";
-	}
-	const std::string& str = ss.str();
-
-	Win32::HGlobal hdst(GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, str.size() + 1));
-	Win32::GlobalLock<char> lock(hdst);
-	std::copy(str.begin(), str.end(), stdext::checked_array_iterator<char*>(lock.Ptr(), str.size()));
-	lock.Ptr()[str.size()] = '\0';
-	if (OpenClipboard())
-	{
-		EmptyClipboard();
-		SetClipboardData(CF_TEXT, hdst.release());
-		CloseClipboard();
-	}
+		CopyToClipboard(m_highlightText);
 }
 
 std::wstring CLogView::GetHighlightText() const
@@ -1561,22 +1580,24 @@ int CLogView::FindLine(Predicate pred, int direction) const
 	SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
-	int line = begin;
+	size_t begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
+	size_t line = begin;
 
 	if (m_logLines.empty())
 		return -1;
 
+	auto size = m_logLines.size();
 	do
 	{
 		line += direction;
 		if (line < 0)
-			line += m_logLines.size();
-		if (line >= static_cast<int>(m_logLines.size()))
-			line -= m_logLines.size();
+			line += size;
+
+		if (line >= size)
+			line -= size;
 
 		if (pred(m_logLines[line]))
-			return line;
+			return static_cast<int>(line);
 	} while (line != begin);
 
 	return -1;
