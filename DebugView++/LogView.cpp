@@ -129,6 +129,7 @@ BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_MOUSEMOVE(OnMouseMove)
 	MSG_WM_LBUTTONUP(OnLButtonUp)
 	MSG_WM_TIMER(OnTimer)
+	MSG_WM_KEYDOWN(OnKeyDown)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CLICK, OnClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
@@ -141,7 +142,7 @@ BEGIN_MSG_MAP2(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET, OnViewReset)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET_TO_LINE, OnViewResetToLine)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY_MESSAGES, OnViewCopyMessages)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewAutoScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL_STOP, OnViewAutoScrollStop)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_TIME, OnViewTime)
@@ -177,6 +178,12 @@ END_MSG_MAP()
 bool CLogView::IsColumnViewed(int nID) const
 {
 	return m_columns[nID - ID_VIEW_COLUMN_FIRST].enable;
+}
+
+void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
+{
+	if ((nChar == 'C') && (GetKeyState(VK_CONTROL) < 0))
+		Copy();
 }
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
@@ -1037,9 +1044,9 @@ void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 	SelectAll();
 }
 
-void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+void CLogView::OnViewCopyMessages(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	Copy();
+	CopyMessagesToClipboard();
 }
 
 void CLogView::OnViewAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1543,12 +1550,26 @@ void CLogView::CopyToClipboard(const std::wstring& str)
 	}
 }
 
+void CLogView::CopyMessagesToClipboard()
+{
+	CopyToClipboard(GetSelectedMessagesAsWString());
+}
+
 std::wstring CLogView::GetSelectedLines() const
 {
 	std::wostringstream ss;
 	int item = -1;
 	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
 		ss << GetLineAsText(item) << "\r\n";
+	return ss.str();
+}
+
+std::wstring CLogView::GetSelectedMessagesAsWString() const
+{
+	std::wostringstream ss;
+	int item = -1;
+	while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+		ss << GetColumnText(item, Column::Message) << "\r\n";
 	return ss.str();
 }
 
@@ -1571,6 +1592,7 @@ void CLogView::SetHighlightText(const std::wstring& text)
 	{
 		m_highlightText = text;
 		Invalidate(false);
+		SetFocus();
 	}
 }
 

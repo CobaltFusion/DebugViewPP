@@ -180,7 +180,8 @@ public:
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 	void ResetToLine(int line);
 	void CopyToClipboard(const std::wstring& str);
-
+	void CopyMessagesToClipboard();
+	std::wstring GetSelectedMessagesAsWString() const;
 private:
 	DECLARE_MSG_MAP()
 
@@ -206,7 +207,7 @@ private:
 	void OnViewResetToLine(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewExcludeLines(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
-	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewCopyMessages(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScrollStop(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -234,6 +235,7 @@ private:
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 	std::vector<std::string> GetSelectedMessages() const;
 	std::wstring GetSelectedLines() const;
