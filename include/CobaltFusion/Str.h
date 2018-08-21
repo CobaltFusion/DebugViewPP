@@ -13,34 +13,29 @@
 
 namespace fusion {
 
+//todo: add string_cast<> and create unittests
+
 class Str
 {
 public:
-	explicit Str(std::string_view s) :
-		m_str(s)
-	{
-	}
-
-	explicit Str(const char* s) :
-		m_str(s)
-	{
-	}
-
-	explicit Str(const std::wstring& s) :
+	explicit Str(std::wstring_view s) :
 		m_str(Win32::WideCharToMultiByte(s))
 	{
 	}
 
-	explicit Str(const wchar_t* s) :
-		m_str(Win32::WideCharToMultiByte(s))
+	// usefull to convert a stringbuilder() into an string when the function needs a char*
+	explicit Str(std::string s) :
+		m_str(s)
 	{
 	}
-	
+
+	// replace these with string_cast<>
 	std::string str() const
 	{
 		return m_str;
 	}
 
+	// replace these with string_cast<>
 	operator std::string() const
 	{
 		return m_str;
@@ -64,8 +59,8 @@ public:
 	{
 	}
 
-	// usefull to convert a stringbuilder() into an wstring when the function needs a wchar_t*
-	explicit WStr(const std::wstring& s) :
+	// usefull to convert a wstringbuilder() into an wstring when the function needs a wchar_t*
+	explicit WStr(std::wstring s) :
 		m_str(s)
 	{
 	}
@@ -82,7 +77,7 @@ public:
 		return m_str;
 	}
 
-	// nice to have a temporart WStr decay into a wchar_t* but also easy to use wrong like "const wchar_t* p = WStr(msg.text);" is very wrong.
+	// nice to have a temporary WStr decay into a wchar_t* but also easy to use wrong like "const wchar_t* p = WStr(msg.text);" is very wrong.
 	operator const wchar_t*() const
 	{
 		return m_str.c_str();
