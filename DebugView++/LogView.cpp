@@ -142,6 +142,7 @@ BEGIN_MSG_MAP2(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET, OnViewReset)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET_TO_LINE, OnViewResetToLine)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SELECTALL, OnViewSelectAll)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY, OnViewCopy)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_COPY_MESSAGES, OnViewCopyMessages)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL, OnViewAutoScroll)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_SCROLL_STOP, OnViewAutoScrollStop)
@@ -182,8 +183,19 @@ bool CLogView::IsColumnViewed(int nID) const
 
 void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 {
-	if ((nChar == 'C') && (GetKeyState(VK_CONTROL) < 0))
-		Copy();
+	bool shift = GetKeyState(VK_SHIFT) < 0;
+	bool ctrl = GetKeyState(VK_CONTROL) < 0;
+	if (nChar == 'C')
+	{
+		if (shift && ctrl)
+		{
+			CopyMessagesToClipboard();
+		}
+		else if (ctrl)
+		{
+			Copy();
+		}
+	}
 	else
 		SetMsgHandled(false);
 }
@@ -1049,6 +1061,11 @@ void CLogView::OnViewSelectAll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 void CLogView::OnViewCopyMessages(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	CopyMessagesToClipboard();
+}
+
+void CLogView::OnViewCopy(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	Copy();
 }
 
 void CLogView::OnViewAutoScroll(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

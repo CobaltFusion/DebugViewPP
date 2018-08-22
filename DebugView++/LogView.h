@@ -208,6 +208,7 @@ private:
 	void OnViewExcludeLines(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopyMessages(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScrollStop(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewTime(UINT uNotifyCode, int nID, CWindow wndCtl);

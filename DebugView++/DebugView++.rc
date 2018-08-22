@@ -175,7 +175,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Find",                        ID_VIEW_FIND
         MENUITEM "Select &All\tCtrl+A",         ID_VIEW_SELECTALL
-        MENUITEM "&Copy Messages",              ID_VIEW_COPY_MESSAGES
+        MENUITEM "&Copy\tCtrl+C",               ID_VIEW_COPY
+        MENUITEM "Copy &Messages",              ID_VIEW_COPY_MESSAGES
     END
 END
 
