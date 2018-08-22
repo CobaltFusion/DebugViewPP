@@ -105,6 +105,13 @@ void LogSources::RemoveSources(std::function<bool(LogSource*)> predicate)
 	Win32::SetEvent(m_updateEvent);
 }
 
+void LogSources::CallSources(std::function<void(LogSource*)> predicate)
+{
+	std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+	for (auto& pSource : m_sources)
+		predicate(pSource.get());
+}
+
 void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
@@ -119,11 +126,11 @@ bool LogSources::GetAutoNewLine() const
 
 void LogSources::Abort()
 {
-	if (!m_end)
-	{
-		m_update.disconnect_all_slots();
-		m_end = true;
-	}
+	m_update.disconnect_all_slots();
+	m_end = true;
+
+	CallSources([](LogSource* logsource) { logsource->Abort(); });
+	RemoveSources([] (LogSource*) { return true;});
 	Win32::SetEvent(m_updateEvent);
 	m_listenThread.Synchronize();
 }

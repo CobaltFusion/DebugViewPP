@@ -17,23 +17,44 @@
 namespace fusion {
 namespace debugviewpp {
 
+namespace fs = std::experimental::filesystem;
+
 FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
 	LogSource(timer, SourceType::File, linebuffer),
 	m_filename(Str(filename).str()),
-	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
+	m_name(Str(fs::path(filename).filename().string()).str()),
 	m_fileType(filetype),
-	m_end(false),
-	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+	m_handle(FindFirstChangeNotification(fs::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_ifstream(m_filename, std::ios::in),
 	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().string()),
 	m_initialized(false),
 	m_keeptailing(keeptailing)
+	//m_thread([this] { PollThread(); } )
 {
 	SetDescription(filename);
 }
 
 FileReader::~FileReader()
 {
+}
+
+void FileReader::Abort()
+{
+	LogSource::Abort();
+	if (m_thread.joinable()) m_thread.join();
+}
+
+void FileReader::PollThread()
+{
+	uintmax_t filesize = 0;
+	while (!AtEnd())
+	{
+		
+		filesize = fs::file_size(fs::path(m_filename));
+		//m_ifstream.tellg();
+		Sleep(500);
+		//cdbg << "poll.." << m_filename << "\n";
+	}
 }
 
 void FileReader::Initialize()
@@ -53,11 +74,6 @@ boost::signals2::connection FileReader::SubscribeToUpdate(UpdateSignal::slot_typ
     return m_update.connect(slot);
 }
 
-bool FileReader::AtEnd() const
-{
-	return m_end;
-}
-
 HANDLE FileReader::GetHandle() const
 {
 	return m_handle.get();
@@ -69,7 +85,7 @@ void FileReader::Notify()
 	ReadUntilEof();
 	if (!m_keeptailing)
 	{
-		m_end = true;
+		Abort();
 		return;
 	}
 	FindNextChangeNotification(m_handle.get());
@@ -82,7 +98,7 @@ void FileReader::ReadUntilEof()
 	while (std::getline(m_ifstream, line))
 	{
         m_line += line;
-        if ((++count % 1500) == 0) m_update();
+        if ((++count % 15000) == 0) m_update();
 		if (m_ifstream.eof())
 		{
 			// the line ended without a newline character
@@ -115,7 +131,7 @@ void FileReader::ReadUntilEof()
 	{
 		// Some error other then EOF occured
 		Add("Stopped tailing " + m_filename);
-		m_end = true;
+		LogSource::Abort();
 	}
 }
 

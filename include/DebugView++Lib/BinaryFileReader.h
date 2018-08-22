@@ -24,7 +24,6 @@ public:
 	~BinaryFileReader() override;
 
 	void Initialize() override;
-	bool AtEnd() const override;
 	HANDLE GetHandle() const override;
 	void Notify() override;
 	void PreProcess(Line& line) const override;
@@ -41,7 +40,6 @@ protected:
 private:
 	void ReadUntilEof();
 
-	bool m_end;
 	Win32::ChangeNotificationHandle m_handle;
 	std::wifstream m_wifstream;
 	std::wstring m_filenameOnly;

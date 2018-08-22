@@ -69,7 +69,8 @@ public:
 	void Abort();
 	Lines GetLines();
 	void Remove(LogSource* pLogSource);
-    void RemoveSources(std::function<bool(LogSource*)> predicate);
+	void RemoveSources(std::function<bool(LogSource*)> predicate);
+	void CallSources(std::function<void(LogSource*)> predicate);
 
 	DBWinReader* AddDBWinReader(bool global);
 	ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);

@@ -26,7 +26,6 @@ BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileTy
 	m_filename(filename),
 	m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
 	m_fileType(filetype),
-	m_end(false),
 	m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
 	m_wifstream(m_filename, std::ios::binary),
 	m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().wstring()),
@@ -66,13 +65,8 @@ void BinaryFileReader::Initialize()
 	if (m_wifstream.is_open())
 	{
 		ReadUntilEof();
-		m_end = false;
+		Abort();
 	}
-}
-
-bool BinaryFileReader::AtEnd() const
-{
-	return m_end;
 }
 
 HANDLE BinaryFileReader::GetHandle() const
@@ -114,7 +108,7 @@ void BinaryFileReader::ReadUntilEof()
 	{
 		// Some error other then EOF occured
 		AddInternal("Stopped tailing " + Str(m_filename).str());
-		m_end = true;
+		LogSource::Abort();
 	}
 }
 
