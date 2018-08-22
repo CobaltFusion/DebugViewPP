@@ -36,7 +36,7 @@ public:
 	// when true is returned, the Logsource is removed from LogSources and then destroyed.
 	virtual bool AtEnd() const;
 
-	// return a handle to wait for, Notify() is called when the handle is signaled
+	// return a handle to wait for, Notify() is called when the handle is signaled. return INVALID_HANDLE_VALUE if the Logsource does not need to be notified
 	virtual HANDLE GetHandle() const = 0;
 	
 	// only when nofity is called LogSource::Add may be used to add lines to the LineBuffer
