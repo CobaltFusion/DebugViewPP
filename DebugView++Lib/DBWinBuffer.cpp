@@ -12,8 +12,8 @@
 namespace fusion {
 namespace debugviewpp {
 
-// this method is used to prevent acquiring the global AnyFileReader on XP, which will otherwise popup a MessageBox with a tip to 'Run As Administator'
-// however, that does not apply to WindowsXP, as there are no 'global' messages there.
+// this method is used to prevent acquiring the global DBWIN_BUFFER on XP, which will otherwise popup a MessageBox with a tip to 'Run As Administator'
+// however, as there are no 'global' messages there, this does not apply to WindowsXP
 bool IsWindowsVistaOrGreater()
 {
 	// consider using ::AtlIsOldWindows? needs to be tested on XP
