@@ -184,6 +184,8 @@ void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 {
 	if ((nChar == 'C') && (GetKeyState(VK_CONTROL) < 0))
 		Copy();
+	else
+		SetMsgHandled(false);
 }
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
@@ -1535,7 +1537,7 @@ Win32::HGlobal MakeGlobalWideString(std::wstring_view str)
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, allocsize));
 	Win32::GlobalLock<wchar_t> lock(handle);
 	memcpy(lock.Ptr(), str.data(), charbytes);
-	lock.Ptr()[charbytes] = '\0';
+	lock.Ptr()[str.size()] = '\0';
 	return handle;
 }	
 
