@@ -251,7 +251,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	int lastX = 0;
 
 	auto pos = m_start + m_tickOffset;
-	int majorTicks = (width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1; // also add one at the end
+	int majorTicks = static_cast<int>((width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1); // also add one at the end
 	for (int i = 0; i < majorTicks; ++i)
 	{
 		std::wstring s = wstringbuilder() << m_formatFunction(pos);
@@ -259,17 +259,17 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 7);
 		lastX = x;
-		x += (m_minorTicksPerMajorTick * m_minorTickPixels);
+		x += static_cast<int>(m_minorTicksPerMajorTick * m_minorTickPixels);
 		pos += (m_minorTicksPerMajorTick * m_minorTickSize);
 	}
 
 	x = gdi::s_drawTimelineMax;
-	int minorTicks = width / m_minorTickPixels;
+	int minorTicks = static_cast<int>(width / m_minorTickPixels);
 	for (;x < lastX;)
 	{
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 3);
-		x += m_minorTickPixels;
+		x += static_cast<int>(m_minorTickPixels);
 	}
 	m_end = ((lastX - gdi::s_drawTimelineMax) / m_pixelsPerLocation) + m_start;
 }
