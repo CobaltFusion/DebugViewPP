@@ -444,9 +444,9 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 	menuPopup.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, m_mainFrame);
 }
 
-bool iswordchar(int c)
+bool iswordchar(wint_t c)
 {
-	return isalnum(c) || c == '_';
+	return iswalnum(c) || c == L'_';
 }
 
 LRESULT CLogView::OnClick(NMHDR* pnmh)
@@ -683,7 +683,7 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 	if (m_autoScrollStop)
 		m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
 
-	SetHighlightText();
+	SetHighlightText(L"");
 	return 0;
 }
 
@@ -705,12 +705,15 @@ RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
 
 void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highlight)
 {
-	if (highlight.begin == highlight.end)
+	// if nothing is selected, this still gets called, so ignore the call in that case
+	if (highlight.begin == highlight.end) 
 		return;
 
+	// create a new vector that is two larger
 	std::vector<Highlight> newHighlights;
 	newHighlights.reserve(highlights.size() + 2);
 
+	// add the highlight between existing, possibly partially overlapping highlights
 	auto it = highlights.begin();
 	while (it != highlights.end() && it->begin < highlight.begin)
 	{
@@ -732,7 +735,7 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
 	highlights.swap(newHighlights);
 }
 
-void InsertHighlight(std::vector<Highlight>& highlights, const std::string& text, const std::string& match, TextColor color)
+void InsertHighlight(std::vector<Highlight>& highlights, std::wstring text, std::wstring match, TextColor color)
 {
 	auto line = boost::make_iterator_range(text);
 	for (;;)
@@ -787,7 +790,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		}
 	}
 
-	InsertHighlight(highlights, text, Str(m_highlightText), TextColor(Colors::Highlight, Colors::Text));
+	InsertHighlight(highlights, WStr(text), m_highlightText, TextColor(Colors::Highlight, Colors::Text));
 
 	return highlights;
 }
@@ -795,7 +798,6 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const Highlight& selection)
 {
 	InsertHighlight(highlights, selection);
-
 	AddEllipsis(hdc, text, rect.right - rect.left);
 
 	int height = GetTextSize(hdc, text, text.size()).cy;
@@ -1090,7 +1092,7 @@ void CLogView::OnViewProcessColors(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 
 void CLogView::OnEscapeKey(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	SetHighlightText();
+	SetHighlightText(L"");
 	StopScrolling();
 }
 
@@ -1605,7 +1607,7 @@ std::wstring CLogView::GetHighlightText() const
 	return m_highlightText;
 }
 
-void CLogView::SetHighlightText(const std::wstring& text)
+void CLogView::SetHighlightText(std::wstring_view text)
 {
 	if (m_highlightText != text)
 	{
@@ -1644,11 +1646,11 @@ int CLogView::FindLine(Predicate pred, int direction) const
 	return -1;
 }
 
-bool CLogView::Find(const std::string& text, int direction)
+bool CLogView::Find(std::wstring_view text, int direction)
 {
 	StopTracking();
 
-	int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, text); }, direction);
+	int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, Str(text)); }, direction);
 	if (line < 0)
 		return false;
 
@@ -1656,22 +1658,21 @@ bool CLogView::Find(const std::string& text, int direction)
 	if (!sameLine)
 		ScrollToIndex(line, true);
 
-	auto wtext = WStr(text).str();
-	if (sameLine && wtext == m_highlightText)
+	if (sameLine && text == m_highlightText)
 		return false;
 
-	SetHighlightText(wtext);
+	SetHighlightText(text);
 	return true;
 }
 
-bool CLogView::FindNext(const std::wstring& text)
+bool CLogView::FindNext(std::wstring_view text)
 {
-	return Find(Str(text).str(), +1);
+	return Find(text, +1);
 }
 
-bool CLogView::FindPrevious(const std::wstring& text)
+bool CLogView::FindPrevious(std::wstring_view text)
 {
-	return Find(Str(text).str(), -1);
+	return Find(text, -1);
 }
 
 void CLogView::LoadSettings(CRegKey& reg)

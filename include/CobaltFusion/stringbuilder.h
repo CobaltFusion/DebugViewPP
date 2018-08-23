@@ -24,6 +24,12 @@ public:
 		return *this;
 	}
 
+	stringbuilder& operator<<(std::wstring_view str)
+	{
+		m_ss << Str(str); // replace with string_cast<>
+		return *this;
+	}
+
 	stringbuilder& operator<<(const std::wstring& str)
 	{
 		m_ss << Str(str); // replace with string_cast<>
