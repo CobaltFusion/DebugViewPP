@@ -19,7 +19,6 @@
 #include "atlscrl.h"
 #include "DebugView++Lib/TimelineDC.h"
 #include "CobaltFusion/Math.h"
-#include "boost/core/noncopyable.hpp"
 #include <memory>
 #include <functional>
 

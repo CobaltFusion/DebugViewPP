@@ -9,8 +9,3 @@
 
 #include "targetver.h"
 
-#ifdef _DEBUG
-#include <boost/core/noncopyable.hpp>
-#include <thread>
-#endif
-

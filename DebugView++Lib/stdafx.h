@@ -19,11 +19,9 @@
 #include <thread>
 
 #include <system_error>
-#include <boost/date_time/local_time/local_time.hpp> 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/core/noncopyable.hpp>
 #endif
 
 #include "atlbase.h"

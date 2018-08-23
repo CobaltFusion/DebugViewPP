@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <boost/core/noncopyable.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
