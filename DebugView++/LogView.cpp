@@ -735,7 +735,7 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
 	highlights.swap(newHighlights);
 }
 
-void InsertHighlight(std::vector<Highlight>& highlights, std::wstring text, std::wstring match, TextColor color)
+void InsertHighlight(std::vector<Highlight>& highlights, std::wstring_view text, std::wstring match, TextColor color)
 {
 	auto line = boost::make_iterator_range(text);
 	for (;;)
@@ -750,7 +750,7 @@ void InsertHighlight(std::vector<Highlight>& highlights, std::wstring text, std:
 	}
 }
 
-std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
+std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
 {
 	std::vector<Highlight> highlights;
 
@@ -760,7 +760,11 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		if (!filter.enable || filter.filterType != FilterType::Token)
 			continue;
 
-		std::sregex_iterator begin(text.begin(), text.end(), filter.re), end;
+		const wchar_t* testEnd = text.data() + text.size();
+		std::wstring pattern = WStr(MakePattern(filter.matchType, filter.text));
+		std::wregex re(pattern);
+
+		std::wcregex_iterator begin(text.data(), testEnd, re), end;
 		int id = ++highlightId;
 		for (auto tok = begin; tok != end; ++tok)
 		{
@@ -778,7 +782,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 
 				if (filter.bgColor == Colors::Auto)
 				{
-					auto itc = m_matchColors.find(tok->str(i));
+					auto itc = m_matchColors.find(Str(tok->str(i)));
 					if (itc != m_matchColors.end())
 						InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(itc->second, Colors::Text)));
 				}
@@ -790,7 +794,7 @@ std::vector<Highlight> CLogView::GetHighlights(const std::string& text) const
 		}
 	}
 
-	InsertHighlight(highlights, WStr(text), m_highlightText, TextColor(Colors::Highlight, Colors::Text));
+	InsertHighlight(highlights, text, m_highlightText, TextColor(Colors::Highlight, Colors::Text));
 
 	return highlights;
 }
@@ -838,7 +842,7 @@ ItemData CLogView::GetItemData(int iItem) const
 	data.text[Column::Pid] = GetItemWText(iItem, ColumnToSubItem(Column::Pid));
 	data.text[Column::Process] = GetItemWText(iItem, ColumnToSubItem(Column::Process));
 	auto text = TabsToSpaces(m_logFile[m_logLines[iItem].line].text);
-	data.highlights = GetHighlights(m_logFile[m_logLines[iItem].line].text);
+	data.highlights = GetHighlights(WStr(m_logFile[m_logLines[iItem].line].text).str());
 	data.text[Column::Message] = WStr(text).str();
 	data.color = GetTextColor(m_logFile[m_logLines[iItem].line]);
 	return data;
