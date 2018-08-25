@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 	buffer.Add(42.0, ft, 0, "test", nullptr);
 
 	auto lines = buffer.GetLines();
-	auto line = lines[0];
+	auto& line = lines[0];
 	BOOST_TEST(line.time == 42.0);
 	BOOST_TEST(line.systemTime.dwLowDateTime == 42);
 	BOOST_TEST(line.systemTime.dwHighDateTime == 43);
@@ -713,6 +713,8 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 		std::cout << line.message << std::endl;
 	}
 }
+
+#pragma warning (disable: 4996)
 
 std::string CreateUTF16LETestFile(int linecount)
 {

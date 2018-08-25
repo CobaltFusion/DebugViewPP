@@ -20,6 +20,12 @@ struct Line
 	Line(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pLogSource);
 	explicit Line(double time = 0.0, FILETIME systemTime = FILETIME(), DWORD pid = 0, const std::string& processName = std::string(), const std::string& message = std::string(), const LogSource* pLogSource = nullptr);
 
+	Line(const Line&) = default;
+	Line& operator= (const Line&) = delete;
+
+	Line(Line&&) = default;
+	Line& operator= (Line&&) = default;
+
 	double time;
 	FILETIME systemTime;
 	HANDLE handle;
