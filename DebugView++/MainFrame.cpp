@@ -40,6 +40,8 @@
 namespace fusion {
 namespace debugviewpp {
 
+using namespace std::chrono_literals;
+
 std::wstring GetPersonalPath()
 {
 	std::wstring path;
@@ -478,7 +480,7 @@ bool CMainFrame::OnUpdate()
 	int count = 0;
 	for (auto&& line : lines)
 	{
-		if (count++ < 10000)
+		if (count++ < 5000)
 		{
 			bucket.emplace_back(std::move(line));
 		}
@@ -497,15 +499,16 @@ bool CMainFrame::OnUpdate()
 	if (m_incomingMessages.empty())
 		return false;
 
-	using namespace std::chrono_literals;
+	
 
 	auto linesbucket = std::move(m_incomingMessages.front());
 	m_incomingMessages.pop_front();
 	ProcessLines(linesbucket);
 	if (!m_incomingMessages.empty())
 	{
-		m_GuiExecutorClient->CallAfter(25ms, [this] { OnUpdate(); });
+		m_GuiExecutorClient->CallAfter(20ms, [this] { OnUpdate(); });
 	}
+
 	return true;
 }
 
