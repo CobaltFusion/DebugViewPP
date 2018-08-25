@@ -101,7 +101,7 @@ void FileReader::ReadUntilEof()
 	while (std::getline(m_ifstream, line))
 	{
         m_line += line;
-        if ((++count % 1500) == 0) m_update();
+        if ((++count % 5000) == 0) m_update();
 		if (m_ifstream.eof())
 		{
 			// the line ended without a newline character

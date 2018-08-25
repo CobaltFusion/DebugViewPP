@@ -1,4 +1,4 @@
-// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+﻿// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -35,6 +35,7 @@
 #include "FileOptionDlg.h"
 #include "LogView.h"
 #include "MainFrame.h"
+#include <iostream>
 
 namespace fusion {
 namespace debugviewpp {
@@ -94,7 +95,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-	static const wchar_t* units[] = {L"s", L"ms", L"�s", L"ns", nullptr};
+	static const wchar_t* units[] = {L"s", L"ms", L"祍", L"ns", nullptr};
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -472,10 +473,39 @@ void CMainFrame::ProcessLines(const Lines& lines)
 
 bool CMainFrame::OnUpdate()
 {
+	Lines bucket;
 	auto lines = m_logSources.GetLines();
-	if (lines.empty())
+	int count = 0;
+	for (auto&& line : lines)
+	{
+		if (count++ < 10000)
+		{
+			bucket.emplace_back(std::move(line));
+		}
+		else
+		{
+			count = 0;
+			m_incomingMessages.emplace_back(std::move(bucket));
+			bucket = Lines();
+		}
+	}
+	if (!bucket.empty())
+	{
+		m_incomingMessages.emplace_back(std::move(bucket));
+	}
+
+	if (m_incomingMessages.empty())
 		return false;
-	ProcessLines(lines);
+
+	using namespace std::chrono_literals;
+
+	auto linesbucket = std::move(m_incomingMessages.front());
+	m_incomingMessages.pop_front();
+	ProcessLines(linesbucket);
+	if (!m_incomingMessages.empty())
+	{
+		m_GuiExecutorClient->CallAfter(25ms, [this] { OnUpdate(); });
+	}
 	return true;
 }
 
