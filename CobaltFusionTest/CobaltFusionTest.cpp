@@ -291,18 +291,18 @@ std::ostream & operator<<(std::ostream &os, const std::chrono::steady_clock::dur
 	return os << duration_cast<milliseconds>(p).count() << "ms";
 }
 
-BOOST_AUTO_TEST_CASE(RoundTripUnicodeTest)
-{
-	std::wstring chineseLanguage = L"中文";
-	std::string s = Str(chineseLanguage);
-	std::wstring w = WStr(s);
-	BOOST_REQUIRE(w == chineseLanguage);
-
-	//std::wstring wsb = wstringbuilder() << chineseLanguage;
-	//std::cerr << to_hex(chineseLanguage) << "\n";
-	//std::cerr << to_hex(wsb) << "\n";
-	//BOOST_REQUIRE(wsb == chineseLanguage);
-}
+// this test requires the 'Language for non-unicode programs' to be set to 'chinese-simplified'
+// see Run "intl.cpl" -> Administrative -> 'Language for non-unicode programs'
+//BOOST_AUTO_TEST_CASE(RoundTripUnicodeTest)
+//{
+//	auto t1 = ::setlocale(LC_ALL, "chinese-simplified");
+//	BOOST_REQUIRE(t1 != nullptr);	// nulltr means 'could not set locale'
+//
+//	std::wstring chineseLanguage = L"\u4e2d\u6587"; // 中文";
+//	std::string s = Str(chineseLanguage);
+//	std::wstring w = WStr(s);
+//	BOOST_REQUIRE(w == chineseLanguage);
+//}
 
 BOOST_AUTO_TEST_CASE(ThrottleTest)
 {
