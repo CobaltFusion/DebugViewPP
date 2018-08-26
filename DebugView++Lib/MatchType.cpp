@@ -72,7 +72,8 @@ std::string MakePattern(MatchType::type type, const std::string& text)
 	case MatchType::Simple: return MakeSimplePattern(text);
 	case MatchType::Wildcard: return MakeWildcardPattern(text);
 	case MatchType::Regex:
-	case MatchType::RegexGroups: return text;
+	case MatchType::RegexGroups:
+	case MatchType::RegexCase: return text;
 	default: assert("Unexpected MatchType"); break;
 	}
 	return text;

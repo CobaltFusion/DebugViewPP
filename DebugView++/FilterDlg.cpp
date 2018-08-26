@@ -87,7 +87,7 @@ static const FilterType::type ProcessFilterTypes[] =
 		FilterType::Once,
 		FilterType::Beep};
 
-static const MatchType::type MessageMatchTypes[] = {MatchType::Simple, MatchType::Wildcard, MatchType::Regex, MatchType::RegexGroups};
+static const MatchType::type MessageMatchTypes[] = {MatchType::Simple, MatchType::Wildcard, MatchType::Regex, MatchType::RegexCase, MatchType::RegexGroups};
 
 static const MatchType::type ProcessMatchTypes[] =
 	{
