@@ -258,7 +258,7 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,7,7,193,91
     CTEXT           "DebugView++ VX.X",IDC_VERSION,54,22,118,8
     CTEXT           "<date replaced in CAboutDlg::OnInitDialog>",IDC_DATE,54,35,118,8
-    CTEXT           "?Gert-Jan de Vos and Jan Wilmans",IDC_STATIC,54,48,118,8
+    CTEXT           "(c) Gert-Jan de Vos and Jan Wilmans",IDC_STATIC,54,48,118,8
     CTEXT           "https://github.com/djeedjay/DebugViewPP",IDC_DEBUGVIEW_SRC_URL,16,68,156,8
     CTEXT           "http://debugviewpp.wordpress.com/",IDC_DEBUGVIEW_URL,16,82,156,8
 END

@@ -103,9 +103,9 @@ ScopedTextAlign::~ScopedTextAlign()
 
 std::wstring MultiByteToWideChar(std::string_view str)
 {
-	int buf_size = str.size() + 2;
+	int buf_size = static_cast<int>(str.size() + 2);
 	std::vector<wchar_t> buf(buf_size);
-	int write_len = ::MultiByteToWideChar(0, 0, str.data(), str.size(), buf.data(), buf_size);
+	size_t write_len = ::MultiByteToWideChar(0, 0, str.data(), static_cast<int>(str.size()), buf.data(), buf_size);
 	return std::wstring(buf.data(), buf.data() + write_len);
 }
 
@@ -119,9 +119,9 @@ std::wstring MultiByteToWideChar_std(std::string_view str) // supposedly more re
 
 std::string WideCharToMultiByte(std::wstring_view str)
 {
-	int buf_size = str.size()*2 + 2;
+	size_t buf_size = str.size()*2 + 2;
 	std::vector<char> buf(buf_size);
-	int write_len = ::WideCharToMultiByte(0, 0, str.data(), str.size(), buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
+	size_t write_len = ::WideCharToMultiByte(0, 0, str.data(), static_cast<int>(str.size()), buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
 	return std::string(buf.data(), buf.data() + write_len);
 }
 
