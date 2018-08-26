@@ -126,6 +126,7 @@ bool LogSources::GetAutoNewLine() const
 
 void LogSources::Abort()
 {
+	m_processMonitor.Abort();
 	m_update.disconnect_all_slots();
 	m_end = true;
 

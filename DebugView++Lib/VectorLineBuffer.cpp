@@ -29,7 +29,6 @@ void VectorLineBuffer::Add(double time, FILETIME systemTime, DWORD pid, const st
 	m_buffer.emplace_back(time, systemTime, pid, processName, message, pSource);
 }
 
-// m_backingBuffer can not be moved since it is a member variabele and only rvalues can be moved.
 // returning a 'const Lines&' here might be an performance improvement, however, tests reveiled no measureable difference.
 Lines VectorLineBuffer::GetLines()
 {
