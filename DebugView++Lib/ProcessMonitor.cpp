@@ -27,6 +27,7 @@ ProcessMonitor::ProcessMonitor() :
 
 ProcessMonitor::~ProcessMonitor()
 {
+	m_processEnded.disconnect_all_slots();
 	m_q.Push([this] { m_end = true; });
 	Win32::SetEvent(m_event);
 	m_thread.join();
