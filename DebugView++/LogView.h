@@ -155,15 +155,14 @@ public:
 	void Copy();
 
 	std::wstring GetHighlightText() const;
-	void SetHighlightText(const std::wstring& text = std::wstring());
-	bool FindNext(const std::wstring& text);
-	bool FindPrevious(const std::wstring& text);
+	void SetHighlightText(std::wstring_view text);
+	bool FindNext(std::wstring_view text);
+	bool FindPrevious(std::wstring_view text);
 
 	LogFilter GetFilters() const;
 	void SetFilters(const LogFilter& filter);
 
 	using CListViewCtrl::GetItemText;
-	//std::string GetItemText(int item) const;
 	std::wstring GetLineAsText(int item) const;
 	std::wstring GetItemWText(int item, int subItem) const;
 
@@ -179,8 +178,9 @@ public:
 	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct) const;
 	void DeleteItem(DELETEITEMSTRUCT* lParam);
 	void ResetToLine(int line);
-	void CopyToClipboard(const std::wstring& str);
-
+	void CopyToClipboard(std::wstring_view str);
+	void CopyMessagesToClipboard();
+	std::wstring GetSelectedMessagesAsWString() const;
 private:
 	DECLARE_MSG_MAP()
 
@@ -206,6 +206,7 @@ private:
 	void OnViewResetToLine(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewExcludeLines(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewSelectAll(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnViewCopyMessages(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewCopy(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScroll(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewAutoScrollStop(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -234,6 +235,7 @@ private:
 	void OnViewPreviousBookmark(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 	std::vector<std::string> GetSelectedMessages() const;
 	std::wstring GetSelectedLines() const;
@@ -250,7 +252,7 @@ private:
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState) const;
 	Highlight GetSelectionHighlight(CDCHandle dc, int iItem) const;
-	std::vector<Highlight> GetHighlights(const std::string& text) const;
+	std::vector<Highlight> GetHighlights(std::wstring_view text) const;
 	void DrawBookmark(CDCHandle dc, int iItem) const;
 	void DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const;
 
@@ -263,7 +265,7 @@ private:
 	template <typename Predicate>
 	int FindLine(Predicate pred, int direction) const;
 
-	bool Find(const std::string& text, int direction);
+	bool Find(std::wstring_view text, int direction);
 	bool FindProcess(int direction);
 	void ApplyFilters();
 	bool IsClearMessage(const Message& msg) const;

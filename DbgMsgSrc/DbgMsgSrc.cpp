@@ -1,4 +1,4 @@
-// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+﻿// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -10,7 +10,6 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <boost/core/noncopyable.hpp>
 #include <windows.h>
 #include <WinSock.h>
 #include <psapi.h>
@@ -329,6 +328,8 @@ void PrintUsage()
 				 "  -9 DBGVIEWCLEAR test\n"
 				 "  -A cout/cerr test\n"
 				 "  -u <address> <port> Send UDP messsages to address:port\n";
+				 "  -b Send 4 lines large enough to rule out any small string optimizations (50 chars)\n";
+				 "  -c Send 2 lines with utf-8 encoded unicode (chinese characters)\n";
 }
 
 int Main(int argc, char* argv[])
@@ -466,6 +467,18 @@ int Main(int argc, char* argv[])
 			OutputDebugStringA("test2\n\n");
 			OutputDebugStringA("test3\n");
 			return 0;
+		}
+		else if (arg == "-b")
+		{
+			OutputDebugStringA("test long string with enough chars to present small string optimizations (SSO)\n");  // 79 chars + '\n' + '0';
+			OutputDebugStringA("test long string with enough chars to present small string optimizations (SSO)\n");  // 79 chars + '\n' + '0';
+		return 0;
+		}
+		else if (arg == "-c")
+		{
+			OutputDebugStringA("writing 英语\n");
+			OutputDebugStringA("some 中文 and more 中文信息\n");
+		return 0;
 		}
 		else
 		{

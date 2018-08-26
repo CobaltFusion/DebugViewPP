@@ -117,7 +117,7 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "Clear View\tCtrl+X",          ID_VIEW_CLEAR
+        MENUITEM "Clear View",          ID_VIEW_CLEAR
         MENUITEM "Reset View",                  ID_VIEW_RESET
         MENUITEM "Reset View to this line",     ID_VIEW_RESET_TO_LINE
         MENUITEM "Select &All\tCtrl+A",         ID_VIEW_SELECTALL
@@ -155,10 +155,10 @@ BEGIN
     POPUP "Tab Context Menu"
     BEGIN
         MENUITEM "New &View\tCtrl+N",           ID_FILE_NEWVIEW
-        MENUITEM "&Copy View\t",                ID_VIEW_DUPLICATE
+        MENUITEM "&Copy View",                  ID_VIEW_DUPLICATE
         MENUITEM SEPARATOR
         MENUITEM "Filters...\tF5",              ID_VIEW_FILTER
-        MENUITEM "Clear View\tCtrl+X",          ID_VIEW_CLEAR
+        MENUITEM "Clear View",                  ID_VIEW_CLEAR
         MENUITEM "Close",                       ID_VIEW_CLOSE
     END
 END
@@ -169,13 +169,14 @@ BEGIN
     BEGIN
         MENUITEM "Reset View",                  ID_VIEW_RESET
         MENUITEM "Reset View to this line",     ID_VIEW_RESET_TO_LINE
-        MENUITEM "Clear View\tCtrl+X",          ID_VIEW_CLEAR
+        MENUITEM "Clear View",                  ID_VIEW_CLEAR
         MENUITEM SEPARATOR
         MENUITEM "Exclude line(s)",             ID_VIEW_EXCLUDE_LINES
         MENUITEM SEPARATOR
         MENUITEM "Find",                        ID_VIEW_FIND
         MENUITEM "Select &All\tCtrl+A",         ID_VIEW_SELECTALL
         MENUITEM "&Copy\tCtrl+C",               ID_VIEW_COPY
+        MENUITEM "Copy &Messages",              ID_VIEW_COPY_MESSAGES
     END
 END
 
@@ -192,9 +193,10 @@ BEGIN
         MENUITEM "Track",                       ID_VIEW_PROCESS_TRACK
         MENUITEM "Once",                        ID_VIEW_PROCESS_ONCE
         MENUITEM SEPARATOR
-        MENUITEM "Clear View\tCtrl+X",          ID_VIEW_CLEAR
+        MENUITEM "Clear View",                  ID_VIEW_CLEAR
         MENUITEM "Select &All\tCtrl+A",         ID_VIEW_SELECTALL
         MENUITEM "&Copy\tCtrl+C",               ID_VIEW_COPY
+        MENUITEM "Copy &Messages",              ID_VIEW_COPY_MESSAGES
     END
 END
 
@@ -256,7 +258,7 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,7,7,193,91
     CTEXT           "DebugView++ VX.X",IDC_VERSION,54,22,118,8
     CTEXT           "<date replaced in CAboutDlg::OnInitDialog>",IDC_DATE,54,35,118,8
-    CTEXT           "© Gert-Jan de Vos and Jan Wilmans",IDC_STATIC,54,48,118,8
+    CTEXT           "?Gert-Jan de Vos and Jan Wilmans",IDC_STATIC,54,48,118,8
     CTEXT           "https://github.com/djeedjay/DebugViewPP",IDC_DEBUGVIEW_SRC_URL,16,68,156,8
     CTEXT           "http://debugviewpp.wordpress.com/",IDC_DEBUGVIEW_URL,16,82,156,8
 END
@@ -520,9 +522,7 @@ BEGIN
     "S",            ID_FILE_SAVE_VIEW_SELECTION, VIRTKEY, ALT, NOINVERT
     "X",            ID_LOG_CLEAR,           VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_F2,          ID_VIEW_BOOKMARK,       VIRTKEY, CONTROL, NOINVERT
-    "X",            ID_VIEW_CLEAR,          VIRTKEY, CONTROL, NOINVERT
     VK_F2,          ID_VIEW_CLEAR_BOOKMARKS, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "C",            ID_VIEW_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_VIEW_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_VIEW_FILTER,         VIRTKEY, NOINVERT
     "F",            ID_VIEW_FIND,           VIRTKEY, CONTROL, NOINVERT
@@ -533,7 +533,6 @@ BEGIN
     VK_ESCAPE,      ID_VIEW_HIDE_HIGHLIGHT, VIRTKEY, NOINVERT
     VK_F2,          ID_VIEW_NEXT_BOOKMARK,  VIRTKEY, NOINVERT
     VK_F2,          ID_VIEW_PREVIOUS_BOOKMARK, VIRTKEY, SHIFT, NOINVERT
-    "A",            ID_VIEW_SELECTALL,      VIRTKEY, CONTROL, NOINVERT
     "T",            ID_VIEW_TIME,           VIRTKEY, CONTROL, NOINVERT
     VK_PAUSE,       ID_LOG_PAUSE,           VIRTKEY, NOINVERT
     "H",            ID_VIEW_FILTER_HIGHLIGHT, VIRTKEY, CONTROL, NOINVERT

@@ -13,51 +13,63 @@
 
 namespace fusion {
 
-template <class CharType, class Traits = std::char_traits<CharType>, class Allocator = std::allocator<CharType>>
-class basic_stringbuilder
+class stringbuilder
 {
 public:
-	typedef std::basic_string<CharType, Traits, Allocator> string_type;
 
 	template <typename T>
-	basic_stringbuilder& operator<<(const T& t)
+	stringbuilder& operator<<(const T& t)
 	{
 		m_ss << t;
 		return *this;
 	}
 
-	basic_stringbuilder& operator<<(const std::wstring& str)		// todo: basic_stringbuilder<wchar_t> wstringbuilder; does not need this...
+	stringbuilder& operator<<(std::wstring_view str)
 	{
-		m_ss << Str(str).c_str();		//todo : is the temporary guaranteed to live long enough?
+		m_ss << Str(str); // replace with string_cast<>
 		return *this;
 	}
 
-	basic_stringbuilder& operator<<(const std::string& str)
+	stringbuilder& operator<<(const std::wstring& str)
 	{
-		m_ss << str.c_str();
+		m_ss << Str(str); // replace with string_cast<>
 		return *this;
 	}
 
-	string_type str() const
-	{
-		return m_ss.str();
-	}
-
-	const CharType* c_str() const
-	{
-		return m_ss.c_str();
-	}
-
-	operator string_type() const
+	operator std::string() const
 	{
 		return m_ss.str();
 	}
 
 private:
-	std::basic_ostringstream<CharType, Traits, Allocator> m_ss;
+	std::stringstream m_ss;
 };
 
-typedef basic_stringbuilder<char> stringbuilder;
-typedef basic_stringbuilder<wchar_t> wstringbuilder;
+class wstringbuilder
+{
+public:
+
+	template <typename T>
+	wstringbuilder& operator<<(const T& t)
+	{
+		m_ss << t;
+		return *this;
+	}
+
+	wstringbuilder& operator<<(const std::string& str)
+	{
+		m_ss << WStr(str);
+		return *this;
+	}
+
+	operator std::wstring() const
+	{
+		return m_ss.str();
+	}
+
+private:
+	std::wstringstream m_ss;
+};
+
 
 } // namespace fusion

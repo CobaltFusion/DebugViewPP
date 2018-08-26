@@ -28,7 +28,7 @@ public:
 	typedef boost::signals2::signal<void()> UpdateSignal;
 	boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
-	bool AtEnd() const override;
+	void Abort() override;
 	HANDLE GetHandle() const override;
 	void Notify() override;
 	void PreProcess(Line& line) const override;
@@ -42,8 +42,8 @@ protected:
 private:
 	void SafeAddLine(const std::string& line);
 	void ReadUntilEof();
+	void PollThread();
 
-	bool m_end;
 	Win32::ChangeNotificationHandle m_handle;
 	std::ifstream m_ifstream;
 	std::string m_filenameOnly;
@@ -51,6 +51,7 @@ private:
 	std::string m_line;
 	bool m_keeptailing;
 	UpdateSignal m_update;
+	std::thread m_thread;
 };
 
 } // namespace debugviewpp

@@ -168,14 +168,9 @@ public:
 	Win32Error(DWORD error, const std::string& what);
 };
 
-std::wstring MultiByteToWideChar_win32(const char* str, int len);
-std::wstring MultiByteToWideChar_std(const char* str, int len);
-std::wstring MultiByteToWideChar(const char* str);
-std::wstring MultiByteToWideChar(const std::string& str);
-
-std::string WideCharToMultiByte(const wchar_t* str, int len);
-std::string WideCharToMultiByte(const wchar_t* str);
-std::string WideCharToMultiByte(const std::wstring& str);
+std::wstring MultiByteToWideChar(std::string_view str);
+std::wstring MultiByteToWideChar_std(std::string_view str);
+std::string WideCharToMultiByte(std::wstring_view str);
 
 void ThrowWin32Error(DWORD error, const std::string& what);
 void ThrowLastError(const std::string& what);

@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <atlbase.h>
 #include <atlwin.h>
 #include "CobaltFusion/Executor.h"

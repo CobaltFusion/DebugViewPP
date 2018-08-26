@@ -54,7 +54,7 @@ void CSourcesDlg::UpdateGrid()
 		int item = m_grid.GetItemCount();
 		m_grid.InsertItem(item, PropCreateCheckButton(L"", sourceInfo.enabled));
 		m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", sourceInfo.description.c_str()));
-		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", WStr(SourceTypeToString(sourceInfo.type)).c_str()));
+		m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", WStr(SourceTypeToString(sourceInfo.type))));
 		if (sourceInfo.type == SourceType::System)
 			m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
 		else

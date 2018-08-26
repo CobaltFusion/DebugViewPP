@@ -10,15 +10,16 @@
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/ProcessInfo.h"
 #include "DebugView++Lib/NewlineFilter.h"
+#include <iostream>
 
 namespace fusion {
 namespace debugviewpp {
 
 Lines NewlineFilter::Process(const Line& line)
 {
-	Line outputLine = line; //copy assignment
 	auto& message = m_lineBuffers[line.pid];
-	message.reserve(4000);
+	message.reserve(512);
+
 	Lines lines;
 	for (auto c : line.message)
 	{
@@ -27,9 +28,9 @@ Lines NewlineFilter::Process(const Line& line)
 
 		if (c == '\n')
 		{
-			outputLine.message = message; // copy assignment
-			message.clear();
-			lines.push_back(outputLine);
+			Line outputLine(line.time, line.systemTime, line.pid, line.processName, "", line.pLogSource);
+			std::swap(outputLine.message, message);
+			lines.emplace_back(std::move(outputLine));
 		}
 		else
 		{
@@ -37,16 +38,14 @@ Lines NewlineFilter::Process(const Line& line)
 		}
 	}
 
-	if (message.empty())
+	if (!message.empty())
 	{
-		m_lineBuffers.erase(line.pid);
-	}
-	else 
-	if (outputLine.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
-	{
-		outputLine.message = message;
-		message.clear();
-		lines.push_back(outputLine);
+		if (line.pLogSource->GetAutoNewLine() || message.size() > 8192)	// 8k line limit prevents stack overflow in handling code 
+		{
+			Line outputLine(line.time, line.systemTime, line.pid, line.processName, "", line.pLogSource);
+			std::swap(outputLine.message, message);
+			lines.emplace_back(std::move(outputLine));
+		}
 	}
 	return lines;
 }

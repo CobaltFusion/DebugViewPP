@@ -121,7 +121,7 @@
 #define ID_FILE_SAVE_VIEW_SELECTION     32854
 #define ID_VIEW_DUPLICATE               32855
 #define ID_LOG_CROP                     32856
-
+#define ID_VIEW_COPY_MESSAGES           32857
 
 // Next default values for new objects
 // 

@@ -51,7 +51,7 @@ int SkipTabOffset(const std::basic_string<CharT>& s, int offset, int tabsize = 4
 }
 
 template <typename CharT>
-int ExpandedTabOffset(const std::basic_string<CharT>& s, int offset, int tabsize = 4)
+int ExpandedTabOffset(const std::basic_string_view<CharT>& s, int offset, int tabsize = 4)
 {
 	int i = 0;
 	int pos = 0;

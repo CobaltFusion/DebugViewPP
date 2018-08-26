@@ -105,6 +105,13 @@ void LogSources::RemoveSources(std::function<bool(LogSource*)> predicate)
 	Win32::SetEvent(m_updateEvent);
 }
 
+void LogSources::CallSources(std::function<void(LogSource*)> predicate)
+{
+	std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+	for (auto& pSource : m_sources)
+		predicate(pSource.get());
+}
+
 void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
@@ -119,11 +126,11 @@ bool LogSources::GetAutoNewLine() const
 
 void LogSources::Abort()
 {
-	if (!m_end)
-	{
-		m_update.disconnect_all_slots();
-		m_end = true;
-	}
+	m_update.disconnect_all_slots();
+	m_end = true;
+
+	CallSources([](LogSource* logsource) { logsource->Abort(); });
+	RemoveSources([] (LogSource*) { return true;});
 	Win32::SetEvent(m_updateEvent);
 	m_listenThread.Synchronize();
 }
@@ -297,10 +304,8 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 Lines LogSources::GetLines()
 {
 	assert(m_executor.IsExecutorThread());
-	auto inputLines = m_linebuffer.GetLines();
-
 	Lines lines;
-	for (auto& inputLine : inputLines)
+	for (auto& inputLine : m_linebuffer.GetLines())
 	{
 		// let the logsource decide how to create processname
 		if (inputLine.pLogSource)
@@ -327,17 +332,17 @@ Lines LogSources::GetLines()
 
 		if (inputLine.message.empty())
 		{
-			lines.push_back(inputLine);
+			lines.emplace_back(std::move(inputLine));
 		}
 		else
 		{
 			// since a line can contain multiple newlines, processing 1 line can output
 			// multiple lines, in this case the timestamp for each line is the same.
 			// NewlineFilter::Process will also eat any \r\n's
-			auto processedLines = m_newlineFilter.Process(inputLine);
-			for (auto& line : processedLines)
+
+			for (auto& line: m_newlineFilter.Process(inputLine))
 			{
-				lines.push_back(line);
+				lines.emplace_back(std::move(line));
 			}
 		}
 	}

@@ -260,6 +260,7 @@ private:
 	LogSources m_logSources;
 	Win32::JobObject m_jobs;
 	Win32::Handle m_httpMonitorHandle;
+	std::deque<Lines> m_incomingMessages;
 };
 
 } // namespace debugviewpp

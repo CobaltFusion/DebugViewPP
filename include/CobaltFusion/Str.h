@@ -8,49 +8,40 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include "Win32/Win32Lib.h"
 
 namespace fusion {
 
+//todo: add string_cast<> and create unittests
+
 class Str
 {
 public:
-	explicit Str(std::string s) :
-		m_str(std::move(s))
+	explicit Str(std::wstring_view s) :
+		m_str(Win32::WideCharToMultiByte(s))
 	{
 	}
 
-	explicit Str(const char* s) :
+	// usefull to convert a stringbuilder() into an string when the function needs a char*
+	explicit Str(std::string s) :
 		m_str(s)
 	{
 	}
 
-	explicit Str(const std::wstring& s) :
-		m_str(Win32::WideCharToMultiByte(s))
-	{
-	}
-
-	explicit Str(const wchar_t* s) :
-		m_str(Win32::WideCharToMultiByte(s))
-	{
-	}
-	
+	// replace these with string_cast<>
 	std::string str() const
 	{
 		return m_str;
 	}
 
-	const char* c_str() const
-	{
-		return m_str.c_str();
-	}
-
-    operator std::string() const
+	// replace these with string_cast<>
+	operator std::string() const
 	{
 		return m_str;
 	}
 
-    operator const char*() const
+	operator const char*() const
 	{
 		return m_str.c_str();
 	}
@@ -62,32 +53,32 @@ private:
 class WStr
 {
 public:
-	explicit WStr(const std::string& s) :
+	// replace these with string_cast<>
+	explicit WStr(std::string_view s) :
 		m_str(Win32::MultiByteToWideChar(s))
 	{
 	}
 
-	explicit WStr(const std::wstring& s) :
+	// usefull to convert a wstringbuilder() into an wstring when the function needs a wchar_t*
+	explicit WStr(std::wstring s) :
 		m_str(s)
 	{
 	}
 
+	// replace these with string_cast<>
 	std::wstring str() const
 	{
 		return m_str;
 	}
 
-	const wchar_t* c_str() const
-	{
-		return m_str.c_str();
-	}
-
-    operator std::wstring() const
+	// replace these with string_cast<>
+	operator std::wstring() const
 	{
 		return m_str;
 	}
 
-    operator const wchar_t*() const
+	// nice to have a temporary WStr decay into a wchar_t* but also easy to use wrong like "const wchar_t* p = WStr(msg.text);" is very wrong.
+	operator const wchar_t*() const
 	{
 		return m_str.c_str();
 	}
