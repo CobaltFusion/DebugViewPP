@@ -240,7 +240,6 @@ private:
 
 	std::vector<std::string> GetSelectedMessages() const;
 	std::wstring GetSelectedLines() const;
-	void UpdateColumnInfo();
 	void UpdateColumns();
 	int ColumnToSubItem(Column::type column) const;
 	Column::type SubItemToColumn(int iSubItem) const;

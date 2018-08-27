@@ -202,22 +202,8 @@ void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	UpdateColumnInfo();
-
 	auto& column = m_columns[nID - ID_VIEW_COLUMN_FIRST];
 	column.enable = !column.enable;
-
-	cdbg << "1 columns:";
-	for (auto& col : m_columns) cdbg << " " << col.column.iOrder;
-	cdbg << "\n";
-
-	int delta = column.enable ? +1 : -1;
-	for (auto& col : m_columns)
-	{
-		if (col.column.iSubItem != column.column.iSubItem && col.column.iOrder >= column.column.iOrder)
-			col.column.iOrder += delta;
-	}
-
 	UpdateColumns();
 }
 
@@ -274,26 +260,8 @@ Column::type CLogView::SubItemToColumn(int iSubItem) const
 	return static_cast<Column::type>(column.iSubItem);
 }
 
-void CLogView::UpdateColumnInfo()
-{
-	int count = GetHeader().GetItemCount();
-	for (int i = 0; i < count; ++i)
-	{
-		auto& column = m_columns[SubItemToColumn(i)].column;
-		auto column2 = column;
-		column2.mask = LVCF_WIDTH | LVCF_ORDER;
-		GetColumn(i, &column2);
-		column.cx = column2.cx;
-		column.iOrder = column2.iOrder;
-	}
-}
-
 void CLogView::UpdateColumns()
 {
-	cdbg << "UpdateColumns:";
-	for (auto& col : m_columns) cdbg << " " << col.column.iOrder;
-	cdbg << "\n";
-
 	int columns = GetHeader().GetItemCount();
 	for (int i = 0; i < columns; ++i)
 		DeleteColumn(0);
@@ -1721,8 +1689,6 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
-	UpdateColumnInfo();
-
 	reg.SetDWORDValue(L"AutoScrollStop", GetAutoScrollStop());
 	reg.SetDWORDValue(L"ClockTime", GetClockTime());
 	reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
