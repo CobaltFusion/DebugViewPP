@@ -48,10 +48,6 @@ void CLogView::Create(HWND hWndParent, ATL::_U_RECT rect)
     __super::Create(hWndParent, rect, CListViewCtrl::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL, WS_EX_CLIENTEDGE);
 }
 
-void CLogView::OnClose()
-{
-}
-
 void CLogView::MeasureItem(MEASUREITEMSTRUCT* pMeasureItemStruct)
 {
 	OutputDebugStringA("CLogView::MeasureItem - debug");

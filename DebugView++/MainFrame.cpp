@@ -1,4 +1,4 @@
-﻿// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -97,7 +97,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-	static const wchar_t* units[] = {L"s", L"ms", L"祍", L"ns", nullptr};
+	static const wchar_t* units[] = {L"s", L"ms", L"�s", L"ns", nullptr};
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{

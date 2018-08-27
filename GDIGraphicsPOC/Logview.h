@@ -82,7 +82,6 @@ public:
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP(CLogView)
-		MSG_WM_CLOSE(OnClose)
 		CHAIN_MSG_MAP_ALT(COwnerDraw<CLogView>, 1)
 		DEFAULT_REFLECTION_HANDLER()
 	END_MSG_MAP()
@@ -94,7 +93,6 @@ public:
 	void SetFont(HFONT hFont);
 
 private:
-	void OnClose();
 	RECT GetItemRect(int iItem, unsigned code) const;
 	void DrawItem(CDCHandle dc, int iItem, unsigned iItemState);
 };

@@ -15,6 +15,7 @@
 #include "DebugView++Lib/LogFile.h"
 #include "FilterDlg.h"
 #include "DropTargetSupport.h"
+#include "Win32/Com.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -121,7 +122,7 @@ class CLogView :
 {
 public:
 	CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
-
+	~CLogView();
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
 	void DoPaint(CDCHandle dc);
@@ -187,7 +188,7 @@ private:
 	void OnException() const;
 	void OnException(const std::exception& ex);
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
-    void OnClose();
+	void Close();
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	void OnLButtonDown(UINT flags, CPoint point);
 	void OnMouseMove(UINT flags, CPoint point);
@@ -300,7 +301,7 @@ private:
 	bool m_dragging;
 	int m_scrollX;
 	std::wstring m_dispInfoText;
-    CComObject<DropTargetSupport> * m_pDropTargetSupport;
+	Win32::ComObjectPtr<DropTargetSupport> m_pDropTargetSupport;
 };
 
 } // namespace debugviewpp 

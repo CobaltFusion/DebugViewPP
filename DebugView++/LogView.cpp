@@ -122,7 +122,7 @@ ItemData::ItemData() :
 
 BEGIN_MSG_MAP2(CLogView)
 	MSG_WM_CREATE(OnCreate)
-	MSG_WM_CLOSE(OnClose)
+	// OnClose messages are sent only to top-level windows
 	MSG_WM_CONTEXTMENU(OnContextMenu)
 	MSG_WM_SETCURSOR(OnSetCursor)
 	MSG_WM_LBUTTONDOWN(OnLButtonDown)
@@ -207,10 +207,16 @@ void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	auto& column = m_columns[nID - ID_VIEW_COLUMN_FIRST];
 	column.enable = !column.enable;
 
+	cdbg << "1 columns:";
+	for (auto& col : m_columns) cdbg << " " << col.column.iOrder;
+	cdbg << "\n";
+
 	int delta = column.enable ? +1 : -1;
 	for (auto& col : m_columns)
+	{
 		if (col.column.iSubItem != column.column.iSubItem && col.column.iOrder >= column.column.iOrder)
 			col.column.iOrder += delta;
+	}
 
 	UpdateColumns();
 }
@@ -284,6 +290,10 @@ void CLogView::UpdateColumnInfo()
 
 void CLogView::UpdateColumns()
 {
+	cdbg << "UpdateColumns:";
+	for (auto& col : m_columns) cdbg << " " << col.column.iOrder;
+	cdbg << "\n";
+
 	int columns = GetHeader().GetItemCount();
 	for (int i = 0; i < columns; ++i)
 		DeleteColumn(0);
@@ -325,8 +335,7 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
 	ApplyFilters();
 
-	CComObject<DropTargetSupport>::CreateInstance(&m_pDropTargetSupport);
-	m_pDropTargetSupport->AddRef();
+	m_pDropTargetSupport = Win32::CreateComObject<DropTargetSupport>();
 	m_pDropTargetSupport->Register(*this);
 	m_pDropTargetSupport->SubscribeToDropped([this](const std::wstring& uri) {
 		m_mainFrame.OnDropped(uri);
@@ -334,11 +343,9 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 	return 0;
 }
 
-void CLogView::OnClose()
+CLogView::~CLogView()
 {
-    // todo: why is OnClose() never called?
 	m_pDropTargetSupport->Unregister();
-	m_pDropTargetSupport->Release();
 }
 
 bool Contains(const RECT& rect, const POINT& pt)
