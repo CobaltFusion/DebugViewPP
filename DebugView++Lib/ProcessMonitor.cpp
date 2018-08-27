@@ -27,9 +27,7 @@ ProcessMonitor::ProcessMonitor() :
 
 ProcessMonitor::~ProcessMonitor()
 {
-	m_q.Push([this] { m_end = true; });
-	Win32::SetEvent(m_event);
-	m_thread.join();
+	assert((m_end == true) && "Abort was not called, thread still running...");
 }
 
 void ProcessMonitor::Add(DWORD pid, HANDLE handle)
@@ -75,6 +73,18 @@ void ProcessMonitor::Run()
 			m_processes[i] = m_processes.back();
 			m_processes.resize(processCount - 1);
 		}
+	}
+}
+
+void ProcessMonitor::Abort()
+{
+	m_processEnded.disconnect_all_slots();
+
+	if (m_thread.joinable())
+	{
+		m_q.Push([this] { m_end = true; });
+		Win32::SetEvent(m_event);
+		m_thread.join();
 	}
 }
 

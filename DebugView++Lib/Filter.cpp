@@ -45,8 +45,16 @@ Filter::Filter() :
 {
 }
 
+std::regex_constants::syntax_option_type MakeSot(MatchType::type matchType)
+{
+	if (matchType == MatchType::RegexCase)
+		return std::regex_constants::optimize;
+	else
+		return std::regex_constants::icase | std::regex_constants::optimize;
+}
+
 Filter::Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, bool matched) :
-	text(text), re(MakePattern(matchType, text), std::regex_constants::icase | std::regex_constants::optimize), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matched(matched)
+	text(text), re(MakePattern(matchType, text), MakeSot(matchType)), matchType(matchType), filterType(filterType), bgColor(bgColor), fgColor(fgColor), enable(enable), matched(matched)
 {
 }
 

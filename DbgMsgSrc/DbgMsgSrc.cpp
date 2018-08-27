@@ -476,8 +476,8 @@ int Main(int argc, char* argv[])
 		}
 		else if (arg == "-c")
 		{
-			OutputDebugStringA("writing 英语\n");
-			OutputDebugStringA("some 中文 and more 中文信息\n");
+			OutputDebugStringA("writing \u82F1\u8BED\n");  // 英语
+			OutputDebugStringA("some \u4E2D\u6587 and more \u4E2D\u6587\u4FE1\u606F\n"); // 中文信息 
 		return 0;
 		}
 		else

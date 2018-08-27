@@ -19,7 +19,8 @@ namespace debugviewpp {
 	MATCH_TYPE(Simple, 0) \
 	MATCH_TYPE(Wildcard, 1) \
 	MATCH_TYPE(Regex, 2) \
-	MATCH_TYPE(RegexGroups, 3)
+	MATCH_TYPE(RegexGroups, 3) \
+	MATCH_TYPE(RegexCase, 4)
 
 struct MatchType
 {

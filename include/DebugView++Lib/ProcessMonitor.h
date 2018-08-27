@@ -28,6 +28,7 @@ public:
 
 	void Add(DWORD pid, HANDLE handle);
 	boost::signals2::connection ConnectProcessEnded(ProcessEnded::slot_type slot);
+	void Abort();
 
 private:
 	struct ProcessInfo
