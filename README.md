@@ -7,7 +7,7 @@ Debugview++, currently at v1.8
 
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
-[Download head version ](https://ci.appveyor.com/project/janwilmans/debugview/build/artifacts) **experimental**
+[Download head version ](https://ci.appveyor.com/project/janwilmans/debugview/build/artifacts) ** this is the 'soup' of the day version **
 
 Questions? Tweet me at [**@janwilmans**](https://twitter.com/janwilmans) or chat on skype at 'janwilmans'.
 There is also a [slack channel](https://cpplang.slack.com/messages/debugviewpp)
