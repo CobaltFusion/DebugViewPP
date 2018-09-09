@@ -124,7 +124,7 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 
 	if (!CreateProcess(
 			nullptr,
-			const_cast<wchar_t*>(commandLine.c_str()),
+			commandLine.data(),
 			nullptr,
 			nullptr,
 			true,

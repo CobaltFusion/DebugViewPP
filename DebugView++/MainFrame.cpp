@@ -124,12 +124,9 @@ void CLogViewTabItem2::Create(HWND parent)
 
 	m_timelineView.SetDataProvider([](gdi::Location, gdi::Location) {
 		auto info = std::make_shared<gdi::Line>(L"Some info");
-		info->Add(gdi::Artifact(650, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-		info->Add(gdi::Artifact(700, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		info->Add(gdi::Artifact(750, gdi::Artifact::Type::Flag));
-		info->Add(gdi::Artifact(800, gdi::Artifact::Type::Flag));
-		info->Add(gdi::Artifact(850, gdi::Artifact::Type::Flag));
-		info->Add(gdi::Artifact(992, gdi::Artifact::Type::Flag));
+		info->Add(gdi::Artifact(300, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		info->Add(gdi::Artifact(400, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		info->Add(gdi::Artifact(500, gdi::Artifact::Type::Flag));
 
 		auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
 		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
@@ -139,7 +136,8 @@ void CLogViewTabItem2::Create(HWND parent)
 
 		auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
 		data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
-		info->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
+		data->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
+		data->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
 
 		gdi::TimeLines lines;
 		lines.emplace_back(info);
@@ -1500,7 +1498,7 @@ void CMainFrame::OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 int CMainFrame::GetViewCount() const
 {
-	return const_cast<CMainFrame&>(*this).GetTabCtrl().GetItemCount();
+	return m_TabCtrl.GetItemCount();
 }
 
 CLogView& CMainFrame::GetView(int i)

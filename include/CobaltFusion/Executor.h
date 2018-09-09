@@ -18,6 +18,10 @@ namespace fusion {
 
 class ScheduledCall;
 
+// Sean Parent: Concurrency
+// https://www.youtube.com/watch?v=zULU6Hhp42w
+
+
 class ExecutorBase
 {
 public:

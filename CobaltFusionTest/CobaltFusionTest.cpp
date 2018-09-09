@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(CircularBufferCycleStringZPrime)
 {
 	size_t testsize = 200;
 	CircularBuffer buffer(testsize);
-	
+
 	for (int j = 0; j < 500; ++j)
 	{
 		BOOST_CHECK(buffer.Empty());

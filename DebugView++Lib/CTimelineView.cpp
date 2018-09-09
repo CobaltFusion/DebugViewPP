@@ -96,6 +96,7 @@ LONG CTimelineView::GetTrackPos32(int nBar)
 void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	m_cursorX = point.x;
+	SetFocus();
 	Invalidate();
 }
 
@@ -110,7 +111,9 @@ int GetOffsetTillNextMultiple(int value, int multiplier)
 
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	cdbg << "CTimelineView::OnMouseWheel, zDelta: " << zDelta << "\n";			// todo: find out why these events are not captured like in CMainFrame::OnMouseWheel
+	// todo: find out why these events are only captured is the focus returns after opening and closing the filter-dialog
+	// but not when clicking on the timeline
+	cdbg << "CAP CTimelineView::OnMouseWheel, zDelta: " << zDelta << "\n";			
 	return TRUE;
 }
 
@@ -118,7 +121,7 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
 {
 	if (nSBCode == SB_THUMBTRACK)
 	{
-		cdbg << "OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100, unaffected by SetScrollRange ?
+		cdbg << "TRACK OnHScroll, nPos: " << nPos << "\n";	// received range is 1-100, unaffected by SetScrollRange ?
 		SetScrollPos(SB_HORZ, nPos);
 		Invalidate();
 	}
@@ -254,7 +257,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	int majorTicks = static_cast<int>((width / (m_minorTicksPerMajorTick * m_minorTickPixels)) + 1); // also add one at the end
 	for (int i = 0; i < majorTicks; ++i)
 	{
-		std::wstring s = wstringbuilder() << m_formatFunction(pos);
+		std::wstring s = wstringbuilder() << pos; // WStr(m_formatFunction(pos));
 		dc.DrawTextOut(s, x - 15, y - 25);
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 7);
