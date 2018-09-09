@@ -251,7 +251,14 @@ This project has a special configuration:
 - 64bit debug/release configurations are targeted to v141, SDK v8.1 (runs on windows 7 and up)
 
 The projects are configured to use Nuget to get there dependencies (boost and WTL)
-This means that after cloning the GIT repository, you get press 'build', visual studio will download boost and WTL the first time only  and then build the project. It is as simple as that... if it is not, contact me (jan), so I can fix any remaining issues.
+This means that after cloning the GIT repository:
+
+```
+git clone --recurse-submodules https://github.com/CobaltFusion/DebugViewPP.git
+```
+
+(don't forget to include --recurse-submodules, otherwise you will get an error message saying docopt.h is missing.)
+You press 'build' and visual studio will download boost and WTL the first time only and then build the project. It is as simple as that... if it is not, contact me (jan), so I can fix any remaining issues.
 
 Since we use ATL and support Windows XP still some extra installation options are required, verify that the following option are installed:
 
