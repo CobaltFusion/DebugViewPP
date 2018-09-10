@@ -149,6 +149,8 @@ void CLogViewTabItem2::Create(HWND parent)
 	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
 	m_timelineView.SetView(0.0, 1000.0);
 	m_bottom.SetClient(m_timelineView);
+	m_split.UpdateWindow();
+	m_split.SetSplitterPosPct(75);
 }
 
 CLogViewTabItem2::~CLogViewTabItem2()
