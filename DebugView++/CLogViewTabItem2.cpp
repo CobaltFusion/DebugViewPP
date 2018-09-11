@@ -28,6 +28,14 @@ CLogView& CLogViewTabItem::GetView()
 	return *m_pView;
 }
 
+void Add(const ViewPort& viewport, gdi::Line& line, gdi::Artifact a)
+{
+	if (viewport.Contains(TimePoint(a.GetPosition() * 1ms)))
+	{
+		line.Add(a);
+	}
+}
+
 std::wstring FormatDuration(Duration d)
 {
 	if (d >= 1s) return wstringbuilder() << d.count() / 1e9 << L" s";
@@ -42,17 +50,27 @@ ViewPort::ViewPort(TimePoint begin, TimePoint end)
 {
 }
 
+gdi::Pixel ViewPort::ToPx(TimePoint p) const
+{
+	assert((p >= m_begin) && "ToPx should only be called on TimePoints that where checked by Contains");
+	auto d = p - m_begin;
+	return gdi::Pixel(d.count() / 1000000);
+}
+
+TimePoint ViewPort::ToTimePoint(gdi::Pixel p) const
+{
+	return TimePoint(p * 1ms);
+}
+
 bool ViewPort::Contains(TimePoint p) const
 {
 	return (p >= m_begin) && (p <= m_end);
 }
 
-void Add(const ViewPort& viewport, gdi::Line& line, gdi::Artifact a)
+std::wstring ViewPort::FormatAsTime(gdi::Pixel p)
 {
-	if (viewport.Contains(TimePoint(a.GetPosition()* 1ms)))
-	{
-		line.Add(a);
-	}
+	auto t = ToTimePoint(p);
+	return FormatDuration(t - m_begin);
 }
 
 void DisablePaneHeader(CMyPaneContainer& panecontainer)
@@ -76,16 +94,16 @@ void CLogViewTabItem2::Create(HWND parent)
 	m_viewPort = ViewPort(TimePoint(0ms), TimePoint(1000ms));
 
 	m_timelineView.SetFormatter([&](gdi::Pixel position) {
-		return FormatDuration(position * 1ms);
+		return m_viewPort.FormatAsTime(position);
 	});
 
 	m_timelineView.SetDataProvider([&](gdi::Pixel width, gdi::Pixel cursorPosition) {
 		cdbg << " width = " << width << ", cursorPosition: " << cursorPosition << "\n";
 
-		auto info = std::make_shared<gdi::Line>(L"Some info");
-		Add(m_viewPort, *info, gdi::Artifact(300, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-		Add(m_viewPort, *info, gdi::Artifact(400, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		Add(m_viewPort, *info, gdi::Artifact(500, gdi::Artifact::Type::Flag));
+		auto info = std::make_shared<gdi::Line>(L"Some info2");
+		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(350ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(400ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(500ms)), gdi::Artifact::Type::Flag));
 
 		auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
 		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));

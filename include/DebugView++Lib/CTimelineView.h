@@ -119,8 +119,8 @@ private:
 
 	// input
 	Pixel m_viewWidth = 0;
-	Pixel m_minorTickSize = 20;
-	Pixel m_minorTicksPerMajorTick = 5;
+	Pixel m_minorTickSize = 10;
+	Pixel m_minorTicksPerMajorTick = 10;
 	Pixel m_tickOffset = 0;
 	Pixel m_cursorPosition = 0;
 

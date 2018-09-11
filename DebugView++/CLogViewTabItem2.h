@@ -66,6 +66,9 @@ public:
 	ViewPort() {}
 	ViewPort(TimePoint begin, TimePoint end);
 	bool Contains(TimePoint p) const;
+	gdi::Pixel ToPx(TimePoint p) const;
+	TimePoint ToTimePoint(gdi::Pixel p) const;
+	std::wstring FormatAsTime(gdi::Pixel p);
 private:
 	TimePoint m_begin;
 	TimePoint m_end;
