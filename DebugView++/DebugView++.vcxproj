@@ -303,6 +303,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="CLogViewTabItem2.cpp" />
     <ClCompile Include="DebugView++.cpp" />
     <ClCompile Include="DropTargetSupport.cpp" />
     <ClCompile Include="FileOptionDlg.cpp" />
@@ -326,6 +327,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="CLogViewTabItem2.h" />
     <ClInclude Include="crashpad.h" />
     <ClInclude Include="DropTargetSupport.h" />
     <ClInclude Include="FileOptionDlg.h" />
@@ -349,6 +351,7 @@
     <ResourceCompile Include="DebugView++.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="packages.config" />
     <None Include="res\Bookmark.ico" />
     <None Include="res\DebugView++.ico" />

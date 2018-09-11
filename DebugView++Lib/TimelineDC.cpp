@@ -32,12 +32,12 @@ void TimelineDC::DrawPolygon(const std::vector<POINT>& points)
 	Polygon(points.data(), points.size());
 }
 
-void TimelineDC::DrawTimeline(const std::wstring& name, int x, int y, int width, COLORREF color)
+void TimelineDC::DrawTimeline(const std::wstring& name, Pixel x, Pixel y, int width, COLORREF color)
 {
 	CPen pen(CreatePen(PS_SOLID, 1, color));
 	SelectPen(pen);
 	DrawTextOut(name, x + 15, y -15);
-	Rectangle(x + s_drawTimelineMax, y, x + s_drawTimelineMax + width, y + 2);
+	Rectangle(x + s_leftTextAreaBorder, y, x + s_leftTextAreaBorder + width, y + 2);
 }
 
 void TimelineDC::DrawFlag(const std::wstring& /* tooltip */, int x, int y)

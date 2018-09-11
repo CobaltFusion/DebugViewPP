@@ -63,6 +63,9 @@
     <ClCompile Include="DropTargetSupport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CLogViewTabItem2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -122,6 +125,9 @@
     <ClInclude Include="DropTargetSupport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CLogViewTabItem2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DebugView++.rc">
@@ -145,5 +151,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

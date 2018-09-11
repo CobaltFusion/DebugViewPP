@@ -43,14 +43,14 @@ public:
 	Artifact(int position, Artifact::Type type);
 	Artifact(int position, Artifact::Type type, COLORREF color);
 	Artifact(int position, Artifact::Type type, COLORREF color, COLORREF fillcolor);
-	int GetPosition() const;
+	Pixel GetPosition() const;
 
 	void SetColor(COLORREF color);
 	void SetFillColor(COLORREF color);
 	COLORREF GetColor() const;
 	COLORREF GetFillColor() const;
 private:
-	int m_position;
+	Pixel m_position;
 	Type m_type;
 	COLORREF m_color;
 	COLORREF m_fillcolor;
@@ -80,6 +80,7 @@ private:
 using TimeLines = std::vector<std::shared_ptr<Line>>;
 
 // zooming and panning is not part of the CTimelineView responsibility.
+
 // it is a 'dumb' drawing class that deals with positioning and formatting
 // it has no concept of time, just position which is scaled to window-pixels.
 // also no centering or end-of-range behaviour is implemented, this is client responsibility.
@@ -103,40 +104,30 @@ public:
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 	void OnMouseMove(UINT nFlags, CPoint point);
 
-	void SetView(Location start, Location end);
-	void Zoom(double factor);
+	using FormatFunction = std::function<std::wstring(Pixel position)>;
+	void SetFormatter(FormatFunction f);
 
-	using formatFunction = std::function<std::string(Location)>;
-	void SetFormatter(formatFunction f);
-
-	using dataProvider = std::function<TimeLines(Location start, Location end)>;
-	void SetDataProvider(dataProvider f);
+	using DataProvider = std::function<TimeLines(Pixel width, Pixel cursorPosition)>;
+	void SetDataProvider(DataProvider f);
 
 private:
-	void Recalculate(gdi::TimelineDC& dc);
+	TimeLines Recalculate(gdi::TimelineDC& dc);
 	void PaintScale(gdi::TimelineDC& dc);
 	void PaintTimelines(gdi::TimelineDC& dc);
 	void PaintCursor(gdi::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
-	Pixel GetX(Location pos) const;
-	bool InRange(Location pos) const;
 
 	// input
-	double m_start = 0;
-	double m_end = 0;
-	double m_minorTickSize = 0;
-	double m_minorTicksPerMajorTick = 0;
-	double m_tickOffset = 0;
+	Pixel m_viewWidth = 0;
+	Pixel m_minorTickSize = 20;
+	Pixel m_minorTicksPerMajorTick = 5;
+	Pixel m_tickOffset = 0;
+	Pixel m_cursorPosition = 0;
 
-	// calculated 
-	double m_minorTickPixels = 0;
-	int m_viewWidth = 0;
-	double m_pixelsPerLocation = 0;
-
-	LONG m_cursorX = 0;
 	SCROLLINFO m_scrollInfo;
-	formatFunction m_formatFunction;
-	dataProvider m_dataProvider;
+	FormatFunction m_formatFunction;
+	DataProvider m_dataProvider;
+	TimeLines m_timelines;
 };
 
 

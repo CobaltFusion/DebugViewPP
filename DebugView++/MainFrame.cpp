@@ -15,6 +15,7 @@
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/dbgstream.h"
 #include "CobaltFusion/hstream.h"
 #include "CobaltFusion/Math.h"
 #include "CobaltFusion/GuiExecutor.h"
@@ -51,23 +52,6 @@ std::wstring GetPersonalPath()
 	return path;
 }
 
-void CLogViewTabItem::SetView(std::shared_ptr<CLogView> pView)
-{
-	m_pView = pView;
-	SetTabView(*pView);
-}
-
-CLogView& CLogViewTabItem::GetView()
-{
-	return *m_pView;
-}
-
-void DisablePaneHeader(CMyPaneContainer& panecontainer)
-{
-	panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
-	panecontainer.m_cxyHeader = 0;
-}
-
 std::wstring FormatUnits(int n, const std::wstring& unit)
 {
 	if (n == 0)
@@ -97,7 +81,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-	static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
+	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -107,110 +91,48 @@ std::wstring FormatDuration(double seconds)
 
 	return wstringbuilder() << std::fixed << std::setprecision(3) << seconds << L" " << *unit;
 }
-void CLogViewTabItem2::Create(HWND parent)
-{
-	m_split.Create(parent, CWindow::rcDefault);
-	SetTabView(m_split);
-	m_top.Create(m_split, L"");
-	m_bottom.Create(m_split, L"");
-	DisablePaneHeader(m_top);
-	DisablePaneHeader(m_bottom);
-	m_split.SetSplitterPanes(m_top, m_bottom, true);
-	m_split.SetSplitterPos(400);
-
-	m_timelineView.SetFormatter([](gdi::Location l) {
-		return Str(FormatDuration(l));
-	});
-
-	m_timelineView.SetDataProvider([](gdi::Location, gdi::Location) {
-		auto info = std::make_shared<gdi::Line>(L"Some info");
-		info->Add(gdi::Artifact(300, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-		info->Add(gdi::Artifact(400, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		info->Add(gdi::Artifact(500, gdi::Artifact::Type::Flag));
-
-		auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
-		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-		sequence->Add(gdi::Artifact(632, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));
-		sequence->Add(gdi::Artifact(636, gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		sequence->Add(gdi::Artifact(640, gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-
-		auto data = std::make_shared<gdi::Line>(L"Arbitrary data");
-		data->Add(gdi::Artifact(710, gdi::Artifact::Type::Flag, RGB(0, 0, 255)));
-		data->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
-		data->Add(gdi::Artifact(701, gdi::Artifact::Type::Flag));
-
-		gdi::TimeLines lines;
-		lines.emplace_back(info);
-		lines.emplace_back(sequence);
-		lines.emplace_back(data);
-		return lines;
-	});
-
-	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
-	m_timelineView.SetView(0.0, 1000.0);
-	m_bottom.SetClient(m_timelineView);
-	m_split.UpdateWindow();
-	m_split.SetSplitterPosPct(75);
-}
-
-CLogViewTabItem2::~CLogViewTabItem2()
-{
-	m_split.DestroyWindow();
-}
-
-
-void CLogViewTabItem2::SetView(std::shared_ptr<CLogView> pView)
-{
-	m_pView = pView;
-	m_top.SetClient(*m_pView);
-}
-
-CLogView& CLogViewTabItem2::GetView()
-{
-	return *m_pView;
-}
 
 BEGIN_MSG_MAP2(CMainFrame)
 	MSG_WM_CREATE(OnCreate)
 	MSG_WM_CLOSE(OnClose)
 	MSG_WM_QUERYENDSESSION(OnQueryEndSession)
-	MSG_WM_ENDSESSION(OnEndSession)
-	MSG_WM_MOUSEWHEEL(OnMouseWheel)
-	MSG_WM_CONTEXTMENU(OnContextMenu)
-	MSG_WM_SYSCOMMAND(OnSysCommand)
-	MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
-	COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
-	COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
-	COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
-	COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
-	COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
-	COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
-	COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
-	COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
-	COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
-	COMMAND_ID_HANDLER_EX(ID_LOG_CROP, OnLogCrop)
-	COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
-	COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
-	COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
-	COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
-	COMMAND_ID_HANDLER_EX(ID_VIEW_DUPLICATE, OnViewDuplicate)
-	COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
-	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
-	COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
-	NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
-	NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
-	NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
-	NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
+		MSG_WM_ENDSESSION(OnEndSession)
+		MSG_WM_MOUSEWHEEL(OnMouseWheel)
+		MSG_WM_CONTEXTMENU(OnContextMenu)
+		MSG_WM_SYSCOMMAND(OnSysCommand)
+		MESSAGE_HANDLER_EX(WM_SYSTEMTRAYICON, OnSystemTrayIcon)
+		COMMAND_ID_HANDLER_EX(SC_RESTORE, OnScRestore)
+		COMMAND_ID_HANDLER_EX(SC_CLOSE, OnScClose)
+		COMMAND_ID_HANDLER_EX(ID_FILE_NEWVIEW, OnFileNewTab)
+		COMMAND_ID_HANDLER_EX(ID_FILE_OPEN, OnFileOpen)
+		COMMAND_ID_HANDLER_EX(ID_FILE_RUN, OnFileRun)
+		COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_LOG, OnFileSaveLog)
+		COMMAND_ID_HANDLER_EX(ID_APP_EXIT, OnFileExit)
+		COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW, OnFileSaveView)
+		COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_VIEW_SELECTION, OnFileSaveViewSelection)
+		COMMAND_ID_HANDLER_EX(ID_FILE_LOAD_CONFIGURATION, OnFileLoadConfiguration)
+		COMMAND_ID_HANDLER_EX(ID_FILE_SAVE_CONFIGURATION, OnFileSaveConfiguration)
+		COMMAND_ID_HANDLER_EX(ID_LOG_CLEAR, OnLogClear)
+		COMMAND_ID_HANDLER_EX(ID_LOG_CROP, OnLogCrop)
+		COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
+		COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
+		COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
+		COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
+		COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
+		COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER, OnViewFilter)
+		COMMAND_ID_HANDLER_EX(ID_VIEW_CLOSE, OnViewClose)
+		COMMAND_ID_HANDLER_EX(ID_VIEW_DUPLICATE, OnViewDuplicate)
+		COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
+		COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
+		COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
+		COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
+		COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
+		COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
+		COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
+		NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
+		NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
+		NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
+		NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab);
 	CHAIN_MSG_MAP(TabbedFrame)
 	CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 	REFLECT_NOTIFICATIONS()
@@ -499,7 +421,6 @@ bool CMainFrame::OnUpdate()
 	if (m_incomingMessages.empty())
 		return false;
 
-	
 
 	auto linesbucket = std::move(m_incomingMessages.front());
 	m_incomingMessages.pop_front();

@@ -33,6 +33,7 @@ using ATL::CString;
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/FileWriter.h"
 #include "DebugView++Lib/CTimelineView.h"
+#include "CLogViewTabItem2.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
 #include "LogView.h"
@@ -42,49 +43,6 @@ namespace debugviewpp {
 
 struct SelectionInfo;
 class DbgviewReader;
-
-class CLogViewTabItem : public CTabViewTabItem
-{
-public:
-	void SetView(std::shared_ptr<CLogView> pView);
-	CLogView& GetView();
-
-	void Create(HWND parent) { m_parent = parent; }
-	HWND GetLogViewParent() { return m_parent; }
-
-private:
-	std::shared_ptr<CLogView> m_pView;
-	HWND m_parent = HWND();
-};
-
-class CMyPaneContainer : public CPaneContainerImpl<CMyPaneContainer>
-{
-public:
-	DECLARE_WND_CLASS_EX(_T("MY_PaneContainer"), 0, -1)
-
-	BEGIN_MSG_MAP(CMyPaneContainerImpl)
-		REFLECT_NOTIFICATIONS()
-		CHAIN_MSG_MAP(CPaneContainerImpl<CMyPaneContainer>)
-	END_MSG_MAP()
-};
-
-class CLogViewTabItem2 : public CTabViewTabItem
-{
-public:
-	~CLogViewTabItem2();
-	void SetView(std::shared_ptr<CLogView> pView);
-	CLogView& GetView();
-
-	void Create(HWND parent);
-	HWND GetLogViewParent() { return m_top; }
-
-private:
-	std::shared_ptr<CLogView> m_pView;
-	CHorSplitterWindow m_split;
-	CMyPaneContainer m_top;
-	CMyPaneContainer m_bottom;
-	gdi::CTimelineView m_timelineView;
-};
 
 using SelectedTabItem = CLogViewTabItem;
 

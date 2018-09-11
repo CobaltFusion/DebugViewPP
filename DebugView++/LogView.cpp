@@ -1511,13 +1511,6 @@ std::wstring CLogView::GetLineAsText(int item) const
 	return GetColumnText(item, Column::Line) + L"\t" + GetColumnText(item, Column::Time) + L"\t" + GetColumnText(item, Column::Pid) + L"\t" + GetColumnText(item, Column::Process) + L"\t" + GetColumnText(item, Column::Message);
 }
 
-// todo: find out why the wstringbuilder() screws up unicode characters
-//std::wstring CLogView::GetLineAsText(int item) const
-//{
-//	return wstringbuilder() << GetColumnText(item, Column::Line) << "\t" << GetColumnText(item, Column::Time) << "\t" << GetColumnText(item, Column::Pid) << "\t" << GetColumnText(item, Column::Process) << "\t" << GetColumnText(item, Column::Message);
-//}
-
-
 Win32::HGlobal MakeGlobalString(std::string_view str)
 {
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, str.size() + 1));

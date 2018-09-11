@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2016.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -20,15 +20,14 @@ namespace gdi {
 // see http://www.informit.com/articles/article.aspx?p=328647&seqNum=2
 
 using Pixel = int;
-using Location = double;
-
-static const Pixel s_drawTimelineMax = 150;
+static const Pixel s_leftTextAreaBorder = Pixel{150}; // reserved space to put the name of the timeline
 
 using ManagedCDC = CDCT<false>;
 
 class TimelineDC : public ManagedCDC
 {
 	using ManagedCDC::ManagedCDC;
+
 public:
 	RECT GetClientArea() const;
 	void DrawTextOut(const std::wstring& str, int x, int y);

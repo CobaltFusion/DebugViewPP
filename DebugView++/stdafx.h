@@ -34,6 +34,8 @@ using std::max;
 #pragma warning(disable : 4838) // conversion from 'int' to 'UINT' requires a narrowing conversion
 #pragma warning(disable : 4458) // declaration of 'pButtons' hides class member
 
+#define _ATL_NO_DEBUG_CRT
+
 #include <atlbase.h>
 #include <atlapp.h>
 
