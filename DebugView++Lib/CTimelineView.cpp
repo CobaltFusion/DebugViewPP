@@ -95,7 +95,7 @@ LONG CTimelineView::GetTrackPos32(int nBar)
 
 void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	m_cursorPosition = point.x;
+	m_cursorPosition = std::max(int(point.x), gdi::s_leftTextAreaBorder);
 	SetFocus();
 	Invalidate();
 }
@@ -111,9 +111,7 @@ int GetOffsetTillNextMultiple(int value, int multiplier)
 
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	// todo: find out why these events are only captured is the focus returns after opening and closing the filter-dialog
-	// but not when clicking on the timeline
-	cdbg << "CAP CTimelineView::OnMouseWheel, zDelta: " << zDelta << "\n";			
+	m_mouseScrollCallback(m_cursorPosition - gdi::s_leftTextAreaBorder, zDelta);
 	return TRUE;
 }
 
@@ -162,6 +160,11 @@ void CTimelineView::SetDataProvider(DataProvider f)
 	m_dataProvider = f;
 }
 
+void CTimelineView::SetMouseScrollCallback(MouseScrollCallback f)
+{
+	m_mouseScrollCallback = f;
+}
+
 TimeLines CTimelineView::Recalculate(gdi::TimelineDC& dc)
 {
 	auto timelineWidth = dc.GetClientArea().right - gdi::s_leftTextAreaBorder;
@@ -190,7 +193,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	int majorTicks = width / m_minorTicksPerMajorTick;
 	for (int i = 0; i < majorTicks; ++i)
 	{
-		std::wstring s = m_formatFunction(x);
+		std::wstring s = m_formatFunction(x - gdi::s_leftTextAreaBorder);
 		dc.DrawTextOut(s, x - 15, y - 25);
 		dc.MoveTo(x, y);
 		dc.LineTo(x, y - 7);

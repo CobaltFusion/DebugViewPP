@@ -107,6 +107,9 @@ public:
 	using FormatFunction = std::function<std::wstring(Pixel position)>;
 	void SetFormatter(FormatFunction f);
 
+	using MouseScrollCallback = std::function<void(Pixel position, int direction)>;
+	void SetMouseScrollCallback(MouseScrollCallback f);
+
 	using DataProvider = std::function<TimeLines(Pixel width, Pixel cursorPosition)>;
 	void SetDataProvider(DataProvider f);
 
@@ -128,6 +131,7 @@ private:
 	FormatFunction m_formatFunction;
 	DataProvider m_dataProvider;
 	TimeLines m_timelines;
+	MouseScrollCallback m_mouseScrollCallback;
 };
 
 

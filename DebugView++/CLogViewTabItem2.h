@@ -69,9 +69,19 @@ public:
 	gdi::Pixel ToPx(TimePoint p) const;
 	TimePoint ToTimePoint(gdi::Pixel p) const;
 	std::wstring FormatAsTime(gdi::Pixel p);
+
+	void SetWidth(gdi::Pixel width);
+	void ZoomInTo(gdi::Pixel position);
+	void ZoomOut(gdi::Pixel position);
 private:
+
+	// time range
 	TimePoint m_begin;
 	TimePoint m_end;
+
+	// view to map into
+	gdi::Pixel m_width;
+	double m_zoomFactor = 1.0;
 };
 
 class CLogViewTabItem2 : public CTabViewTabItem

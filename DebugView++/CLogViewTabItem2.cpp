@@ -73,6 +73,23 @@ std::wstring ViewPort::FormatAsTime(gdi::Pixel p)
 	return FormatDuration(t - m_begin);
 }
 
+void ViewPort::SetWidth(gdi::Pixel width)
+{
+	m_width = width;
+}
+
+void ViewPort::ZoomInTo(gdi::Pixel position)
+{
+	cdbg << "ZoomInTo: " << position << "\n";
+	m_zoomFactor * 2.0;
+}
+
+void ViewPort::ZoomOut(gdi::Pixel position)
+{
+	cdbg << "ZoomOut: " << position << "\n";
+	m_zoomFactor / 2.0;
+}
+
 void DisablePaneHeader(CMyPaneContainer& panecontainer)
 {
 	panecontainer.SetPaneContainerExtendedStyle(PANECNT_NOCLOSEBUTTON, 0);
@@ -98,6 +115,9 @@ void CLogViewTabItem2::Create(HWND parent)
 	});
 
 	m_timelineView.SetDataProvider([&](gdi::Pixel width, gdi::Pixel cursorPosition) {
+
+		m_viewPort.SetWidth(width);
+
 		cdbg << " width = " << width << ", cursorPosition: " << cursorPosition << "\n";
 
 		auto info = std::make_shared<gdi::Line>(L"Some info2");
@@ -121,6 +141,17 @@ void CLogViewTabItem2::Create(HWND parent)
 		lines.emplace_back(sequence);
 		lines.emplace_back(data);
 		return lines;
+	});
+
+	m_timelineView.SetMouseScrollCallback([&](gdi::Pixel position, int direction) {
+		if (direction > 0)
+		{
+			m_viewPort.ZoomOut(position);
+		}
+		else
+		{
+			m_viewPort.ZoomInTo(position);
+		}
 	});
 
 	m_timelineView.Create(m_bottom, CWindow::rcDefault, gdi::CTimelineView::GetWndClassName(), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SS_OWNERDRAW);
