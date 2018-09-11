@@ -100,18 +100,10 @@ void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 	Invalidate();
 }
 
-int GetOffsetTillNextMultiple(int value, int multiplier)
-{
-	auto modulus = value % multiplier;
-	if (modulus)
-		return (multiplier - modulus);
-	return 0;
-	
-}
-
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
 	m_mouseScrollCallback(m_cursorPosition - gdi::s_leftTextAreaBorder, zDelta);
+	Invalidate();
 	return TRUE;
 }
 
@@ -138,12 +130,7 @@ void CTimelineView::DoPaint(CDCHandle cdc)
 	auto backgroundArea = dc.GetClientArea();
 	dc.FillSolidRect(&backgroundArea, RGB(255, 255, 255));
 
-	if (backgroundArea.right!= m_viewWidth)
-	{
-		// width changed
-		m_viewWidth = backgroundArea.right;
-		m_timelines = Recalculate(dc);
-	}
+	m_timelines = Recalculate(dc);
 
 	PaintScale(dc);
 	PaintTimelines(dc);
@@ -167,23 +154,11 @@ void CTimelineView::SetMouseScrollCallback(MouseScrollCallback f)
 
 TimeLines CTimelineView::Recalculate(gdi::TimelineDC& dc)
 {
-	auto timelineWidth = dc.GetClientArea().right - gdi::s_leftTextAreaBorder;
-	return m_dataProvider(timelineWidth, m_cursorPosition);
+	return m_dataProvider();
 }
 
 void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 {
-	// zooming should be done by: 
-	// - changing the m_pixelsPerLocation value
-	// - keeping the cursur position fixed (pixel precise)
-	// - offsetting the scale to match the timeline, not the other way around, this way the numbers on the scale can always remain powers of 10 
-	//   while the cursor-position is some arbitrary value.
-
-	// zooming does not work because PaintScale() always starts at m_start and we now have a fixed  m_minorTickSize = 15; m_minorTicksPerMajorTick = 5;
-	// PaintScale() must draw the scale relative to a fixed zoompoint and in such a way that the pixel-location of the zoompoint stays exactly fixed and scale
-	// is fitted around it accoording to the available view-size.
-
-	//assert((m_viewWidth != 0) && (m_minorTickPixels != 0) && (m_pixelsPerLocation != 0) && "Recalculate must be called before PaintScale()");
 	Pixel width = dc.GetClientArea().right - gdi::s_leftTextAreaBorder;
 	int y = 25;
 	auto x = gdi::s_leftTextAreaBorder + m_tickOffset;
@@ -229,7 +204,7 @@ void CTimelineView::PaintTimelines(gdi::TimelineDC& dc)
 		dc.DrawTimeline(line->GetName(), 0, y, rect.right - 200, grey);
 		for (auto& artifact : line->GetArtifacts())
 		{
-			dc.DrawSolidFlag(L"tag", artifact.GetPosition(), y, artifact.GetColor(), artifact.GetFillColor());
+			dc.DrawSolidFlag(L"tag", artifact.GetPosition() + gdi::s_leftTextAreaBorder, y, artifact.GetColor(), artifact.GetFillColor());
 		}
 		y += 25;
 	}

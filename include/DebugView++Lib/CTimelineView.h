@@ -79,11 +79,7 @@ private:
 
 using TimeLines = std::vector<std::shared_ptr<Line>>;
 
-// zooming and panning is not part of the CTimelineView responsibility.
-
-// it is a 'dumb' drawing class that deals with positioning and formatting
-// it has no concept of time, just position which is scaled to window-pixels.
-// also no centering or end-of-range behaviour is implemented, this is client responsibility.
+// zooming and panning is not part of the CTimelineView responsibility, it is a 'dumb' drawing class 
 class CTimelineView : 
 	public CDoubleBufferWindowImpl<CTimelineView, CWindow>
 {
@@ -110,7 +106,7 @@ public:
 	using MouseScrollCallback = std::function<void(Pixel position, int direction)>;
 	void SetMouseScrollCallback(MouseScrollCallback f);
 
-	using DataProvider = std::function<TimeLines(Pixel width, Pixel cursorPosition)>;
+	using DataProvider = std::function<TimeLines()>;
 	void SetDataProvider(DataProvider f);
 
 private:
@@ -120,8 +116,6 @@ private:
 	void PaintCursor(gdi::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
 
-	// input
-	Pixel m_viewWidth = 0;
 	Pixel m_minorTickSize = 10;
 	Pixel m_minorTicksPerMajorTick = 10;
 	Pixel m_tickOffset = 0;

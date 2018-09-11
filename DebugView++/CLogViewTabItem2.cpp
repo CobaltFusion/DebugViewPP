@@ -43,10 +43,12 @@ std::wstring FormatDuration(Duration d)
 	if (d >= 1us) return wstringbuilder() << d.count() / 1e3 << L" us";
 	return wstringbuilder() << d.count() << L" ns";
 }
-
-ViewPort::ViewPort(TimePoint begin, TimePoint end)
+ 
+ViewPort::ViewPort(TimePoint begin, TimePoint end, Duration timeUnitPerPixel)
 	: m_begin(begin)
 	, m_end(end)
+	, m_timeunitPerPixelBase(timeUnitPerPixel)
+	, m_timeunitPerPixel(timeUnitPerPixel)
 {
 }
 
@@ -54,12 +56,14 @@ gdi::Pixel ViewPort::ToPx(TimePoint p) const
 {
 	assert((p >= m_begin) && "ToPx should only be called on TimePoints that where checked by Contains");
 	auto d = p - m_begin;
-	return gdi::Pixel(d.count() / 1000000);
+	auto px = gdi::Pixel(d / m_timeunitPerPixel);
+	cdbg << " px: " << px << "\n";
+	return px;
 }
 
 TimePoint ViewPort::ToTimePoint(gdi::Pixel p) const
 {
-	return TimePoint(p * 1ms);
+	return TimePoint(p * m_timeunitPerPixel);
 }
 
 bool ViewPort::Contains(TimePoint p) const
@@ -73,21 +77,23 @@ std::wstring ViewPort::FormatAsTime(gdi::Pixel p)
 	return FormatDuration(t - m_begin);
 }
 
-void ViewPort::SetWidth(gdi::Pixel width)
-{
-	m_width = width;
-}
+// zooming should be done by: 
+// - changing the m_timeunitPerPixel value
+// - keeping the cursur position fixed (pixel precise)
+// - offsetting the scale to match the timeline, not the other way around, this way the numbers on the scale can always remain powers of 10 
 
 void ViewPort::ZoomInTo(gdi::Pixel position)
 {
 	cdbg << "ZoomInTo: " << position << "\n";
-	m_zoomFactor * 2.0;
+	m_zoomFactor = std::min(10000, m_zoomFactor + 50);
+	m_timeunitPerPixel = m_timeunitPerPixelBase * m_zoomFactor / 1000;
 }
 
 void ViewPort::ZoomOut(gdi::Pixel position)
 {
 	cdbg << "ZoomOut: " << position << "\n";
-	m_zoomFactor / 2.0;
+	m_zoomFactor = std::max(50, m_zoomFactor - 50);
+	m_timeunitPerPixel = m_timeunitPerPixelBase * m_zoomFactor / 1000;
 }
 
 void DisablePaneHeader(CMyPaneContainer& panecontainer)
@@ -108,17 +114,13 @@ void CLogViewTabItem2::Create(HWND parent)
 	DisablePaneHeader(m_bottom);
 	m_split.SetSplitterPanes(m_top, m_bottom, true);
 
-	m_viewPort = ViewPort(TimePoint(0ms), TimePoint(1000ms));
+	m_viewPort = ViewPort(TimePoint(0ms), TimePoint(1000ms), 500us);	// first two refer to the view on the input data, the third is a conversion factor
 
 	m_timelineView.SetFormatter([&](gdi::Pixel position) {
 		return m_viewPort.FormatAsTime(position);
 	});
 
-	m_timelineView.SetDataProvider([&](gdi::Pixel width, gdi::Pixel cursorPosition) {
-
-		m_viewPort.SetWidth(width);
-
-		cdbg << " width = " << width << ", cursorPosition: " << cursorPosition << "\n";
+	m_timelineView.SetDataProvider([&]() {
 
 		auto info = std::make_shared<gdi::Line>(L"Some info2");
 		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(350ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0)));

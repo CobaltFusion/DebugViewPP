@@ -64,7 +64,7 @@ class ViewPort
 {
 public:
 	ViewPort() {}
-	ViewPort(TimePoint begin, TimePoint end);
+	ViewPort(TimePoint begin, TimePoint end, Duration timeUnitPerPixel);
 	bool Contains(TimePoint p) const;
 	gdi::Pixel ToPx(TimePoint p) const;
 	TimePoint ToTimePoint(gdi::Pixel p) const;
@@ -79,9 +79,10 @@ private:
 	TimePoint m_begin;
 	TimePoint m_end;
 
-	// view to map into
-	gdi::Pixel m_width;
-	double m_zoomFactor = 1.0;
+	// conversion factor
+	Duration m_timeunitPerPixelBase;
+	Duration m_timeunitPerPixel;
+	int m_zoomFactor = 1000;
 };
 
 class CLogViewTabItem2 : public CTabViewTabItem
