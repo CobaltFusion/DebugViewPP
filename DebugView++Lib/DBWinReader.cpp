@@ -48,9 +48,9 @@ DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
 	//Win32::AdjustObjectDACL(m_dbWinDataReady.get());
 
 	//Option 2:
-	//Win32::DeleteObjectDACL(m_hBuffer.get());
-	//Win32::DeleteObjectDACL(m_dbWinBufferReady.get());
-	//Win32::DeleteObjectDACL(m_dbWinDataReady.get());
+	Win32::DeleteObjectDACL(m_hBuffer.get());
+	Win32::DeleteObjectDACL(m_dbWinBufferReady.get());
+	Win32::DeleteObjectDACL(m_dbWinDataReady.get());
 
 	//TODO: Please test this and choose one
 

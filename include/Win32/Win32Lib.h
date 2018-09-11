@@ -195,6 +195,8 @@ void SetEvent(HANDLE hEvent);
 
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName);
 
+#define DACL_MODIFY
+
 #ifdef DACL_MODIFY
 void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, const PSID psidOwner, const PSID psidGroup, const PACL pDacl, const PACL pSacl);
 void DeleteObjectDACL(HANDLE hObject);

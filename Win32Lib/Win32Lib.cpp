@@ -263,7 +263,7 @@ void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMA
 	}
 }
 
-#ifdef DACL_MODIFY	// currently disabled because ant-virus heuristics are trigger by it
+#ifdef DACL_MODIFY
 
 //delete DACL at all, so permit Full Access for Everyone
 void DeleteObjectDACL(HANDLE hObject)
