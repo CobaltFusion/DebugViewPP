@@ -11,6 +11,7 @@
 #include "CobaltFusion/dbgstream.h"
 #include "LogView.h"
 #include <chrono>
+#include <algorithm>
 
 namespace fusion {
 namespace debugviewpp {
@@ -57,7 +58,6 @@ gdi::Pixel ViewPort::ToPx(TimePoint p) const
 	assert((p >= m_begin) && "ToPx should only be called on TimePoints that where checked by Contains");
 	auto d = p - m_begin;
 	auto px = gdi::Pixel(d / m_timeunitPerPixel);
-	cdbg << " px: " << px << "\n";
 	return px;
 }
 
@@ -86,7 +86,11 @@ void ViewPort::ZoomInTo(gdi::Pixel position)
 {
 	cdbg << "ZoomInTo: " << position << "\n";
 	m_zoomFactor = std::min(10000, m_zoomFactor + 50);
+	//auto zoomTimePoint = ToTimePoint(position);
 	m_timeunitPerPixel = m_timeunitPerPixelBase * m_zoomFactor / 1000;
+	//auto zeroDelta = ToTimePoint(position) - zoomTimePoint;
+	//m_begin += zeroDelta;
+	
 }
 
 void ViewPort::ZoomOut(gdi::Pixel position)
@@ -114,7 +118,7 @@ void CLogViewTabItem2::Create(HWND parent)
 	DisablePaneHeader(m_bottom);
 	m_split.SetSplitterPanes(m_top, m_bottom, true);
 
-	m_viewPort = ViewPort(TimePoint(0ms), TimePoint(1000ms), 500us);	// first two refer to the view on the input data, the third is a conversion factor
+	m_viewPort = ViewPort(TimePoint(0ms), TimePoint(5000ms), 500us);	// first two refer to the view on the input data, the third is a conversion factor
 
 	m_timelineView.SetFormatter([&](gdi::Pixel position) {
 		return m_viewPort.FormatAsTime(position);
