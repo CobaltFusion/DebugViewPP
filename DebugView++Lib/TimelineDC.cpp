@@ -42,6 +42,9 @@ void TimelineDC::DrawTimeline(const std::wstring& name, Pixel x, Pixel y, int wi
 
 void TimelineDC::DrawFlag(const std::wstring& /* tooltip */, int x, int y)
 {
+	// tooltip not implemented, see https://www.codeproject.com/Articles/5411/CToolTipDialog-class-a-simple-WTL-class-to-enable
+	// and https://docs.microsoft.com/en-gb/windows/desktop/Controls/using-tooltip-contro
+	// and https://docs.microsoft.com/en-us/windows/desktop/controls/implement-tracking-tooltips
 	MoveTo(x, y);
 	LineTo(x, y - 20);
 	LineTo(x + 7, y - 16);

@@ -157,10 +157,15 @@ TimeLines CTimelineView::Recalculate(gdi::TimelineDC& dc)
 	return m_dataProvider();
 }
 
+static const Pixel scaleBottom = 25;
+static const Pixel topTimelinePos = 50;
+static const Pixel minorTickHeight = 3;
+static const Pixel majorTickHeight = 7;
+
 void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 {
 	Pixel width = dc.GetClientArea().right - gdi::s_leftTextAreaBorder;
-	int y = 25;
+	int y = scaleBottom;
 	auto x = gdi::s_leftTextAreaBorder + m_tickOffset;
 	int lastX = 0;
 
@@ -169,9 +174,9 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	for (int i = 0; i < majorTicks; ++i)
 	{
 		std::wstring s = m_formatFunction(x - gdi::s_leftTextAreaBorder);
-		dc.DrawTextOut(s, x - 15, y - 25);
+		dc.DrawTextOut(s, x - 15, 0);
 		dc.MoveTo(x, y);
-		dc.LineTo(x, y - 7);
+		dc.LineTo(x, y - majorTickHeight);
 		lastX = x;
 		x += (m_minorTicksPerMajorTick * m_minorTickSize);
 	}
@@ -181,7 +186,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	for (;x < lastX;)
 	{
 		dc.MoveTo(x, y);
-		dc.LineTo(x, y - 3);
+		dc.LineTo(x, y - minorTickHeight);
 		x += m_minorTickSize;
 	}
 }
@@ -189,19 +194,20 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 void CTimelineView::PaintCursor(gdi::TimelineDC& dc)
 {
 	auto rect = dc.GetClientArea();
-	dc.Rectangle(m_cursorPosition, 0, m_cursorPosition +1, rect.bottom);
+	dc.MoveTo(m_cursorPosition, scaleBottom);
+	dc.LineTo(m_cursorPosition, rect.bottom);
 }
 
 void CTimelineView::PaintTimelines(gdi::TimelineDC& dc)
 {
 	auto rect = dc.GetClientArea();
 
-	int y = 50;
-	y += GetTrackPos32(SB_HORZ);
-	for (auto line : m_timelines)
+	int y = topTimelinePos;
+	y += GetTrackPos32(SB_HORZ);	//test
+	for (const auto& line : m_timelines)
 	{
 		auto grey = RGB(160, 160, 170);
-		dc.DrawTimeline(line->GetName(), 0, y, rect.right - 200, grey);
+		dc.DrawTimeline(line->GetName(), 0, y, rect.right, grey);
 		for (auto& artifact : line->GetArtifacts())
 		{
 			dc.DrawSolidFlag(L"tag", artifact.GetPosition() + gdi::s_leftTextAreaBorder, y, artifact.GetColor(), artifact.GetFillColor());
