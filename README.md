@@ -81,7 +81,7 @@ Here are some features:
 - minimal delay of the traced application, compared to the original dbgview a factor of 10 better.
 - fast and responsive user-interface, even with +50.000 incoming lines per second
 - runs without prerequisites on WinXPSP3 and up (v1.5 and earlier also on WinXPSP2)
-- in-memory compressed logbuffer using google snappy (typically -50% RAM consumtion)
+- in-memory compressed logbuffer using google snappy (typically -50% RAM consumption)
 - tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
@@ -103,33 +103,12 @@ And more features:
   for a very long time)
 - tailing logfiles over samba network (experimental)
 - support for reading and tailing Sysinternals Dbgview logfiles (in the four most common formats)
-
-Added in 1.5:
-
-- added console version (DebugviewConsole.exe) for use without UI
-- several minor UI bugs fixed
+- socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
 - dbgview agent client mode allowing logging of kernel messages
-- added socket listening, Log->Sources->Add can add TCP and UDP listeners, the protocol is sending raw newline terminated strings. Multiple lines can be send in one packet.
-- fixed troubles with tabs (highlighting/logfile/regex)
 - timezone independent and human readable timestamps in the logfiles
-- save filters after changing instead of only at exit
-- moved filters out of sub-menu and add shortcut keys (try highlighting a word and pressing delete)
-- add basic support for tailing unicode logfiles (unicode characters are truncated)
-- fixed crash when saving files in UTC-n timezones
- 
-Not new features, but often overlooked, see below for details
+- add basic support for unicode, UTF-8 via OutputDebugString and both UTF8 and UTF16 with BOMs when reading files
 - View->Process Colors, easy way to give every process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
-
-Changes in 1.7.x so far:
-- restructuring log-sources code 
-- experimental horizontal scrolling by dragging mouse
-- fixed a bug in version 1.6.48 that prevented dbgview-agent messages from showing
-- added name of tailing file in window title
-- fixed swallowing newlines
-- fixed DebugviewConsole (was broken in 1.6)
-- fixed all tests
-- fixed threading-issues
 
 Download old version (stable, dated 20 Sept 2015)
 -----------------------
