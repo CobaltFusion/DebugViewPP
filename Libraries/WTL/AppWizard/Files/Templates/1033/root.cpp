@@ -121,7 +121,6 @@ public:
 		_Module.Lock();
 [!endif]
 		wndFrame.ShowWindow(pData->nCmdShow);
-		::SetForegroundWindow(wndFrame);	// Win95 needs this
 		delete pData;
 
 		int nRet = theLoop.Run();
@@ -244,13 +243,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 [!endif]
 {
 	HRESULT hRes = ::CoInitialize(NULL);
-// If you are running on NT 4.0 or higher you can use the following call instead to 
-// make the EXE free threaded. This means that calls come in on a random RPC thread.
-//	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
-
-	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
-	::DefWindowProc(NULL, 0, 0, 0L);
 
 [!if !WTL_USE_TOOLBAR || !WTL_USE_REBAR]
 	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls

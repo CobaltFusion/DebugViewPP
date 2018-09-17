@@ -1133,6 +1133,11 @@ typedef CRgnT<true>    CRgn;
 // CDC - The device context class
 
 template <bool t_bManaged>
+class CDCT;
+typedef CDCT<false>   CDCHandle;
+typedef CDCT<true>    CDC;
+
+template <bool t_bManaged>
 class CDCT
 {
 public:
@@ -3134,9 +3139,6 @@ public:
 	}
 };
 
-typedef CDCT<false>   CDCHandle;
-typedef CDCT<true>    CDC;
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // CDC Helpers
@@ -3250,7 +3252,7 @@ public:
 	PIXELFORMATDESCRIPTOR m_pfd;
 
 // Constructor/destructor
-	CEnhMetaFileInfo(HENHMETAFILE hEMF) : m_pBits(NULL), m_pDesc(NULL), m_hEMF(hEMF)
+	CEnhMetaFileInfo(HENHMETAFILE hEMF) : m_hEMF(hEMF), m_pBits(NULL), m_pDesc(NULL)
 	{ }
 
 	~CEnhMetaFileInfo()

@@ -814,12 +814,12 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CPrintPreviewWindowImpl : public ATL::CWindowImpl<T, TBase, TWinTraits>, public CPrintPreview
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, CS_VREDRAW | CS_HREDRAW, -1)
+	DECLARE_WND_CLASS_EX2(NULL, T, CS_VREDRAW | CS_HREDRAW, -1)
 
 	enum { m_cxOffset = 10, m_cyOffset = 10 };
 
 // Constructor
-	CPrintPreviewWindowImpl() : m_nMaxPage(0), m_nMinPage(0)
+	CPrintPreviewWindowImpl() : m_nMinPage(0), m_nMaxPage(0)
 	{ }
 
 // Operations
@@ -836,7 +836,7 @@ public:
 		if (m_nCurPage == m_nMaxPage)
 			return false;
 		SetPage(m_nCurPage + 1);
-		Invalidate();
+		this->Invalidate();
 		return true;
 	}
 
@@ -847,7 +847,7 @@ public:
 		if (m_nCurPage == 0)
 			return false;
 		SetPage(m_nCurPage - 1);
-		Invalidate();
+		this->Invalidate();
 		return true;
 	}
 
@@ -890,7 +890,7 @@ public:
 		this->GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;
@@ -1051,7 +1051,7 @@ public:
 		this->GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;

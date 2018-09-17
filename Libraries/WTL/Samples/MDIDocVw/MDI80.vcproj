@@ -271,7 +271,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\idr_boun.ico"
+				RelativePath=".\res\bounce.ico"
 				>
 			</File>
 			<File
@@ -296,10 +296,6 @@
 			</File>
 			<File
 				RelativePath=".\res\MDI.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\Mdi.ico"
 				>
 			</File>
 			<File

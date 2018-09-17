@@ -238,12 +238,6 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 	HWND hWndAddressBar = CreateAddressBarCtrl(m_hWnd);
 
-	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-
-	AddSimpleReBarBand(hWndCmdBar);
-	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
-	AddSimpleReBarBand(hWndAddressBar, _T("Address"), TRUE);
-
 	CreateSimpleStatusBar();
 
 	m_hWndClient = m_wndSplitter.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
@@ -264,6 +258,12 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	m_wndListView.SetExtendedListViewStyle(LVS_EX_TRACKSELECT | LVS_EX_ONECLICKACTIVATE | LVS_EX_UNDERLINEHOT);
 	
 	InitViews();
+
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+
+	AddSimpleReBarBand(hWndCmdBar);
+	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+	AddSimpleReBarBand(hWndAddressBar, _T("Address"), TRUE);
 
 	UpdateLayout();
 

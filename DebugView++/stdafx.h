@@ -13,7 +13,7 @@
 #define WINVER		    0x0600
 #define _WIN32_WINNT    0x0600
 #define _WIN32_IE	    0x0603
-#define _RICHEDIT_VER	0x0100
+#define _RICHEDIT_VER	0x0300
 
 #define _WTL_NO_CSTRING
 #define _CRT_NON_CONFORMING_SWPRINTFS

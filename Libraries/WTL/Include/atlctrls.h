@@ -3128,7 +3128,7 @@ public:
 		ATLASSERT((dwType == LVS_ICON) || (dwType == LVS_SMALLICON) || (dwType == LVS_LIST) || (dwType == LVS_REPORT));
 		DWORD dwOldType = GetViewType();
 		if(dwType != dwOldType)
-			ModifyStyle(LVS_TYPEMASK, (dwType & LVS_TYPEMASK));
+			this->ModifyStyle(LVS_TYPEMASK, (dwType & LVS_TYPEMASK));
 		return dwOldType;
 	}
 
@@ -5572,7 +5572,7 @@ public:
 #endif
 		ATLASSERT(::IsWindow(this->m_hWnd));
 		BOOL bRet = (BOOL)::SendMessage(this->m_hWnd, TB_GETITEMDROPDOWNRECT, nIndex, (LPARAM)lpRect);
-		bRet;   // avoid level 4 warning
+		(void)bRet;   // avoid level 4 warning
 		ATLASSERT(bRet != FALSE);
 	}
 #endif // (_WIN32_WINNT >= 0x0600)
@@ -7303,7 +7303,7 @@ public:
 	int GetTextRange(LONG nStartChar, LONG nEndChar, LPTSTR lpstrText) const
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		TEXTRANGE tr = { 0 };
+		TEXTRANGE tr = {};
 		tr.chrg.cpMin = nStartChar;
 		tr.chrg.cpMax = nEndChar;
 		tr.lpstrText = lpstrText;
@@ -7833,7 +7833,7 @@ public:
 
 		DWORD dwMode = 0;
 		BOOL bRet = (BOOL)::SendMessage(this->m_hWnd, EM_GETELLIPSISMODE, 0, (LPARAM)&dwMode);
-		bRet;   // avoid level 4 warning
+		(void)bRet;   // avoid level 4 warning
 		ATLASSERT(bRet != FALSE);
 
 		return dwMode;
@@ -7977,7 +7977,7 @@ public:
 			DWORD dwStyle = 0, DWORD dwExStyle = 0,
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
-		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
+		HWND hWnd = TBase::Create(TBase::GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
 		if(hWnd != NULL)
 			MakeDragList();
 		return hWnd;
@@ -8000,7 +8000,7 @@ public:
 	void DrawInsert(int nItem)
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		::DrawInsert(GetParent(), this->m_hWnd, nItem);
+		::DrawInsert(this->GetParent(), this->m_hWnd, nItem);
 	}
 
 	static UINT GetDragListMessage()
@@ -8038,7 +8038,7 @@ public:
 
 	LRESULT OnDragListNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		uMsg;   // avoid level 4 warning
+		(void)uMsg;   // avoid level 4 warning
 		ATLASSERT(uMsg == CDragListBox::GetDragListMessage());
 		T* pT = static_cast<T*>(this);
 		LPDRAGLISTINFO lpDragListInfo = (LPDRAGLISTINFO)lParam;

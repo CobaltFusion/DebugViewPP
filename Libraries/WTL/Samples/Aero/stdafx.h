@@ -9,7 +9,7 @@
 #define WINVER		0x0600
 #define _WIN32_WINNT	0x0600
 #define _WIN32_IE	0x0700
-#define _RICHEDIT_VER	0x0200
+#define _RICHEDIT_VER	0x0300
 
 #include <atlbase.h>
 #include <atlapp.h>

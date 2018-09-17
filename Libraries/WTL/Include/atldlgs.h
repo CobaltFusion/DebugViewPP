@@ -1091,7 +1091,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnFileOk();
 	}
 
@@ -1099,7 +1099,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnFolderChanging(psiFolder);
 	}
 
@@ -1107,7 +1107,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnFolderChange();
 	}
 
@@ -1115,7 +1115,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnSelectionChange();
 	}
 
@@ -1123,7 +1123,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnShareViolation(psi, pResponse);
 	}
 
@@ -1131,7 +1131,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnTypeChange();
 	}
 
@@ -1139,7 +1139,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
-		pfd;   // avoid level 4 warning
+		(void)pfd;   // avoid level 4 warning
 		return pT->OnOverwrite(psi, pResponse);
 	}
 
@@ -1792,36 +1792,36 @@ public:
 		USES_CONVERSION;
 		cf.dwEffects = 0;
 		cf.dwMask = 0;
-		if((m_cf.Flags & CF_NOSTYLESEL) == 0)
+		if((this->m_cf.Flags & CF_NOSTYLESEL) == 0)
 		{
 			cf.dwMask |= CFM_BOLD | CFM_ITALIC;
-			cf.dwEffects |= IsBold() ? CFE_BOLD : 0;
-			cf.dwEffects |= IsItalic() ? CFE_ITALIC : 0;
+			cf.dwEffects |= this->IsBold() ? CFE_BOLD : 0;
+			cf.dwEffects |= this->IsItalic() ? CFE_ITALIC : 0;
 		}
-		if((m_cf.Flags & CF_NOSIZESEL) == 0)
+		if((this->m_cf.Flags & CF_NOSIZESEL) == 0)
 		{
 			cf.dwMask |= CFM_SIZE;
 			// GetSize() returns in tenths of points so mulitply by 2 to get twips
-			cf.yHeight = GetSize() * 2;
+			cf.yHeight = this->GetSize() * 2;
 		}
 
-		if((m_cf.Flags & CF_NOFACESEL) == 0)
+		if((this->m_cf.Flags & CF_NOFACESEL) == 0)
 		{
 			cf.dwMask |= CFM_FACE;
-			cf.bPitchAndFamily = m_cf.lpLogFont->lfPitchAndFamily;
-			ATL::Checked::tcscpy_s(cf.szFaceName, _countof(cf.szFaceName), GetFaceName());
+			cf.bPitchAndFamily = this->m_cf.lpLogFont->lfPitchAndFamily;
+			ATL::Checked::tcscpy_s(cf.szFaceName, _countof(cf.szFaceName), this->GetFaceName());
 		}
 
-		if((m_cf.Flags & CF_EFFECTS) != 0)
+		if((this->m_cf.Flags & CF_EFFECTS) != 0)
 		{
 			cf.dwMask |= CFM_UNDERLINE | CFM_STRIKEOUT | CFM_COLOR;
-			cf.dwEffects |= IsUnderline() ? CFE_UNDERLINE : 0;
-			cf.dwEffects |= IsStrikeOut() ? CFE_STRIKEOUT : 0;
-			cf.crTextColor = GetColor();
+			cf.dwEffects |= this->IsUnderline() ? CFE_UNDERLINE : 0;
+			cf.dwEffects |= this->IsStrikeOut() ? CFE_STRIKEOUT : 0;
+			cf.crTextColor = this->GetColor();
 		}
-		if((m_cf.Flags & CF_NOSCRIPTSEL) == 0)
+		if((this->m_cf.Flags & CF_NOSCRIPTSEL) == 0)
 		{
-			cf.bCharSet = m_cf.lpLogFont->lfCharSet;
+			cf.bCharSet = this->m_cf.lpLogFont->lfCharSet;
 			cf.dwMask |= CFM_CHARSET;
 		}
 		cf.yOffset = 0;
@@ -2958,7 +2958,7 @@ public:
 		}
 	}
 
-	CDialogBaseUnits(LOGFONT lf, HWND hWnd = NULL)
+	CDialogBaseUnits(const LOGFONT& lf, HWND hWnd = NULL)
 	{
 		if(!InitDialogBaseUnits(lf, hWnd)) {
 			LONG nDlgBaseUnits = ::GetDialogBaseUnits();
@@ -2978,7 +2978,7 @@ public:
 		return TRUE;
 	}
 
-	BOOL InitDialogBaseUnits(LOGFONT lf, HWND hWnd = NULL)
+	BOOL InitDialogBaseUnits(const LOGFONT& lf, HWND hWnd = NULL)
 	{
 		CFont font;
 		font.CreateFontIndirect(&lf);
@@ -2990,8 +2990,8 @@ public:
 	{
 		ATLASSERT(hFont != NULL);
 		CWindowDC dc = hWnd;
-		TEXTMETRIC tmText = { 0 };
-		SIZE sizeText = { 0 };
+		TEXTMETRIC tmText = {};
+		SIZE sizeText = {};
 		HFONT hFontOld = dc.SelectFont(hFont);
 		dc.GetTextMetrics(&tmText);
 		m_sizeUnits.cy = tmText.tmHeight + tmText.tmExternalLeading;
@@ -3378,7 +3378,7 @@ typedef CMemDlgTemplateT<ATL::CControlWinTraits>	CMemDlgTemplate;
 
 #define END_DIALOG() \
 		m_Template.Create(bExTemplate, szCaption, nX, nY, nWidth, nHeight, dwStyle, dwExStyle, szFontName, wFontSize, wWeight, bItalic, bCharset, dwHelpID, ClassName, Menu); \
-	};
+	}
 
 #define DIALOG_CAPTION(caption) \
 		szCaption = caption;
@@ -3406,7 +3406,7 @@ typedef CMemDlgTemplateT<ATL::CControlWinTraits>	CMemDlgTemplate;
 	{
 
 #define END_CONTROLS_MAP() \
-	};
+	}
 
 
 #define CONTROL_LTEXT(text, id, x, y, width, height, style, exStyle) \
@@ -3842,7 +3842,7 @@ public:
 // Callback function and overrideables
 	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM lParam)
 	{
-		lParam;   // avoid level 4 warning
+		(void)lParam;   // avoid level 4 warning
 		int nRet = 0;
 
 		if(uMsg == PSCB_INITIALIZED)
@@ -4282,7 +4282,7 @@ public:
 // Callback function and overrideables
 	static UINT CALLBACK PropPageCallback(HWND hWnd, UINT uMsg, LPPROPSHEETPAGE ppsp)
 	{
-		hWnd;   // avoid level 4 warning
+		(void)hWnd;   // avoid level 4 warning
 		ATLASSERT(hWnd == NULL);
 		T* pT = (T*)ppsp->lParam;
 		UINT uRet = 0;
@@ -4660,7 +4660,7 @@ public:
 			m_hInitData(NULL), m_hDlgRes(NULL), m_hDlgResSplit(NULL)
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 
 		// initialize ActiveX hosting and modify dialog template
 		ATL::AtlAxWinInit();
@@ -5172,8 +5172,8 @@ public:
 		CFontHandle fontThisDialog = this->GetFont();
 		CClientDC dcScreen(NULL);
 
-		LOGFONT titleLogFont = {0};
-		LOGFONT bulletLogFont = {0};
+		LOGFONT titleLogFont = {};
+		LOGFONT bulletLogFont = {};
 		fontThisDialog.GetLogFont(&titleLogFont);
 		fontThisDialog.GetLogFont(&bulletLogFont);
 
@@ -5443,19 +5443,19 @@ public:
 // Operations
 	void EnableResizing()
 	{
-		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
+		ATLASSERT(this->m_hWnd == NULL);   // can't do this after it's created
 		this->m_psh.dwFlags |= PSH_RESIZABLE;
 	}
 
 	void UseHeaderBitmap()
 	{
-		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
+		ATLASSERT(this->m_hWnd == NULL);   // can't do this after it's created
 		this->m_psh.dwFlags |= PSH_HEADERBITMAP;
 	}
 
 	void SetNoMargin()
 	{
-		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
+		ATLASSERT(this->m_hWnd == NULL);   // can't do this after it's created
 		this->m_psh.dwFlags |= PSH_NOMARGIN;
 	}
 

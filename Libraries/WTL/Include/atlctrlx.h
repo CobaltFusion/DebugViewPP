@@ -64,7 +64,7 @@ template <class T, class TBase = CButton, class TWinTraits = ATL::CControlWinTra
 class ATL_NO_VTABLE CBitmapButtonImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 	enum
 	{
@@ -643,7 +643,7 @@ template <class T, class TBase = CListViewCtrl, class TWinTraits = CCheckListVie
 class ATL_NO_VTABLE CCheckListViewCtrlImpl : public ATL::CWindowImpl<T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 // Attributes
 	static DWORD GetExtendedLVStyle()
@@ -692,7 +692,7 @@ public:
 	void Init()
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		ATLASSERT((pT->GetExtendedLVStyle() & LVS_EX_CHECKBOXES) != 0);
 		this->SetExtendedListViewStyle(pT->GetExtendedLVStyle());
 	}
@@ -1009,7 +1009,7 @@ public:
 			if(m_hFontLink != NULL)
 				hOldFont = dc.SelectFont(m_hFontLink);
 			LPTSTR lpstrText = (m_lpstrLabel != NULL) ? m_lpstrLabel : m_lpstrHyperLink;
-			DWORD dwStyle = GetStyle();
+			DWORD dwStyle = this->GetStyle();
 			UINT uFormat = DT_LEFT;
 			if (dwStyle & SS_CENTER)
 				uFormat = DT_CENTER;
@@ -1867,7 +1867,7 @@ template <class T, class TBase = CStatusBarCtrl>
 class ATL_NO_VTABLE CMultiPaneStatusBarCtrlImpl : public ATL::CWindowImpl< T, TBase >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 // Data
 	enum { m_cxPaneMargin = 3 };
@@ -1887,7 +1887,7 @@ public:
 // Methods
 	HWND Create(HWND hWndParent, LPCTSTR lpstrText, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP, UINT nID = ATL_IDW_STATUS_BAR)
 	{
-		return ATL::CWindowImpl< T, TBase >::Create(hWndParent, rcDefault, lpstrText, dwStyle, 0, nID);
+		return ATL::CWindowImpl< T, TBase >::Create(hWndParent, this->rcDefault, lpstrText, dwStyle, 0, nID);
 	}
 
 	HWND Create(HWND hWndParent, UINT nTextID = ATL_IDS_IDLEMESSAGE, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP, UINT nID = ATL_IDW_STATUS_BAR)
@@ -1922,7 +1922,7 @@ public:
 
 		// get status bar DC and set font
 		CClientDC dc(this->m_hWnd);
-		HFONT hOldFont = dc.SelectFont(GetFont());
+		HFONT hOldFont = dc.SelectFont(this->GetFont());
 
 		// get status bar borders
 		int arrBorders[3] = { 0 };
@@ -1946,7 +1946,7 @@ public:
 				::LoadString(ModuleHelper::GetResourceInstance(), pPanes[i], szBuff, cchBuff);
 				dc.GetTextExtent(szBuff, lstrlen(szBuff), &size);
 				T* pT = static_cast<T*>(this);
-				pT;
+				(void)pT;   // avoid level 4 warning
 				pPanesPos[i] = cxLeft + size.cx + arrBorders[2] + 2 * pT->m_cxPaneMargin;
 			}
 			cxLeft = pPanesPos[i];
@@ -2193,7 +2193,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CPaneContainerImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, public CCustomDraw< T >
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, 0, -1)
+	DECLARE_WND_CLASS_EX2(NULL, T, 0, -1)
 
 // Constants
 	enum
@@ -2339,7 +2339,7 @@ public:
 	{
 		if(lpstrTitle != NULL)
 			ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
-		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
+		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, this->rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
 	}
 
 	HWND Create(HWND hWndParent, UINT uTitleID, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
@@ -2347,7 +2347,7 @@ public:
 	{
 		if(uTitleID != 0U)
 			::LoadString(ModuleHelper::GetResourceInstance(), uTitleID, m_szTitle, m_cchTitle);
-		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
+		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, this->rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
 	}
 
 	BOOL SubclassWindow(HWND hWnd)
@@ -2370,7 +2370,7 @@ public:
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		return (m_tb.m_hWnd != NULL) ? m_tb.EnableButton(pT->m_nCloseBtnID, bEnable) : FALSE;
 	}
 
@@ -2495,7 +2495,7 @@ public:
 		}
 
 		T* pT = static_cast<T*>(this);
-		pT;
+		(void)pT;   // avoid level 4 warning
 		LPNMHDR lpnmh = (LPNMHDR)lParam;
 		LRESULT lRet = 0;
 
@@ -2628,7 +2628,7 @@ public:
 		if(m_tb.m_hWnd != NULL)
 		{
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 
 			m_tb.SetButtonStructSize();
 
@@ -3497,11 +3497,11 @@ template <class T, class TBase = CListViewCtrl, class TWinTraits = CSortListView
 class ATL_NO_VTABLE CSortListViewCtrlImpl: public ATL::CWindowImpl<T, TBase, TWinTraits>, public CSortListViewImpl<T>
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 	bool SortItems(int iCol, bool bDescending = false)
 	{
-		return DoSortItems(iCol, bDescending);
+		return this->DoSortItems(iCol, bDescending);
 	}
 		
 	BEGIN_MSG_MAP(CSortListViewCtrlImpl)
@@ -3541,7 +3541,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CTabViewImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_CLASS_EX(NULL, 0, COLOR_APPWORKSPACE)
+	DECLARE_WND_CLASS_EX2(NULL, T, 0, COLOR_APPWORKSPACE)
 
 // Declarations and enums
 	struct TABVIEWPAGE
@@ -3602,9 +3602,9 @@ public:
 
 // Constructor/destructor
 	CTabViewImpl() :
-			m_nActivePage(-1), 
-			m_cyTabHeight(0), 
-			m_tab(this, 1), 
+			m_tab(this, 1),
+			m_cyTabHeight(0),
+			m_nActivePage(-1),
 			m_nInsertItem(-1), 
 			m_cchTabTextLength(30), 
 			m_nMenuItemsCount(10), 
@@ -4059,7 +4059,7 @@ public:
 
 		CMenuHandle menu = hMenu;
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		int nFirstPos = 0;
 
 		// Find first menu item in our range

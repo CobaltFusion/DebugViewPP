@@ -40,7 +40,6 @@ extern CAppModule _Module;
 #include <atlctrlx.h>
 #include <atlscrl.h>
 
-#ifdef _EMBEDDED_MANIFEST
 #if defined _M_IX86
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #elif defined _M_IA64
@@ -50,6 +49,5 @@ extern CAppModule _Module;
 #else
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
-#endif // _EMBEDDED_MANIFEST
 
 #endif // !defined(AFX_STDAFX_H__215476E2_9EAF_445C_9A58_E8CBCF4461AE__INCLUDED_)

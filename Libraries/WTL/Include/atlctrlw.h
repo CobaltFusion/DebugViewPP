@@ -182,7 +182,7 @@ template <class T, class TBase = CCommandBarCtrlBase, class TWinTraits = ATL::CC
 class ATL_NO_VTABLE CCommandBarCtrlImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS2(NULL, T, TBase::GetWndClassName())
 
 // Declarations
 	struct _MenuItemData	// menu item data
@@ -278,31 +278,31 @@ public:
 	CCommandBarCtrlImpl() : 
 			m_hMenu(NULL), 
 			m_hImageList(NULL), 
-			m_wndParent(this, 1), 
+			m_dwExtendedStyle(CBR_EX_TRANSPARENT | CBR_EX_SHAREMENU | CBR_EX_TRACKALWAYS),
+			m_wndParent(this, 1),
 			m_bMenuActive(false), 
 			m_bAttachedMenu(false), 
-			m_nPopBtn(-1), 
-			m_nNextPopBtn(-1), 
-			m_bPopupItem(false),
 			m_bImagesVisible(true),
-			m_bSkipMsg(false),
-			m_uSysKey(0),
-			m_hWndFocus(NULL),
+			m_bPopupItem(false),
 			m_bContextMenu(false),
 			m_bEscapePressed(false),
-			m_clrMask(RGB(192, 192, 192)),
-			m_dwExtendedStyle(CBR_EX_TRANSPARENT | CBR_EX_SHAREMENU | CBR_EX_TRACKALWAYS),
+			m_bSkipMsg(false),
 			m_bParentActive(true),
 			m_bFlatMenus(false),
 			m_bUseKeyboardCues(false),
 			m_bShowKeyboardCues(false),
 			m_bAllowKeyboardCues(true),
 			m_bKeyboardInput(false),
-			m_cxExtraSpacing(0),
 			m_bAlphaImages(false),
 			m_bLayoutRTL(false),
 			m_bSkipPostDown(false),
-			m_bVistaMenus(false)
+			m_bVistaMenus(false),
+			m_nPopBtn(-1),
+			m_nNextPopBtn(-1), 
+			m_clrMask(RGB(192, 192, 192)),
+			m_uSysKey(0),
+			m_hWndFocus(NULL),
+			m_cxExtraSpacing(0)
 	{
 		SetImageSize(16, 15);   // default
  	}
@@ -427,8 +427,8 @@ public:
 
 	HWND GetCmdBar() const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		return (HWND)::SendMessage(m_hWnd, CBRM_GETCMDBAR, 0, 0L);
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		return (HWND)::SendMessage(this->m_hWnd, CBRM_GETCMDBAR, 0, 0L);
 	}
 
 // Methods
@@ -443,9 +443,9 @@ public:
 
 	BOOL AttachToWindow(HWND hWnd)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
-		BOOL bRet = SubclassWindow(hWnd);
+		BOOL bRet = this->SubclassWindow(hWnd);
 		if(bRet)
 		{
 			m_bAttachedMenu = true;
@@ -457,7 +457,7 @@ public:
 
 	BOOL LoadMenu(ATL::_U_STRINGorID menu)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 
 		if(m_bAttachedMenu)   // doesn't work in this mode
 			return FALSE;
@@ -510,7 +510,7 @@ public:
 			int nItems = ::GetMenuItemCount(m_hMenu);
 
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			for(int i = 0; i < nItems; i++)
 			{
@@ -656,7 +656,7 @@ public:
 
 	BOOL AddBitmap(ATL::_U_STRINGorID bitmap, int nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		CBitmap bmp;
 		bmp.LoadBitmap(bitmap.m_lpstr);
 		if(bmp.m_hBitmap == NULL)
@@ -666,7 +666,7 @@ public:
 
 	BOOL AddBitmap(HBITMAP hBitmap, UINT nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		T* pT = static_cast<T*>(this);
 		// Create image list if it doesn't exist
 		if(m_hImageList == NULL)
@@ -701,7 +701,7 @@ public:
 
 	BOOL AddIcon(ATL::_U_STRINGorID icon, UINT nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		HICON hIcon = ::LoadIcon(ModuleHelper::GetResourceInstance(), icon.m_lpstr);
 		if(hIcon == NULL)
 			return FALSE;
@@ -710,7 +710,7 @@ public:
 
 	BOOL AddIcon(HICON hIcon, UINT nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		T* pT = static_cast<T*>(this);
 		// create image list if it doesn't exist
 		if(m_hImageList == NULL)
@@ -736,7 +736,7 @@ public:
 
 	BOOL ReplaceBitmap(ATL::_U_STRINGorID bitmap, int nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		CBitmap bmp;
 		bmp.LoadBitmap(bitmap.m_lpstr);
 		if(bmp.m_hBitmap == NULL)
@@ -746,7 +746,7 @@ public:
 
 	BOOL ReplaceBitmap(HBITMAP hBitmap, UINT nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		BOOL bRet = FALSE;
 		for(int i = 0; i < m_arrCommand.GetSize(); i++)
 		{
@@ -775,7 +775,7 @@ public:
 
 	BOOL ReplaceIcon(ATL::_U_STRINGorID icon, UINT nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		HICON hIcon = ::LoadIcon(ModuleHelper::GetResourceInstance(), icon.m_lpstr);
 		if(hIcon == NULL)
 			return FALSE;
@@ -784,7 +784,7 @@ public:
 
 	BOOL ReplaceIcon(HICON hIcon, UINT nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		BOOL bRet = FALSE;
 		for(int i = 0; i < m_arrCommand.GetSize(); i++)
 		{
@@ -806,7 +806,7 @@ public:
 
 	BOOL RemoveImage(int nCommandID)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 
 		BOOL bRet = FALSE;
 		for(int i = 0; i < m_arrCommand.GetSize(); i++)
@@ -834,7 +834,7 @@ public:
 
 	BOOL RemoveAllImages()
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - Removing all images\n"));
 		BOOL bRet = ::ImageList_RemoveAll(m_hImageList);
@@ -988,7 +988,7 @@ public:
 					pData->hMsgHook = hMsgHook;
 					pData->dwUsage = 1;
 					BOOL bRet = this->s_pmapMsgHook->Add(dwThreadID, pData);
-					bRet;
+					(void)bRet;   // avoid level 4 warning
 					ATLASSERT(bRet);
 				}
 			}
@@ -1272,7 +1272,7 @@ public:
 			ATLASSERT(menuPopup.m_hMenu != NULL);
 
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			BOOL bRet = FALSE;
 			for(int i = 0; i < menuPopup.GetMenuItemCount(); i++)
@@ -1416,7 +1416,7 @@ public:
 
 	LRESULT OnWindowPosChanging(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
-		LRESULT lRet = DefWindowProc(uMsg, wParam, lParam);
+		LRESULT lRet = this->DefWindowProc(uMsg, wParam, lParam);
 
 		LPWINDOWPOS lpWP = (LPWINDOWPOS)lParam;
 		int cyMin = ::GetSystemMetrics(SM_CYMENU);
@@ -1935,7 +1935,7 @@ public:
 		if(!m_bAllowKeyboardCues)
 			m_bAllowKeyboardCues = true;
 		bHandled = FALSE;
-		wParam;
+		(void)wParam;   // avoid level 4 warning
 #ifdef _CMDBAR_EXTRA_TRACE
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - Hook WM_SYSKEYUP (0x%2.2X)\n"), wParam);
 #endif
@@ -3260,7 +3260,7 @@ public:
 // Operations
 	BOOL SetMDIClient(HWND hWndMDIClient)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(::IsWindow(hWndMDIClient));
 		if(!::IsWindow(hWndMDIClient))
 			return FALSE;
@@ -3694,7 +3694,7 @@ public:
 		m_wndMDIClient.DefWindowProc(uMsg, NULL, lParam);
 		HMENU hOldMenu = this->GetMenu();
 		BOOL bRet = this->AttachMenu((HMENU)wParam);
-		bRet;   // avoid level 4 warning
+		(void)bRet;   // avoid level 4 warning
 		ATLASSERT(bRet);
 
 		T* pT = static_cast<T*>(this);

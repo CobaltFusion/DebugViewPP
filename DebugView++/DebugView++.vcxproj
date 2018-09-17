@@ -105,7 +105,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\WTL\Include;..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -154,7 +154,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\WTL\Include;..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -202,7 +202,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Full</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\WTL\Include;..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -256,7 +256,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Full</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Libraries\WTL\Include;..\Libraries\crashpad\include;..\Libraries\TabbingFramework;..\Libraries\PropertyGrid;..\CobaltFusion;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -351,7 +351,6 @@
     <ResourceCompile Include="DebugView++.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="packages.config" />
     <None Include="res\Bookmark.ico" />
     <None Include="res\DebugView++.ico" />
@@ -375,7 +374,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\wtl.9.1.1\build\native\wtl.targets" Condition="Exists('..\packages\wtl.9.1.1\build\native\wtl.targets')" />
     <Import Project="..\packages\boost.1.68.0.0\build\boost.targets" Condition="Exists('..\packages\boost.1.68.0.0\build\boost.targets')" />
     <Import Project="..\packages\boost_date_time-vc141.1.68.0.0\build\boost_date_time-vc141.targets" Condition="Exists('..\packages\boost_date_time-vc141.1.68.0.0\build\boost_date_time-vc141.targets')" />
     <Import Project="..\packages\boost_regex-vc141.1.68.0.0\build\boost_regex-vc141.targets" Condition="Exists('..\packages\boost_regex-vc141.1.68.0.0\build\boost_regex-vc141.targets')" />
@@ -385,7 +383,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\wtl.9.1.1\build\native\wtl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\wtl.9.1.1\build\native\wtl.targets'))" />
     <Error Condition="!Exists('..\packages\boost.1.68.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.68.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('..\packages\boost_date_time-vc141.1.68.0.0\build\boost_date_time-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_date_time-vc141.1.68.0.0\build\boost_date_time-vc141.targets'))" />
     <Error Condition="!Exists('..\packages\boost_regex-vc141.1.68.0.0\build\boost_regex-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_regex-vc141.1.68.0.0\build\boost_regex-vc141.targets'))" />

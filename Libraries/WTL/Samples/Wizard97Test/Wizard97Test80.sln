@@ -6,18 +6,12 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
-		Unicode Debug|Win32 = Unicode Debug|Win32
-		Unicode Release|Win32 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Debug|Win32.Build.0 = Debug|Win32
 		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Release|Win32.ActiveCfg = Release|Win32
 		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Release|Win32.Build.0 = Release|Win32
-		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
-		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
-		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
-		{AADB8628-DC1E-4AC9-ABE6-0C692A68F56F}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

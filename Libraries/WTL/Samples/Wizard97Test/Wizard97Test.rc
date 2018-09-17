@@ -43,14 +43,6 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "#ifndef _EMBEDDED_MANIFEST\r\n"
-    "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST ""res\\\\Wizard97Test.exe.manifest""\r\n"
-    "#endif\r\n"
-    "\0"
-END
-
 #endif    // APSTUDIO_INVOKED
 
 
@@ -471,18 +463,3 @@ END
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-#ifndef _EMBEDDED_MANIFEST
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\Wizard97Test.exe.manifest"
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-

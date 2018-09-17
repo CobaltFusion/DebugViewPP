@@ -148,7 +148,7 @@ class CDwmImpl : public TBase
 public:
 	HRESULT DwmEnableBlurBehindWindow(const DWM_BLURBEHIND* pBB)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -158,7 +158,7 @@ public:
 
 	HRESULT DwmExtendFrameIntoClientArea(const MARGINS* pMargins)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -174,7 +174,7 @@ public:
 
 	HRESULT DwmGetCompositionTimingInfo(DWM_TIMING_INFO* pTimingInfo)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -184,7 +184,7 @@ public:
 
 	HRESULT DwmGetWindowAttribute(DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -194,7 +194,7 @@ public:
 
 	HRESULT DwmModifyPreviousDxFrameDuration(INT cRefreshes, BOOL fRelative)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -204,7 +204,7 @@ public:
 
 	HRESULT DwmSetDxFrameDuration(INT cRefreshes)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -214,7 +214,7 @@ public:
 
 	HRESULT DwmSetPresentParameters(DWM_PRESENT_PARAMETERS* pPresentParams)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -224,7 +224,7 @@ public:
 
 	HRESULT DwmSetWindowAttribute(DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -234,7 +234,7 @@ public:
 
 	HRESULT DwmAttachMilContent()
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -244,7 +244,7 @@ public:
 
 	HRESULT DwmDetachMilContent()
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		T* pT = static_cast<T*>(this);
@@ -262,7 +262,7 @@ public:
 
 	CDwmWindowT< TBase >& operator =(HWND hWnd)
 	{
-		m_hWnd = hWnd;
+		this->m_hWnd = hWnd;
 		return *this;
 	}
 };
@@ -317,7 +317,7 @@ public:
 		ATLASSERT(::IsWindow(hwndSource));
 		ATLASSERT(m_hThumbnail==NULL);
 
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		return ::DwmRegisterThumbnail(hwndDestination, hwndSource, &m_hThumbnail);
@@ -343,7 +343,7 @@ public:
 
 	HRESULT UpdateProperties(const DWM_THUMBNAIL_PROPERTIES* ptnProperties)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		ATLASSERT(m_hThumbnail != NULL);
@@ -353,7 +353,7 @@ public:
 // Attributes
 	HRESULT QuerySourceSize(PSIZE pSize)
 	{
-		if(!IsDwmSupported())
+		if(!this->IsDwmSupported())
 			return E_NOTIMPL;
 
 		ATLASSERT(m_hThumbnail != NULL);
@@ -424,7 +424,7 @@ public:
 // Operations
 	BOOL SubclassWindow(HWND hWnd)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
 		BOOL bRet = _windowClass::SubclassWindow(hWnd);
 		if(bRet)
@@ -478,7 +478,7 @@ public:
 	void Init()
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		this->SetThemeClassList(pT->GetThemeName());
 		if(this->m_lpstrThemeClassList != NULL)
 			this->OpenThemeData();

@@ -61,9 +61,15 @@ gdi::Pixel ViewPort::ToPx(TimePoint p) const
 	return px;
 }
 
-TimePoint ViewPort::ToTimePoint(gdi::Pixel p) const
+Duration AsDuration(TimePoint p)
 {
-	return TimePoint(p * m_timeunitPerPixel);
+	return p.time_since_epoch();
+}
+
+// returns duration relative to the begin of the viewport.
+Duration ViewPort::ToDuration(gdi::Pixel p) const
+{
+	return p * m_timeunitPerPixel;
 }
 
 bool ViewPort::Contains(TimePoint p) const
@@ -73,8 +79,7 @@ bool ViewPort::Contains(TimePoint p) const
 
 std::wstring ViewPort::FormatAsTime(gdi::Pixel p)
 {
-	auto t = ToTimePoint(p);
-	return FormatDuration(t - m_begin);
+	return FormatDuration(AsDuration(m_begin + ToDuration(p)));
 }
 
 // zooming should be done by: 
@@ -86,10 +91,10 @@ void ViewPort::ZoomInTo(gdi::Pixel position)
 {
 	cdbg << "ZoomInTo: " << position << "\n";
 	m_zoomFactor = std::min(10000, m_zoomFactor + 50);
-	//auto zoomTimePoint = ToTimePoint(position);
+	auto zoomTimePoint = m_begin + ToDuration(position);
 	m_timeunitPerPixel = m_timeunitPerPixelBase * m_zoomFactor / 1000;
-	//auto zeroDelta = ToTimePoint(position) - zoomTimePoint;
-	//m_begin += zeroDelta;
+	auto zeroDelta = m_begin + ToDuration(position);
+	m_begin = TimePoint(zeroDelta - zoomTimePoint);
 	
 }
 

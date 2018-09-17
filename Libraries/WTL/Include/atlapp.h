@@ -158,7 +158,7 @@ inline HFONT AtlGetDefaultGuiFont()
 // (NOTE: Caller owns the font, and should destroy it when it's no longer needed)
 inline HFONT AtlCreateControlFont()
 {
-	LOGFONT lf = { 0 };
+	LOGFONT lf = {};
 	ATLVERIFY(::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lf, 0) != FALSE);
 	HFONT hFont = ::CreateFontIndirect(&lf);
 	ATLASSERT(hFont != NULL);
@@ -169,7 +169,7 @@ inline HFONT AtlCreateControlFont()
 // (NOTE: Caller owns the font, and should destroy it when it's no longer needed)
 inline HFONT AtlCreateBoldFont(HFONT hFont = NULL)
 {
-	LOGFONT lf = { 0 };
+	LOGFONT lf = {};
 	if(hFont == NULL)
 		ATLVERIFY(::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lf, 0) != FALSE);
 	else

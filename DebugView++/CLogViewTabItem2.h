@@ -67,7 +67,7 @@ public:
 	ViewPort(TimePoint begin, TimePoint end, Duration timeUnitPerPixel);
 	bool Contains(TimePoint p) const;
 	gdi::Pixel ToPx(TimePoint p) const;
-	TimePoint ToTimePoint(gdi::Pixel p) const;
+	Duration ToDuration(gdi::Pixel p) const;
 	std::wstring FormatAsTime(gdi::Pixel p);
 
 	void SetWidth(gdi::Pixel width);
