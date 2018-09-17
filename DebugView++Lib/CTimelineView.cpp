@@ -13,6 +13,7 @@
 #include "CobaltFusion/dbgstream.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/stringbuilder.h"
+#include <algorithm>
 
 namespace fusion {
 namespace gdi {
