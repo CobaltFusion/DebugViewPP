@@ -12,6 +12,7 @@
 #include "LogView.h"
 #include <chrono>
 #include <algorithm>
+#include <iostream>
 
 namespace fusion {
 namespace debugviewpp {
@@ -72,6 +73,13 @@ Duration ViewPort::ToDuration(gdi::Pixel p) const
 	return p * m_timeunitPerPixel;
 }
 
+// returns duration relative to the begin of the viewport.
+TimePoint ViewPort::ToTimePoint(gdi::Pixel p) const
+{
+	return m_begin + (p * m_timeunitPerPixel);
+}
+
+
 bool ViewPort::Contains(TimePoint p) const
 {
 	return (p >= m_begin) && (p <= m_end);
@@ -84,25 +92,48 @@ std::wstring ViewPort::FormatAsTime(gdi::Pixel p)
 
 // zooming should be done by: 
 // - changing the m_timeunitPerPixel value
-// - keeping the cursur position fixed (pixel precise)
+// - keeping the cursor position fixed (pixel precise)
 // - offsetting the scale to match the timeline, not the other way around, this way the numbers on the scale can always remain powers of 10 
+
+// Increase / Decrease sequence of 1, 2, 5, 10, 20, 50, 100, 200, etc...
+Duration Increase(Duration d)
+{
+	Duration temp = d;
+	while (temp > 10ns) temp /= 10;
+	if (temp == 2ns) return (d * 2) + (d / 2);
+	return d * 2;
+}
+
+Duration Decrease(Duration d)
+{
+	Duration temp = d;
+	while (temp > 10ns) temp /= 10;
+	if (temp == 5ns) return (d - (d / 5)) / 2;
+	return std::max(1ns, d / 2);
+}
+
+TimePoint CorrectBegin(TimePoint begin, TimePoint t1, TimePoint t2)
+{
+	//return std::max(TimePoint(), begin + (t1 - t2));		// not correct, weird behaviour around 0
+	return begin + (t1 - t2);
+}
 
 void ViewPort::ZoomInTo(gdi::Pixel position)
 {
-	cdbg << "ZoomInTo: " << position << "\n";
-	m_zoomFactor = std::min(10000, m_zoomFactor + 50);
-	auto zoomTimePoint = m_begin + ToDuration(position);
-	m_timeunitPerPixel = m_timeunitPerPixelBase * m_zoomFactor / 1000;
-	auto zeroDelta = m_begin + ToDuration(position);
-	m_begin = TimePoint(zeroDelta - zoomTimePoint);
-	
+	auto t1 = ToTimePoint(position);
+	//if (t1 < TimePoint(0ns)) return;
+	m_timeunitPerPixel = Decrease(m_timeunitPerPixel);
+	auto t2 = ToTimePoint(position);
+	m_begin = CorrectBegin(m_begin, t1, t2);
 }
 
 void ViewPort::ZoomOut(gdi::Pixel position)
 {
-	cdbg << "ZoomOut: " << position << "\n";
-	m_zoomFactor = std::max(50, m_zoomFactor - 50);
-	m_timeunitPerPixel = m_timeunitPerPixelBase * m_zoomFactor / 1000;
+	auto t1 = ToTimePoint(position);
+//	if (t1 < TimePoint(0ns)) return;
+	m_timeunitPerPixel = Increase(m_timeunitPerPixel);
+	auto t2 = ToTimePoint(position);
+	m_begin = CorrectBegin(m_begin, t1, t2);
 }
 
 void DisablePaneHeader(CMyPaneContainer& panecontainer)
@@ -132,9 +163,19 @@ void CLogViewTabItem2::Create(HWND parent)
 	m_timelineView.SetDataProvider([&]() {
 
 		auto info = std::make_shared<gdi::Line>(L"Some info2");
-		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(350ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
-		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(400ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
-		Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(500ms)), gdi::Artifact::Type::Flag));
+
+		if (m_viewPort.Contains(TimePoint(350ms)))
+		{
+			Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(350ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0)));
+		}
+		if (m_viewPort.Contains(TimePoint(400ms)))
+		{
+			Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(400ms)), gdi::Artifact::Type::Flag, RGB(255, 0, 0), RGB(0, 255, 0)));
+		}
+		if (m_viewPort.Contains(TimePoint(500ms)))
+		{
+			Add(m_viewPort, *info, gdi::Artifact(m_viewPort.ToPx(TimePoint(500ms)), gdi::Artifact::Type::Flag));
+		}
 
 		auto sequence = std::make_shared<gdi::Line>(L"Move Sequence");
 		sequence->Add(gdi::Artifact(615, gdi::Artifact::Type::Flag, RGB(160, 160, 170)));

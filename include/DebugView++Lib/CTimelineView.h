@@ -38,7 +38,7 @@ public:
 	Artifact(Artifact&&) = default;
 	Artifact& operator = (Artifact&&) = default;
 
-	enum class Type { Flag, StartStopEvent };
+	enum class Type { Flag, StartStopEvent, SelectCursor };
 
 	Artifact(int position, Artifact::Type type);
 	Artifact(int position, Artifact::Type type, COLORREF color);
