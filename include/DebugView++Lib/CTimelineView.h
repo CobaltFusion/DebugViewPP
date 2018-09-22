@@ -91,6 +91,7 @@ public:
 		MSG_WM_MOUSEWHEEL(OnMouseWheel)
 		MSG_WM_MOUSEMOVE(OnMouseMove)
 		MSG_WM_HSCROLL(OnHScroll)
+		MSG_WM_LBUTTONDOWN(OnLButtonDown)
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CTimelineView>)
 	END_MSG_MAP()
 
@@ -99,11 +100,12 @@ public:
 	BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar);
 	void OnMouseMove(UINT nFlags, CPoint point);
+	void OnLButtonDown(UINT flags, CPoint point);
 
 	using FormatFunction = std::function<std::wstring(Pixel position)>;
 	void SetFormatter(FormatFunction f);
 
-	using MouseScrollCallback = std::function<void(Pixel position, int direction)>;
+	using MouseScrollCallback = std::function<void(Pixel cursorPosition, Pixel selectedPosition, int direction)>;
 	void SetMouseScrollCallback(MouseScrollCallback f);
 
 	using DataProvider = std::function<TimeLines()>;
@@ -113,13 +115,14 @@ private:
 	TimeLines Recalculate(gdi::TimelineDC& dc);
 	void PaintScale(gdi::TimelineDC& dc);
 	void PaintTimelines(gdi::TimelineDC& dc);
-	void PaintCursor(gdi::TimelineDC& dc);
+	void PaintCursors(gdi::TimelineDC& dc);
 	LONG GetTrackPos32(int nBar);
 
 	Pixel m_minorTickSize = 10;
 	Pixel m_minorTicksPerMajorTick = 10;
 	Pixel m_tickOffset = 0;
 	Pixel m_cursorPosition = 0;
+	Pixel m_selectedPosition = 0;
 
 	SCROLLINFO m_scrollInfo;
 	FormatFunction m_formatFunction;

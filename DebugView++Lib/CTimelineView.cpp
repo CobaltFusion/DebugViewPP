@@ -103,9 +103,16 @@ void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
 
 BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	m_mouseScrollCallback(m_cursorPosition - gdi::s_leftTextAreaBorder, zDelta);
+	m_mouseScrollCallback(m_cursorPosition - gdi::s_leftTextAreaBorder, m_selectedPosition - gdi::s_leftTextAreaBorder, zDelta);
 	Invalidate();
 	return TRUE;
+}
+
+void CTimelineView::OnLButtonDown(UINT flags, CPoint point)
+{
+	m_selectedPosition = std::max(int(point.x), gdi::s_leftTextAreaBorder);
+	SetFocus();
+	Invalidate();
 }
 
 void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
@@ -135,7 +142,7 @@ void CTimelineView::DoPaint(CDCHandle cdc)
 
 	PaintScale(dc);
 	PaintTimelines(dc);
-	PaintCursor(dc);
+	PaintCursors(dc);
 }
 
 void CTimelineView::SetFormatter(FormatFunction f)
@@ -192,11 +199,20 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	}
 }
 
-void CTimelineView::PaintCursor(gdi::TimelineDC& dc)
+void CTimelineView::PaintCursors(gdi::TimelineDC& dc)
 {
 	auto rect = dc.GetClientArea();
+
+	CPen redpen(CreatePen(PS_SOLID, 1, RGB(255, 0, 0)));
+	CPen greenpen(CreatePen(PS_SOLID, 1, RGB(0, 255, 0)));
+
+	dc.SelectPen(redpen);
 	dc.MoveTo(m_cursorPosition, scaleBottom);
 	dc.LineTo(m_cursorPosition, rect.bottom);
+
+	dc.SelectPen(greenpen);
+	dc.MoveTo(m_selectedPosition, scaleBottom);
+	dc.LineTo(m_selectedPosition, rect.bottom);
 }
 
 void CTimelineView::PaintTimelines(gdi::TimelineDC& dc)
@@ -211,6 +227,7 @@ void CTimelineView::PaintTimelines(gdi::TimelineDC& dc)
 		dc.DrawTimeline(line->GetName(), 0, y, rect.right, grey);
 		for (auto& artifact : line->GetArtifacts())
 		{
+			//switch (artifact.
 			dc.DrawSolidFlag(L"tag", artifact.GetPosition() + gdi::s_leftTextAreaBorder, y, artifact.GetColor(), artifact.GetFillColor());
 		}
 		y += 25;

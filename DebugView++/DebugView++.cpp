@@ -20,7 +20,7 @@
 #include "crashpad.h"
 #endif
 
-//#define CONSOLE_DEBUG
+#define CONSOLE_DEBUG
 
 CAppModule _Module;
 
