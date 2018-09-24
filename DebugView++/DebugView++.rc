@@ -176,7 +176,7 @@ BEGIN
         MENUITEM "Find",                        ID_VIEW_FIND
         MENUITEM "Select &All\tCtrl+A",         ID_VIEW_SELECTALL
         MENUITEM "&Copy\tCtrl+C",               ID_VIEW_COPY
-        MENUITEM "Copy &Messages",              ID_VIEW_COPY_MESSAGES
+        MENUITEM "Copy &Messages\tCtrl+Shift+C",ID_VIEW_COPY_MESSAGES
     END
 END
 
@@ -196,7 +196,7 @@ BEGIN
         MENUITEM "Clear View",                  ID_VIEW_CLEAR
         MENUITEM "Select &All\tCtrl+A",         ID_VIEW_SELECTALL
         MENUITEM "&Copy\tCtrl+C",               ID_VIEW_COPY
-        MENUITEM "Copy &Messages",              ID_VIEW_COPY_MESSAGES
+        MENUITEM "Copy &Messages\tCtrl+Shift+C",ID_VIEW_COPY_MESSAGES
     END
 END
 
