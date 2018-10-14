@@ -228,9 +228,12 @@ How to build
 This project has a special configuration:
 - 32bit debug/release configurations are targeted to v140_XP, SDK v7.0 (windows XP SP3 and up)
 - 64bit debug/release configurations are targeted to v141, SDK v8.1 (runs on windows 7 and up)
+- only the release configurations also build the Wix installer
 
 The projects are configured to use Nuget to get there dependencies (boost and WTL)
-This means that after cloning the GIT repository:
+However, to build the installer you have to install [Wix Toolset manually](http://wixtoolset.org/)
+
+## cloning the GIT repository:
 
 ```
 git clone --recurse-submodules https://github.com/CobaltFusion/DebugViewPP.git
