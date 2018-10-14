@@ -40,9 +40,9 @@ public:
 
 	enum class Type { Flag, StartStopEvent, SelectCursor };
 
-	Artifact(int position, Artifact::Type type);
-	Artifact(int position, Artifact::Type type, COLORREF color);
-	Artifact(int position, Artifact::Type type, COLORREF color, COLORREF fillcolor);
+	Artifact(Pixel position, Artifact::Type type);
+	Artifact(Pixel position, Artifact::Type type, COLORREF color);
+	Artifact(Pixel position, Artifact::Type type, COLORREF color, COLORREF fillcolor);
 	Pixel GetPosition() const;
 
 	void SetColor(COLORREF color);

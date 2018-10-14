@@ -18,7 +18,7 @@
 namespace fusion {
 namespace gdi {
 
-Artifact::Artifact(int position, Artifact::Type type) :
+Artifact::Artifact(Pixel position, Artifact::Type type) :
 	m_position(position),
 	m_type(type),
 	m_color(RGB(0, 0, 0)),
@@ -26,7 +26,7 @@ Artifact::Artifact(int position, Artifact::Type type) :
 {
 }
 
-Artifact::Artifact(int position, Artifact::Type type, COLORREF color) :
+Artifact::Artifact(Pixel position, Artifact::Type type, COLORREF color) :
 	m_position(position),
 	m_type(type),
 	m_color(color),
@@ -34,7 +34,7 @@ Artifact::Artifact(int position, Artifact::Type type, COLORREF color) :
 {
 }
 
-Artifact::Artifact(int position, Artifact::Type type, COLORREF color, COLORREF fillcolor) :
+Artifact::Artifact(Pixel position, Artifact::Type type, COLORREF color, COLORREF fillcolor) :
 	m_position(position),
 	m_type(type),
 	m_color(color),
