@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <vector>
 #include "CobaltFusion/AtlWinExt.h"
 #include "Resource.h"
 

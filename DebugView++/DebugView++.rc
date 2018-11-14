@@ -184,9 +184,11 @@ IDR_PROCESS_CONTEXTMENU MENU
 BEGIN
     POPUP "Process Context Menu"
     BEGIN
-        MENUITEM "Next",                        ID_VIEW_NEXT_PROCESS
-        MENUITEM "Previous",                    ID_VIEW_PREVIOUS_PROCESS
+        MENUITEM "Next\tF3",                    ID_VIEW_FIND_NEXT
+        MENUITEM "Previous\tShift+F3",          ID_VIEW_FIND_PREVIOUS
         MENUITEM SEPARATOR
+//        MENUITEM "Rename Process",              ID_VIEW_PROCESS_RENAME
+//        MENUITEM SEPARATOR
         MENUITEM "Highlight",                   ID_VIEW_PROCESS_HIGHLIGHT
         MENUITEM "Include",                     ID_VIEW_PROCESS_INCLUDE
         MENUITEM "Exclude",                     ID_VIEW_PROCESS_EXCLUDE

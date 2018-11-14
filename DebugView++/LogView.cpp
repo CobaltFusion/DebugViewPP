@@ -22,6 +22,7 @@
 #include "Resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
+#include "RenameProcessDlg.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -154,6 +155,7 @@ BEGIN_MSG_MAP2(CLogView)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_NEXT_PROCESS, OnViewNextProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PREVIOUS_PROCESS, OnViewPreviousProcess)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_HIGHLIGHT, OnViewProcessHighlight)
+	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_RENAME, OnViewProcessRename)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_INCLUDE, OnViewProcessInclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_EXCLUDE, OnViewProcessExclude)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TRACK, OnViewProcessTrack)
@@ -1124,6 +1126,25 @@ void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, C
 		m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
 
 	ApplyFilters();
+}
+
+void CLogView::OnViewProcessRename(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	int item = GetNextItem(-1, LVNI_ALL | LVNI_SELECTED);
+	if (item >= 0)
+	{
+		auto name = m_logFile[m_logLines[item].line].processName;
+		std::wstring wname = WStr(name);
+		CRenameProcessDlg dlg(wname);
+		if (dlg.DoModal(NULL) == IDOK)
+		{
+			std::string newName = Str(dlg.GetName());
+			//m_logFile[m_logLines[item].line].processName = newName;
+			// todo: loop through m_logFile and change all processes with ProcessID -> new name
+			// but also new lines from that PID should get this name....
+
+		}
+	}
 }
 
 void CLogView::OnViewProcessHighlight(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

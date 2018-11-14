@@ -219,6 +219,7 @@ private:
 	void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void AddProcessFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
+	void OnViewProcessRename(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewProcessExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
