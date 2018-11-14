@@ -16,7 +16,9 @@ template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allo
 class basic_handlebuf : public std::basic_streambuf<Elem, Tr>
 {
 public:
-    explicit basic_handlebuf(HANDLE handle, std::size_t buff_sz = 256, std::size_t put_back = 8) :
+	using _int_type = typename std::basic_streambuf<Elem, Tr>::int_type;		
+	
+	explicit basic_handlebuf(HANDLE handle, std::size_t buff_sz = 256, std::size_t put_back = 8) :
 		m_handle(handle),
 		m_put_back(std::max<std::size_t>(put_back, 1)),
 		m_readBuffer(std::max(buff_sz, m_put_back) + m_put_back)
@@ -39,7 +41,7 @@ protected:
 		return 0;
 	}
 
-    virtual int_type overflow(int_type c) override
+    virtual _int_type overflow(_int_type c) override
 	{
 		if (c == std::basic_streambuf<Elem, Tr>::traits_type::eof())
 			return c;
@@ -50,7 +52,7 @@ protected:
 		return c;
 	}
 
-    virtual int_type underflow() override
+    virtual _int_type underflow() override
 	{
 		if (gptr() < egptr()) // buffer not exhausted
 			return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*gptr());
