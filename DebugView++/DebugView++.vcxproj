@@ -315,6 +315,7 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="FilterPage.cpp" />
     <ClCompile Include="RegExDlg.cpp" />
+    <ClCompile Include="RenameProcessDlg.cpp" />
     <ClCompile Include="RunDlg.cpp" />
     <ClCompile Include="SourceDlg.cpp" />
     <ClCompile Include="SourcesDlg.cpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="FilterPage.h" />
     <ClInclude Include="PropertyColorItem.h" />
     <ClInclude Include="RegExDlg.h" />
+    <ClInclude Include="RenameProcessDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunDlg.h" />
     <ClInclude Include="SourceDlg.h" />

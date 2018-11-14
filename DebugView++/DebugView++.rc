@@ -429,6 +429,16 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,242,70,50,14
 END
 
+IDD_RENAMEPROCESS DIALOGEX 0, 0, 299, 91
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Rename process"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "Name:",IDC_STATIC,31,10,22,8
+    EDITTEXT        IDC_NAME,58,7,234,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "OK",IDOK,189,70,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,242,70,50,14
+END
 
 /////////////////////////////////////////////////////////////////////////////
 //

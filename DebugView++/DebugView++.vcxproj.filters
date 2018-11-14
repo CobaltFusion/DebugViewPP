@@ -66,6 +66,9 @@
     <ClCompile Include="CLogViewTabItem2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenameProcessDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -126,6 +129,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLogViewTabItem2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenameProcessDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

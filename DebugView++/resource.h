@@ -55,6 +55,7 @@
 #define IDC_IPADDRESS                   314
 #define IDC_TYPE                        315
 #define IDC_PORT                        316
+#define IDD_RENAMEPROCESS               317
 #define IDC_DATE                        1010
 #define IDC_VERSION                     1011
 #define ID_FILE_NEWVIEW                 32777

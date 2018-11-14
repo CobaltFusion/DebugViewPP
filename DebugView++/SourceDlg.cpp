@@ -6,16 +6,11 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
-#include <boost/algorithm/string.hpp>
-#include <atlstr.h>
-#include "CobaltFusion/Str.h"
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/fusionassert.h"
-#include "Win32/utilities.h"
-#include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
-#include "Resource.h"
 #include "SourceDlg.h"
+#include "CobaltFusion/Str.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -73,7 +68,7 @@ BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	combo.AddString(WStr(SourceTypeToString(SourceType::Tcp)));
 	combo.AddString(WStr(SourceTypeToString(SourceType::DebugViewAgent)));
 
-	SetDlgItemText(IDC_NAME, WStr(m_name));
+	SetDlgItemText(IDC_NAME, m_name.c_str());
 	switch (m_sourceType)
 	{
 	case SourceType::Udp: combo.SetCurSel(0); break;
@@ -82,7 +77,7 @@ BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 	default: combo.SetCurSel(0); break;
 	}
 	SetDlgItemInt(IDC_PORT, m_port);
-	SetDlgItemText(IDC_IPADDRESS, WStr(m_address));
+	SetDlgItemText(IDC_IPADDRESS, m_address.c_str());
 	UpdateUI();
 
 	return TRUE;
