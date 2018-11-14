@@ -112,6 +112,14 @@ void LogSources::CallSources(std::function<void(LogSource*)> predicate)
 		predicate(pSource.get());
 }
 
+void LogSources::CallSources(std::function<void(LogSource*)> predicate) const
+{
+	std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+	for (auto& pSource : m_sources)
+		predicate(pSource.get());
+}
+
+
 void LogSources::SetAutoNewLine(bool value)
 {
 	m_autoNewLine = value;
@@ -302,12 +310,21 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 	});
 }
 
+bool LogSources::IsRemoved(const LogSource* logsource) const
+{
+	bool present = false;
+	CallSources([&](LogSource* l) { if (l == logsource) present = true; });
+	return !present;
+}
+
 Lines LogSources::GetLines()
 {
 	assert(m_executor.IsExecutorThread());
 	Lines lines;
 	for (auto& inputLine : m_linebuffer.GetLines())
 	{
+		if (IsRemoved(inputLine.pLogSource))
+			continue;
 		// let the logsource decide how to create processname
 		if (inputLine.pLogSource)
 		{

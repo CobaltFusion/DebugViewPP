@@ -67,10 +67,12 @@ public:
 	void Listen();
 	void ListenUntilUpdateEvent();
 	void Abort();
+	bool IsRemoved(const LogSource* logsource) const;
 	Lines GetLines();
 	void Remove(LogSource* pLogSource);
 	void RemoveSources(std::function<bool(LogSource*)> predicate);
 	void CallSources(std::function<void(LogSource*)> predicate);
+	void CallSources(std::function<void(LogSource*)> predicate) const;
 
 	DBWinReader* AddDBWinReader(bool global);
 	ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
