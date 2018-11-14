@@ -658,7 +658,7 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
 	if (m_autoScrollStop)
 		m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
 
-	SetHighlightText(L"");
+	//this breaks F3/ShiftF3 //  SetHighlightText(L"");
 	return 0;
 }
 
