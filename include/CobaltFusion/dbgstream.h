@@ -26,6 +26,7 @@
 #pragma once
 
 #include <streambuf>
+#include <ostream>
 #include <string>
 #include "windows.h"
 

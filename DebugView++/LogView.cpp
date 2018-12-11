@@ -683,7 +683,7 @@ RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
 void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highlight)
 {
 	// if nothing is selected, this still gets called, so ignore the call in that case
-	if (highlight.begin == highlight.end) 
+	if (highlight.begin == highlight.end)
 		return;
 
 	// create a new vector that is two larger
@@ -1142,7 +1142,6 @@ void CLogView::OnViewProcessRename(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 			//m_logFile[m_logLines[item].line].processName = newName;
 			// todo: loop through m_logFile and change all processes with ProcessID -> new name
 			// but also new lines from that PID should get this name....
-
 		}
 	}
 }
@@ -1545,13 +1544,13 @@ Win32::HGlobal MakeGlobalString(std::string_view str)
 Win32::HGlobal MakeGlobalWideString(std::wstring_view str)
 {
 	auto charbytes = str.size() * sizeof(str[0]);
-	auto allocsize = (str.size() +1) * sizeof(str[0]);
+	auto allocsize = (str.size() + 1) * sizeof(str[0]);
 	Win32::HGlobal handle(GlobalAlloc(GMEM_MOVEABLE, allocsize));
 	Win32::GlobalLock<wchar_t> lock(handle);
 	memcpy(lock.Ptr(), str.data(), charbytes);
 	lock.Ptr()[str.size()] = '\0';
 	return handle;
-}	
+}
 
 void CLogView::CopyToClipboard(std::wstring_view str)
 {
@@ -1616,13 +1615,13 @@ int CLogView::FindLine(Predicate pred, int direction) const
 	SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 	Win32::ScopedCursor cursor(::LoadCursor(nullptr, IDC_WAIT));
 
-	 int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
-	 int line = begin;
+	int begin = std::max(GetNextItem(-1, LVNI_FOCUSED), 0);
+	int line = begin;
 
 	if (m_logLines.empty())
 		return -1;
 
-	auto size = static_cast<int> (m_logLines.size());
+	auto size = static_cast<int>(m_logLines.size());
 	do
 	{
 		line += direction;
