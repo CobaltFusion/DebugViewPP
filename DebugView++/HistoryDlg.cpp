@@ -23,8 +23,8 @@ BEGIN_MSG_MAP2(CHistoryDlg)
 	REFLECT_NOTIFICATIONS()
 END_MSG_MAP()
 
-CHistoryDlg::CHistoryDlg(int historySize, bool unlimited) :
-	m_historySize(historySize),
+CHistoryDlg::CHistoryDlg(size_t historySize, bool unlimited) :
+	m_historySize(static_cast<int>(historySize)),
 	m_unlimited(unlimited)
 {
 }

@@ -23,6 +23,7 @@
 #include "MainFrame.h"
 #include "LogView.h"
 #include "RenameProcessDlg.h"
+#include "VersionHelpers.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -138,6 +139,7 @@ BEGIN_MSG_MAP2(CLogView)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
 	REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnBeginDrag)
+	REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_CUSTOMDRAW, OnCustomDraw)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_CLEAR, OnViewClear)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_EXCLUDE_LINES, OnViewExcludeLines)
 	COMMAND_ID_HANDLER_EX(ID_VIEW_RESET, OnViewReset)
@@ -880,8 +882,8 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	DrawBookmark(dc, iItem);
 	for (int i = 1; i < subitemCount; ++i)
 		DrawSubItem(dc, iItem, i, data);
-	if (focused)
-		dc.DrawFocusRect(&rect);
+	//if (focused)
+	//	dc.DrawFocusRect(&rect);
 }
 
 std::wstring CLogView::GetColumnText(int iItem, Column::type column) const
@@ -1256,13 +1258,33 @@ void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 	Invalidate();
 }
 
-void CLogView::DoPaint(CDCHandle dc)
+LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
+{
+	//bool isWin10 = IsWindows10OrGreater();
+
+	//if (!isWin10)
+	//	return CDRF_DODEFAULT;
+
+	LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)pnmh;
+	if (lplvcd->nmcd.dwDrawStage == CDDS_PREPAINT)
+	{
+		return CDRF_NOTIFYPOSTPAINT;
+	}
+
+	if (lplvcd->nmcd.dwDrawStage == CDDS_POSTPAINT)
+	{
+		m_hdr.Windows10Workaround();
+	}
+	return CDRF_SKIPDEFAULT;
+}
+
+LRESULT CLogView::DoPaint(CDCHandle dc)
 {
 	RECT rect;
 	dc.GetClipBox(&rect);
 	dc.FillSolidRect(&rect, Colors::BackGround);
-
 	DefWindowProc(WM_PAINT, reinterpret_cast<WPARAM>(dc.m_hDC), 0);
+	return CDRF_SKIPPOSTPAINT;
 }
 
 std::wstring CLogView::GetName() const

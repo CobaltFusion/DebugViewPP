@@ -20,7 +20,7 @@ class CHistoryDlg :
 public:
 	enum { IDD = IDD_HISTORY };
 
-	CHistoryDlg(int historySize, bool unlimited);
+	CHistoryDlg(size_t historySize, bool unlimited);
 	int GetHistorySize() const;
 
 private:

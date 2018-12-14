@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -12,6 +12,7 @@
 #include "Win32/Window.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/AtlWinExt.h"
+#include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/LogFile.h"
 #include "FilterDlg.h"
 #include "DropTargetSupport.h"
@@ -88,15 +89,42 @@ struct ColumnInfo
 	LVCOLUMN column;
 };
 
-class CMyHeaderCtrl :
-	public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
+class CMyHeaderCtrl : public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
 {
 public:
 	BEGIN_MSG_MAP_EX(CMyHeaderCtrl)
-		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_BEGINDRAG, BlockColumn0)
-		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_ENDDRAG, BlockColumn0)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_BEGINTRACK, BlockColumn0)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(HDN_ENDTRACK, OnEndDrag)
 	END_MSG_MAP()
+
+	// on windows 10 listview headers are missing depth, we manually draw them to compensate
+	void Windows10Workaround()
+	{
+		CDCHandle dc(GetDC());
+		RECT rect;
+		dc.GetClipBox(&rect);
+
+		CPen graypen(CreatePen(PS_SOLID, 1, RGB(224, 224, 224)));
+		dc.SelectPen(graypen);
+		dc.MoveTo(rect.left, rect.bottom - 1);
+		dc.LineTo(rect.right, rect.bottom - 1);
+
+		CPen blackpen(CreatePen(PS_SOLID, 1, RGB(64, 64, 64)));
+		dc.SelectPen(blackpen);
+		dc.MoveTo(rect.left, rect.top);
+		dc.LineTo(rect.right, rect.top);
+	}
+
+	void TriggerHeaderRedraw()
+	{
+		GetParent().Invalidate();
+	}
+
+	LRESULT OnEndDrag(NMHDR* pnmh)
+	{
+		TriggerHeaderRedraw();
+		return BlockColumn0(pnmh);
+	}
 
 	LRESULT BlockColumn0(NMHDR* pnmh)
 	{
@@ -112,20 +140,19 @@ public:
 };
 
 
-class CLogView :
-	public CDoubleBufferWindowImpl<CLogView, CListViewCtrl,
-		CWinTraitsOR<
-			LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
-			LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
-	public COwnerDraw<CLogView>,
-	public ExceptionHandler<CLogView, std::exception>
+class CLogView : public CDoubleBufferWindowImpl<CLogView, CListViewCtrl,
+					 CWinTraitsOR<
+						 LVS_OWNERDRAWFIXED | LVS_REPORT | LVS_OWNERDATA | LVS_NOSORTHEADER | LVS_SHOWSELALWAYS,
+						 LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_HEADERDRAGDROP>>,
+				 public COwnerDraw<CLogView>,
+				 public ExceptionHandler<CLogView, std::exception>
 {
 public:
 	CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
 	~CLogView();
 	DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
-	void DoPaint(CDCHandle dc);
+	LRESULT DoPaint(CDCHandle dc);
 
 	std::wstring GetName() const;
 	void SetName(const std::wstring& name);
@@ -238,6 +265,7 @@ private:
 	void OnViewClearBookmarks(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnViewColumn(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	LRESULT OnCustomDraw(NMHDR* pnmh);
 
 	std::vector<std::string> GetSelectedMessages() const;
 	std::wstring GetSelectedLines() const;
@@ -291,8 +319,8 @@ private:
 	bool m_autoScrollStop;
 	bool m_dirty;
 	bool m_changed;
-	std::function<void ()> m_stop;
-	std::function<bool ()> m_track;
+	std::function<void()> m_stop;
+	std::function<bool()> m_track;
 	Win32::HIcon m_hBookmarkIcon;
 	std::wstring m_highlightText;
 	HCURSOR m_hBeamCursor;
@@ -304,5 +332,5 @@ private:
 	Win32::ComObjectPtr<DropTargetSupport> m_pDropTargetSupport;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion
