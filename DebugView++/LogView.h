@@ -104,15 +104,10 @@ public:
 		RECT rect;
 		dc.GetClipBox(&rect);
 
-		CPen graypen(CreatePen(PS_SOLID, 1, RGB(224, 224, 224)));
+		CPen graypen(CreatePen(PS_SOLID, 1, RGB(208, 212, 208)));
 		dc.SelectPen(graypen);
-		dc.MoveTo(rect.left, rect.bottom - 1);
-		dc.LineTo(rect.right, rect.bottom - 1);
-
-		CPen blackpen(CreatePen(PS_SOLID, 1, RGB(64, 64, 64)));
-		dc.SelectPen(blackpen);
-		dc.MoveTo(rect.left, rect.top);
-		dc.LineTo(rect.right, rect.top);
+		dc.MoveTo(rect.left, rect.bottom - 2);
+		dc.LineTo(rect.right, rect.bottom - 2);
 	}
 
 	void TriggerHeaderRedraw()
