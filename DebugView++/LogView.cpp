@@ -23,7 +23,7 @@
 #include "MainFrame.h"
 #include "LogView.h"
 #include "RenameProcessDlg.h"
-#include "VersionHelpers.h"
+//#include "VersionHelpers.h"  // IsWindows10OrGreater ??
 
 namespace fusion {
 namespace debugviewpp {
@@ -1262,8 +1262,10 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
 	//bool isWin10 = IsWindows10OrGreater();
 
+#ifndef _WIN64
 	//if (!isWin10)
-	//	return CDRF_DODEFAULT;
+	return CDRF_DODEFAULT;
+#endif
 
 	LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)pnmh;
 	if (lplvcd->nmcd.dwDrawStage == CDDS_PREPAINT)

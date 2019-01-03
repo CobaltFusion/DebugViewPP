@@ -36,6 +36,6 @@ if not exist %upx_bin% (
 :: notice we pack the win32 .vsix in any case (so also in x64 builds), and this is correct.
 
 :zip
-%zip_bin% -j %bin_dir%\DebugView++.zip %bin_dir%\DebugView++.exe %bin_dir%\DebugViewConsole.exe %project_dir%\release\*.vsix
+%zip_bin% -j %bin_dir%\DebugView++.zip %bin_dir%\DebugView++.exe %bin_dir%\DebugView++*.pdb %bin_dir%\DebugViewConsole.exe %project_dir%\release\*.vsix
 
 :exit
