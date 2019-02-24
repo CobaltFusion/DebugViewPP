@@ -188,6 +188,7 @@ private:
 	void SetTitle(const std::wstring& title = L"");
 	void HandleDroppedFile(const std::wstring& file);
 	void Run(const std::wstring& pathName = L"");
+	void UpdateLogSources(const std::vector<SourceInfo>& sources);
 	void AddLogSource(const SourceInfo& info);
 	void CloseView(int i);
 
