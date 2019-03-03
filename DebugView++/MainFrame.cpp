@@ -947,34 +947,38 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		CloseView(i);
 	}
 
-	auto sourcesPt = pt.get_child("DebugViewPP.Sources");
-	std::vector<SourceInfoHelper> sources;
-	for (const auto& item : sourcesPt)
+	// The Sources child might not be present!
+	auto sourcesPt = pt.get_child_optional("DebugViewPP.Sources");
+	if (sourcesPt)
 	{
-		if (item.first == "Source")
+		std::vector<SourceInfoHelper> sources;
+		for (const auto& item : *sourcesPt)
 		{
-			auto& sourcePt = item.second;
-			int index = sourcePt.get<int>("Index");
-			SourceType::type type = StringToSourceType(sourcePt.get<std::string>("SourceType"));
-			std::wstring description = WStr(sourcePt.get<std::string>("Description"));
-			SourceInfoHelper helper(index, description, type);
-			helper.sourceInfo.address = WStr(sourcePt.get<std::string>("Address")).str();
-			helper.sourceInfo.port = sourcePt.get<int>("Port");
-			helper.sourceInfo.enabled = sourcePt.get<bool>("Enabled");
-			sources.push_back(helper);
+			if (item.first == "Source")
+			{
+				auto& sourcePt = item.second;
+				int index = sourcePt.get<int>("Index");
+				SourceType::type type = StringToSourceType(sourcePt.get<std::string>("SourceType"));
+				std::wstring description = WStr(sourcePt.get<std::string>("Description"));
+				SourceInfoHelper helper(index, description, type);
+				helper.sourceInfo.address = WStr(sourcePt.get<std::string>("Address")).str();
+				helper.sourceInfo.port = sourcePt.get<int>("Port");
+				helper.sourceInfo.enabled = sourcePt.get<bool>("Enabled");
+				sources.push_back(helper);
+			}
 		}
+
+		std::sort(sources.begin(), sources.end(), [](const SourceInfoHelper& si1, const SourceInfoHelper& si2) { return si1.index < si2.index; });
+
+		std::vector<SourceInfo> sourceInfos;
+		for (const auto& helper : sources)
+		{
+			sourceInfos.push_back(helper.sourceInfo);
+		}
+		UpdateLogSources(sourceInfos);
+
+		m_sourceInfos = sourceInfos;
 	}
-
-	std::sort(sources.begin(), sources.end(), [](const SourceInfoHelper& si1, const SourceInfoHelper& si2) { return si1.index < si2.index; });
-
-	std::vector<SourceInfo> sourceInfos;
-	for (const auto& helper : sources)
-	{
-		sourceInfos.push_back(helper.sourceInfo);
-	}
-	UpdateLogSources(sourceInfos);
-
-	m_sourceInfos = sourceInfos;
 }
 
 void CMainFrame::SaveConfiguration(const std::wstring& fileName)
