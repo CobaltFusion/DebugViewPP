@@ -883,6 +883,7 @@ struct View
 	bool clockTime;
 	bool processColors;
 	LogFilter filters;
+	boost::optional<boost::property_tree::ptree> columnsPt;
 };
 
 struct SourceInfoHelper
@@ -919,6 +920,7 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 			view.processColors = viewPt.get<bool>("ProcessColors");
 			view.filters.messageFilters = MakeFilters(viewPt.get_child("MessageFilters"));
 			view.filters.processFilters = MakeFilters(viewPt.get_child("ProcessFilters"));
+			view.columnsPt = viewPt.get_child_optional("Columns");
 			views.push_back(view);
 		}
 	}
@@ -937,6 +939,8 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		auto& logView = GetView(i);
 		logView.SetClockTime(views[i].clockTime);
 		logView.SetViewProcessColors(views[i].processColors);
+		if (views[i].columnsPt)
+			logView.ReadColumns(*(views[i].columnsPt));
 	}
 
 	int i = GetViewCount();
@@ -1005,6 +1009,7 @@ void CMainFrame::SaveConfiguration(const std::wstring& fileName)
 		viewPt.put("ProcessColors", logView.GetViewProcessColors());
 		viewPt.put_child("MessageFilters", MakePTree(filters.messageFilters));
 		viewPt.put_child("ProcessFilters", MakePTree(filters.processFilters));
+		viewPt.put_child("Columns", MakePTree(logView.GetColumns()));
 		mainPt.add_child("Views.View", viewPt);
 	}
 
