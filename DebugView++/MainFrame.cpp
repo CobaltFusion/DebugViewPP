@@ -947,7 +947,7 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		CloseView(i);
 	}
 
-	// The Sources child might not be present!
+	std::vector<SourceInfo> sourceInfos;
 	auto sourcesPt = pt.get_child_optional("DebugViewPP.Sources");
 	if (sourcesPt)
 	{
@@ -970,15 +970,13 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 
 		std::sort(sources.begin(), sources.end(), [](const SourceInfoHelper& si1, const SourceInfoHelper& si2) { return si1.index < si2.index; });
 
-		std::vector<SourceInfo> sourceInfos;
 		for (const auto& helper : sources)
 		{
 			sourceInfos.push_back(helper.sourceInfo);
 		}
-		UpdateLogSources(sourceInfos);
-
-		m_sourceInfos = sourceInfos;
 	}
+	UpdateLogSources(sourceInfos);
+	m_sourceInfos = sourceInfos;
 }
 
 void CMainFrame::SaveConfiguration(const std::wstring& fileName)
