@@ -81,7 +81,7 @@ std::wstring FormatDuration(double seconds)
 	if (minutes > 0)
 		return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-	static const wchar_t* units[] = { L"s", L"ms", L"µs", L"ns", nullptr };
+	static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
 	const wchar_t** unit = units;
 	while (*unit != nullptr && seconds > 0 && seconds < 1)
 	{
@@ -125,6 +125,7 @@ BEGIN_MSG_MAP2(CMainFrame)
 	COMMAND_ID_HANDLER_EX(ID_LOG_SOURCES, OnSources)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_LINKVIEWS, OnLinkViews)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUTONEWLINE, OnAutoNewline)
+	COMMAND_ID_HANDLER_EX(ID_OPTIONS_PROCESS_PREFIX, OnProcessPrefix)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
 	COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
@@ -306,6 +307,7 @@ void CMainFrame::UpdateUI()
 	UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
 	UIEnable(ID_OPTIONS_LINKVIEWS, GetTabCtrl().GetItemCount() > 1);
 	UISetCheck(ID_OPTIONS_AUTONEWLINE, m_logSources.GetAutoNewLine());
+	UISetCheck(ID_OPTIONS_PROCESS_PREFIX, m_logSources.GetProcessPrefix());
 	UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
 	UISetCheck(ID_OPTIONS_HIDE, m_hide);
 	UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
@@ -390,8 +392,16 @@ void CMainFrame::ProcessLines(const Lines& lines)
 	for (int i = 0; i < views; ++i)
 		GetView(i).BeginUpdate();
 
-	for (auto& line : lines)
-		AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
+	if (m_logSources.GetProcessPrefix())
+	{
+		for (auto& line : lines)
+			AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, "[" + std::to_string(line.pid) + "] " + line.message));
+	}
+	else
+	{
+		for (auto& line : lines)
+			AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
+	}
 
 	for (int i = 0; i < views; ++i)
 	{
@@ -1211,6 +1221,11 @@ void CMainFrame::OnLinkViews(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 void CMainFrame::OnAutoNewline(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	m_logSources.SetAutoNewLine(!m_logSources.GetAutoNewLine());
+}
+
+void CMainFrame::OnProcessPrefix(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+	m_logSources.SetProcessPrefix(!m_logSources.GetProcessPrefix());
 }
 
 void CMainFrame::OnHide(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
