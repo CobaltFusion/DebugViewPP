@@ -881,6 +881,19 @@ struct View
 	bool clockTime;
 	bool processColors;
 	LogFilter filters;
+	boost::optional<boost::property_tree::ptree> columnsPt;
+};
+
+struct SourceInfoHelper
+{
+	SourceInfoHelper(int index, const std::wstring& description, SourceType::type sourceType) :
+		index(index),
+		sourceInfo(description, sourceType)
+	{
+	}
+
+	int index;
+	SourceInfo sourceInfo;
 };
 
 void CMainFrame::LoadConfiguration(const std::wstring& fileName)
@@ -905,6 +918,7 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 			view.processColors = viewPt.get<bool>("ProcessColors");
 			view.filters.messageFilters = MakeFilters(viewPt.get_child("MessageFilters"));
 			view.filters.processFilters = MakeFilters(viewPt.get_child("ProcessFilters"));
+			view.columnsPt = viewPt.get_child_optional("Columns");
 			views.push_back(view);
 		}
 	}
@@ -923,6 +937,8 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		auto& logView = GetView(i);
 		logView.SetClockTime(views[i].clockTime);
 		logView.SetViewProcessColors(views[i].processColors);
+		if (views[i].columnsPt)
+			logView.ReadColumns(*(views[i].columnsPt));
 	}
 
 	int i = GetViewCount();
@@ -932,6 +948,37 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 		--i;
 		CloseView(i);
 	}
+
+	std::vector<SourceInfo> sourceInfos;
+	auto sourcesPt = pt.get_child_optional("DebugViewPP.Sources");
+	if (sourcesPt)
+	{
+		std::vector<SourceInfoHelper> sources;
+		for (const auto& item : *sourcesPt)
+		{
+			if (item.first == "Source")
+			{
+				auto& sourcePt = item.second;
+				int index = sourcePt.get<int>("Index");
+				SourceType::type type = StringToSourceType(sourcePt.get<std::string>("SourceType"));
+				std::wstring description = WStr(sourcePt.get<std::string>("Description"));
+				SourceInfoHelper helper(index, description, type);
+				helper.sourceInfo.address = WStr(sourcePt.get<std::string>("Address")).str();
+				helper.sourceInfo.port = sourcePt.get<int>("Port");
+				helper.sourceInfo.enabled = sourcePt.get<bool>("Enabled");
+				sources.push_back(helper);
+			}
+		}
+
+		std::sort(sources.begin(), sources.end(), [](const SourceInfoHelper& si1, const SourceInfoHelper& si2) { return si1.index < si2.index; });
+
+		for (const auto& helper : sources)
+		{
+			sourceInfos.push_back(helper.sourceInfo);
+		}
+	}
+	UpdateLogSources(sourceInfos);
+	m_sourceInfos = sourceInfos;
 }
 
 void CMainFrame::SaveConfiguration(const std::wstring& fileName)
@@ -958,7 +1005,21 @@ void CMainFrame::SaveConfiguration(const std::wstring& fileName)
 		viewPt.put("ProcessColors", logView.GetViewProcessColors());
 		viewPt.put_child("MessageFilters", MakePTree(filters.messageFilters));
 		viewPt.put_child("ProcessFilters", MakePTree(filters.processFilters));
+		viewPt.put_child("Columns", MakePTree(logView.GetColumns()));
 		mainPt.add_child("Views.View", viewPt);
+	}
+
+	for (int i = 0; i < static_cast<int>(m_sourceInfos.size()); ++i)
+	{
+		const auto& sourceInfo = m_sourceInfos[i];
+		boost::property_tree::ptree sourcePt;
+		sourcePt.put("Index", i);
+		sourcePt.put("Enabled", sourceInfo.enabled);
+		sourcePt.put("Description", Str(sourceInfo.description).str());
+		sourcePt.put("SourceType", SourceTypeToString(sourceInfo.type));
+		sourcePt.put("Address", Str(sourceInfo.address).str());
+		sourcePt.put("Port", sourceInfo.port);
+		mainPt.add_child("Sources.Source", sourcePt);
 	}
 
 	boost::property_tree::ptree pt;
@@ -1350,6 +1411,14 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 	if (dlg.DoModal() != IDOK)
 		return;
 
+	auto sourceInfos = dlg.GetSourceInfos();
+	UpdateLogSources(sourceInfos);
+
+	m_sourceInfos = sourceInfos;
+}
+
+void CMainFrame::UpdateLogSources(const std::vector<SourceInfo>& sources)
+{
 	m_logSources.RemoveSources([this](LogSource* logsource) {
 		if (logsource == m_pLocalReader)
 			return false;
@@ -1358,13 +1427,11 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 		return true;
 	});
 
-	auto sourceInfos = dlg.GetSourceInfos();
-	for (auto& sourceInfo : sourceInfos)
+	for (auto& sourceInfo : sources)
 	{
 		if (sourceInfo.enabled)
 			AddLogSource(sourceInfo);
 	}
-	m_sourceInfos = sourceInfos;
 }
 
 void CMainFrame::AddLogSource(const SourceInfo& info)

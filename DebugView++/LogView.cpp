@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"
@@ -1337,6 +1338,11 @@ void CLogView::SetAutoScrollStop(bool enable)
 	m_autoScrollStop = enable;
 }
 
+const std::vector<ColumnInfo>& CLogView::GetColumns() const
+{
+	return m_columns;
+}
+
 void CLogView::Clear()
 {
 	m_firstLine = m_logFile.Count();
@@ -1688,6 +1694,51 @@ bool CLogView::FindNext(std::wstring_view text)
 bool CLogView::FindPrevious(std::wstring_view text)
 {
 	return Find(text, -1);
+}
+
+boost::property_tree::ptree MakePTree(const std::vector<ColumnInfo>& columns)
+{
+	boost::property_tree::ptree pt;
+	for (int i = 0; i < Column::Count; ++i)
+	{
+		const ColumnInfo& col = columns[i];
+		boost::property_tree::ptree colPt;
+		colPt.put("Index", i);
+		colPt.put("Enable", col.enable);
+		colPt.put("Width", col.column.cx);
+		colPt.put("Order", col.column.iOrder);
+		pt.add_child("Column", colPt);
+	}
+	return pt;
+}
+
+void CLogView::ReadColumns(const boost::property_tree::ptree& pt)
+{
+	for (auto& item : pt)
+	{
+		if (item.first == "Column")
+		{
+			const auto& colPt = item.second;
+			auto index = colPt.get_optional<int>("Index");
+			if (index && *index < m_columns.size())
+			{
+				ColumnInfo& col = m_columns[*index];
+
+				auto enable = colPt.get_optional<bool>("Enable");
+				if (enable)
+					col.enable = *enable;
+
+				auto width = colPt.get_optional<int>("Width");
+				if (width)
+					col.column.cx = *width;
+
+				auto order = colPt.get_optional<int>("Order");
+				if (order)
+					col.column.iOrder = *order;
+			}
+		}
+	}
+	UpdateColumns();
 }
 
 void CLogView::LoadSettings(CRegKey& reg)
