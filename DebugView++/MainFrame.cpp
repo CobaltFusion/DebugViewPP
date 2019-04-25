@@ -566,10 +566,8 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
 	return 0;
 }
 
-LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam)
+LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM, LPARAM lParam)
 {
-	ATLASSERT(wParam == 1);
-	wParam;
 	switch (lParam)
 	{
 	case WM_LBUTTONDBLCLK: SendMessage(WM_COMMAND, SC_RESTORE); break;

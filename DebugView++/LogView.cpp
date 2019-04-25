@@ -868,7 +868,7 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	auto data = GetItemData(iItem);
 
 	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
-	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
+	//bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
 	auto bkColor = selected ? Colors::ItemHighlight : data.color.back;
 	auto txColor = selected ? Colors::ItemHighlightText : data.color.fore;
 
@@ -971,8 +971,7 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 
 LRESULT CLogView::OnOdCacheHint(NMHDR* pnmh)
 {
-	auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
-	nmhdr;
+	[[maybe_unused]] auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
 	return 0;
 }
 
@@ -1258,15 +1257,14 @@ void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 	Invalidate();
 }
 
+#ifndef _WIN64
+LRESULT CLogView::OnCustomDraw(NMHDR*)
+{
+	return CDRF_DODEFAULT;
+}
+#else
 LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
-	//bool isWin10 = IsWindows10OrGreater();
-
-#ifndef _WIN64
-	//if (!isWin10)
-	return CDRF_DODEFAULT;
-#endif
-
 	LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)pnmh;
 	if (lplvcd->nmcd.dwDrawStage == CDDS_PREPAINT)
 	{
@@ -1279,6 +1277,7 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	}
 	return CDRF_SKIPDEFAULT;
 }
+#endif
 
 LRESULT CLogView::DoPaint(CDCHandle dc)
 {
