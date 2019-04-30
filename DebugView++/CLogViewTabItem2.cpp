@@ -195,7 +195,7 @@ void CLogViewTabItem2::Create(HWND parent)
 		return lines;
 	});
 
-	m_timelineView.SetMouseScrollCallback([&](gdi::Pixel cursorPosition, gdi::Pixel selectedPosition,  int direction) {
+	m_timelineView.SetMouseScrollCallback([&](gdi::Pixel cursorPosition, gdi::Pixel selectedPosition, int direction) {
 		if (direction > 0)
 		{
 			m_viewPort.ZoomOut(cursorPosition);

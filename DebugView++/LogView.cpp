@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"
@@ -23,7 +24,7 @@
 #include "MainFrame.h"
 #include "LogView.h"
 #include "RenameProcessDlg.h"
-#include "VersionHelpers.h"
+//#include "VersionHelpers.h"  // IsWindows10OrGreater ??
 
 namespace fusion {
 namespace debugviewpp {
@@ -868,7 +869,7 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
 	auto data = GetItemData(iItem);
 
 	bool selected = GetItemState(iItem, LVIS_SELECTED) == LVIS_SELECTED;
-	bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
+	//bool focused = GetItemState(iItem, LVIS_FOCUSED) == LVIS_FOCUSED;
 	auto bkColor = selected ? Colors::ItemHighlight : data.color.back;
 	auto txColor = selected ? Colors::ItemHighlightText : data.color.fore;
 
@@ -971,8 +972,7 @@ LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)
 
 LRESULT CLogView::OnOdCacheHint(NMHDR* pnmh)
 {
-	auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
-	nmhdr;
+	[[maybe_unused]] auto& nmhdr = *reinterpret_cast<NMLVCACHEHINT*>(pnmh);
 	return 0;
 }
 
@@ -1258,13 +1258,14 @@ void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /
 	Invalidate();
 }
 
+#ifndef _WIN64
+LRESULT CLogView::OnCustomDraw(NMHDR*)
+{
+	return CDRF_DODEFAULT;
+}
+#else
 LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
-	//bool isWin10 = IsWindows10OrGreater();
-
-	//if (!isWin10)
-	//	return CDRF_DODEFAULT;
-
 	LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)pnmh;
 	if (lplvcd->nmcd.dwDrawStage == CDDS_PREPAINT)
 	{
@@ -1277,6 +1278,7 @@ LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 	}
 	return CDRF_SKIPDEFAULT;
 }
+#endif
 
 LRESULT CLogView::DoPaint(CDCHandle dc)
 {
@@ -1334,6 +1336,11 @@ bool CLogView::GetAutoScrollStop() const
 void CLogView::SetAutoScrollStop(bool enable)
 {
 	m_autoScrollStop = enable;
+}
+
+const std::vector<ColumnInfo>& CLogView::GetColumns() const
+{
+	return m_columns;
 }
 
 void CLogView::Clear()
@@ -1687,6 +1694,51 @@ bool CLogView::FindNext(std::wstring_view text)
 bool CLogView::FindPrevious(std::wstring_view text)
 {
 	return Find(text, -1);
+}
+
+boost::property_tree::ptree MakePTree(const std::vector<ColumnInfo>& columns)
+{
+	boost::property_tree::ptree pt;
+	for (int i = 0; i < Column::Count; ++i)
+	{
+		const ColumnInfo& col = columns[i];
+		boost::property_tree::ptree colPt;
+		colPt.put("Index", i);
+		colPt.put("Enable", col.enable);
+		colPt.put("Width", col.column.cx);
+		colPt.put("Order", col.column.iOrder);
+		pt.add_child("Column", colPt);
+	}
+	return pt;
+}
+
+void CLogView::ReadColumns(const boost::property_tree::ptree& pt)
+{
+	for (auto& item : pt)
+	{
+		if (item.first == "Column")
+		{
+			const auto& colPt = item.second;
+			auto index = colPt.get_optional<int>("Index");
+			if (index && *index < m_columns.size())
+			{
+				ColumnInfo& col = m_columns[*index];
+
+				auto enable = colPt.get_optional<bool>("Enable");
+				if (enable)
+					col.enable = *enable;
+
+				auto width = colPt.get_optional<int>("Width");
+				if (width)
+					col.column.cx = *width;
+
+				auto order = colPt.get_optional<int>("Order");
+				if (order)
+					col.column.iOrder = *order;
+			}
+		}
+	}
+	UpdateColumns();
 }
 
 void CLogView::LoadSettings(CRegKey& reg)

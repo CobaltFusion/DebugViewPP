@@ -1,8 +1,3 @@
-Put here symlinks or copies of these libraries:
-
-boost 1.62.0 or later as "boost". Download: http://www.boost.org/
-wtl 9.1 or later as "wtl". Download: http://sourceforge.net/projects/wtl/
-
 These libraries are included in the archive:
 
 PropertyGrid is written by Bjarke Viksoe.

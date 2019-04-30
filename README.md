@@ -10,7 +10,7 @@ Debugview++, currently at v1.8
 [Download head version ](https://ci.appveyor.com/project/janwilmans/debugview/build/artifacts) ** only pick this if your feeling lucky and want to try the latest commits **
 
 Questions? Tweet me at [**@janwilmans**](https://twitter.com/janwilmans) or chat on skype at 'janwilmans'.
-There is also a [slack channel](https://cpplang.slack.com/messages/debugviewpp)
+There is also a [slack channel](https://cpplang.slack.com/messages/debugviewpp). If you need an invite, go [here](https://cpplang.now.sh/).
 
 Debugview++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:

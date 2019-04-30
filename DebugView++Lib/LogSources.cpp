@@ -42,9 +42,7 @@ namespace debugviewpp {
 using namespace std::chrono_literals;
 
 LogSources::LogSources(IExecutor& executor, bool startListening)
-	: m_end(false)
-	, m_autoNewLine(true)
-	, m_updateEvent(CreateEvent(nullptr, false, false, nullptr))
+	: m_updateEvent(CreateEvent(nullptr, false, false, nullptr))
 	, m_linebuffer(64 * 1024)
 	, m_loopback(std::make_unique<Loopback>(m_timer, m_linebuffer))
 	, m_executor(executor)
@@ -130,6 +128,16 @@ void LogSources::SetAutoNewLine(bool value)
 bool LogSources::GetAutoNewLine() const
 {
 	return m_autoNewLine;
+}
+
+void LogSources::SetProcessPrefix(bool value)
+{
+	m_processPrefix = value;
+}
+
+bool LogSources::GetProcessPrefix() const
+{
+	return m_processPrefix;
 }
 
 void LogSources::Abort()
@@ -321,7 +329,7 @@ Lines LogSources::GetLines()
 {
 	assert(m_executor.IsExecutorThread());
 	Lines lines;
-	for (auto& inputLine : m_linebuffer.GetLines())
+	for (auto&& inputLine : m_linebuffer.GetLines())
 	{
 		if (IsRemoved(inputLine.pLogSource))
 			continue;
@@ -358,7 +366,7 @@ Lines LogSources::GetLines()
 			// multiple lines, in this case the timestamp for each line is the same.
 			// NewlineFilter::Process will also eat any \r\n's
 
-			for (auto& line: m_newlineFilter.Process(inputLine))
+			for (auto&& line: m_newlineFilter.Process(std::move(inputLine)))
 			{
 				lines.emplace_back(std::move(line));
 			}

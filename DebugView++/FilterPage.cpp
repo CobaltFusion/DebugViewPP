@@ -283,7 +283,7 @@ void CFilterPageImpl::OnLButtonUp(UINT /*nFlags*/, CPoint point)
 
 		UINT flags = 0;
 		size_t item = std::min<size_t>(m_grid.HitTest(point, &flags), m_filters.size() - 1);
-		if (item >= 0 && item < m_filters.size())
+		if (item < m_filters.size())
 		{
 			auto filter = GetFilter(m_dragItem);
 			m_grid.DeleteItem(m_dragItem);

@@ -63,6 +63,9 @@ public:
 	void SetAutoNewLine(bool value);
 	bool GetAutoNewLine() const;
 
+	virtual void SetProcessPrefix(bool value);
+	virtual bool GetProcessPrefix() const;
+
 	void ResetTimer();
 	void Listen();
 	void ListenUntilUpdateEvent();
@@ -93,8 +96,6 @@ private:
 	void OnProcessEnded(DWORD pid, HANDLE handle);
     void AddTerminateMessage(DWORD pid, HANDLE handle) const;
 
-	bool m_autoNewLine;
-
 	mutable std::mutex m_sources_mutex; // protects access to m_sources
 	std::vector<std::unique_ptr<LogSource>> m_sources; // owned by the thread that calls Listen(), nobody else is allowed to read/write it.
 
@@ -102,8 +103,10 @@ private:
 	std::vector<std::unique_ptr<LogSource>> m_sourcesScheduleToAdd;
 	std::vector<LogSource*> m_sourcesScheduledToRemove;
 
+	bool m_autoNewLine = false;
+	bool m_processPrefix = false;
 	Win32::Handle m_updateEvent;
-	bool m_end;
+	bool m_end = false;
 	VectorLineBuffer m_linebuffer;
 	PidMap m_pidMap;
 	ProcessMonitor m_processMonitor;

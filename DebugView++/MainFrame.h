@@ -75,6 +75,7 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_COLUMN_PROCESS, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_OPTIONS_LINKVIEWS, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 		UPDATE_ELEMENT(ID_OPTIONS_AUTONEWLINE, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_OPTIONS_PROCESS_PREFIX, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_OPTIONS_ALWAYSONTOP, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_OPTIONS_HIDE, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
@@ -165,6 +166,7 @@ private:
 	void OnFileSaveConfiguration(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLinkViews(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnAutoNewline(UINT uNotifyCode, int nID, CWindow wndCtl);
+	void OnProcessPrefix(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnHide(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnAlwaysOnTop(UINT uNotifyCode, int nID, CWindow wndCtl);
 	void OnLogClear(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -188,6 +190,7 @@ private:
 	void SetTitle(const std::wstring& title = L"");
 	void HandleDroppedFile(const std::wstring& file);
 	void Run(const std::wstring& pathName = L"");
+	void UpdateLogSources(const std::vector<SourceInfo>& sources);
 	void AddLogSource(const SourceInfo& info);
 	void CloseView(int i);
 

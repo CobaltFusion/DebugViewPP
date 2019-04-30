@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <deque>
+#include <boost/property_tree/ptree_fwd.hpp>
 #include "Win32/Window.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/AtlWinExt.h"
@@ -89,6 +90,8 @@ struct ColumnInfo
 	LVCOLUMN column;
 };
 
+boost::property_tree::ptree MakePTree(const std::vector<ColumnInfo>& columns);
+
 class CMyHeaderCtrl : public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
 {
 public:
@@ -156,6 +159,8 @@ public:
 	void SetAutoScroll(bool enable);
 	bool GetAutoScrollStop() const;
 	void SetAutoScrollStop(bool enable);
+	const std::vector<ColumnInfo>& GetColumns() const;
+	void ReadColumns(const boost::property_tree::ptree& pt);
 	void Clear();
 	int GetFocusLine() const;
 	void SetFocusLine(int line);

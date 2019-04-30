@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:VSExtension="http://schemas.microsoft.com/wix/VSExtension">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:VSExtension="http://wixtoolset.org/schemas/v4/VSExtension">
     <?include $(var.SolutionDir)\DebugView++\version.wxi ?>
 
     <?if $(var.Platform) = x64 ?>

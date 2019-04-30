@@ -140,6 +140,7 @@ BEGIN
     BEGIN
         MENUITEM "&Link Views",                 ID_OPTIONS_LINKVIEWS
         MENUITEM "&Auto Newline",               ID_OPTIONS_AUTONEWLINE
+		MENUITEM "&Prefix PID",       	        ID_OPTIONS_PROCESS_PREFIX
         MENUITEM "&Font...",                    ID_OPTIONS_FONT
         MENUITEM "Always On &Top",              ID_OPTIONS_ALWAYSONTOP
         MENUITEM "&Hide When Minimized",        ID_OPTIONS_HIDE
@@ -653,6 +654,7 @@ STRINGTABLE
 BEGIN
     ID_OPTIONS_LINKVIEWS    "Link focus between views\nLink Views"
     ID_OPTIONS_AUTONEWLINE  "Append newline at end of each message\nAuto Newline"
+    ID_OPTIONS_PROCESS_PREFIX "Prefix all messages with the process ID\nPrefix PID"
     ID_OPTIONS_FONT         "Select font\nFont"
     ID_OPTIONS_HIDE         "Hide DebugView++ when it is minimized\nHide When Minimized"
     ID_OPTIONS_ALWAYSONTOP  "Keep DebugView++ window on top\nAlways On Top"
