@@ -43,7 +43,7 @@ unsigned GetTextAlign(const HDITEM& item)
 
 SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
 {
-	SIZE size;
+	SIZE size = {0};
 	dc.GetTextExtent(text.c_str(), length, &size);
 	return size;
 }
@@ -789,6 +789,9 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 	RECT rcHighlight = rect;
 	for (auto& highlight : highlights)
 	{
+		if (text.size() < highlight.end)
+			continue;
+
 		rcHighlight.right = rect.left + GetTextSize(hdc, text, highlight.begin).cx;
 		ExtTextOut(hdc, pos, rcHighlight, text);
 

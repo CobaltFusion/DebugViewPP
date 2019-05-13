@@ -58,7 +58,7 @@ public:
 	typedef boost::signals2::signal<bool()> UpdateSignal;
 
 	LogSources(IExecutor& executor, bool startListening = true);
-	~LogSources();
+	virtual ~LogSources();
 
 	void SetAutoNewLine(bool value);
 	bool GetAutoNewLine() const;
