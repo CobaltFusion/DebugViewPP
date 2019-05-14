@@ -10,21 +10,24 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  solution: '**/*.sln'
+  solution: 'DebugView++.sln'
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 steps:
+- checkout: self
+  submodules: true
+  
 - task: NuGetToolInstaller@0
 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
+- task: 'Visual Studio 2019 x64 Release'
   inputs:
     platform: 'x64'
     solution: '$(solution)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+    msbuildArgs: '-m /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
