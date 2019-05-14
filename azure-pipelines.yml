@@ -25,7 +25,7 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: 'Visual Studio 2019 x64 Release'
+- task: VSBuild@1
   inputs:
     platform: 'x64'
     solution: '$(solution)'
