@@ -3,7 +3,7 @@ Cobalt Fusion presents:
 Debugview++, currently at v1.8
 ------------------------------
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ho962elp8chrdga0/branch/master?svg=true)](https://ci.appveyor.com/project/janwilmans/debugview/branch/master)
+[![Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master)
 
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
