@@ -37,3 +37,13 @@ steps:
     testSelector: 'testAssemblies'
     testAssemblyVer2: '**\*test.exe'
     searchFolder: '$(System.DefaultWorkingDirectory)'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)'
+    contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb|*.msi)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: drop
