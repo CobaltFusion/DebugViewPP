@@ -5,6 +5,8 @@ Debugview++, currently at v1.8
 
 [![Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master)
 
+[![Github All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)]()
+
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
 [Download head version ](https://ci.appveyor.com/project/janwilmans/debugview/build/artifacts) ** only pick this if your feeling lucky and want to try the latest commits **
