@@ -41,7 +41,7 @@ steps:
 - task: CopyFiles@2
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)'
-    contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb|*.msi)'
+    contents: '**/$(buildPlatform)/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb|*.msi)'
 
 - task: PublishBuildArtifacts@1
   inputs:
