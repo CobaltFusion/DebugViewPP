@@ -41,10 +41,17 @@ steps:
 - task: CopyFiles@2
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)'
-    contents: '**/$(buildPlatform)/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb|*.msi)'
+    contents: '$(buildPlatform)/$(BuildConfiguration)/(D*.exe|*.zip|*.pdb|*.msi|*.vsix)'
     targetFolder: $(Build.ArtifactStagingDirectory)
 
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: drop
+    artifactName: DebugView++
+
+- task: GithubRelease@0 
+  displayName: 'Create GitHub Release'
+  inputs:
+    githubConnection: janwilmans
+    repositoryName: CobaltFusion/DebugViewPP
+    assets: $(Build.ArtifactStagingDirectory)/(Debug*.exe|Debug.zip|Debug.msi|*.vsix)
