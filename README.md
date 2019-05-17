@@ -7,6 +7,7 @@ Debugview++, currently at v1.8
 alt="follow on Twitter"></a>
 
 [![Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master) [![Github All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)]() [![Github Current Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)]()
+https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/v1.8.0.44/total.svg
 
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
