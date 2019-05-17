@@ -2,10 +2,16 @@ Cobalt Fusion presents:
 
 Debugview++, currently at v1.8
 ------------------------------
+<p>
+    <a href="https://twitter.com/intent/follow?screen_name=janwilmans">
+        <img src="https://img.shields.io/twitter/follow/janwilmans.svg?style=social&logo=twitter"
+            alt="follow on Twitter"></a>
+</p>
 
 [![Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master)
 
 [![Github All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)]()
+[![Github Current Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)]()
 
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
