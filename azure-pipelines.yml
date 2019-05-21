@@ -49,9 +49,9 @@ steps:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: DebugView++
 
-- task: GithubRelease@0 
-  displayName: 'Create GitHub Release'
-  inputs:
-    githubConnection: janwilmans
-    repositoryName: CobaltFusion/DebugViewPP
-    assets: $(Build.ArtifactStagingDirectory)/(Debug*.exe|Debug.zip|Debug.msi|*.vsix)
+#- task: GithubRelease@0 
+#  displayName: 'Create GitHub Release'
+#  inputs:
+#    githubConnection: janwilmans
+#    repositoryName: CobaltFusion/DebugViewPP
+#    assets: $(Build.ArtifactStagingDirectory)/(Debug*.exe|Debug.zip|Debug.msi|*.vsix)
