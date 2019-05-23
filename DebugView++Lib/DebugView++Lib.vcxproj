@@ -251,6 +251,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CobaltFusion\CobaltFusion.vcxproj">
       <Project>{218ab179-4c19-4264-bd55-df89a9f321ca}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\IndexedStorageLib\IndexedStorageLib.vcxproj">
       <Project>{69756714-c1eb-47af-b852-ff253d8ddda8}</Project>
