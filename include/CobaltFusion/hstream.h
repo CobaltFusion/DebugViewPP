@@ -24,7 +24,7 @@ public:
 		m_readBuffer(std::max(buff_sz, m_put_back) + m_put_back)
 	{
 		Elem* end = &m_readBuffer.front() + m_readBuffer.size();
-		setg(end, end, end);
+		this->setg(end, end, end);
 	}
 
 protected:
@@ -74,7 +74,7 @@ protected:
 			return std::basic_streambuf<Elem, Tr>::traits_type::eof();
 
 		// Set buffer pointers
-		setg(base, start, start + read/sizeof(Elem));
+		this->setg(base, start, start + read/sizeof(Elem));
 
 		return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*this->gptr());
 	}

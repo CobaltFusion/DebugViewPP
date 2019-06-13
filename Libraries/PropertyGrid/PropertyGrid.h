@@ -4,6 +4,7 @@
 #pragma once
 
 #include "permissive_fixes.h"
+#include <algorithm>
 
 /////////////////////////////////////////////////////////////////////////////
 // CPropertyGrid - A simple grid control
@@ -269,7 +270,7 @@ public:
 	int GetItemCount() const
 	{
 		if ((m_di.dwExtStyle & PGS_EX_ADDITEMATEND) != 0)
-			return max(0, TBase::GetItemCount() - 1);
+			return std::max(0, TBase::GetItemCount() - 1);
 		return TBase::GetItemCount();
 	}
 

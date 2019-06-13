@@ -319,16 +319,16 @@ public:
 	{
 		DWORD dwStyle = this->GetStyle();
 
-		lpNMCustomDraw->hFontInactive = m_font;
+		lpNMCustomDraw->hFontInactive = this->m_font;
 		if (CTCS_BOLDSELECTEDTAB == (dwStyle & CTCS_BOLDSELECTEDTAB))
 		{
-			lpNMCustomDraw->hFontSelected = (this->m_fontSel.IsNull() ? m_font : this->m_fontSel);
+			lpNMCustomDraw->hFontSelected = (this->m_fontSel.IsNull() ? this->m_font : this->m_fontSel);
 		}
 		else
 		{
-			lpNMCustomDraw->hFontSelected = m_font;
+			lpNMCustomDraw->hFontSelected = this->m_font;
 		}
-		lpNMCustomDraw->hBrushBackground = m_hbrBack;
+		lpNMCustomDraw->hBrushBackground = this->m_hbrBack;
 		lpNMCustomDraw->clrTextSelected = ::GetSysColor(COLOR_BTNTEXT);
 		lpNMCustomDraw->clrTextInactive = ::GetSysColor(COLOR_BTNTEXT);
 		lpNMCustomDraw->clrSelectedTab = ::GetSysColor(COLOR_BTNFACE);
@@ -351,7 +351,7 @@ public:
 		bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
 		RECT& rc = lpNMCustomDraw->nmcd.rc;
 
-		dc.FillRect(&rc, m_hbrBack);
+		dc.FillRect(&rc, this->m_hbrBack);
 		if (bSelected)
 		{
 			// Tab is selected, so paint tab folder
@@ -371,7 +371,7 @@ public:
 
 		// Draw text
 		//HFONT hOldFont = dc.SelectFont(bSelected ? lpNMCustomDraw->hFontSelected : lpNMCustomDraw->hFontInactive);
-		HFONT hOldFont = dc.SelectFont(bSelected ? this->m_fontSel : m_font);
+		HFONT hOldFont = dc.SelectFont(bSelected ? this->m_fontSel : this->m_font);
 		RECT rcText = rc;
 		::InflateRect(&rcText, -m_settings.iPadding, 0);
 		rcText.bottom -= 3;

@@ -31,7 +31,7 @@ protected:
 	typedef CListViewNoFlickerT<T> thisClass;
 
 protected:
-	ATL::CWindow m_headerCtrl;
+	ATL::CWindow this->m_headerCtrl;
 
 public:
 	CListViewNoFlickerT() :

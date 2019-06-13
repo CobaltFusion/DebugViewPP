@@ -42,7 +42,7 @@ public:
 		//if(baseClass::PreTranslateMessage(pMsg))
 		//	return TRUE;
 
-		//return m_view.PreTranslateMessage(pMsg);
+		//return this->m_view.PreTranslateMessage(pMsg);
 
 		HWND hWndFocus = ::GetFocus();
 		if (this->m_hWndActive != NULL && ::IsWindow(this->m_hWndActive) &&
@@ -133,7 +133,7 @@ public:
 				// pane windows in this tab box as well).
 
 				dockwins::DFPINBTNPRESS btnPress = {0};
-				btnPress.hdr.hWnd = m_hWnd;
+				btnPress.hdr.hWnd = this->m_hWnd;
 				btnPress.hdr.hBar = hWndDockingBox;
 				btnPress.hdr.code = DC_PINBTNPRESS;
 				btnPress.bVisualize = FALSE;
@@ -147,7 +147,7 @@ public:
 				// Auto-hide just the pane window.
 
 				//dockwins::DFPINBTNPRESS btnPress = {0};
-				//btnPress.hdr.hWnd = m_hWnd;
+				//btnPress.hdr.hWnd = this->m_hWnd;
 				//btnPress.hdr.hBar = hWndDockingBox;
 				//btnPress.hdr.code = DC_PINBTNPRESS;
 				//btnPress.bVisualize = FALSE;
@@ -209,7 +209,7 @@ public:
 
 	HWND GetClient(void)
 	{
-		return m_hWndClient;
+		return this->m_hWndClient;
 	}
 
 	void SetReflectNotifications(bool bReflectNotifications = true)
@@ -219,7 +219,7 @@ public:
 
 	bool GetReflectNotifications(void) const
 	{
-		return m_bReflectNotifications;
+		return this->m_bReflectNotifications;
 	}
 
 	void SetClientFlatOutline(bool bFlat = true)
@@ -233,7 +233,7 @@ public:
 
 	bool GetClientFlatOutline(void) const
 	{
-		return m_bClientFlatOutline;
+		return this->m_bClientFlatOutline;
 	}
 
 	void SetMenuID(int nMenuID)
@@ -243,7 +243,7 @@ public:
 
 	int GetMenuID(void) const
 	{
-		return m_nMenuID;
+		return this->m_nMenuID;
 	}
 
 	BOOL IsOwnerDockBarVisible()
@@ -254,7 +254,7 @@ public:
 
 	BOOL IsCurrentDockBarVisible()
 	{
-		HWND hWnd = m_pos.hdr.hBar;
+		HWND hWnd = this->m_pos.hdr.hBar;
 		return hWnd && ::IsWindowVisible(hWnd);
 	}
 
@@ -295,7 +295,7 @@ public:
 		//if(baseClass::PreTranslateMessage(pMsg))
 		//	return TRUE;
 
-		//return m_view.PreTranslateMessage(pMsg);
+		//return this->m_view.PreTranslateMessage(pMsg);
 
 		HWND hWndFocus = ::GetFocus();
 		if (this->m_hWndClient != NULL && ::IsWindow(this->m_hWndClient) &&
@@ -365,7 +365,7 @@ public:
 					return lResult;
 				}
 				// else, let DefWindowProc happen,
-				// and let go of m_hWndClient
+				// and let go of this->m_hWndClient
 				m_hWndClient = NULL;
 			}
 		}

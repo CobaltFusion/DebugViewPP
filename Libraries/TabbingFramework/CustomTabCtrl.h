@@ -417,7 +417,7 @@ public:
 public:
 	RECT GetRect() const
 	{
-		return m_rcItem;
+		return this->m_rcItem;
 	}
 	LPCRECT GetRectRef() const
 	{
@@ -431,7 +431,7 @@ public:
 
 	int GetImageIndex() const
 	{
-		return m_nImage;
+		return this->m_nImage;
 	}
 	bool SetImageIndex(int nImage = -1)
 	{
@@ -441,7 +441,7 @@ public:
 
 	_CSTRING_NS::CString GetText() const
 	{
-		return m_sText;
+		return this->m_sText;
 	}
 	LPCTSTR GetTextRef() const
 	{
@@ -455,7 +455,7 @@ public:
 
 	_CSTRING_NS::CString GetToolTip() const
 	{
-		return m_sToolTip;
+		return this->m_sToolTip;
 	}
 	LPCTSTR GetToolTipRef() const
 	{
@@ -469,7 +469,7 @@ public:
 
 	bool IsHighlighted() const
 	{
-		return m_bHighlighted;
+		return this->m_bHighlighted;
 	}
 	bool SetHighlighted(bool bHighlighted)
 	{
@@ -479,7 +479,7 @@ public:
 
 	bool CanClose() const
 	{
-		return m_bCanClose;
+		return this->m_bCanClose;
 	}
 	bool SetCanClose(bool bCanClose)
 	{
@@ -603,7 +603,7 @@ public:
 public:
 	HWND GetTabView() const
 	{
-		return m_hWndTabView;
+		return this->m_hWndTabView;
 	}
 	bool SetTabView(HWND hWnd = NULL)
 	{
@@ -672,13 +672,13 @@ public:
 	//Real CAtlArray:  size_t GetCount() const throw();
 	size_t GetCount() const
 	{
-		return m_nSize;
+		return this->m_nSize;
 	}
 
 	//Real CAtlArray:  void InsertAt( size_t iElement, INARGTYPE element, size_t nCount = 1 );
 	void InsertAt(size_t nIndex, E& element)
 	{
-		if (m_nSize == m_nAllocSize)
+		if (m_nSize == this->m_nAllocSize)
 		{
 			E* aT;
 			int nNewAllocSize = (m_nAllocSize == 0) ? 1 : (m_nSize * 2);
@@ -779,7 +779,7 @@ protected:
 	//       Valid values are 0-63 (the value is bit shifted to/from position).
 	//  SR - Scroll repeat speed.  Valid values are no-repeat,
 	//       slow repeat, normal repeat and fast repeat
-	//  HT - Current hot tracked item (if its a tab, then m_iHotItem is the hot tab item)
+	//  HT - Current hot tracked item (if its a tab, then this->m_iHotItem is the hot tab item)
 	//  MD - Item under mouse when mouse button down message was sent
 	//       but before mouse button up message is sent
 	//  MO - Item current under mouse cursor
@@ -1008,7 +1008,7 @@ protected:
 				//  of a hot tracked tab, invalidate the whole tab window
 				this->Invalidate();
 
-				//if(m_iActionItem >= 0 && m_iActionItem < m_Items.GetCount())
+				//if(m_iActionItem >= 0 && this->m_iActionItem < this->m_Items.GetCount())
 				//{
 				//	RECT rcItemDP;
 				//	this->GetItemRect(m_iActionItem, &rcItemDP);
@@ -1060,7 +1060,7 @@ protected:
 				//  of a hot tracked tab, invalidate the whole tab window
 				this->Invalidate();
 
-				//if(m_iActionItem >= 0 && m_iActionItem < m_Items.GetCount())
+				//if(m_iActionItem >= 0 && this->m_iActionItem < this->m_Items.GetCount())
 				//{
 				//	RECT rcItemDP = {0};
 				//	this->GetItemRect(m_iActionItem, &rcItemDP);
@@ -1086,7 +1086,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 
-		NMCTC2ITEMS nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_ACCEPTITEMDRAG}, m_iDragItemOriginal, m_iDragItem, {-1, -1}};
+		NMCTC2ITEMS nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_ACCEPTITEMDRAG}, this->m_iDragItemOriginal, this->m_iDragItem, {-1, -1}};
 		::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 
 		// In this implementation, the tab is moved as they drag.
@@ -1101,13 +1101,13 @@ public:
 		// To cancel the drag, we move the item back to its original place.
 		if (m_iDragItemOriginal >= 0 &&
 			m_iDragItem >= 0 &&
-			m_iDragItemOriginal != m_iDragItem)
+			m_iDragItemOriginal != this->m_iDragItem)
 		{
-			pT->MoveItem(m_iDragItem, m_iDragItemOriginal, true, false);
+			pT->MoveItem(m_iDragItem, this->m_iDragItemOriginal, true, false);
 			pT->EnsureVisible(m_iDragItemOriginal);
 		}
 
-		NMCTCITEM nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_CANCELITEMDRAG}, m_iDragItemOriginal, {-1, -1}};
+		NMCTCITEM nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_CANCELITEMDRAG}, this->m_iDragItemOriginal, {-1, -1}};
 		::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 
 		pT->StopItemDrag(bRedrawEffectedArea);
@@ -1226,7 +1226,7 @@ public:
 		CTCHITTESTINFO tchti = {0};
 		tchti.pt = ptCursor;
 		int index = pT->HitTest(&tchti);
-		if ((index != m_iDragItem) && (index >= 0))
+		if ((index != this->m_iDragItem) && (index >= 0))
 		{
 			RECT rcItem = {0};
 			this->GetItemRect(index, &rcItem);
@@ -1392,7 +1392,7 @@ public:
 			(ectcMouseDownL_TabItem == (this->m_dwState & ectcMouseDown)) &&
 			(m_ptDragOrigin.x != ptCursor.x))
 		{
-			pT->BeginItemDrag(m_iDragItem, m_ptDragOrigin);
+			pT->BeginItemDrag(m_iDragItem, this->m_ptDragOrigin);
 		}
 		else if (ectcDraggingItem == (this->m_dwState & ectcDraggingItem))
 		{
@@ -1692,7 +1692,7 @@ public:
 
 			// Before we release the capture, remember what the state was
 			// (in WM_CAPTURECHANGED we ClearCurrentMouseDownTracking)
-			DWORD dwState = m_dwState;
+			DWORD dwState = this->m_dwState;
 
 			::ReleaseCapture();
 
@@ -1700,7 +1700,7 @@ public:
 				ectcMouseOver_CloseButton == (dwState & ectcMouseOver))
 			{
 				// Close Button
-				NMCTCITEM nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_CLOSE}, m_iCurSel, {ptCursor.x, ptCursor.y}};
+				NMCTCITEM nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_CLOSE}, this->m_iCurSel, {ptCursor.x, ptCursor.y}};
 				::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 			}
 
@@ -2117,9 +2117,9 @@ public:
 			//
 			// We supply the RECT elsewhere and the text here
 			UINT_PTR id = pToolTipInfo->hdr.idFrom;
-			if (id > 0 && id <= m_Items.GetCount())
+			if (id > 0 && id <= this->m_Items.GetCount())
 			{
-				TItem* pItem = m_Items[id - 1];
+				TItem* pItem = this->m_Items[id - 1];
 				ATLASSERT(pItem != NULL);
 				if (pItem)
 				{
@@ -2197,7 +2197,7 @@ public:
 
 		if (m_tooltip.IsWindow())
 		{
-			// Also sets the contained m_hWnd to NULL
+			// Also sets the contained this->m_hWnd to NULL
 			m_tooltip.DestroyWindow();
 		}
 		else
@@ -2261,9 +2261,9 @@ public:
 
 		if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON))
 		{
-			if ((m_iCurSel >= 0) && ((size_t)m_iCurSel < m_Items.GetCount()))
+			if ((m_iCurSel >= 0) && ((size_t)m_iCurSel < this->m_Items.GetCount()))
 			{
-				TItem* pItem = m_Items[m_iCurSel];
+				TItem* pItem = this->m_Items[m_iCurSel];
 				ATLASSERT(pItem != NULL);
 				if ((pItem != NULL) && pItem->CanClose())
 				{
@@ -2311,11 +2311,11 @@ public:
 		int height = rcTabItemArea.bottom - rcTabItemArea.top;
 
 		// Reposition tabs
-		size_t nCount = m_Items.GetCount();
+		size_t nCount = this->m_Items.GetCount();
 		int xpos = this->m_settings.iIndent;
 		for (size_t i = 0; i < nCount; ++i)
 		{
-			TItem* pItem = m_Items[i];
+			TItem* pItem = this->m_Items[i];
 			ATLASSERT(pItem != NULL);
 			if (pItem)
 			{
@@ -2333,7 +2333,7 @@ public:
 		}
 		if ((m_iCurSel >= 0) && ((size_t)m_iCurSel < nCount))
 		{
-			TItem* pItem = m_Items[m_iCurSel];
+			TItem* pItem = this->m_Items[m_iCurSel];
 			ATLASSERT(pItem != NULL);
 			if (pItem)
 			{
@@ -2355,7 +2355,7 @@ public:
 		if (m_tooltip.IsWindow())
 		{
 			size_t i = 0;
-			size_t nCount = m_Items.GetCount();
+			size_t nCount = this->m_Items.GetCount();
 			RECT rcIntersect = {0};
 			for (i = 0; i < nCount; ++i)
 			{
@@ -2420,13 +2420,13 @@ public:
 		// Check for overflow right
 		m_dwState &= ~ectcOverflowRight;
 
-		size_t nCount = m_Items.GetCount();
+		size_t nCount = this->m_Items.GetCount();
 		if (nCount > 0)
 		{
 			// Check last item
 			RECT rcItemDP = {0};
 			this->GetItemRect(nCount - 1, &rcItemDP);
-			if (rcItemDP.right > m_rcTabItemArea.right)
+			if (rcItemDP.right > this->m_rcTabItemArea.right)
 			{
 				m_dwState |= ectcOverflowRight;
 			}
@@ -2492,15 +2492,15 @@ public:
 				dc.SetViewportOrg(m_iScrollOffset, 0, &ptPreviousViewport);
 			}
 
-			size_t nCount = m_Items.GetCount();
+			size_t nCount = this->m_Items.GetCount();
 			// Draw the list items, except the selected one. It is drawn last
 			// so it can cover the tabs below it.
 			RECT rcIntersect = {0};
 			for (size_t i = 0; i < nCount; ++i)
 			{
-				if ((int)i != m_iCurSel)
+				if ((int)i != this->m_iCurSel)
 				{
-					TItem* pItem = m_Items[i];
+					TItem* pItem = this->m_Items[i];
 					ATLASSERT(pItem != NULL);
 					if (pItem)
 					{
@@ -2508,7 +2508,7 @@ public:
 						rcItemLP = pItem->GetRect();
 
 						::CopyRect(&rcItemDP, &rcItemLP);
-						::OffsetRect(&rcItemDP, m_iScrollOffset, 0);
+						::OffsetRect(&rcItemDP, this->m_iScrollOffset, 0);
 
 						if (::IntersectRect(&rcIntersect, &rcItemDP, &rcClip))
 						{
@@ -2530,7 +2530,7 @@ public:
 			}
 			if (m_iCurSel >= 0 && (size_t)m_iCurSel < nCount)
 			{
-				TItem* pItem = m_Items[m_iCurSel];
+				TItem* pItem = this->m_Items[m_iCurSel];
 				ATLASSERT(pItem != NULL);
 				if (pItem)
 				{
@@ -2538,13 +2538,13 @@ public:
 					rcItemLP = pItem->GetRect();
 
 					::CopyRect(&rcItemDP, &rcItemLP);
-					::OffsetRect(&rcItemDP, m_iScrollOffset, 0);
+					::OffsetRect(&rcItemDP, this->m_iScrollOffset, 0);
 
 					if (::IntersectRect(&rcIntersect, &rcItemDP, &rcClip))
 					{
-						pnmcd->dwItemSpec = m_iCurSel;
+						pnmcd->dwItemSpec = this->m_iCurSel;
 						pnmcd->uItemState = CDIS_SELECTED;
-						if (bHotTrackStyle && (m_iHotItem == m_iCurSel))
+						if (bHotTrackStyle && (m_iHotItem == this->m_iCurSel))
 						{
 							pnmcd->uItemState |= CDIS_HOT;
 						}
@@ -2612,7 +2612,7 @@ public:
 	{
 		DWORD dwStyle = this->GetStyle();
 
-		lpNMCustomDraw->hFontInactive = m_font;
+		lpNMCustomDraw->hFontInactive = this->m_font;
 		lpNMCustomDraw->hFontSelected = this->m_fontSel;
 		lpNMCustomDraw->hBrushBackground = ::GetSysColorBrush(COLOR_BTNFACE);
 		lpNMCustomDraw->clrTextSelected = ::GetSysColor(COLOR_BTNTEXT);
@@ -2683,18 +2683,18 @@ public:
 
 	WTL::CImageList SetImageList(HIMAGELIST hImageList)
 	{
-		CImageList imageListOld = m_imageList;
+		CImageList imageListOld = this->m_imageList;
 		m_imageList = hImageList;
 		return imageListOld;
 	}
 	WTL::CImageList& GetImageList() const
 	{
-		return m_imageList;
+		return this->m_imageList;
 	}
 
 	WTL::CToolTipCtrl GetTooltips() const
 	{
-		return m_tooltip;
+		return this->m_tooltip;
 	}
 	//void SetTooltips(HWND hWndToolTip)
 	//{
@@ -2758,7 +2758,7 @@ public:
 			return -1;
 		}
 
-		size_t nOldCount = m_Items.GetCount();
+		size_t nOldCount = this->m_Items.GetCount();
 
 		if (nItem < 0 || nItem > (int)nOldCount)
 		{
@@ -2767,7 +2767,7 @@ public:
 
 		m_Items.InsertAt((size_t)nItem, pItem);
 
-		size_t nNewCount = m_Items.GetCount();
+		size_t nNewCount = this->m_Items.GetCount();
 
 		// Send notification
 		NMCTCITEM nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_INSERTITEM}, nItem, {-1, -1}};
@@ -2803,20 +2803,20 @@ public:
 		T* pT = static_cast<T*>(this);
 
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		ATLASSERT(nFromIndex < m_Items.GetCount());
-		ATLASSERT(nToIndex < m_Items.GetCount());
+		ATLASSERT(nFromIndex < this->m_Items.GetCount());
+		ATLASSERT(nToIndex < this->m_Items.GetCount());
 
-		if (!::IsWindow(this->m_hWnd) || nFromIndex >= m_Items.GetCount() || nToIndex >= m_Items.GetCount())
+		if (!::IsWindow(this->m_hWnd) || nFromIndex >= this->m_Items.GetCount() || nToIndex >= this->m_Items.GetCount())
 		{
 			return FALSE;
 		}
 
-		TItem* pFromItem = m_Items[nFromIndex];
+		TItem* pFromItem = this->m_Items[nFromIndex];
 		ATLASSERT(pFromItem != NULL);
 		m_Items.RemoveAt(nFromIndex);
 		m_Items.InsertAt(nToIndex, pFromItem);
 
-		// The number of items is staying the same, so m_iCurSel
+		// The number of items is staying the same, so this->m_iCurSel
 		// won't be invalid whether it gets updated or not
 		if (bUpdateSelection)
 		{
@@ -2840,22 +2840,22 @@ public:
 		T* pT = static_cast<T*>(this);
 
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		ATLASSERT(nFromIndex < m_Items.GetCount());
-		ATLASSERT(nToIndex < m_Items.GetCount());
+		ATLASSERT(nFromIndex < this->m_Items.GetCount());
+		ATLASSERT(nToIndex < this->m_Items.GetCount());
 
-		if (!::IsWindow(this->m_hWnd) || nFromIndex >= m_Items.GetCount() || nToIndex >= m_Items.GetCount())
+		if (!::IsWindow(this->m_hWnd) || nFromIndex >= this->m_Items.GetCount() || nToIndex >= this->m_Items.GetCount())
 		{
 			return FALSE;
 		}
 
-		TItem* pFromItem = m_Items[nFromIndex];
-		TItem* pToItem = m_Items[nToIndex];
+		TItem* pFromItem = this->m_Items[nFromIndex];
+		TItem* pToItem = this->m_Items[nToIndex];
 		ATLASSERT(pFromItem != NULL);
 		ATLASSERT(pToItem != NULL);
 		m_Items[nFromIndex] = pToItem;
 		m_Items[nToIndex] = pFromItem;
 
-		// The number of items is staying the same, so m_iCurSel
+		// The number of items is staying the same, so this->m_iCurSel
 		// won't be invalid whether it gets updated or not
 		if (bUpdateSelection)
 		{
@@ -2882,7 +2882,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		size_t nOldCount = m_Items.GetCount();
+		size_t nOldCount = this->m_Items.GetCount();
 		if (nItem >= nOldCount)
 		{
 			return FALSE;
@@ -2902,7 +2902,7 @@ public:
 			{
 				// Just in case handler of the notification
 				// changed the count somehow, get it again
-				nOldCount = m_Items.GetCount();
+				nOldCount = this->m_Items.GetCount();
 				if (nItem >= nOldCount)
 				{
 					return FALSE;
@@ -2912,7 +2912,7 @@ public:
 
 		int nPostDeleteSelection = -1;
 
-		// The number of items is changing, so m_iCurSel
+		// The number of items is changing, so this->m_iCurSel
 		// might be invalid if we don't change it.
 		if (nOldCount <= 1)
 		{
@@ -2922,7 +2922,7 @@ public:
 		}
 		else if (bUpdateSelection)
 		{
-			if ((int)nItem < m_iCurSel)
+			if ((int)nItem < this->m_iCurSel)
 			{
 				// The item being removed is before the current selection.
 				// We still want the same item to be selected, but
@@ -2933,7 +2933,7 @@ public:
 				//  any of the notifications to go to the parent - because
 				//  the selection didn't change, the index just had to be adjusted.
 			}
-			else if ((int)nItem == m_iCurSel)
+			else if ((int)nItem == this->m_iCurSel)
 			{
 				// If the item to be deleted is currently selected,
 				//  select something else.
@@ -2947,7 +2947,7 @@ public:
 					// Select the item that will be the
 					// new last item.
 					// We need to do this before the actual
-					// deletion so that m_iCurSel
+					// deletion so that this->m_iCurSel
 					// will still be valid during the SetCurSel
 					// call and the notification handlers of
 					// CTCN_SELCHANGING and CTCN_SELCHANGE
@@ -2962,19 +2962,19 @@ public:
 					// have the same index as the selected item being
 					// deleted, but do it after the actual deletion.
 					//pT->SetCurSel(m_iCurSel);
-					nPostDeleteSelection = m_iCurSel;
+					nPostDeleteSelection = this->m_iCurSel;
 				}
 			}
 		}
 		else
 		{
-			if (((int)nItem == m_iCurSel) && (nItem >= (nOldCount - 1)))
+			if (((int)nItem == this->m_iCurSel) && (nItem >= (nOldCount - 1)))
 			{
 				// If bUpdateSelection is false,
 				// the item being deleted is selected,
 				// and the item being deleted is the last
 				// item, we need to clear the current selection
-				// (setting m_iCurSel to -1)
+				// (setting this->m_iCurSel to -1)
 				// so that our call to UpdateLayout
 				// and our paint message handling don't
 				// crash and burn with an invalid selected
@@ -2998,7 +2998,7 @@ public:
 			m_tooltip.DelTool(this->m_hWnd, (UINT)m_Items.GetCount());
 		}
 
-		TItem* pItem = m_Items[nItem];
+		TItem* pItem = this->m_Items[nItem];
 		ATLASSERT(pItem != NULL);
 		m_Items.RemoveAt(nItem);
 
@@ -3053,7 +3053,7 @@ public:
 		CHECK_ITEM(nItem);
 
 		// Copy caller's data to the internal structure
-		TItem* pItemT = m_Items[nItem];
+		TItem* pItemT = this->m_Items[nItem];
 		UINT mask = pItem->mask;
 		if( mask & TCIF_TEXT )
 		{
@@ -3081,13 +3081,13 @@ public:
 
 	TItem* GetItem(size_t nItem) const
 	{
-		ATLASSERT(nItem < m_Items.GetCount());
-		if (nItem >= m_Items.GetCount())
+		ATLASSERT(nItem < this->m_Items.GetCount());
+		if (nItem >= this->m_Items.GetCount())
 		{
 			return NULL;
 		}
 
-		return m_Items[nItem];
+		return this->m_Items[nItem];
 	}
 
 	int SetCurSel(int nItem, bool bNotify = true)
@@ -3106,14 +3106,14 @@ public:
 		//
 		// OLD:
 		// // Selecting same tab?  If so, we won't go through all the notifications
-		// if( (int)nItem==m_iCurSel ) return m_iCurSel;
+		// if( (int)nItem==m_iCurSel ) return this->m_iCurSel;
 
 		if (nItem >= (int)m_Items.GetCount())
 		{
-			nItem = m_iCurSel;
+			nItem = this->m_iCurSel;
 		}
 
-		int iOldSel = m_iCurSel;
+		int iOldSel = this->m_iCurSel;
 		// Send notification
 		NMCTC2ITEMS nmh = {{this->m_hWnd, this->GetDlgCtrlID(), CTCN_SELCHANGING}, iOldSel, nItem, {-1, -1}};
 		if (bNotify)
@@ -3148,7 +3148,7 @@ public:
 
 	int GetCurSel() const
 	{
-		return m_iCurSel;
+		return this->m_iCurSel;
 	}
 
 	int GetItemCount() const
@@ -3167,7 +3167,7 @@ public:
 			//  Use this knowledge to do a better spacial search.
 
 			RECT rcItemDP = {0};
-			size_t nCount = m_Items.GetCount();
+			size_t nCount = this->m_Items.GetCount();
 			for (size_t i = 0; i < nCount; ++i)
 			{
 				// NOTE: GetItemRect accounts for any scroll
@@ -3216,25 +3216,25 @@ public:
 
 			RECT rcItemDP = {0};
 			this->GetItemRect(nItem, &rcItemDP);
-			if (rcItemDP.left < m_rcTabItemArea.left)
+			if (rcItemDP.left < this->m_rcTabItemArea.left)
 			{
-				if (!bPartialOK || (rcItemDP.right < m_rcTabItemArea.left))
+				if (!bPartialOK || (rcItemDP.right < this->m_rcTabItemArea.left))
 				{
 					m_iScrollOffset += (m_rcTabItemArea.left - rcItemDP.left) + nScrollToViewPadding;
 					bAdjusted = true;
 				}
 			}
-			else if (rcItemDP.right > m_rcTabItemArea.right)
+			else if (rcItemDP.right > this->m_rcTabItemArea.right)
 			{
-				if (!bPartialOK || (rcItemDP.left > m_rcTabItemArea.right))
+				if (!bPartialOK || (rcItemDP.left > this->m_rcTabItemArea.right))
 				{
-					m_iScrollOffset -= (rcItemDP.right - m_rcTabItemArea.right) + nScrollToViewPadding;
+					m_iScrollOffset -= (rcItemDP.right - this->m_rcTabItemArea.right) + nScrollToViewPadding;
 					bAdjusted = true;
 				}
 			}
 
 			// Note: UpdateLayout should call UpdateScrollOverflowStatus which
-			//  will catch m_iScrollOffset being scrolled too far either direction
+			//  will catch this->m_iScrollOffset being scrolled too far either direction
 		}
 
 		if (bAdjusted && bRecalcAndRedraw)
@@ -3263,8 +3263,8 @@ public:
 	DWORD SetItemSize(size_t nItem, int cx, int cy)
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
-		ATLASSERT(nItem < m_Items.GetCount());
-		if (nItem >= m_Items.GetCount())
+		ATLASSERT(nItem < this->m_Items.GetCount());
+		if (nItem >= this->m_Items.GetCount())
 		{
 			return 0;
 		}
@@ -3273,7 +3273,7 @@ public:
 		//  after the one being set would have the wrong RECT.
 		//  (unless the caller is iterating through all of the items)
 
-		TItem* pItem = m_Items[nItem];
+		TItem* pItem = this->m_Items[nItem];
 		ATLASSERT(pItem != NULL);
 
 		RECT rcOld = pItem->GetRect();
@@ -3290,12 +3290,12 @@ public:
 		ATLASSERT(prcItem);
 		if (prcItem == NULL)
 			return FALSE;
-		if (nItem >= m_Items.GetCount())
+		if (nItem >= this->m_Items.GetCount())
 		{
 			::SetRectEmpty(prcItem);
 			return FALSE;
 		}
-		TItem* pItem = m_Items[nItem];
+		TItem* pItem = this->m_Items[nItem];
 		ATLASSERT(pItem != NULL);
 		if (pItem)
 		{
@@ -3305,20 +3305,20 @@ public:
 		// Adjust for any scroll, so that the caller
 		// gets the RECT in device coordinates
 		// instead of logical coordinates
-		::OffsetRect(prcItem, m_iScrollOffset, 0);
+		::OffsetRect(prcItem, this->m_iScrollOffset, 0);
 
 		return TRUE;
 	}
 
 	BOOL HighlightItem(size_t nItem, bool bHighlight = true)
 	{
-		ATLASSERT(nItem < m_Items.GetCount());
-		if (nItem >= m_Items.GetCount())
+		ATLASSERT(nItem < this->m_Items.GetCount());
+		if (nItem >= this->m_Items.GetCount())
 		{
 			return FALSE;
 		}
 
-		TItem* pItem = m_Items[nItem];
+		TItem* pItem = this->m_Items[nItem];
 		ATLASSERT(pItem != NULL);
 		if (pItem)
 		{
@@ -3366,7 +3366,7 @@ public:
 		}
 
 		// Find the next item matching the criteria specified
-		size_t nCount = m_Items.GetCount();
+		size_t nCount = this->m_Items.GetCount();
 		for (size_t i = (nStart + 1); i < nCount; ++i)
 		{
 			if (m_Items[i]->MatchItem(pFindItem, eFlags))

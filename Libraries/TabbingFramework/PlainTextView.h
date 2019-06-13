@@ -33,10 +33,10 @@ public:
 	{
 		if (pMsg)
 		{
-			if ((pMsg->hwnd == m_hWnd) || ::IsChild(this->m_hWnd, pMsg->hwnd))
+			if ((pMsg->hwnd == this->m_hWnd) || ::IsChild(this->m_hWnd, pMsg->hwnd))
 			{
 				// We'll have the Accelerator send the WM_COMMAND to our view
-				if (m_hAccel != NULL && ::TranslateAccelerator(this->m_hWnd, m_hAccel, pMsg))
+				if (m_hAccel != NULL && ::TranslateAccelerator(this->m_hWnd, this->m_hAccel, pMsg))
 				{
 					return TRUE;
 				}

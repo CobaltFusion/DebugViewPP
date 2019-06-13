@@ -58,9 +58,9 @@ public:
 class CDynamicDialogTemplate
 {
 protected:
-	HGLOBAL m_hDialogTemplateMemory;
-	size_t m_bytesAllocated;
-	size_t m_bytesUsed;
+	HGLOBAL this->m_hDialogTemplateMemory;
+	size_t this->m_bytesAllocated;
+	size_t this->m_bytesUsed;
 
 protected:
 	enum
@@ -96,12 +96,12 @@ public:
 	// Operators
 public:
 	operator bool() { return (m_hDialogTemplateMemory != NULL); }
-	operator HGLOBAL() { return m_hDialogTemplateMemory; }
+	operator HGLOBAL() { return this->m_hDialogTemplateMemory; }
 	operator DLGTEMPLATE*() { return this->GetDLGTEMPLATE(); }
 
 	HGLOBAL GetHGLOBAL(void)
 	{
-		return m_hDialogTemplateMemory;
+		return this->m_hDialogTemplateMemory;
 	}
 
 	DLGTEMPLATE* GetDLGTEMPLATE(void)
@@ -187,7 +187,7 @@ public:
 			}
 		}
 
-		return m_hDialogTemplateMemory ? true : false;
+		return this->m_hDialogTemplateMemory ? true : false;
 	}
 
 	void Destroy(void)
@@ -221,7 +221,7 @@ public:
 									  (classStringOrAtomWordCount * sizeof(WORD)) +
 									  padding;
 
-		if ((m_bytesAllocated - m_bytesUsed) < estimatedBytesNeeded)
+		if ((m_bytesAllocated - this->m_bytesUsed) < estimatedBytesNeeded)
 		{
 			// Align the bytesToAllocate to be a multiple of the chunk size
 			size_t bytesToAllocate = (((m_bytesUsed + estimatedBytesNeeded) / byteAllocationChunk) * byteAllocationChunk) + byteAllocationChunk;
@@ -245,7 +245,7 @@ public:
 			pDialogTemplate->cdit += 1;
 
 			// Get a pointer to the "end"
-			BYTE* pOffset = (BYTE*)pDialogTemplate + m_bytesUsed;
+			BYTE* pOffset = (BYTE*)pDialogTemplate + this->m_bytesUsed;
 
 			// Fill out the structure and following bytes for the control.
 			// DLGITEMTEMPLATE structures should be aligned on DWORD boundaries.
@@ -477,7 +477,7 @@ template <class T, class TBase = ATL::CWindow, class TDynamicDialogTemplate = CD
 class ATL_NO_VTABLE CDynamicDialogImpl : public ATL::CDialogImplBaseT<TBase>
 {
 protected:
-	TDynamicDialogTemplate m_dynamicDialogTemplate;
+	TDynamicDialogTemplate this->m_dynamicDialogTemplate;
 
 	// Overrideables
 public:
@@ -486,7 +486,7 @@ public:
 
 public:
 #ifdef _DEBUG
-	bool m_bModal;
+	bool this->m_bModal;
 	CDynamicDialogImpl() :
 		m_bModal(false) {}
 #endif //_DEBUG
@@ -505,7 +505,7 @@ public:
 #endif //_DEBUG                                                                                                  \
 	//return ::DialogBoxParam(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(static_cast<T*>(this)->IDD), \
 	//			hWndParent, T::StartDialogProc, dwInitParam);
-		return ::DialogBoxIndirectParam(_AtlBaseModule.GetResourceInstance(), m_dynamicDialogTemplate,
+		return ::DialogBoxIndirectParam(_AtlBaseModule.GetResourceInstance(), this->m_dynamicDialogTemplate,
 			hWndParent, T::StartDialogProc, dwInitParam);
 	}
 	BOOL EndDialog(int nRetCode)
@@ -529,7 +529,7 @@ public:
 #endif //_DEBUG                                                                                                          \
 	//HWND hWnd = ::CreateDialogParam(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(static_cast<T*>(this)->IDD), \
 	//			hWndParent, T::StartDialogProc, dwInitParam);
-		HWND hWnd = ::CreateDialogIndirectParam(_AtlBaseModule.GetResourceInstance(), m_dynamicDialogTemplate,
+		HWND hWnd = ::CreateDialogIndirectParam(_AtlBaseModule.GetResourceInstance(), this->m_dynamicDialogTemplate,
 			hWndParent, T::StartDialogProc, dwInitParam);
 		ATLASSERT(this->m_hWnd == hWnd);
 		return hWnd;
@@ -563,8 +563,8 @@ protected:
 	typedef WTL::CPropertyPageImpl<T, TBase> baseClass;
 
 protected:
-	bool m_dialogResourceInitialized;
-	TDynamicDialogTemplate m_dynamicDialogTemplate;
+	bool this->m_dialogResourceInitialized;
+	TDynamicDialogTemplate this->m_dynamicDialogTemplate;
 
 	// Constructors
 public:
@@ -577,7 +577,7 @@ public:
 		//T* pT = static_cast<T*>(this);
 		//pT->ConstructDialogResource();
 		//m_psp.dwFlags |= PSP_DLGINDIRECT;
-		//m_psp.pResource = m_dynamicDialogTemplate;
+		//m_psp.pResource = this->m_dynamicDialogTemplate;
 	}
 
 	// Enumerations
@@ -638,7 +638,7 @@ public:
 			if (pT->ConstructDialogResource())
 			{
 				m_psp.dwFlags |= PSP_DLGINDIRECT;
-				m_psp.pResource = m_dynamicDialogTemplate;
+				m_psp.pResource = this->m_dynamicDialogTemplate;
 			}
 		}
 	}

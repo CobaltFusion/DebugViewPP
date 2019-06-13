@@ -397,7 +397,7 @@ public:
 	{
 		ATLASSERT(this->m_hWndMDIClient && ::IsWindow(this->m_hWndMDIClient));
 
-		return m_tabbedClient.SubclassWindow(this->m_hWndMDIClient);
+		return this->m_tabbedClient.SubclassWindow(this->m_hWndMDIClient);
 	}
 
 	void SetTabOwnerParent(HWND hWndTabOwnerParent)
@@ -407,12 +407,12 @@ public:
 
 	HWND GetTabOwnerParent() const
 	{
-		return m_tabbedClient.GetTabOwnerParent();
+		return this->m_tabbedClient.GetTabOwnerParent();
 	}
 
 	TTabCtrl& GetMDITabCtrl()
 	{
-		return m_tabbedClient.GetTabOwner().GetTabCtrl();
+		return this->m_tabbedClient.GetTabOwner().GetTabCtrl();
 	}
 
 	// Message Handling
@@ -549,12 +549,12 @@ public:
 
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if (wParam == SIZE_MAXIMIZED && m_bMaximized == false)
+		if (wParam == SIZE_MAXIMIZED && this->m_bMaximized == false)
 		{
 			m_bMaximized = true;
 			::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDMAXIMIZED, (WPARAM)m_hWnd, lParam);
 		}
-		else if (wParam != SIZE_MAXIMIZED && m_bMaximized == true)
+		else if (wParam != SIZE_MAXIMIZED && this->m_bMaximized == true)
 		{
 			m_bMaximized = false;
 			::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDUNMAXIMIZED, (WPARAM)m_hWnd, lParam);
@@ -617,7 +617,7 @@ public:
 		WTL::CMenuHandle menu = this->GetSystemMenu(FALSE);
 
 		UINT command = (UINT)menu.TrackPopupMenu(TPM_LEFTBUTTON | TPM_VERTICAL | TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RETURNCMD,
-			GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), m_hWnd);
+			GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), this->m_hWnd);
 
 		// See MSDN about "GetSystemMenu".  Returns codes greater than
 		//  0xF000 (which happens to be SC_SIZE) are sent with WM_SYSCOMMAND
@@ -716,7 +716,7 @@ public:
 
 	DWORD GetTabStyles(void) const
 	{
-		return m_nTabStyles;
+		return this->m_nTabStyles;
 	}
 
 	void ModifyTabStyles(DWORD dwRemove, DWORD dwAdd)
@@ -761,7 +761,7 @@ public:
 		{
 			RECT rcTabs;
 			m_TabCtrl.GetWindowRect(&rcTabs);
-			::MapWindowPoints(NULL, m_TabCtrl.GetParent(), (LPPOINT)&rcTabs, 2);
+			::MapWindowPoints(NULL, this->m_TabCtrl.GetParent(), (LPPOINT)&rcTabs, 2);
 
 			this->ShowWindow(SW_HIDE);
 
@@ -776,7 +776,7 @@ public:
 			//  We're basically hiding the tabs and
 			//  resizing the MDI client area to "cover up"
 			//  where the tabs were
-			DWORD dwStyle = m_TabCtrl.GetStyle();
+			DWORD dwStyle = this->m_TabCtrl.GetStyle();
 			if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
 			{
 				::SetWindowPos(
@@ -802,7 +802,7 @@ public:
 	{
 		if (m_bHideMDITabsWhenMDIChildNotMaximized)
 		{
-			size_t nTabCount = m_TabCtrl.GetItemCount();
+			size_t nTabCount = this->m_TabCtrl.GetItemCount();
 			if (nTabCount >= this->m_nMinTabCountForVisibleTabs)
 			{
 				T* pT = static_cast<T*>(this);
@@ -853,7 +853,7 @@ public:
 			return -1;
 		}
 
-		CreateTabWindow(this->m_hWnd, rcDefault, m_nTabStyles);
+		CreateTabWindow(this->m_hWnd, rcDefault, this->m_nTabStyles);
 
 		return 0;
 	}
@@ -902,7 +902,7 @@ public:
 		POINT ptPopup = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
 		if (ptPopup.x == -1 && ptPopup.y == -1)
 		{
-			nIndex = m_TabCtrl.GetCurSel();
+			nIndex = this->m_TabCtrl.GetCurSel();
 			RECT rect = {0};
 			if (nIndex >= 0)
 			{
@@ -917,16 +917,16 @@ public:
 		else
 		{
 			POINT ptClient = ptPopup;
-			::MapWindowPoints(NULL, m_hWnd, &ptClient, 1);
+			::MapWindowPoints(NULL, this->m_hWnd, &ptClient, 1);
 			CTCHITTESTINFO tchti = {0};
 			tchti.pt = ptClient;
 			//If we become templated, pT->HitTest(&tchti);
-			nIndex = m_TabCtrl.HitTest(&tchti);
+			nIndex = this->m_TabCtrl.HitTest(&tchti);
 		}
 
 		if (nIndex >= 0)
 		{
-			TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(nIndex);
+			TTabCtrl::TItem* pItem = this->m_TabCtrl.GetItem(nIndex);
 
 			HWND hWndChild = pItem->GetTabView();
 			if (hWndChild != NULL)
@@ -949,9 +949,9 @@ public:
 			// (otherwise our code to reduce flicker when switching
 			// MDI children when maximized doesn't kick in).
 			NMCTCITEM* item = (NMCTCITEM*)pnmh;
-			if (item && (item->iItem >= 0) && (item->iItem == m_TabCtrl.GetCurSel()))
+			if (item && (item->iItem >= 0) && (item->iItem == this->m_TabCtrl.GetCurSel()))
 			{
-				TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(item->iItem);
+				TTabCtrl::TItem* pItem = this->m_TabCtrl.GetItem(item->iItem);
 				if (pItem->UsingTabView())
 				{
 					::SetFocus(pItem->GetTabView());
@@ -973,7 +973,7 @@ public:
 			NMCTC2ITEMS* item = (NMCTC2ITEMS*)pnmh;
 			if (item && (item->iItem2 >= 0))
 			{
-				TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(item->iItem2);
+				TTabCtrl::TItem* pItem = this->m_TabCtrl.GetItem(item->iItem2);
 				if (pItem->UsingTabView())
 				{
 					::SetFocus(pItem->GetTabView());
@@ -995,7 +995,7 @@ public:
 			NMCTCITEM* item = (NMCTCITEM*)pnmh;
 			if (item && (item->iItem >= 0))
 			{
-				TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(item->iItem);
+				TTabCtrl::TItem* pItem = this->m_TabCtrl.GetItem(item->iItem);
 				if (pItem->UsingTabView())
 				{
 					::SetFocus(pItem->GetTabView());
@@ -1037,11 +1037,11 @@ public:
 		// (and not from a sibling like a list view control)
 		if (pnmh && (m_TabCtrl == pnmh->hwndFrom))
 		{
-			int nNewTab = m_TabCtrl.GetCurSel();
+			int nNewTab = this->m_TabCtrl.GetCurSel();
 
 			if (nNewTab >= 0)
 			{
-				TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(nNewTab);
+				TTabCtrl::TItem* pItem = this->m_TabCtrl.GetItem(nNewTab);
 				if (pItem->UsingTabView())
 				{
 					HWND hWndNew = pItem->GetTabView();
@@ -1110,7 +1110,7 @@ public:
 			{
 				if (pnmCustomTab->iItem >= 0)
 				{
-					TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(pnmCustomTab->iItem);
+					TTabCtrl::TItem* pItem = this->m_TabCtrl.GetItem(pnmCustomTab->iItem);
 					if (pItem)
 					{
 						::PostMessage(pItem->GetTabView(), WM_SYSCOMMAND, SC_CLOSE, 0L);
@@ -1128,7 +1128,7 @@ public:
 	void ShowTabControl()
 	{
 		T* pT = static_cast<T*>(this);
-		if (m_bHideMDITabsWhenMDIChildNotMaximized && m_hWndMDIClient)
+		if (m_bHideMDITabsWhenMDIChildNotMaximized && this->m_hWndMDIClient)
 		{
 			HWND hWndActiveChild = (HWND)::SendMessage(this->m_hWndMDIClient, WM_MDIGETACTIVE, 0, 0);
 			if (hWndActiveChild && ::IsZoomed(hWndActiveChild))
@@ -1264,7 +1264,7 @@ public:
 
 	virtual ~CTabbedMDIClient()
 	{
-		if (this->IsWindow() && m_bSubclassed)
+		if (this->IsWindow() && this->m_bSubclassed)
 		{
 			this->UnsubclassWindow(TRUE);
 		}
@@ -1279,12 +1279,12 @@ public:
 
 	HWND GetTabOwnerParent(void) const
 	{
-		return m_hWndTabOwnerParent;
+		return this->m_hWndTabOwnerParent;
 	}
 
 	TTabOwner& GetTabOwner(void)
 	{
-		return m_MdiTabOwner;
+		return this->m_MdiTabOwner;
 	}
 
 	void UseMDIChildIcon(BOOL bUseMDIChildIcon = TRUE)
@@ -1316,7 +1316,7 @@ public:
 
 	bool GetDrawFlat(void) const
 	{
-		return m_bDrawFlat;
+		return this->m_bDrawFlat;
 	}
 
 #ifdef __TabbedMDISave_h__
@@ -1591,9 +1591,9 @@ public:
 			if (m_MdiTabOwner.IsWindow())
 			{
 				//ATLTRACE(_T("Resizing MDI tab and MDI client\n"));
-				int nTabAreaHeight = (m_MdiTabOwner.IsWindowVisible()) ? m_MdiTabOwner.GetTabAreaHeight() : 0;
+				int nTabAreaHeight = (m_MdiTabOwner.IsWindowVisible()) ? this->m_MdiTabOwner.GetTabAreaHeight() : 0;
 
-				TTabCtrl& TabCtrl = m_MdiTabOwner.GetTabCtrl();
+				TTabCtrl& TabCtrl = this->m_MdiTabOwner.GetTabCtrl();
 				DWORD dwStyle = TabCtrl.GetStyle();
 				if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
 				{
@@ -1734,7 +1734,7 @@ public:
 
 		if (wParam != NULL)
 		{
-			m_MdiTabOwner.DisplayTab((HWND)wParam, TRUE, m_bUseMDIChildIcon);
+			m_MdiTabOwner.DisplayTab((HWND)wParam, TRUE, this->m_bUseMDIChildIcon);
 		}
 
 		return 0;
@@ -1900,15 +1900,15 @@ public:
 
 		if (this->m_hWndChildMaximized == hWndChild)
 		{
-			bool bMaxOld = m_bChildMaximized;
-			HICON hIconOld = m_hIconChildMaximized;
+			bool bMaxOld = this->m_bChildMaximized;
+			HICON hIconOld = this->m_hIconChildMaximized;
 
 			m_bChildMaximized = false;
 			m_hWndChildMaximized = NULL;
 			m_hIconChildMaximized = NULL;
 
 			T* pT = static_cast<T*>(this);
-			pT->RefreshMaximizedState((bMaxOld != m_bChildMaximized), (hIconOld != m_hIconChildMaximized));
+			pT->RefreshMaximizedState((bMaxOld != this->m_bChildMaximized), (hIconOld != this->m_hIconChildMaximized));
 		}
 
 		bHandled = FALSE;
@@ -1919,14 +1919,14 @@ public:
 	{
 		HWND hWndChild = (HWND)wParam;
 
-		bool bMaxOld = m_bChildMaximized;
-		HICON hIconOld = m_hIconChildMaximized;
+		bool bMaxOld = this->m_bChildMaximized;
+		HICON hIconOld = this->m_hIconChildMaximized;
 
 		m_bChildMaximized = true;
 
 		if (this->m_hWndChildMaximized != hWndChild)
 		{
-			ATL::CWindow wnd = m_hWndChildMaximized = hWndChild;
+			ATL::CWindow wnd = this->m_hWndChildMaximized = hWndChild;
 			m_hIconChildMaximized = wnd.GetIcon(FALSE);
 			if (m_hIconChildMaximized == NULL) // no icon set with WM_SETICON, get the class one
 			{
@@ -1948,7 +1948,7 @@ public:
 		}
 
 		T* pT = static_cast<T*>(this);
-		pT->RefreshMaximizedState((bMaxOld != m_bChildMaximized), (hIconOld != m_hIconChildMaximized));
+		pT->RefreshMaximizedState((bMaxOld != this->m_bChildMaximized), (hIconOld != this->m_hIconChildMaximized));
 
 		bHandled = FALSE;
 		return 0;
@@ -1960,15 +1960,15 @@ public:
 
 		if (this->m_hWndChildMaximized == hWndChild)
 		{
-			bool bMaxOld = m_bChildMaximized;
-			HICON hIconOld = m_hIconChildMaximized;
+			bool bMaxOld = this->m_bChildMaximized;
+			HICON hIconOld = this->m_hIconChildMaximized;
 
 			m_bChildMaximized = false;
 			m_hWndChildMaximized = NULL;
 			m_hIconChildMaximized = NULL;
 
 			T* pT = static_cast<T*>(this);
-			pT->RefreshMaximizedState((bMaxOld != m_bChildMaximized), (hIconOld != m_hIconChildMaximized));
+			pT->RefreshMaximizedState((bMaxOld != this->m_bChildMaximized), (hIconOld != this->m_hIconChildMaximized));
 		}
 
 		bHandled = FALSE;
@@ -1982,18 +1982,18 @@ public:
 		if (bMaximizeChanged)
 		{
 #ifdef _CMDBAR_EXTRA_TRACE
-			ATLTRACE2(atlTraceUI, 0, "MDI CmdBar - All messages hook change: m_bChildMaximized = %s\n", m_bChildMaximized ? "true" : "false");
+			ATLTRACE2(atlTraceUI, 0, "MDI CmdBar - All messages hook change: this->m_bChildMaximized = %s\n", this->m_bChildMaximized ? "true" : "false");
 #endif
 			// assuming we are in a rebar, change our size to accomodate new state
 			// we hope that if we are not in a rebar, nCount will be 0
 			int nCount = (int)::SendMessage(this->GetParent(), RB_GETBANDCOUNT, 0, 0L);
-			int cxDiff = (m_bChildMaximized ? 1 : -1) * (m_cxLeft + m_cxRight);
+			int cxDiff = (m_bChildMaximized ? 1 : -1) * (m_cxLeft + this->m_cxRight);
 			for (int i = 0; i < nCount; i++)
 			{
 #if (_WIN32_IE >= 0x0500)
 				REBARBANDINFO rbi = {sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE | RBBIM_STYLE};
 				::SendMessage(this->GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
-				if (rbi.hwndChild == m_hWnd)
+				if (rbi.hwndChild == this->m_hWnd)
 				{
 					if ((rbi.fStyle & RBBS_USECHEVRON) != 0)
 					{
@@ -2007,7 +2007,7 @@ public:
 #elif (_WIN32_IE >= 0x0400)
 				REBARBANDINFO rbi = {sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE};
 				::SendMessage(this->GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
-				if (rbi.hwndChild == m_hWnd)
+				if (rbi.hwndChild == this->m_hWnd)
 				{
 					rbi.fMask = RBBIM_CHILDSIZE | RBBIM_IDEALSIZE;
 					rbi.cxMinChild += cxDiff;
@@ -2018,7 +2018,7 @@ public:
 #else //(_WIN32_IE < 0x0400)
 				REBARBANDINFO rbi = {sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE};
 				::SendMessage(this->GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
-				if (rbi.hwndChild == m_hWnd)
+				if (rbi.hwndChild == this->m_hWnd)
 				{
 					rbi.fMask = RBBIM_CHILDSIZE;
 					rbi.cxMinChild += cxDiff;

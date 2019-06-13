@@ -16,7 +16,7 @@
 	{                                                                                       \
 		static ATL::CWndClassInfo wc =                                                      \
 			{                                                                               \
-				{sizeof(WNDCLASSEX), style, this->StartWindowProc,                          \
+				{sizeof(WNDCLASSEX), style, thisClass::StartWindowProc,                     \
 					0, 0, NULL, NULL, NULL, (HBRUSH)(bkgnd + 1), NULL, WndClassName, NULL}, \
 				NULL, NULL, IDC_ARROW, TRUE, 0, _T("")};                                    \
 		return wc;                                                                          \
@@ -31,15 +31,4 @@
 					0, 0, NULL, NULL, NULL, (HBRUSH)(bkgnd + 1), NULL, WndClassName, NULL},  \
 				NULL, NULL, IDC_ARROW, TRUE, 0, _T(""), uCommonResourceID};                  \
 		return wc;                                                                           \
-	}
-
-#define DECLARE_WND_CLASS_EX_WORKAROUND(WndClassName, style, bkgnd)                         \
-	static ATL::CWndClassInfo& GetWndClassInfo()                                            \
-	{                                                                                       \
-		static ATL::CWndClassInfo wc =                                                      \
-			{                                                                               \
-				{sizeof(WNDCLASSEX), style, this->StartWindowProc,                          \
-					0, 0, NULL, NULL, NULL, (HBRUSH)(bkgnd + 1), NULL, WndClassName, NULL}, \
-				NULL, NULL, IDC_ARROW, TRUE, 0, _T("")};                                    \
-		return wc;                                                                          \
 	}

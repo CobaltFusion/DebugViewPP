@@ -66,5 +66,6 @@
     <None Include="res\PropertyTree.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

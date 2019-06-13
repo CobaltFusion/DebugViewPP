@@ -71,7 +71,7 @@ public:
 
 	~CIconT()
 	{
-		if (t_bManaged && m_hIcon != NULL)
+		if (t_bManaged && this->m_hIcon != NULL)
 			::DestroyIcon(m_hIcon);
 	}
 
@@ -83,20 +83,20 @@ public:
 
 	void Attach(HICON hIcon)
 	{
-		if (t_bManaged && m_hIcon != NULL)
+		if (t_bManaged && this->m_hIcon != NULL)
 			::DestroyIcon(m_hIcon);
 		m_hIcon = hIcon;
 	}
 	HICON Detach()
 	{
-		HICON hIcon = m_hIcon;
+		HICON hIcon = this->m_hIcon;
 		m_hIcon = NULL;
 		return hIcon;
 	}
 
-	operator HICON() const { return m_hIcon; }
+	operator HICON() const { return this->m_hIcon; }
 
-	bool IsNull() const { return m_hIcon == NULL; }
+	bool IsNull() const { return this->m_hIcon == NULL; }
 
 	// Create methods
 
@@ -108,7 +108,7 @@ public:
 #else
 		m_hIcon = ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
 #endif
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON LoadIcon(_U_STRINGorID icon, int cxDesired, int cyDesired, UINT fuLoad = 0)
 	{
@@ -118,13 +118,13 @@ public:
 #else
 		m_hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
 #endif
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON LoadOEMIcon(UINT nIDIcon) // for IDI_ types
 	{
 		ATLASSERT(m_hIcon == NULL);
 		m_hIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(nIDIcon));
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON CreateIcon(int nWidth, int nHeight, BYTE cPlanes, BYTE cBitsPixel, CONST BYTE* lpbANDButs, CONST BYTE* lpbXORbits)
 	{
@@ -136,14 +136,14 @@ public:
 #else
 		m_hIcon = ::CreateIcon(_Module.GetResourceInstance(), nWidth, nHeight, cPlanes, cBitsPixel, lpbANDbits, lpbXORbits);
 #endif
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON CreateIconFromResource(PBYTE pBits, DWORD dwResSize, DWORD dwVersion = 0x00030000)
 	{
 		ATLASSERT(m_hIcon == NULL);
 		ATLASSERT(pBits);
 		m_hIcon = ::CreateIconFromResource(pBits, dwResSize, TRUE, dwVersion);
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON CreateIconFromResourceEx(PBYTE pbBits, DWORD cbBits, DWORD dwVersion = 0x00030000, int cxDesired = 0, int cyDesired = 0, UINT uFlags = LR_DEFAULTCOLOR)
 	{
@@ -151,14 +151,14 @@ public:
 		ATLASSERT(pbBits);
 		ATLASSERT(cbBits > 0);
 		m_hIcon = ::CreateIconFromResourceEx(pbBits, cbBits, TRUE, dwVersion, cxDesired, cyDesired, uFlags);
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON CreateIconIndirect(PICONINFO pIconInfo)
 	{
 		ATLASSERT(m_hIcon == NULL);
 		ATLASSERT(pIconInfo);
 		m_hIcon = ::CreateIconIndirect(pIconInfo);
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON ExtractIcon(LPCTSTR lpszExeFileName, UINT nIconIndex)
 	{
@@ -169,7 +169,7 @@ public:
 #else
 		m_hIcon = ::ExtractIcon(_Module.GetModuleInstance(), lpszExeFileName, nIconIndex);
 #endif
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON ExtractAssociatedIcon(HINSTANCE hInst, LPCTSTR lpIconPath, LPWORD lpiIcon)
 	{
@@ -177,7 +177,7 @@ public:
 		ATLASSERT(!::IsBadStringPtr(lpIconPath, -1));
 		ATLASSERT(lpiIcon);
 		m_hIcon = ::ExtractAssociatedIcon(hInst, lpIconPath, lpiIcon);
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 
 	// Operations
@@ -198,28 +198,28 @@ public:
 	HICON DuplicateIcon()
 	{
 		ATLASSERT(m_hIcon != NULL);
-		return ::DuplicateIcon(NULL, m_hIcon);
+		return ::DuplicateIcon(NULL, this->m_hIcon);
 	}
 
 	BOOL DrawIcon(HDC hDC, int x, int y)
 	{
 		ATLASSERT(m_hIcon != NULL);
-		return ::DrawIcon(hDC, x, y, m_hIcon);
+		return ::DrawIcon(hDC, x, y, this->m_hIcon);
 	}
 	BOOL DrawIcon(HDC hDC, POINT pt)
 	{
 		ATLASSERT(m_hIcon != NULL);
-		return ::DrawIcon(hDC, pt.x, pt.y, m_hIcon);
+		return ::DrawIcon(hDC, pt.x, pt.y, this->m_hIcon);
 	}
 	BOOL DrawIconEx(HDC hDC, int x, int y, int cxWidth, int cyWidth, UINT uStepIfAniCur = 0, HBRUSH hbrFlickerFreeDraw = NULL, UINT uFlags = DI_NORMAL)
 	{
 		ATLASSERT(m_hIcon != NULL);
-		return ::DrawIconEx(hDC, x, y, m_hIcon, cxWidth, cyWidth, uStepIfAniCur, hbrFlickerFreeDraw, uFlags);
+		return ::DrawIconEx(hDC, x, y, this->m_hIcon, cxWidth, cyWidth, uStepIfAniCur, hbrFlickerFreeDraw, uFlags);
 	}
 	BOOL DrawIconEx(HDC hDC, POINT pt, SIZE size, UINT uStepIfAniCur = 0, HBRUSH hbrFlickerFreeDraw = NULL, UINT uFlags = DI_NORMAL)
 	{
 		ATLASSERT(m_hIcon != NULL);
-		return ::DrawIconEx(hDC, pt.x, pt.y, m_hIcon, size.cx, size.cy, uStepIfAniCur, hbrFlickerFreeDraw, uFlags);
+		return ::DrawIconEx(hDC, pt.x, pt.y, this->m_hIcon, size.cx, size.cy, uStepIfAniCur, hbrFlickerFreeDraw, uFlags);
 	}
 
 	BOOL GetIconInfo(PICONINFO pIconInfo)
@@ -257,7 +257,7 @@ public:
 
 	~CCursorT()
 	{
-		if (t_bManaged && m_hCursor != NULL)
+		if (t_bManaged && this->m_hCursor != NULL)
 			::DestroyCursor(m_hCursor);
 	}
 
@@ -269,20 +269,20 @@ public:
 
 	void Attach(HCURSOR hCursor)
 	{
-		if (t_bManaged && m_hCursor != NULL)
+		if (t_bManaged && this->m_hCursor != NULL)
 			::DestroyCursor(m_hCursor);
 		m_hCursor = hCursor;
 	}
 	HCURSOR Detach()
 	{
-		HCURSOR hCursor = m_hCursor;
+		HCURSOR hCursor = this->m_hCursor;
 		m_hCursor = NULL;
 		return hCursor;
 	}
 
-	operator HCURSOR() const { return m_hCursor; }
+	operator HCURSOR() const { return this->m_hCursor; }
 
-	bool IsNull() const { return m_hCursor == NULL; }
+	bool IsNull() const { return this->m_hCursor == NULL; }
 
 	// Create methods
 
@@ -294,13 +294,13 @@ public:
 #else
 		m_hCursor = ::LoadCursor(_Module.GetResourceInstance(), cursor.m_lpstr);
 #endif
-		return m_hCursor;
+		return this->m_hCursor;
 	}
 	HCURSOR LoadOEMCursor(UINT nIDCursor) // for IDC_ types
 	{
 		ATLASSERT(m_hCursor == NULL);
 		m_hCursor = ::LoadCursor(NULL, MAKEINTRESOURCE(nIDCursor));
-		return m_hCursor;
+		return this->m_hCursor;
 	}
 	HICON LoadCursor(_U_STRINGorID cursor, int cxDesired, int cyDesired, UINT fuLoad = 0)
 	{
@@ -310,14 +310,14 @@ public:
 #else
 		m_hCursor = (HCURSOR)::LoadImage(_Module.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
 #endif
-		return m_hCursor;
+		return this->m_hCursor;
 	}
 	HCURSOR LoadCursorFromFile(LPCTSTR pstrFilename)
 	{
 		ATLASSERT(m_hCursor == NULL);
 		ATLASSERT(!::IsBadStringPtr(pstrFilename, -1));
 		m_hCursor = ::LoadCursorFromFile(pstrFilename);
-		return m_hCursor;
+		return this->m_hCursor;
 	}
 	HCURSOR CreateCursor(int xHotSpot, int yHotSpot, int nWidth, int nHeight, CONST VOID* pvANDPlane, CONST VOID* pvXORPlane)
 	{
@@ -327,14 +327,14 @@ public:
 #else
 		m_hCursor = ::CreateCursor(_Module.GetResourceInstance(), xHotSpot, yHotSpot, nWidth, nHeight, pvANDPlane, pvXORPlane);
 #endif
-		return m_hCursor;
+		return this->m_hCursor;
 	}
 	HICON CreateCursorFromResource(PBYTE pBits, DWORD dwResSize, DWORD dwVersion = 0x00030000)
 	{
 		ATLASSERT(m_hIcon == NULL);
 		ATLASSERT(pBits);
 		m_hIcon = ::CreateIconFromResource(pBits, dwResSize, FALSE, dwVersion);
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 	HICON CreateCursorFromResourceEx(PBYTE pbBits, DWORD cbBits, DWORD dwVersion = 0x00030000, int cxDesired = 0, int cyDesired = 0, UINT uFlags = LR_DEFAULTCOLOR)
 	{
@@ -342,7 +342,7 @@ public:
 		ATLASSERT(pbBits);
 		ATLASSERT(cbBits > 0);
 		m_hIcon = ::CreateIconFromResourceEx(pbBits, cbBits, FALSE, dwVersion, cxDesired, cyDesired, uFlags);
-		return m_hIcon;
+		return this->m_hIcon;
 	}
 
 	// Operations
@@ -394,7 +394,7 @@ public:
 
 	~CAcceleratorT()
 	{
-		if (t_bManaged && m_hAccel != NULL)
+		if (t_bManaged && this->m_hAccel != NULL)
 			::DestroyAcceleratorTable(m_hAccel);
 	}
 
@@ -415,20 +415,20 @@ public:
 
 	void Attach(HACCEL hAccel)
 	{
-		if (t_bManaged && m_hAccel != NULL)
+		if (t_bManaged && this->m_hAccel != NULL)
 			::DestroyAcceleratorTable(m_hAccel);
 		m_hAccel = hAccel;
 	}
 	HCURSOR Detach()
 	{
-		HACCEL hAccel = m_hAccel;
+		HACCEL hAccel = this->m_hAccel;
 		m_hAccel = NULL;
 		return hAccel;
 	}
 
-	operator HACCEL() const { return m_hAccel; }
+	operator HACCEL() const { return this->m_hAccel; }
 
-	bool IsNull() const { return m_hAccel == NULL; }
+	bool IsNull() const { return this->m_hAccel == NULL; }
 
 	// Create methods
 
@@ -440,14 +440,14 @@ public:
 #else
 		m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), accel.m_lpstr);
 #endif
-		return m_hAccel;
+		return this->m_hAccel;
 	}
 	HACCEL CreateAcceleratorTable(LPACCEL pAccel, int cEntries)
 	{
 		ATLASSERT(m_hAccel == NULL);
 		ATLASSERT(!::IsBadReadPtr(lpAccelDst, sizeof(ACCEL) * cEntries));
 		m_hAccel = ::CreateAcceleratorTable(pAccel, cEntries);
-		return m_hAccel;
+		return this->m_hAccel;
 	}
 
 	// Operations
@@ -464,7 +464,7 @@ public:
 		ATLASSERT(m_hAccel != NULL);
 		ATLASSERT(::IsWindow(hWnd));
 		ATLASSERT(pMsg);
-		return ::TranslateAccelerator(hWnd, m_hAccel, pMsg);
+		return ::TranslateAccelerator(hWnd, this->m_hAccel, pMsg);
 	}
 };
 
@@ -637,16 +637,16 @@ public:
 
 		CreateCompatibleDC(m_dc);
 		::LPtoDP(m_dc, (LPPOINT)&this->m_rc, sizeof(RECT) / sizeof(POINT));
-		m_bitmap.CreateCompatibleBitmap(m_dc, m_rc.right - m_rc.left, m_rc.bottom - m_rc.top);
+		m_bitmap.CreateCompatibleBitmap(m_dc, this->m_rc.right - this->m_rc.left, this->m_rc.bottom - this->m_rc.top);
 		m_hOldBitmap = SelectBitmap(m_bitmap);
 		::DPtoLP(m_dc, (LPPOINT)&this->m_rc, sizeof(RECT) / sizeof(POINT));
-		SetWindowOrg(m_rc.left, m_rc.top);
+		SetWindowOrg(m_rc.left, this->m_rc.top);
 	}
 	~CMemDC()
 	{
 		// Copy the offscreen bitmap onto the screen.
-		m_dc.BitBlt(m_rc.left, m_rc.top, m_rc.right - m_rc.left, m_rc.bottom - m_rc.top,
-			m_hDC, m_rc.left, m_rc.top, SRCCOPY);
+		m_dc.BitBlt(m_rc.left, this->m_rc.top, this->m_rc.right - this->m_rc.left, this->m_rc.bottom - this->m_rc.top,
+			m_hDC, this->m_rc.left, this->m_rc.top, SRCCOPY);
 		// Swap back the original bitmap.
 		SelectBitmap(m_hOldBitmap);
 	}
@@ -758,7 +758,7 @@ public:
 		if (m_iState == 0)
 			return;
 		ATLASSERT(::GetObjectType(m_hDC) == OBJ_DC || ::GetObjectType(m_hDC) == OBJ_MEMDC);
-		::RestoreDC(m_hDC, m_iState);
+		::RestoreDC(m_hDC, this->m_iState);
 		m_iState = 0;
 	}
 };
@@ -784,7 +784,7 @@ public:
 		Close();
 	}
 
-	operator HANDLE() const { return m_h; };
+	operator HANDLE() const { return this->m_h; };
 
 	LPHANDLE operator&()
 	{
@@ -799,7 +799,7 @@ public:
 		return *this;
 	}
 
-	bool IsValid() const { return m_h != INVALID_HANDLE_VALUE; };
+	bool IsValid() const { return this->m_h != INVALID_HANDLE_VALUE; };
 
 	void Attach(HANDLE h)
 	{
@@ -809,7 +809,7 @@ public:
 	}
 	HANDLE Detach()
 	{
-		HANDLE h = m_h;
+		HANDLE h = this->m_h;
 		m_h = INVALID_HANDLE_VALUE;
 		return h;
 	}
