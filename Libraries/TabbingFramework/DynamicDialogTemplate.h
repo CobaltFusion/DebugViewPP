@@ -6,8 +6,8 @@
 // Copyright (c) 2003-2004 Daniel Bowen.
 //
 // This code may be used in compiled form in any way you desire. This
-// file may be redistributed by any means PROVIDING it is 
-// not sold for profit without the authors written consent, and 
+// file may be redistributed by any means PROVIDING it is
+// not sold for profit without the authors written consent, and
 // providing that this notice and the authors name is included.
 //
 // This file is provided "as is" with no expressed or implied warranty.
@@ -44,40 +44,42 @@ public:
 
 	void Set(short left, short top, short width, short height)
 	{
-		x=left, y=top, cx=width, cy=height;
+		x = left, y = top, cx = width, cy = height;
 	}
 	void Set(RECT rect)
 	{
-		x=(short)rect.left;
-		y=(short)rect.top;
-		cx=(short)(rect.right - rect.left);
-		cy=(short)(rect.bottom - rect.top);
+		x = (short)rect.left;
+		y = (short)rect.top;
+		cx = (short)(rect.right - rect.left);
+		cy = (short)(rect.bottom - rect.top);
 	}
 };
 
 class CDynamicDialogTemplate
 {
-
 protected:
 	HGLOBAL m_hDialogTemplateMemory;
 	size_t m_bytesAllocated;
 	size_t m_bytesUsed;
 
 protected:
-	enum { byteAllocationChunk = 256 };
+	enum
+	{
+		byteAllocationChunk = 256
+	};
 
 	// See help on DLGITEMTEMPLATE
 	enum ClassAtom
 	{
-		eClassAtom_Button    = 0x0080,
-		eClassAtom_Edit      = 0x0081,
-		eClassAtom_Static    = 0x0082,
-		eClassAtom_ListBox   = 0x0083,
+		eClassAtom_Button = 0x0080,
+		eClassAtom_Edit = 0x0081,
+		eClassAtom_Static = 0x0082,
+		eClassAtom_ListBox = 0x0083,
 		eClassAtom_ScrollBar = 0x0084,
-		eClassAtom_ComboBox  = 0x0085,
+		eClassAtom_ComboBox = 0x0085,
 	};
 
-// Constructor/Destructor
+	// Constructor/Destructor
 public:
 	CDynamicDialogTemplate() :
 		m_hDialogTemplateMemory(NULL),
@@ -91,11 +93,11 @@ public:
 		this->Destroy();
 	}
 
-// Operators
+	// Operators
 public:
 	operator bool() { return (m_hDialogTemplateMemory != NULL); }
 	operator HGLOBAL() { return m_hDialogTemplateMemory; }
-	operator DLGTEMPLATE*()	{ return this->GetDLGTEMPLATE(); }
+	operator DLGTEMPLATE*() { return this->GetDLGTEMPLATE(); }
 
 	HGLOBAL GetHGLOBAL(void)
 	{
@@ -115,24 +117,24 @@ public:
 
 public:
 	bool Create(
-			UINT cxDLU, UINT cyDLU,
-			UINT style, UINT styleEx,
-			const wchar_t* dialogTitle,
-			const wchar_t* fontName = L"MS Sans Serif",
-			UINT fontSize = 8)
+		UINT cxDLU, UINT cyDLU,
+		UINT style, UINT styleEx,
+		const wchar_t* dialogTitle,
+		const wchar_t* fontName = L"MS Sans Serif",
+		UINT fontSize = 8)
 	{
-		if(m_hDialogTemplateMemory)
+		if (m_hDialogTemplateMemory)
 		{
 			return false;
 		}
 
 		m_hDialogTemplateMemory = ::GlobalAlloc((GMEM_MOVEABLE | GMEM_ZEROINIT), byteAllocationChunk);
-		if(m_hDialogTemplateMemory)
+		if (m_hDialogTemplateMemory)
 		{
 			m_bytesAllocated = byteAllocationChunk;
 
-			DLGTEMPLATE* pDialogTemplate = (DLGTEMPLATE*) ::GlobalLock(m_hDialogTemplateMemory);
-			if(pDialogTemplate)
+			DLGTEMPLATE* pDialogTemplate = (DLGTEMPLATE*)::GlobalLock(m_hDialogTemplateMemory);
+			if (pDialogTemplate)
 			{
 				// Define dialog template
 				pDialogTemplate->style = style;
@@ -152,24 +154,24 @@ public:
 				*pWordPtr++ = 0;
 
 				// Dialog title
-				if(dialogTitle)
+				if (dialogTitle)
 				{
-					wchar_t* unicodeString = (wchar_t*) pWordPtr;
+					wchar_t* unicodeString = (wchar_t*)pWordPtr;
 					// dialog caption
 					lstrcpyW(unicodeString, dialogTitle);
 					pWordPtr += ::lstrlenW(unicodeString);
 				}
 				// NUL termination for string
 				*pWordPtr++ = 0;
-			    
-				if((style & DS_SETFONT) == DS_SETFONT)
+
+				if ((style & DS_SETFONT) == DS_SETFONT)
 				{
 					// font size
 					*pWordPtr++ = (WORD)fontSize;
 
-					if(fontName)
+					if (fontName)
 					{
-						wchar_t* unicodeString = (wchar_t*) pWordPtr;
+						wchar_t* unicodeString = (wchar_t*)pWordPtr;
 						// font name
 						lstrcpyW(unicodeString, fontName);
 						pWordPtr += ::lstrlenW(unicodeString);
@@ -190,7 +192,7 @@ public:
 
 	void Destroy(void)
 	{
-		if(m_hDialogTemplateMemory)
+		if (m_hDialogTemplateMemory)
 		{
 			::GlobalFree(m_hDialogTemplateMemory);
 			m_hDialogTemplateMemory = NULL;
@@ -200,13 +202,13 @@ public:
 	}
 
 	bool AddControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id,
-			const wchar_t* text, size_t textWordCount,
-			const wchar_t* classStringOrAtom, size_t classStringOrAtomWordCount)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id,
+		const wchar_t* text, size_t textWordCount,
+		const wchar_t* classStringOrAtom, size_t classStringOrAtomWordCount)
 	{
-		if(m_hDialogTemplateMemory == NULL)
+		if (m_hDialogTemplateMemory == NULL)
 		{
 			return false;
 		}
@@ -214,19 +216,18 @@ public:
 		// padding (class atom, NULL termination, etc.)
 		const size_t padding = 16;
 
-		size_t estimatedBytesNeeded = (size_t)
-			sizeof(DLGITEMTEMPLATE) +
-			(textWordCount*sizeof(WORD)) +
-			(classStringOrAtomWordCount*sizeof(WORD)) +
-			padding;
+		size_t estimatedBytesNeeded = (size_t)sizeof(DLGITEMTEMPLATE) +
+									  (textWordCount * sizeof(WORD)) +
+									  (classStringOrAtomWordCount * sizeof(WORD)) +
+									  padding;
 
-		if((m_bytesAllocated - m_bytesUsed) < estimatedBytesNeeded)
+		if ((m_bytesAllocated - m_bytesUsed) < estimatedBytesNeeded)
 		{
 			// Align the bytesToAllocate to be a multiple of the chunk size
 			size_t bytesToAllocate = (((m_bytesUsed + estimatedBytesNeeded) / byteAllocationChunk) * byteAllocationChunk) + byteAllocationChunk;
 
 			HGLOBAL hDialogTemplateReallocatedMemory = ::GlobalReAlloc(m_hDialogTemplateMemory, bytesToAllocate, (GMEM_MOVEABLE | GMEM_ZEROINIT));
-			if(hDialogTemplateReallocatedMemory == NULL)
+			if (hDialogTemplateReallocatedMemory == NULL)
 			{
 				return false;
 			}
@@ -237,8 +238,8 @@ public:
 			}
 		}
 
-		DLGTEMPLATE* pDialogTemplate = (DLGTEMPLATE*) ::GlobalLock(m_hDialogTemplateMemory);
-		if(pDialogTemplate)
+		DLGTEMPLATE* pDialogTemplate = (DLGTEMPLATE*)::GlobalLock(m_hDialogTemplateMemory);
+		if (pDialogTemplate)
 		{
 			// Increment the control count
 			pDialogTemplate->cdit += 1;
@@ -248,20 +249,20 @@ public:
 
 			// Fill out the structure and following bytes for the control.
 			// DLGITEMTEMPLATE structures should be aligned on DWORD boundaries.
-			DLGITEMTEMPLATE* pDialogItem = (DLGITEMTEMPLATE*) (((DWORD_PTR)pOffset + 3) & ~3);
+			DLGITEMTEMPLATE* pDialogItem = (DLGITEMTEMPLATE*)(((DWORD_PTR)pOffset + 3) & ~3);
 			pDialogItem->style = style;
 			pDialogItem->dwExtendedStyle = dwExtendedStyle;
-			pDialogItem->x  = x;
-			pDialogItem->y  = y;
+			pDialogItem->x = x;
+			pDialogItem->y = y;
 			pDialogItem->cx = cx;
 			pDialogItem->cy = cy;
 			pDialogItem->id = id;
 
 			// Get a pointer to the WORD after the structure
-			WORD* pWordPtr = (WORD*) (pDialogItem + 1);
+			WORD* pWordPtr = (WORD*)(pDialogItem + 1);
 
 			// Class Array (string or atom)
-			if(classStringOrAtom)
+			if (classStringOrAtom)
 			{
 				::CopyMemory(pWordPtr, classStringOrAtom, classStringOrAtomWordCount * sizeof(WORD));
 				pWordPtr += classStringOrAtomWordCount;
@@ -277,7 +278,7 @@ public:
 			}
 
 			// Title Array (text or resource id)
-			if(text)
+			if (text)
 			{
 				::CopyMemory(pWordPtr, text, textWordCount * sizeof(WORD));
 				pWordPtr += textWordCount;
@@ -303,10 +304,10 @@ public:
 	}
 
 	bool AddControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text,
-			const wchar_t* classString)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text,
+		const wchar_t* classString)
 	{
 		return this->AddControl(style, dwExtendedStyle,
 			x, y, cx, cy,
@@ -315,10 +316,10 @@ public:
 			classString, classString ? ::lstrlenW(classString) + 1 : 0);
 	}
 	bool AddControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text,
-			const wchar_t* classString)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text,
+		const wchar_t* classString)
 	{
 		return this->AddControl(style, dwExtendedStyle,
 			dialogItemSize.x, dialogItemSize.y, dialogItemSize.cx, dialogItemSize.cy,
@@ -328,10 +329,10 @@ public:
 	}
 
 	bool AddControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text,
-			ClassAtom atom)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text,
+		ClassAtom atom)
 	{
 		const long classAtomWordCount = 2;
 		WORD classAtom[classAtomWordCount] = {0xFFFF, (WORD)atom};
@@ -342,10 +343,10 @@ public:
 			(const wchar_t*)classAtom, classAtomWordCount);
 	}
 	bool AddControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text,
-			ClassAtom atom)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text,
+		ClassAtom atom)
 	{
 		const long classAtomWordCount = 2;
 		WORD classAtom[classAtomWordCount] = {0xFFFF, (WORD)atom};
@@ -357,102 +358,102 @@ public:
 	}
 
 	bool AddButtonControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, x, y, cx, cy,
 			id, text, eClassAtom_Button);
 	}
 	bool AddButtonControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, dialogItemSize,
 			id, text, eClassAtom_Button);
 	}
 
 	bool AddEditControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, x, y, cx, cy,
 			id, text, eClassAtom_Edit);
 	}
 	bool AddEditControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, dialogItemSize,
 			id, text, eClassAtom_Edit);
 	}
 
 	bool AddStaticControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, x, y, cx, cy,
 			id, text, eClassAtom_Static);
 	}
 	bool AddStaticControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, dialogItemSize,
 			id, text, eClassAtom_Static);
 	}
 
 	bool AddListBoxControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, x, y, cx, cy,
 			id, text, eClassAtom_ListBox);
 	}
 	bool AddListBoxControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, dialogItemSize,
 			id, text, eClassAtom_ListBox);
 	}
 
 	bool AddScrollBarControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, x, y, cx, cy,
 			id, text, eClassAtom_ScrollBar);
 	}
 	bool AddScrollBarControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, dialogItemSize,
 			id, text, eClassAtom_ScrollBar);
 	}
 
 	bool AddComboBoxControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			short x, short y, short cx, short cy,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		short x, short y, short cx, short cy,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, x, y, cx, cy,
 			id, text, eClassAtom_ComboBox);
 	}
 	bool AddComboBoxControl(
-		    DWORD style, DWORD dwExtendedStyle,
-			const DynamicDialogItemSize dialogItemSize,
-			WORD id, const wchar_t* text)
+		DWORD style, DWORD dwExtendedStyle,
+		const DynamicDialogItemSize dialogItemSize,
+		WORD id, const wchar_t* text)
 	{
 		return this->AddControl(style, dwExtendedStyle, dialogItemSize,
 			id, text, eClassAtom_ComboBox);
@@ -473,12 +474,12 @@ class CDynamicDialogExTemplate
 //  We don't inherit from CDialogImpl at all and completely duplicate (and
 //  appropriately modify) everything it does.
 template <class T, class TBase = ATL::CWindow, class TDynamicDialogTemplate = CDynamicDialogTemplate>
-class ATL_NO_VTABLE CDynamicDialogImpl : public ATL::CDialogImplBaseT< TBase >
+class ATL_NO_VTABLE CDynamicDialogImpl : public ATL::CDialogImplBaseT<TBase>
 {
 protected:
 	TDynamicDialogTemplate m_dynamicDialogTemplate;
 
-// Overrideables
+	// Overrideables
 public:
 	// You always need to override ConstructDialogResource
 	//bool ConstructDialogResource(void) { }
@@ -486,7 +487,8 @@ public:
 public:
 #ifdef _DEBUG
 	bool m_bModal;
-	CDynamicDialogImpl() : m_bModal(false) { }
+	CDynamicDialogImpl() :
+		m_bModal(false) {}
 #endif //_DEBUG
 	// modal dialogs
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow(), LPARAM dwInitParam = NULL)
@@ -497,19 +499,19 @@ public:
 		pT->ConstructDialogResource();
 
 		ATLASSERT((bool)m_dynamicDialogTemplate);
-		_AtlWinModule.AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBaseT< TBase >*)this);
+		_AtlWinModule.AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBaseT<TBase>*)this);
 #ifdef _DEBUG
 		m_bModal = true;
-#endif //_DEBUG
-		//return ::DialogBoxParam(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(static_cast<T*>(this)->IDD),
-		//			hWndParent, T::StartDialogProc, dwInitParam);
+#endif //_DEBUG                                                                                                  \
+	//return ::DialogBoxParam(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(static_cast<T*>(this)->IDD), \
+	//			hWndParent, T::StartDialogProc, dwInitParam);
 		return ::DialogBoxIndirectParam(_AtlBaseModule.GetResourceInstance(), m_dynamicDialogTemplate,
-					hWndParent, T::StartDialogProc, dwInitParam);
+			hWndParent, T::StartDialogProc, dwInitParam);
 	}
 	BOOL EndDialog(int nRetCode)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		ATLASSERT(m_bModal);	// must be a modal dialog
+		ATLASSERT(m_bModal); // must be a modal dialog
 		return ::EndDialog(m_hWnd, nRetCode);
 	}
 	// modeless dialogs
@@ -521,14 +523,14 @@ public:
 		pT->ConstructDialogResource();
 
 		ATLASSERT((bool)m_dynamicDialogTemplate);
-		_AtlWinModule.AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBaseT< TBase >*)this);
+		_AtlWinModule.AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBaseT<TBase>*)this);
 #ifdef _DEBUG
 		m_bModal = false;
-#endif //_DEBUG
-		//HWND hWnd = ::CreateDialogParam(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(static_cast<T*>(this)->IDD),
-		//			hWndParent, T::StartDialogProc, dwInitParam);
+#endif //_DEBUG                                                                                                          \
+	//HWND hWnd = ::CreateDialogParam(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(static_cast<T*>(this)->IDD), \
+	//			hWndParent, T::StartDialogProc, dwInitParam);
 		HWND hWnd = ::CreateDialogIndirectParam(_AtlBaseModule.GetResourceInstance(), m_dynamicDialogTemplate,
-					hWndParent, T::StartDialogProc, dwInitParam);
+			hWndParent, T::StartDialogProc, dwInitParam);
 		ATLASSERT(m_hWnd == hWnd);
 		return hWnd;
 	}
@@ -540,7 +542,7 @@ public:
 	BOOL DestroyWindow()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		ATLASSERT(!m_bModal);	// must not be a modal dialog
+		ATLASSERT(!m_bModal); // must not be a modal dialog
 		return ::DestroyWindow(m_hWnd);
 	}
 };
@@ -555,16 +557,16 @@ public:
 //  (such as when "AddPage" is called on the sheet with the page as the argument).
 
 template <class T, class TBase = WTL::CPropertyPageWindow, class TDynamicDialogTemplate = CDynamicDialogTemplate>
-class ATL_NO_VTABLE CDynamicPropertyPageImpl : public WTL::CPropertyPageImpl< T, TBase >
+class ATL_NO_VTABLE CDynamicPropertyPageImpl : public WTL::CPropertyPageImpl<T, TBase>
 {
 protected:
-	typedef WTL::CPropertyPageImpl< T, TBase > baseClass;
+	typedef WTL::CPropertyPageImpl<T, TBase> baseClass;
 
 protected:
 	bool m_dialogResourceInitialized;
 	TDynamicDialogTemplate m_dynamicDialogTemplate;
 
-// Constructors
+	// Constructors
 public:
 	CDynamicPropertyPageImpl(ATL::_U_STRINGorID title = (LPCTSTR)NULL) :
 		baseClass(title),
@@ -578,15 +580,18 @@ public:
 		//m_psp.pResource = m_dynamicDialogTemplate;
 	}
 
-// Enumerations
+	// Enumerations
 public:
 	// Since we're going to provide the dialog template dynamically,
 	// have IDD be 0.  We're still going to inherit from CPropertyPageImpl
 	// so this will be used in its constructor (but we'll change things
 	// in InitializeDialogResource so "pResource" is used instead of "pszTemplate").
-	enum { IDD = 0 };
+	enum
+	{
+		IDD = 0
+	};
 
-// CPropertyPageImpl Overrides:
+	// CPropertyPageImpl Overrides:
 public:
 	// This Create() isn't called by WTL at all, but just in case someone else
 	// calls it, we need to override it to ensure the dialog resource is initialized.
@@ -618,19 +623,19 @@ public:
 		return baseClass::operator PROPSHEETPAGE*();
 	}
 
-// Overrideables
+	// Overrideables
 public:
 	// You always need to override ConstructDialogResource
 	//bool ConstructDialogResource(void) { }
 
 	void InitializeDialogResource(void)
 	{
-		if(!m_dialogResourceInitialized)
+		if (!m_dialogResourceInitialized)
 		{
 			m_dialogResourceInitialized = true;
 
 			T* pT = static_cast<T*>(this);
-			if(pT->ConstructDialogResource())
+			if (pT->ConstructDialogResource())
 			{
 				m_psp.dwFlags |= PSP_DLGINDIRECT;
 				m_psp.pResource = m_dynamicDialogTemplate;

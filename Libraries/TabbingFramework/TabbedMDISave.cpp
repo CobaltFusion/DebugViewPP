@@ -3,17 +3,17 @@
 //   tabbed MDI environment.
 //
 // Classes:
-//   CTabbedMDIChildModifiedItem - 
+//   CTabbedMDIChildModifiedItem -
 //      Implements ITabbedMDIChildModifiedItem.
-//   CTabbedMDIChildModifiedList - 
+//   CTabbedMDIChildModifiedList -
 //      Implements ITabbedMDIChildModifiedList.
 //
 // Written by Daniel Bowen (dbowen@es.com)
 // Copyright (c) 2004 Daniel Bowen.
 //
 // This code may be used in compiled form in any way you desire. This
-// file may be redistributed by any means PROVIDING it is 
-// not sold for profit without the authors written consent, and 
+// file may be redistributed by any means PROVIDING it is
+// not sold for profit without the authors written consent, and
 // providing that this notice and the authors name is included.
 //
 // This file is provided "as is" with no expressed or implied warranty.
@@ -57,11 +57,11 @@
 #include "TabbedMDISave.h"
 
 #if (_WIN32_WINNT >= 0x0501)
-	#include <atltheme.h>
+#include <atltheme.h>
 #endif
 
 #if (_ATL_VER < 0x0700)
-	#error TabbedMDISave.cpp requires ATL 7.0 or higher
+#error TabbedMDISave.cpp requires ATL 7.0 or higher
 #endif
 
 #include <atlcomtime.h>
@@ -79,7 +79,7 @@ HRESULT CTabbedMDIChildModifiedList::FinalConstruct()
 	return S_OK;
 }
 
-void CTabbedMDIChildModifiedList::FinalRelease() 
+void CTabbedMDIChildModifiedList::FinalRelease()
 {
 	this->Clear();
 
@@ -90,7 +90,7 @@ void CTabbedMDIChildModifiedList::FinalRelease()
 
 STDMETHODIMP CTabbedMDIChildModifiedList::get_Item(long index, ITabbedMDIChildModifiedItem** item)
 {
-	if(item == NULL)
+	if (item == NULL)
 	{
 		return E_POINTER;
 	}
@@ -98,7 +98,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::get_Item(long index, ITabbedMDIChildMo
 
 	*item = NULL;
 	POSITION pos = this->FindIndex(index);
-	if(pos != NULL)
+	if (pos != NULL)
 	{
 		hr = this->GetAt(pos)->QueryInterface(item);
 	}
@@ -107,7 +107,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::get_Item(long index, ITabbedMDIChildMo
 
 STDMETHODIMP CTabbedMDIChildModifiedList::get_Index(ITabbedMDIChildModifiedItem* item, long* index)
 {
-	if(item == NULL || index == NULL)
+	if (item == NULL || index == NULL)
 	{
 		return E_POINTER;
 	}
@@ -123,11 +123,11 @@ STDMETHODIMP CTabbedMDIChildModifiedList::get_Index(ITabbedMDIChildModifiedItem*
 	// (It's not expected that this method would be called very frequently).
 	int currentIndex = 0;
 	POSITION pos = this->GetHeadPosition();
-	while(pos != NULL)
+	while (pos != NULL)
 	{
 		ATL::CComPtr<IUnknown> punkItem;
 		this->GetNext(pos)->QueryInterface(IID_IUnknown, (void**)&punkItem);
-		if(punkItemToFind == punkItem)
+		if (punkItemToFind == punkItem)
 		{
 			*index = currentIndex;
 			pos = NULL;
@@ -143,7 +143,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::get_Index(ITabbedMDIChildModifiedItem*
 
 STDMETHODIMP CTabbedMDIChildModifiedList::get_Count(long* count)
 {
-	if(count == NULL)
+	if (count == NULL)
 	{
 		return E_POINTER;
 	}
@@ -160,18 +160,18 @@ STDMETHODIMP CTabbedMDIChildModifiedList::AddNew(
 
 	ATL::CComObject<CTabbedMDIChildModifiedItem>* newItem = NULL;
 	hr = ATL::CComObject<CTabbedMDIChildModifiedItem>::CreateInstance(&newItem);
-	if(newItem != NULL)
+	if (newItem != NULL)
 	{
 		newItem->AddRef();
 
 		HWND window = NULL;
-		if(m_parentItem)
+		if (m_parentItem)
 		{
 			m_parentItem->get_Window(&window);
 		}
 
 		hr = newItem->InitNew(window, name, displayName, description, lastModified, icon);
-		if(SUCCEEDED(hr))
+		if (SUCCEEDED(hr))
 		{
 			ATL::CComPtr<ITabbedMDIChildModifiedItem> modifiedItem;
 			hr = newItem->QueryInterface(&modifiedItem);
@@ -182,7 +182,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::AddNew(
 			// we really have added it to our collection of items
 			modifiedItem->putref_ParentList(this);
 
-			if(item != NULL)
+			if (item != NULL)
 			{
 				*item = modifiedItem.Detach();
 			}
@@ -200,7 +200,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::Insert(
 	HRESULT hr = E_INVALIDARG;
 
 	POSITION pos = this->FindIndex(index);
-	if(pos != NULL)
+	if (pos != NULL)
 	{
 		this->InsertBefore(pos, item);
 		hr = S_OK;
@@ -211,7 +211,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::Insert(
 		hr = S_OK;
 	}
 
-	if(SUCCEEDED(hr))
+	if (SUCCEEDED(hr))
 	{
 		// Set the parent list as ourselves, but only after
 		// we really have added it to our collection of items
@@ -223,7 +223,7 @@ STDMETHODIMP CTabbedMDIChildModifiedList::Insert(
 STDMETHODIMP CTabbedMDIChildModifiedList::InsertList(
 	long index, ITabbedMDIChildModifiedList* list)
 {
-	if(list == NULL)
+	if (list == NULL)
 	{
 		return E_INVALIDARG;
 	}
@@ -233,16 +233,16 @@ STDMETHODIMP CTabbedMDIChildModifiedList::InsertList(
 	long count = 0;
 	list->get_Count(&count);
 
-	if(index < 0)
+	if (index < 0)
 	{
 		index = count;
 	}
 
-	for(long i=0; i<count; ++i)
+	for (long i = 0; i < count; ++i)
 	{
 		ATL::CComPtr<ITabbedMDIChildModifiedItem> item;
 		list->get_Item(i, &item);
-		
+
 		this->Insert(index + i, item);
 	}
 
@@ -255,15 +255,15 @@ STDMETHODIMP CTabbedMDIChildModifiedList::Remove(
 	HRESULT hr = E_INVALIDARG;
 
 	POSITION pos = this->FindIndex(index);
-	if(pos != NULL)
+	if (pos != NULL)
 	{
 		ATL::CComPtr<ITabbedMDIChildModifiedItem> oldItem(this->GetAt(pos));
 		this->RemoveAt(pos);
-		if(oldItem)
+		if (oldItem)
 		{
 			oldItem->putref_ParentList(NULL);
 
-			if(item != NULL)
+			if (item != NULL)
 			{
 				*item = oldItem.Detach();
 			}
@@ -275,10 +275,10 @@ STDMETHODIMP CTabbedMDIChildModifiedList::Remove(
 STDMETHODIMP CTabbedMDIChildModifiedList::Clear()
 {
 	POSITION pos = this->GetHeadPosition();
-	while(pos != NULL)
+	while (pos != NULL)
 	{
 		ATL::CComPtr<ITabbedMDIChildModifiedItem> item(this->GetNext(pos));
-		if(item)
+		if (item)
 		{
 			item->putref_ParentList(NULL);
 		}
@@ -291,12 +291,12 @@ STDMETHODIMP CTabbedMDIChildModifiedList::Clear()
 STDMETHODIMP CTabbedMDIChildModifiedList::get_ParentItem(ITabbedMDIChildModifiedItem** item)
 {
 	ATLASSERT(item != NULL);
-	if(item == NULL)
+	if (item == NULL)
 	{
 		return E_POINTER;
 	}
 	*item = m_parentItem;
-	if(m_parentItem)
+	if (m_parentItem)
 	{
 		m_parentItem->AddRef();
 	}
@@ -326,9 +326,9 @@ HRESULT CTabbedMDIChildModifiedItem::FinalConstruct()
 	return S_OK;
 }
 
-void CTabbedMDIChildModifiedItem::FinalRelease() 
+void CTabbedMDIChildModifiedItem::FinalRelease()
 {
-	if(m_icon)
+	if (m_icon)
 	{
 		::DestroyIcon(m_icon);
 		m_icon = NULL;
@@ -432,7 +432,7 @@ STDMETHODIMP CTabbedMDIChildModifiedItem::get_Icon(
 STDMETHODIMP CTabbedMDIChildModifiedItem::put_Icon(
 	HICON icon)
 {
-	if(m_icon)
+	if (m_icon)
 	{
 		::DestroyIcon(m_icon);
 		m_icon = NULL;
@@ -457,12 +457,12 @@ STDMETHODIMP CTabbedMDIChildModifiedItem::get_ParentList(
 	ITabbedMDIChildModifiedList** parentList)
 {
 	ATLASSERT(parentList != NULL);
-	if(parentList == NULL)
+	if (parentList == NULL)
 	{
 		return E_POINTER;
 	}
 	*parentList = m_parentList;
-	if(m_parentList)
+	if (m_parentList)
 	{
 		m_parentList->AddRef();
 	}
@@ -471,7 +471,7 @@ STDMETHODIMP CTabbedMDIChildModifiedItem::get_ParentList(
 STDMETHODIMP CTabbedMDIChildModifiedItem::putref_ParentList(
 	ITabbedMDIChildModifiedList* parentList)
 {
-	if(	m_parentList != NULL && parentList != NULL &&
+	if (m_parentList != NULL && parentList != NULL &&
 		m_parentList != parentList)
 	{
 		// Neither the current nor the new parent list is NULL.
@@ -495,11 +495,11 @@ STDMETHODIMP CTabbedMDIChildModifiedItem::get_SubItems(
 	// The first time they ask for the sub items, we'll create it.
 	HRESULT hr = S_OK;
 
-	if(m_subItems == NULL)
+	if (m_subItems == NULL)
 	{
 		ATL::CComObject<CTabbedMDIChildModifiedList>* newSubItems = NULL;
 		hr = ATL::CComObject<CTabbedMDIChildModifiedList>::CreateInstance(&newSubItems);
-		if(newSubItems != NULL)
+		if (newSubItems != NULL)
 		{
 			newSubItems->AddRef();
 
@@ -517,7 +517,7 @@ STDMETHODIMP CTabbedMDIChildModifiedItem::get_SubItems(
 STDMETHODIMP CTabbedMDIChildModifiedItem::CopyTo(
 	ITabbedMDIChildModifiedItem* destination)
 {
-	if(destination == NULL)
+	if (destination == NULL)
 	{
 		return E_INVALIDARG;
 	}
@@ -535,11 +535,11 @@ STDMETHODIMP CTabbedMDIChildModifiedItem::CopyTo(
 
 	ATL::CComPtr<ITabbedMDIChildModifiedList> subItems;
 	destination->get_SubItems(&subItems);
-	if(subItems)
+	if (subItems)
 	{
 		subItems->Clear();
 
-		if(m_subItems)
+		if (m_subItems)
 		{
 			subItems->InsertList(-1, m_subItems);
 		}
@@ -573,7 +573,7 @@ HRESULT CreateTabbedMDIChildModifiedList(ITabbedMDIChildModifiedList** list)
 
 	ATL::CComObject<CTabbedMDIChildModifiedList>* newItemList = NULL;
 	hr = ATL::CComObject<CTabbedMDIChildModifiedList>::CreateInstance(&newItemList);
-	if(newItemList != NULL)
+	if (newItemList != NULL)
 	{
 		hr = newItemList->QueryInterface(list);
 	}
@@ -590,12 +590,12 @@ HRESULT CreateTabbedMDIChildModifiedItem(HWND window,
 
 	ATL::CComObject<CTabbedMDIChildModifiedItem>* newItem = NULL;
 	hr = ATL::CComObject<CTabbedMDIChildModifiedItem>::CreateInstance(&newItem);
-	if(newItem != NULL)
+	if (newItem != NULL)
 	{
 		newItem->AddRef();
 
 		hr = newItem->InitNew(window, name, displayName, description, lastModified, icon);
-		if(SUCCEEDED(hr))
+		if (SUCCEEDED(hr))
 		{
 			hr = newItem->QueryInterface(item);
 		}
@@ -612,7 +612,7 @@ HRESULT CreateEmptyTabbedMDIChildModifiedItem(ITabbedMDIChildModifiedItem** item
 
 	ATL::CComObject<CTabbedMDIChildModifiedItem>* newItem = NULL;
 	hr = ATL::CComObject<CTabbedMDIChildModifiedItem>::CreateInstance(&newItem);
-	if(newItem != NULL)
+	if (newItem != NULL)
 	{
 		hr = newItem->QueryInterface(item);
 	}
@@ -637,7 +637,7 @@ CSaveModifiedItemsDialog::CSaveModifiedItemsDialog(ITabbedMDIChildModifiedList* 
 	m_trackColumnIndex(-1),
 	m_lastVisibleColumn(eColumn_Last)
 {
-	for(int i=0; i<eColumn_Count; ++i)
+	for (int i = 0; i < eColumn_Count; ++i)
 	{
 		m_showColumn[i] = true;
 	}
@@ -650,8 +650,8 @@ CSaveModifiedItemsDialog::~CSaveModifiedItemsDialog()
 bool CSaveModifiedItemsDialog::HideColumn(ColumnIndex column)
 {
 	ATLASSERT(((!m_header.IsWindow()) || (m_header.IsWindow() && m_header.GetItemCount() < 1)) &&
-		"Please call this before InitializeColumns().");
-	if(column < 0 || column > eColumn_Last || column == eColumn_Name)
+			  "Please call this before InitializeColumns().");
+	if (column < 0 || column > eColumn_Last || column == eColumn_Name)
 	{
 		ATLASSERT(0 && "Invalid column index");
 		return false;
@@ -659,12 +659,12 @@ bool CSaveModifiedItemsDialog::HideColumn(ColumnIndex column)
 
 	m_showColumn[column] = false;
 
-	if(column == m_lastVisibleColumn)
+	if (column == m_lastVisibleColumn)
 	{
 		// Find the new last visible column
-		while((m_lastVisibleColumn > 0) && !m_showColumn[m_lastVisibleColumn])
+		while ((m_lastVisibleColumn > 0) && !m_showColumn[m_lastVisibleColumn])
 		{
-			m_lastVisibleColumn = (ColumnIndex)((int)m_lastVisibleColumn-1);
+			m_lastVisibleColumn = (ColumnIndex)((int)m_lastVisibleColumn - 1);
 		}
 	}
 	return true;
@@ -681,33 +681,33 @@ LRESULT CSaveModifiedItemsDialog::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/,
 	//  case the default size of any control changes
 	this->DlgResize_Init(true, true, WS_THICKFRAME | WS_CLIPCHILDREN);
 
-	return 1;		// Let the dialog manager set initial focus
+	return 1; // Let the dialog manager set initial focus
 }
 
 LRESULT CSaveModifiedItemsDialog::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	LONG dwListStyle = m_list.GetWindowLong(GWL_STYLE);
-	if((dwListStyle & LVS_SHAREIMAGELISTS) == LVS_SHAREIMAGELISTS)
+	if ((dwListStyle & LVS_SHAREIMAGELISTS) == LVS_SHAREIMAGELISTS)
 	{
 		// We're responsible for cleaning up the list view's image list
-		if(!m_images.IsNull())
+		if (!m_images.IsNull())
 		{
 			m_images.Destroy();
 		}
 	}
 
-	if(!m_stateImages.IsNull())
+	if (!m_stateImages.IsNull())
 	{
 		m_stateImages.Destroy();
 	}
 
-	if(m_dialogIcon != NULL)
+	if (m_dialogIcon != NULL)
 	{
 		::DestroyIcon(m_dialogIcon);
 		m_dialogIcon = NULL;
 	}
 
-	if(m_list.IsWindow())
+	if (m_list.IsWindow())
 	{
 		m_list.UnsubclassWindow();
 	}
@@ -720,24 +720,24 @@ LRESULT CSaveModifiedItemsDialog::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 
 LRESULT CSaveModifiedItemsDialog::OnYes(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if(m_modifiedList)
+	if (m_modifiedList)
 	{
 		int count = m_list.GetItemCount();
-		for(int i=0; i<count; ++i)
+		for (int i = 0; i < count; ++i)
 		{
 			CheckState checkState = this->GetTristateCheckState(i);
-			if(checkState == eCheckState_Unchecked)
+			if (checkState == eCheckState_Unchecked)
 			{
 				ATL::CComQIPtr<ITabbedMDIChildModifiedItem> item(this->GetIUnknownForItem(i));
-				if(item)
+				if (item)
 				{
 					ATL::CComPtr<ITabbedMDIChildModifiedList> parentList;
 					item->get_ParentList(&parentList);
-					if(parentList)
+					if (parentList)
 					{
 						long index = -1;
 						parentList->get_Index(item, &index);
-						if(index >= 0)
+						if (index >= 0)
 						{
 							parentList->Remove(index);
 						}
@@ -761,7 +761,7 @@ LRESULT CSaveModifiedItemsDialog::OnListViewInsertItem(int /*idCtrl*/, LPNMHDR p
 {
 	bHandled = TRUE;
 	LPNMLISTVIEW pnmLV = (LPNMLISTVIEW)pnmh;
-	if(pnmLV != NULL)
+	if (pnmLV != NULL)
 	{
 		// It'd be nice if they set the lParam of NMLISTVIEW, but they don't.
 		// Only iItem is valid
@@ -772,7 +772,7 @@ LRESULT CSaveModifiedItemsDialog::OnListViewInsertItem(int /*idCtrl*/, LPNMHDR p
 		//	((IUnknown*)lParam)->AddRef();
 		//}
 		IUnknown* punk = this->GetIUnknownForItem(pnmLV->iItem);
-		if(punk)
+		if (punk)
 		{
 			// Keep an AddRef around for the item, and Release in OnDeleteItem
 			punk->AddRef();
@@ -785,10 +785,10 @@ LRESULT CSaveModifiedItemsDialog::OnListViewDeleteItem(int /*idCtrl*/, LPNMHDR p
 {
 	bHandled = TRUE;
 	LPNMLISTVIEW pnmLV = (LPNMLISTVIEW)pnmh;
-	if(pnmLV != NULL)
+	if (pnmLV != NULL)
 	{
 		LPARAM lParam = pnmLV->lParam;
-		if(lParam != NULL)
+		if (lParam != NULL)
 		{
 			((IUnknown*)lParam)->Release();
 			pnmLV->lParam = 0;
@@ -800,10 +800,10 @@ LRESULT CSaveModifiedItemsDialog::OnListViewDeleteItem(int /*idCtrl*/, LPNMHDR p
 LRESULT CSaveModifiedItemsDialog::OnListViewKeyDownToToggleCheck(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
 	NMLVKEYDOWN* keyDown = (NMLVKEYDOWN*)pnmh;
-	if(keyDown && keyDown->wVKey == VK_SPACE)
+	if (keyDown && keyDown->wVKey == VK_SPACE)
 	{
 		int item = m_list.GetNextItem(-1, LVNI_FOCUSED);
-		if(item != -1  && ::GetKeyState(VK_CONTROL) >= 0)
+		if (item != -1 && ::GetKeyState(VK_CONTROL) >= 0)
 		{
 			this->ToggleCheckState(item);
 		}
@@ -815,11 +815,11 @@ LRESULT CSaveModifiedItemsDialog::OnListViewKeyDownToToggleCheck(int /*idCtrl*/,
 LRESULT CSaveModifiedItemsDialog::OnListViewClickToToggleCheck(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
 	NMITEMACTIVATE* itemActivate = (NMITEMACTIVATE*)pnmh;
-	if(itemActivate)
+	if (itemActivate)
 	{
-		LVHITTESTINFO lvh = { 0 };
+		LVHITTESTINFO lvh = {0};
 		lvh.pt = itemActivate->ptAction;
-		if(m_list.HitTest(&lvh) != -1 && lvh.flags == LVHT_ONITEMSTATEICON && ::GetKeyState(VK_CONTROL) >= 0)
+		if (m_list.HitTest(&lvh) != -1 && lvh.flags == LVHT_ONITEMSTATEICON && ::GetKeyState(VK_CONTROL) >= 0)
 		{
 			this->ToggleCheckState(lvh.iItem);
 		}
@@ -836,7 +836,7 @@ LRESULT CSaveModifiedItemsDialog::OnListViewEraseBackground(UINT /*uMsg*/, WPARA
 
 LRESULT CSaveModifiedItemsDialog::OnListViewPaint(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if(wParam != NULL)
+	if (wParam != NULL)
 	{
 		WTL::CMemDC memdc((HDC)wParam, NULL);
 
@@ -844,7 +844,7 @@ LRESULT CSaveModifiedItemsDialog::OnListViewPaint(UINT uMsg, WPARAM wParam, LPAR
 		m_list.DefWindowProc(WM_ERASEBKGND, (WPARAM)memdc.m_hDC, 0);
 		m_list.DefWindowProc(uMsg, (WPARAM)memdc.m_hDC, 0);
 
-		if(m_header.IsWindow())
+		if (m_header.IsWindow())
 		{
 			m_header.SendMessage(WM_PAINT, (WPARAM)memdc.m_hDC, 0);
 			m_header.ValidateRect(&memdc.m_rc);
@@ -859,7 +859,7 @@ LRESULT CSaveModifiedItemsDialog::OnListViewPaint(UINT uMsg, WPARAM wParam, LPAR
 		m_list.DefWindowProc(WM_ERASEBKGND, (WPARAM)memdc.m_hDC, 0);
 		m_list.DefWindowProc(uMsg, (WPARAM)memdc.m_hDC, 0);
 
-		if(m_header.IsWindow())
+		if (m_header.IsWindow())
 		{
 			m_header.SendMessage(WM_PAINT, (WPARAM)memdc.m_hDC, 0);
 			m_header.ValidateRect(&dc.m_ps.rcPaint);
@@ -891,12 +891,12 @@ LRESULT CSaveModifiedItemsDialog::OnListViewPaint(UINT uMsg, WPARAM wParam, LPAR
 LRESULT CSaveModifiedItemsDialog::OnHeaderBeginTrack(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
 	NMHEADER* headerInfo = (NMHEADER*)pnmh;
-	if(headerInfo)
+	if (headerInfo)
 	{
 		m_trackColumnIndex = headerInfo->iItem;
 		m_trackColumnWidth = m_list.GetColumnWidth(m_trackColumnIndex);
 
-		if(	(m_trackColumnIndex < 0) ||
+		if ((m_trackColumnIndex < 0) ||
 			(m_trackColumnIndex >= m_lastVisibleColumn) ||
 			!m_showColumn[m_trackColumnIndex])
 		{
@@ -929,30 +929,30 @@ LRESULT CSaveModifiedItemsDialog::OnHeaderTrack(int /*idCtrl*/, LPNMHDR /*pnmh*/
 
 LRESULT CSaveModifiedItemsDialog::OnHeaderEndTrack(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
-	if((m_header.GetStyle() & HDS_FULLDRAG) == 0)
+	if ((m_header.GetStyle() & HDS_FULLDRAG) == 0)
 	{
 		// HDS_FULLDRAG is not set, so the contents aren't updated as they
 		// drag the column header divider until they let up on the mouse.
 		NMHEADER* headerInfo = (NMHEADER*)pnmh;
-		if(	headerInfo && 
+		if (headerInfo &&
 			headerInfo->pitem &&
 			(headerInfo->pitem->mask & HDI_WIDTH) == HDI_WIDTH)
 		{
-			if(m_trackColumnIndex == headerInfo->iItem)
+			if (m_trackColumnIndex == headerInfo->iItem)
 			{
 				int columnRight = headerInfo->iItem + 1;
 				// Find the first column to the right that isn't being hidden.
-				while((columnRight < m_lastVisibleColumn) && !m_showColumn[columnRight])
+				while ((columnRight < m_lastVisibleColumn) && !m_showColumn[columnRight])
 				{
 					++columnRight;
 				}
 
-				if(columnRight <= m_lastVisibleColumn)
+				if (columnRight <= m_lastVisibleColumn)
 				{
 					int widthLeft = headerInfo->pitem->cxy;
 					int widthRight = m_list.GetColumnWidth(columnRight);
 					int newWidth = widthRight - (widthLeft - m_trackColumnWidth);
-					if((widthLeft > eMinimumColumnWidth) && (newWidth > eMinimumColumnWidth))
+					if ((widthLeft > eMinimumColumnWidth) && (newWidth > eMinimumColumnWidth))
 					{
 						// TODO: When making the right column bigger before the
 						//  left column has gotten smaller, the scroll bars flash
@@ -980,30 +980,30 @@ LRESULT CSaveModifiedItemsDialog::OnHeaderEndTrack(int /*idCtrl*/, LPNMHDR pnmh,
 
 LRESULT CSaveModifiedItemsDialog::OnHeaderItemChanging(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
-	if((m_header.GetStyle() & HDS_FULLDRAG) == HDS_FULLDRAG)
+	if ((m_header.GetStyle() & HDS_FULLDRAG) == HDS_FULLDRAG)
 	{
 		// HDS_FULLDRAG is set, so the contents are updated as they
 		// drag the column header divider.
 		NMHEADER* headerInfo = (NMHEADER*)pnmh;
-		if(	headerInfo && 
+		if (headerInfo &&
 			headerInfo->pitem &&
 			(headerInfo->pitem->mask & HDI_WIDTH) == HDI_WIDTH)
 		{
-			if(m_trackColumnIndex == headerInfo->iItem)
+			if (m_trackColumnIndex == headerInfo->iItem)
 			{
 				int columnRight = headerInfo->iItem + 1;
 				// Find the first column to the right that isn't being hidden.
-				while((columnRight < m_lastVisibleColumn) && !m_showColumn[columnRight])
+				while ((columnRight < m_lastVisibleColumn) && !m_showColumn[columnRight])
 				{
 					++columnRight;
 				}
 
-				if(columnRight <= m_lastVisibleColumn)
+				if (columnRight <= m_lastVisibleColumn)
 				{
 					int widthLeft = headerInfo->pitem->cxy;
 					int widthRight = m_list.GetColumnWidth(columnRight);
 					int newWidth = widthRight - (widthLeft - m_trackColumnWidth);
-					if((widthLeft > eMinimumColumnWidth) && (newWidth > eMinimumColumnWidth))
+					if ((widthLeft > eMinimumColumnWidth) && (newWidth > eMinimumColumnWidth))
 					{
 						// TODO: When making the right column bigger before the
 						//  left column has gotten smaller, the scroll bars flash
@@ -1038,7 +1038,7 @@ void CSaveModifiedItemsDialog::DlgResize_UpdateLayout(int cxWidth, int cyHeight)
 {
 	//m_list.SetRedraw(FALSE);
 	resizeClass::DlgResize_UpdateLayout(cxWidth, cyHeight);
-	if(m_list.IsWindow())
+	if (m_list.IsWindow())
 	{
 		// Adjust width of the description column to account for resizing the dialog
 		CRect rcList;
@@ -1046,18 +1046,18 @@ void CSaveModifiedItemsDialog::DlgResize_UpdateLayout(int cxWidth, int cyHeight)
 
 		int headerCount = m_header.GetItemCount();
 		int columnWidths = 0;
-		for(int i=0; i<headerCount; ++i)
+		for (int i = 0; i < headerCount; ++i)
 		{
 			columnWidths += m_list.GetColumnWidth(i);
 		}
 
 		int difference = (rcList.Width() - columnWidths);
-		if(difference != 0)
+		if (difference != 0)
 		{
 			// Make up the difference by resizing the description column (if its visible).
 			// If the description column isn't visible, make up the difference with the name column.
 			int columnIndexToMakeUpDifference = eColumn_Description;
-			if(m_showColumn[eColumn_Description])
+			if (m_showColumn[eColumn_Description])
 			{
 				columnIndexToMakeUpDifference = eColumn_Description;
 			}
@@ -1068,7 +1068,7 @@ void CSaveModifiedItemsDialog::DlgResize_UpdateLayout(int cxWidth, int cyHeight)
 
 			int columnWidth = m_list.GetColumnWidth(columnIndexToMakeUpDifference);
 			columnWidth += difference;
-			if(columnWidth > eMinimumColumnWidth)
+			if (columnWidth > eMinimumColumnWidth)
 			{
 				m_list.SetColumnWidth(columnIndexToMakeUpDifference, columnWidth);
 			}
@@ -1087,57 +1087,57 @@ void CSaveModifiedItemsDialog::DlgResize_UpdateLayout(int cxWidth, int cyHeight)
 
 bool CSaveModifiedItemsDialog::ConstructDialogResource(void)
 {
-// For a smaller dialog:
-//IDD_SAVEMODIFIEDFILES DIALOGEX 0, 0, 262, 114
-//STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | 
-//    WS_SYSMENU | WS_THICKFRAME
-//EXSTYLE WS_EX_CONTROLPARENT
-//CAPTION "Save Modified Files"
-//FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//BEGIN
-//    LTEXT           "Do you want to save changes to the modified files?",
-//                    IDC_STATIC,7,7,180,8
-//    CONTROL         "",IDC_LIST_FILES,"SysListView32",LVS_REPORT | 
-//                    LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | 
-//                    WS_TABSTOP,7,20,248,66
-//    DEFPUSHBUTTON   "&Yes",IDYES,95,93,50,14
-//    PUSHBUTTON      "&No",IDNO,150,93,50,14
-//    PUSHBUTTON      "Cancel",IDCANCEL,205,93,50,14
-//END
+	// For a smaller dialog:
+	//IDD_SAVEMODIFIEDFILES DIALOGEX 0, 0, 262, 114
+	//STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION |
+	//    WS_SYSMENU | WS_THICKFRAME
+	//EXSTYLE WS_EX_CONTROLPARENT
+	//CAPTION "Save Modified Files"
+	//FONT 8, "MS Shell Dlg", 400, 0, 0x1
+	//BEGIN
+	//    LTEXT           "Do you want to save changes to the modified files?",
+	//                    IDC_STATIC,7,7,180,8
+	//    CONTROL         "",IDC_LIST_FILES,"SysListView32",LVS_REPORT |
+	//                    LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER |
+	//                    WS_TABSTOP,7,20,248,66
+	//    DEFPUSHBUTTON   "&Yes",IDYES,95,93,50,14
+	//    PUSHBUTTON      "&No",IDNO,150,93,50,14
+	//    PUSHBUTTON      "Cancel",IDCANCEL,205,93,50,14
+	//END
 
-// The dialog template we'll use:
-//IDD_SAVEMODIFIEDFILES DIALOGEX 0, 0, 300, 150
-//STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | 
-//    WS_SYSMENU | WS_THICKFRAME
-//EXSTYLE WS_EX_CONTROLPARENT
-//CAPTION "Save Modified Files"
-//FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//BEGIN
-//    LTEXT           "Do you want to save changes to the modified files?",
-//                    IDC_STATIC,7,7,180,8
-//    CONTROL         "",IDC_LIST_FILES,"SysListView32",LVS_REPORT | 
-//                    LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | 
-//                    WS_TABSTOP,7,20,286,102
-//    DEFPUSHBUTTON   "&Yes",IDYES,133,129,50,14
-//    PUSHBUTTON      "&No",IDNO,188,129,50,14
-//    PUSHBUTTON      "Cancel",IDCANCEL,243,129,50,14
-//END
+	// The dialog template we'll use:
+	//IDD_SAVEMODIFIEDFILES DIALOGEX 0, 0, 300, 150
+	//STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION |
+	//    WS_SYSMENU | WS_THICKFRAME
+	//EXSTYLE WS_EX_CONTROLPARENT
+	//CAPTION "Save Modified Files"
+	//FONT 8, "MS Shell Dlg", 400, 0, 0x1
+	//BEGIN
+	//    LTEXT           "Do you want to save changes to the modified files?",
+	//                    IDC_STATIC,7,7,180,8
+	//    CONTROL         "",IDC_LIST_FILES,"SysListView32",LVS_REPORT |
+	//                    LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER |
+	//                    WS_TABSTOP,7,20,286,102
+	//    DEFPUSHBUTTON   "&Yes",IDYES,133,129,50,14
+	//    PUSHBUTTON      "&No",IDNO,188,129,50,14
+	//    PUSHBUTTON      "Cancel",IDCANCEL,243,129,50,14
+	//END
 
 	DynamicDialog::DynamicDialogItemSize itemSizeYes, itemSizeNo, itemSizeCancel;
 	DWORD visibleStyle_Cancel = 0;
-	if(m_canCancel)
+	if (m_canCancel)
 	{
-		itemSizeYes.Set(133,129,50,14);
-		itemSizeNo.Set(188,129,50,14);
-		itemSizeCancel.Set(243,129,50,14);
+		itemSizeYes.Set(133, 129, 50, 14);
+		itemSizeNo.Set(188, 129, 50, 14);
+		itemSizeCancel.Set(243, 129, 50, 14);
 
 		visibleStyle_Cancel = WS_VISIBLE;
 	}
 	else
 	{
-		itemSizeYes.Set(188,129,50,14);
-		itemSizeNo.Set(243,129,50,14);
-		itemSizeCancel.Set(243,129,50,14);
+		itemSizeYes.Set(188, 129, 50, 14);
+		itemSizeNo.Set(243, 129, 50, 14);
+		itemSizeCancel.Set(243, 129, 50, 14);
 	}
 
 	bool success = m_dynamicDialogTemplate.Create(
@@ -1146,18 +1146,19 @@ bool CSaveModifiedItemsDialog::ConstructDialogResource(void)
 		WS_EX_CONTROLPARENT,
 		L"Save Modified Items", L"MS Shell Dlg", 8);
 
-	if(success)
+	if (success)
 	{
 		// Header text
 		m_dynamicDialogTemplate.AddStaticControl(
 			(WS_CHILD | WS_VISIBLE | WS_GROUP | SS_LEFT), 0,
-			7,7,180,8, (WORD)IDC_STATIC, L"Do you want to save changes to these modified items?");
+			7, 7, 180, 8, (WORD)IDC_STATIC, L"Do you want to save changes to these modified items?");
 
 		// List of items
 		m_dynamicDialogTemplate.AddControl(
 			(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER |
-			LVS_REPORT | LVS_ALIGNLEFT | LVS_NOSORTHEADER), 0,
-			7,20,286,102, _IDC_LIST, L"", L"SysListView32");
+				LVS_REPORT | LVS_ALIGNLEFT | LVS_NOSORTHEADER),
+			0,
+			7, 20, 286, 102, _IDC_LIST, L"", L"SysListView32");
 
 		// Yes, No, Cancel buttons
 		m_dynamicDialogTemplate.AddButtonControl(
@@ -1232,16 +1233,16 @@ bool CSaveModifiedItemsDialog::InitializeColumns(void)
 	int descriptionWidth = 0;
 	int lastModifiedWidth = 0;
 
-	if(!m_showColumn[eColumn_Description] && !m_showColumn[eColumn_LastModified])
+	if (!m_showColumn[eColumn_Description] && !m_showColumn[eColumn_LastModified])
 	{
 		nameWidth = rcList.Width();
 	}
-	else if(!m_showColumn[eColumn_Description])
+	else if (!m_showColumn[eColumn_Description])
 	{
 		nameWidth = ::MulDiv(rcList.Width(), 75, 100);
 		lastModifiedWidth = rcList.Width() - nameWidth;
 	}
-	else if(!m_showColumn[eColumn_LastModified])
+	else if (!m_showColumn[eColumn_LastModified])
 	{
 		nameWidth = ::MulDiv(rcList.Width(), 35, 100);
 		descriptionWidth = rcList.Width() - nameWidth;
@@ -1282,9 +1283,9 @@ int CSaveModifiedItemsDialog::AutoHideUnusedColumns(void)
 	int columnUseCount[eColumn_Count] = {0};
 
 	this->FindUsedColumns(m_modifiedList, columnUseCount);
-	for(int i=0; i<eColumn_Count; ++i)
+	for (int i = 0; i < eColumn_Count; ++i)
 	{
-		if(columnUseCount[i] == 0 && i != (int)eColumn_Name)
+		if (columnUseCount[i] == 0 && i != (int)eColumn_Name)
 		{
 			++columnsHidden;
 			this->HideColumn((ColumnIndex)i);
@@ -1296,7 +1297,7 @@ int CSaveModifiedItemsDialog::AutoHideUnusedColumns(void)
 
 bool CSaveModifiedItemsDialog::FindUsedColumns(ITabbedMDIChildModifiedList* list, int columnUseCount[eColumn_Count])
 {
-	if(list == NULL)
+	if (list == NULL)
 	{
 		return false;
 	}
@@ -1305,35 +1306,35 @@ bool CSaveModifiedItemsDialog::FindUsedColumns(ITabbedMDIChildModifiedList* list
 
 	long count = 0;
 	list->get_Count(&count);
-	for(long i=0; i<count; ++i)
+	for (long i = 0; i < count; ++i)
 	{
 		ATL::CComPtr<ITabbedMDIChildModifiedItem> item;
 		list->get_Item(i, &item);
-		if(item)
+		if (item)
 		{
-			if(m_showColumn[eColumn_Name])
+			if (m_showColumn[eColumn_Name])
 			{
 				ATL::CComBSTR displayName;
 				item->get_DisplayName(&displayName);
-				if(displayName.Length() > 0)
+				if (displayName.Length() > 0)
 				{
 					columnUseCount[eColumn_Name] += 1;
 				}
 			}
-			if(m_showColumn[eColumn_Description])
+			if (m_showColumn[eColumn_Description])
 			{
 				ATL::CComBSTR description;
 				item->get_Description(&description);
-				if(description.Length() > 0)
+				if (description.Length() > 0)
 				{
 					columnUseCount[eColumn_Description] += 1;
 				}
 			}
-			if(m_showColumn[eColumn_LastModified])
+			if (m_showColumn[eColumn_LastModified])
 			{
 				DATE lastModified = 0;
 				item->get_LastModifiedUTC(&lastModified);
-				if(lastModified != 0)
+				if (lastModified != 0)
 				{
 					columnUseCount[eColumn_LastModified] += 1;
 				}
@@ -1341,7 +1342,7 @@ bool CSaveModifiedItemsDialog::FindUsedColumns(ITabbedMDIChildModifiedList* list
 
 			ATL::CComPtr<ITabbedMDIChildModifiedList> subItems;
 			item->get_SubItems(&subItems);
-			if(subItems)
+			if (subItems)
 			{
 				this->FindUsedColumns(subItems, columnUseCount);
 			}
@@ -1353,7 +1354,7 @@ bool CSaveModifiedItemsDialog::FindUsedColumns(ITabbedMDIChildModifiedList* list
 
 bool CSaveModifiedItemsDialog::AddItems(ITabbedMDIChildModifiedList* list, int indent)
 {
-	if(list == NULL)
+	if (list == NULL)
 	{
 		return false;
 	}
@@ -1362,11 +1363,11 @@ bool CSaveModifiedItemsDialog::AddItems(ITabbedMDIChildModifiedList* list, int i
 
 	long count = 0;
 	list->get_Count(&count);
-	for(long i=0; i<count; ++i)
+	for (long i = 0; i < count; ++i)
 	{
 		ATL::CComPtr<ITabbedMDIChildModifiedItem> item;
 		list->get_Item(i, &item);
-		if(item)
+		if (item)
 		{
 			ATL::CComBSTR displayName, description;
 			item->get_DisplayName(&displayName);
@@ -1379,7 +1380,7 @@ bool CSaveModifiedItemsDialog::AddItems(ITabbedMDIChildModifiedList* list, int i
 			_CSTRING_NS::CString descriptionForItem(description);
 			_CSTRING_NS::CString lastModifiedForItem = this->FormatLastModifiedDateString(lastModified);
 
-			if(displayNameForItem.GetLength() < 1)
+			if (displayNameForItem.GetLength() < 1)
 			{
 				displayNameForItem = _T("(New)");
 			}
@@ -1387,7 +1388,7 @@ bool CSaveModifiedItemsDialog::AddItems(ITabbedMDIChildModifiedList* list, int i
 			int imageIndex = 0;
 			HICON hIcon = NULL;
 			item->get_Icon(&hIcon);
-			if(hIcon != NULL)
+			if (hIcon != NULL)
 			{
 				imageIndex = m_images.AddIcon(hIcon);
 			}
@@ -1410,12 +1411,12 @@ bool CSaveModifiedItemsDialog::AddItems(ITabbedMDIChildModifiedList* list, int i
 			lvItem.lParam = (LPARAM)punkItem.p;
 
 			int index = m_list.InsertItem(&lvItem);
-			if(index >= 0)
+			if (index >= 0)
 			{
 				m_list.SetCheckState(index, TRUE);
 
 				m_list.SetItemText(index, eColumn_Description, descriptionForItem);
-				if(lastModifiedForItem.GetLength() > 0)
+				if (lastModifiedForItem.GetLength() > 0)
 				{
 					m_haveAtLeastOneModifiedDate = true;
 					m_list.SetItemText(index, eColumn_LastModified, lastModifiedForItem);
@@ -1424,7 +1425,7 @@ bool CSaveModifiedItemsDialog::AddItems(ITabbedMDIChildModifiedList* list, int i
 
 			ATL::CComPtr<ITabbedMDIChildModifiedList> subItems;
 			item->get_SubItems(&subItems);
-			if(subItems)
+			if (subItems)
 			{
 				this->AddItems(subItems, (indent + 1));
 			}
@@ -1438,7 +1439,7 @@ _CSTRING_NS::CString CSaveModifiedItemsDialog::FormatLastModifiedDateString(DATE
 {
 	_CSTRING_NS::CString lastModifiedString;
 
-	if(lastModifiedUTC != 0)
+	if (lastModifiedUTC != 0)
 	{
 		SYSTEMTIME lastModifiedUTCSystem = {0};
 		::VariantTimeToSystemTime(lastModifiedUTC, &lastModifiedUTCSystem);
@@ -1450,38 +1451,40 @@ _CSTRING_NS::CString CSaveModifiedItemsDialog::FormatLastModifiedDateString(DATE
 		COleDateTime nowLocal(COleDateTime::GetCurrentTime());
 		COleDateTime dateTimeModifiedLocal(lastModifiedLocalFileTime);
 
-		_CSTRING_NS::CString fullDateTimeString = dateTimeModifiedLocal.Format(_T("%#m/%#d/%Y %#I:%M %p"));;
-		_CSTRING_NS::CString timeString = dateTimeModifiedLocal.Format(_T("%#I:%M %p"));;
+		_CSTRING_NS::CString fullDateTimeString = dateTimeModifiedLocal.Format(_T("%#m/%#d/%Y %#I:%M %p"));
+		;
+		_CSTRING_NS::CString timeString = dateTimeModifiedLocal.Format(_T("%#I:%M %p"));
+		;
 
 		int yearDifference = (nowLocal.GetYear() - dateTimeModifiedLocal.GetYear());
 		int dayOfYearDifference = (nowLocal.GetDayOfYear() - dateTimeModifiedLocal.GetDayOfYear());
 		int hourDifference = (nowLocal.GetHour() - dateTimeModifiedLocal.GetHour());
 		int minuteDifference = (nowLocal.GetMinute() - dateTimeModifiedLocal.GetMinute());
 		int secondDifference = (nowLocal.GetSecond() - dateTimeModifiedLocal.GetSecond());
-		if(	yearDifference >= 1 ||
+		if (yearDifference >= 1 ||
 			dayOfYearDifference > 1 ||
 			nowLocal < dateTimeModifiedLocal)
 		{
 			lastModifiedString = fullDateTimeString;
 		}
-		else if(dayOfYearDifference == 1)
+		else if (dayOfYearDifference == 1)
 		{
 			lastModifiedString.Format(_T("Yesterday, %s"), timeString);
 		}
-		else if(hourDifference >= 1)
+		else if (hourDifference >= 1)
 		{
 			lastModifiedString.Format(_T("%d hour%s ago"), hourDifference,
-				(hourDifference!=1) ? _T("s") : _T(""));
+				(hourDifference != 1) ? _T("s") : _T(""));
 		}
-		else if(minuteDifference >= 1)
+		else if (minuteDifference >= 1)
 		{
 			lastModifiedString.Format(_T("%d minute%s ago"), minuteDifference,
-				(minuteDifference!=1) ? _T("s") : _T(""));
+				(minuteDifference != 1) ? _T("s") : _T(""));
 		}
-		else if(secondDifference >= 1)
+		else if (secondDifference >= 1)
 		{
 			lastModifiedString.Format(_T("%d second%s ago"), secondDifference,
-				(secondDifference!=1) ? _T("s") : _T(""));
+				(secondDifference != 1) ? _T("s") : _T(""));
 		}
 		else
 		{
@@ -1494,14 +1497,14 @@ _CSTRING_NS::CString CSaveModifiedItemsDialog::FormatLastModifiedDateString(DATE
 
 IUnknown* CSaveModifiedItemsDialog::GetIUnknownForItem(int index)
 {
-	LVITEM lvi={0};
+	LVITEM lvi = {0};
 	lvi.mask = LVIF_PARAM;
 	lvi.iItem = index;
 	lvi.iSubItem = 0;
 	lvi.lParam = 0;
-	if(m_list.GetItem(&lvi))
+	if (m_list.GetItem(&lvi))
 	{
-		return (IUnknown*) lvi.lParam;
+		return (IUnknown*)lvi.lParam;
 	}
 
 	return NULL;
@@ -1509,14 +1512,14 @@ IUnknown* CSaveModifiedItemsDialog::GetIUnknownForItem(int index)
 
 int CSaveModifiedItemsDialog::FindItemIndex(ITabbedMDIChildModifiedItem* item)
 {
-	if(item == NULL)
+	if (item == NULL)
 	{
 		return -1;
 	}
 
 	ATL::CComPtr<IUnknown> punkNode;
 	item->QueryInterface(IID_IUnknown, (void**)&punkNode);
-	if(punkNode)
+	if (punkNode)
 	{
 		LVFINDINFO findInfo = {0};
 		findInfo.flags = LVFI_PARAM;
@@ -1531,26 +1534,26 @@ int CSaveModifiedItemsDialog::FindItemIndex(ITabbedMDIChildModifiedItem* item)
 int CSaveModifiedItemsDialog::FindParentIndex(int item)
 {
 	// Find the index of the "parent" based on the indent
-	LVITEM lvi = { 0 };
+	LVITEM lvi = {0};
 	lvi.iItem = item;
 	lvi.iSubItem = 0;
 	lvi.mask = LVIF_INDENT;
 	m_list.GetItem(&lvi);
 
-	if(lvi.iIndent == 0)
+	if (lvi.iIndent == 0)
 	{
 		return -1;
 	}
 
 	int parentIndex = -1;
-	for(int i=item; (i >= 0) && (parentIndex < 0); --i)
+	for (int i = item; (i >= 0) && (parentIndex < 0); --i)
 	{
-		LVITEM lviParent = { 0 };
+		LVITEM lviParent = {0};
 		lviParent.iItem = i;
 		lviParent.iSubItem = 0;
 		lviParent.mask = LVIF_INDENT;
 		m_list.GetItem(&lviParent);
-		if(lviParent.iIndent < lvi.iIndent)
+		if (lviParent.iIndent < lvi.iIndent)
 		{
 			// We've hit the first item before the
 			// item in question where the indent is less.
@@ -1564,7 +1567,7 @@ int CSaveModifiedItemsDialog::FindParentIndex(int item)
 
 void CSaveModifiedItemsDialog::ToggleCheckState(int item)
 {
-	LVITEM lvi = { 0 };
+	LVITEM lvi = {0};
 	lvi.iItem = item;
 	lvi.iSubItem = 0;
 	lvi.mask = (LVIF_INDENT | LVIF_STATE);
@@ -1574,7 +1577,7 @@ void CSaveModifiedItemsDialog::ToggleCheckState(int item)
 	CheckState checkState = (CheckState)(lvi.state & LVIS_STATEIMAGEMASK);
 
 	CheckState newCheckState = eCheckState_Checked;
-	switch(checkState)
+	switch (checkState)
 	{
 	case eCheckState_Unchecked:
 		newCheckState = eCheckState_Checked;
@@ -1587,7 +1590,7 @@ void CSaveModifiedItemsDialog::ToggleCheckState(int item)
 		break;
 	}
 
-	if((lvi.state & LVIS_SELECTED) != LVIS_SELECTED)
+	if ((lvi.state & LVIS_SELECTED) != LVIS_SELECTED)
 	{
 		// If the item isn't selected, toggle the checkmark on just the item
 		this->SetTristateCheckState(item, newCheckState);
@@ -1596,7 +1599,7 @@ void CSaveModifiedItemsDialog::ToggleCheckState(int item)
 	{
 		// Otherwise, set the checkmark appropriately on all selected items.
 		int itemToCheck = -1;
-		while((itemToCheck = m_list.GetNextItem(itemToCheck, LVNI_SELECTED)) != -1)
+		while ((itemToCheck = m_list.GetNextItem(itemToCheck, LVNI_SELECTED)) != -1)
 		{
 			this->SetTristateCheckState(itemToCheck, newCheckState);
 		}
@@ -1605,7 +1608,7 @@ void CSaveModifiedItemsDialog::ToggleCheckState(int item)
 
 void CSaveModifiedItemsDialog::SetTristateCheckState(int item, CheckState checkState)
 {
-	LVITEM lvi = { 0 };
+	LVITEM lvi = {0};
 	lvi.iItem = item;
 	lvi.iSubItem = 0;
 	lvi.mask = LVIF_INDENT;
@@ -1615,18 +1618,18 @@ void CSaveModifiedItemsDialog::SetTristateCheckState(int item, CheckState checkS
 	bool done = false;
 
 	// Set the check of the item as well as all of the "child" items
-	while(!done)
+	while (!done)
 	{
 		m_list.SetItemState(itemToCheck, checkState, LVIS_STATEIMAGEMASK);
 
 		itemToCheck = m_list.GetNextItem(itemToCheck, LVNI_ALL);
-		if(itemToCheck < 0)
+		if (itemToCheck < 0)
 		{
 			done = true;
 		}
 		else
 		{
-			LVITEM lviToCheck = { 0 };
+			LVITEM lviToCheck = {0};
 			lviToCheck.iItem = itemToCheck;
 			lviToCheck.iSubItem = 0;
 			lviToCheck.mask = LVIF_INDENT;
@@ -1654,9 +1657,9 @@ void CSaveModifiedItemsDialog::UpdateParentCheckState(int item, CheckState check
 	// treatment to all of the ancestors.
 
 	int parentIndex = this->FindParentIndex(item);
-	if(parentIndex >= 0)
+	if (parentIndex >= 0)
 	{
-		LVITEM lviParent = { 0 };
+		LVITEM lviParent = {0};
 		lviParent.iItem = parentIndex;
 		lviParent.iSubItem = 0;
 		lviParent.mask = LVIF_INDENT;
@@ -1666,19 +1669,19 @@ void CSaveModifiedItemsDialog::UpdateParentCheckState(int item, CheckState check
 
 		bool checkStateMixed = false;
 		bool done = false;
-		while(!done)
+		while (!done)
 		{
-			LVITEM lviDescendant = { 0 };
+			LVITEM lviDescendant = {0};
 			lviDescendant.iItem = itemToCheck;
 			lviDescendant.iSubItem = 0;
 			lviDescendant.mask = (LVIF_INDENT | LVIF_STATE);
 			lviDescendant.stateMask = LVIS_STATEIMAGEMASK;
 			BOOL validItem = m_list.GetItem(&lviDescendant);
-			if(!validItem)
+			if (!validItem)
 			{
 				done = true;
 			}
-			else if(lviDescendant.iIndent <= lviParent.iIndent)
+			else if (lviDescendant.iIndent <= lviParent.iIndent)
 			{
 				// There's no more possible siblings or descendants,
 				// because we've hit our parent's sibling
@@ -1687,14 +1690,14 @@ void CSaveModifiedItemsDialog::UpdateParentCheckState(int item, CheckState check
 			else
 			{
 				CheckState descendantCheckState = (CheckState)(lviDescendant.state & LVIS_STATEIMAGEMASK);
-				if(descendantCheckState != checkState)
+				if (descendantCheckState != checkState)
 				{
 					checkStateMixed = true;
 					done = true;
 				}
 			}
 
-			if(!done)
+			if (!done)
 			{
 				itemToCheck = m_list.GetNextItem(itemToCheck, LVNI_ALL);
 				done = (itemToCheck < 0);
@@ -1706,7 +1709,7 @@ void CSaveModifiedItemsDialog::UpdateParentCheckState(int item, CheckState check
 		// set the parent's check state to the same.  If the descendants
 		// have mixed check states, then set the parent's check
 		// state to indeterminate.
-		if(checkStateMixed)
+		if (checkStateMixed)
 		{
 			m_list.SetItemState(parentIndex, eCheckState_Indeterminate, LVIS_STATEIMAGEMASK);
 		}
@@ -1729,15 +1732,15 @@ void CSaveModifiedItemsDialog::CreateDefaultImages(void)
 	//  Double check future versions of Windows to make sure
 	//  this all works correctly.
 	HMODULE hComCtl32 = GetModuleHandle(_T("comctl32.dll"));
-	if(hComCtl32)
+	if (hComCtl32)
 	{
-		HIMAGELIST hCommonToolbar = ImageList_LoadBitmap(hComCtl32, MAKEINTRESOURCE(120), 16, 0, RGB(192,192,192));
-		if(hCommonToolbar)
+		HIMAGELIST hCommonToolbar = ImageList_LoadBitmap(hComCtl32, MAKEINTRESOURCE(120), 16, 0, RGB(192, 192, 192));
+		if (hCommonToolbar)
 		{
 			HICON hFileNew = ImageList_ExtractIcon(NULL, hCommonToolbar, STD_FILENEW);
 			HICON hFileSave = ImageList_ExtractIcon(NULL, hCommonToolbar, STD_FILESAVE);
 
-			if(hFileNew)
+			if (hFileNew)
 			{
 				int fileNewIndex = m_images.AddIcon(hFileNew);
 				ATLASSERT(fileNewIndex == 0);
@@ -1746,7 +1749,7 @@ void CSaveModifiedItemsDialog::CreateDefaultImages(void)
 				hFileNew = NULL;
 			}
 
-			if(hFileSave)
+			if (hFileSave)
 			{
 				int fileSaveIndex = m_images.AddIcon(hFileSave);
 				ATLASSERT(fileSaveIndex == 1);
@@ -1764,15 +1767,15 @@ void CSaveModifiedItemsDialog::CreateDefaultImages(void)
 
 void CSaveModifiedItemsDialog::CreateDefaultStateImages(void)
 {
-	if(!m_stateImages.IsNull())
+	if (!m_stateImages.IsNull())
 	{
 		WTL::CWindowDC dcScreen(NULL);
 
 		int cx = ::GetSystemMetrics(SM_CXSMICON);
 		int cy = ::GetSystemMetrics(SM_CYSMICON);
 
-		m_imageUnchecked     = this->AddCheckStateImage(dcScreen, cx, cy, eCheckState_Unchecked);
-		m_imageChecked       = this->AddCheckStateImage(dcScreen, cx, cy, eCheckState_Checked);
+		m_imageUnchecked = this->AddCheckStateImage(dcScreen, cx, cy, eCheckState_Unchecked);
+		m_imageChecked = this->AddCheckStateImage(dcScreen, cx, cy, eCheckState_Checked);
 		m_imageIndeterminate = this->AddCheckStateImage(dcScreen, cx, cy, eCheckState_Indeterminate);
 	}
 }
@@ -1780,7 +1783,7 @@ void CSaveModifiedItemsDialog::CreateDefaultStateImages(void)
 int CSaveModifiedItemsDialog::AddCheckStateImage(HDC dcScreen, int cx, int cy, enum CheckState checkState)
 {
 	ImageUtil::eCheckbox type = ImageUtil::eCheckboxChecked;
-	switch(checkState)
+	switch (checkState)
 	{
 	case eCheckState_Unchecked:
 		type = ImageUtil::eCheckboxUnchecked;
@@ -1798,10 +1801,10 @@ int CSaveModifiedItemsDialog::AddCheckStateImage(HDC dcScreen, int cx, int cy, e
 
 	int index = -1;
 
-	WTL::CBitmap bitmap = ImageUtil::CreateCheckboxImage(dcScreen, type, cx, cy, RGB(255,0,0), m_list);
-	if(!bitmap.IsNull())
+	WTL::CBitmap bitmap = ImageUtil::CreateCheckboxImage(dcScreen, type, cx, cy, RGB(255, 0, 0), m_list);
+	if (!bitmap.IsNull())
 	{
-		index = m_stateImages.Add(bitmap, RGB(255,0,0));
+		index = m_stateImages.Add(bitmap, RGB(255, 0, 0));
 	}
 
 	return index;

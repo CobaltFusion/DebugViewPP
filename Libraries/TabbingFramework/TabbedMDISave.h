@@ -7,17 +7,17 @@
 //   ITabbedMDIChildModifiedList
 //
 // Classes:
-//   CTabbedMDIChildModifiedItem - 
+//   CTabbedMDIChildModifiedItem -
 //      Implements ITabbedMDIChildModifiedItem.
-//   CTabbedMDIChildModifiedList - 
+//   CTabbedMDIChildModifiedList -
 //      Implements ITabbedMDIChildModifiedList.
 //
 // Written by Daniel Bowen (dbowen@es.com)
 // Copyright (c) 2004 Daniel Bowen.
 //
 // This code may be used in compiled form in any way you desire. This
-// file may be redistributed by any means PROVIDING it is 
-// not sold for profit without the authors written consent, and 
+// file may be redistributed by any means PROVIDING it is
+// not sold for profit without the authors written consent, and
 // providing that this notice and the authors name is included.
 //
 // This file is provided "as is" with no expressed or implied warranty.
@@ -51,7 +51,7 @@
 #pragma once
 
 #if _WTL_VER < 0x0710
-	#error TabbedMDISave.h requires WTL 7.1 or higher
+#error TabbedMDISave.h requires WTL 7.1 or higher
 #endif
 
 // NOTE: You can #define WTL_TABBED_MDI_SAVE_INTERFACE_ONLY
@@ -63,12 +63,12 @@
 #ifndef __ITabbedMDIChildModifiedList_FWD_DEFINED__
 #define __ITabbedMDIChildModifiedList_FWD_DEFINED__
 typedef interface ITabbedMDIChildModifiedList ITabbedMDIChildModifiedList;
-#endif 	/* __ITabbedMDIChildModifiedList_FWD_DEFINED__ */
+#endif /* __ITabbedMDIChildModifiedList_FWD_DEFINED__ */
 
 #ifndef __ITabbedMDIChildModifiedItem_FWD_DEFINED__
 #define __ITabbedMDIChildModifiedItem_FWD_DEFINED__
 typedef interface ITabbedMDIChildModifiedItem ITabbedMDIChildModifiedItem;
-#endif 	/* __ITabbedMDIChildModifiedItem_FWD_DEFINED__ */
+#endif /* __ITabbedMDIChildModifiedItem_FWD_DEFINED__ */
 
 
 // Interfaces
@@ -85,7 +85,7 @@ public:
 	//[propget]
 	//	HRESULT Index([in] ITabbedMDIChildModifiedItem* item, [out, retval] long* index);
 	virtual HRESULT STDMETHODCALLTYPE get_Index(
-		ITabbedMDIChildModifiedItem* item,
+		ITabbedMDIChildModifiedItem * item,
 		long* index) = 0;
 	//[propget]
 	//	HRESULT Count([out, retval] long* count);
@@ -118,7 +118,7 @@ public:
 	//[propget]
 	//	HRESULT ParentItem([out,retval] ITabbedMDIChildModifiedItem** item);
 	virtual HRESULT STDMETHODCALLTYPE get_ParentItem(
-		ITabbedMDIChildModifiedItem** item) = 0;
+		ITabbedMDIChildModifiedItem * *item) = 0;
 };
 
 MIDL_INTERFACE("2CB3E36B-1646-4f4b-ABA7-F42DDD3DF64D")
@@ -128,7 +128,7 @@ public:
 	//[propget]
 	//	HRESULT Window([out,retval] HWND* window);
 	virtual HRESULT STDMETHODCALLTYPE get_Window(
-		HWND* window) = 0;
+		HWND * window) = 0;
 	//[propput]
 	//	HRESULT Window([in] HWND window);
 	virtual HRESULT STDMETHODCALLTYPE put_Window(
@@ -136,7 +136,7 @@ public:
 	//[propget]
 	//	HRESULT Name([out,retval] BSTR* name);
 	virtual HRESULT STDMETHODCALLTYPE get_Name(
-		BSTR* name) = 0;
+		BSTR * name) = 0;
 	//[propput]
 	//	HRESULT Name([in] const wchar_t* name);
 	virtual HRESULT STDMETHODCALLTYPE put_Name(
@@ -144,7 +144,7 @@ public:
 	//[propget]
 	//	HRESULT DisplayName([out,retval] BSTR* displayName);
 	virtual HRESULT STDMETHODCALLTYPE get_DisplayName(
-		BSTR* displayName) = 0;
+		BSTR * displayName) = 0;
 	//[propput]
 	//	HRESULT DisplayName([in] const wchar_t* displayName);
 	virtual HRESULT STDMETHODCALLTYPE put_DisplayName(
@@ -152,7 +152,7 @@ public:
 	//[propget]
 	//	HRESULT Description([out,retval] BSTR* description);
 	virtual HRESULT STDMETHODCALLTYPE get_Description(
-		BSTR* description) = 0;
+		BSTR * description) = 0;
 	//[propput]
 	//	HRESULT Description([in] const wchar_t* description);
 	virtual HRESULT STDMETHODCALLTYPE put_Description(
@@ -160,7 +160,7 @@ public:
 	//[propget]
 	//	HRESULT LastModifiedUTC([out,retval] DATE* lastModified);
 	virtual HRESULT STDMETHODCALLTYPE get_LastModifiedUTC(
-		DATE* lastModified) = 0;
+		DATE * lastModified) = 0;
 	//[propput]
 	//	HRESULT LastModifiedUTC([in] DATE lastModified);
 	virtual HRESULT STDMETHODCALLTYPE put_LastModifiedUTC(
@@ -168,7 +168,7 @@ public:
 	//[propget]
 	//	HRESULT Icon([out,retval] HICON* icon);
 	virtual HRESULT STDMETHODCALLTYPE get_Icon(
-		HICON* icon) = 0;
+		HICON * icon) = 0;
 	//[propput]
 	//	HRESULT Icon([in] HICON icon);
 	virtual HRESULT STDMETHODCALLTYPE put_Icon(
@@ -176,39 +176,39 @@ public:
 	//[propget]
 	//	HRESULT UserData([out,retval] IUnknown** userData);
 	virtual HRESULT STDMETHODCALLTYPE get_UserData(
-		IUnknown** userData) = 0;
+		IUnknown * *userData) = 0;
 	//[propputref]
 	//	HRESULT UserData([in] IUnknown* userData);
 	virtual HRESULT STDMETHODCALLTYPE putref_UserData(
-		IUnknown* userData) = 0;
+		IUnknown * userData) = 0;
 	//[propget]
 	//	HRESULT ParentList([out,retval] ITabbedMDIChildModifiedList** parentList);
 	virtual HRESULT STDMETHODCALLTYPE get_ParentList(
-		ITabbedMDIChildModifiedList** parentList) = 0;
+		ITabbedMDIChildModifiedList * *parentList) = 0;
 	//[propputref]
 	//	HRESULT ParentList([in] ITabbedMDIChildModifiedList* parentList);
 	virtual HRESULT STDMETHODCALLTYPE putref_ParentList(
-		ITabbedMDIChildModifiedList* parentList) = 0;
+		ITabbedMDIChildModifiedList * parentList) = 0;
 	//[propget]
 	//	HRESULT SubItems([out,retval] ITabbedMDIChildModifiedList** subItems);
 	virtual HRESULT STDMETHODCALLTYPE get_SubItems(
-		ITabbedMDIChildModifiedList** subItems) = 0;
+		ITabbedMDIChildModifiedList * *subItems) = 0;
 	//[]
 	//	HRESULT CopyTo([in] ITabbedMDIChildModifiedItem* destination);
 	virtual HRESULT STDMETHODCALLTYPE CopyTo(
-		ITabbedMDIChildModifiedItem* destination) = 0;
+		ITabbedMDIChildModifiedItem * destination) = 0;
 };
 
 #ifdef WTL_TABBED_MDI_SAVE_IMPLEMENTATION
 
 #ifndef __ATLFRAME_H__
-	#error TabbedMDISave.h requires atlframe.h to be included first
+#error TabbedMDISave.h requires atlframe.h to be included first
 #endif
 #if (_ATL_VER < 0x0700)
-	#error TabbedMDISave.h requires ATL 7.0 or higher
+#error TabbedMDISave.h requires ATL 7.0 or higher
 #endif
 #if (_WIN32_IE < 0x0501)
-	#error TabbedMDISave.h requires _WIN32_IE to be 0x0501 or higher
+#error TabbedMDISave.h requires _WIN32_IE to be 0x0501 or higher
 #endif
 
 #include "DynamicDialogTemplate.h"
@@ -217,10 +217,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 // CTabbedMDIChildModifiedList
-class CTabbedMDIChildModifiedList :
-	public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>,
-	public ITabbedMDIChildModifiedList,
-	public ATL::CInterfaceList<ITabbedMDIChildModifiedItem>
+class CTabbedMDIChildModifiedList : public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>,
+									public ITabbedMDIChildModifiedList,
+									public ATL::CInterfaceList<ITabbedMDIChildModifiedItem>
 {
 public:
 	CTabbedMDIChildModifiedList();
@@ -234,41 +233,49 @@ public:
 	HRESULT FinalConstruct();
 	void FinalRelease();
 
-// ITabbedMDIChildModifiedList
+	// ITabbedMDIChildModifiedList
 public:
-	STDMETHOD(get_Item)(long index, ITabbedMDIChildModifiedItem** item);
-	STDMETHOD(get_Index)(ITabbedMDIChildModifiedItem* item, long* index);
-	STDMETHOD(get_Count)(long* count);
-	STDMETHOD(AddNew)(
+	STDMETHOD(get_Item)
+	(long index, ITabbedMDIChildModifiedItem** item);
+	STDMETHOD(get_Index)
+	(ITabbedMDIChildModifiedItem* item, long* index);
+	STDMETHOD(get_Count)
+	(long* count);
+	STDMETHOD(AddNew)
+	(
 		const wchar_t* name, const wchar_t* displayName, const wchar_t* description,
 		DATE lastModified, HICON icon,
 		ITabbedMDIChildModifiedItem** item = NULL);
-	STDMETHOD(Insert)(
+	STDMETHOD(Insert)
+	(
 		long index, ITabbedMDIChildModifiedItem* item);
-	STDMETHOD(InsertList)(
+	STDMETHOD(InsertList)
+	(
 		long index, ITabbedMDIChildModifiedList* list);
-	STDMETHOD(Remove)(
+	STDMETHOD(Remove)
+	(
 		long index, ITabbedMDIChildModifiedItem** item = NULL);
-	STDMETHOD(Clear)();
-	STDMETHOD(get_ParentItem)(ITabbedMDIChildModifiedItem** item);
+	STDMETHOD(Clear)
+	();
+	STDMETHOD(get_ParentItem)
+	(ITabbedMDIChildModifiedItem** item);
 
-// Methods not exposed over iterface:
+	// Methods not exposed over iterface:
 public:
-	STDMETHOD(putref_ParentItem)(ITabbedMDIChildModifiedItem* item);
+	STDMETHOD(putref_ParentItem)
+	(ITabbedMDIChildModifiedItem* item);
 
 protected:
 	// We keep a weak reference to the parent item,
 	// and the item keeps a strong reference to us
 	// (to avoid circular reference)
 	ITabbedMDIChildModifiedItem* m_parentItem;
-
 };
 
 /////////////////////////////////////////////////////////////////////////////
 // CTabbedMDIChildModifiedItem
-class CTabbedMDIChildModifiedItem :
-	public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>,
-	public ITabbedMDIChildModifiedItem
+class CTabbedMDIChildModifiedItem : public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>,
+									public ITabbedMDIChildModifiedItem
 {
 public:
 	CTabbedMDIChildModifiedItem();
@@ -282,67 +289,86 @@ public:
 	HRESULT FinalConstruct();
 	void FinalRelease();
 
-// ITabbedMDIChildModifiedItem
+	// ITabbedMDIChildModifiedItem
 public:
-	STDMETHOD(get_Window)(
+	STDMETHOD(get_Window)
+	(
 		HWND* window);
-	STDMETHOD(put_Window)(
+	STDMETHOD(put_Window)
+	(
 		HWND window);
 
-	STDMETHOD(get_Name)(
+	STDMETHOD(get_Name)
+	(
 		BSTR* name);
-	STDMETHOD(put_Name)(
+	STDMETHOD(put_Name)
+	(
 		const wchar_t* name);
 
-	STDMETHOD(get_DisplayName)(
+	STDMETHOD(get_DisplayName)
+	(
 		BSTR* displayName);
-	STDMETHOD(put_DisplayName)(
+	STDMETHOD(put_DisplayName)
+	(
 		const wchar_t* displayName);
 
-	STDMETHOD(get_Description)(
+	STDMETHOD(get_Description)
+	(
 		BSTR* description);
-	STDMETHOD(put_Description)(
+	STDMETHOD(put_Description)
+	(
 		const wchar_t* description);
 
-	STDMETHOD(get_LastModifiedUTC)(
+	STDMETHOD(get_LastModifiedUTC)
+	(
 		DATE* lastModified);
-	STDMETHOD(put_LastModifiedUTC)(
+	STDMETHOD(put_LastModifiedUTC)
+	(
 		DATE lastModified);
 
-	STDMETHOD(get_Icon)(
+	STDMETHOD(get_Icon)
+	(
 		HICON* icon);
-	STDMETHOD(put_Icon)(
+	STDMETHOD(put_Icon)
+	(
 		HICON icon);
 
-	STDMETHOD(get_UserData)(
+	STDMETHOD(get_UserData)
+	(
 		IUnknown** userData);
-	STDMETHOD(putref_UserData)(
+	STDMETHOD(putref_UserData)
+	(
 		IUnknown* userData);
 
-	STDMETHOD(get_ParentList)(
+	STDMETHOD(get_ParentList)
+	(
 		ITabbedMDIChildModifiedList** parentList);
-	STDMETHOD(putref_ParentList)(
+	STDMETHOD(putref_ParentList)
+	(
 		ITabbedMDIChildModifiedList* parentList);
 
-	STDMETHOD(get_SubItems)(
+	STDMETHOD(get_SubItems)
+	(
 		ITabbedMDIChildModifiedList** subItems);
 
-	STDMETHOD(CopyTo)(
+	STDMETHOD(CopyTo)
+	(
 		ITabbedMDIChildModifiedItem* destination);
 
-// Methods not exposed over iterface:
+	// Methods not exposed over iterface:
 public:
-	STDMETHOD(InitNew)(HWND window,
+	STDMETHOD(InitNew)
+	(HWND window,
 		const wchar_t* name, const wchar_t* displayName, const wchar_t* description,
 		DATE lastModified, HICON icon);
 
 protected:
-	HWND     m_window;
+	HWND m_window;
 	ATL::CComBSTR m_name;
 	ATL::CComBSTR m_displayName;
 	ATL::CComBSTR m_description;
-	DATE     m_lastModified;
-	HICON    m_icon;
+	DATE m_lastModified;
+	HICON m_icon;
 	ATL::CComPtr<IUnknown> m_userData;
 
 	// We keep a strong reference to the sub item list,
@@ -356,7 +382,6 @@ protected:
 	// to one parent.  To allow an item to belong to multiple
 	// parents, update the code related to setting the parent.
 	ITabbedMDIChildModifiedList* m_parentList;
-
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -381,7 +406,7 @@ protected:
 	typedef DynamicDialog::CDynamicDialogImpl<CSaveModifiedItemsDialog> baseClass;
 	typedef WTL::CDialogResize<CSaveModifiedItemsDialog> resizeClass;
 
-// Public enumarations
+	// Public enumarations
 public:
 	enum DialogControlIds
 	{
@@ -397,29 +422,29 @@ public:
 
 	enum ColumnIndex
 	{
-		eColumn_Name         = 0,
-		eColumn_Description  = 1,
+		eColumn_Name = 0,
+		eColumn_Description = 1,
 		eColumn_LastModified = 2,
 
-		eColumn_Last         = eColumn_LastModified,
-		eColumn_Count        = eColumn_Last + 1,
+		eColumn_Last = eColumn_LastModified,
+		eColumn_Count = eColumn_Last + 1,
 	};
 
 	enum Constants
 	{
-		eMinimumColumnWidth  = 40
+		eMinimumColumnWidth = 40
 	};
 
-// Constructors
+	// Constructors
 public:
 	CSaveModifiedItemsDialog(ITabbedMDIChildModifiedList* list = NULL, bool canCancel = true);
 	virtual ~CSaveModifiedItemsDialog();
 
-// Public Methods (Call before DoModal)
+	// Public Methods (Call before DoModal)
 public:
 	bool HideColumn(ColumnIndex column);
 
-// Message Handling
+	// Message Handling
 public:
 	//enum { IDD = IDD_SAVEMODIFIEDFILES };
 
@@ -438,7 +463,7 @@ public:
 		NOTIFY_CODE_HANDLER(NM_DBLCLK, OnListViewClickToToggleCheck)
 
 		CHAIN_MSG_MAP(resizeClass)
-	ALT_MSG_MAP(1)
+		ALT_MSG_MAP(1)
 		// List View Control Messages
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnListViewEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnListViewPaint)
@@ -457,17 +482,17 @@ public:
 	END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(CSaveModifiedItemsDialog)
-		DLGRESIZE_CONTROL(_IDC_LIST, (DLSZ_SIZE_X | DLSZ_SIZE_Y))
+	DLGRESIZE_CONTROL(_IDC_LIST, (DLSZ_SIZE_X | DLSZ_SIZE_Y))
 
-		DLGRESIZE_CONTROL(IDYES, (DLSZ_MOVE_X | DLSZ_MOVE_Y))
-		DLGRESIZE_CONTROL(IDNO, (DLSZ_MOVE_X | DLSZ_MOVE_Y))
-		DLGRESIZE_CONTROL(IDCANCEL, (DLSZ_MOVE_X | DLSZ_MOVE_Y))
+	DLGRESIZE_CONTROL(IDYES, (DLSZ_MOVE_X | DLSZ_MOVE_Y))
+	DLGRESIZE_CONTROL(IDNO, (DLSZ_MOVE_X | DLSZ_MOVE_Y))
+	DLGRESIZE_CONTROL(IDCANCEL, (DLSZ_MOVE_X | DLSZ_MOVE_Y))
 	END_DLGRESIZE_MAP()
 
-// Handler prototypes (uncomment arguments if needed):
-//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+	// Handler prototypes (uncomment arguments if needed):
+	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -489,11 +514,11 @@ public:
 	LRESULT OnHeaderItemChanging(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 	LRESULT OnHeaderDividerDoubleClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 
-// CDialogResize overrides
+	// CDialogResize overrides
 public:
 	void DlgResize_UpdateLayout(int cxWidth, int cyHeight);
 
-// DynamicDialog::CDynamicDialogImpl overrides
+	// DynamicDialog::CDynamicDialogImpl overrides
 public:
 	bool ConstructDialogResource(void);
 
@@ -516,7 +541,7 @@ protected:
 	void CreateDefaultStateImages(void);
 	int AddCheckStateImage(HDC dcScreen, int cx, int cy, enum CheckState checkState);
 
-// Members
+	// Members
 protected:
 	ATL::CComPtr<ITabbedMDIChildModifiedList> m_modifiedList;
 	bool m_canCancel;
@@ -537,7 +562,6 @@ protected:
 	ColumnIndex m_lastVisibleColumn;
 
 	bool m_showColumn[eColumn_Count];
-
 };
 
 #endif // WTL_TABBED_MDI_SAVE_IMPLEMENTATION

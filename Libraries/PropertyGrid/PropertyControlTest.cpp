@@ -17,19 +17,19 @@ CAppModule _Module;
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*lpstrCmdLine*/, int /*nCmdShow*/)
 {
-   HRESULT hRes = ::CoInitialize(NULL);
-   ATLASSERT(SUCCEEDED(hRes));
+	HRESULT hRes = ::CoInitialize(NULL);
+	ATLASSERT(SUCCEEDED(hRes));
 
-   AtlInitCommonControls(ICC_WIN95_CLASSES | ICC_DATE_CLASSES);
+	AtlInitCommonControls(ICC_WIN95_CLASSES | ICC_DATE_CLASSES);
 
-   hRes = _Module.Init(NULL, hInstance);
-   ATLASSERT(SUCCEEDED(hRes));
+	hRes = _Module.Init(NULL, hInstance);
+	ATLASSERT(SUCCEEDED(hRes));
 
-   CMainDlg dlgMain;
-   int nRet = dlgMain.DoModal();
+	CMainDlg dlgMain;
+	int nRet = dlgMain.DoModal();
 
-   _Module.Term();
-   ::CoUninitialize();
+	_Module.Term();
+	::CoUninitialize();
 
-   return nRet;
+	return nRet;
 }

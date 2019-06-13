@@ -17,11 +17,11 @@
 //  drag selection like windows explorer has in its file list views.
 
 #ifndef __ATLAPP_H__
-  #error ListViewNoFlicker.h requires atlapp.h to be included first
+#error ListViewNoFlicker.h requires atlapp.h to be included first
 #endif
 
 #ifndef __ATLGDIX_H__
-  #error ListViewNoFlicker.h requires atlgdix.h to be included first
+#error ListViewNoFlicker.h requires atlgdix.h to be included first
 #endif
 
 template <class T>
@@ -34,7 +34,8 @@ protected:
 	ATL::CWindow m_headerCtrl;
 
 public:
-	CListViewNoFlickerT() : m_headerCtrl(NULL)
+	CListViewNoFlickerT() :
+		m_headerCtrl(NULL)
 	{
 	}
 
@@ -58,7 +59,7 @@ public:
 
 public:
 	BEGIN_MSG_MAP(thisClass)
-	ALT_MSG_MAP(1)
+		ALT_MSG_MAP(1)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
@@ -74,7 +75,7 @@ public:
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
-		if( wParam != NULL )
+		if (wParam != NULL)
 		{
 			WTL::CMemDC memdc((HDC)wParam, NULL);
 			pT->DoPaint(memdc.m_hDC, memdc.m_rc);
@@ -92,7 +93,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 
-		if(m_headerCtrl.IsWindow())
+		if (m_headerCtrl.IsWindow())
 		{
 			// Draw the header first
 			m_headerCtrl.SendMessage(WM_ERASEBKGND, (WPARAM)(HDC)dc, 0);
@@ -109,33 +110,32 @@ public:
 		pT->DefWindowProc(WM_ERASEBKGND, (WPARAM)(HDC)dc, 0);
 		pT->DefWindowProc(WM_PAINT, (WPARAM)(HDC)dc, 0);
 	}
-
 };
 
 typedef CWinTraits<
-			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-			LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS,
-			WS_EX_CLIENTEDGE> CListViewNoFlickerWinTraits;
+	WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+		LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS,
+	WS_EX_CLIENTEDGE>
+	CListViewNoFlickerWinTraits;
 
-class CListViewNoFlicker :
-	public CWindowImpl<CListViewNoFlicker, CListViewCtrl, CListViewNoFlickerWinTraits>,
-	public CListViewNoFlickerT<CListViewNoFlicker>
+class CListViewNoFlicker : public CWindowImpl<CListViewNoFlicker, CListViewCtrl, CListViewNoFlickerWinTraits>,
+						   public CListViewNoFlickerT<CListViewNoFlicker>
 {
 protected:
 	typedef CListViewNoFlicker thisClass;
 	typedef CWindowImpl<CListViewNoFlicker, CListViewCtrl, CListViewNoFlickerWinTraits> baseClass;
 	typedef CListViewNoFlickerT<CListViewNoFlicker> noFlickerClass;
 
-// Constructors
+	// Constructors
 public:
-	CListViewNoFlicker() { }
+	CListViewNoFlicker() {}
 
-// Base Class overrides
+	// Base Class overrides
 public:
 	BOOL SubclassWindow(HWND hWnd)
 	{
 		BOOL bRet = baseClass::SubclassWindow(hWnd);
-		if(bRet)
+		if (bRet)
 		{
 			noFlickerClass::Initialize(this->GetHeader());
 		}
@@ -149,14 +149,14 @@ public:
 		return baseClass::UnsubclassWindow(bForce);
 	}
 
-// Message Handling
+	// Message Handling
 public:
 	BEGIN_MSG_MAP(thisClass)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 
 		CHAIN_MSG_MAP_ALT(noFlickerClass, 1)
-		DEFAULT_REFLECTION_HANDLER()  // Just in case
+		DEFAULT_REFLECTION_HANDLER() // Just in case
 	END_MSG_MAP()
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

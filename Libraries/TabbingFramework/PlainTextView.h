@@ -9,9 +9,8 @@
 
 typedef CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_NOHIDESEL, WS_EX_CLIENTEDGE> CPlainTextViewWinTraits;
 
-class CPlainTextView:
-	public CWindowImpl<CPlainTextView, CEdit, CPlainTextViewWinTraits>,
-	public CEditCommands<CPlainTextView>
+class CPlainTextView : public CWindowImpl<CPlainTextView, CEdit, CPlainTextViewWinTraits>,
+					   public CEditCommands<CPlainTextView>
 {
 protected:
 	typedef CPlainTextView thisClass;
@@ -22,7 +21,7 @@ protected:
 	WTL::CFont m_font;
 
 public:
-	CPlainTextView() : 
+	CPlainTextView() :
 		m_hAccel(NULL)
 	{
 	}
@@ -32,12 +31,12 @@ public:
 
 	BOOL PreTranslateMessage(MSG* pMsg)
 	{
-		if(pMsg)
+		if (pMsg)
 		{
-			if((pMsg->hwnd == m_hWnd) || ::IsChild(m_hWnd, pMsg->hwnd))
+			if ((pMsg->hwnd == m_hWnd) || ::IsChild(m_hWnd, pMsg->hwnd))
 			{
 				// We'll have the Accelerator send the WM_COMMAND to our view
-				if(m_hAccel != NULL && ::TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
+				if (m_hAccel != NULL && ::TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
 				{
 					return TRUE;
 				}
@@ -49,8 +48,9 @@ public:
 	BEGIN_MSG_MAP(thisClass)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		if(uMsg == WM_FORWARDMSG)
-			if(PreTranslateMessage((LPMSG)lParam)) return TRUE;
+		if (uMsg == WM_FORWARDMSG)
+			if (PreTranslateMessage((LPMSG)lParam))
+				return TRUE;
 		CHAIN_MSG_MAP_ALT(CEditCommands<CPlainTextView>, 1)
 
 		DEFAULT_REFLECTION_HANDLER()
@@ -77,9 +77,8 @@ public:
 		return 0;
 	}
 
-// Helpers
+	// Helpers
 protected:
-
 	void InitializeFont(void)
 	{
 		// Set the font of the edit control.
@@ -100,7 +99,7 @@ protected:
 
 		// Tab stops are in dialog units. We'll use a 4 character tab stop
 		int dialogUnitsX = ::MulDiv(4, tm.tmAveCharWidth, LOWORD(GetDialogBaseUnits()));
-		int tabStops = 4*dialogUnitsX;
+		int tabStops = 4 * dialogUnitsX;
 
 		this->SetTabStops(tabStops);
 	}
@@ -110,36 +109,34 @@ protected:
 	{
 		const int cAccel = 13;
 		ACCEL AccelTable[cAccel] = {
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'A',        ID_EDIT_SELECT_ALL},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'X',        ID_EDIT_CUT},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'C',        ID_EDIT_COPY},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'V',        ID_EDIT_PASTE},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'F',        ID_EDIT_FIND},
-			{FVIRTKEY | FNOINVERT,             VK_F3,      ID_EDIT_REPEAT},
-			{FVIRTKEY | FSHIFT | FNOINVERT,    VK_F3,      ID_EDIT_REPEAT},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'H',        ID_EDIT_REPLACE},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'Z',        ID_EDIT_UNDO},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  'Y',        ID_EDIT_REDO},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'A', ID_EDIT_SELECT_ALL},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'X', ID_EDIT_CUT},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'C', ID_EDIT_COPY},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'V', ID_EDIT_PASTE},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'F', ID_EDIT_FIND},
+			{FVIRTKEY | FNOINVERT, VK_F3, ID_EDIT_REPEAT},
+			{FVIRTKEY | FSHIFT | FNOINVERT, VK_F3, ID_EDIT_REPEAT},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'H', ID_EDIT_REPLACE},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'Z', ID_EDIT_UNDO},
+			{FVIRTKEY | FCONTROL | FNOINVERT, 'Y', ID_EDIT_REDO},
 			// Don't do this one, DEL doesn't work right if its in here,
 			// and the delete key works fine without it
 			//{FVIRTKEY | FNOINVERT,             VK_DELETE,  ID_EDIT_CLEAR},
-			{FVIRTKEY | FSHIFT | FNOINVERT,    VK_DELETE,  ID_EDIT_CUT},
-			{FVIRTKEY | FCONTROL | FNOINVERT,  VK_INSERT,  ID_EDIT_COPY},
-			{FVIRTKEY | FSHIFT | FNOINVERT,    VK_INSERT,  ID_EDIT_PASTE}
-		};
+			{FVIRTKEY | FSHIFT | FNOINVERT, VK_DELETE, ID_EDIT_CUT},
+			{FVIRTKEY | FCONTROL | FNOINVERT, VK_INSERT, ID_EDIT_COPY},
+			{FVIRTKEY | FSHIFT | FNOINVERT, VK_INSERT, ID_EDIT_PASTE}};
 
 		m_hAccel = ::CreateAcceleratorTable(AccelTable, cAccel);
 	}
 
 	void DestroyAccelerators(void)
 	{
-		if(m_hAccel)
+		if (m_hAccel)
 		{
 			::DestroyAcceleratorTable(m_hAccel);
 			m_hAccel = NULL;
 		}
 	}
-
 };
 
 
