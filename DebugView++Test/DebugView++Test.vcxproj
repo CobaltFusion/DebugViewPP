@@ -190,7 +190,7 @@
     <ProjectReference Include="..\DebugView++Lib\DebugView++Lib.vcxproj">
       <Project>{5e5b7c33-8076-4e21-adf3-d56c8c28822a}</Project>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
