@@ -672,7 +672,7 @@ bool CSaveModifiedItemsDialog::HideColumn(ColumnIndex column)
 
 LRESULT CSaveModifiedItemsDialog::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	CenterWindow(GetParent());
+	CenterWindow(this->GetParent());
 
 	this->InitializeControls();
 	this->InitializeValues();

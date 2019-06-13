@@ -12,6 +12,7 @@
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Timer.h"
 #include "CobaltFusion/dbgstream.h"
+#include "CobaltFusion/noncopyable.h"
 
 namespace fusion {
 namespace debugviewpp {

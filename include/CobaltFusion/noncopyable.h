@@ -7,10 +7,17 @@
 
 #pragma once
 
-#include <string>
-
 namespace fusion {
 
-std::wstring LoadString(int id);
+class noncopyable
+{
+protected:
+	noncopyable() = default;
+	~noncopyable() = default;
+
+public:
+	noncopyable(const noncopyable&) = delete;
+	noncopyable& operator=(const noncopyable&) = delete;
+};
 
 } // namespace fusion

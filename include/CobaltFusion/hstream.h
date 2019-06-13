@@ -54,16 +54,16 @@ protected:
 
     virtual _int_type underflow() override
 	{
-		if (gptr() < egptr()) // buffer not exhausted
-			return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*gptr());
+		if (this->gptr() < this->egptr()) // buffer not exhausted
+			return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*this->gptr());
 
 		Elem* base = &m_readBuffer.front();
 		Elem* start = base;
 
-		if (eback() == base) // true when this isn't the first fill
+		if (this->eback() == base) // true when this isn't the first fill
 		{
 			// Make arrangements for putback characters
-			std::memmove(base, egptr() - m_put_back, m_put_back);
+			std::memmove(base, this->egptr() - m_put_back, m_put_back);
 			start += m_put_back;
 		}
 
@@ -76,7 +76,7 @@ protected:
 		// Set buffer pointers
 		setg(base, start, start + read/sizeof(Elem));
 
-		return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*gptr());
+		return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*this->gptr());
 	}
 
 private:

@@ -25,6 +25,17 @@ namespace Win32 {
 
 static const int fixedNumberOfSystemPids = 5;
 
+class noncopyable
+{
+protected:
+	noncopyable() = default;
+	~noncopyable() = default;
+
+public:
+	noncopyable(const noncopyable&) = delete;
+	noncopyable& operator=(const noncopyable&) = delete;
+};
+
 struct LocalAllocDeleter
 {
 	typedef HLOCAL pointer;
@@ -119,7 +130,7 @@ private:
 	void* m_ptr;
 };
 
-class GdiObjectSelection : fusion::noncopyable
+class GdiObjectSelection : noncopyable
 {
 public:
 	GdiObjectSelection(HDC hdc, HGDIOBJ hObject);
@@ -130,7 +141,7 @@ private:
 	HGDIOBJ m_hObject;
 };
 
-class ScopedTextColor : fusion::noncopyable
+class ScopedTextColor : noncopyable
 {
 public:
 	ScopedTextColor(HDC hdc, COLORREF color);
@@ -141,7 +152,7 @@ private:
 	COLORREF m_color;
 };
 
-class ScopedBkColor : fusion::noncopyable
+class ScopedBkColor : noncopyable
 {
 public:
 	ScopedBkColor(HDC hdc, COLORREF color);
@@ -152,7 +163,7 @@ private:
 	COLORREF m_color;
 };
 
-class ScopedTextAlign : fusion::noncopyable
+class ScopedTextAlign : noncopyable
 {
 public:
 	ScopedTextAlign(HDC hdc, UINT align);
@@ -245,7 +256,7 @@ WaitResult WaitForAllObjects(const Coll& handles, DWORD milliSeconds)
 
 bool IsProcessRunning(HANDLE handle);
 
-class MutexLock : fusion::noncopyable
+class MutexLock : noncopyable
 {
 public:
 	explicit MutexLock(HANDLE hMutex);
@@ -257,7 +268,7 @@ private:
 	HANDLE m_hMutex;
 };
 
-class MappedViewOfFile : fusion::noncopyable
+class MappedViewOfFile : noncopyable
 {
 public:
 	MappedViewOfFile(HANDLE hFileMappingObject, DWORD access, DWORD offsetHigh, DWORD offsetLow, size_t bytesToMap);
@@ -270,7 +281,7 @@ private:
 	void* m_ptr;
 };
 
-class ScopedCursor : fusion::noncopyable
+class ScopedCursor : noncopyable
 {
 public:
 	explicit ScopedCursor(HCURSOR hCursor);
@@ -291,7 +302,7 @@ std::wstring GetWindowText(HWND hWnd);
 std::wstring GetDlgItemText(HWND hDlg, int idc);
 bool IsGUIThread();
 
-class HFile : fusion::noncopyable
+class HFile : noncopyable
 {
 public:
 	explicit HFile(const std::string& filename);

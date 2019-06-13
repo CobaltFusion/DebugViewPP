@@ -45,11 +45,11 @@ public:
 		//return m_view.PreTranslateMessage(pMsg);
 
 		HWND hWndFocus = ::GetFocus();
-		if (m_hWndActive != NULL && ::IsWindow(m_hWndActive) &&
-			(m_hWndActive == hWndFocus || ::IsChild(m_hWndActive, hWndFocus)))
+		if (this->m_hWndActive != NULL && ::IsWindow(this->m_hWndActive) &&
+			(this->m_hWndActive == hWndFocus || ::IsChild(this->m_hWndActive, hWndFocus)))
 		{
 			//active.PreTranslateMessage(pMsg);
-			if (::SendMessage(m_hWndActive, WM_FORWARDMSG, 0, (LPARAM)pMsg))
+			if (::SendMessage(this->m_hWndActive, WM_FORWARDMSG, 0, (LPARAM)pMsg))
 			{
 				return TRUE;
 			}
@@ -141,7 +141,7 @@ public:
 
 				//returnValue = ownerTabBox->PinBtnPress(false);
 			}
-			else //if(dockwins::CDockingBox::IsWindowBox(m_hWnd))
+			else //if(dockwins::CDockingBox::IsWindowBox(this->m_hWnd))
 			{
 				// The pane window is docked, not auto-hidden already and *not* in a tab box.
 				// Auto-hide just the pane window.
@@ -151,7 +151,7 @@ public:
 				//btnPress.hdr.hBar = hWndDockingBox;
 				//btnPress.hdr.code = DC_PINBTNPRESS;
 				//btnPress.bVisualize = FALSE;
-				//::SendMessage(m_hWnd, WMDF_DOCK, 0, (WPARAM)&btnPress);
+				//::SendMessage(this->m_hWnd, WMDF_DOCK, 0, (WPARAM)&btnPress);
 				returnValue = this->PinBtnPress(false);
 			}
 		}
@@ -162,18 +162,18 @@ public:
 	{
 		m_hWndClient = hWndClient;
 
-		if (m_hWndClient && ::IsWindow(m_hWndClient) &&
-			m_hWnd && ::IsWindow(m_hWnd))
+		if (this->m_hWndClient && ::IsWindow(this->m_hWndClient) &&
+			m_hWnd && ::IsWindow(this->m_hWnd))
 		{
 			// Set our small icon to the small icon of the client
-			HICON hIcon = (HICON)::SendMessage(m_hWndClient, WM_GETICON, ICON_SMALL, 0L);
+			HICON hIcon = (HICON)::SendMessage(this->m_hWndClient, WM_GETICON, ICON_SMALL, 0L);
 			if (hIcon == NULL)
 			{
 // need conditional code because types don't match in winuser.h
 #ifdef _WIN64
-				hIcon = (HICON)::GetClassLongPtr(m_hWndClient, GCLP_HICONSM);
+				hIcon = (HICON)::GetClassLongPtr(this->m_hWndClient, GCLP_HICONSM);
 #else
-				hIcon = (HICON)LongToHandle(::GetClassLongPtr(m_hWndClient, GCLP_HICONSM));
+				hIcon = (HICON)LongToHandle(::GetClassLongPtr(this->m_hWndClient, GCLP_HICONSM));
 #endif
 			}
 			if (hIcon)
@@ -183,9 +183,9 @@ public:
 
 			if (m_bClientFlatOutline)
 			{
-				DWORD dwExStyle = (DWORD)::GetWindowLong(m_hWndClient, GWL_EXSTYLE);
+				DWORD dwExStyle = (DWORD)::GetWindowLong(this->m_hWndClient, GWL_EXSTYLE);
 				dwExStyle &= ~(WS_EX_CLIENTEDGE);
-				::SetWindowLong(m_hWndClient, GWL_EXSTYLE, dwExStyle);
+				::SetWindowLong(this->m_hWndClient, GWL_EXSTYLE, dwExStyle);
 			}
 
 			// Resize the client to fill our client area
@@ -194,13 +194,13 @@ public:
 
 			if (m_bClientFlatOutline)
 			{
-				::SetWindowPos(m_hWndClient, NULL, rect.left + 1, rect.top + 1,
+				::SetWindowPos(this->m_hWndClient, NULL, rect.left + 1, rect.top + 1,
 					rect.right - rect.left - 2, rect.bottom - rect.top - 2,
 					SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 			}
 			else
 			{
-				::SetWindowPos(m_hWndClient, NULL, rect.left, rect.top,
+				::SetWindowPos(this->m_hWndClient, NULL, rect.left, rect.top,
 					rect.right - rect.left, rect.bottom - rect.top,
 					SWP_NOZORDER | SWP_NOACTIVATE);
 			}
@@ -226,7 +226,7 @@ public:
 	{
 		if (m_bClientFlatOutline != bFlat)
 		{
-			ATLASSERT((m_hWndClient == NULL) && "Please call SetClientFlatOutline before setting client");
+			ATLASSERT((this->m_hWndClient == NULL) && "Please call SetClientFlatOutline before setting client");
 			m_bClientFlatOutline = bFlat;
 		}
 	}
@@ -298,11 +298,11 @@ public:
 		//return m_view.PreTranslateMessage(pMsg);
 
 		HWND hWndFocus = ::GetFocus();
-		if (m_hWndClient != NULL && ::IsWindow(m_hWndClient) &&
-			(m_hWndClient == hWndFocus || ::IsChild(m_hWndClient, hWndFocus)))
+		if (this->m_hWndClient != NULL && ::IsWindow(this->m_hWndClient) &&
+			(this->m_hWndClient == hWndFocus || ::IsChild(this->m_hWndClient, hWndFocus)))
 		{
 			//active.PreTranslateMessage(pMsg);
-			if (::SendMessage(m_hWndClient, WM_FORWARDMSG, 0, (LPARAM)pMsg))
+			if (::SendMessage(this->m_hWndClient, WM_FORWARDMSG, 0, (LPARAM)pMsg))
 			{
 				return TRUE;
 			}
@@ -351,11 +351,11 @@ public:
 
 		// What we might do if WM_CLOSE didn't mean "hide"
 		/*
-		if(m_hWndClient != NULL)
+		if(this->m_hWndClient != NULL)
 		{
-			if(::IsWindow(m_hWndClient))
+			if(::IsWindow(this->m_hWndClient))
 			{
-				LRESULT lResult = ::SendMessage(m_hWndClient, WM_CLOSE, 0, 0L);
+				LRESULT lResult = ::SendMessage(this->m_hWndClient, WM_CLOSE, 0, 0L);
 				if(lResult)
 				{
 					// If the client doesn't want to close,
@@ -389,20 +389,20 @@ public:
 		if (wParam != SIZE_MINIMIZED)
 		{
 			// resize client window
-			if (m_hWndClient != NULL)
+			if (this->m_hWndClient != NULL)
 			{
 				RECT rect;
 				this->GetClientRect(&rect);
 
 				if (m_bClientFlatOutline)
 				{
-					::SetWindowPos(m_hWndClient, NULL, rect.left + 1, rect.top + 1,
+					::SetWindowPos(this->m_hWndClient, NULL, rect.left + 1, rect.top + 1,
 						rect.right - rect.left - 2, rect.bottom - rect.top - 2,
 						SWP_NOZORDER | SWP_NOACTIVATE);
 				}
 				else
 				{
-					::SetWindowPos(m_hWndClient, NULL, rect.left, rect.top,
+					::SetWindowPos(this->m_hWndClient, NULL, rect.left, rect.top,
 						rect.right - rect.left, rect.bottom - rect.top,
 						SWP_NOZORDER | SWP_NOACTIVATE);
 				}
@@ -414,7 +414,7 @@ public:
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if (m_hWndClient != NULL)
+		if (this->m_hWndClient != NULL)
 		{
 			if (m_bClientFlatOutline)
 			{
@@ -450,8 +450,8 @@ public:
 
 	LRESULT OnSetFocus(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
-		if (m_hWndClient != NULL && ::IsWindowVisible(m_hWndClient))
-			::SetFocus(m_hWndClient);
+		if (this->m_hWndClient != NULL && ::IsWindowVisible(this->m_hWndClient))
+			::SetFocus(this->m_hWndClient);
 
 		bHandled = FALSE;
 		return 1;

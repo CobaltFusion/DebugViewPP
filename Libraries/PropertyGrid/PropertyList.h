@@ -281,7 +281,7 @@ public:
 		ATLASSERT(prop);
 		if (prop == NULL)
 			return NULL;
-		prop->SetOwner(m_hWnd, NULL);
+		prop->SetOwner(this->m_hWnd, NULL);
 		int nItem = TBase::AddString(prop->GetName());
 		if (nItem == LB_ERR)
 			return NULL;
@@ -470,8 +470,8 @@ public:
 		if (pCategory->Expand(FindProperty(prop)))
 		{
 			// Let owner know
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_EXPANDING, prop};
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_EXPANDING, prop};
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		return TRUE;
 	}
@@ -491,8 +491,8 @@ public:
 		if (pCategory->Collapse(FindProperty(prop)))
 		{
 			// Let owner know
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_COLLAPSING, prop};
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_COLLAPSING, prop};
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		return TRUE;
 	}
@@ -576,7 +576,7 @@ public:
 		RECT rcValue = {0};
 		_GetInPlaceRect(idx, rcValue);
 		::InflateRect(&rcValue, 0, -1);
-		m_hwndInplace = prop->CreateInplaceControl(m_hWnd, rcValue);
+		m_hwndInplace = prop->CreateInplaceControl(this->m_hWnd, rcValue);
 		if (m_hwndInplace != NULL)
 		{
 			// Activate the new editor window
@@ -818,8 +818,8 @@ public:
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 			ATLASSERT(prop);
 			// Ask owner first
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_CLICK, prop};
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_CLICK, prop};
+			if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
 				// Translate into action
 				if ((m_dwExtStyle & PLS_EX_CATEGORIZED) != 0 && GET_X_LPARAM(lParam) < CATEGORY_INDENT)
@@ -859,8 +859,8 @@ public:
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(idx));
 			ATLASSERT(prop);
 			// Ask owner first
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_DBLCLICK, prop};
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_DBLCLICK, prop};
+			if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
 				// Send DblClick action
 				if (prop->IsEnabled())
@@ -925,7 +925,7 @@ public:
 		if (!m_CategoryFont.IsNull())
 			m_CategoryFont.DeleteObject();
 		LOGFONT lf;
-		HFONT hFont = (HFONT)::SendMessage(GetParent(), WM_GETFONT, 0, 0);
+		HFONT hFont = (HFONT)::SendMessage(this->GetParent(), WM_GETFONT, 0, 0);
 		if (hFont == NULL)
 			hFont = AtlGetDefaultGuiFont();
 		::GetObject(hFont, sizeof(lf), &lf);
@@ -972,15 +972,15 @@ public:
 		if (prop == NULL)
 			return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Set new value
 			if (!prop->SetValue(hWnd))
 				::MessageBeep((UINT)-1);
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 			// Repaint item
 			InvalidateItem(m_iInplaceIndex);
 		}
@@ -1019,8 +1019,8 @@ public:
 		if (prop == NULL || pVariant == NULL)
 			return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Set new value
 			// NOTE: Do not call this from IProperty::SetValue(VARIANT*) = endless loop
@@ -1028,7 +1028,7 @@ public:
 				::MessageBeep((UINT)-1);
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		// Locate the updated property index
 		int idx = FindProperty(prop);
@@ -1080,8 +1080,8 @@ public:
 			}
 		}
 		// Let owner know
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
-		::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
+		::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		// Redraw drag-band
 		if (m_iPrevXGhostBar > 0)
 			_DrawGhostBar(m_iPrevXGhostBar);

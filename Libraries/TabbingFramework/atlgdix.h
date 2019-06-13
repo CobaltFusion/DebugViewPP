@@ -633,13 +633,13 @@ public:
 		if (pRect != NULL)
 			m_rc = *pRect;
 		else
-			m_dc.GetClipBox(&m_rc);
+			m_dc.GetClipBox(&this->m_rc);
 
 		CreateCompatibleDC(m_dc);
-		::LPtoDP(m_dc, (LPPOINT)&m_rc, sizeof(RECT) / sizeof(POINT));
+		::LPtoDP(m_dc, (LPPOINT)&this->m_rc, sizeof(RECT) / sizeof(POINT));
 		m_bitmap.CreateCompatibleBitmap(m_dc, m_rc.right - m_rc.left, m_rc.bottom - m_rc.top);
 		m_hOldBitmap = SelectBitmap(m_bitmap);
-		::DPtoLP(m_dc, (LPPOINT)&m_rc, sizeof(RECT) / sizeof(POINT));
+		::DPtoLP(m_dc, (LPPOINT)&this->m_rc, sizeof(RECT) / sizeof(POINT));
 		SetWindowOrg(m_rc.left, m_rc.top);
 	}
 	~CMemDC()

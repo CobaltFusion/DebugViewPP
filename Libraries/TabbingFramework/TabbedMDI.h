@@ -21,7 +21,7 @@
 //      for the tabs with the HWND of the active child,
 //      etc.  You can use CTabbedMDIClient without using
 //      CTabbedMDIFrameWindowImpl. To do so, simply call
-//      SetTabOwnerParent(m_hWnd) then SubclassWindow(m_hWndMDIClient)
+//      SetTabOwnerParent(this->m_hWnd) then SubclassWindow(this->m_hWndMDIClient)
 //      on a CTabbedMDIClient member variable after calling
 //      CreateMDIClient in your main frame class.
 //   CMDITabOwner -
@@ -395,9 +395,9 @@ public:
 	// Or, after creating the client, call SubclassMDIClient
 	BOOL SubclassMDIClient()
 	{
-		ATLASSERT(m_hWndMDIClient && ::IsWindow(m_hWndMDIClient));
+		ATLASSERT(this->m_hWndMDIClient && ::IsWindow(this->m_hWndMDIClient));
 
-		return m_tabbedClient.SubclassWindow(m_hWndMDIClient);
+		return m_tabbedClient.SubclassWindow(this->m_hWndMDIClient);
 	}
 
 	void SetTabOwnerParent(HWND hWndTabOwnerParent)
@@ -481,7 +481,7 @@ public:
 				RDW_INVALIDATE | RDW_ALLCHILDREN);
 		}
 
-		if (hWnd != NULL && ::IsWindow(m_hWnd) && !::IsChild(hWnd, ::GetFocus()))
+		if (hWnd != NULL && ::IsWindow(this->m_hWnd) && !::IsChild(hWnd, ::GetFocus()))
 			::SetFocus(hWnd);
 
 		return hWnd;
@@ -495,18 +495,18 @@ public:
 
 		if (bUpdateTabText)
 		{
-			::SendMessage(m_hWndMDIClient, UWM_MDICHILDTABTEXTCHANGE, (WPARAM)m_hWnd, (LPARAM)sNewTitle);
+			::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDTABTEXTCHANGE, (WPARAM)m_hWnd, (LPARAM)sNewTitle);
 		}
 	}
 
 	void SetTabText(LPCTSTR sNewTabText)
 	{
-		::SendMessage(m_hWndMDIClient, UWM_MDICHILDTABTEXTCHANGE, (WPARAM)m_hWnd, (LPARAM)sNewTabText);
+		::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDTABTEXTCHANGE, (WPARAM)m_hWnd, (LPARAM)sNewTabText);
 	}
 
 	void SetTabToolTip(LPCTSTR sNewToolTip)
 	{
-		::SendMessage(m_hWndMDIClient, UWM_MDICHILDTABTOOLTIPCHANGE, (WPARAM)m_hWnd, (LPARAM)sNewToolTip);
+		::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDTABTOOLTIPCHANGE, (WPARAM)m_hWnd, (LPARAM)sNewToolTip);
 	}
 
 	// Message Handling
@@ -530,9 +530,9 @@ public:
 		//HWND hWndDeactivating = (HWND)wParam;
 		HWND hWndActivating = (HWND)lParam;
 
-		if (m_hWnd == hWndActivating)
+		if (this->m_hWnd == hWndActivating)
 		{
-			::SendMessage(m_hWndMDIClient, UWM_MDICHILDACTIVATIONCHANGE, (WPARAM)m_hWnd, 0);
+			::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDACTIVATIONCHANGE, (WPARAM)m_hWnd, 0);
 		}
 
 		bHandled = FALSE;
@@ -541,7 +541,7 @@ public:
 
 	LRESULT OnSetText(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		//::SendMessage(m_hWndMDIClient, UWM_MDICHILDTABTEXTCHANGE, (WPARAM)m_hWnd, lParam);
+		//::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDTABTEXTCHANGE, (WPARAM)m_hWnd, lParam);
 
 		bHandled = FALSE;
 		return 0;
@@ -552,12 +552,12 @@ public:
 		if (wParam == SIZE_MAXIMIZED && m_bMaximized == false)
 		{
 			m_bMaximized = true;
-			::SendMessage(m_hWndMDIClient, UWM_MDICHILDMAXIMIZED, (WPARAM)m_hWnd, lParam);
+			::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDMAXIMIZED, (WPARAM)m_hWnd, lParam);
 		}
 		else if (wParam != SIZE_MAXIMIZED && m_bMaximized == true)
 		{
 			m_bMaximized = false;
-			::SendMessage(m_hWndMDIClient, UWM_MDICHILDUNMAXIMIZED, (WPARAM)m_hWnd, lParam);
+			::SendMessage(this->m_hWndMDIClient, UWM_MDICHILDUNMAXIMIZED, (WPARAM)m_hWnd, lParam);
 		}
 
 		bHandled = FALSE;
@@ -572,9 +572,9 @@ public:
 
 		// activate window if necessary
 		HWND hWndActive = this->MDIGetActive();
-		if (m_hWnd != hWndActive)
+		if (this->m_hWnd != hWndActive)
 		{
-			this->MDIActivate(m_hWnd);
+			this->MDIActivate(this->m_hWnd);
 		}
 
 		return lRes;
@@ -582,11 +582,11 @@ public:
 
 	LRESULT OnSetFocus(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		// NOTE: ::IsWindowVisible(m_hWndClient) will be false if
+		// NOTE: ::IsWindowVisible(this->m_hWndClient) will be false if
 		//  the frame is maximized.  So just use "IsWindow" instead.
-		if (m_hWndClient != NULL && ::IsWindow(m_hWndClient))
+		if (this->m_hWndClient != NULL && ::IsWindow(this->m_hWndClient))
 		{
-			::SetFocus(m_hWndClient);
+			::SetFocus(this->m_hWndClient);
 		}
 
 		bHandled = FALSE;
@@ -623,7 +623,7 @@ public:
 		//  0xF000 (which happens to be SC_SIZE) are sent with WM_SYSCOMMAND
 		if (command >= SC_SIZE)
 		{
-			::PostMessage(m_hWnd, WM_SYSCOMMAND, command, 0L);
+			::PostMessage(this->m_hWnd, WM_SYSCOMMAND, command, 0L);
 		}
 		else if (command != 0)
 		{
@@ -698,8 +698,8 @@ public:
 		m_bHideMDITabsWhenMDIChildNotMaximized(FALSE)
 	{
 		ATLASSERT(UWM_MDICHILDACTIVATIONCHANGE != 0 && "The TabbedMDI Messages didn't get registered properly");
-		m_nMinTabCountForVisibleTabs = 1;
-		m_bKeepTabsHidden = (m_nMinTabCountForVisibleTabs > 0);
+		this->m_nMinTabCountForVisibleTabs = 1;
+		this->m_bKeepTabsHidden = (this->m_nMinTabCountForVisibleTabs > 0);
 	}
 
 	// Methods
@@ -737,11 +737,11 @@ public:
 public:
 	void ForceShowMDITabControl()
 	{
-		if (m_hWnd && !this->IsWindowVisible())
+		if (this->m_hWnd && !this->IsWindowVisible())
 		{
 			RECT rcMDIClient;
-			::GetWindowRect(m_hWndMDIClient, &rcMDIClient);
-			::MapWindowPoints(NULL, ::GetParent(m_hWndMDIClient), (LPPOINT)&rcMDIClient, 2);
+			::GetWindowRect(this->m_hWndMDIClient, &rcMDIClient);
+			::MapWindowPoints(NULL, ::GetParent(this->m_hWndMDIClient), (LPPOINT)&rcMDIClient, 2);
 
 			this->ShowWindow(SW_SHOW);
 
@@ -757,7 +757,7 @@ public:
 
 	void ForceHideMDITabControl()
 	{
-		if (m_hWnd && this->IsWindowVisible())
+		if (this->m_hWnd && this->IsWindowVisible())
 		{
 			RECT rcTabs;
 			m_TabCtrl.GetWindowRect(&rcTabs);
@@ -766,8 +766,8 @@ public:
 			this->ShowWindow(SW_HIDE);
 
 			RECT rcMDIClient;
-			::GetWindowRect(m_hWndMDIClient, &rcMDIClient);
-			::MapWindowPoints(NULL, ::GetParent(m_hWndMDIClient), (LPPOINT)&rcMDIClient, 2);
+			::GetWindowRect(this->m_hWndMDIClient, &rcMDIClient);
+			::MapWindowPoints(NULL, ::GetParent(this->m_hWndMDIClient), (LPPOINT)&rcMDIClient, 2);
 
 			// the MDI client resizes and shows our window when
 			//  handling messages related to SetWindowPos
@@ -803,7 +803,7 @@ public:
 		if (m_bHideMDITabsWhenMDIChildNotMaximized)
 		{
 			size_t nTabCount = m_TabCtrl.GetItemCount();
-			if (nTabCount >= m_nMinTabCountForVisibleTabs)
+			if (nTabCount >= this->m_nMinTabCountForVisibleTabs)
 			{
 				T* pT = static_cast<T*>(this);
 				pT->ShowTabControl();
@@ -853,7 +853,7 @@ public:
 			return -1;
 		}
 
-		CreateTabWindow(m_hWnd, rcDefault, m_nTabStyles);
+		CreateTabWindow(this->m_hWnd, rcDefault, m_nTabStyles);
 
 		return 0;
 	}
@@ -910,7 +910,7 @@ public:
 				// if not, pop it up in the top left of the tree view
 				m_TabCtrl.GetItemRect(nIndex, &rect);
 			}
-			::MapWindowPoints(m_hWnd, NULL, (LPPOINT)&rect, 2);
+			::MapWindowPoints(this->m_hWnd, NULL, (LPPOINT)&rect, 2);
 			ptPopup.x = rect.left;
 			ptPopup.y = rect.bottom;
 		}
@@ -1045,7 +1045,7 @@ public:
 				if (pItem->UsingTabView())
 				{
 					HWND hWndNew = pItem->GetTabView();
-					HWND hWndOld = (HWND)::SendMessage(m_hWndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+					HWND hWndOld = (HWND)::SendMessage(this->m_hWndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 					if (hWndNew != hWndOld)
 					{
 						// We don't want any flickering when switching the active child
@@ -1070,10 +1070,10 @@ public:
 						::GetWindowPlacement(hWndOld, &wpOld);
 						if (wpOld.showCmd == SW_SHOWMAXIMIZED)
 						{
-							nResult = ::SendMessage(m_hWndMDIClient, WM_SETREDRAW, FALSE, 0);
+							nResult = ::SendMessage(this->m_hWndMDIClient, WM_SETREDRAW, FALSE, 0);
 						}
 
-						nResult = ::SendMessage(m_hWndMDIClient, WM_MDIACTIVATE, (LPARAM)hWndNew, 0);
+						nResult = ::SendMessage(this->m_hWndMDIClient, WM_MDIACTIVATE, (LPARAM)hWndNew, 0);
 
 						WINDOWPLACEMENT wpNew = {0};
 						wpNew.length = sizeof(WINDOWPLACEMENT);
@@ -1085,8 +1085,8 @@ public:
 
 						if (wpOld.showCmd == SW_SHOWMAXIMIZED)
 						{
-							nResult = ::SendMessage(m_hWndMDIClient, WM_SETREDRAW, TRUE, 0);
-							::RedrawWindow(m_hWndMDIClient, NULL, NULL,
+							nResult = ::SendMessage(this->m_hWndMDIClient, WM_SETREDRAW, TRUE, 0);
+							::RedrawWindow(this->m_hWndMDIClient, NULL, NULL,
 								//A little more forceful if necessary: RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 								RDW_INVALIDATE | RDW_ALLCHILDREN);
 						}
@@ -1130,7 +1130,7 @@ public:
 		T* pT = static_cast<T*>(this);
 		if (m_bHideMDITabsWhenMDIChildNotMaximized && m_hWndMDIClient)
 		{
-			HWND hWndActiveChild = (HWND)::SendMessage(m_hWndMDIClient, WM_MDIGETACTIVE, 0, 0);
+			HWND hWndActiveChild = (HWND)::SendMessage(this->m_hWndMDIClient, WM_MDIGETACTIVE, 0, 0);
 			if (hWndActiveChild && ::IsZoomed(hWndActiveChild))
 			{
 				pT->KeepTabsHidden(false);
@@ -1150,9 +1150,9 @@ public:
 
 	void KeepTabsHidden(bool bKeepTabsHidden = true)
 	{
-		if (m_bKeepTabsHidden != bKeepTabsHidden)
+		if (this->m_bKeepTabsHidden != bKeepTabsHidden)
 		{
-			m_bKeepTabsHidden = bKeepTabsHidden;
+			this->m_bKeepTabsHidden = bKeepTabsHidden;
 
 			// CalcTabAreaHeight will end up doing UpdateLayout and Invalidate
 			T* pT = static_cast<T*>(this);
@@ -1161,7 +1161,7 @@ public:
 			// For MDI tabs, the UpdateLayout done by CalcTabAreaHeight
 			//  is not quite enough to force the tab control to show or hide.
 			//  So we'll force the tab control to be shown or hidden.
-			if (m_bKeepTabsHidden)
+			if (this->m_bKeepTabsHidden)
 			{
 				pT->ForceHideMDITabControl();
 			}
@@ -1174,19 +1174,19 @@ public:
 
 	void SetTabAreaHeight(int nNewTabAreaHeight)
 	{
-		if (m_bKeepTabsHidden)
+		if (this->m_bKeepTabsHidden)
 		{
-			m_nTabAreaHeight = 0;
+			this->m_nTabAreaHeight = 0;
 
 			//T* pT = static_cast<T*>(this);
 			//pT->UpdateLayout();
 			//Invalidate();
 		}
-		else if (m_nTabAreaHeight != nNewTabAreaHeight)
+		else if (this->m_nTabAreaHeight != nNewTabAreaHeight)
 		{
-			int nOldTabAreaHeight = m_nTabAreaHeight;
+			int nOldTabAreaHeight = this->m_nTabAreaHeight;
 
-			m_nTabAreaHeight = nNewTabAreaHeight;
+			this->m_nTabAreaHeight = nNewTabAreaHeight;
 
 			//T* pT = static_cast<T*>(this);
 			//pT->UpdateLayout();
@@ -1195,7 +1195,7 @@ public:
 			if (this->IsWindowVisible() == TRUE)
 			{
 				RECT rcMDIClient;
-				::GetWindowRect(m_hWndMDIClient, &rcMDIClient);
+				::GetWindowRect(this->m_hWndMDIClient, &rcMDIClient);
 				::MapWindowPoints(NULL, this->GetParent(), (LPPOINT)&rcMDIClient, 2);
 
 				// Don't ask me why these two lines are necessary.
@@ -1301,7 +1301,7 @@ public:
 	{
 		if (m_bDrawFlat != bDrawFlat)
 		{
-			//ATLASSERT((m_hWnd==NULL) && "Please call SetDrawFlat before CreateWindow or SubclassWindow");
+			//ATLASSERT((this->m_hWnd==NULL) && "Please call SetDrawFlat before CreateWindow or SubclassWindow");
 			m_bDrawFlat = bDrawFlat;
 			if (m_bDrawFlat)
 			{
@@ -1356,7 +1356,7 @@ public:
 		{
 			// Save all files, but don't ask permission.
 
-			HWND hWndChild = ::GetTopWindow(m_hWnd);
+			HWND hWndChild = ::GetTopWindow(this->m_hWnd);
 			while (hWndChild != NULL)
 			{
 				::SendMessage(hWndChild, UWM_MDICHILDSAVEMODIFIED, 0, 0);
@@ -1388,7 +1388,7 @@ public:
 
 		if (modifiedItems)
 		{
-			HWND hWndChild = ::GetTopWindow(m_hWnd);
+			HWND hWndChild = ::GetTopWindow(this->m_hWnd);
 			while (hWndChild != NULL)
 			{
 				_CSTRING_NS::CString windowText;
@@ -1462,7 +1462,7 @@ public:
 
 	void CloseAll(bool bPreferNoPrompt = false) const
 	{
-		HWND hWndChild = ::GetTopWindow(m_hWnd);
+		HWND hWndChild = ::GetTopWindow(this->m_hWnd);
 		while (hWndChild != NULL)
 		{
 			HWND hWndClose = hWndChild;
@@ -1508,7 +1508,7 @@ protected:
 	{
 		if (!m_MdiTabOwner.IsWindow())
 		{
-			if (m_hWndTabOwnerParent == NULL)
+			if (this->m_hWndTabOwnerParent == NULL)
 			{
 				// If the tab owner's parent is not specified,
 				// have the tabs as a sibling
@@ -1521,7 +1521,7 @@ protected:
 				WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN // start out not visible
 			);
 
-			m_MdiTabOwner.SetMDIClient(m_hWnd);
+			m_MdiTabOwner.SetMDIClient(this->m_hWnd);
 		}
 	}
 
@@ -1898,7 +1898,7 @@ public:
 	{
 		HWND hWndChild = (HWND)wParam;
 
-		if (m_hWndChildMaximized == hWndChild)
+		if (this->m_hWndChildMaximized == hWndChild)
 		{
 			bool bMaxOld = m_bChildMaximized;
 			HICON hIconOld = m_hIconChildMaximized;
@@ -1924,7 +1924,7 @@ public:
 
 		m_bChildMaximized = true;
 
-		if (m_hWndChildMaximized != hWndChild)
+		if (this->m_hWndChildMaximized != hWndChild)
 		{
 			ATL::CWindow wnd = m_hWndChildMaximized = hWndChild;
 			m_hIconChildMaximized = wnd.GetIcon(FALSE);
@@ -1958,7 +1958,7 @@ public:
 	{
 		HWND hWndChild = (HWND)wParam;
 
-		if (m_hWndChildMaximized == hWndChild)
+		if (this->m_hWndChildMaximized == hWndChild)
 		{
 			bool bMaxOld = m_bChildMaximized;
 			HICON hIconOld = m_hIconChildMaximized;
@@ -1986,13 +1986,13 @@ public:
 #endif
 			// assuming we are in a rebar, change our size to accomodate new state
 			// we hope that if we are not in a rebar, nCount will be 0
-			int nCount = (int)::SendMessage(GetParent(), RB_GETBANDCOUNT, 0, 0L);
+			int nCount = (int)::SendMessage(this->GetParent(), RB_GETBANDCOUNT, 0, 0L);
 			int cxDiff = (m_bChildMaximized ? 1 : -1) * (m_cxLeft + m_cxRight);
 			for (int i = 0; i < nCount; i++)
 			{
 #if (_WIN32_IE >= 0x0500)
 				REBARBANDINFO rbi = {sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE | RBBIM_STYLE};
-				::SendMessage(GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
+				::SendMessage(this->GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
 				if (rbi.hwndChild == m_hWnd)
 				{
 					if ((rbi.fStyle & RBBS_USECHEVRON) != 0)
@@ -2000,29 +2000,29 @@ public:
 						rbi.fMask = RBBIM_CHILDSIZE | RBBIM_IDEALSIZE;
 						rbi.cxMinChild += cxDiff;
 						rbi.cxIdeal += cxDiff;
-						::SendMessage(GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
+						::SendMessage(this->GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
 					}
 					break;
 				}
 #elif (_WIN32_IE >= 0x0400)
 				REBARBANDINFO rbi = {sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE};
-				::SendMessage(GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
+				::SendMessage(this->GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
 				if (rbi.hwndChild == m_hWnd)
 				{
 					rbi.fMask = RBBIM_CHILDSIZE | RBBIM_IDEALSIZE;
 					rbi.cxMinChild += cxDiff;
 					rbi.cxIdeal += cxDiff;
-					::SendMessage(GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
+					::SendMessage(this->GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
 					break;
 				}
 #else //(_WIN32_IE < 0x0400)
 				REBARBANDINFO rbi = {sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE};
-				::SendMessage(GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
+				::SendMessage(this->GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
 				if (rbi.hwndChild == m_hWnd)
 				{
 					rbi.fMask = RBBIM_CHILDSIZE;
 					rbi.cxMinChild += cxDiff;
-					::SendMessage(GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
+					::SendMessage(this->GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
 					break;
 				}
 #endif //!(_WIN32_IE >= 0x0500)

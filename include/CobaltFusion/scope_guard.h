@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "noncopyable.h"
+
 namespace fusion {
 
 template <typename F>

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "permissive_fixes.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CDotNetTabCtrl - Tab control derived from CCustomTabCtrl
 //    meant to look like the tabs in VS.Net (MDI tabs,
@@ -142,7 +144,7 @@ public:
 
 	// Message Handling
 public:
-	DECLARE_WND_CLASS_EX(_T("WTL_DotNetTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+	DECLARE_WND_CLASS_EX_WORKAROUND(_T("WTL_DotNetTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
 
 	BEGIN_MSG_MAP(thisClass)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
@@ -160,10 +162,10 @@ public:
 		::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIcon), &lfIcon, 0);
 
 		bool bResetFont = true;
-		if (!m_font.IsNull())
+		if (!this->m_font.IsNull())
 		{
 			LOGFONT lf = {0};
-			if (m_font.GetLogFont(&lf))
+			if (this->m_font.GetLogFont(&lf))
 			{
 				if (lstrcmpi(lf.lfFaceName, lfIcon.lfFaceName) == 0 &&
 					lf.lfHeight == lfIcon.lfHeight)
@@ -175,15 +177,15 @@ public:
 
 		if (bResetFont)
 		{
-			if (!m_font.IsNull())
-				m_font.DeleteObject();
-			if (!m_fontSel.IsNull())
-				m_fontSel.DeleteObject();
+			if (!this->m_font.IsNull())
+				this->m_font.DeleteObject();
+			if (!this->m_fontSel.IsNull())
+				this->m_fontSel.DeleteObject();
 
-			HFONT font = m_font.CreateFontIndirect(&lfIcon);
+			HFONT font = this->m_font.CreateFontIndirect(&lfIcon);
 			if (font == NULL)
 			{
-				m_font.Attach(AtlGetDefaultGuiFont());
+				this->m_font.Attach(AtlGetDefaultGuiFont());
 			}
 
 			if (CTCS_BOLDSELECTEDTAB == (dwStyle & CTCS_BOLDSELECTEDTAB))
@@ -191,10 +193,10 @@ public:
 				lfIcon.lfWeight = FW_BOLD;
 			}
 
-			font = m_fontSel.CreateFontIndirect(&lfIcon);
+			font = this->m_fontSel.CreateFontIndirect(&lfIcon);
 			if (font == NULL)
 			{
-				m_fontSel.Attach(AtlGetDefaultGuiFont());
+				this->m_fontSel.Attach(AtlGetDefaultGuiFont());
 			}
 		}
 
@@ -287,10 +289,10 @@ public:
 			m_clrTextInactiveTab = ::GetSysColor(COLOR_GRAYTEXT);
 		}
 
-		m_settings.iIndent = 5;
-		m_settings.iPadding = 4;
-		m_settings.iMargin = 3;
-		m_settings.iSelMargin = 3;
+		this->m_settings.iIndent = 5;
+		this->m_settings.iPadding = 4;
+		this->m_settings.iMargin = 3;
+		this->m_settings.iSelMargin = 3;
 
 		int nHeightLogicalUnits = -lfIcon.lfHeight;
 		// In MSDN for "LOGFONT", they give the following formula for calculating
@@ -320,9 +322,9 @@ public:
 		RECT rcClip = {0};
 		dc.GetClipBox(&rcClip);
 
-		if (::EqualRect(&rcClip, &m_rcCloseButton) ||
-			::EqualRect(&rcClip, &m_rcScrollRight) ||
-			::EqualRect(&rcClip, &m_rcScrollLeft))
+		if (::EqualRect(&rcClip, &this->m_rcCloseButton) ||
+			::EqualRect(&rcClip, &this->m_rcScrollRight) ||
+			::EqualRect(&rcClip, &this->m_rcScrollLeft))
 		{
 			// Paint needed in only "other button" area
 
@@ -492,14 +494,14 @@ public:
 			if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
 			{
 				RECT rcHighlight = {rcTab.left + 1, rcTab.top + 3, rcTab.right - 2, rcTab.bottom - 1};
-				if (nItem - 1 == m_iCurSel)
+				if (nItem - 1 == this->m_iCurSel)
 					rcHighlight.left += 1; // Item to the right of the selected tab
 				dc.FillSolidRect(&rcHighlight, lpNMCustomDraw->clrHighlight);
 			}
 			else
 			{
 				RECT rcHighlight = {rcTab.left + 1, rcTab.top + 2, rcTab.right - 2, rcTab.bottom - 2};
-				if (nItem - 1 == m_iCurSel)
+				if (nItem - 1 == this->m_iCurSel)
 					rcHighlight.left += 1; // Item to the right of the selected tab
 				dc.FillSolidRect(&rcHighlight, lpNMCustomDraw->clrHighlight);
 			}
@@ -507,7 +509,7 @@ public:
 
 		// Draw division line on right, unless we're the item
 		// on the left of the selected tab
-		if (nItem + 1 == m_iCurSel)
+		if (nItem + 1 == this->m_iCurSel)
 		{
 			// Item just left of selected tab
 		}
@@ -592,19 +594,19 @@ public:
 		//     ----------------------
 
 		//rcText.left += (bSelected ? m_settings.iSelMargin : m_settings.iMargin);
-		rcText.left += m_settings.iMargin;
-		rcText.right -= m_settings.iMargin;
-		if (pItem->UsingImage() && !m_imageList.IsNull())
+		rcText.left += this->m_settings.iMargin;
+		rcText.right -= this->m_settings.iMargin;
+		if (pItem->UsingImage() && !this->m_imageList.IsNull())
 		{
 			// Draw the image.
 			IMAGEINFO ii = {0};
 			int nImageIndex = pItem->GetImageIndex();
-			m_imageList.GetImageInfo(nImageIndex, &ii);
+			this->m_imageList.GetImageInfo(nImageIndex, &ii);
 
 			if ((ii.rcImage.right - ii.rcImage.left) < (rcTab.right - rcTab.left))
 			{
 				int nImageHalfHeight = (ii.rcImage.bottom - ii.rcImage.top) / 2;
-				m_imageList.Draw(dc, nImageIndex, rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset, ILD_NORMAL);
+				this->m_imageList.Draw(dc, nImageIndex, rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset, ILD_NORMAL);
 			}
 
 			// Offset on the right of the image.
@@ -613,7 +615,7 @@ public:
 
 		if (rcText.left + m_nMinWidthToDisplayText < rcText.right)
 		{
-			::InflateRect(&rcText, -m_settings.iPadding, 0);
+			::InflateRect(&rcText, -this->m_settings.iPadding, 0);
 
 			_CSTRING_NS::CString sText = pItem->GetText();
 			dc.DrawText(sText, sText.GetLength(), &rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_PATH_ELLIPSIS);
@@ -635,11 +637,11 @@ public:
 		WTL::CPenHandle penOld = dc.SelectPen(penButtons);
 		WTL::CBrushHandle brushOld = dc.SelectBrush(brushArrow);
 
-		RECT rcX = m_rcCloseButton;
+		RECT rcX = this->m_rcCloseButton;
 
-		if (ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown))
+		if (this->ectcMouseDownL_CloseButton == (this->m_dwState & this->ectcMouseDown))
 		{
-			if (ectcMouseOver_CloseButton == (m_dwState & ectcMouseOver))
+			if (this->ectcMouseOver_CloseButton == (this->m_dwState & this->ectcMouseOver))
 			{
 				::OffsetRect(&rcX, 1, 1);
 			}
@@ -657,16 +659,16 @@ public:
 		dc.MoveTo(rcX.left + sp, rcX.bottom - sp - 1);
 		dc.LineTo(rcX.right - sp, rcX.top + sp - 1);
 
-		if (ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown))
+		if (this->ectcMouseDownL_CloseButton == (this->m_dwState & this->ectcMouseDown))
 		{
-			if (ectcMouseOver_CloseButton == (m_dwState & ectcMouseOver))
+			if (this->ectcMouseOver_CloseButton == (this->m_dwState & this->ectcMouseOver))
 			{
-				dc.DrawEdge(&m_rcCloseButton, BDR_SUNKENOUTER, BF_RECT);
+				dc.DrawEdge(&this->m_rcCloseButton, BDR_SUNKENOUTER, BF_RECT);
 			}
 		}
-		else if (ectcHotTrack_CloseButton == (m_dwState & ectcHotTrack))
+		else if (this->ectcHotTrack_CloseButton == (this->m_dwState & this->ectcHotTrack))
 		{
-			dc.DrawEdge(&m_rcCloseButton, BDR_RAISEDINNER, BF_RECT);
+			dc.DrawEdge(&this->m_rcCloseButton, BDR_RAISEDINNER, BF_RECT);
 		}
 
 		dc.SelectBrush(brushOld);
@@ -685,24 +687,24 @@ public:
 		WTL::CPenHandle penOld = dc.SelectPen(penButtons);
 		WTL::CBrushHandle brushOld = dc.SelectBrush(brushArrow);
 
-		RECT rcArrowRight = m_rcScrollRight;
-		RECT rcArrowLeft = m_rcScrollLeft;
+		RECT rcArrowRight = this->m_rcScrollRight;
+		RECT rcArrowLeft = this->m_rcScrollLeft;
 
-		if (ectcMouseDownL_ScrollRight == (m_dwState & ectcMouseDown))
+		if (this->ectcMouseDownL_ScrollRight == (this->m_dwState & this->ectcMouseDown))
 		{
-			if (ectcMouseOver_ScrollRight == (m_dwState & ectcMouseOver))
+			if (this->ectcMouseOver_ScrollRight == (this->m_dwState & this->ectcMouseOver))
 			{
-				if (ectcOverflowRight == (m_dwState & ectcOverflowRight))
+				if (this->ectcOverflowRight == (this->m_dwState & this->ectcOverflowRight))
 				{
 					::OffsetRect(&rcArrowRight, 1, 1);
 				}
 			}
 		}
-		if (ectcMouseDownL_ScrollLeft == (m_dwState & ectcMouseDown))
+		if (this->ectcMouseDownL_ScrollLeft == (this->m_dwState & this->ectcMouseDown))
 		{
-			if (ectcMouseOver_ScrollLeft == (m_dwState & ectcMouseOver))
+			if (this->ectcMouseOver_ScrollLeft == (this->m_dwState & this->ectcMouseOver))
 			{
-				if (ectcOverflowLeft == (m_dwState & ectcOverflowLeft))
+				if (this->ectcOverflowLeft == (this->m_dwState & this->ectcOverflowLeft))
 				{
 					::OffsetRect(&rcArrowLeft, 1, 1);
 				}
@@ -715,9 +717,9 @@ public:
 		POINT ptsArrowRight[] = {
 			{rcArrowRight.left + spRight, rcArrowRight.top + spRight - 2},
 			{rcArrowRight.left + spRight, rcArrowRight.bottom - spRight + 1},
-			{rcArrowRight.right - spRight - 1, (rcArrowRight.bottom + m_rcScrollRight.top) / 2},
+			{rcArrowRight.right - spRight - 1, (rcArrowRight.bottom + this->m_rcScrollRight.top) / 2},
 			{rcArrowRight.left + spRight, rcArrowRight.top + spRight - 2}};
-		if (ectcOverflowRight != (m_dwState & ectcOverflowRight))
+		if (this->ectcOverflowRight != (this->m_dwState & this->ectcOverflowRight))
 		{
 			dc.Polyline(ptsArrowRight, 4);
 		}
@@ -725,25 +727,25 @@ public:
 		{
 			dc.Polygon(ptsArrowRight, 4);
 
-			if (ectcMouseDownL_ScrollRight == (m_dwState & ectcMouseDown))
+			if (this->ectcMouseDownL_ScrollRight == (this->m_dwState & this->ectcMouseDown))
 			{
-				if (ectcMouseOver_ScrollRight == (m_dwState & ectcMouseOver))
+				if (this->ectcMouseOver_ScrollRight == (this->m_dwState & this->ectcMouseOver))
 				{
-					dc.DrawEdge(&m_rcScrollRight, BDR_SUNKENOUTER, BF_RECT);
+					dc.DrawEdge(&this->m_rcScrollRight, BDR_SUNKENOUTER, BF_RECT);
 				}
 			}
-			else if (ectcHotTrack_ScrollRight == (m_dwState & ectcHotTrack))
+			else if (this->ectcHotTrack_ScrollRight == (this->m_dwState & this->ectcHotTrack))
 			{
-				dc.DrawEdge(&m_rcScrollRight, BDR_RAISEDINNER, BF_RECT);
+				dc.DrawEdge(&this->m_rcScrollRight, BDR_RAISEDINNER, BF_RECT);
 			}
 		}
 
 		POINT ptsArrowLeft[] = {
 			{rcArrowLeft.right - spLeft, rcArrowLeft.top + spLeft - 3},
 			{rcArrowLeft.right - spLeft, rcArrowLeft.bottom - spLeft + 2},
-			{rcArrowLeft.left + spLeft - 1, (rcArrowLeft.bottom + m_rcScrollLeft.top) / 2},
+			{rcArrowLeft.left + spLeft - 1, (rcArrowLeft.bottom + this->m_rcScrollLeft.top) / 2},
 			{rcArrowLeft.right - spLeft, rcArrowLeft.top + spLeft - 3}};
-		if (ectcOverflowLeft != (m_dwState & ectcOverflowLeft))
+		if (this->ectcOverflowLeft != (this->m_dwState & this->ectcOverflowLeft))
 		{
 			dc.Polyline(ptsArrowLeft, 4);
 		}
@@ -751,16 +753,16 @@ public:
 		{
 			dc.Polygon(ptsArrowLeft, 4);
 
-			if (ectcMouseDownL_ScrollLeft == (m_dwState & ectcMouseDown))
+			if (this->ectcMouseDownL_ScrollLeft == (this->m_dwState & this->ectcMouseDown))
 			{
-				if (ectcMouseOver_ScrollLeft == (m_dwState & ectcMouseOver))
+				if (this->ectcMouseOver_ScrollLeft == (this->m_dwState & this->ectcMouseOver))
 				{
-					dc.DrawEdge(&m_rcScrollLeft, BDR_SUNKENOUTER, BF_RECT);
+					dc.DrawEdge(&this->m_rcScrollLeft, BDR_SUNKENOUTER, BF_RECT);
 				}
 			}
-			else if (ectcHotTrack_ScrollLeft == (m_dwState & ectcHotTrack))
+			else if (this->ectcHotTrack_ScrollLeft == (this->m_dwState & this->ectcHotTrack))
 			{
-				dc.DrawEdge(&m_rcScrollLeft, BDR_RAISEDINNER, BF_RECT);
+				dc.DrawEdge(&this->m_rcScrollLeft, BDR_RAISEDINNER, BF_RECT);
 			}
 		}
 
@@ -775,7 +777,7 @@ public:
 		//DWORD dwStyle = this->GetStyle();
 
 		lpNMCustomDraw->hFontInactive = m_font;
-		lpNMCustomDraw->hFontSelected = m_fontSel;
+		lpNMCustomDraw->hFontSelected = this->m_fontSel;
 		lpNMCustomDraw->hBrushBackground = m_hbrBackground;
 		lpNMCustomDraw->clrTextSelected = ::GetSysColor(COLOR_BTNTEXT);
 		lpNMCustomDraw->clrTextInactive = m_clrTextInactiveTab;
@@ -910,37 +912,37 @@ public:
 
 		if ((prcTabItemArea->right - prcTabItemArea->left) < nButtonSizeX)
 		{
-			::SetRectEmpty(&m_rcCloseButton);
+			::SetRectEmpty(&this->m_rcCloseButton);
 			return;
 		}
 
-		m_rcCloseButton = *prcTabItemArea;
+		this->m_rcCloseButton = *prcTabItemArea;
 
 		DWORD dwStyle = this->GetStyle();
 
 		if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
 		{
-			m_rcCloseButton.top += 3;
-			m_rcCloseButton.right -= 3;
+			this->m_rcCloseButton.top += 3;
+			this->m_rcCloseButton.right -= 3;
 		}
 		else
 		{
-			m_rcCloseButton.top += 1;
-			m_rcCloseButton.bottom -= 2;
-			m_rcCloseButton.right -= 2;
+			this->m_rcCloseButton.top += 1;
+			this->m_rcCloseButton.bottom -= 2;
+			this->m_rcCloseButton.right -= 2;
 		}
-		m_rcCloseButton.top = (m_rcCloseButton.bottom + m_rcCloseButton.top - nButtonSizeY) / 2;
-		m_rcCloseButton.bottom = m_rcCloseButton.top + nButtonSizeY;
+		this->m_rcCloseButton.top = (this->m_rcCloseButton.bottom + this->m_rcCloseButton.top - nButtonSizeY) / 2;
+		this->m_rcCloseButton.bottom = this->m_rcCloseButton.top + nButtonSizeY;
 
-		m_rcCloseButton.left = m_rcCloseButton.right - (nButtonSizeX);
+		this->m_rcCloseButton.left = this->m_rcCloseButton.right - (nButtonSizeX);
 
-		if (m_tooltip.IsWindow())
+		if (this->m_tooltip.IsWindow())
 		{
-			m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_Close, &m_rcCloseButton);
+			this->m_tooltip.SetToolRect(this->m_hWnd, (UINT)this->ectcToolTip_Close, &this->m_rcCloseButton);
 		}
 
 		// Adjust the tab area
-		prcTabItemArea->right = m_rcCloseButton.left;
+		prcTabItemArea->right = this->m_rcCloseButton.left;
 	}
 
 	void CalcSize_ScrollButtons(LPRECT prcTabItemArea)
@@ -954,8 +956,8 @@ public:
 
 		if ((prcTabItemArea->right - prcTabItemArea->left) < nButtonSizeX)
 		{
-			::SetRectEmpty(&m_rcScrollRight);
-			::SetRectEmpty(&m_rcScrollLeft);
+			::SetRectEmpty(&this->m_rcScrollRight);
+			::SetRectEmpty(&this->m_rcScrollLeft);
 			return;
 		}
 
@@ -983,22 +985,22 @@ public:
 		rcScroll.top = (rcScroll.bottom + rcScroll.top - nButtonSizeY) / 2;
 		rcScroll.bottom = rcScroll.top + nButtonSizeY;
 
-		m_rcScrollRight = rcScroll;
+		this->m_rcScrollRight = rcScroll;
 		m_rcScrollLeft = rcScroll;
 
-		m_rcScrollRight.left = m_rcScrollRight.right - nButtonSizeX;
+		this->m_rcScrollRight.left = this->m_rcScrollRight.right - nButtonSizeX;
 
-		m_rcScrollLeft.right = m_rcScrollRight.left;
-		m_rcScrollLeft.left = m_rcScrollLeft.right - nButtonSizeX;
+		this->m_rcScrollLeft.right = this->m_rcScrollRight.left;
+		this->m_rcScrollLeft.left = this->m_rcScrollLeft.right - nButtonSizeX;
 
-		if (m_tooltip.IsWindow())
+		if (this->m_tooltip.IsWindow())
 		{
-			m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_ScrollRight, &m_rcScrollRight);
-			m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_ScrollLeft, &m_rcScrollLeft);
+			this->m_tooltip.SetToolRect(this->m_hWnd, (UINT)this->ectcToolTip_ScrollRight, &this->m_rcScrollRight);
+			this->m_tooltip.SetToolRect(this->m_hWnd, (UINT)this->ectcToolTip_ScrollLeft, &this->m_rcScrollLeft);
 		}
 
 		// Adjust the tab area
-		prcTabItemArea->right = m_rcScrollLeft.left;
+		prcTabItemArea->right = this->m_rcScrollLeft.left;
 	}
 
 
@@ -1009,9 +1011,9 @@ public:
 
 		//DWORD dwStyle = this->GetStyle();
 
-		WTL::CClientDC dc(m_hWnd);
+		WTL::CClientDC dc(this->m_hWnd);
 		//HFONT hOldFont = dc.SelectFont(lpNMCustomDraw->hFontInactive);
-		HFONT hOldFont = dc.SelectFont(m_font);
+		HFONT hOldFont = dc.SelectFont(this->m_font);
 
 		LONG nTabAreaWidth = (rcTabItemArea.right - rcTabItemArea.left);
 
@@ -1021,28 +1023,28 @@ public:
 		// Recalculate tab positions and widths
 		// See DrawItem_ImageAndText for a discussion of how CDotNetTabCtrlImpl
 		//  interprets margin, padding, etc.
-		size_t nCount = m_Items.GetCount();
-		int xpos = m_settings.iIndent;
+		size_t nCount = this->m_Items.GetCount();
+		int xpos = this->m_settings.iIndent;
 		HFONT hRestoreNormalFont = NULL;
 		for (size_t i = 0; i < nCount; ++i)
 		{
-			bool bSelected = ((int)i == m_iCurSel);
+			bool bSelected = ((int)i == this->m_iCurSel);
 			if (bSelected)
 			{
 				//hRestoreNormalFont = dc.SelectFont(lpNMCustomDraw->hFontSelected);
-				hRestoreNormalFont = dc.SelectFont(m_fontSel);
+				hRestoreNormalFont = dc.SelectFont(this->m_fontSel);
 			}
 
-			TItem* pItem = m_Items[i];
+			TItem* pItem = this->m_Items[i];
 			ATLASSERT(pItem != NULL);
 			rcItem.left = rcItem.right = xpos;
-			//rcItem.right += ((bSelected ? m_settings.iSelMargin : m_settings.iMargin));
-			rcItem.right += m_settings.iMargin;
-			if (pItem->UsingImage() && !m_imageList.IsNull())
+			//rcItem.right += ((bSelected ? this->m_settings.iSelMargin : m_settings.iMargin));
+			rcItem.right += this->m_settings.iMargin;
+			if (pItem->UsingImage() && !this->m_imageList.IsNull())
 			{
 				IMAGEINFO ii = {0};
 				int nImageIndex = pItem->GetImageIndex();
-				m_imageList.GetImageInfo(nImageIndex, &ii);
+				this->m_imageList.GetImageInfo(nImageIndex, &ii);
 				rcItem.right += (ii.rcImage.right - ii.rcImage.left);
 			}
 			if (pItem->UsingText())
@@ -1050,9 +1052,9 @@ public:
 				RECT rcText = {0};
 				_CSTRING_NS::CString sText = pItem->GetText();
 				dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
-				rcItem.right += (rcText.right - rcText.left) + (m_settings.iPadding * 2);
+				rcItem.right += (rcText.right - rcText.left) + (this->m_settings.iPadding * 2);
 			}
-			rcItem.right += m_settings.iMargin;
+			rcItem.right += this->m_settings.iMargin;
 			pItem->SetRect(rcItem);
 			xpos += (rcItem.right - rcItem.left);
 
@@ -1074,9 +1076,9 @@ public:
 				}
 			}
 		}
-		xpos += m_settings.iIndent;
+		xpos += this->m_settings.iIndent;
 
-		if (xpos > nTabAreaWidth && nCount > 0 && m_iCurSel >= 0)
+		if (xpos > nTabAreaWidth && nCount > 0 && this->m_iCurSel >= 0)
 		{
 			// Our desired widths are more than the width of the client area.
 			// We need to have some or all of the tabs give up some real estate
@@ -1084,11 +1086,11 @@ public:
 			// We'll try to let the selected tab have its fully desired width.
 			// If it can't, we'll make all the tabs the same width.
 
-			RECT rcSelected = m_Items[m_iCurSel]->GetRect();
+			RECT rcSelected = this->m_Items[this->m_iCurSel]->GetRect();
 			LONG nSelectedWidth = (rcSelected.right - rcSelected.left);
 
-			long cxClientInactiveTabs = nTabAreaWidth - (m_settings.iIndent * 2) - nSelectedWidth;
-			long cxDesiredInactiveTabs = xpos - (m_settings.iIndent * 2) - nSelectedWidth;
+			long cxClientInactiveTabs = nTabAreaWidth - (this->m_settings.iIndent * 2) - nSelectedWidth;
+			long cxDesiredInactiveTabs = xpos - (this->m_settings.iIndent * 2) - nSelectedWidth;
 
 			double nRatioWithSelectionFullSize = 0.0;
 			if (cxDesiredInactiveTabs != 0)
@@ -1096,7 +1098,7 @@ public:
 				nRatioWithSelectionFullSize = (double)(cxClientInactiveTabs) / (double)(cxDesiredInactiveTabs);
 			}
 
-			long nInactiveSameSizeWidth = (m_nMinWidthToDisplayText + (m_settings.iMargin * 2) + (m_settings.iPadding));
+			long nInactiveSameSizeWidth = (m_nMinWidthToDisplayText + (this->m_settings.iMargin * 2) + (this->m_settings.iPadding));
 
 			if (cxClientInactiveTabs > (nInactiveSameSizeWidth * (long)(nCount - 1)))
 			{
@@ -1105,14 +1107,14 @@ public:
 
 				bool bMakeInactiveSameSize = ((nMinInactiveWidth * nRatioWithSelectionFullSize) < nInactiveSameSizeWidth);
 
-				xpos = m_settings.iIndent;
+				xpos = this->m_settings.iIndent;
 				for (size_t i = 0; i < nCount; ++i)
 				{
-					TItem* pItem = m_Items[i];
+					TItem* pItem = this->m_Items[i];
 					ATLASSERT(pItem != NULL);
 					RECT rcItemDesired = pItem->GetRect();
 					rcItem.left = rcItem.right = xpos;
-					if ((int)i == m_iCurSel)
+					if ((int)i == this->m_iCurSel)
 					{
 						rcItem.right += (rcItemDesired.right - rcItemDesired.left);
 					}
@@ -1134,15 +1136,15 @@ public:
 			else
 			{
 				// We're down pretty small, so just make all the tabs the same width
-				int cxItem = (nTabAreaWidth - (m_settings.iIndent * 2)) / (int)nCount;
+				int cxItem = (nTabAreaWidth - (this->m_settings.iIndent * 2)) / (int)nCount;
 
-				xpos = m_settings.iIndent;
+				xpos = this->m_settings.iIndent;
 
 				for (size_t i = 0; i < nCount; ++i)
 				{
 					rcItem.left = rcItem.right = xpos;
 					rcItem.right += cxItem;
-					m_Items[i]->SetRect(rcItem);
+					this->m_Items[i]->SetRect(rcItem);
 					xpos += (rcItem.right - rcItem.left);
 				}
 			}
@@ -1160,7 +1162,7 @@ public:
 		RECT rcClient;
 		this->GetClientRect(&rcClient);
 
-		WTL::CClientDC dc(m_hWnd);
+		WTL::CClientDC dc(this->m_hWnd);
 		//HFONT hOldFont = dc.SelectFont(lpNMCustomDraw->hFontInactive);
 		HFONT hOldFont = dc.SelectFont(m_font);
 
@@ -1171,27 +1173,27 @@ public:
 		// See DrawItem_ImageAndText for a discussion of how CDotNetTabCtrlImpl
 		//  interprets margin, padding, etc.
 		size_t nCount = m_Items.GetCount();
-		int xpos = m_settings.iIndent;
+		int xpos = this->m_settings.iIndent;
 		HFONT hRestoreNormalFont = NULL;
 		for (size_t i = 0; i < nCount; ++i)
 		{
-			bool bSelected = ((int)i == m_iCurSel);
+			bool bSelected = ((int)i == this->m_iCurSel);
 			if (bSelected)
 			{
 				//hRestoreNormalFont = dc.SelectFont(lpNMCustomDraw->hFontSelected);
-				hRestoreNormalFont = dc.SelectFont(m_fontSel);
+				hRestoreNormalFont = dc.SelectFont(this->m_fontSel);
 			}
 
-			TItem* pItem = m_Items[i];
+			TItem* pItem = this->m_Items[i];
 			ATLASSERT(pItem != NULL);
 			rcItem.left = rcItem.right = xpos;
-			//rcItem.right += ((bSelected ? m_settings.iSelMargin : m_settings.iMargin));
-			rcItem.right += m_settings.iMargin;
-			if (pItem->UsingImage() && !m_imageList.IsNull())
+			//rcItem.right += ((bSelected ? this->m_settings.iSelMargin : m_settings.iMargin));
+			rcItem.right += this->m_settings.iMargin;
+			if (pItem->UsingImage() && !this->m_imageList.IsNull())
 			{
 				IMAGEINFO ii = {0};
 				int nImageIndex = pItem->GetImageIndex();
-				m_imageList.GetImageInfo(nImageIndex, &ii);
+				this->m_imageList.GetImageInfo(nImageIndex, &ii);
 				rcItem.right += (ii.rcImage.right - ii.rcImage.left);
 			}
 			if (pItem->UsingText())
@@ -1199,9 +1201,9 @@ public:
 				RECT rcText = {0};
 				_CSTRING_NS::CString sText = pItem->GetText();
 				dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
-				rcItem.right += (rcText.right - rcText.left) + (m_settings.iPadding * 2);
+				rcItem.right += (rcText.right - rcText.left) + (this->m_settings.iPadding * 2);
 			}
-			rcItem.right += m_settings.iMargin;
+			rcItem.right += this->m_settings.iMargin;
 			pItem->SetRect(rcItem);
 			xpos += (rcItem.right - rcItem.left);
 
@@ -1211,7 +1213,7 @@ public:
 				hRestoreNormalFont = NULL;
 			}
 		}
-		xpos += m_settings.iIndent;
+		xpos += this->m_settings.iIndent;
 
 		// If we've been scrolled to the left, and resize so
 		// there's more client area to the right, adjust the
@@ -1260,8 +1262,8 @@ public:
 	{
 		// We can't use a member initialization list to initialize
 		// members of our base class, so do it explictly by assignment here.
-		m_clrTextInactiveTab = ::GetSysColor(COLOR_BTNTEXT);
-		m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
+		this->m_clrTextInactiveTab = ::GetSysColor(COLOR_BTNTEXT);
+		this->m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
 	}
 
 	// Message Handling
@@ -1284,10 +1286,10 @@ public:
 		::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIcon), &lfIcon, 0);
 
 		bool bResetFont = true;
-		if (!m_font.IsNull())
+		if (!this->m_font.IsNull())
 		{
 			LOGFONT lf = {0};
-			if (m_font.GetLogFont(&lf))
+			if (this->m_font.GetLogFont(&lf))
 			{
 				if (lstrcmpi(lf.lfFaceName, lfIcon.lfFaceName) == 0 &&
 					lf.lfHeight == lfIcon.lfHeight)
@@ -1299,15 +1301,15 @@ public:
 
 		if (bResetFont)
 		{
-			if (!m_font.IsNull())
-				m_font.DeleteObject();
-			if (!m_fontSel.IsNull())
-				m_fontSel.DeleteObject();
+			if (!this->m_font.IsNull())
+				this->m_font.DeleteObject();
+			if (!this->m_fontSel.IsNull())
+				this->m_fontSel.DeleteObject();
 
-			HFONT font = m_font.CreateFontIndirect(&lfIcon);
+			HFONT font = this->m_font.CreateFontIndirect(&lfIcon);
 			if (font == NULL)
 			{
-				m_font.Attach(AtlGetDefaultGuiFont());
+				this->m_font.Attach(AtlGetDefaultGuiFont());
 			}
 
 			if (CTCS_BOLDSELECTEDTAB == (dwStyle & CTCS_BOLDSELECTEDTAB))
@@ -1315,23 +1317,23 @@ public:
 				lfIcon.lfWeight = FW_BOLD;
 			}
 
-			font = m_fontSel.CreateFontIndirect(&lfIcon);
+			font = this->m_fontSel.CreateFontIndirect(&lfIcon);
 			if (font == NULL)
 			{
-				m_fontSel.Attach(AtlGetDefaultGuiFont());
+				this->m_fontSel.Attach(AtlGetDefaultGuiFont());
 			}
 		}
 
 		// Background brush
-		if (!m_hbrBackground.IsNull())
-			m_hbrBackground.DeleteObject();
+		if (!this->m_hbrBackground.IsNull())
+			this->m_hbrBackground.DeleteObject();
 
-		m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
+		this->m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
 
-		m_settings.iIndent = 5;
-		m_settings.iPadding = 4;
-		m_settings.iMargin = 3;
-		m_settings.iSelMargin = 3;
+		this->m_settings.iIndent = 5;
+		this->m_settings.iPadding = 4;
+		this->m_settings.iMargin = 3;
+		this->m_settings.iSelMargin = 3;
 
 		T* pT = static_cast<T*>(this);
 		pT->UpdateLayout();
@@ -1420,7 +1422,7 @@ public:
 	}
 
 public:
-	DECLARE_WND_CLASS_EX(_T("WTL_DotNetButtonTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+	DECLARE_WND_CLASS_EX_WORKAROUND(_T("WTL_DotNetButtonTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
 
 	//We have nothing special to add.
 	//BEGIN_MSG_MAP(thisClass)

@@ -493,7 +493,7 @@ public:
 	// modal dialogs
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow(), LPARAM dwInitParam = NULL)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 
 		T* pT = static_cast<T*>(this);
 		pT->ConstructDialogResource();
@@ -510,14 +510,14 @@ public:
 	}
 	BOOL EndDialog(int nRetCode)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(m_bModal); // must be a modal dialog
-		return ::EndDialog(m_hWnd, nRetCode);
+		return ::EndDialog(this->m_hWnd, nRetCode);
 	}
 	// modeless dialogs
 	HWND Create(HWND hWndParent, LPARAM dwInitParam = NULL)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 
 		T* pT = static_cast<T*>(this);
 		pT->ConstructDialogResource();
@@ -531,7 +531,7 @@ public:
 	//			hWndParent, T::StartDialogProc, dwInitParam);
 		HWND hWnd = ::CreateDialogIndirectParam(_AtlBaseModule.GetResourceInstance(), m_dynamicDialogTemplate,
 			hWndParent, T::StartDialogProc, dwInitParam);
-		ATLASSERT(m_hWnd == hWnd);
+		ATLASSERT(this->m_hWnd == hWnd);
 		return hWnd;
 	}
 	// for CComControl
@@ -541,9 +541,9 @@ public:
 	}
 	BOOL DestroyWindow()
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(!m_bModal); // must not be a modal dialog
-		return ::DestroyWindow(m_hWnd);
+		return ::DestroyWindow(this->m_hWnd);
 	}
 };
 

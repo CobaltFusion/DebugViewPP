@@ -44,8 +44,8 @@ public:
 
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		m_settings.iPadding = 10;
-		m_settings.iMargin = 3;
+		this->m_settings\.iPadding = 10;
+		this->m_settings\.iMargin = 3;
 
 		UpdateLayout();
 		Invalidate();
@@ -55,7 +55,7 @@ public:
 	// Overrides from CCustomTabCtrl
 	void Initialize(void)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(GetStyle() & WS_CHILD);
 		ModifyStyle(0, SS_NOTIFY); // We need this for mouse-clicks
 
@@ -128,24 +128,24 @@ public:
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		// Initialize font
-		if (!m_font.IsNull())
-			m_font.DeleteObject();
+		if (!this->m_font.IsNull())
+			this->m_font.DeleteObject();
 		LOGFONT lf = {0};
 		lf.lfHeight = ::GetSystemMetrics(SM_CYHSCROLL) - CYMARGIN;
 		lf.lfWeight = FW_NORMAL;
 		lf.lfCharSet = DEFAULT_CHARSET;
 		::lstrcpy(lf.lfFaceName, _T("Arial"));
-		m_font.CreateFontIndirect(&lf);
+		this->m_font.CreateFontIndirect(&lf);
 		/*     
       NONCLIENTMETRICS ncm = { 0 };
       ncm.cbSize = sizeof(ncm);
       ::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
       ncm.lfSmCaptionFont.lfWeight = FW_NORMAL;
-      m_font.CreateFontIndirect(&ncm.lfSmCaptionFont);
+      this->m_font.CreateFontIndirect(&ncm.lfSmCaptionFont);
  */
 
-		m_settings.iPadding = CXOFFSET + 3;
-		m_settings.iMargin = -CXOFFSET;
+		this->m_settings\.iPadding = CXOFFSET + 3;
+		this->m_settings\.iMargin = -CXOFFSET;
 
 		UpdateLayout();
 		Invalidate();
@@ -155,7 +155,7 @@ public:
 	// Overrides from CCustomTabCtrl
 	void Initialize(void)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(GetStyle() & WS_CHILD);
 		ModifyStyle(0, SS_NOTIFY); // We need this for mouse-clicks
 
@@ -248,12 +248,12 @@ public:
 
 	CFont m_font; // DDB 2002/04/22: Leave this here even though the
 		//  base class now has CFont m_font, because there's
-		//  a "SetFont(m_fontSel)" that would cause
-		//  m_font and m_fontSel to be m_fontSel.
+		//  a "SetFont(this->m_fontSel)" that would cause
+		//  m_font and this->m_fontSel to be this->m_fontSel.
 		//  Keeping a version in this class here
 		//  will have the base class version
 		//  keep a copy of bold, but not cause
-		//  us to lose m_font.
+		//  us to lose this->m_font.
 	CBrush m_hbrBack;
 
 	BEGIN_MSG_MAP(CSimpleDotNetTabCtrl)
@@ -264,16 +264,16 @@ public:
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		// Initialize font
-		if (!m_font.IsNull())
-			m_font.DeleteObject();
+		if (!this->m_font.IsNull())
+			this->m_font.DeleteObject();
 		NONCLIENTMETRICS ncm = {0};
 		ncm.cbSize = sizeof(ncm);
 		::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
 		ncm.lfSmCaptionFont.lfWeight = FW_NORMAL;
-		m_font.CreateFontIndirect(&ncm.lfSmCaptionFont);
+		this->m_font.CreateFontIndirect(&ncm.lfSmCaptionFont);
 		ncm.lfSmCaptionFont.lfWeight = FW_BOLD;
-		m_fontSel.CreateFontIndirect(&ncm.lfSmCaptionFont);
-		SetFont(m_fontSel); // Bold font scales tabs correctly
+		this->m_fontSel.CreateFontIndirect(&ncm.lfSmCaptionFont);
+		SetFont(this->m_fontSel); // Bold font scales tabs correctly
 
 		// Background brush
 		if (!m_hbrBack.IsNull())
@@ -295,10 +295,10 @@ public:
 			m_hbrBack = CDCHandle::GetHalftoneBrush();
 		}
 
-		m_settings.iIndent = 6;
-		m_settings.iPadding = 0;
-		m_settings.iMargin = 2;
-		m_settings.iSelMargin = 4;
+		this->m_settings\.iIndent = 6;
+		this->m_settings\.iPadding = 0;
+		this->m_settings\.iMargin = 2;
+		this->m_settings\.iSelMargin = 4;
 
 		UpdateLayout();
 		Invalidate();
@@ -308,7 +308,7 @@ public:
 	// Overrides from CCustomTabCtrl
 	void Initialize(void)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(GetStyle() & WS_CHILD);
 		ModifyStyle(0, SS_NOTIFY); // We need this for mouse-clicks
 
@@ -322,7 +322,7 @@ public:
 		lpNMCustomDraw->hFontInactive = m_font;
 		if (CTCS_BOLDSELECTEDTAB == (dwStyle & CTCS_BOLDSELECTEDTAB))
 		{
-			lpNMCustomDraw->hFontSelected = (m_fontSel.IsNull() ? m_font : m_fontSel);
+			lpNMCustomDraw->hFontSelected = (this->m_fontSel.IsNull() ? m_font : this->m_fontSel);
 		}
 		else
 		{
@@ -371,7 +371,7 @@ public:
 
 		// Draw text
 		//HFONT hOldFont = dc.SelectFont(bSelected ? lpNMCustomDraw->hFontSelected : lpNMCustomDraw->hFontInactive);
-		HFONT hOldFont = dc.SelectFont(bSelected ? m_fontSel : m_font);
+		HFONT hOldFont = dc.SelectFont(bSelected ? this->m_fontSel : m_font);
 		RECT rcText = rc;
 		::InflateRect(&rcText, -m_settings.iPadding, 0);
 		rcText.bottom -= 3;

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "permissive_fixes.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CPropertyGrid - A simple grid control
 //
@@ -177,12 +179,13 @@ inline HPROPERTY PropCreateBlockItem(LPCTSTR pstrName, LPARAM lParam = 0)
 /////////////////////////////////////////////////////////////////////////////
 // The Property Grid control
 
+
 template <class T, class TBase = CListViewCtrl, class TWinTraits = CWinTraitsOR<LVS_SINGLESEL | LVS_SHOWSELALWAYS>>
 class ATL_NO_VTABLE CPropertyGridImpl : public CWindowImpl<T, TBase, TWinTraits>,
 										public CCustomDraw<T>
 {
 public:
-	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+	DECLARE_WND_SUPERCLASS_WORKAROUND(NULL, TBase::GetWndClassName())
 
 	CHeaderCtrl m_ctrlHeader;
 	PROPERTYDRAWINFO m_di;
@@ -211,7 +214,7 @@ public:
 
 	BOOL SubclassWindow(HWND hWnd)
 	{
-		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT(this->m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
 		BOOL bRet = CWindowImpl<T, TBase, TWinTraits>::SubclassWindow(hWnd);
 		if (bRet)
@@ -225,7 +228,7 @@ public:
 		if ((m_di.dwExtStyle & PGS_EX_ADDITEMATEND) != 0 && (dwExtStyle & PGS_EX_ADDITEMATEND) == 0)
 		{
 			// Remove AppendAction item
-			DeleteItem(TBase::GetItemCount() - 1);
+			this->DeleteItem(TBase::GetItemCount() - 1);
 		}
 		if ((dwExtStyle & PGS_EX_ADDITEMATEND) != 0 && (m_di.dwExtStyle & PGS_EX_ADDITEMATEND) == 0)
 		{
@@ -235,7 +238,7 @@ public:
 		// Assign new style
 		m_di.dwExtStyle = dwExtStyle;
 		// Recalc colours and fonts
-		SendMessage(WM_SETTINGCHANGE);
+		this->SendMessage(WM_SETTINGCHANGE);
 	}
 
 	DWORD GetExtendedGridStyle() const
@@ -250,9 +253,9 @@ public:
 		_InvalidateItem(m_iSelectedRow, m_iSelectedCol);
 		// Select new item. If on same row then use internal update.
 		m_iSelectedCol = iCol;
-		if (GetSelectedIndex() == m_iSelectedRow && m_iSelectedRow == iRow)
+		if (this->GetSelectedIndex() == m_iSelectedRow && m_iSelectedRow == iRow)
 		{
-			NMLISTVIEW nmlv = {m_hWnd, 0, 0, m_iSelectedRow, m_iSelectedCol, LVIS_SELECTED};
+			NMLISTVIEW nmlv = {this->m_hWnd, 0, 0, m_iSelectedRow, m_iSelectedCol, LVIS_SELECTED};
 			BOOL bDummy = FALSE;
 			OnSelChanged(0, reinterpret_cast<LPNMHDR>(&nmlv), bDummy);
 			return TRUE;
@@ -276,14 +279,14 @@ public:
 		while (count > 0)
 		{
 			--count;
-			DeleteItem(count);
+			this->DeleteItem(count);
 		}
 	}
 
 	int InsertItem(int nItem, HPROPERTY hProp)
 	{
 		// NOTE: This is the only InsertItem() we support...
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		// You must have initialized columns before calling this!
 		// And you are not allowed to add columns once the list is populated!
@@ -305,13 +308,13 @@ public:
 		UINT mask = LVIF_TEXT | LVIF_PARAM;
 		int iItem = TBase::InsertItem(mask, nItem, hProp->GetName(), 0, 0, 0, (LPARAM)props);
 		if (iItem != -1)
-			hProp->SetOwner(m_hWnd, NULL);
+			hProp->SetOwner(this->m_hWnd, NULL);
 		return iItem;
 	}
 
 	BOOL SetSubItem(int nItem, int nSubItem, HPROPERTY hProp)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		ATLASSERT(nSubItem >= 0);
 		ATLASSERT(nSubItem < m_nColumns);
@@ -323,7 +326,7 @@ public:
 		if (nSubItem < 0 || nSubItem >= m_nColumns)
 			return FALSE;
 		props[nSubItem] = hProp;
-		hProp->SetOwner(m_hWnd, NULL);
+		hProp->SetOwner(this->m_hWnd, NULL);
 		// Trick ListView into thinking there is a subitem...
 		return TBase::SetItemText(nItem, nSubItem, _T(""));
 	}
@@ -335,7 +338,7 @@ public:
 
 	BOOL GetItemText(HPROPERTY hProp, LPTSTR pstrText, UINT cchMax) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		ATLASSERT(!::IsBadWritePtr(pstrText, cchMax));
 		if (hProp == NULL || pstrText == NULL)
@@ -345,7 +348,7 @@ public:
 
 	BOOL GetItemValue(HPROPERTY hProp, VARIANT* pValue) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		ATLASSERT(pValue);
 		if (hProp == NULL || pValue == NULL)
@@ -355,7 +358,7 @@ public:
 
 	BOOL SetItemValue(HPROPERTY hProp, VARIANT* pValue)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		ATLASSERT(pValue);
 		if (hProp == NULL || pValue == NULL)
@@ -375,13 +378,13 @@ public:
 
 	int GetSelectedColumn() const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		return m_iSelectedCol;
 	}
 
 	BOOL DeleteColumn(int nCol)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		if (TBase::GetItemCount() == 0)
 		{
 			m_nColumns = 0;
@@ -393,8 +396,8 @@ public:
 
 	BOOL GetColumnCount() const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		return GetHeader().GetItemCount();
+		ATLASSERT(::IsWindow(this->m_hWnd));
+		return this->GetHeader().GetItemCount();
 	}
 
 	BOOL FindProperty(IProperty* prop, int& iItem, int& iSubItem) const
@@ -421,7 +424,7 @@ public:
 			}
 		}
 		// Ok, scan all items...
-		iItem = GetNextItem(-1, LVNI_ALL);
+		iItem = this->GetNextItem(-1, LVNI_ALL);
 		while (iItem != -1)
 		{
 			IProperty** props = reinterpret_cast<IProperty**>(TBase::GetItemData(iItem));
@@ -433,7 +436,7 @@ public:
 					return TRUE;
 				}
 			}
-			iItem = GetNextItem(iItem, LVNI_ALL);
+			iItem = this->GetNextItem(iItem, LVNI_ALL);
 		}
 		return FALSE;
 	}
@@ -458,7 +461,7 @@ public:
 
 	LPARAM GetItemData(HPROPERTY hProp) const
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		if (hProp == NULL)
 			return 0;
@@ -467,7 +470,7 @@ public:
 
 	void SetItemData(HPROPERTY hProp, LPARAM lParam)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		if (hProp == NULL)
 			return;
@@ -484,7 +487,7 @@ public:
 
 	void SetItemEnabled(HPROPERTY hProp, BOOL bEnable)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		ATLASSERT(hProp);
 		if (hProp == NULL)
 			return;
@@ -498,7 +501,7 @@ public:
 
 	void Navigate(UINT wCode)
 	{
-		SendMessage(WM_USER_PROP_NAVIGATE, wCode);
+		this->SendMessage(WM_USER_PROP_NAVIGATE, wCode);
 	}
 
 	// Unsupported methods
@@ -532,16 +535,16 @@ public:
 
 	void _Init()
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(this->m_hWnd));
 		// We need the LVS_SINGLESEL style
-		ATLASSERT((GetStyle() & (LVS_SINGLESEL)) == (LVS_SINGLESEL));
-		ATLASSERT((GetStyle() & (LVS_EDITLABELS | LVS_OWNERDRAWFIXED | LVS_OWNERDATA)) == 0);
+		ATLASSERT((this->GetStyle() & (LVS_SINGLESEL)) == (LVS_SINGLESEL));
+		ATLASSERT((this->GetStyle() & (LVS_EDITLABELS | LVS_OWNERDRAWFIXED | LVS_OWNERDATA)) == 0);
 		// Prepare ListView control
 		TBase::SetViewType(LVS_REPORT);
-		SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
-		m_ctrlHeader = GetHeader();
+		this->SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
+		m_ctrlHeader = this->GetHeader();
 		// Update colours and text
-		SendMessage(WM_SETTINGCHANGE);
+		this->SendMessage(WM_SETTINGCHANGE);
 	}
 
 	BOOL _SpawnInplaceWindow(IProperty* prop, int iItem, int iSubItem)
@@ -552,7 +555,7 @@ public:
 		// Destroy old in-place editor
 		_DestroyInplaceWindow();
 		// Do we need an editor here?
-		if (iItem == -1 || iSubItem == -1 || iItem != GetSelectedIndex())
+		if (iItem == -1 || iSubItem == -1 || iItem != this->GetSelectedIndex())
 			return FALSE;
 		if (!prop->IsEnabled())
 			return FALSE;
@@ -561,7 +564,7 @@ public:
 		_GetSubItemRect(iItem, iSubItem, &rcValue);
 		rcValue.right--; // Let the borders
 		rcValue.bottom--; // ... display (right/bottom)
-		m_hwndInplace = prop->CreateInplaceControl(m_hWnd, rcValue);
+		m_hwndInplace = prop->CreateInplaceControl(this->m_hWnd, rcValue);
 		if (m_hwndInplace)
 		{
 			// Activate the new editor window
@@ -585,8 +588,8 @@ public:
 			BYTE bKind = prop->GetKind();
 			// Remember who the inplace was before we proceed
 			HWND hwndInplace = m_hwndInplace;
-			if (::GetFocus() != m_hWnd && IsChild(::GetFocus()))
-				SetFocus(); // G-J: Property update on focus change
+			if (::GetFocus() != this->m_hWnd && this->IsChild(::GetFocus()))
+				this->SetFocus(); // G-J: Property update on focus change
 			m_hwndInplace = NULL;
 			m_iInplaceRow = -1;
 			m_iInplaceCol = -1;
@@ -615,25 +618,25 @@ public:
 
 	void _GetSubItem0Rect(int iItem, RECT* pRect) const
 	{
-		GetItemRect(iItem, pRect, LVIR_BOUNDS);
-		int count = GetHeader().GetItemCount();
+		this->GetItemRect(iItem, pRect, LVIR_BOUNDS);
+		int count = this->GetHeader().GetItemCount();
 		ATLASSERT(count < 100);
 		int order[100];
-		GetColumnOrderArray(count, order);
+		this->GetColumnOrderArray(count, order);
 		for (int i = 0; i < count && order[i] != 0; ++i)
 		{
 			RECT rect;
-			GetSubItemRect(iItem, order[i], LVIR_BOUNDS, &rect);
+			this->GetSubItemRect(iItem, order[i], LVIR_BOUNDS, &rect);
 			pRect->left = std::max(pRect->left, rect.right);
 		}
-		pRect->right = pRect->left + GetColumnWidth(0);
+		pRect->right = pRect->left + this->GetColumnWidth(0);
 	}
 
 	void _GetSubItemRect(int iItem, int iSubItem, RECT* pRect) const
 	{
 		if (iSubItem == 0 && _IsAppendActionItem(iItem))
 		{
-			GetItemRect(iItem, pRect, LVIR_BOUNDS);
+			this->GetItemRect(iItem, pRect, LVIR_BOUNDS);
 		}
 		else if (iSubItem == 0)
 		{
@@ -649,7 +652,7 @@ public:
 		}
 		else
 		{
-			GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS, pRect);
+			this->GetSubItemRect(iItem, iSubItem, LVIR_BOUNDS, pRect);
 		}
 	}
 
@@ -659,12 +662,12 @@ public:
 			return;
 		RECT rc = {0};
 		_GetSubItemRect(iItem, iSubItem, &rc);
-		InvalidateRect(&rc);
+		this->InvalidateRect(&rc);
 	}
 
 	bool _IsValidSelection() const
 	{
-		ATLASSERT(m_iSelectedRow == GetSelectedIndex()); // Should always be in sync!
+		ATLASSERT(m_iSelectedRow == this->GetSelectedIndex()); // Should always be in sync!
 		return (m_iSelectedRow != -1) && (m_iSelectedCol != -1);
 	}
 
@@ -711,7 +714,7 @@ public:
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		LRESULT lRes = DefWindowProc();
+		LRESULT lRes = this->DefWindowProc();
 		_Init();
 		return lRes;
 	}
@@ -753,8 +756,8 @@ public:
 		LVHITTESTINFO hti = {0};
 		DWORD dwPos = ::GetMessagePos();
 		POINTSTOPOINT(hti.pt, dwPos);
-		ScreenToClient(&hti.pt);
-		int iItem = SubItemHitTest(&hti);
+		this->ScreenToClient(&hti.pt);
+		int iItem = this->SubItemHitTest(&hti);
 		int iOldRow = m_iSelectedRow;
 		int iOldColumn = m_iSelectedCol;
 
@@ -767,7 +770,7 @@ public:
 
 		// Let control process WM_LBUTTONDOWN event!
 		// This may cause LVN_ITEMCHANGED to fire...
-		LRESULT lRes = DefWindowProc();
+		LRESULT lRes = this->DefWindowProc();
 
 		// Check if we've changed selection.
 		// We delayed this to now, because we need to check
@@ -783,8 +786,8 @@ public:
 				return 0;
 
 			// Ask owner first
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_CLICK, prop};
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_CLICK, prop};
+			if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
 				// Property is allowed to react on click event
 				LPARAM lParam = ::GetMessagePos();
@@ -800,8 +803,8 @@ public:
 					if ((iOldRow == m_iSelectedRow) && (iOldColumn != m_iSelectedCol))
 					{
 						// Let owner know
-						NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
-						::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+						NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_SELCHANGED, prop};
+						::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 					}
 
 					// Recycle in-place editor...
@@ -837,8 +840,8 @@ public:
 			_InvalidateItem(m_iSelectedRow, m_iSelectedCol);
 			m_iSelectedRow = m_iSelectedCol = -1;
 			// Let owner know
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, NULL};
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_SELCHANGED, NULL};
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		return lRes;
 	}
@@ -865,16 +868,16 @@ public:
 		case VK_TAB:
 			if ((m_di.dwExtStyle & PGS_EX_TABNAVIGATION) != 0)
 			{
-				SendMessage(WM_USER_PROP_NAVIGATE, VK_TAB);
+				this->SendMessage(WM_USER_PROP_NAVIGATE, VK_TAB);
 			}
 			else
 			{
-				::PostMessage(GetParent(), WM_NEXTDLGCTL, ::GetKeyState(VK_SHIFT) < 0 ? 1 : 0, (LPARAM)FALSE);
+				::PostMessage(this->GetParent(), WM_NEXTDLGCTL, ::GetKeyState(VK_SHIFT) < 0 ? 1 : 0, (LPARAM)FALSE);
 			}
 			return 0;
 		case VK_LEFT:
 		case VK_RIGHT:
-			SendMessage(WM_USER_PROP_NAVIGATE, wParam);
+			this->SendMessage(WM_USER_PROP_NAVIGATE, wParam);
 			return 0;
 		case VK_DELETE:
 			if (_IsValidSelection())
@@ -928,7 +931,7 @@ public:
 
 	LRESULT OnGetDlgCode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		return DefWindowProc() | DLGC_WANTALLKEYS;
+		return this->DefWindowProc() | DLGC_WANTALLKEYS;
 	}
 
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -951,21 +954,21 @@ public:
 		if (!m_CategoryFont.IsNull())
 			m_CategoryFont.DeleteObject();
 		LOGFONT lf = {0};
-		HFONT hFont = (HFONT)::SendMessage(GetParent(), WM_GETFONT, 0, 0);
+		HFONT hFont = (HFONT)::SendMessage(this->GetParent(), WM_GETFONT, 0, 0);
 		if (hFont == NULL)
 			hFont = AtlGetDefaultGuiFont();
 		::GetObject(hFont, sizeof(lf), &lf);
 		m_di.TextFont = m_TextFont.CreateFontIndirect(&lf);
-		SetFont(m_di.TextFont);
+		this->SetFont(m_di.TextFont);
 		lf.lfWeight += FW_BOLD;
 		m_di.CategoryFont = m_CategoryFont.CreateFontIndirect(&lf);
 		// Text metrics
-		CClientDC dc(m_hWnd);
+		CClientDC dc(this->m_hWnd);
 		HFONT hOldFont = dc.SelectFont(m_di.TextFont);
 		dc.GetTextMetrics(&m_di.tmText);
 		dc.SelectFont(hOldFont);
 		// Repaint
-		Invalidate();
+		this->Invalidate();
 		return 0;
 	}
 
@@ -990,8 +993,8 @@ public:
 			// Let owner know
 			IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
 			ATLASSERT(prop);
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_SELCHANGED, prop};
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		bHandled = FALSE;
 		return 0;
@@ -1017,10 +1020,10 @@ public:
 
 	int GetColumnLeftOf(int column) const
 	{
-		int count = GetHeader().GetItemCount();
+		int count = this->GetHeader().GetItemCount();
 		ATLASSERT(count < 100);
 		int order[100];
-		GetColumnOrderArray(count, order);
+		this->GetColumnOrderArray(count, order);
 		for (int i = 1; i < count; ++i)
 		{
 			if (order[i] == column)
@@ -1031,10 +1034,10 @@ public:
 
 	int GetColumnRightOf(int column) const
 	{
-		int count = GetHeader().GetItemCount();
+		int count = this->GetHeader().GetItemCount();
 		ATLASSERT(count < 100);
 		int order[100];
-		GetColumnOrderArray(count, order);
+		this->GetColumnOrderArray(count, order);
 		for (int i = 0; i < count - 1; ++i)
 		{
 			if (order[i] == column)
@@ -1054,7 +1057,7 @@ public:
 		switch (wParam)
 		{
 		case VK_TAB:
-			SendMessage(WM_USER_PROP_NAVIGATE, VK_RIGHT);
+			this->SendMessage(WM_USER_PROP_NAVIGATE, VK_RIGHT);
 			break;
 		case VK_LEFT:
 			if (_IsAppendActionItem(m_iSelectedRow))
@@ -1070,8 +1073,8 @@ public:
 				// Let owner know
 				IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
 				ATLASSERT(prop);
-				NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
-				::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+				NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_SELCHANGED, prop};
+				::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 				// Repaint new item
 				_InvalidateItem(m_iSelectedRow, m_iSelectedCol);
 			}
@@ -1090,8 +1093,8 @@ public:
 				// Let owner know
 				IProperty* prop = GetProperty(m_iSelectedRow, m_iSelectedCol);
 				ATLASSERT(prop);
-				NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
-				::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+				NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_SELCHANGED, prop};
+				::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 				// Repaint new item
 				_InvalidateItem(m_iSelectedRow, m_iSelectedCol);
 			}
@@ -1123,8 +1126,8 @@ public:
 		if (prop == NULL)
 			return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Commit change
 			if (!prop->SetValue(hWnd))
@@ -1134,7 +1137,7 @@ public:
 			}
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 			// Repaint item
 			_InvalidateItem(m_iInplaceRow, m_iInplaceCol);
 		}
@@ -1179,8 +1182,8 @@ public:
 		if (prop == NULL || pVariant == NULL)
 			return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, this->GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Set new value.
 			// NOTE: Do not call this from IProperty::SetValue(VARIANT*) = endless loop
@@ -1191,7 +1194,7 @@ public:
 			}
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		// Locate the updated list item
 		int iItem = -1, iSubItem = -1;
@@ -1215,8 +1218,8 @@ public:
 		if ((m_di.dwExtStyle & PGS_EX_ADDITEMATEND) != 0)
 		{
 			RECT rcItem = {0};
-			GetItemRect(GetItemCount(), &rcItem, LVIR_BOUNDS);
-			InvalidateRect(&rcItem, FALSE);
+			this->GetItemRect(GetItemCount(), &rcItem, LVIR_BOUNDS);
+			this->InvalidateRect(&rcItem, FALSE);
 		}
 		// Destroy in-place window before dragging header control
 		_DestroyInplaceWindow();
@@ -1304,7 +1307,7 @@ public:
 
 		// A disabled ListView control is painted grey on Win2000
 		// but the text remains black...
-		DWORD dwStyle = GetStyle();
+		DWORD dwStyle = this->GetStyle();
 		if ((dwStyle & WS_DISABLED) != 0)
 			di.clrBack = di.clrDisabledBack;
 
@@ -1329,13 +1332,13 @@ public:
 		}
 
 		// Paint focus rectangle
-		if ((::GetFocus() == m_hWnd && (iState & CDIS_FOCUS) != 0) || (dwStyle & LVS_SHOWSELALWAYS) != 0)
+		if ((::GetFocus() == this->m_hWnd && (iState & CDIS_FOCUS) != 0) || (dwStyle & LVS_SHOWSELALWAYS) != 0)
 		{
 			if ((iItem == m_iSelectedRow) && (iSubItem == m_iSelectedCol || bIsAppendActionItem))
 			{
 				if (iItem != m_iInplaceRow && iSubItem != m_iInplaceCol)
 				{
-					if ((GetExtendedListViewStyle() & LVS_EX_GRIDLINES) != 0)
+					if ((this->GetExtendedListViewStyle() & LVS_EX_GRIDLINES) != 0)
 					{
 						rc.left++;
 						rc.right--;
