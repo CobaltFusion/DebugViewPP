@@ -8,21 +8,15 @@
 #pragma once
 
 #define NOMINMAX
-
-// Change these values to use different versions
-#define WINVER		    0x0600
-#define _WIN32_WINNT    0x0600
-#define _WIN32_IE	    0x0603
-#define _RICHEDIT_VER	0x0300
-
-#define _WTL_NO_CSTRING
+#define WIN32_LEAN_AND_MEAN
 #define _CRT_NON_CONFORMING_SWPRINTFS
 #define _CRT_SECURE_NO_WARNINGS
+#define _WTL_NO_CSTRING
+
+#include "targetver.h"
 
 #include <cstdint>
 #include <algorithm>
-using std::min;
-using std::max;
 
 #include <boost/asio.hpp> // must be included _before_ windows.h
 #include "windows.h"
