@@ -125,7 +125,7 @@ public:
 		m_list.AddItem(PropCreateSimple(_T("Enabled"), false));
 		m_list.AddItem(PropCreateFileName(_T("Picture"), _T("C:\\Temp\\Test.bmp")));
 
-		m_color.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_BORDER);
+		m_color.Create(this->m_hWnd, rcDefault, NULL, WS_CHILD | WS_BORDER);
 		m_color.SetParent(NULL);
 		m_color.AddColor(0, RGB(255, 255, 255));
 		m_color.AddColor(1, RGB(255, 0, 0));

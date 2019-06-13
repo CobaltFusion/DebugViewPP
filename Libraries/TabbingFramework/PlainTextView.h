@@ -33,10 +33,10 @@ public:
 	{
 		if (pMsg)
 		{
-			if ((pMsg->hwnd == m_hWnd) || ::IsChild(m_hWnd, pMsg->hwnd))
+			if ((pMsg->hwnd == this->m_hWnd) || ::IsChild(this->m_hWnd, pMsg->hwnd))
 			{
 				// We'll have the Accelerator send the WM_COMMAND to our view
-				if (m_hAccel != NULL && ::TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
+				if (m_hAccel != NULL && ::TranslateAccelerator(this->m_hWnd, this->m_hAccel, pMsg))
 				{
 					return TRUE;
 				}
@@ -83,11 +83,11 @@ protected:
 	{
 		// Set the font of the edit control.
 		CLogFont logFont;
-		CClientDC dc(m_hWnd);
+		CClientDC dc(this->m_hWnd);
 		logFont.SetHeight(8, dc);
 		::lstrcpy(logFont.lfFaceName, _T("Courier New"));
 
-		m_font.Attach(logFont.CreateFontIndirect());
+		this->m_font.Attach(logFont.CreateFontIndirect());
 		this->SetFont(m_font);
 
 		// Set the tab stops to 4 characters.

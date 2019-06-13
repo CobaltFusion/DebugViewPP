@@ -9,7 +9,7 @@
 
 #include <memory>
 #include <string>
-#include "Win32/Utilities.h"
+#include "noncopyable.h"
 
 #pragma comment(lib, "CobaltFusion.lib")
 

@@ -293,7 +293,7 @@ public:
 		HTREEITEM hItem = TBase::InsertItem(mask, hProp->GetName(), nImage, nSelectedImage, 0, 0, lParam, hParent, hInsertAfter);
 		if (hItem)
 		{
-			hProp->SetOwner(m_hWnd, (LPVOID)hItem);
+			hProp->SetOwner(this->m_hWnd, (LPVOID)hItem);
 			Expand(hParent);
 		}
 		return hItem;
@@ -477,7 +477,7 @@ public:
 		GetItemRect(iItem, &rcItem, FALSE);
 		::SetRect(pRect, rcText.right + HORIZ_VALUE_GAP, rcItem.top, rcItem.right, rcItem.bottom);
 		if (m_cxColumn > 0)
-			pRect->left = max((int)pRect->left, m_cxColumn);
+			pRect->left = std::max((int)pRect->left, m_cxColumn);
 	}
 
 	void _DestroyInplaceWindow()
@@ -521,7 +521,7 @@ public:
 		RECT rcValue = {0};
 		_GetInplaceRect(hItem, &rcValue);
 		::InflateRect(&rcValue, 0, -1);
-		m_hwndInplace = prop->CreateInplaceControl(m_hWnd, rcValue);
+		m_hwndInplace = prop->CreateInplaceControl(this->m_hWnd, rcValue);
 		if (m_hwndInplace != NULL)
 		{
 			// Activate the new editor window
@@ -603,7 +603,7 @@ public:
 		if (!m_CategoryFont.IsNull())
 			m_CategoryFont.DeleteObject();
 		LOGFONT lf = {0};
-		HFONT hFont = (HFONT)::SendMessage(GetParent(), WM_GETFONT, 0, 0);
+		HFONT hFont = (HFONT)::SendMessage(this->GetParent(), WM_GETFONT, 0, 0);
 		if (hFont == NULL)
 			hFont = AtlGetDefaultGuiFont();
 		::GetObject(hFont, sizeof(lf), &lf);
@@ -715,8 +715,8 @@ public:
 		if (prop == NULL)
 			return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			if (!prop->SetValue(hWnd))
 			{
@@ -725,7 +725,7 @@ public:
 			}
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 			// Repaint item
 			_InvalidateItem(m_iInplaceIndex);
 			// Destroy in-place control...
@@ -769,8 +769,8 @@ public:
 		if (prop == NULL || pVariant == NULL)
 			return 0;
 		// Ask owner about change
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_ITEMCHANGING, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 		{
 			// Set new value
 			// NOTE: Do not call this from IProperty::SetValue(VARIANT*) = endless loop
@@ -778,7 +778,7 @@ public:
 				::MessageBeep((UINT)-1);
 			// Let owner know
 			nmh.hdr.code = PIN_ITEMCHANGED;
-			::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+			::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		}
 		// Locate the updated tree item
 		HTREEITEM hItem = _FindProperty(prop);
@@ -837,8 +837,8 @@ public:
 			if (bClick)
 			{
 				// Ask owner first
-				NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_CLICK, prop};
-				if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+				NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_CLICK, prop};
+				if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 				{
 					// Send Click action
 					LPARAM lParam = ::GetMessagePos();
@@ -859,8 +859,8 @@ public:
 			IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(hItem));
 			ATLASSERT(prop);
 			// Ask owner first
-			NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_DBLCLICK, prop};
-			if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
+			NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_DBLCLICK, prop};
+			if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) == 0)
 			{
 				// Send DblClick action
 				LPARAM lParam = ::GetMessagePos();
@@ -894,8 +894,8 @@ public:
 			}
 		}
 		// Let owner know
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
-		::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), PIN_SELCHANGED, prop};
+		::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh);
 		return 0;
 	}
 
@@ -911,8 +911,8 @@ public:
 		IProperty* prop = reinterpret_cast<IProperty*>(TBase::GetItemData(hItem));
 		ATLASSERT(prop);
 		UINT nMsg = nmtv->action == TVE_COLLAPSE ? PIN_COLLAPSING : PIN_EXPANDING;
-		NMPROPERTYITEM nmh = {m_hWnd, GetDlgCtrlID(), nMsg, prop};
-		if (::SendMessage(GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) != 0)
+		NMPROPERTYITEM nmh = {this->m_hWnd, GetDlgCtrlID(), nMsg, prop};
+		if (::SendMessage(this->GetParent(), WM_NOTIFY, nmh.hdr.idFrom, (LPARAM)&nmh) != 0)
 			return TRUE;
 
 		// Let others have a go...

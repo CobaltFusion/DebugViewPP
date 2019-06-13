@@ -9,11 +9,12 @@
 
 #include <memory>
 #include "winsock2.h"
+#include "Win32/Win32Lib.h"
 
 namespace fusion {
 namespace Win32 {
 
-class WinsockInitialization : fusion::noncopyable
+class WinsockInitialization : noncopyable
 {
 public:
 	explicit WinsockInitialization(int major = 2, int minor = 2);

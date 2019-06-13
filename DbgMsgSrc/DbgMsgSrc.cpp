@@ -1,4 +1,4 @@
-﻿// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
+// (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at 
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -25,7 +25,7 @@ namespace fusion {
 
 namespace Win32 {
 
-class WinsockInitialization : fusion::noncopyable
+class WinsockInitialization : noncopyable
 {
 public:
 	explicit WinsockInitialization(int major = 2, int minor = 2)
@@ -476,8 +476,8 @@ int Main(int argc, char* argv[])
 		}
 		else if (arg == "-c")
 		{
-			OutputDebugStringW(L"writing \u82F1\u8BED\n");  // 英语
-			OutputDebugStringW(L"some \u4E2D\u6587 and more \u4E2D\u6587\u4FE1\u606F\n"); // 中文信息 
+			OutputDebugStringW(L"writing \u82F1\u8BED\n");  // ??
+			OutputDebugStringW(L"some \u4E2D\u6587 and more \u4E2D\u6587\u4FE1\u606F\n"); // ???? 
 		return 0;
 		}
 		else

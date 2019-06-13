@@ -120,8 +120,8 @@
       <AdditionalIncludeDirectories>../include;../Libraries/docopt</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 /Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ConformanceMode>false</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,8 +163,8 @@
       <AdditionalIncludeDirectories>../include;../Libraries/docopt</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm250 /Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ConformanceMode>false</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
