@@ -2,8 +2,12 @@ Cobalt Fusion presents:
 
 Debugview++, currently at v1.8
 ------------------------------
+<a href="https://twitter.com/intent/follow?screen_name=janwilmans">
+<img src="https://img.shields.io/twitter/follow/janwilmans.svg?style=social&logo=twitter"
+alt="follow on Twitter"></a>
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ho962elp8chrdga0/branch/master?svg=true)](https://ci.appveyor.com/project/janwilmans/debugview/branch/master)
+[![Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master) [![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest) [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
+[![Version 1.8.x](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/v1.8.0.44/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/tag/v1.8.0.44)
 
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
