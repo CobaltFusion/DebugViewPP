@@ -8,7 +8,6 @@
 #pragma once
 
 #include <vector>
-#include "../libsnappy/libsnappy.h"
 
 #pragma comment(lib, "IndexedStorageLib.lib")
 

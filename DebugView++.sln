@@ -12,8 +12,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++", "DebugView++\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DbgMsgSrc", "DbgMsgSrc\DbgMsgSrc.vcxproj", "{722E0592-E026-4D51-87EC-6ACA85B385F4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsnappy", "libsnappy\libsnappy.vcxproj", "{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}"
-EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DebugView++Setup", "DebugView++Setup\DebugView++Setup.wixproj", "{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C824932A-2819-4148-B54F-214D65015C54} = {C824932A-2819-4148-B54F-214D65015C54}
@@ -30,7 +28,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++Lib", "DebugView++Lib\DebugView++Lib.vcxproj", "{5E5B7C33-8076-4E21-ADF3-D56C8C28822A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{69756714-C1EB-47AF-B852-FF253D8DDDA8} = {69756714-C1EB-47AF-B852-FF253D8DDDA8}
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A} = {B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}
 		{218AB179-4C19-4264-BD55-DF89A9F321CA} = {218AB179-4C19-4264-BD55-DF89A9F321CA}
 	EndProjectSection
 EndProject
@@ -42,9 +39,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugViewConsole", "DebugVi
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IndexedStorageLib", "IndexedStorageLib\IndexedStorageLib.vcxproj", "{69756714-C1EB-47AF-B852-FF253D8DDDA8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A} = {B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugView++Test", "DebugView++Test\DebugView++Test.vcxproj", "{49BDA8E7-213A-44E2-BEDB-C599E07B8DA7}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -109,24 +103,6 @@ Global
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|x64.Build.0 = Release|x64
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|x86.ActiveCfg = Release|Win32
 		{722E0592-E026-4D51-87EC-6ACA85B385F4}.Release|x86.Build.0 = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|Win32.Build.0 = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|x64.ActiveCfg = Debug|x64
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|x64.Build.0 = Debug|x64
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|x86.ActiveCfg = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Debug|x86.Build.0 = Debug|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|Any CPU.ActiveCfg = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|Win32.ActiveCfg = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|Win32.Build.0 = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|x64.ActiveCfg = Release|x64
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|x64.Build.0 = Release|x64
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|x86.ActiveCfg = Release|Win32
-		{B1AEE15F-4CAF-4ACA-B5DC-756EC3AFA77A}.Release|x86.Build.0 = Release|Win32
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{6E52889E-06C1-45DC-AF99-ACCCAFB863FF}.Debug|Mixed Platforms.Build.0 = Debug|x86
