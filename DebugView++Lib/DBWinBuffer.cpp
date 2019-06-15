@@ -17,7 +17,7 @@ namespace debugviewpp {
 bool IsWindowsVistaOrGreater()
 {
 	// consider using ::AtlIsOldWindows? needs to be tested on XP
-	OSVERSIONINFO osvi = {0};
+	OSVERSIONINFO osvi = {};
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	// http://stackoverflow.com/questions/27246562/how-to-get-the-os-version-in-win8-1-as-getversion-getversionex-are-deprecated
 	// it looks like we can safely suppress this warning

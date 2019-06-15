@@ -124,7 +124,6 @@ private:
 	Pixel m_cursorPosition = 0;
 	Pixel m_selectedPosition = 0;
 
-	SCROLLINFO m_scrollInfo;
 	FormatFunction m_formatFunction;
 	DataProvider m_dataProvider;
 	TimeLines m_timelines;

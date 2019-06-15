@@ -71,10 +71,10 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 
 std::wstring ProcessInfo::GetStartTime(HANDLE handle)
 {
-	FILETIME creation = { 0 };
-	FILETIME exit = { 0 };
-	FILETIME kernel = { 0 };
-	FILETIME user = { 0 };
+	FILETIME creation = {};
+	FILETIME exit = {};
+	FILETIME kernel = {};
+	FILETIME user = {};
 	GetProcessTimes(handle, &creation, &exit, &kernel, &user);
 	return WStr(GetTimeText(creation)).str();
 }

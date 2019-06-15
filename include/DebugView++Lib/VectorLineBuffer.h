@@ -20,7 +20,7 @@ public:
 	void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource) override;
 	void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource) override;
     Lines GetLines() override;
-	bool Empty() const override;
+	[[nodiscard]] bool Empty() const override;
 
 private:
 	std::mutex m_linesMutex;

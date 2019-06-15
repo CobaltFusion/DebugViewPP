@@ -22,13 +22,13 @@ class SocketReader : public LogSource
 public:
 	SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port);
 
-	HANDLE GetHandle() const override;
+	[[nodiscard]] HANDLE GetHandle() const override;
 	void Notify() override;
 
 private:
 	int BeginReceive();
 	int CompleteReceive();
-	std::string GetProcessText() const;
+	[[nodiscard]] std::string GetProcessText() const;
 
 	Win32::WinsockInitialization m_wsa;
 	Win32::Socket m_socket;

@@ -18,10 +18,10 @@ namespace indexedstorage {
 class VectorStorage
 {
 public:
-	bool Empty() const;
+	[[nodiscard]] bool Empty() const;
 	void Clear();
 	size_t Add(const std::string& value);
-	size_t Count() const;
+	[[nodiscard]] size_t Count() const;
 	std::string operator[](size_t i) const;
 	void shrink_to_fit();
 
@@ -34,13 +34,13 @@ class SnappyStorage
 public:
 	SnappyStorage();
 
-	bool Empty() const;
+	[[nodiscard]] bool Empty() const;
 	void Clear();
 	size_t Add(const std::string& value);
-	size_t Count() const;
+	[[nodiscard]] size_t Count() const;
 	std::string operator[](size_t i);
 
-	std::string Compress(const std::vector<std::string>& value) const;
+	[[nodiscard]] std::string Compress(const std::vector<std::string>& value) const;
 	static std::vector<std::string> Decompress(const std::string& value);
 	void shrink_to_fit();
 

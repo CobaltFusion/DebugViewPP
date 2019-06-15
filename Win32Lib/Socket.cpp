@@ -14,7 +14,7 @@ namespace Win32 {
 
 WinsockInitialization::WinsockInitialization(int major, int minor)
 {
-	WSADATA wsaData = { 0 };
+	WSADATA wsaData = {};
 	int rc = WSAStartup(MAKEWORD(major, minor), &wsaData);
 	if (rc != 0)
 		ThrowWin32Error(rc, "WSAStartup");

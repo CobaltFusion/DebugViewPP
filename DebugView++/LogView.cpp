@@ -723,8 +723,8 @@ void InsertHighlight(std::vector<Highlight>& highlights, std::wstring_view text,
 		auto range = boost::algorithm::ifind_first(line, match);
 		if (range.empty())
 			break;
-		int begin = ExpandedTabOffset(text, range.begin() - text.begin());
-		int end = ExpandedTabOffset(text, range.end() - text.begin());
+		int begin = ExpandedTabOffset(text, static_cast<int>(range.begin() - text.begin()));
+		int end = ExpandedTabOffset(text, static_cast<int>(range.end() - text.begin()));
 		InsertHighlight(highlights, Highlight(1, begin, end, color));
 		line = boost::make_iterator_range(range.end(), line.end());
 	}
@@ -753,12 +753,12 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
 			if (tok->size() > 1 && filter.matchType == MatchType::RegexGroups)
 			{
 				first = 1;
-				count = tok->size();
+				count = static_cast<int>(tok->size());
 			}
 			for (int i = first; i < count; ++i)
 			{
-				int beginIndex = ExpandedTabOffset(text, tok->position(i));
-				int endIndex = ExpandedTabOffset(text, tok->position(i) + tok->length(i));
+				int beginIndex = ExpandedTabOffset(text, static_cast<int>(tok->position(i)));
+				int endIndex = ExpandedTabOffset(text, static_cast<int>(tok->position(i) + tok->length(i)));
 
 				if (filter.bgColor == Colors::Auto)
 				{
@@ -863,7 +863,7 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
 	HDITEM item;
 	item.mask = HDI_FORMAT;
 	unsigned align = (GetHeader().GetItem(iSubItem, &item)) ? GetTextAlign(item) : DT_LEFT;
-	dc.DrawText(text.c_str(), text.size(), &rect, align | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+	dc.DrawText(text.c_str(), static_cast<int>(text.size()), &rect, align | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
 void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
@@ -1509,7 +1509,7 @@ bool CLogView::ScrollToIndex(int index, bool center)
 		// if there are more items above the index then half a page, then centering may be possible.
 		if (center)
 		{
-			int maxBottomIndex = std::min<int>(m_logLines.size() - 1, index + paddingLines);
+			int maxBottomIndex = std::min<int>(static_cast<int>(m_logLines.size() - 1), index + paddingLines);
 			EnsureVisible(maxBottomIndex, false);
 			return (maxBottomIndex == (index + paddingLines));
 		}

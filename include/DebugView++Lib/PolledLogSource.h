@@ -60,9 +60,9 @@ private:
 
 	std::vector<PollLine> m_lines;
 	std::vector<PollLine> m_backBuffer;
+	std::chrono::microseconds m_microsecondInterval;
 	Win32::Handle m_handle;
 	std::mutex m_mutex;
-	std::chrono::microseconds m_microsecondInterval;
 	std::unique_ptr<std::thread> m_thread;
 };
 

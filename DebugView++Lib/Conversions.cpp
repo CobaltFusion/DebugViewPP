@@ -58,7 +58,10 @@ std::string GetTimeText(const FILETIME& ft)
 
 SYSTEMTIME GetSystemTime(WORD year, WORD month, WORD day)
 {
-	SYSTEMTIME st = { year, month, 0, day }; // wYear, wMonth, wDayOfWeek, wDay
+	SYSTEMTIME st = {};
+	st.wYear = year;
+	st.wMonth = month;
+	st.wDay = day;
 	return st;
 }
 

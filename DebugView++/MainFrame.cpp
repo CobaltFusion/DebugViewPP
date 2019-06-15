@@ -363,7 +363,7 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 	if (m_logFile.Empty())
 		return SelectionInfo();
 
-	return SelectionInfo(0, m_logFile.Count() - 1, m_logFile.Count());
+	return SelectionInfo(0, static_cast<int>(m_logFile.Count() - 1), static_cast<int>(m_logFile.Count()));
 }
 
 void CMainFrame::UpdateStatusBar()
@@ -853,8 +853,8 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 
 	std::ofstream fs;
 	OpenLogFile(fs, filename);
-	int count = m_logFile.Count();
-	for (int i = 0; i < count; ++i)
+	std::size_t count = m_logFile.Count();
+	for (std::size_t i = 0; i < count; ++i)
 	{
 		auto msg = m_logFile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);

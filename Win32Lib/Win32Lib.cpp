@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include "comdef.h"
 #include <clocale>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Win32/Win32Lib.h"
 
@@ -282,7 +282,7 @@ void AdjustObjectDACL(HANDLE hObject)
 	SID_IDENTIFIER_AUTHORITY authNt = SECURITY_NT_AUTHORITY;
 	AllocateAndInitializeSid(&authNt, 1, SECURITY_AUTHENTICATED_USER_RID, 0, 0, 0, 0, 0, 0, 0, &pSid);
 
-	EXPLICIT_ACCESS ea = { 0 };
+	EXPLICIT_ACCESS ea = {};
 	ea.grfAccessMode = GRANT_ACCESS;
 	ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE;
 	ea.grfInheritance = NO_INHERITANCE;
@@ -614,7 +614,7 @@ std::wstring GetHresultDescription(HRESULT hr)
 JobObject::JobObject()
     : m_jobHandle(::CreateJobObject(nullptr, nullptr))
 {
-    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
 
     jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
     if (0 == ::SetInformationJobObject(m_jobHandle.get(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))

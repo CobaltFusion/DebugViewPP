@@ -97,7 +97,7 @@ std::wstring GetCF_HDROP(IDataObject* pDataObject)
 		if (DragQueryFile(hDropInfo, 0xFFFFFFFF, nullptr, 0) == 1)
 		{
 			std::vector<wchar_t> filename(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
-			if (DragQueryFile(hDropInfo, 0, filename.data(), filename.size()))
+			if (DragQueryFile(hDropInfo, 0, filename.data(), static_cast<UINT>(filename.size())))
 				result = std::wstring(filename.data());
 		}
 		GlobalUnlock(stgmed.hGlobal);

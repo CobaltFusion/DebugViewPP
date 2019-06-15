@@ -1,13 +1,13 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 #include "stdafx.h"
 
-#define BOOST_TEST_MODULE DebugView++Lib Unit Test
+#define BOOST_TEST_MODULE DebugView++ Lib Unit Test
 
 #include <boost/test/unit_test_gui.hpp>
 
@@ -46,13 +46,12 @@ std::string GetTestString(size_t i)
 class TestLineBuffer : public LineBuffer
 {
 public:
-	TestLineBuffer(size_t size) : LineBuffer(size)
+	TestLineBuffer(size_t size) :
+		LineBuffer(size)
 	{
 	}
 
-	virtual ~TestLineBuffer()
-	{
-	}
+	virtual ~TestLineBuffer() = default;
 
 	virtual void WaitForReaderTimeout()
 	{
@@ -78,6 +77,7 @@ public:
 		SetTimeZoneInformation(&m_tz);
 		Win32::SetPrivilege(SE_TIME_ZONE_NAME, false);
 	}
+
 private:
 	TIME_ZONE_INFORMATION m_tz;
 };
@@ -93,8 +93,8 @@ std::string SaveLogFile(const LogFile& logfile)
 	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Truncate);
-	size_t count = logfile.Count();
-	for (size_t i = 0; i < count; ++i)
+	const std::size_t count = logfile.Count();
+	for (std::size_t i = 0; i < count; ++i)
 	{
 		auto msg = logfile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -108,8 +108,8 @@ std::string AppendLogFile(const LogFile& logfile)
 	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Append);
-	size_t count = logfile.Count();
-	for (size_t i = 0; i < count; ++i)
+	std::size_t count = logfile.Count();
+	for (std::size_t i = 0; i < count; ++i)
 	{
 		auto msg = logfile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -126,7 +126,7 @@ LogFile LoadLogFile(const std::string& filename)
 	line.processName = "process";
 	line.systemTime = Win32::GetSystemTimeAsFileTime();
 	LogFile result;
-	ReadLogFileMessage(file, line);		// ignore header
+	ReadLogFileMessage(file, line); // ignore header
 	while (ReadLogFileMessage(file, line))
 		result.Add(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
 	return result;
@@ -134,11 +134,16 @@ LogFile LoadLogFile(const std::string& filename)
 
 bool AreEqual(const Message& a, const Message& b)
 {
-	if (std::fabs(a.time - b.time) > 0.000001) return false;
-	if (GetTimeText(a.systemTime) != GetTimeText(b.systemTime)) return false;
-	if (a.processId != b.processId) return false;
-	if (a.processName != b.processName) return false;
-	if (a.text != b.text) return false;
+	if (std::fabs(a.time - b.time) > 0.000001)
+		return false;
+	if (GetTimeText(a.systemTime) != GetTimeText(b.systemTime))
+		return false;
+	if (a.processId != b.processId)
+		return false;
+	if (a.processName != b.processName)
+		return false;
+	if (a.text != b.text)
+		return false;
 	//if (a.color != b.color) return false;	// not stored in file
 	return true;
 }
@@ -200,7 +205,7 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 		BOOST_TEST(AreEqual(result, logFile));
 	}
 
-	// test crossing timezones 
+	// test crossing timezones
 	BOOST_TEST_MESSAGE("test sending a logfile into the past (UTC -> UTC-8)");
 	{
 		auto filename = SaveLogFile(logFile);
@@ -209,7 +214,7 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 		BOOST_TEST(AreEqual(result, logFile));
 	}
 
-	// test crossing timezones 
+	// test crossing timezones
 	BOOST_TEST_MESSAGE("test sending a logfile into the future (UTC-8 -> UTC)");
 	{
 		std::string filename;
@@ -224,11 +229,11 @@ BOOST_AUTO_TEST_CASE(TimeZone)
 
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
-	static constexpr HANDLE nullHandle = nullptr;
+	static const HANDLE nullHandle = nullptr;
 
 	HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
 	Win32::Handle handle(rawHandle);
-	{ 
+	{
 		BOOST_TEST(handle.get() == rawHandle);
 		Win32::Handle handle1(std::move(handle));
 		BOOST_TEST(handle.get() == nullHandle);
@@ -251,7 +256,7 @@ BOOST_AUTO_TEST_CASE(HandleTest)
 			BOOST_TEST(zeroHandle.get() == nullHandle);
 			BOOST_TEST(handle1.get() == nullHandle);
 		}
-		// this scope ensures having a Handle leave scope that had its guts ripped out by std::move 
+		// this scope ensures having a Handle leave scope that had its guts ripped out by std::move
 		// will not cause nullpointers or exeptions
 	}
 }
@@ -272,11 +277,11 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 	BOOST_TEST(buffer.Empty());
 }
 
-BOOST_AUTO_TEST_CASE(LineBufferTest2)	// test overflows boosttestui with log-output locking its GUI up temporarily
+BOOST_AUTO_TEST_CASE(LineBufferTest2) // test overflows boosttestui with log-output locking its GUI up temporarily
 {
 	TestLineBuffer buffer(600);
 	Timer timer;
-	std::cout << "LineBufferTest2 running..." << std::endl;  
+	std::cout << "LineBufferTest2 running..." << std::endl;
 	for (int j = 0; j < 100; ++j)
 	{
 		//BOOST_TEST_MESSAGE("j: " << j << "\n");
@@ -316,9 +321,9 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
 
 	// random access can be somewhat slow in debug-mode, this is expected behaviour
 	bool failed = false;
-	for (size_t i = 0; i < testSize/10; ++i)
+	for (size_t i = 0; i < testSize / 10; ++i)
 	{
-		size_t j = distribution(generator);  // generates number in the range 0..testMax 
+		size_t j = distribution(generator); // generates number in the range 0..testMax
 		if (s[j] != GetTestString(j))
 		{
 			failed = true;
@@ -334,11 +339,11 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 
 	// the memory allocator will mess up test results is < 64 kb is allocated
 	// make sure SnappyStorage allocates at least ~500kb for reproducable results
-	
+
 	// this test is indicative only, on average the SnappyStorage should allocate at most 50% of memory compared to a normal vector.
 	// since GetTestString returns an overly simpe-to-compress string, it will appear to perform insanely good.
 
-	size_t testSize = 100000;	
+	size_t testSize = 100000;
 	VectorStorage v;
 	SnappyStorage s;
 
@@ -349,7 +354,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 
 	size_t m1 = ProcessInfo::GetPrivateBytes();
 	size_t usedByVector = m1 - m0;
-	BOOST_TEST_MESSAGE("VectorStorage requires: " << usedByVector/1024 << " kB");
+	BOOST_TEST_MESSAGE("VectorStorage requires: " << usedByVector / 1024 << " kB");
 
 	for (size_t i = 0; i < testSize; ++i)
 		s.Add(GetTestString(i));
@@ -357,8 +362,8 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 	size_t m2 = ProcessInfo::GetPrivateBytes();
 	size_t usedBySnappy = m2 - m1;
 
-	BOOST_TEST_MESSAGE("SnappyStorage requires: " << usedBySnappy/1024 << " kB (" << (100*usedBySnappy)/usedByVector << "%)");
-	BOOST_TEST(0.50*usedByVector > usedBySnappy);
+	BOOST_TEST_MESSAGE("SnappyStorage requires: " << usedBySnappy / 1024 << " kB (" << (100 * usedBySnappy) / usedByVector << "%)");
+	BOOST_TEST(0.50 * usedByVector > usedBySnappy);
 }
 
 // execute as:
@@ -368,7 +373,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
-	executor.Call([&] { logsource = logsources.AddTestSource();  });
+	executor.Call([&] { logsource = logsources.AddTestSource(); });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
@@ -406,7 +411,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
-	executor.Call([&] { logsource = logsources.AddTestSource();  });
+	executor.Call([&] { logsource = logsources.AddTestSource(); });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TrailingSpace ");
@@ -415,8 +420,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 	Lines lines;
 	executor.Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST(lines.size() == 2);
-	BOOST_TEST(lines[0].message == "TrailingSpace ");	// space preserved
-	BOOST_TEST(lines[1].message == "TrailingTab\t");	// tab preserved
+	BOOST_TEST(lines[0].message == "TrailingSpace "); // space preserved
+	BOOST_TEST(lines[1].message == "TrailingTab\t"); // tab preserved
 }
 
 BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
@@ -424,7 +429,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
-	executor.Call([&] { logsource = logsources.AddTestSource();  });
+	executor.Call([&] { logsource = logsources.AddTestSource(); });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "\tTabPrefix");
@@ -433,8 +438,8 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 	Lines lines;
 	executor.Call([&] { lines = logsources.GetLines(); });
 	BOOST_TEST(lines.size() == 2);
-	BOOST_TEST(lines[0].message == "\tTabPrefix");	// space preserved
-	BOOST_TEST(lines[1].message == "\t\tTwoTabsPrefixed");	// space preserved
+	BOOST_TEST(lines[0].message == "\tTabPrefix"); // space preserved
+	BOOST_TEST(lines[1].message == "\t\tTwoTabsPrefixed"); // space preserved
 }
 
 BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
@@ -442,7 +447,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 	ActiveExecutorClient executor;
 	LogSources logsources(executor, false);
 	LogSource* logsource;
-	executor.Call([&] { logsource = logsources.AddTestSource();  });
+	executor.Call([&] { logsource = logsources.AddTestSource(); });
 
 	Timer timer;
 	logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "NewLinePostfix\n");
@@ -459,7 +464,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 
 std::wstring GetExecutePath()
 {
-	auto path = system_complete(std::experimental::filesystem::path( Win32::GetCommandLineArguments()[0]));
+	auto path = system_complete(std::experimental::filesystem::path(Win32::GetCommandLineArguments()[0]));
 	return path.remove_filename().c_str();
 }
 
@@ -641,7 +646,7 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte)
 		//std::cout << line.message << std::endl;
 	}
 	BOOST_TEST(lines.size() == 6);
-	BOOST_TEST(lines.at(0).message.back() == '0'); // line ends in '...offset 0' 
+	BOOST_TEST(lines.at(0).message.back() == '0'); // line ends in '...offset 0'
 	BOOST_TEST(lines.at(1).message == "File Identification Header, DebugView++ Format Version 1");
 	BOOST_TEST(lines.at(2).message == "test message 1");
 	BOOST_TEST(lines.at(3).message == "test message 2");
@@ -714,7 +719,7 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 	}
 }
 
-#pragma warning (disable: 4996)
+#pragma warning(disable : 4996)
 
 std::string CreateUTF16LETestFile(int linecount)
 {
@@ -741,8 +746,8 @@ BOOST_AUTO_TEST_CASE(LoadUTF16LE)
 	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 
 	// assumption: should be done in 4 seconds, even in debug mode
-	int totalLines = 0; 
-	for (int i=0; i<20;++i)
+	int totalLines = 0;
+	for (int i = 0; i < 20; ++i)
 	{
 		std::this_thread::sleep_for(200ms);
 		Lines lines;
@@ -758,5 +763,5 @@ BOOST_AUTO_TEST_CASE(LoadUTF16LE)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion
