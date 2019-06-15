@@ -245,7 +245,7 @@ void SeparateProcessTest()
 	std::cerr << "SeparateProcessTest\n";
 	for (;;)
 	{
-		auto result = ShellExecute(0, L"open", L"DbgMsgSrc.exe", L"-n", nullptr, SW_HIDE);
+		auto result = ShellExecute(nullptr, L"open", L"DbgMsgSrc.exe", L"-n", nullptr, SW_HIDE);
 		if (result <= HINSTANCE(32))
 		{
 			std::cerr << "error starting DbgMsgSrc.exe\n";

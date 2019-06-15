@@ -643,7 +643,7 @@ bool CMainFrame::LoadSettings()
 		reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS && static_cast<int>(y) >= GetSystemMetrics(SM_YVIRTUALSCREEN) &&
 		reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS && static_cast<int>(x + cx) <= GetSystemMetrics(SM_XVIRTUALSCREEN) + GetSystemMetrics(SM_CXVIRTUALSCREEN) &&
 		reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS && static_cast<int>(y + cy) <= GetSystemMetrics(SM_YVIRTUALSCREEN) + GetSystemMetrics(SM_CYVIRTUALSCREEN))
-		SetWindowPos(0, x, y, cx, cy, SWP_NOZORDER);
+		SetWindowPos(nullptr, x, y, cx, cy, SWP_NOZORDER);
 
 	m_linkViews = Win32::RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
 	m_logSources.SetAutoNewLine(Win32::RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
@@ -1044,7 +1044,7 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"DebugView Log Files (*.log)\0*.log\0"
 		L"All Files (*.*)\0*.*\0\0",
-		0);
+		nullptr);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Load Log File";
 	if (dlg.DoModal() == IDOK)
@@ -1117,7 +1117,7 @@ void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 	CFileDialog dlg(false, L".dblog", m_logFileName.c_str(), OFN_OVERWRITEPROMPT,
 		L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
 		L"All Files (*.*)\0*.*\0\0",
-		0);
+		nullptr);
 	dlg.m_ofn.nFilterIndex = 0;
 	dlg.m_ofn.lpstrTitle = L"Save all messages in memory buffer";
 	if (dlg.DoModal() == IDOK)

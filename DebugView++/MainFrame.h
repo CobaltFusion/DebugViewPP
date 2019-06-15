@@ -151,7 +151,6 @@ private:
 	LRESULT OnScRestore(UINT, INT, HWND);
 	LRESULT OnScClose(UINT, INT, HWND);
 	LRESULT OnBeginTabDrag(NMHDR* pnmh);
-	LRESULT OnChangingTab(NMHDR* pnmh);
 	LRESULT OnChangeTab(NMHDR* pnmh);
 	LRESULT OnCloseTab(NMHDR* pnmh);
 	LRESULT OnDeleteTab(NMHDR* pnmh);

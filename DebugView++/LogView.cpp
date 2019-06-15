@@ -1141,7 +1141,7 @@ void CLogView::OnViewProcessRename(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*
 		auto name = m_logFile[m_logLines[item].line].processName;
 		std::wstring wname = WStr(name);
 		CRenameProcessDlg dlg(wname);
-		if (dlg.DoModal(NULL) == IDOK)
+		if (dlg.DoModal(nullptr) == IDOK)
 		{
 			std::string newName = Str(dlg.GetName());
 			//m_logFile[m_logLines[item].line].processName = newName;
@@ -1269,7 +1269,7 @@ LRESULT CLogView::OnCustomDraw(NMHDR*)
 #else
 LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
-	LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)pnmh;
+	LPNMLVCUSTOMDRAW lplvcd = reinterpret_cast<LPNMLVCUSTOMDRAW>(pnmh);
 	if (lplvcd->nmcd.dwDrawStage == CDDS_PREPAINT)
 	{
 		return CDRF_NOTIFYPOSTPAINT;

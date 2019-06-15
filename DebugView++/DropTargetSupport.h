@@ -21,14 +21,14 @@ public:
 	END_COM_MAP()
 
 	DropTargetSupport();
-	virtual ~DropTargetSupport() {}
+	~DropTargetSupport() = default;
 	void Register(HWND hwnd);
 	void Unregister();
 
-	STDMETHOD(DragEnter)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-	STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-	STDMETHOD(DragLeave)();
-	STDMETHOD(Drop)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+	STDMETHOD(DragEnter)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+	STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+	STDMETHOD(DragLeave)() override;
+	STDMETHOD(Drop)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 
 	typedef boost::signals2::signal<void(const std::wstring& uri)> DroppedSignal;
 	boost::signals2::connection SubscribeToDropped(DroppedSignal::slot_type slot);

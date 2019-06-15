@@ -71,7 +71,6 @@ public:
 	TimePoint ToTimePoint(gdi::Pixel p) const;
 	std::wstring FormatAsTime(gdi::Pixel p);
 
-	void SetWidth(gdi::Pixel width);
 	void ZoomInTo(gdi::Pixel position);
 	void ZoomOut(gdi::Pixel position);
 private:

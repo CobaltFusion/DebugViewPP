@@ -66,7 +66,7 @@ std::string GetCF_TEXT(IDataObject* pDataObject)
 {
 	std::string result;
 	// construct a FORMATETC object
-	FORMATETC fmtetc = {CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+	FORMATETC fmtetc = {CF_TEXT, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 	STGMEDIUM stgmed;
 
 	if (pDataObject->GetData(&fmtetc, &stgmed) == S_OK)
@@ -86,7 +86,7 @@ std::wstring GetCF_HDROP(IDataObject* pDataObject)
 {
 	std::wstring result;
 	// construct a FORMATETC object
-	FORMATETC fmtetc = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+	FORMATETC fmtetc = {CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 	STGMEDIUM stgmed;
 
 	if (pDataObject->GetData(&fmtetc, &stgmed) == S_OK)

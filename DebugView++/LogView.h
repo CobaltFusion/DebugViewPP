@@ -215,7 +215,6 @@ private:
 	void OnException() const;
 	void OnException(const std::exception& ex);
 	LRESULT OnCreate(const CREATESTRUCT* pCreate);
-	void Close();
 	void OnContextMenu(HWND hWnd, CPoint pt);
 	void OnLButtonDown(UINT flags, CPoint point);
 	void OnMouseMove(UINT flags, CPoint point);
@@ -275,7 +274,6 @@ private:
 	int GetTextIndex(int iItem, int xPos) const;
 	int GetTextIndex(CDCHandle dc, int iItem, int xPos) const;
 	int TextHighlightHitTest(int iItem, const POINT& pt);
-	double GetRelativeTime(int iItem);
 	std::wstring GetColumnText(int iItem, Column::type column) const;
 	RECT GetItemRect(int iItem, unsigned code) const;
 	RECT GetSubItemRect(int iItem, int iSubItem, unsigned code) const;

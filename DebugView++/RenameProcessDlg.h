@@ -18,7 +18,7 @@ class CRenameProcessDlg :
 	public ExceptionHandler<CRenameProcessDlg, std::exception>
 {
 public:
-	CRenameProcessDlg(const std::wstring& name);
+	explicit CRenameProcessDlg(const std::wstring& name);
 		
 	enum { IDD = IDD_RENAMEPROCESS };
 	

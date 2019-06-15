@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 	FILETIME ft;
 	ft.dwLowDateTime = 42;
 	ft.dwHighDateTime = 43;
-	buffer.Add(42.0, ft, 0, "test", nullptr);
+	buffer.Add(42.0, ft, nullptr, "test", nullptr);
 
 	auto lines = buffer.GetLines();
 	auto& line = lines[0];
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2) // test overflows boosttestui with log-out
 			FILETIME ft;
 			ft.dwLowDateTime = 43;
 			ft.dwHighDateTime = 44;
-			buffer.Add(42.0, ft, 0, "test", nullptr);
+			buffer.Add(42.0, ft, nullptr, "test", nullptr);
 		}
 
 		auto lines = buffer.GetLines();
