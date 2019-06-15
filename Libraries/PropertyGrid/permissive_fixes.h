@@ -11,17 +11,6 @@
 		return wc;                                                           \
 	}
 
-#define DECLARE_WND_CLASS_EX_WORKAROUND(WndClassName, style, bkgnd)                         \
-	static ATL::CWndClassInfo& GetWndClassInfo()                                            \
-	{                                                                                       \
-		static ATL::CWndClassInfo wc =                                                      \
-			{                                                                               \
-				{sizeof(WNDCLASSEX), style, thisClass::StartWindowProc,                     \
-					0, 0, NULL, NULL, NULL, (HBRUSH)(bkgnd + 1), NULL, WndClassName, NULL}, \
-				NULL, NULL, IDC_ARROW, TRUE, 0, _T("")};                                    \
-		return wc;                                                                          \
-	}
-
 #define DECLARE_FRAME_WND_CLASS_EX_WORKAROUND(WndClassName, uCommonResourceID, style, bkgnd) \
 	static WTL::CFrameWndClassInfo& GetWndClassInfo()                                        \
 	{                                                                                        \

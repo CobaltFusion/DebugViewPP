@@ -820,9 +820,8 @@ public:
 		}
 	}
 
-	// Message Handling
 public:
-	DECLARE_WND_CLASS_EX(_T("MdiTabOwner"), 0, COLOR_APPWORKSPACE)
+	DECLARE_WND_CLASS_EX2(_T("MdiTabOwner"), CMDITabOwnerImpl, 0, COLOR_APPWORKSPACE)
 
 	BEGIN_MSG_MAP(thisClass)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)

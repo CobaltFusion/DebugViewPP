@@ -144,8 +144,8 @@ public:
 
 	// Message Handling
 public:
-	DECLARE_WND_CLASS_EX_WORKAROUND(_T("WTL_DotNetTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
-
+	DECLARE_WND_CLASS_EX2(_T("WTL_DotNetTabCtrl"), CDotNetTabCtrlImpl, CS_DBLCLKS, COLOR_WINDOW)
+	
 	BEGIN_MSG_MAP(thisClass)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
 		MESSAGE_HANDLER(WM_SYSCOLORCHANGE, OnSettingChange)
@@ -1234,14 +1234,11 @@ protected:
 	typedef CDotNetTabCtrl thisClass;
 	typedef CDotNetTabCtrlImpl<CDotNetTabCtrl<TItem>, TItem> baseClass;
 
-	// Constructors:
 public:
-	CDotNetTabCtrl()
-	{
-	}
+	CDotNetTabCtrl() = default;
 
 public:
-	DECLARE_WND_CLASS_EX_WORKAROUND(_T("WTL_DotNetTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+	DECLARE_WND_CLASS_EX2(_T("WTL_DotNetTabCtrl"), CDotNetTabCtrl, CS_DBLCLKS, COLOR_WINDOW)
 
 	//We have nothing special to add.
 	//BEGIN_MSG_MAP(thisClass)
@@ -1268,7 +1265,7 @@ public:
 
 	// Message Handling
 public:
-	DECLARE_WND_CLASS_EX_WORKAROUND(_T("WTL_DotNetButtonTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+	DECLARE_WND_CLASS_EX2(_T("WTL_DotNetButtonTabCtrl"), CDotNetButtonTabCtrlImpl, CS_DBLCLKS, COLOR_WINDOW)
 
 	BEGIN_MSG_MAP(thisClass)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
@@ -1415,14 +1412,9 @@ protected:
 	typedef CDotNetButtonTabCtrl<TItem> thisClass;
 	typedef CDotNetButtonTabCtrlImpl<CDotNetButtonTabCtrl<TItem>, TItem> baseClass;
 
-	// Constructors:
 public:
-	CDotNetButtonTabCtrl()
-	{
-	}
-
-public:
-	DECLARE_WND_CLASS_EX_WORKAROUND(_T("WTL_DotNetButtonTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+	CDotNetButtonTabCtrl() = default;
+	DECLARE_WND_CLASS_EX2(_T("WTL_DotNetButtonTabCtrl"), CDotNetButtonTabCtrl, CS_DBLCLKS, COLOR_WINDOW)
 
 	//We have nothing special to add.
 	//BEGIN_MSG_MAP(thisClass)

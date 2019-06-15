@@ -35,7 +35,7 @@ public:
 
 	// Message Handling
 public:
-	DECLARE_WND_CLASS_EX(_T("TabbedDockingWindow"), CS_DBLCLKS, COLOR_APPWORKSPACE)
+	DECLARE_WND_CLASS_EX2(_T("TabbedDockingWindow"), CTabbedDockingWindow, CS_DBLCLKS, COLOR_APPWORKSPACE)
 
 	BOOL PreTranslateMessage(MSG* pMsg)
 	{
