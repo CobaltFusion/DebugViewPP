@@ -8,6 +8,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #pragma comment(lib, "IndexedStorageLib.lib")
 
