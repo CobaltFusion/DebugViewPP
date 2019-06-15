@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Snappy.1.1.1.7\build\native\snappy.targets" Condition="Exists('..\packages\Snappy.1.1.1.7\build\native\snappy.targets')" />
+  <Import Project="..\packages\Snappy.1.1.1.7\build\native\Snappy.props" Condition="Exists('..\packages\Snappy.1.1.1.7\build\native\Snappy.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -181,6 +181,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Snappy.1.1.1.7\build\native\snappy.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Snappy.1.1.1.7\build\native\Snappy.props'))" />
+    <Error Condition="!Exists('..\packages\Snappy.1.1.1.7\build\native\Snappy.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Snappy.1.1.1.7\build\native\Snappy.props'))" />
   </Target>
 </Project>
