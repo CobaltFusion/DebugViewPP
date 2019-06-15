@@ -36,12 +36,12 @@ class PolledLogSource : public LogSource
 {
 public:
 	PolledLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& lineBuffer, long pollFrequency);
-	virtual ~PolledLogSource() override;
+	~PolledLogSource() override;
 	
-	virtual HANDLE GetHandle() const override;
-	virtual void Notify() override;
+	HANDLE GetHandle() const override;
+	void Notify() override;
 	virtual void Poll();
-	virtual void Abort() override;
+	void Abort() override;
 
 	// in contrast to the LogSource::Add methdods, these methods are de-coupled using m_backBuffer so they 
 	// can be used to add messages from any thread. The typical use-case are messages from the UI thread.

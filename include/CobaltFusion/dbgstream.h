@@ -39,14 +39,14 @@ class basic_debugbuf : public std::basic_streambuf<Elem, Tr>
 	using _traits_type = typename std::basic_streambuf<Elem, Tr>::traits_type;
 
 protected:
-	virtual int sync() override
+	int sync() override
 	{
 		output(m_buf.c_str());
 		m_buf.clear();
 		return 0;
 	}
 
-	virtual _int_type overflow(_int_type c) override
+	_int_type overflow(_int_type c) override
 	{
 		if (c == _traits_type::eof())
 			return 0;

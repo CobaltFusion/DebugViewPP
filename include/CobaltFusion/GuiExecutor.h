@@ -118,7 +118,7 @@ public:
 	ScheduledCall CallAfter(const Duration& interval, std::function<void ()> fn);
 	ScheduledCall CallEvery(const Duration& interval, std::function<void ()> fn);
 
-    virtual void Cancel(const ScheduledCall& call) override;
+    void Cancel(const ScheduledCall& call) override;
 
 	bool IsExecutorThread() const;
 	bool IsIdle() const;
@@ -127,8 +127,8 @@ public:
 private:
 	typedef TimedCalls::CallData CallData;
 
-	virtual void OnMessage() override;
-	virtual void OnTimer() override;
+	void OnMessage() override;
+	void OnTimer() override;
 	void ResetTimer();
 
 	std::thread::id m_guiThreadId;

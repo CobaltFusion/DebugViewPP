@@ -36,13 +36,13 @@ class GuiExecutorClient : public IExecutor
 public:
 	GuiExecutorClient();
     virtual ~GuiExecutorClient() = default;
-	virtual void Call(std::function<void()> fn) override;
-	virtual void CallAsync(std::function<void()> fn) override;
-	virtual ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) override;
-	virtual ScheduledCall CallAt(const Clock::time_point& timepoint, std::function<void()> fn) override;
-	virtual bool IsExecutorThread() const override;
-	virtual void Synchronize() override;
-	virtual void Cancel() override;
+	void Call(std::function<void()> fn) override;
+	void CallAsync(std::function<void()> fn) override;
+	ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) override;
+	ScheduledCall CallAt(const Clock::time_point& timepoint, std::function<void()> fn) override;
+	bool IsExecutorThread() const override;
+	void Synchronize() override;
+	void Cancel() override;
 
 private:
 	std::unique_ptr<GuiExecutor> m_executor;
@@ -55,13 +55,13 @@ class ActiveExecutorClient : public IExecutor
 public:
 	ActiveExecutorClient();
     virtual ~ActiveExecutorClient() = default;
-	virtual void Call(std::function<void()> fn) override;
-	virtual void CallAsync(std::function<void()> fn) override;
-	virtual ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) override;
-	virtual ScheduledCall CallAt(const Clock::time_point& timepoint, std::function<void()> fn) override;
-	virtual bool IsExecutorThread() const override;
-	virtual void Synchronize() override;
-	virtual void Cancel() override;
+	void Call(std::function<void()> fn) override;
+	void CallAsync(std::function<void()> fn) override;
+	ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) override;
+	ScheduledCall CallAt(const Clock::time_point& timepoint, std::function<void()> fn) override;
+	bool IsExecutorThread() const override;
+	void Synchronize() override;
+	void Cancel() override;
 private:
 	std::unique_ptr<ActiveExecutor> m_executor;
 };

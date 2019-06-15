@@ -20,11 +20,11 @@ public:
 	Loopback(Timer& timer, ILineBuffer& lineBuffer);
 	virtual ~Loopback();
 
-	virtual HANDLE GetHandle() const override { throw std::exception("should never be called"); }
-	virtual void Notify() override {}
+	HANDLE GetHandle() const override { throw std::exception("should never be called"); }
+	void Notify() override {}
 
-	virtual bool GetAutoNewLine() const override;
-	virtual void PreProcess(Line& line) const override;
+	bool GetAutoNewLine() const override;
+	void PreProcess(Line& line) const override;
 };
 
 } // namespace debugviewpp 

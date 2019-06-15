@@ -28,7 +28,7 @@ public:
 	}
 
 protected:
-    virtual int sync() override
+    int sync() override
 	{
 		if (!m_writeBuffer.empty())
 		{
@@ -41,7 +41,7 @@ protected:
 		return 0;
 	}
 
-    virtual _int_type overflow(_int_type c) override
+    _int_type overflow(_int_type c) override
 	{
 		if (c == std::basic_streambuf<Elem, Tr>::traits_type::eof())
 			return c;
@@ -52,7 +52,7 @@ protected:
 		return c;
 	}
 
-    virtual _int_type underflow() override
+    _int_type underflow() override
 	{
 		if (this->gptr() < this->egptr()) // buffer not exhausted
 			return std::basic_streambuf<Elem, Tr>::traits_type::to_int_type(*this->gptr());
