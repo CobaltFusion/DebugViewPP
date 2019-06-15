@@ -40,14 +40,14 @@
 class CProperty : public IProperty
 {
 protected:
-	HWND m_hWndOwner;
+	HWND m_hWndOwner = 0;
+	bool m_fEnabled = true;
 	LPTSTR m_pszName;
-	bool m_fEnabled;
 	LPARAM m_lParam;
 
 public:
 	CProperty(LPCTSTR pstrName, LPARAM lParam) :
-		m_fEnabled(true), m_lParam(lParam), m_hWndOwner(NULL)
+		m_lParam(lParam)
 	{
 		ATLASSERT(!::IsBadStringPtr(pstrName, -1));
 		ATLTRY(m_pszName = new TCHAR[(::lstrlen(pstrName) * sizeof(TCHAR)) + 1]);
@@ -274,15 +274,13 @@ class CPropertyReadOnlyItem : public CPropertyItem
 protected:
 	UINT m_uStyle;
 	HICON m_hIcon;
-	COLORREF m_clrBack;
-	COLORREF m_clrText;
+	COLORREF m_clrBack = CLR_INVALID;
+	COLORREF m_clrText = CLR_INVALID;
 
 public:
 	CPropertyReadOnlyItem(LPCTSTR pstrName, LPARAM lParam) :
 		CPropertyItem(pstrName, lParam),
 		m_uStyle(DT_LEFT | DT_SINGLELINE | DT_EDITCONTROL | DT_NOPREFIX | DT_END_ELLIPSIS | DT_VCENTER),
-		m_clrBack(CLR_INVALID),
-		m_clrText(CLR_INVALID),
 		m_hIcon(NULL)
 	{
 	}

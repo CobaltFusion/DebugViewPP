@@ -56,7 +56,7 @@ size_t ProcessInfo::GetPrivateBytes()
 std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 {
 	std::array<wchar_t, MAX_PATH> buf;
-	auto rc = GetProcessImageFileName(handle, buf.data(), buf.size());
+	auto rc = GetProcessImageFileName(handle, buf.data(), static_cast<DWORD>(buf.size()));
 	if (rc == 0)
 		return L"";
 

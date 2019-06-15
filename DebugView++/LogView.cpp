@@ -50,15 +50,15 @@ SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
 
 void ExtTextOut(HDC hdc, const POINT& pt, const RECT& rect, const std::wstring& text)
 {
-	::ExtTextOutW(hdc, pt.x, pt.y, ETO_CLIPPED | ETO_OPAQUE, &rect, text.c_str(), text.size(), nullptr);
+	::ExtTextOutW(hdc, pt.x, pt.y, ETO_CLIPPED | ETO_OPAQUE, &rect, text.c_str(), static_cast<UINT>(text.size()), nullptr);
 }
 
 int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 {
 	auto exp = TabsToSpaces(s);
-	int nFit;
-	SIZE size;
-	if (!GetTextExtentExPointA(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
+	int nFit = 0;
+	SIZE size = {};
+	if (!GetTextExtentExPointA(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size))
 		return 0;
 	return SkipTabOffset(s, nFit);
 }
@@ -66,8 +66,8 @@ int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
 {
 	auto exp = TabsToSpaces(s);
-	int nFit;
-	SIZE size;
+	int nFit = 0;
+	SIZE size = {};
 	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
 		return 0;
 	return SkipTabOffset(s, nFit);
@@ -79,7 +79,7 @@ void AddEllipsis(HDC hdc, std::wstring& text, int width)
 	int pos = GetTextOffset(hdc, text, width);
 	if (pos >= 0 && pos < static_cast<int>(text.size()))
 	{
-		pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, ellipsis.size()).cx);
+		pos = GetTextOffset(hdc, text, width - GetTextSize(hdc, ellipsis, static_cast<int>(ellipsis.size())).cx);
 		text = text.substr(0, pos) + ellipsis;
 	}
 }

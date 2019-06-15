@@ -35,9 +35,12 @@ public:
 	BEGIN_DLGRESIZE_MAP(CFilterPageImpl)
 		DLGRESIZE_CONTROL(IDC_FILTER_GRID, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
+   
+	DECLARE_MSG_MAP()
+	void OnException() const;
+	void OnException(const std::exception& ex) const;
 
 	void ShowError();
-
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	void OnDestroy();
 	LRESULT OnHeaderItemStateIconClick(NMHDR* phdr);
@@ -47,11 +50,6 @@ public:
 	void OnSize(UINT type, CSize size);
 
 private:
-	DECLARE_MSG_MAP()
-
-	void OnException() const;
-	void OnException(const std::exception& ex) const;
-
 	bool SupportsAutoColor(FilterType::type filterType) const;
 	void UpdateGridColors(int item) const;
 	void InsertFilter(int item, const Filter& filter);

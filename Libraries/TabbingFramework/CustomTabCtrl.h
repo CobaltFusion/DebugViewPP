@@ -730,13 +730,13 @@ public:
 
 typedef ATL::CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | CTCS_TOOLTIPS, 0> CCustomTabCtrlWinTraits;
 
-template <class T, class TItem = CCustomTabItem, class TBase = ATL::CWindow, class TWinTraits = CCustomTabCtrlWinTraits>
+template <class T, class TItemArg = CCustomTabItem, class TBase = ATL::CWindow, class TWinTraits = CCustomTabCtrlWinTraits>
 class ATL_NO_VTABLE CCustomTabCtrl : public ATL::CWindowImpl<T, TBase, TWinTraits>,
 									 public COffscreenDrawRect<T>
 {
 public:
 	// Expose the item type (that's a template parameter to this base class)
-	typedef typename TItem TItem;
+	using TItem = TItemArg;
 
 protected:
 	typedef ATL::CWindowImpl<T, TBase, TWinTraits> baseClass;
