@@ -78,7 +78,7 @@
       <ProgramDataBaseFileName>$(Configuration)/</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>..\wtl\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
@@ -129,7 +129,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\wtl\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
@@ -174,14 +174,15 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ColorCombo.h" />
+    <ClInclude Include="include\ColorCombo.h" />
+    <ClInclude Include="include\permissive_fixes.h" />
+    <ClInclude Include="include\PropertyGrid.h" />
+    <ClInclude Include="include\PropertyItem.h" />
+    <ClInclude Include="include\PropertyItemEditors.h" />
+    <ClInclude Include="include\PropertyItemImpl.h" />
+    <ClInclude Include="include\PropertyList.h" />
+    <ClInclude Include="include\PropertyTree.h" />
     <ClInclude Include="maindlg.h" />
-    <ClInclude Include="PropertyGrid.h" />
-    <ClInclude Include="PropertyItem.h" />
-    <ClInclude Include="PropertyItemEditors.h" />
-    <ClInclude Include="PropertyItemImpl.h" />
-    <ClInclude Include="PropertyList.h" />
-    <ClInclude Include="PropertyTree.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
