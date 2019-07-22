@@ -103,7 +103,7 @@ public:
 	// on windows 10 listview headers are missing depth, we manually draw them to compensate
 	void Windows10Workaround()
 	{
-		CDCHandle dc(GetDC());
+		CDC dc(GetDC());
 		RECT rect;
 		dc.GetClipBox(&rect);
 

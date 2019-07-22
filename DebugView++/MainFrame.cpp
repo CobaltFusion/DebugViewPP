@@ -623,12 +623,14 @@ const wchar_t* RegistryPath = L"Software\\Cobalt Fusion\\DebugView++";
 
 int CMainFrame::LogFontSizeFromPointSize(int fontSize)
 {
-	return -MulDiv(fontSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
+	CDC dc(GetDC());
+	return -MulDiv(fontSize, GetDeviceCaps(dc, LOGPIXELSY), 72);
 }
 
 int CMainFrame::LogFontSizeToPointSize(int logFontSize)
 {
-	return -MulDiv(logFontSize, 72, GetDeviceCaps(GetDC(), LOGPIXELSY));
+	CDC dc(GetDC());
+	return -MulDiv(logFontSize, 72, GetDeviceCaps(dc, LOGPIXELSY));
 }
 
 bool CMainFrame::LoadSettings()
