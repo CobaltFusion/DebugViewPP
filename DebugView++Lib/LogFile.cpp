@@ -46,7 +46,7 @@ void LogFile::Clear()
 void LogFile::Add(const Message& msg)
 {
 	auto props = m_processInfo.GetProcessProperties(msg.processId, WStr(msg.processName).str());
-	m_messages.push_back(InternalMessage(msg.time, msg.systemTime, props.uid));
+	m_messages.emplace_back(InternalMessage(msg.time, msg.systemTime, props.uid));
 	m_storage.Add(msg.text);
 }
 

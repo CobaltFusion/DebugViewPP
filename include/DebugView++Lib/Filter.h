@@ -45,7 +45,7 @@ struct LogFilter
 void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg);
 void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg);
 
-bool IsIncluded(std::vector<Filter>& filters, const std::string& message, MatchColors& matchColors);
+bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColors& matchColors);
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
 
 std::string MatchKey(const std::smatch& match, MatchType::type matchType);

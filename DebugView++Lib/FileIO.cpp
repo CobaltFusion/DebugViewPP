@@ -300,7 +300,7 @@ void OpenLogFile(std::ofstream& ofstream, const std::wstring& filename, OpenMode
 	}
 }
 
-std::string GetOffsetText(double time)
+std::string GetOffsetText(double time) // todo: use libfmt ? consider speed here, so maybe not ?
 {
 	char buf[32];
 	sprintf_s(buf, "%.06f", time);

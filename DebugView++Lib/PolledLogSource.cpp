@@ -124,26 +124,26 @@ void PolledLogSource::Poll()
 void PolledLogSource::AddMessage(Win32::Handle handle, const std::string& message)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_lines.push_back(PollLine(std::move(handle), message, this));
+    m_lines.emplace_back(PollLine(std::move(handle), message, this));
 }
 
 void PolledLogSource::AddMessage(DWORD pid, const std::string& processName, const std::string& message)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	m_lines.push_back(PollLine(pid, processName, message, this));
+	m_lines.emplace_back(PollLine(pid, processName, message, this));
 }
 
 void PolledLogSource::AddMessage(const std::string& message)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 	std::string msg = message;
-	m_lines.push_back(PollLine(0, "[internal]", msg, this));
+	m_lines.emplace_back(PollLine(0, "[internal]", msg, this));
 }
 
 void PolledLogSource::AddMessage(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	m_lines.push_back(PollLine(time, systemTime, pid, processName, message, this));
+	m_lines.emplace_back(PollLine(time, systemTime, pid, processName, message, this));
 }
 
 void PolledLogSource::Signal()

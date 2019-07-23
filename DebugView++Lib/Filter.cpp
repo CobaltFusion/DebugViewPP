@@ -29,10 +29,7 @@ std::string MatchKey(const std::smatch& match, MatchType::type matchType)
 		}
 		return key;
 	}
-	else
-	{
-		return boost::to_lower_copy(match.str());
-	}
+	return boost::to_lower_copy(match.str());
 }
 
 Filter::Filter() :
@@ -49,8 +46,7 @@ std::regex_constants::syntax_option_type MakeSot(MatchType::type matchType)
 {
 	if (matchType == MatchType::RegexCase)
 		return std::regex_constants::optimize;
-	else
-		return std::regex_constants::icase | std::regex_constants::optimize;
+	return std::regex_constants::icase | std::regex_constants::optimize;
 }
 
 Filter::Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor, COLORREF fgColor, bool enable, bool matched) :

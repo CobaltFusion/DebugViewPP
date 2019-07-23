@@ -60,6 +60,7 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
 	if (rc == 0)
 		return L"";
 
+	// todo: make function? what does this do? (jan)
 	const wchar_t* name = buf.data();
 	for (auto it = buf.data(); *it; ++it)
 	{

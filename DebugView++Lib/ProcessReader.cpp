@@ -26,9 +26,7 @@ ProcessReader::ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::w
 	StartThread();
 }
 
-ProcessReader::~ProcessReader()
-{
-}
+ProcessReader::~ProcessReader() = default;
 
 void ProcessReader::Abort()
 {

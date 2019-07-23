@@ -34,7 +34,7 @@ void ProcessMonitor::Add(DWORD pid, HANDLE handle)
 {
 	m_q.Push([this, pid, handle]
 	{
-		m_processes.push_back(ProcessMonitor::ProcessInfo(pid, handle));
+		m_processes.emplace_back(ProcessMonitor::ProcessInfo(pid, handle));
 	});
 	Win32::SetEvent(m_event);
 }

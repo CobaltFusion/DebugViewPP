@@ -55,7 +55,7 @@ namespace Magic
 	const int Unknown5 = Base + 0x30; 
 	const int ForceCarriageReturnsEnable = Base + 0x34;
 	const int ForceCarriageReturnsDisable = Base + 0x38;
-};
+} // Magic
 
 template <typename T>
 std::string ToHex(const T& s)
