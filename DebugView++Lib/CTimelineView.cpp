@@ -177,7 +177,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	auto x = gdi::s_leftTextAreaBorder + m_tickOffset;
 	int lastX = 0;
 
-	auto pos = m_tickOffset;
+	//auto pos = m_tickOffset;
 	int majorTicks = width / m_minorTicksPerMajorTick;
 	for (int i = 0; i < majorTicks; ++i)
 	{
@@ -190,7 +190,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
 	}
 
 	x = gdi::s_leftTextAreaBorder;
-	int minorTicks = width / m_minorTickSize;
+	//int minorTicks = width / m_minorTickSize;
 	for (;x < lastX;)
 	{
 		dc.MoveTo(x, y);

@@ -334,12 +334,12 @@ Lines LogSources::GetLines()
 		if (IsRemoved(inputLine.pLogSource))
 			continue;
 		// let the logsource decide how to create processname
-		if (inputLine.pLogSource)
+		if (inputLine.pLogSource != nullptr)
 		{
 			inputLine.pLogSource->PreProcess(inputLine);
 		}
 
-		if (inputLine.handle)
+		if (inputLine.handle != nullptr)
 		{
 			Win32::Handle handle(inputLine.handle);
 			inputLine.pid = GetProcessId(inputLine.handle);

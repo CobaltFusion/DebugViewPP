@@ -165,7 +165,7 @@ void DbgviewReader::Loop()
 		std::string msg;
 		for (;;)
 		{
-			unsigned int lineNr = Read<DWORD>(ss);
+			Read<DWORD>(ss); // lineNr
 			if (!ss)
 				break;
 

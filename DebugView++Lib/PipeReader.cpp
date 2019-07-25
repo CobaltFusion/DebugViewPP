@@ -24,9 +24,7 @@ PipeReader::PipeReader(Timer& timer, ILineBuffer& linebuffer, HANDLE hPipe, DWOR
 	StartThread();
 }
 
-PipeReader::~PipeReader()
-{
-}
+PipeReader::~PipeReader() = default;
 
 bool PipeReader::AtEnd() const
 {
@@ -40,17 +38,19 @@ void PipeReader::Poll()
 
 void PipeReader::Poll(PolledLogSource& logsource)
 {
-	char buf[4096];
-	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf);
+	std::array<char, 4096> buf;
+
+	// copy m_buffer into 'buf', set 'start' to the position one past the last element copied
+	char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf.data());
 
 	DWORD avail = 0;
 	while (PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, &avail, nullptr) && avail > 0)
 	{
-		auto size = static_cast<DWORD>(buf + sizeof(buf) - start);
+		auto size = static_cast<DWORD>(buf.data() + sizeof(buf) - start);
 		DWORD read = 0;
 		ReadFile(m_hPipe, start, size, &read, nullptr);
 
-		char* begin = buf;
+		char* begin = buf.data();
 		char* end = start + read;
 		char* p = start;
 		while (p != end)
@@ -62,10 +62,12 @@ void PipeReader::Poll(PolledLogSource& logsource)
 			}
 			++p;
 		}
-		start = std::copy(begin, end, buf);
+		start = std::copy(begin, end, buf.data());
 	}
-	m_buffer = std::string(buf, start);
+	// keep remainer of line for next poll() 
+	m_buffer = std::string(buf.data(), start);
 }
+
 
 } // namespace debugviewpp 
 } // namespace fusion
