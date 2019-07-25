@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2015.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -15,7 +15,7 @@ namespace fusion {
 
 namespace {
 
-void DoCall(std::function<void ()>&& fn)
+void DoCall(std::function<void()>&& fn)
 {
 	try
 	{
@@ -33,9 +33,7 @@ void DoCall(std::function<void ()>&& fn)
 
 } // namespace
 
-GuiExecutorBase::~GuiExecutorBase()
-{
-}
+GuiExecutorBase::~GuiExecutorBase() = default;
 
 GuiExecutor::GuiExecutor() :
 	m_guiThreadId(std::this_thread::get_id()),
@@ -48,35 +46,37 @@ GuiExecutor::GuiExecutor() :
 GuiExecutor::~GuiExecutor()
 {
 	if (IsExecutorThread())
+	{
 		m_wnd.DestroyWindow();
+	}
 	else
+	{
 		Call([this] { m_wnd.DestroyWindow(); });
+	}
 }
 
-ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void ()> fn)
+ScheduledCall GuiExecutor::CallAt(const TimePoint& at, std::function<void()> fn)
 {
 	unsigned id = GetCallId();
-	CallAsync([this, id, at, fn]()
-	{
+	CallAsync([this, id, at, fn]() {
 		m_scheduledCalls.Insert(GuiExecutor::CallData(id, at, fn));
 		ResetTimer();
 	});
 	return MakeScheduledCall(id);
 }
 
-ScheduledCall GuiExecutor::CallAfter(const Duration& interval, std::function<void ()> fn)
+ScheduledCall GuiExecutor::CallAfter(const Duration& interval, std::function<void()> fn)
 {
 	return CallAt(std::chrono::steady_clock::now() + interval, fn);
 }
 
-ScheduledCall GuiExecutor::CallEvery(const Duration& interval, std::function<void ()> fn)
+ScheduledCall GuiExecutor::CallEvery(const Duration& interval, std::function<void()> fn)
 {
 	assert(interval > Duration::zero());
 
 	unsigned id = GetCallId();
 	auto at = std::chrono::steady_clock::now() + interval;
-	CallAsync([this, id, at, interval, fn]()
-	{
+	CallAsync([this, id, at, interval, fn]() {
 		m_scheduledCalls.Insert(GuiExecutor::CallData(id, at, interval, fn));
 		ResetTimer();
 	});
@@ -93,8 +93,7 @@ void GuiExecutor::Cancel(const ScheduledCall& call)
 	}
 	else
 	{
-		Call([this, id]()
-		{
+		Call([this, id]() {
 			m_scheduledCalls.Remove(id);
 			ResetTimer();
 		});
@@ -121,7 +120,9 @@ void GuiExecutor::OnMessage()
 	assert(IsExecutorThread());
 
 	while (!m_q.Empty())
+	{
 		DoCall(m_q.Pop());
+	}
 }
 
 void GuiExecutor::OnTimer()
@@ -150,16 +151,16 @@ void GuiExecutor::ResetTimer()
 	}
 }
 
-bool GuiWaitFor(std::function<bool ()> pred)
+bool GuiWaitFor(std::function<bool()> pred)
 {
 	while (!pred())
 	{
 		MSG msg;
-		switch (GetMessage(&msg, nullptr, 0, 0 ))
+		switch (GetMessage(&msg, nullptr, 0, 0))
 		{
 		case -1: Win32::ThrowLastError("GetMessage");
 		case 0: return false;
-        default: break;
+		default: break;
 		}
 
 		TranslateMessage(&msg);

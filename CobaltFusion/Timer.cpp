@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -19,8 +19,10 @@ Timer::Timer() :
 	LARGE_INTEGER li;
 	QueryPerformanceFrequency(&li);
 	if (li.QuadPart == 0)
+	{
 		throw std::runtime_error("QueryPerformanceCounter not supported!");
-	m_timerUnit = 1./li.QuadPart;
+	}
+	m_timerUnit = 1. / li.QuadPart;
 }
 
 void Timer::Reset()
@@ -38,7 +40,7 @@ double Timer::Get()
 		m_offset = ticks;
 		m_init = true;
 	}
-	return (ticks - m_offset)*m_timerUnit;
+	return (ticks - m_offset) * m_timerUnit;
 }
 
 long long Timer::GetTicks()

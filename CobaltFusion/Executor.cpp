@@ -9,14 +9,13 @@
 #include <cassert>
 #include <algorithm>
 #include <atomic>
+#include <utility>
 #include "CobaltFusion/Executor.h"
 #include "CobaltFusion/dbgstream.h"
 
 namespace fusion {
 
-ExecutorBase::~ExecutorBase()
-{
-}
+ExecutorBase::~ExecutorBase() = default;
 
 unsigned ExecutorBase::GetId(const ScheduledCall& call)
 {
@@ -49,7 +48,9 @@ void TimedCalls::Remove(unsigned id)
 {
 	auto it = std::find_if(m_scheduledCalls.begin(), m_scheduledCalls.end(), [id](const CallData& cd) { return cd.id == id; });
 	if (it != m_scheduledCalls.end())
+	{
 		m_scheduledCalls.erase(it);
+	}
 }
 
 TimedCalls::TimePoint TimedCalls::NextDeadline() const
@@ -63,7 +64,9 @@ TimedCalls::CallData TimedCalls::Pop()
 	TimedCalls::CallData call(std::move(m_scheduledCalls.back()));
 	m_scheduledCalls.pop_back();
 	if (call.interval != Duration::zero())
+	{
 		Insert(CallData(call.id, call.at + call.interval, call.interval, call.fn));
+	}
 	return call;
 }
 
@@ -79,7 +82,7 @@ TimedCalls::CallData::CallData(unsigned id, TimePoint at, Duration interval, std
 	id(id),
 	at(at),
 	interval(interval),
-	fn(fn)
+	fn(std::move(fn))
 {
 }
 
@@ -97,8 +100,10 @@ ScheduledCall::ScheduledCall(ExecutorBase& exec, unsigned id) :
 
 void ScheduledCall::Cancel()
 {
-	if (!pExec)
+	if (pExec == nullptr)
+	{
 		return;
+	}
 
 	pExec->Cancel(*this);
 	pExec = nullptr;
@@ -109,9 +114,7 @@ unsigned ScheduledCall::GetId() const
 	return id;
 }
 
-ScopedScheduledCall::ScopedScheduledCall()
-{
-}
+ScopedScheduledCall::ScopedScheduledCall() = default;
 
 ScopedScheduledCall::ScopedScheduledCall(const ScheduledCall& call) :
 	m_call(call)
@@ -139,7 +142,9 @@ ScopedScheduledCall& ScopedScheduledCall::operator=(const ScheduledCall& call)
 ScopedScheduledCall& ScopedScheduledCall::operator=(ScopedScheduledCall&& call)
 {
 	if (this == &call)
+	{
 		return *this;
+	}
 	m_call.Cancel();
 	m_call = call.m_call;
 	call.m_call = ScheduledCall();
@@ -151,9 +156,7 @@ void ScopedScheduledCall::Cancel()
 	m_call.Cancel();
 }
 
-Executor::Executor()
-{
-}
+Executor::Executor() = default;
 
 bool Executor::IsExecutorThread() const
 {
@@ -220,18 +223,26 @@ void TimedExecutor::Cancel(const ScheduledCall& call)
 {
 	unsigned id = GetId(call);
 	if (IsExecutorThread())
+	{
 		m_scheduledCalls.Remove(id);
+	}
 	else
+	{
 		Call([this, id]() { m_scheduledCalls.Remove(id); });
+	}
 }
 
 void TimedExecutor::RunOne()
 {
 	SetExecutorThread();
 	if (!m_scheduledCalls.IsEmpty() && !WaitForNotEmpty(m_scheduledCalls.NextDeadline()))
+	{
 		m_scheduledCalls.Pop().fn();
+	}
 	else
+	{
 		return Executor::RunOne();
+	}
 }
 
 ActiveExecutor::ActiveExecutor() :

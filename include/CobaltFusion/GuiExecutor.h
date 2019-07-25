@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2015.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -17,12 +17,11 @@ namespace fusion {
 namespace detail {
 
 template <typename Observer>
-class HiddenWindow :
-	public ATL::CWindowImpl<HiddenWindow<Observer>, ATL::CWindow, ATL::CNullTraits>
+class HiddenWindow : public ATL::CWindowImpl<HiddenWindow<Observer>, ATL::CWindow, ATL::CNullTraits>
 {
 	using Base = ATL::CWindowImpl<HiddenWindow<Observer>, ATL::CWindow, ATL::CNullTraits>;
 
-	public:
+public:
 	explicit HiddenWindow(Observer& observer) :
 		m_pObserver(&observer)
 	{
@@ -81,9 +80,8 @@ protected:
 	virtual ~GuiExecutorBase();
 };
 
-class GuiExecutor :
-	private ExecutorBase,
-	private GuiExecutorBase
+class GuiExecutor : private ExecutorBase,
+					private GuiExecutorBase
 {
 public:
 	typedef std::chrono::steady_clock Clock;
@@ -98,7 +96,7 @@ public:
 	{
 		assert(!IsExecutorThread());
 		typedef decltype(fn()) R;
-		std::packaged_task<R ()> task(fn);
+		std::packaged_task<R()> task(fn);
 		m_q.Push([&task]() { task(); });
 		m_wnd.Notify();
 		return task.get_future().get();
@@ -108,17 +106,17 @@ public:
 	auto CallAsync(Fn fn)
 	{
 		typedef decltype(fn()) R;
-		auto pTask = std::make_shared<std::packaged_task<R ()>>(fn);
+		auto pTask = std::make_shared<std::packaged_task<R()>>(fn);
 		m_q.Push([pTask]() { (*pTask)(); });
 		m_wnd.Notify();
 		return pTask->get_future();
 	}
 
-	ScheduledCall CallAt(const TimePoint& at, std::function<void ()> fn);
-	ScheduledCall CallAfter(const Duration& interval, std::function<void ()> fn);
-	ScheduledCall CallEvery(const Duration& interval, std::function<void ()> fn);
+	ScheduledCall CallAt(const TimePoint& at, std::function<void()> fn);
+	ScheduledCall CallAfter(const Duration& interval, std::function<void()> fn);
+	ScheduledCall CallEvery(const Duration& interval, std::function<void()> fn);
 
-    void Cancel(const ScheduledCall& call) override;
+	void Cancel(const ScheduledCall& call) override;
 
 	bool IsExecutorThread() const;
 	bool IsIdle() const;
@@ -133,10 +131,10 @@ private:
 
 	std::thread::id m_guiThreadId;
 	detail::HiddenWindow<GuiExecutorBase> m_wnd;
-	SynchronizedQueue<std::function<void ()>> m_q;
+	SynchronizedQueue<std::function<void()>> m_q;
 	TimedCalls m_scheduledCalls;
 };
 
-bool GuiWaitFor(std::function<bool ()> pred);
+bool GuiWaitFor(std::function<bool()> pred);
 
 } // namespace fusion

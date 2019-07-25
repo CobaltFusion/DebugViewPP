@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2016.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -15,7 +15,8 @@ namespace fusion {
 class thread : private std::thread
 {
 public:
-    explicit thread(std::function<void()> fn) : std::thread(fn)
+	explicit thread(std::function<void()> fn) :
+		std::thread(fn)
 	{
 	}
 
@@ -26,7 +27,8 @@ public:
 
 	void join()
 	{
-		if (joinable()) std::thread::join();
+		if (joinable())
+			std::thread::join();
 	}
 
 	void detach()

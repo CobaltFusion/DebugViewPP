@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2015.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -29,7 +29,7 @@ public:
 
 protected:
 	virtual ~ExecutorBase();
-    static unsigned GetId(const ScheduledCall& call);
+	static unsigned GetId(const ScheduledCall& call);
 	ScheduledCall MakeScheduledCall(unsigned id);
 
 	static unsigned GetCallId();
@@ -82,7 +82,7 @@ public:
 		unsigned id;
 		TimePoint at;
 		Duration interval;
-		std::function<void ()> fn;
+		std::function<void()> fn;
 	};
 
 	bool IsEmpty() const;
@@ -105,7 +105,7 @@ public:
 	auto Call(Fn fn)
 	{
 		assert(!IsExecutorThread());
-		std::packaged_task<decltype(fn()) ()> task(fn);
+		std::packaged_task<decltype(fn())()> task(fn);
 		Add([&task]() { task(); });
 		return task.get_future().get();
 	}
@@ -113,7 +113,7 @@ public:
 	template <typename Fn>
 	auto CallAsync(Fn fn)
 	{
-		auto pTask = std::make_shared<std::packaged_task<decltype(fn()) ()>>(fn);
+		auto pTask = std::make_shared<std::packaged_task<decltype(fn())()>>(fn);
 		auto f = pTask->get_future();
 		Add([pTask]() { (*pTask)(); });
 		return f;
@@ -122,13 +122,13 @@ public:
 	bool IsExecutorThread() const;
 	bool IsIdle() const;
 
-    virtual void RunOne();
+	virtual void RunOne();
 	void Synchronize();
 
 protected:
 	void SetExecutorThread();
 	void SetExecutorThread(std::thread::id id);
-	void Add(std::function<void ()> fn);
+	void Add(std::function<void()> fn);
 
 	template <typename Clock, typename Duration>
 	bool WaitForNotEmpty(const std::chrono::time_point<Clock, Duration>& time) const
@@ -137,26 +137,25 @@ protected:
 	}
 
 private:
-	SynchronizedQueue<std::function<void ()>> m_q;
+	SynchronizedQueue<std::function<void()>> m_q;
 	std::thread::id m_threadId;
 };
 
-class TimedExecutor :
-	private ExecutorBase,
-	public Executor
+class TimedExecutor : private ExecutorBase,
+					  public Executor
 {
 public:
 	typedef TimedCalls::Clock Clock;
 	typedef TimedCalls::TimePoint TimePoint;
 	typedef TimedCalls::Duration Duration;
 
-	ScheduledCall CallAt(const TimePoint& at, std::function<void ()> fn);
-	ScheduledCall CallAfter(const Duration& interval, std::function<void ()> fn);
-	ScheduledCall CallEvery(const Duration& interval, std::function<void ()> fn);
+	ScheduledCall CallAt(const TimePoint& at, std::function<void()> fn);
+	ScheduledCall CallAfter(const Duration& interval, std::function<void()> fn);
+	ScheduledCall CallEvery(const Duration& interval, std::function<void()> fn);
 
 	void Cancel(const ScheduledCall& call) override;
 
-    void RunOne() override;
+	void RunOne() override;
 
 private:
 	typedef TimedCalls::CallData CallData;

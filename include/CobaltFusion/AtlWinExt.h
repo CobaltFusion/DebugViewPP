@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -10,6 +10,7 @@
 #include <atlbase.h>
 #include <atlwin.h>
 
+// clang-format off
 #define DECLARE_MSG_MAP() \
 	template <typename T, typename E1, typename E2, typename E3, typename E4, typename E5, typename E6, typename E7, typename E8, typename E9, typename E10> \
 	friend struct ExceptionHandler; \
@@ -42,6 +43,8 @@
 		switch(dwMsgMapID) \
 		{ \
 		case 0:
+
+// clang-format on
 
 template <typename T, typename E1 = void, typename E2 = void, typename E3 = void, typename E4 = void, typename E5 = void, typename E6 = void, typename E7 = void, typename E8 = void, typename E9 = void, typename E10 = void>
 struct ExceptionHandler : ExceptionHandler<T, E2, E3, E4, E5, E6, E7, E8, E9, E10>

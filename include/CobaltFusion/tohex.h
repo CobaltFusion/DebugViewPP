@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -19,8 +19,7 @@ auto to_hex(const T* value, size_t size_in_bytes)
 {
 	std::ostringstream ss;
 
-	auto to_hex = [&ss](std::byte value) -> std::ostringstream&
-	{
+	auto to_hex = [&ss](std::byte value) -> std::ostringstream& {
 		ss << std::setw(2) << std::setfill('0') << std::hex << static_cast<unsigned int>(value);
 		return ss;
 	};

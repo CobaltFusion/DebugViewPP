@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -12,42 +12,42 @@
 
 namespace fusion {
 
-// see http://en.wikipedia.org/wiki/Circular_buffer 
+// see http://en.wikipedia.org/wiki/Circular_buffer
 // the 'Always Keep One Slot Open' strategy is used to distigush between empty and full conditions
 
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Empty Buffer
-// +---+----+--+---+---+---+---+---+ 
+// +---+----+--+---+---+---+---+---+
 //               R
 //               W
 
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    1 Bytes in buffer
-// +---+----+--+---+---+---+---+---+ 
-//               R   W 
+// +---+----+--+---+---+---+---+---+
+//               R   W
 //
 
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    2 Bytes in buffer
-// +---+----+--+---+---+---+---+---+ 
-//               R       W 
+// +---+----+--+---+---+---+---+---+
+//               R       W
 //
 
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    2 Bytes in buffer
-// +---+----+--+---+---+---+---+---+ 
+// +---+----+--+---+---+---+---+---+
 //       W                       R
 //
 
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Full buffer (1 byte used as 'open slot')
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 //           W   R
 
-// +---+---+---+---+---+---+---+---+ 
+// +---+---+---+---+---+---+---+---+
 // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |    Full buffer (1 byte used as 'open slot')
-// +---+---+---+---+---+---+---+---+ 
-//   R                           W 
+// +---+---+---+---+---+---+---+---+
+//   R                           W
 
 
 CircularBuffer::CircularBuffer(size_t capacity) :
@@ -100,7 +100,7 @@ std::string CircularBuffer::ReadStringZ()
 void CircularBuffer::WriteStringZ(const char* message)
 {
 	//std::cerr << "  WriteStringZ\n";
-	while (*message)
+	while (*message != 0)
 	{
 		Write(*message);
 		++message;
@@ -151,7 +151,9 @@ void CircularBuffer::Swap(CircularBuffer& cb)
 char CircularBuffer::Read()
 {
 	if (Empty())
+	{
 		throw std::exception("Read from empty buffer!");
+	}
 
 	auto value = *ReadPointer();
 	//std::cerr << "  " << m_readOffset << " => " << unsigned int(unsigned char(value)) << "\n";
