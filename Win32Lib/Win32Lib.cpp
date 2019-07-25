@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -24,7 +24,7 @@
 #include <AccCtrl.h>
 #endif
 
-#pragma comment(lib, "advapi32.lib")	// SetPrivilege
+#pragma comment(lib, "advapi32.lib") // SetPrivilege
 
 namespace fusion {
 namespace Win32 {
@@ -32,32 +32,43 @@ namespace Win32 {
 void LocalAllocDeleter::operator()(pointer p) const
 {
 	if (p != nullptr)
+	{
 		LocalFree(p);
+	}
 }
 
 void GlobalAllocDeleter::operator()(pointer p) const
 {
 	if (p != nullptr)
+	{
 		GlobalFree(p);
+	}
 }
 
 void HandleDeleter::operator()(pointer p) const
 {
 	if (p != nullptr && p != INVALID_HANDLE_VALUE)
+	{
 		CloseHandle(p);
+	}
 }
 
 void ChangeNotificationHandleDeleter::operator()(pointer p) const
 {
 	if (p != nullptr && p != INVALID_HANDLE_VALUE)
+	{
 		FindCloseChangeNotification(p);
+	}
 }
 
 GdiObjectSelection::GdiObjectSelection(HDC hdc, HGDIOBJ hObject) :
-	m_hdc(hdc), m_hObject(SelectObject(hdc, hObject))
+	m_hdc(hdc),
+	m_hObject(SelectObject(hdc, hObject))
 {
-	if (!m_hObject)
+	if (m_hObject == nullptr)
+	{
 		ThrowLastError("SelectObject");
+	}
 }
 
 GdiObjectSelection::~GdiObjectSelection()
@@ -66,10 +77,13 @@ GdiObjectSelection::~GdiObjectSelection()
 }
 
 ScopedTextColor::ScopedTextColor(HDC hdc, COLORREF color) :
-	m_hdc(hdc), m_color(::SetTextColor(hdc, color))
+	m_hdc(hdc),
+	m_color(::SetTextColor(hdc, color))
 {
 	if (m_color == CLR_INVALID)
+	{
 		ThrowLastError("SetTextColor");
+	}
 }
 
 ScopedTextColor::~ScopedTextColor()
@@ -78,10 +92,13 @@ ScopedTextColor::~ScopedTextColor()
 }
 
 ScopedBkColor::ScopedBkColor(HDC hdc, COLORREF color) :
-	m_hdc(hdc), m_color(::SetBkColor(hdc, color))
+	m_hdc(hdc),
+	m_color(::SetBkColor(hdc, color))
 {
 	if (m_color == CLR_INVALID)
+	{
 		ThrowLastError("SetBkColor");
+	}
 }
 
 ScopedBkColor::~ScopedBkColor()
@@ -90,10 +107,13 @@ ScopedBkColor::~ScopedBkColor()
 }
 
 ScopedTextAlign::ScopedTextAlign(HDC hdc, UINT align) :
-	m_hdc(hdc), m_align(::SetTextAlign(hdc, align))
+	m_hdc(hdc),
+	m_align(::SetTextAlign(hdc, align))
 {
 	if (m_align == GDI_ERROR)
+	{
 		ThrowLastError("SetTextAlign");
+	}
 }
 
 ScopedTextAlign::~ScopedTextAlign()
@@ -109,17 +129,17 @@ std::wstring MultiByteToWideChar(std::string_view str)
 	return std::wstring(buf.data(), buf.data() + write_len);
 }
 
-std::wstring MultiByteToWideChar_std(std::string_view str) // supposedly more reliable, but not working. 
+std::wstring MultiByteToWideChar_std(std::string_view str) // supposedly more reliable, but not working.
 {
 	std::setlocale(LC_ALL, "");
-	std::wstring ws(2*str.size(), L'\0');
-	ws.resize(std::mbstowcs(&ws[0], str.data() , str.size())); // Shrink to fit.
+	std::wstring ws(2 * str.size(), L'\0');
+	ws.resize(std::mbstowcs(&ws[0], str.data(), str.size())); // Shrink to fit.
 	return ws;
 }
 
 std::string WideCharToMultiByte(std::wstring_view str)
 {
-	size_t buf_size = str.size()*2 + 2;
+	size_t buf_size = str.size() * 2 + 2;
 	std::vector<char> buf(buf_size);
 	size_t write_len = ::WideCharToMultiByte(0, 0, str.data(), static_cast<int>(str.size()), buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
 	return std::string(buf.data(), buf.data() + write_len);
@@ -179,8 +199,10 @@ FILETIME FileTimeToLocalFileTime(const FILETIME& ft)
 {
 	ThrowIfZero(ft);
 	FILETIME ftLocal;
-	if (!::FileTimeToLocalFileTime(&ft, &ftLocal))
+	if (::FileTimeToLocalFileTime(&ft, &ftLocal) == 0)
+	{
 		ThrowLastError("FileTimeToLocalFileTime");
+	}
 	return ftLocal;
 }
 
@@ -188,8 +210,10 @@ FILETIME LocalFileTimeToFileTime(const FILETIME& ftLocal)
 {
 	ThrowIfZero(ftLocal);
 	FILETIME ft;
-	if (!::LocalFileTimeToFileTime(&ftLocal, &ft))
+	if (::LocalFileTimeToFileTime(&ftLocal, &ft) == 0)
+	{
 		ThrowLastError("LocalFileTimeToFileTime");
+	}
 	return ft;
 }
 
@@ -197,16 +221,20 @@ SYSTEMTIME FileTimeToSystemTime(const FILETIME& ft)
 {
 	ThrowIfZero(ft);
 	SYSTEMTIME st;
-	if (!::FileTimeToSystemTime(&ft, &st))
+	if (::FileTimeToSystemTime(&ft, &st) == 0)
+	{
 		ThrowLastError("FileTimeToSystemTime");
+	}
 	return st;
 }
 
 FILETIME SystemTimeToFileTime(const SYSTEMTIME& st)
 {
 	FILETIME ft;
-	if (!::SystemTimeToFileTime(&st, &ft))
+	if (::SystemTimeToFileTime(&st, &ft) == 0)
+	{
 		ThrowLastError("SystemTimeToFileTime");
+	}
 	return ft;
 }
 
@@ -214,7 +242,9 @@ Handle CreateFileMapping(HANDLE hFile, const SECURITY_ATTRIBUTES* pAttributes, D
 {
 	Handle hMap(::CreateFileMappingW(hFile, const_cast<SECURITY_ATTRIBUTES*>(pAttributes), protect, maximumSizeHigh, maximumSizeLow, pName));
 	if (!hMap)
+	{
 		ThrowLastError("CreateFileMapping");
+	}
 
 	return hMap;
 }
@@ -223,16 +253,20 @@ Handle OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId
 {
 	Handle hProcessHandle(::OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId));
 	if (!hProcessHandle)
+	{
 		ThrowLastError(L"OpenProcess");
+	}
 
 	return hProcessHandle;
 }
 
 Handle CreateEvent(const SECURITY_ATTRIBUTES* pEventAttributes, bool manualReset, bool initialState, const wchar_t* pName)
 {
-	Handle hEvent(::CreateEventW(const_cast<SECURITY_ATTRIBUTES*>(pEventAttributes), manualReset, initialState, pName));
+	Handle hEvent(::CreateEventW(const_cast<SECURITY_ATTRIBUTES*>(pEventAttributes), static_cast<BOOL>(manualReset), static_cast<BOOL>(initialState), pName));
 	if (!hEvent)
+	{
 		ThrowLastError("CreateEvent");
+	}
 
 	return hEvent;
 }
@@ -244,21 +278,27 @@ void SetEvent(Handle& hEvent)
 
 void SetEvent(HANDLE hEvent)
 {
-	if (!::SetEvent(hEvent))
+	if (::SetEvent(hEvent) == 0)
+	{
 		ThrowLastError("SetEvent");
+	}
 }
 
 Handle CreateMutex(const SECURITY_ATTRIBUTES* pMutexAttributes, bool initialOwner, const wchar_t* pName)
 {
-	Handle hMutex(::CreateMutexW(const_cast<SECURITY_ATTRIBUTES*>(pMutexAttributes), initialOwner, pName));
+	Handle hMutex(::CreateMutexW(const_cast<SECURITY_ATTRIBUTES*>(pMutexAttributes), static_cast<BOOL>(initialOwner), pName));
 	if (!hMutex)
+	{
 		ThrowLastError("CreateMutex");
+	}
 
 	return hMutex;
 }
 
-void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, const PSID psidOwner, const PSID psidGroup, const PACL pDacl, const PACL pSacl) {
-	if (::SetSecurityInfo(hObject, ObjectType, SecurityInfo, psidOwner, psidGroup, pDacl, pSacl) != ERROR_SUCCESS) {
+void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, const PSID psidOwner, const PSID psidGroup, const PACL pDacl, const PACL pSacl)
+{
+	if (::SetSecurityInfo(hObject, ObjectType, SecurityInfo, psidOwner, psidGroup, pDacl, pSacl) != ERROR_SUCCESS)
+	{
 		ThrowLastError("SetSecurityInfo");
 	}
 }
@@ -336,7 +376,7 @@ bool WaitForSingleObject(const Handle& hObject, DWORD milliSeconds)
 	return WaitForSingleObject(hObject.get(), milliSeconds);
 }
 
-WaitResult::WaitResult(bool signaled, int index) : 
+WaitResult::WaitResult(bool signaled, int index) :
 	signaled(signaled),
 	index(index)
 {
@@ -345,15 +385,22 @@ WaitResult::WaitResult(bool signaled, int index) :
 WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool waitAll, DWORD milliSeconds)
 {
 	size_t count = end - begin;
-	auto rc = ::WaitForMultipleObjects(static_cast<DWORD>(count), begin, waitAll, milliSeconds);
+	auto rc = ::WaitForMultipleObjects(static_cast<DWORD>(count), begin, static_cast<BOOL>(waitAll), milliSeconds);
 	if (rc == WAIT_TIMEOUT)
+	{
 		return WaitResult(false);
+	}
 	if (rc == WAIT_FAILED)
+	{
 		ThrowLastError("WaitForMultipleObjects");
+	}
 	if (rc >= WAIT_OBJECT_0 && rc < WAIT_OBJECT_0 + count)
+	{
 		return WaitResult(true, rc - WAIT_OBJECT_0);
-	else
+	}
+	{
 		throw std::runtime_error("WaitForMultipleObjects");
+	}
 }
 
 WaitResult WaitForAnyObject(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds)
@@ -374,23 +421,31 @@ bool IsProcessRunning(HANDLE handle)
 MutexLock::MutexLock(HANDLE hMutex) :
 	m_hMutex(hMutex)
 {
-	if (hMutex)
+	if (hMutex != nullptr)
+	{
 		WaitForSingleObject(hMutex);
+	}
 }
 
 MutexLock::~MutexLock()
 {
-	if (m_hMutex)
+	if (m_hMutex != nullptr)
+	{
 		ReleaseMutex(m_hMutex);
+	}
 }
 
 void MutexLock::Release()
 {
-	if (!m_hMutex)
+	if (m_hMutex == nullptr)
+	{
 		return;
+	}
 
-	if (!ReleaseMutex(m_hMutex))
+	if (ReleaseMutex(m_hMutex) == 0)
+	{
 		ThrowLastError("ReleaseMutex");
+	}
 	m_hMutex = nullptr;
 }
 
@@ -399,7 +454,9 @@ MappedViewOfFile::MappedViewOfFile(HANDLE hFileMappingObject, DWORD access, DWOR
 	m_ptr(::MapViewOfFile(hFileMappingObject, access, offsetHigh, offsetLow, bytesToMap))
 {
 	if (m_ptr == nullptr)
+	{
 		ThrowLastError("MapViewOfFile");
+	}
 }
 
 MappedViewOfFile::~MappedViewOfFile()
@@ -430,8 +487,10 @@ ScopedCursor::ScopedCursor(ScopedCursor&& sc) :
 
 ScopedCursor::~ScopedCursor()
 {
-	if (m_hCursor)
+	if (m_hCursor != nullptr)
+	{
 		::SetCursor(m_hCursor);
+	}
 }
 
 void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
@@ -439,21 +498,27 @@ void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
 	TOKEN_PRIVILEGES tp;
 	LUID luid;
 	if (!LookupPrivilegeValue(nullptr, privilege, &luid))
+	{
 		ThrowLastError("LookupPrivilegeValue");
+	}
 
 	tp.PrivilegeCount = 1;
 	tp.Privileges[0].Luid = luid;
 	tp.Privileges[0].Attributes = enablePrivilege ? SE_PRIVILEGE_ENABLED : 0;
 
-	if (!AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), nullptr, nullptr))
+	if (AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), nullptr, nullptr) == 0)
+	{
 		ThrowLastError("AdjustTokenPrivileges");
+	}
 }
 
 void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 {
-	HANDLE handle; 
-	if (!::OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle))
+	HANDLE handle;
+	if (::OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle) == 0)
+	{
 		ThrowLastError("OpenProcessToken");
+	}
 
 	Handle hToken(handle);
 	SetPrivilege(hToken.get(), privilege, enablePrivilege);
@@ -464,10 +529,12 @@ DWORD GetParentProcessId()
 {
 	ULONG_PTR pbi[6];
 	ULONG ulSize = 0;
-	long (WINAPI* NtQueryInformationProcess)(HANDLE ProcessHandle, ULONG ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* pReturnLength);
-	*reinterpret_cast<FARPROC *>(&NtQueryInformationProcess) = GetProcAddress(LoadLibraryA("NTDLL.DLL"), "NtQueryInformationProcess");
-	if (NtQueryInformationProcess && NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
+	long(WINAPI * NtQueryInformationProcess)(HANDLE ProcessHandle, ULONG ProcessInformationClass, void* ProcessInformation, ULONG ProcessInformationLength, ULONG* pReturnLength);
+	*reinterpret_cast<FARPROC*>(&NtQueryInformationProcess) = GetProcAddress(LoadLibraryA("NTDLL.DLL"), "NtQueryInformationProcess");
+	if ((NtQueryInformationProcess != nullptr) && NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
+	{
 		return static_cast<DWORD>(pbi[5]);
+	}
 	return static_cast<DWORD>(-1);
 }
 
@@ -482,8 +549,10 @@ std::vector<std::wstring> GetCommandLineArguments()
 DWORD GetExitCodeProcess(HANDLE hProcess)
 {
 	DWORD exitCode;
-	if (!::GetExitCodeProcess(hProcess, &exitCode))
+	if (::GetExitCodeProcess(hProcess, &exitCode) == 0)
+	{
 		ThrowLastError("GetExitCodeProcess");
+	}
 	return exitCode;
 }
 
@@ -499,7 +568,9 @@ std::wstring GetWindowText(HWND hWnd)
 	if (::GetWindowTextW(hWnd, text.data(), length + 1) == 0)
 	{
 		if (auto err = GetLastError())
+		{
 			throw Win32Error(err, "GetWindowText");
+		}
 	}
 	return std::wstring(text.data(), length);
 }
@@ -507,8 +578,10 @@ std::wstring GetWindowText(HWND hWnd)
 std::wstring GetDlgItemText(HWND hDlg, int idc)
 {
 	HWND hWnd = ::GetDlgItem(hDlg, idc);
-	if (!hWnd)
+	if (hWnd == nullptr)
+	{
 		ThrowLastError("GetExitCodeProcess");
+	}
 	return GetWindowText(hWnd);
 }
 
@@ -529,21 +602,27 @@ HFile::HFile(const std::string& filename) :
 HFile::~HFile()
 {
 	if (m_handle != -1)
+	{
 		::_close(m_handle);
+	}
 }
 
 size_t HFile::size() const
 {
 	auto size = ::_filelength(m_handle);
 	if (size == -1)
+	{
 		ThrowLastError("_filelength");
+	}
 	return size;
 }
 
 void HFile::resize(size_t size) const
 {
 	if (_chsize_s(m_handle, size) != 0)
+	{
 		ThrowLastError("_chsize");
+	}
 }
 
 // SEH (Structured Exception Handling) return codes are in the 0xC000000-0xfffff00 range
@@ -580,8 +659,8 @@ std::wstring GetSEHcodeDescription(DWORD code)
 
 std::wstring GetHresultMessage(HRESULT hr)
 {
-    _com_error err(hr);
-    return err.ErrorMessage();
+	_com_error err(hr);
+	return err.ErrorMessage();
 }
 
 // RESULT return codes are in the 0x8000000-0xbffffff range
@@ -605,45 +684,48 @@ std::wstring GetHresultName(HRESULT hr)
 
 std::wstring GetHresultDescription(HRESULT hr)
 {
-    auto msg = GetHresultMessage(hr);
-    auto name = GetHresultName(hr);
-    if (name.empty()) return msg;
-    return name + L", " + msg;
+	auto msg = GetHresultMessage(hr);
+	auto name = GetHresultName(hr);
+	if (name.empty())
+	{
+		return msg;
+	}
+	return name + L", " + msg;
 }
 
-JobObject::JobObject()
-    : m_jobHandle(::CreateJobObject(nullptr, nullptr))
+JobObject::JobObject() :
+	m_jobHandle(::CreateJobObject(nullptr, nullptr))
 {
-    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
 
-    jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-    if (0 == ::SetInformationJobObject(m_jobHandle.get(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
-    {
-        ThrowLastError("SetInformationJobObject");
-    }
+	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	if (0 == ::SetInformationJobObject(m_jobHandle.get(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+	{
+		ThrowLastError("SetInformationJobObject");
+	}
 }
 
 HANDLE JobObject::get() const
 {
-    return m_jobHandle.get();
+	return m_jobHandle.get();
 }
 
 void JobObject::AddProcessById(DWORD pid) const
 {
-    Handle processHandle(OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid));
-    ::AssignProcessToJobObject(m_jobHandle.get(), processHandle.get());
+	Handle processHandle(OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid));
+	::AssignProcessToJobObject(m_jobHandle.get(), processHandle.get());
 }
 
 void JobObject::AddProcessByHandle(HANDLE processHandle) const
 {
-    ::AssignProcessToJobObject(m_jobHandle.get(), processHandle);
+	::AssignProcessToJobObject(m_jobHandle.get(), processHandle);
 }
 
 Handle DuplicateHandle(HANDLE handle)
 {
-    HANDLE result;
-    ::DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(), &result, 0, FALSE, DUPLICATE_SAME_ACCESS);
-    return Handle(result);
+	HANDLE result;
+	::DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(), &result, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	return Handle(result);
 }
 
 } // namespace Win32

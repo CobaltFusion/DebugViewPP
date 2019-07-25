@@ -42,7 +42,9 @@ Process::Process(const std::wstring& pathName, const std::vector<std::wstring>& 
 	while (it != args.end())
 	{
 		if (it != args.begin())
+		{
 			commandLine += L" ";
+		}
 		commandLine += *it;
 		++it;
 	}
@@ -58,7 +60,7 @@ Process::Process(const std::wstring& pathName, const std::wstring& args)
 void Process::Run(const std::wstring& pathName, const std::wstring& args)
 {
 	auto pos = pathName.find_last_of(L"\\/:");
-	m_name = pos != pathName.npos ? pathName.substr(pos + 1) : pathName;
+	m_name = pos != std::wstring::npos ? pathName.substr(pos + 1) : pathName;
 
 	std::wstring commandLine;
 	commandLine += L"\"";
@@ -73,32 +75,47 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 
 	SECURITY_ATTRIBUTES saAttr;
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-	saAttr.bInheritHandle = true;
+	saAttr.bInheritHandle = 1;
 	saAttr.lpSecurityDescriptor = nullptr;
 
-	HANDLE stdInRd, stdInWr;
-	if (!CreatePipe(&stdInRd, &stdInWr, &saAttr, 0))
+	HANDLE stdInRd;
+	HANDLE stdInWr;
+	if (CreatePipe(&stdInRd, &stdInWr, &saAttr, 0) == 0)
+	{
 		ThrowLastError("CreatePipe");
+	}
 	Handle stdInRd2(stdInRd);
 	m_stdIn.reset(stdInWr);
-	if (!SetHandleInformation(stdInWr, HANDLE_FLAG_INHERIT, 0))
+	if (SetHandleInformation(stdInWr, HANDLE_FLAG_INHERIT, 0) == 0)
+	{
 		ThrowLastError("SetHandleInformation stdInWr");
+	}
 
-	HANDLE stdOutRd, stdOutWr;
-	if (!CreatePipe(&stdOutRd, &stdOutWr, &saAttr, 0))
+	HANDLE stdOutRd;
+	HANDLE stdOutWr;
+	if (CreatePipe(&stdOutRd, &stdOutWr, &saAttr, 0) == 0)
+	{
 		ThrowLastError("CreatePipe");
+	}
 	Handle stdOutWr2(stdOutWr);
 	m_stdOut.reset(stdOutRd);
-	if (!SetHandleInformation(stdOutRd, HANDLE_FLAG_INHERIT, 0))
+	if (SetHandleInformation(stdOutRd, HANDLE_FLAG_INHERIT, 0) == 0)
+	{
 		ThrowLastError("SetHandleInformation stdOutRd");
+	}
 
-	HANDLE stdErrRd, stdErrWr;
-	if (!CreatePipe(&stdErrRd, &stdErrWr, &saAttr, 0))
+	HANDLE stdErrRd;
+	HANDLE stdErrWr;
+	if (CreatePipe(&stdErrRd, &stdErrWr, &saAttr, 0) == 0)
+	{
 		ThrowLastError("CreatePipe");
+	}
 	Handle stdErrWr2(stdErrWr);
 	m_stdErr.reset(stdErrRd);
-	if (!SetHandleInformation(stdErrRd, HANDLE_FLAG_INHERIT, 0))
+	if (SetHandleInformation(stdErrRd, HANDLE_FLAG_INHERIT, 0) == 0)
+	{
 		ThrowLastError("SetHandleInformation stdErrRd");
+	}
 
 	STARTUPINFO startupInfo;
 	startupInfo.cb = sizeof(startupInfo);
@@ -127,13 +144,15 @@ void Process::Run(const std::wstring& pathName, const std::wstring& args)
 			commandLine.data(),
 			nullptr,
 			nullptr,
-			true,
+			1,
 			0,
 			nullptr,
 			nullptr,
 			&startupInfo,
 			&processInformation))
+	{
 		ThrowLastError("CreateProcess");
+	}
 
 	m_hProcess.reset(processInformation.hProcess);
 	m_hThread.reset(processInformation.hThread);

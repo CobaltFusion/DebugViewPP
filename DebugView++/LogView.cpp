@@ -68,7 +68,7 @@ int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
 	auto exp = TabsToSpaces(s);
 	int nFit = 0;
 	SIZE size = {};
-	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), exp.size(), xPos, &nFit, nullptr, &size))
+	if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size))
 		return 0;
 	return SkipTabOffset(s, nFit);
 }

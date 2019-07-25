@@ -322,13 +322,13 @@ std::wstring GetHresultDescription(HRESULT hr);
 class JobObject
 {
 public:
-    JobObject();
-    HANDLE get() const;
-    void AddProcessById(DWORD processId) const;
-    void AddProcessByHandle(HANDLE processHandle) const;
+	JobObject();
+	HANDLE get() const;
+	void AddProcessById(DWORD processId) const;
+	void AddProcessByHandle(HANDLE processHandle) const;
 
 private:
-    Handle m_jobHandle;
+	Handle m_jobHandle;
 };
 
 Handle DuplicateHandle(HANDLE handle);

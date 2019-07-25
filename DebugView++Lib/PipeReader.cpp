@@ -10,6 +10,7 @@
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/PipeReader.h"
 #include "DebugView++Lib/LineBuffer.h"
+#include <array>
 
 namespace fusion {
 namespace debugviewpp {
