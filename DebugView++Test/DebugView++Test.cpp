@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE(LoadUTF16LE)
 	executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 
 	// assumption: should be done in 4 seconds, even in debug mode
-	int totalLines = 0;
+	size_t totalLines = 0;
 	for (int i = 0; i < 20; ++i)
 	{
 		std::this_thread::sleep_for(200ms);

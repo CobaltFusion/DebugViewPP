@@ -24,12 +24,12 @@ RECT TimelineDC::GetClientArea() const
 
 void TimelineDC::DrawTextOut(const std::wstring& str, int x, int y)
 {
-	TextOut(x, y, str.c_str(), str.size());
+	TextOut(x, y, str.c_str(), static_cast<int>(str.size()));
 }
 
 void TimelineDC::DrawPolygon(const std::vector<POINT>& points)
 {
-	Polygon(points.data(), points.size());
+	Polygon(points.data(), static_cast<int>(points.size()));
 }
 
 void TimelineDC::DrawTimeline(const std::wstring& name, Pixel x, Pixel y, int width, COLORREF color)
