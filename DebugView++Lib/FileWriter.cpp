@@ -23,7 +23,7 @@ FileWriter::FileWriter(const std::wstring& filename, LogFile& logfile) :
 void FileWriter::Run()
 {
 	//todo: we need locking on Logfile, think of ClearLog() 
-	size_t writeIndex = 0;
+	int writeIndex = 0;
 	for (;;)
 	{
 		while (writeIndex < m_logfile.Count())

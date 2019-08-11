@@ -93,8 +93,8 @@ std::string SaveLogFile(const LogFile& logfile)
 	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Truncate);
-	const std::size_t count = logfile.Count();
-	for (std::size_t i = 0; i < count; ++i)
+	const int count = logfile.Count();
+	for (int i = 0; i < count; ++i)
 	{
 		auto msg = logfile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -108,8 +108,8 @@ std::string AppendLogFile(const LogFile& logfile)
 	auto filename = GetTestFileName();
 	std::ofstream fs;
 	OpenLogFile(fs, WStr(filename), OpenMode::Append);
-	std::size_t count = logfile.Count();
-	for (std::size_t i = 0; i < count; ++i)
+	int count = logfile.Count();
+	for (int i = 0; i < count; ++i)
 	{
 		auto msg = logfile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -152,8 +152,8 @@ bool AreEqual(const LogFile& a, const LogFile& b)
 {
 	if (a.Count() != b.Count())
 		return false;
-	size_t count = a.Count();
-	for (size_t i = 0; i < count; ++i)
+	int count = a.Count();
+	for (int i = 0; i < count; ++i)
 	{
 		if (!AreEqual(a[i], b[i]))
 			return false;

@@ -64,7 +64,7 @@ std::wstring FormatUnits(int n, const std::wstring& unit)
 std::wstring FormatDuration(double seconds)
 {
 	int minutes = FloorTo<int>(seconds / 60);
-	seconds -= 60 * minutes;
+	seconds -= 60.0 * minutes;
 
 	int hours = minutes / 60;
 	minutes -= 60 * hours;
@@ -363,7 +363,7 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 	if (m_logFile.Empty())
 		return SelectionInfo();
 
-	return SelectionInfo(0, static_cast<int>(m_logFile.Count() - 1), static_cast<int>(m_logFile.Count()));
+	return SelectionInfo(0, m_logFile.Count() - 1, m_logFile.Count());
 }
 
 void CMainFrame::UpdateStatusBar()
@@ -855,8 +855,8 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 
 	std::ofstream fs;
 	OpenLogFile(fs, filename);
-	std::size_t count = m_logFile.Count();
-	for (std::size_t i = 0; i < count; ++i)
+	int count = m_logFile.Count();
+	for (int i = 0; i < count; ++i)
 	{
 		auto msg = m_logFile[i];
 		WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -1195,10 +1195,7 @@ void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 		return;
 
 	LogFile temp;
-	m_logFile.Copy(selection.beginLine, selection.endLine, temp);
-
-	// notice although this looks efficient, it is not, class LogFile and its composites are 'moveable' only because they are copyable.
-	// so this might temporarily allocate quite a bit of memory
+	temp.Append(m_logFile, selection.beginLine, selection.endLine);
 	std::swap(temp, m_logFile);
 
 	m_logSources.ResetTimer();

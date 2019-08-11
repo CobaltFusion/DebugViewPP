@@ -466,17 +466,18 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 
 	int x0 = GetSubItemRect(info.iItem, info.iSubItem, LVIR_BOUNDS).left + GetHeader().GetBitmapMargin();
 	auto line = TabsToSpaces(GetItemWText(info.iItem, ColumnToSubItem(Column::Message)));
-	size_t pos = 0;
+	int pos = 0;
 	int min = 1000 * 1000;
 	bool found = false;
+	int highlightTextSize = static_cast<int>(m_highlightText.size());
 	for (;;)
 	{
-		pos = line.find(m_highlightText, pos);
+		pos = static_cast<int>(line.find(m_highlightText, pos));
 		if (pos == line.npos)
 			break;
 
 		int x1 = x0 + GetTextSize(dc.m_hDC, line, pos).cx;
-		int x2 = x0 + GetTextSize(dc.m_hDC, line, pos + m_highlightText.size()).cx;
+		int x2 = x0 + GetTextSize(dc.m_hDC, line, pos + highlightTextSize).cx;
 		if (std::abs(point.x - x1) < min)
 		{
 			min = std::abs(point.x - x1);
@@ -488,7 +489,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 			m_dragStart = CPoint(x1, point.y);
 		}
 
-		pos += m_highlightText.size();
+		pos += highlightTextSize;
 		found = true;
 	}
 	if (!found)
@@ -784,12 +785,13 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 	InsertHighlight(highlights, selection);
 	AddEllipsis(hdc, text, rect.right - rect.left);
 
-	int height = GetTextSize(hdc, text, text.size()).cy;
+	int textSize = static_cast<int>(text.size());
+	int height = GetTextSize(hdc, text, textSize).cy;
 	POINT pos = {rect.left, rect.top + (rect.bottom - rect.top - height) / 2};
 	RECT rcHighlight = rect;
 	for (auto& highlight : highlights)
 	{
-		if (text.size() < highlight.end)
+		if (textSize < highlight.end)
 			continue;
 
 		rcHighlight.right = rect.left + GetTextSize(hdc, text, highlight.begin).cx;
@@ -942,7 +944,7 @@ SelectionInfo CLogView::GetViewRange() const
 	if (m_logLines.empty())
 		return SelectionInfo();
 
-	return SelectionInfo(m_logLines.front().line, m_logLines.back().line, m_logLines.size());
+	return SelectionInfo(m_logLines.front().line, m_logLines.back().line, static_cast<int>(m_logLines.size()));
 }
 
 bool Contains(const std::string& text, const std::string& substring)
@@ -1033,7 +1035,7 @@ void CLogView::ResetToLine(int line)
 void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
 	auto messages = GetSelectedMessages();
-	int size = std::min(size_t(100), messages.size());
+	int size = std::min(100, static_cast<int>(messages.size()));
 	for (int i = 0; i < size; ++i)
 	{
 		m_filter.messageFilters.push_back(Filter(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
@@ -1371,7 +1373,7 @@ int CLogView::GetFocusLine() const
 void CLogView::SetFocusLine(int line)
 {
 	auto it = std::upper_bound(m_logLines.begin(), m_logLines.end(), line, [](int line, const LogLine& logLine) { return line < logLine.line; });
-	ScrollToIndex(it - m_logLines.begin() - 1, false);
+	ScrollToIndex(static_cast<int>(it - m_logLines.begin() - 1), false);
 }
 
 void CLogView::Add(int beginIndex, int line, const Message& msg)
@@ -1392,7 +1394,7 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
 		++it;
 	m_logLines.erase(m_logLines.begin(), it);
 
-	int viewline = m_logLines.size();
+	int viewline = static_cast<int>(m_logLines.size());
 
 	LogLine logline(line);
 	logline.bookmark = MatchFilterType(FilterType::Bookmark, msg);
@@ -1425,7 +1427,7 @@ bool CLogView::EndUpdate()
 {
 	if (m_dirty)
 	{
-		SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
+		SetItemCountEx(static_cast<int>(m_logLines.size()), LVSICF_NOSCROLL);
 		if (m_autoScrollDown)
 			ScrollDown();
 
@@ -1519,7 +1521,7 @@ bool CLogView::ScrollToIndex(int index, bool center)
 
 void CLogView::ScrollDown()
 {
-	ScrollToIndex(m_logLines.size() - 1, false);
+	ScrollToIndex(static_cast<int>(m_logLines.size() - 1), false);
 }
 
 bool CLogView::GetClockTime() const
@@ -1915,7 +1917,7 @@ void CLogView::ApplyFilters()
 	}
 
 	m_logLines.swap(logLines);
-	SetItemCountEx(m_logLines.size(), LVSICF_NOSCROLL);
+	SetItemCountEx(static_cast<int>(m_logLines.size()), LVSICF_NOSCROLL);
 	ScrollToIndex(focusItem, false);
 	SetItemState(focusItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	EndUpdate();

@@ -25,7 +25,7 @@ template <typename CharT>
 std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tabsize = 4)
 {
 	std::basic_string<CharT> result;
-	result.reserve(s.size() + 3*tabsize);
+	result.reserve(s.size() + static_cast<size_t>(3)*tabsize);
 	for (auto c : s)
 	{
 		if (c == CharT('\t'))

@@ -24,11 +24,6 @@ Message::Message(double time, FILETIME systemTime, DWORD pid, const std::string&
 {
 }
 
-LogFile::LogFile() :
-	m_historySize(0)
-{
-}
-
 bool LogFile::Empty() const
 {
 	return m_messages.empty();
@@ -50,50 +45,42 @@ void LogFile::Add(const Message& msg)
 	m_storage.Add(msg.text);
 }
 
-size_t LogFile::BeginIndex() const
+int LogFile::BeginIndex() const
 {
 	return 0;
 }
 
-size_t LogFile::EndIndex() const
+int LogFile::EndIndex() const
 {
-	return m_messages.size();
+	return static_cast<int>(m_messages.size());
 }
 
-size_t LogFile::Count() const
+int LogFile::Count() const
 {
-	return m_messages.size();
+	return static_cast<int>(m_messages.size());
 }
 
-Message LogFile::operator[](size_t i) const
+Message LogFile::operator[](int i) const
 {
 	auto& msg = m_messages[i];
 	auto props = m_processInfo.GetProcessProperties(msg.uid);
 	return Message(msg.time, msg.systemTime, props.pid, Str(props.name).str(), m_storage[i], props.color);
 }
 
-size_t LogFile::GetHistorySize() const
+int LogFile::GetHistorySize() const
 {
 	return m_historySize;
 }
 
-void LogFile::SetHistorySize(size_t size)
+void LogFile::SetHistorySize(int size)
 {
 	m_historySize = size;
 }
 
-void LogFile::Copy(size_t beginIndex, size_t endIndex, LogFile& logfile)
+void LogFile::Append(const LogFile& logfile, int beginIndex, int endIndex)
 {
-	for (size_t i = beginIndex; i <= endIndex; ++i)
-		logfile.Add((*this)[i]);
-}
-
-void LogFile::Swap(LogFile& logfile)
-{
-	std::swap(m_messages, logfile.m_messages);
-	std::swap(m_processInfo, logfile.m_processInfo);
-	std::swap(m_storage, logfile.m_storage);
-	std::swap(m_historySize, logfile.m_historySize);
+	for (int i = beginIndex; i <= endIndex; ++i)
+		Add(logfile[i]);
 }
 
 } // namespace debugviewpp 
