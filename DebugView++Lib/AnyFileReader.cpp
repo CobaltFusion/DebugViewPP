@@ -40,8 +40,10 @@ double GetDifference(FILETIME ft1, FILETIME ft2)
 // the reverse (creating system-time from relative times) makes no sense.
 void AnyFileReader::GetRelativeTime(Line& line)
 {
-    if (line.time != 0.0) // if relative time is already filled in do nothing
+    if (line.time != 0.0)
+    { // if relative time is already filled in do nothing
         return;
+    }
 
     if (m_linenumber == 1)
     {

@@ -29,7 +29,9 @@ DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::s
 std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 {
     if (amount < 1)
+    {
         return std::vector<unsigned char>();
+    }
     std::vector<unsigned char> buffer(amount);
     is.read(reinterpret_cast<char*>(buffer.data()), amount);
     return buffer;
@@ -149,8 +151,10 @@ void DbgviewReader::Loop()
             break;
         }
 
-        if (messageLength == 0) // keep alive
+        if (messageLength == 0)
+        { // keep alive
             continue;
+        }
 
         // dont read from the tcp::iostream directly,
         // instead use read() to receive the complete message.
@@ -166,7 +170,9 @@ void DbgviewReader::Loop()
         {
             Read<DWORD>(ss); // lineNr
             if (!ss)
+            {
                 break;
+            }
 
             auto filetime = Read<FILETIME>(ss);
             auto qpcTime = Read<long long>(ss);
@@ -179,7 +185,8 @@ void DbgviewReader::Loop()
 
             if (buffer[20] == Magic::ColumnnOneMark)
             {
-                unsigned char c1, c2;
+                unsigned char c1 = 0;
+                unsigned char c2 = 0;
                 if (!((ss >> c1 >> pid >> c2) && c1 == Magic::ColumnnOneMark && c2 == Magic::ColumnnTwoMark))
                 {
                     AddMessage(0, processName, "<error parsing pid>");
@@ -196,7 +203,9 @@ void DbgviewReader::Loop()
             // this means depending on the message length there are 1, 2 or 3 trailing bytes of undefined data.
             auto remainder = static_cast<int>(ss.tellg() % 4);
             if (remainder > 0)
+            {
                 Read(ss, 4 - remainder);
+            }
         }
         Signal();
     }

@@ -23,9 +23,7 @@ LogSource::LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& lin
 {
 }
 
-LogSource::~LogSource()
-{
-}
+LogSource::~LogSource() = default;
 
 void LogSource::SetAutoNewLine(bool value)
 {
@@ -53,8 +51,10 @@ bool LogSource::AtEnd() const
 
 void LogSource::PreProcess(Line& line) const
 {
-    if (line.handle)
+    if (line.handle != nullptr)
+    {
         line.processName = Str(ProcessInfo::GetProcessName(line.handle)).str();
+    }
 }
 
 std::wstring LogSource::GetDescription() const

@@ -13,7 +13,7 @@ namespace fusion {
 namespace debugviewpp {
 
 // unused argument to allow this class to be a drop-in replacement for LineBuffer
-VectorLineBuffer::VectorLineBuffer(size_t)
+VectorLineBuffer::VectorLineBuffer(size_t /*unused*/)
 {
 }
 

@@ -24,7 +24,9 @@ std::string MatchKey(const std::smatch& match, MatchType::type matchType)
         while (++it != match.end())
         {
             if (!key.empty())
+            {
                 key.append(1, '\0');
+            }
             key += boost::to_lower_copy(it->str());
         }
         return key;
@@ -45,7 +47,9 @@ Filter::Filter() :
 std::regex_constants::syntax_option_type MakeSot(MatchType::type matchType)
 {
     if (matchType == MatchType::RegexCase)
+    {
         return std::regex_constants::optimize;
+    }
     return std::regex_constants::icase | std::regex_constants::optimize;
 }
 
@@ -74,7 +78,7 @@ void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg)
         regFilter.SetDWORDValue(L"Type", FilterTypeToInt(filter.filterType));
         regFilter.SetDWORDValue(L"BgColor", filter.bgColor);
         regFilter.SetDWORDValue(L"FgColor", filter.fgColor);
-        regFilter.SetDWORDValue(L"Enable", filter.enable);
+        regFilter.SetDWORDValue(L"Enable", static_cast<DWORD>(filter.enable));
         ++i;
     }
 }
@@ -96,7 +100,9 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
     {
         CRegKey regFilter;
         if (regFilter.Open(reg, WStr(wstringbuilder() << L"Filter" << i)) != ERROR_SUCCESS)
+        {
             break;
+        }
 
         filters.push_back(MakeFilter(
             Str(Win32::RegGetStringValue(regFilter)),
@@ -113,10 +119,14 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
     for (auto& filter : filters)
     {
         if (!filter.enable)
+        {
             continue;
+        }
 
         if (filter.filterType == FilterType::Exclude && std::regex_search(text, filter.re))
+        {
             return false;
+        }
     }
 
     bool included = false;
@@ -124,16 +134,21 @@ bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColo
     for (auto& filter : filters)
     {
         if (!filter.enable)
+        {
             continue;
+        }
 
         if (filter.bgColor == Colors::Auto)
         {
-            std::sregex_iterator begin(text.begin(), text.end(), filter.re), end;
+            std::sregex_iterator begin(text.begin(), text.end(), filter.re);
+            std::sregex_iterator end;
             for (auto tok = begin; tok != end; ++tok)
             {
                 auto key = MatchKey(*tok, filter.matchType);
                 if (matchColors.find(key) == matchColors.end())
+                {
                     matchColors.emplace(std::make_pair(key, GetRandomBackColor()));
+                }
             }
         }
 
@@ -158,7 +173,9 @@ bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, 
     for (auto& filter : filters)
     {
         if (filter.enable && filter.filterType == type && std::regex_search(text, filter.re))
+        {
             return true;
+        }
     }
 
     return false;

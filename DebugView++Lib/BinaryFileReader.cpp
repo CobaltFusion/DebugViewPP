@@ -26,7 +26,7 @@ BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileTy
     m_filename(filename),
     m_name(Str(std::experimental::filesystem::path(filename).filename().string()).str()),
     m_fileType(filetype),
-    m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+    m_handle(FindFirstChangeNotification(std::experimental::filesystem::path(m_filename).parent_path().wstring().c_str(), 0, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe using FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
     m_wifstream(m_filename, std::ios::binary),
     m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().wstring()),
     m_initialized(false)
@@ -49,9 +49,7 @@ BinaryFileReader::BinaryFileReader(Timer& timer, ILineBuffer& linebuffer, FileTy
     SetDescription(filename);
 }
 
-BinaryFileReader::~BinaryFileReader()
-{
-}
+BinaryFileReader::~BinaryFileReader() = default;
 
 void BinaryFileReader::Initialize()
 {
@@ -86,7 +84,9 @@ void BinaryFileReader::ReadUntilEof()
     while (std::getline(m_wifstream, line))
     {
         if ((++i % 1500) == 0)
+        {
             m_update();
+        }
         AddLine(Str(line));
     }
     m_update();
@@ -97,12 +97,16 @@ void BinaryFileReader::ReadUntilEof()
 
         // resync to end of file, even if the file shrunk
         auto lastReadPosition = m_wifstream.tellg();
-        m_wifstream.seekg(0, m_wifstream.end);
+        m_wifstream.seekg(0, std::wifstream::end);
         auto length = m_wifstream.tellg();
         if (length > lastReadPosition)
+        {
             m_wifstream.seekg(lastReadPosition);
+        }
         else if (length != lastReadPosition)
+        {
             AddInternal(stringbuilder() << "file shrank, resynced at offset " << length);
+        }
     }
     else
     {

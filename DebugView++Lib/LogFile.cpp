@@ -80,7 +80,9 @@ void LogFile::SetHistorySize(int size)
 void LogFile::Append(const LogFile& logfile, int beginIndex, int endIndex)
 {
     for (int i = beginIndex; i <= endIndex; ++i)
+    {
         Add(logfile[i]);
+    }
 }
 
 } // namespace debugviewpp

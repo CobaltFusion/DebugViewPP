@@ -24,7 +24,9 @@ Lines NewlineFilter::Process(const Line& line)
     for (auto c : line.message)
     {
         if (c == '\r')
+        {
             continue;
+        }
 
         if (c == '\n')
         {

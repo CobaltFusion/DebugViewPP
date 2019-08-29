@@ -62,8 +62,10 @@ PolledLogSource::~PolledLogSource()
 
 void PolledLogSource::StartThread()
 {
-    if (m_microsecondInterval > m_microsecondInterval.zero())
+    if (m_microsecondInterval > std::chrono::microseconds::zero())
+    {
         m_thread = std::make_unique<std::thread>(&PolledLogSource::Loop, this);
+    }
 }
 
 long PolledLogSource::GetMicrosecondInterval() const
@@ -75,7 +77,9 @@ void PolledLogSource::Abort()
 {
     LogSource::Abort();
     if (m_thread)
+    {
         m_thread->join();
+    }
     m_thread.reset();
     Notify();
 }
@@ -87,7 +91,9 @@ void PolledLogSource::Loop()
         Poll();
         Signal();
         if (LogSource::AtEnd())
+        {
             break;
+        }
         // sub 16ms sleep, depends on available hardware for accuracy
         std::this_thread::sleep_for(m_microsecondInterval);
     }
@@ -109,11 +115,17 @@ void PolledLogSource::Notify()
     for (auto& line : m_backBuffer)
     {
         if (line.handle)
+        {
             Add(line.handle.release(), line.message);
+        }
         else if (line.timesValid)
+        {
             Add(line.time, line.systemTime, line.pid, line.processName, line.message);
+        }
         else
+        {
             Add(line.pid, line.processName, line.message);
+        }
     }
     m_backBuffer.clear();
 }
@@ -151,7 +163,9 @@ void PolledLogSource::Signal()
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_lines.empty())
+    {
         SetEvent(m_handle.get());
+    }
 }
 
 } // namespace debugviewpp

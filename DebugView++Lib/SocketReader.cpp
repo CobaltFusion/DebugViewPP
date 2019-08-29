@@ -56,7 +56,9 @@ void SocketReader::Notify()
     {
         int len = BeginReceive();
         if (len < 0)
+        {
             return;
+        }
         Add(0, GetProcessText(), std::string(m_buffer.data(), len));
     }
 }
@@ -68,7 +70,9 @@ int SocketReader::BeginReceive()
     DWORD flags = 0;
     m_fromLen = sizeof(m_from);
     if (Win32::WSARecvFrom(m_socket, m_wsaBuf, 1, &count, &flags, m_from, m_fromLen, &m_overlapped, nullptr))
+    {
         return count;
+    }
 
     m_busy = true;
     return -1;

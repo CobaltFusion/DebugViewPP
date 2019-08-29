@@ -67,7 +67,12 @@ FILETIME MakeFileTimeFromDateTime(const std::string& text)
 {
     auto st = SYSTEMTIME();
     std::istringstream is(text);
-    char c1, c2, c3, c4, c5, c6;
+    char c1;
+    char c2;
+    char c3;
+    char c4;
+    char c5;
+    char c6;
     if (!((is >> st.wYear >> c1 >> st.wMonth >> c2 >> st.wDay >> std::noskipws >> c3 >> st.wHour >> c4 >> st.wMinute >> c5 >> st.wSecond >> c6 >> st.wMilliseconds) && c1 == '/' && c2 == '/' && c3 == ' ' && c4 == ':' && c5 == ':' && c6 == '.'))
     {
         st = Win32::FileTimeToSystemTime(FILETIME());
@@ -137,7 +142,9 @@ FileType::type IdentifyFile(const std::wstring& filename)
     std::ifstream is(filename);
     std::string line;
     if (!std::getline(is, line))
+    {
         return FileType::Unknown;
+    }
 
     // first we check for our own header
     auto trimmed = boost::trim_copy_if(line, boost::is_any_of(" \r\n\t"));
@@ -153,7 +160,9 @@ FileType::type IdentifyFile(const std::wstring& filename)
     // if the extension is .txt (and we did not find our own header)
     // we say it is an ascii-file.
     if (boost::iends_with(filename, ".txt"))
+    {
         return FileType::AsciiText;
+    }
 
     // .log files are potentially sysinternals dbgview files
     if (boost::iends_with(filename, ".log"))
@@ -162,13 +171,17 @@ FileType::type IdentifyFile(const std::wstring& filename)
         // since the first line contains the computer-name in some cases (depending on how it was saved)
         // logfiles with only one line are not that interesting anyway.
         if (!std::getline(is, line))
+        {
             return FileType::AsciiText;
+        }
 
         // if the second line contains 2 or 3 tabs characters, we say it's a sysinternals debugview-logfile
         // two kinds of lines are logged, kernel message lines and process message lines, the latter have an extra PID Columnn
         auto tabs = std::count(line.begin(), line.end(), '\t');
         if (tabs == 2 || tabs == 3)
+        {
             return FileType::Sysinternals;
+        }
     }
     return FileType::AsciiText;
 }
@@ -190,10 +203,17 @@ bool IsBinaryFileType(FileType::type filetype)
 bool ReadLocalTimeMs(const std::string& text, FILETIME& ft)
 {
     std::istringstream is(text);
-    WORD h, m, s, ms;
-    char c1, c2, d1;
+    WORD h;
+    WORD m;
+    WORD s;
+    WORD ms;
+    char c1;
+    char c2;
+    char d1;
     if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
+    {
         return false;
+    }
 
     SYSTEMTIME st = Win32::FileTimeToSystemTime(FILETIME());
     st.wHour = h;
@@ -208,10 +228,15 @@ bool ReadLocalTimeMs(const std::string& text, FILETIME& ft)
 bool ReadLocalTime(const std::string& text, FILETIME& ft)
 {
     std::istringstream is(text);
-    WORD h, m, s;
-    char c1, c2;
+    WORD h;
+    WORD m;
+    WORD s;
+    char c1;
+    char c2;
     if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
+    {
         return false;
+    }
 
     SYSTEMTIME st = Win32::FileTimeToSystemTime(FILETIME());
     st.wHour = h;
@@ -226,9 +251,13 @@ std::istream& ReadLogFileMessage(std::istream& is, Line& line)
 {
     std::string data;
     if (!std::getline(is, data))
+    {
         return is;
+    }
     if (!ReadLogFileMessage(data, line))
+    {
         is.setstate(std::ios_base::failbit);
+    }
     return is;
 }
 
@@ -242,19 +271,31 @@ bool ReadSysInternalsLogFileMessage(const std::string& data, Line& line, USTimeC
     // depending on regional settings Sysinternals debugview logs time differently.
     // we support the four most common formats
     // 'hh:MM:SS.mmm tt', 'hh:MM:SS tt', 'HH:MM:SS.mmm' and 'HH:MM:SS'
-    if (!converter.ReadLocalTimeUSRegionMs(col2, line.systemTime))   // try hh:MM:SS.mmm tt
-        if (!converter.ReadLocalTimeUSRegion(col2, line.systemTime)) // try hh:MM:SS tt
-            if (!ReadLocalTimeMs(col2, line.systemTime))             // try HH:MM:SS.mmm
-                if (!ReadLocalTime(col2, line.systemTime))           // try HH:MM:SS
-                    ReadTime(col2, line.time);                       // otherwise assume relative time: S.mmmmmm
+    if (!converter.ReadLocalTimeUSRegionMs(col2, line.systemTime))
+    { // try hh:MM:SS.mmm tt
+        if (!converter.ReadLocalTimeUSRegion(col2, line.systemTime))
+        { // try hh:MM:SS tt
+            if (!ReadLocalTimeMs(col2, line.systemTime))
+            { // try HH:MM:SS.mmm
+                if (!ReadLocalTime(col2, line.systemTime))
+                {                              // try HH:MM:SS
+                    ReadTime(col2, line.time); // otherwise assume relative time: S.mmmmmm
+                }
+            }
+        }
+    }
 
     if (!col3.empty() && col3[0] == '[') // messages from processes are preceeded by [pid], but kernel messages do not have a prefix
     {
         line.processName = "[unavailable]";
         std::istringstream is3(col3);
-        char c1, c2, c3;
+        char c1;
+        char c2;
+        char c3;
         if (is3 >> std::noskipws >> c1 >> line.pid >> c2 >> c3 && c1 == '[' && c2 == ']' && c3 == ' ' && std::getline(is3, line.message))
+        {
             return true;
+        }
     }
     else
     {

@@ -53,7 +53,9 @@ std::string GetDateTimeText(const FILETIME& filetime)
 std::string GetTimeText(const FILETIME& ft)
 {
     if (ft.dwHighDateTime == 0 && ft.dwLowDateTime == 0)
+    {
         return "0"; // prevent endlessly repeating exception messageboxes when reading a corrupted file
+    }
     return GetTimeText(Win32::FileTimeToSystemTime(Win32::FileTimeToLocalFileTime(ft)));
 }
 
@@ -104,15 +106,26 @@ FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
 bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft)
 {
     std::istringstream is(text);
-    WORD h, m, s;
-    char c1, c2, p1, p2;
+    WORD h;
+    WORD m;
+    WORD s;
+    char c1;
+    char c2;
+    char p1;
+    char p2;
     if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
+    {
         return false;
+    }
     if (h == 12)
+    {
         h = 0;
+    }
 
     if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+    {
         h += 12;
+    }
 
     ft = USTimeToFiletime(h, m, s, 0);
     return true;
@@ -123,15 +136,28 @@ bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME&
 {
     std::istringstream is(text);
 
-    WORD h, m, s, ms;
-    char c1, c2, p1, p2, d1;
+    WORD h;
+    WORD m;
+    WORD s;
+    WORD ms;
+    char c1;
+    char c2;
+    char p1;
+    char p2;
+    char d1;
     if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
+    {
         return false;
+    }
     if (h == 12)
+    {
         h = 0;
+    }
 
     if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+    {
         h += 12;
+    }
 
     ft = USTimeToFiletime(h, m, s, ms);
     return true;

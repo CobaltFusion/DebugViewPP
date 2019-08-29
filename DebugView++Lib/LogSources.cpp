@@ -42,7 +42,7 @@ namespace debugviewpp {
 using namespace std::chrono_literals;
 
 LogSources::LogSources(IExecutor& executor, bool startListening) :
-    m_updateEvent(CreateEvent(nullptr, false, false, nullptr)),
+    m_updateEvent(CreateEvent(nullptr, 0, 0, nullptr)),
     m_linebuffer(64 * 1024),
     m_loopback(std::make_unique<Loopback>(m_timer, m_linebuffer)),
     m_executor(executor),
@@ -50,15 +50,21 @@ LogSources::LogSources(IExecutor& executor, bool startListening) :
 {
     m_processMonitor.ConnectProcessEnded([this](DWORD pid, HANDLE handle) { OnProcessEnded(pid, handle); });
     if (startListening)
+    {
         m_listenThread.CallAsync([this] { Listen(); });
+    }
 }
 
 LogSources::~LogSources()
 {
-    if (m_executor.IsExecutorThread()) // this is true when the GuiExector is used
+    if (m_executor.IsExecutorThread())
+    { // this is true when the GuiExector is used
         Abort();
+    }
     else
+    {
         m_executor.Call([&] { Abort(); });
+    }
 }
 
 void LogSources::AddMessage(const std::string& message)
@@ -98,8 +104,12 @@ void LogSources::RemoveSources(std::function<bool(LogSource*)> predicate)
 {
     std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
     for (auto& pSource : m_sources)
+    {
         if (predicate(pSource.get()))
+        {
             m_sourcesScheduledToRemove.push_back(pSource.get());
+        }
+    }
     Win32::SetEvent(m_updateEvent);
 }
 
@@ -107,14 +117,18 @@ void LogSources::CallSources(std::function<void(LogSource*)> predicate)
 {
     std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
     for (auto& pSource : m_sources)
+    {
         predicate(pSource.get());
+    }
 }
 
 void LogSources::CallSources(std::function<void(LogSource*)> predicate) const
 {
     std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
     for (auto& pSource : m_sources)
+    {
         predicate(pSource.get());
+    }
 }
 
 
@@ -122,7 +136,9 @@ void LogSources::SetAutoNewLine(bool value)
 {
     m_autoNewLine = value;
     for (auto& pSource : m_sources)
+    {
         pSource->SetAutoNewLine(value);
+    }
 }
 
 bool LogSources::GetAutoNewLine() const
@@ -147,7 +163,7 @@ void LogSources::Abort()
     m_end = true;
 
     CallSources([](LogSource* logsource) { logsource->Abort(); });
-    RemoveSources([](LogSource*) { return true; });
+    RemoveSources([](LogSource* /*unused*/) { return true; });
     Win32::SetEvent(m_updateEvent);
     m_listenThread.Synchronize();
 }
@@ -171,7 +187,9 @@ void LogSources::Listen()
     {
         ListenUntilUpdateEvent();
         if (!m_end)
+        {
             m_listenThread.CallAsync([this] { Listen(); });
+        }
     }
     catch (const std::exception& e)
     {
@@ -190,7 +208,9 @@ void LogSources::ListenUntilUpdateEvent()
         for (auto& source : m_sources)
         {
             if (source->AtEnd())
+            {
                 continue;
+            }
             HANDLE handle = source->GetHandle();
             if (handle != INVALID_HANDLE_VALUE)
             {
@@ -209,20 +229,22 @@ void LogSources::ListenUntilUpdateEvent()
     {
         auto res = Win32::WaitForAnyObject(waitHandles, INFINITE);
         if (m_end)
+        {
             return;
+        }
 
         if (res.signaled)
         {
             int index = res.index - WAIT_OBJECT_0;
             if (index == updateEventIndex)
-                break;
-            else
             {
-                assert((index < static_cast<int>(sources.size())) && "res.index out of range");
-                auto logsource = sources[index];
-                logsource->Notify();
-                m_throttledUpdate();
+                break;
             }
+
+            assert((index < static_cast<int>(sources.size())) && "res.index out of range");
+            auto logsource = sources[index];
+            logsource->Notify();
+            m_throttledUpdate();
         }
     }
 }
@@ -268,7 +290,9 @@ std::string FormatExitCode(DWORD exitCode)
     if (std::abs(longCode) < 16)
     {
         if (longCode < 0)
+        {
             return stringbuilder() << "exit code " << longCode << " (" << std::hex << std::showbase << std::internal << exitCode << ")";
+        }
         return stringbuilder() << "exit code " << longCode;
     }
     if (exitCode >= 0xC0000000) // >= 0xC0000000 in case of an SEH exception
@@ -309,19 +333,24 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
         m_update();
         auto flushedLines = m_newlineFilter.FlushLinesFromTerminatedProcess(pid, handle);
         for (auto& line : flushedLines)
+        {
             m_loopback->Add(line.pid, line.processName, line.message);
+        }
         AddTerminateMessage(pid, handle);
         m_throttledUpdate();
         auto it = m_pidMap.find(pid);
         if (it != m_pidMap.end())
+        {
             m_pidMap.erase(it);
+        }
     });
 }
 
 bool LogSources::IsRemoved(const LogSource* logsource) const
 {
     bool present = false;
-    CallSources([&](LogSource* l) { if (l == logsource) present = true; });
+    CallSources([&](LogSource* l) { if (l == logsource) { present = true; 
+} });
     return !present;
 }
 
@@ -332,7 +361,9 @@ Lines LogSources::GetLines()
     for (auto&& inputLine : m_linebuffer.GetLines())
     {
         if (IsRemoved(inputLine.pLogSource))
+        {
             continue;
+        }
         // let the logsource decide how to create processname
         if (inputLine.pLogSource != nullptr)
         {

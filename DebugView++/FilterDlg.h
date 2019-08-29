@@ -65,6 +65,7 @@ private:
     CFilterPage m_messagePage;
     CFilterPage m_processPage;
     CRegExDlg m_regExDlg;
+    SIZE m_border;
     std::wstring m_name;
     LogFilter m_filter;
 };

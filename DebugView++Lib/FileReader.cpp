@@ -25,7 +25,7 @@ FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type fil
     m_filename(Str(filename).str()),
     m_name(Str(fs::path(filename).filename().string()).str()),
     m_fileType(filetype),
-    m_handle(FindFirstChangeNotification(fs::path(m_filename).parent_path().wstring().c_str(), false, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
+    m_handle(FindFirstChangeNotification(fs::path(m_filename).parent_path().wstring().c_str(), 0, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
     m_ifstream(m_filename, std::ios::in),
     m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().string()),
     m_initialized(false),
@@ -35,15 +35,15 @@ FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type fil
     SetDescription(filename);
 }
 
-FileReader::~FileReader()
-{
-}
+FileReader::~FileReader() = default;
 
 void FileReader::Abort()
 {
     LogSource::Abort();
     if (m_thread.joinable())
+    {
         m_thread.join();
+    }
 }
 
 void FileReader::PollThread()
@@ -122,7 +122,9 @@ void FileReader::ReadUntilEof()
     {
         m_line += line;
         if ((++count % 5000) == 0)
+        {
             m_update();
+        }
         if (m_ifstream.eof())
         {
             // the line ended without a newline character
@@ -141,10 +143,12 @@ void FileReader::ReadUntilEof()
 
         // resync to end of file, even if the file shrunk
         auto lastReadPosition = m_ifstream.tellg();
-        m_ifstream.seekg(0, m_ifstream.end);
+        m_ifstream.seekg(0, std::ifstream::end);
         auto length = m_ifstream.tellg();
         if (length > lastReadPosition)
+        {
             m_ifstream.seekg(lastReadPosition);
+        }
         else if (length != lastReadPosition)
         {
             m_line.clear();

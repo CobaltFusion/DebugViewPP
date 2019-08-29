@@ -64,14 +64,18 @@ std::wstring ProcessInfo::GetProcessName(HANDLE handle)
     std::array<wchar_t, MAX_PATH> buf;
     auto rc = GetProcessImageFileName(handle, buf.data(), static_cast<DWORD>(buf.size()));
     if (rc == 0)
+    {
         return L"";
+    }
 
     // todo: make function? what does this do? (jan)
     const wchar_t* name = buf.data();
-    for (auto it = buf.data(); *it; ++it)
+    for (auto it = buf.data(); *it != 0u; ++it)
     {
         if (*it == '\\')
+        {
             name = it + 1;
+        }
     }
     return name;
 }
@@ -88,9 +92,11 @@ std::wstring ProcessInfo::GetStartTime(HANDLE handle)
 
 std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
 {
-    Win32::Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, false, processId));
+    Win32::Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, 0, processId));
     if (hProcess)
+    {
         return GetProcessName(hProcess.get());
+    }
 
     return L"";
 }
@@ -100,7 +106,9 @@ DWORD ProcessInfo::GetUid(DWORD processId, const std::wstring& processName)
     for (auto& item : m_processProperties)
     {
         if (item.second.pid == processId && item.second.name == processName)
+        {
             return item.first;
+        }
     }
 
     DWORD index = m_unqiueId;
@@ -123,7 +131,9 @@ ProcessProperties ProcessInfo::GetProcessProperties(DWORD uid) const
     auto it = m_processProperties.find(uid);
     assert(it != m_processProperties.end());
     if (it == m_processProperties.end())
+    {
         return ProcessProperties(InternalProcessProperties());
+    }
 
     return ProcessProperties(it->second);
 }

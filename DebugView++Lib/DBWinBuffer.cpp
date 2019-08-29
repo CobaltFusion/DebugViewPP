@@ -28,7 +28,7 @@ bool IsWindowsVistaOrGreater()
 
 bool IsDBWinViewerActive()
 {
-    Win32::Handle hMap(::OpenFileMapping(FILE_MAP_READ, false, L"DBWIN_BUFFER"));
+    Win32::Handle hMap(::OpenFileMapping(FILE_MAP_READ, 0, L"DBWIN_BUFFER"));
     return hMap != nullptr;
 }
 

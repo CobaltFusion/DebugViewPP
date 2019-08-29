@@ -45,7 +45,7 @@ void PipeReader::Poll(PolledLogSource& logsource)
     char* start = std::copy(m_buffer.data(), m_buffer.data() + m_buffer.size(), buf.data());
 
     DWORD avail = 0;
-    while (PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, &avail, nullptr) && avail > 0)
+    while ((PeekNamedPipe(m_hPipe, nullptr, 0, nullptr, &avail, nullptr) != 0) && avail > 0)
     {
         auto size = static_cast<DWORD>(buf.data() + sizeof(buf) - start);
         DWORD read = 0;

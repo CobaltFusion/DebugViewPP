@@ -39,7 +39,9 @@ ptree MakePTree(COLORREF color)
 COLORREF MakeColor(const ptree& pt)
 {
     if (pt.get<bool>("<xmlattr>.Auto", false))
+    {
         return Colors::Auto;
+    }
 
     auto red = pt.get<int>("Red");
     auto green = pt.get<int>("Green");
@@ -68,7 +70,9 @@ ptree MakePTree(const std::vector<Filter>& filters)
 {
     ptree pt;
     for (auto& filter : filters)
+    {
         pt.add_child("Filter", MakePTree(filter));
+    }
     return pt;
 }
 
@@ -80,7 +84,9 @@ std::vector<Filter> MakeFilters(const ptree& pt)
         if (item.first == "MessageFilter" ||
             item.first == "ProcessFilter" ||
             item.first == "Filter")
+        {
             filters.push_back(MakeFilter(item.second));
+        }
     }
     return filters;
 }

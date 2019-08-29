@@ -11,9 +11,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-ILineBuffer::~ILineBuffer()
-{
-}
+ILineBuffer::~ILineBuffer() = default;
 
 } // namespace debugviewpp
 } // namespace fusion

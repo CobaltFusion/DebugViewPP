@@ -54,7 +54,9 @@ void ProcessMonitor::Run()
         size_t processCount = m_processes.size();
         auto count = std::min<size_t>(processCount, MAXIMUM_WAIT_OBJECTS - 1);
         for (size_t i = 0; i < count; ++i)
+        {
             handles[i + 1] = m_processes[(offset + i) % processCount].handle;
+        }
         DWORD timeout = static_cast<size_t>(count) < m_processes.size() ? 1000 : INFINITE;
         auto result = Win32::WaitForAnyObject(handles.data(), handles.data() + count + 1, timeout);
         if (!result.signaled)
@@ -64,7 +66,9 @@ void ProcessMonitor::Run()
         else if (result.index == 0)
         {
             while (!m_q.Empty())
+            {
                 m_q.Pop()();
+            }
         }
         else
         {

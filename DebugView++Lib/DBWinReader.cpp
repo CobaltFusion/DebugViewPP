@@ -27,7 +27,9 @@ Win32::Handle CreateDBWinBufferMapping(bool global)
 {
     Win32::Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
     if (GetLastError() == ERROR_ALREADY_EXISTS)
+    {
         throw std::runtime_error("CreateDBWinBufferMapping");
+    }
     return hMap;
 }
 
@@ -52,7 +54,7 @@ DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
     Win32::DeleteObjectDACL(m_dbWinBufferReady.get());
     Win32::DeleteObjectDACL(m_dbWinDataReady.get());
 
-    //TODO: Please test this and choose one
+    // TODO(jan): Please test this and choose one
 
     Win32::SetEvent(m_dbWinBufferReady);
 }
@@ -86,10 +88,14 @@ void DBWinReader::Notify()
         // - making a non-virtual Notice() method
         // - copying the information from m_dbWinBuffer->data and calling SetEvent(m_dbWinBufferReady.get()); before _any_ other operation.
         // - check the m_dbWinDataReady is already set again after Add()
-        if (handle)
+        if (handle != nullptr)
+        {
             Add(handle, m_dbWinBuffer->data);
+        }
         else
+        {
             Add(m_dbWinBuffer->processId, "<system>", m_dbWinBuffer->data);
+        }
 #endif
     }
     ::SetEvent(m_dbWinBufferReady.get());

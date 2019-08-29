@@ -72,9 +72,13 @@ void TimelineDC::DrawFlag(const std::wstring& tooltip, int x, int y, COLORREF co
     CPen pen(CreatePen(PS_SOLID, 1, color));
     SelectPen(pen);
     if (solid)
+    {
         DrawSolidFlag(tooltip, x, y);
+    }
     else
+    {
         DrawFlag(tooltip, x, y);
+    }
 }
 
 } // namespace gdi

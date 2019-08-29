@@ -41,7 +41,9 @@ std::string MakeSimplePattern(const std::string& text)
     for (auto c : text)
     {
         if (IsSpecialRegexCharacter(c))
+        {
             pattern += '\\';
+        }
         pattern += c;
     }
     return pattern;
@@ -58,7 +60,9 @@ std::string MakeWildcardPattern(const std::string& text)
         case '*': pattern += ".*"; break;
         default:
             if (IsSpecialRegexCharacter(c))
+            {
                 pattern += '\\';
+            }
             pattern += c;
             break;
         }

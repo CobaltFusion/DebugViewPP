@@ -54,7 +54,9 @@ COLORREF GetRandomColor(double s, double v)
 
     h += ratio;
     if (h >= 1)
+    {
         h = h - 1;
+    }
     return HsvToRgb(h, s, v);
 }
 

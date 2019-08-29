@@ -17,9 +17,7 @@ Loopback::Loopback(Timer& timer, ILineBuffer& linebuffer) :
     SetDescription(L"Loopback");
 }
 
-Loopback::~Loopback()
-{
-}
+Loopback::~Loopback() = default;
 
 bool Loopback::GetAutoNewLine() const
 {
@@ -29,7 +27,9 @@ bool Loopback::GetAutoNewLine() const
 void Loopback::PreProcess(Line& line) const
 {
     if (line.message.empty())
+    {
         line.message = "\n";
+    }
 }
 
 } // namespace debugviewpp
