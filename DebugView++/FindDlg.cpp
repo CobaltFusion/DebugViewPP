@@ -39,8 +39,8 @@ void CFindDlg::OnDestroy()
 {
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
-	ATLASSERT(pLoop != nullptr);
-	pLoop->RemoveMessageFilter(this);
+	if (pLoop != nullptr)	// shutdown bug found by PVS studio
+		pLoop->RemoveMessageFilter(this);
 }
 
 void CFindDlg::OnNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/) const

@@ -34,7 +34,6 @@ public:
 	boost::signals2::connection SubscribeToDropped(DroppedSignal::slot_type slot);
 
 private:
-	FORMATETC m_fe;
 	HWND m_hwnd;
 	DroppedSignal m_onDropped;
 };

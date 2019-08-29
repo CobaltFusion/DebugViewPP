@@ -227,6 +227,7 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 
 void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
+	std::wstring path;
 	CFileDialog dlg(true, L".xml", m_name.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
 		L"XML Files (*.xml)\0*.xml\0"
 		L"JSON Files (*.json)\0*.json\0"
@@ -239,7 +240,7 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 	wchar_t szPath[MAX_PATH];
 	if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
 	{
-		std::wstring path = szPath;
+		path = szPath;			// bug gevonden met PVS studio!!
 		path += L"\\DebugView++ Filters";
 		dlg.m_ofn.lpstrInitialDir = path.c_str();
 	}
@@ -309,7 +310,7 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 	CFilterPage* pPage = nullptr;
 	try
 	{
-		pPage = &m_messagePage;
+		pPage = &m_messagePage;			// not a bug, but interesting find by PVS studio
 		m_filter.messageFilters = m_messagePage.GetFilters();
 		pPage = &m_processPage;
 		m_filter.processFilters = m_processPage.GetFilters();
