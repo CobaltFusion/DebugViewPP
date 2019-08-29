@@ -16,9 +16,9 @@
 #define SOURCE_LOCATION __FILE__ ## ":" ## LINE_STRING
 
 #ifdef NDEBUG
-	#define FUSION_ASSERT(cond, msg) ((void)0)
+    #define FUSION_ASSERT(cond, msg) ((void)0)
 #else
-	#define FUSION_ASSERT(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, SOURCE_LOCATION);
+    #define FUSION_ASSERT(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, SOURCE_LOCATION);
 #endif
 
 #define FUSION_ASSERT_ALWAYS(cond, msg) if (!(cond)) fusion::assertmessage(#cond, msg, SOURCE_LOCATION);

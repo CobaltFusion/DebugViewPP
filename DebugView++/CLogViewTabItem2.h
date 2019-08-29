@@ -35,26 +35,26 @@ class CLogView;
 class CLogViewTabItem : public CTabViewTabItem
 {
 public:
-	void SetView(std::shared_ptr<CLogView> pView);
-	CLogView& GetView();
+    void SetView(std::shared_ptr<CLogView> pView);
+    CLogView& GetView();
 
-	void Create(HWND parent) { m_parent = parent; }
-	HWND GetLogViewParent() { return m_parent; }
+    void Create(HWND parent) { m_parent = parent; }
+    HWND GetLogViewParent() { return m_parent; }
 
 private:
-	std::shared_ptr<CLogView> m_pView;
-	HWND m_parent = HWND();
+    std::shared_ptr<CLogView> m_pView;
+    HWND m_parent = HWND();
 };
 
 class CMyPaneContainer : public CPaneContainerImpl<CMyPaneContainer>
 {
 public:
-	DECLARE_WND_CLASS_EX(_T("MY_PaneContainer"), 0, -1)
+    DECLARE_WND_CLASS_EX(_T("MY_PaneContainer"), 0, -1)
 
-	BEGIN_MSG_MAP(CMyPaneContainerImpl)
-		REFLECT_NOTIFICATIONS()
-		CHAIN_MSG_MAP(CPaneContainerImpl<CMyPaneContainer>)
-	END_MSG_MAP()
+    BEGIN_MSG_MAP(CMyPaneContainerImpl)
+        REFLECT_NOTIFICATIONS()
+        CHAIN_MSG_MAP(CPaneContainerImpl<CMyPaneContainer>)
+    END_MSG_MAP()
 };
 
 using TimePoint = std::chrono::steady_clock::time_point;
@@ -63,45 +63,45 @@ using Duration = std::chrono::steady_clock::duration;
 class ViewPort
 {
 public:
-	ViewPort() {}
-	ViewPort(TimePoint begin, TimePoint end, Duration timeUnitPerPixel);
-	bool Contains(TimePoint p) const;
-	gdi::Pixel ToPx(TimePoint p) const;
-	Duration ToDuration(gdi::Pixel p) const;
-	TimePoint ToTimePoint(gdi::Pixel p) const;
-	std::wstring FormatAsTime(gdi::Pixel p);
+    ViewPort() {}
+    ViewPort(TimePoint begin, TimePoint end, Duration timeUnitPerPixel);
+    bool Contains(TimePoint p) const;
+    gdi::Pixel ToPx(TimePoint p) const;
+    Duration ToDuration(gdi::Pixel p) const;
+    TimePoint ToTimePoint(gdi::Pixel p) const;
+    std::wstring FormatAsTime(gdi::Pixel p);
 
-	void ZoomInTo(gdi::Pixel position);
-	void ZoomOut(gdi::Pixel position);
+    void ZoomInTo(gdi::Pixel position);
+    void ZoomOut(gdi::Pixel position);
+
 private:
+    // time range
+    TimePoint m_begin;
+    TimePoint m_end;
 
-	// time range
-	TimePoint m_begin;
-	TimePoint m_end;
-
-	// conversion factor
-	Duration m_timeunitPerPixelBase;
-	Duration m_timeunitPerPixel;
-	int m_zoomFactor = 1000;
+    // conversion factor
+    Duration m_timeunitPerPixelBase;
+    Duration m_timeunitPerPixel;
+    int m_zoomFactor = 1000;
 };
 
 class CLogViewTabItem2 : public CTabViewTabItem
 {
 public:
-	~CLogViewTabItem2();
-	void SetView(std::shared_ptr<CLogView> pView);
-	CLogView& GetView();
+    ~CLogViewTabItem2();
+    void SetView(std::shared_ptr<CLogView> pView);
+    CLogView& GetView();
 
-	void Create(HWND parent);
-	HWND GetLogViewParent() { return m_top; }
+    void Create(HWND parent);
+    HWND GetLogViewParent() { return m_top; }
 
 private:
-	std::shared_ptr<CLogView> m_pView;
-	CHorSplitterWindow m_split;
-	CMyPaneContainer m_top;
-	CMyPaneContainer m_bottom;
-	gdi::CTimelineView m_timelineView;
-	ViewPort m_viewPort;
+    std::shared_ptr<CLogView> m_pView;
+    CHorSplitterWindow m_split;
+    CMyPaneContainer m_top;
+    CMyPaneContainer m_bottom;
+    gdi::CTimelineView m_timelineView;
+    ViewPort m_viewPort;
 };
 
 

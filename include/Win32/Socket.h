@@ -17,17 +17,17 @@ namespace Win32 {
 class WinsockInitialization : noncopyable
 {
 public:
-	explicit WinsockInitialization(int major = 2, int minor = 2);
-	~WinsockInitialization();
+    explicit WinsockInitialization(int major = 2, int minor = 2);
+    ~WinsockInitialization();
 };
 
 void WSAThrowLastError(const std::string& what);
 
 struct SocketDeleter
 {
-	typedef SOCKET pointer;
+    typedef SOCKET pointer;
 
-	void operator()(pointer p) const;
+    void operator()(pointer p) const;
 };
 
 typedef std::unique_ptr<void, SocketDeleter> Socket;

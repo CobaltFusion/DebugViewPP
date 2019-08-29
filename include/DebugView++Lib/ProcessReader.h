@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -19,18 +19,18 @@ class ILineBuffer;
 class ProcessReader : public PolledLogSource
 {
 public:
-	ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
-	~ProcessReader() override;
-	void Abort() override;
-	bool AtEnd() const override;
+    ProcessReader(Timer& timer, ILineBuffer& linebuffer, const std::wstring& pathName, const std::wstring& args);
+    ~ProcessReader() override;
+    void Abort() override;
+    bool AtEnd() const override;
 
 private:
-	void Poll() override;
+    void Poll() override;
 
-	Win32::Process m_process;
-	PipeReader m_stdout;
-	PipeReader m_stderr;
+    Win32::Process m_process;
+    PipeReader m_stdout;
+    PipeReader m_stderr;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

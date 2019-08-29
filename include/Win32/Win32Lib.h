@@ -28,46 +28,46 @@ static const int fixedNumberOfSystemPids = 5;
 class noncopyable
 {
 protected:
-	noncopyable() = default;
-	~noncopyable() = default;
+    noncopyable() = default;
+    ~noncopyable() = default;
 
 public:
-	noncopyable(const noncopyable&) = delete;
-	noncopyable& operator=(const noncopyable&) = delete;
+    noncopyable(const noncopyable&) = delete;
+    noncopyable& operator=(const noncopyable&) = delete;
 };
 
 struct LocalAllocDeleter
 {
-	typedef HLOCAL pointer;
+    typedef HLOCAL pointer;
 
-	void operator()(pointer p) const;
+    void operator()(pointer p) const;
 };
 
 typedef std::unique_ptr<void, LocalAllocDeleter> HLocal;
 
 struct GlobalAllocDeleter
 {
-	typedef HGLOBAL pointer;
+    typedef HGLOBAL pointer;
 
-	void operator()(pointer p) const;
+    void operator()(pointer p) const;
 };
 
 typedef std::unique_ptr<void, GlobalAllocDeleter> HGlobal;
 
 struct HandleDeleter
 {
-	typedef HANDLE pointer;
+    typedef HANDLE pointer;
 
-	void operator()(pointer p) const;
+    void operator()(pointer p) const;
 };
 
 typedef std::unique_ptr<void, HandleDeleter> Handle;
 
 struct ChangeNotificationHandleDeleter
 {
-	typedef HANDLE pointer;
+    typedef HANDLE pointer;
 
-	void operator()(pointer p) const;
+    void operator()(pointer p) const;
 };
 
 typedef std::unique_ptr<void, ChangeNotificationHandleDeleter> ChangeNotificationHandle;
@@ -75,25 +75,25 @@ typedef std::unique_ptr<void, ChangeNotificationHandleDeleter> ChangeNotificatio
 template <typename T>
 struct GdiObjectDeleter
 {
-	typedef T pointer;
+    typedef T pointer;
 
-	void operator()(pointer p) const
-	{
-		if (p != nullptr)
-			DeleteObject(p);
-	}
+    void operator()(pointer p) const
+    {
+        if (p != nullptr)
+            DeleteObject(p);
+    }
 };
 
 template <>
 struct GdiObjectDeleter<HICON>
 {
-	typedef HICON pointer;
+    typedef HICON pointer;
 
-	void operator()(pointer p) const
-	{
-		if (p != nullptr)
-			DestroyIcon(p);
-	}
+    void operator()(pointer p) const
+    {
+        if (p != nullptr)
+            DestroyIcon(p);
+    }
 };
 
 typedef std::unique_ptr<std::remove_pointer<HGDIOBJ>::type, GdiObjectDeleter<HGDIOBJ>> GdiObject;
@@ -109,75 +109,75 @@ template <typename T>
 class GlobalLock
 {
 public:
-	explicit GlobalLock(const HGlobal& hg) :
-		m_hg(hg.get()),
-		m_ptr(::GlobalLock(m_hg))
-	{
-	}
+    explicit GlobalLock(const HGlobal& hg) :
+        m_hg(hg.get()),
+        m_ptr(::GlobalLock(m_hg))
+    {
+    }
 
-	~GlobalLock()
-	{
-		::GlobalUnlock(m_hg);
-	}
+    ~GlobalLock()
+    {
+        ::GlobalUnlock(m_hg);
+    }
 
-	T* Ptr() const
-	{
-		return static_cast<T*>(m_ptr);
-	}
+    T* Ptr() const
+    {
+        return static_cast<T*>(m_ptr);
+    }
 
 private:
-	HGLOBAL m_hg;
-	void* m_ptr;
+    HGLOBAL m_hg;
+    void* m_ptr;
 };
 
 class GdiObjectSelection : noncopyable
 {
 public:
-	GdiObjectSelection(HDC hdc, HGDIOBJ hObject);
-	~GdiObjectSelection();
+    GdiObjectSelection(HDC hdc, HGDIOBJ hObject);
+    ~GdiObjectSelection();
 
 private:
-	HDC m_hdc;
-	HGDIOBJ m_hObject;
+    HDC m_hdc;
+    HGDIOBJ m_hObject;
 };
 
 class ScopedTextColor : noncopyable
 {
 public:
-	ScopedTextColor(HDC hdc, COLORREF color);
-	~ScopedTextColor();
+    ScopedTextColor(HDC hdc, COLORREF color);
+    ~ScopedTextColor();
 
 private:
-	HDC m_hdc;
-	COLORREF m_color;
+    HDC m_hdc;
+    COLORREF m_color;
 };
 
 class ScopedBkColor : noncopyable
 {
 public:
-	ScopedBkColor(HDC hdc, COLORREF color);
-	~ScopedBkColor();
+    ScopedBkColor(HDC hdc, COLORREF color);
+    ~ScopedBkColor();
 
 private:
-	HDC m_hdc;
-	COLORREF m_color;
+    HDC m_hdc;
+    COLORREF m_color;
 };
 
 class ScopedTextAlign : noncopyable
 {
 public:
-	ScopedTextAlign(HDC hdc, UINT align);
-	~ScopedTextAlign();
+    ScopedTextAlign(HDC hdc, UINT align);
+    ~ScopedTextAlign();
 
 private:
-	HDC m_hdc;
-	UINT m_align;
+    HDC m_hdc;
+    UINT m_align;
 };
 
 class Win32Error : public std::system_error
 {
 public:
-	Win32Error(DWORD error, const std::string& what);
+    Win32Error(DWORD error, const std::string& what);
 };
 
 std::wstring MultiByteToWideChar(std::string_view str);
@@ -220,9 +220,9 @@ void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
 
 struct WaitResult
 {
-	explicit WaitResult(bool signaled = false, int index = 0);
-	bool signaled;
-	int index;
+    explicit WaitResult(bool signaled = false, int index = 0);
+    bool signaled;
+    int index;
 };
 
 void WaitForSingleObject(HANDLE hObject);
@@ -235,7 +235,7 @@ WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool w
 template <typename Coll>
 WaitResult WaitForMultipleObjects(const Coll& handles, bool waitAll, DWORD milliSeconds)
 {
-	return WaitForMultipleObjects(handles.data(), handles.data() + handles.size(), waitAll, milliSeconds);
+    return WaitForMultipleObjects(handles.data(), handles.data() + handles.size(), waitAll, milliSeconds);
 }
 
 WaitResult WaitForAnyObject(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds);
@@ -243,7 +243,7 @@ WaitResult WaitForAnyObject(const HANDLE* begin, const HANDLE* end, DWORD milliS
 template <typename Coll>
 WaitResult WaitForAnyObject(const Coll& handles, DWORD milliSeconds)
 {
-	return WaitForMultipleObjects(handles, false, milliSeconds);
+    return WaitForMultipleObjects(handles, false, milliSeconds);
 }
 
 WaitResult WaitForAllObjects(const HANDLE* begin, const HANDLE* end, DWORD milliSeconds);
@@ -251,7 +251,7 @@ WaitResult WaitForAllObjects(const HANDLE* begin, const HANDLE* end, DWORD milli
 template <typename Coll>
 WaitResult WaitForAllObjects(const Coll& handles, DWORD milliSeconds)
 {
-	return WaitForMultipleObjects(handles, true, milliSeconds);
+    return WaitForMultipleObjects(handles, true, milliSeconds);
 }
 
 bool IsProcessRunning(HANDLE handle);
@@ -259,37 +259,37 @@ bool IsProcessRunning(HANDLE handle);
 class MutexLock : noncopyable
 {
 public:
-	explicit MutexLock(HANDLE hMutex);
-	~MutexLock();
+    explicit MutexLock(HANDLE hMutex);
+    ~MutexLock();
 
-	void Release();
+    void Release();
 
 private:
-	HANDLE m_hMutex;
+    HANDLE m_hMutex;
 };
 
 class MappedViewOfFile : noncopyable
 {
 public:
-	MappedViewOfFile(HANDLE hFileMappingObject, DWORD access, DWORD offsetHigh, DWORD offsetLow, size_t bytesToMap);
-	~MappedViewOfFile();
+    MappedViewOfFile(HANDLE hFileMappingObject, DWORD access, DWORD offsetHigh, DWORD offsetLow, size_t bytesToMap);
+    ~MappedViewOfFile();
 
-	void* Ptr();
-	const void* Ptr() const;
+    void* Ptr();
+    const void* Ptr() const;
 
 private:
-	void* m_ptr;
+    void* m_ptr;
 };
 
 class ScopedCursor : noncopyable
 {
 public:
-	explicit ScopedCursor(HCURSOR hCursor);
-	ScopedCursor(ScopedCursor&& sc);
-	~ScopedCursor();
+    explicit ScopedCursor(HCURSOR hCursor);
+    ScopedCursor(ScopedCursor&& sc);
+    ~ScopedCursor();
 
 private:
-	HCURSOR m_hCursor;
+    HCURSOR m_hCursor;
 };
 
 DWORD GetParentProcessId();
@@ -305,13 +305,13 @@ bool IsGUIThread();
 class HFile : noncopyable
 {
 public:
-	explicit HFile(const std::string& filename);
-	~HFile();
-	size_t size() const;
-	void resize(size_t size) const;
+    explicit HFile(const std::string& filename);
+    ~HFile();
+    size_t size() const;
+    void resize(size_t size) const;
 
 private:
-	int m_handle;
+    int m_handle;
 };
 
 std::wstring GetSEHcodeDescription(DWORD code);
@@ -322,13 +322,13 @@ std::wstring GetHresultDescription(HRESULT hr);
 class JobObject
 {
 public:
-	JobObject();
-	HANDLE get() const;
-	void AddProcessById(DWORD processId) const;
-	void AddProcessByHandle(HANDLE processHandle) const;
+    JobObject();
+    HANDLE get() const;
+    void AddProcessById(DWORD processId) const;
+    void AddProcessByHandle(HANDLE processHandle) const;
 
 private:
-	Handle m_jobHandle;
+    Handle m_jobHandle;
 };
 
 Handle DuplicateHandle(HANDLE handle);

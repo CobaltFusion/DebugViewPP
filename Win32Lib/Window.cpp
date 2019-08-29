@@ -15,30 +15,30 @@ namespace Win32 {
 
 WINDOWPLACEMENT GetWindowPlacement(HWND hwnd)
 {
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(placement);
-	if (::GetWindowPlacement(hwnd, &placement) == 0)
-	{
-		ThrowLastError("GetWindowPlacement");
-	}
-	return placement;
+    WINDOWPLACEMENT placement;
+    placement.length = sizeof(placement);
+    if (::GetWindowPlacement(hwnd, &placement) == 0)
+    {
+        ThrowLastError("GetWindowPlacement");
+    }
+    return placement;
 }
 
 POINT GetMessagePos()
 {
-	DWORD pos = ::GetMessagePos();
-	POINT pt = {GET_X_LPARAM(pos), GET_Y_LPARAM(pos)};
-	return pt;
+    DWORD pos = ::GetMessagePos();
+    POINT pt = {GET_X_LPARAM(pos), GET_Y_LPARAM(pos)};
+    return pt;
 }
 
 POINT GetCursorPos()
 {
-	POINT pos;
-	if (GetCursorPos(&pos) == 0)
-	{
-		ThrowLastError("GetCursorPos");
-	}
-	return pos;
+    POINT pos;
+    if (GetCursorPos(&pos) == 0)
+    {
+        ThrowLastError("GetCursorPos");
+    }
+    return pos;
 }
 
 } // namespace Win32

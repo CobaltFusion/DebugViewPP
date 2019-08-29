@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -21,33 +21,33 @@ typedef std::unordered_map<DWORD, Win32::Handle> PidMap;
 class ProcessMonitor
 {
 public:
-	typedef boost::signals2::signal<void (DWORD, HANDLE)> ProcessEnded;
+    typedef boost::signals2::signal<void(DWORD, HANDLE)> ProcessEnded;
 
-	ProcessMonitor();
-	~ProcessMonitor();
+    ProcessMonitor();
+    ~ProcessMonitor();
 
-	void Add(DWORD pid, HANDLE handle);
-	boost::signals2::connection ConnectProcessEnded(ProcessEnded::slot_type slot);
-	void Abort();
+    void Add(DWORD pid, HANDLE handle);
+    boost::signals2::connection ConnectProcessEnded(ProcessEnded::slot_type slot);
+    void Abort();
 
 private:
-	struct ProcessInfo
-	{
-		explicit ProcessInfo(DWORD pid = 0, HANDLE handle = nullptr);
+    struct ProcessInfo
+    {
+        explicit ProcessInfo(DWORD pid = 0, HANDLE handle = nullptr);
 
-		DWORD pid;
-		HANDLE handle;
-	};
+        DWORD pid;
+        HANDLE handle;
+    };
 
-	void Run();
+    void Run();
 
-	bool m_end;
-	Win32::Handle m_event;
-	ProcessEnded m_processEnded;
-	std::vector<ProcessInfo> m_processes;
-	SynchronizedQueue<std::function<void ()>> m_q;
-	std::thread m_thread;
+    bool m_end;
+    Win32::Handle m_event;
+    ProcessEnded m_processEnded;
+    std::vector<ProcessInfo> m_processes;
+    SynchronizedQueue<std::function<void()>> m_q;
+    std::thread m_thread;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

@@ -16,97 +16,97 @@ namespace fusion {
 namespace debugviewpp {
 
 BEGIN_MSG_MAP2(CSourceDlg)
-	MSG_WM_INITDIALOG(OnInitDialog)
-	COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
-	COMMAND_ID_HANDLER_EX(IDOK, OnOk)
-	COMMAND_HANDLER_EX(IDC_TYPE, CBN_SELCHANGE, OnTypeSelChange)
+    MSG_WM_INITDIALOG(OnInitDialog)
+    COMMAND_ID_HANDLER_EX(IDCANCEL, OnCancel)
+    COMMAND_ID_HANDLER_EX(IDOK, OnOk)
+    COMMAND_HANDLER_EX(IDC_TYPE, CBN_SELCHANGE, OnTypeSelChange)
 END_MSG_MAP()
 
 CSourceDlg::CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port) :
-	m_name(name),
-	m_sourceType(sourceType),
-	m_address(address),
-	m_port(port)
+    m_name(name),
+    m_sourceType(sourceType),
+    m_address(address),
+    m_port(port)
 {
 }
 
 std::wstring CSourceDlg::GetName() const
 {
-	return m_name;
+    return m_name;
 }
 
 SourceType::type CSourceDlg::GetSourceType() const
 {
-	return m_sourceType;
+    return m_sourceType;
 }
 
 std::wstring CSourceDlg::GetAddress() const
 {
-	return m_address;
+    return m_address;
 }
 
 int CSourceDlg::GetPort() const
 {
-	return m_port;
+    return m_port;
 }
 
 void CSourceDlg::OnException()
 {
-	FUSION_REPORT_EXCEPTION("Unknown Exception");
+    FUSION_REPORT_EXCEPTION("Unknown Exception");
 }
 
 void CSourceDlg::OnException(const std::exception& ex)
 {
-	FUSION_REPORT_EXCEPTION(ex.what());
+    FUSION_REPORT_EXCEPTION(ex.what());
 }
 
 BOOL CSourceDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-	CenterWindow(GetParent());
-	CComboBox combo(GetDlgItem(IDC_TYPE));
-	combo.AddString(WStr(SourceTypeToString(SourceType::Udp)));
-	combo.AddString(WStr(SourceTypeToString(SourceType::Tcp)));
-	combo.AddString(WStr(SourceTypeToString(SourceType::DebugViewAgent)));
+    CenterWindow(GetParent());
+    CComboBox combo(GetDlgItem(IDC_TYPE));
+    combo.AddString(WStr(SourceTypeToString(SourceType::Udp)));
+    combo.AddString(WStr(SourceTypeToString(SourceType::Tcp)));
+    combo.AddString(WStr(SourceTypeToString(SourceType::DebugViewAgent)));
 
-	SetDlgItemText(IDC_NAME, m_name.c_str());
-	switch (m_sourceType)
-	{
-	case SourceType::Udp: combo.SetCurSel(0); break;
-	case SourceType::Tcp: combo.SetCurSel(1); break;
-	case SourceType::DebugViewAgent: combo.SetCurSel(2); break;
-	default: combo.SetCurSel(0); break;
-	}
-	SetDlgItemInt(IDC_PORT, m_port);
-	SetDlgItemText(IDC_IPADDRESS, m_address.c_str());
-	UpdateUI();
+    SetDlgItemText(IDC_NAME, m_name.c_str());
+    switch (m_sourceType)
+    {
+    case SourceType::Udp: combo.SetCurSel(0); break;
+    case SourceType::Tcp: combo.SetCurSel(1); break;
+    case SourceType::DebugViewAgent: combo.SetCurSel(2); break;
+    default: combo.SetCurSel(0); break;
+    }
+    SetDlgItemInt(IDC_PORT, m_port);
+    SetDlgItemText(IDC_IPADDRESS, m_address.c_str());
+    UpdateUI();
 
-	return TRUE;
+    return TRUE;
 }
 
 void CSourceDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	EndDialog(nID);
+    EndDialog(nID);
 }
 
 void CSourceDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-	m_name = Win32::GetDlgItemText(*this, IDC_NAME);
-	m_port = GetDlgItemInt(IDC_PORT);
-	m_address = Win32::GetDlgItemText(*this, IDC_IPADDRESS);
-	m_sourceType = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
-	EndDialog(nID);
+    m_name = Win32::GetDlgItemText(*this, IDC_NAME);
+    m_port = GetDlgItemInt(IDC_PORT);
+    m_address = Win32::GetDlgItemText(*this, IDC_IPADDRESS);
+    m_sourceType = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
+    EndDialog(nID);
 }
 
 void CSourceDlg::OnTypeSelChange(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-	UpdateUI();
+    UpdateUI();
 }
 
 void CSourceDlg::UpdateUI()
 {
-	auto sourceType = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
-	GetDlgItem(IDC_PORT).EnableWindow(sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
-	GetDlgItem(IDC_IPADDRESS).EnableWindow(sourceType == SourceType::DebugViewAgent || sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
+    auto sourceType = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
+    GetDlgItem(IDC_PORT).EnableWindow(sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
+    GetDlgItem(IDC_IPADDRESS).EnableWindow(sourceType == SourceType::DebugViewAgent || sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
 }
 
 } // namespace debugviewpp

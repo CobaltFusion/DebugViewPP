@@ -25,70 +25,70 @@ namespace fusion {
 //    any Queue'd jobs by the caller will then be executed on a background thread until stop is called.
 //
 // 2) OnDemandDispatcher
-//	  call ExecuteQueuedJobs() to have the queued jobs executed on the caller thread
+//      call ExecuteQueuedJobs() to have the queued jobs executed on the caller thread
 //     
-	
+    
 typedef std::function<void()> Job;
 
 class JobDispatcher
 {
 public:
-	JobDispatcher();
-	virtual ~JobDispatcher();
+    JobDispatcher();
+    virtual ~JobDispatcher();
 
-	// guarentees and all jobs queued before Flush() have been executed 
-	virtual void Flush();
+    // guarentees and all jobs queued before Flush() have been executed 
+    virtual void Flush();
 
-	// returns immediately after queueing
-	virtual void Queue(Job job);
+    // returns immediately after queueing
+    virtual void Queue(Job job);
 
-	virtual boost::signals2::connection SubscribeToExceptionEvent(std::function<void(std::exception_ptr)> function);
+    virtual boost::signals2::connection SubscribeToExceptionEvent(std::function<void(std::exception_ptr)> function);
 
 protected:
-	bool HasJobs();
-	void ClearJobs();
-	Job NextJob();
+    bool HasJobs();
+    void ClearJobs();
+    Job NextJob();
 
-	bool m_stop;
-	std::deque<Job> m_jobQueue;
-	std::mutex m_executionMutex;
-	std::mutex m_stopMutex;
-	std::mutex m_queueMutex;
-	std::condition_variable m_condition;
-	std::unique_ptr<std::thread> m_thread;
-	boost::signals2::signal<void(std::exception_ptr)> m_exceptionOccurredSignal;
+    bool m_stop;
+    std::deque<Job> m_jobQueue;
+    std::mutex m_executionMutex;
+    std::mutex m_stopMutex;
+    std::mutex m_queueMutex;
+    std::condition_variable m_condition;
+    std::unique_ptr<std::thread> m_thread;
+    boost::signals2::signal<void(std::exception_ptr)> m_exceptionOccurredSignal;
 };
 
 class BackgroundDispatcher : public JobDispatcher
 {
 public:
-	BackgroundDispatcher();
-	virtual ~BackgroundDispatcher();
+    BackgroundDispatcher();
+    virtual ~BackgroundDispatcher();
 
-	// Run() returns after starting a thread that blocks waiting for jobs to execute until Stop is called
-	void Run();
-	void Stop();
+    // Run() returns after starting a thread that blocks waiting for jobs to execute until Stop is called
+    void Run();
+    void Stop();
 
 private:
-	std::unique_ptr<std::thread> m_thread;
+    std::unique_ptr<std::thread> m_thread;
 
 };
 
 class OnDemandDispatcher : public JobDispatcher
 {
 public:
-	OnDemandDispatcher();
-	virtual ~OnDemandDispatcher();
+    OnDemandDispatcher();
+    virtual ~OnDemandDispatcher();
 
-	virtual void Queue(Job job);
+    virtual void Queue(Job job);
 
-	// check for jobs and execute all waiting jobs on the calling thread
-	void ExecuteQueuedJobs();
+    // check for jobs and execute all waiting jobs on the calling thread
+    void ExecuteQueuedJobs();
 
-	virtual boost::signals2::connection SubscribeToJobQueuedEvent(std::function<void()> function);
+    virtual boost::signals2::connection SubscribeToJobQueuedEvent(std::function<void()> function);
 
 private:
-	boost::signals2::signal<void()> m_jobQueuedSignal;
+    boost::signals2::signal<void()> m_jobQueuedSignal;
 };
 
 } // namespace fusion

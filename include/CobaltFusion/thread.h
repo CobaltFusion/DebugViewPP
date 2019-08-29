@@ -15,32 +15,32 @@ namespace fusion {
 class thread : private std::thread
 {
 public:
-	explicit thread(std::function<void()> fn) :
-		std::thread(fn)
-	{
-	}
+    explicit thread(std::function<void()> fn) :
+        std::thread(fn)
+    {
+    }
 
-	~thread()
-	{
-		assert(!joinable() && "Always join the thread before releasing it");
-	}
+    ~thread()
+    {
+        assert(!joinable() && "Always join the thread before releasing it");
+    }
 
-	void join()
-	{
-		if (joinable())
-			std::thread::join();
-	}
+    void join()
+    {
+        if (joinable())
+            std::thread::join();
+    }
 
-	void detach()
-	{
-		assert(!joinable() && "Cannot detach an unjoinable thread");
-		std::thread::detach();
-	}
+    void detach()
+    {
+        assert(!joinable() && "Cannot detach an unjoinable thread");
+        std::thread::detach();
+    }
 
-	id get_id() const
-	{
-		return std::thread::get_id();
-	}
+    id get_id() const
+    {
+        return std::thread::get_id();
+    }
 };
 
 } // namespace fusion

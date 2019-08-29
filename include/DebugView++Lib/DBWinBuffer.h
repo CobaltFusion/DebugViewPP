@@ -12,9 +12,9 @@ namespace debugviewpp {
 
 struct DbWinBuffer
 {
-	DWORD processId;
-	// Total size must be 4KB (processID + data)
-	char data[4096 - sizeof(DWORD)];
+    DWORD processId;
+    // Total size must be 4KB (processID + data)
+    char data[4096 - sizeof(DWORD)];
 };
 
 static_assert(sizeof(DbWinBuffer) == 4096, "DBWIN_BUFFER size must be 4096");

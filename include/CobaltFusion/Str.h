@@ -18,73 +18,73 @@ namespace fusion {
 class Str
 {
 public:
-	explicit Str(std::wstring_view s) :
-		m_str(Win32::WideCharToMultiByte(s))
-	{
-	}
+    explicit Str(std::wstring_view s) :
+        m_str(Win32::WideCharToMultiByte(s))
+    {
+    }
 
-	// usefull to convert a stringbuilder() into an string when the function needs a char*
-	explicit Str(std::string s) :
-		m_str(s)
-	{
-	}
+    // usefull to convert a stringbuilder() into an string when the function needs a char*
+    explicit Str(std::string s) :
+        m_str(s)
+    {
+    }
 
-	// replace these with string_cast<>
-	std::string str() const
-	{
-		return m_str;
-	}
+    // replace these with string_cast<>
+    std::string str() const
+    {
+        return m_str;
+    }
 
-	// replace these with string_cast<>
-	operator std::string() const
-	{
-		return m_str;
-	}
+    // replace these with string_cast<>
+    operator std::string() const
+    {
+        return m_str;
+    }
 
-	operator const char*() const
-	{
-		return m_str.c_str();
-	}
+    operator const char*() const
+    {
+        return m_str.c_str();
+    }
 
 private:
-	std::string m_str;
+    std::string m_str;
 };
 
 class WStr
 {
 public:
-	// replace these with string_cast<>
-	explicit WStr(std::string_view s) :
-		m_str(Win32::MultiByteToWideChar(s))
-	{
-	}
+    // replace these with string_cast<>
+    explicit WStr(std::string_view s) :
+        m_str(Win32::MultiByteToWideChar(s))
+    {
+    }
 
-	// usefull to convert a wstringbuilder() into an wstring when the function needs a wchar_t*
-	explicit WStr(std::wstring s) :
-		m_str(s)
-	{
-	}
+    // usefull to convert a wstringbuilder() into an wstring when the function needs a wchar_t*
+    explicit WStr(std::wstring s) :
+        m_str(s)
+    {
+    }
 
-	// replace these with string_cast<>
-	std::wstring str() const
-	{
-		return m_str;
-	}
+    // replace these with string_cast<>
+    std::wstring str() const
+    {
+        return m_str;
+    }
 
-	// replace these with string_cast<>
-	operator std::wstring() const
-	{
-		return m_str;
-	}
+    // replace these with string_cast<>
+    operator std::wstring() const
+    {
+        return m_str;
+    }
 
-	// nice to have a temporary WStr decay into a wchar_t* but also easy to use wrong like "const wchar_t* p = WStr(msg.text);" is very wrong.
-	operator const wchar_t*() const
-	{
-		return m_str.c_str();
-	}
+    // nice to have a temporary WStr decay into a wchar_t* but also easy to use wrong like "const wchar_t* p = WStr(msg.text);" is very wrong.
+    operator const wchar_t*() const
+    {
+        return m_str.c_str();
+    }
 
 private:
-	std::wstring m_str;
+    std::wstring m_str;
 };
 
 } // namespace fusion

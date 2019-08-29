@@ -15,8 +15,8 @@ namespace debugviewpp {
 
 struct FilterData
 {
-	std::string name;
-	LogFilter filter;
+    std::string name;
+    LogFilter filter;
 };
 
 boost::property_tree::ptree MakePTree(const std::vector<Filter>& filters);

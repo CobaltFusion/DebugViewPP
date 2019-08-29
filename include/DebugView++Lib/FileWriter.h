@@ -21,14 +21,14 @@ class LogFile;
 class FileWriter
 {
 public:
-	FileWriter(const std::wstring& filename, LogFile& logfile);
+    FileWriter(const std::wstring& filename, LogFile& logfile);
 
 private:
-	void Run();
+    void Run();
 
-	std::ofstream m_ofstream;
-	LogFile& m_logfile;
-	std::thread m_thread;
+    std::ofstream m_ofstream;
+    LogFile& m_logfile;
+    std::thread m_thread;
 };
 
 } // namespace debugviewpp

@@ -34,25 +34,25 @@ namespace fusion {
 class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<CLogViewTabItem2>>
 {
 public:
-	DECLARE_WND_CLASS(_T("CMainFrame Class"))
+    DECLARE_WND_CLASS(_T("CMainFrame Class"))
 
-	BEGIN_MSG_MAP(CMainFrame)
-		MESSAGE_HANDLER(WM_CREATE, OnCreate)
-		MESSAGE_HANDLER(WM_CLOSE, OnClose)
-		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		MSG_WM_SIZE(OnSize)
+    BEGIN_MSG_MAP(CMainFrame)
+        MESSAGE_HANDLER(WM_CREATE, OnCreate)
+        MESSAGE_HANDLER(WM_CLOSE, OnClose)
+        MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+        MSG_WM_SIZE(OnSize)
         REFLECT_NOTIFICATIONS();
         DEFAULT_REFLECTION_HANDLER()
-	END_MSG_MAP()
+    END_MSG_MAP()
 
-	LRESULT OnSize(UINT nType, CSize Extent);
-	void AddTab(const std::wstring name);
-	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    LRESULT OnSize(UINT nType, CSize Extent);
+    void AddTab(const std::wstring name);
+    LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
-	std::vector<std::shared_ptr<CLogViewTabItem2>> m_tabitems;
+    std::vector<std::shared_ptr<CLogViewTabItem2>> m_tabitems;
 };
 
 } // namespace fusion

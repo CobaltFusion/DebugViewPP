@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -13,22 +13,24 @@
 namespace fusion {
 namespace debugviewpp {
 
-class CRegExDlg :
-	public CDialogImpl<CRegExDlg>,
-	public ExceptionHandler<CRegExDlg, std::exception>
+class CRegExDlg : public CDialogImpl<CRegExDlg>,
+                  public ExceptionHandler<CRegExDlg, std::exception>
 {
 public:
-	enum { IDD = IDD_REGEX };
+    enum
+    {
+        IDD = IDD_REGEX
+    };
 
 private:
-	DECLARE_MSG_MAP()
+    DECLARE_MSG_MAP()
 
-	void OnException() const;
-	void OnException(const std::exception& ex) const;
+    void OnException() const;
+    void OnException(const std::exception& ex) const;
 
-	BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
-	void OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
+    BOOL OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/);
+    void OnClose(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/);
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

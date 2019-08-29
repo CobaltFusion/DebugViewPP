@@ -14,19 +14,19 @@ namespace fusion {
 template <typename T>
 T FloorTo(double value)
 {
-	return static_cast<T>(std::floor(value));
+    return static_cast<T>(std::floor(value));
 }
 
 template <typename T>
 T CeilTo(double value)
 {
-	return static_cast<T>(std::ceil(value));
+    return static_cast<T>(std::ceil(value));
 }
 
 template <typename T>
 T RoundTo(double value)
 {
-	return static_cast<T>(std::round(value));
+    return static_cast<T>(std::round(value));
 }
 
 } // namespace fusion

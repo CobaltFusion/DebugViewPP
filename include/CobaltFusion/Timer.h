@@ -15,18 +15,18 @@ namespace fusion {
 class Timer
 {
 public:
-	Timer();
+    Timer();
 
-	void Reset();
-	double Get();
+    void Reset();
+    double Get();
 
 private:
-	static long long GetTicks();
+    static long long GetTicks();
 
-	double m_timerUnit;
-	bool m_init;
-	long long m_offset;
-	std::mutex m_mutex;
+    double m_timerUnit;
+    bool m_init;
+    long long m_offset;
+    std::mutex m_mutex;
 };
 
 } // namespace fusion

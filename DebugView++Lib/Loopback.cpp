@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -12,9 +12,9 @@ namespace fusion {
 namespace debugviewpp {
 
 Loopback::Loopback(Timer& timer, ILineBuffer& linebuffer) :
-	LogSource(timer, SourceType::System, linebuffer)
+    LogSource(timer, SourceType::System, linebuffer)
 {
-	SetDescription(L"Loopback");
+    SetDescription(L"Loopback");
 }
 
 Loopback::~Loopback()
@@ -23,13 +23,13 @@ Loopback::~Loopback()
 
 bool Loopback::GetAutoNewLine() const
 {
-	return true;
+    return true;
 }
 
 void Loopback::PreProcess(Line& line) const
 {
-	if (line.message.empty())
-		line.message = "\n";
+    if (line.message.empty())
+        line.message = "\n";
 }
 
 } // namespace debugviewpp

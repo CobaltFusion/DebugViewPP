@@ -16,57 +16,57 @@ namespace fusion {
 class stringbuilder
 {
 public:
-	template <typename T>
-	stringbuilder& operator<<(const T& t)
-	{
-		m_ss << t;
-		return *this;
-	}
+    template <typename T>
+    stringbuilder& operator<<(const T& t)
+    {
+        m_ss << t;
+        return *this;
+    }
 
-	stringbuilder& operator<<(std::wstring_view str)
-	{
-		m_ss << Str(str); // replace with string_cast<>
-		return *this;
-	}
+    stringbuilder& operator<<(std::wstring_view str)
+    {
+        m_ss << Str(str); // replace with string_cast<>
+        return *this;
+    }
 
-	stringbuilder& operator<<(const std::wstring& str)
-	{
-		m_ss << Str(str); // replace with string_cast<>
-		return *this;
-	}
+    stringbuilder& operator<<(const std::wstring& str)
+    {
+        m_ss << Str(str); // replace with string_cast<>
+        return *this;
+    }
 
-	operator std::string() const
-	{
-		return m_ss.str();
-	}
+    operator std::string() const
+    {
+        return m_ss.str();
+    }
 
 private:
-	std::stringstream m_ss;
+    std::stringstream m_ss;
 };
 
 class wstringbuilder
 {
 public:
-	template <typename T>
-	wstringbuilder& operator<<(const T& t)
-	{
-		m_ss << t;
-		return *this;
-	}
+    template <typename T>
+    wstringbuilder& operator<<(const T& t)
+    {
+        m_ss << t;
+        return *this;
+    }
 
-	wstringbuilder& operator<<(const std::string& str)
-	{
-		m_ss << WStr(str);
-		return *this;
-	}
+    wstringbuilder& operator<<(const std::string& str)
+    {
+        m_ss << WStr(str);
+        return *this;
+    }
 
-	operator std::wstring() const
-	{
-		return m_ss.str();
-	}
+    operator std::wstring() const
+    {
+        return m_ss.str();
+    }
 
 private:
-	std::wstringstream m_ss;
+    std::wstringstream m_ss;
 };
 
 

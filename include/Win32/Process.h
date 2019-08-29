@@ -22,32 +22,32 @@ std::wstring GetModuleFilenameUnspoofable();
 class Process
 {
 public:
-	Process(const std::wstring& pathName, const std::vector<std::wstring>& args);
-	Process(const std::wstring& pathName, const std::wstring& args);
+    Process(const std::wstring& pathName, const std::vector<std::wstring>& args);
+    Process(const std::wstring& pathName, const std::wstring& args);
 
-	std::wstring GetName() const;
-	HANDLE GetStdIn() const;
-	HANDLE GetStdOut() const;
-	HANDLE GetStdErr() const;
-	HANDLE GetProcessHandle() const;
-	HANDLE GetThreadHandle() const;
-	unsigned long GetProcessId() const;
-	unsigned long GetThreadId() const;
+    std::wstring GetName() const;
+    HANDLE GetStdIn() const;
+    HANDLE GetStdOut() const;
+    HANDLE GetStdErr() const;
+    HANDLE GetProcessHandle() const;
+    HANDLE GetThreadHandle() const;
+    unsigned long GetProcessId() const;
+    unsigned long GetThreadId() const;
 
-	bool IsRunning() const;
-	void Wait() const;
+    bool IsRunning() const;
+    void Wait() const;
 
 private:
-	void Run(const std::wstring& pathName, const std::wstring& args);
+    void Run(const std::wstring& pathName, const std::wstring& args);
 
-	std::wstring m_name;
-	Handle m_stdIn;
-	Handle m_stdOut;
-	Handle m_stdErr;
-	Handle m_hProcess;
-	Handle m_hThread;
-	unsigned long m_processId;
-	unsigned long m_threadId;
+    std::wstring m_name;
+    Handle m_stdIn;
+    Handle m_stdOut;
+    Handle m_stdErr;
+    Handle m_hProcess;
+    Handle m_hThread;
+    unsigned long m_processId;
+    unsigned long m_threadId;
 };
 
 } // namespace Win32

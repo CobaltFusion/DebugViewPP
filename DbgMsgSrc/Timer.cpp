@@ -4,8 +4,8 @@
 
 #define MICROSECONDS (1e6 / li.QuadPart)
 
-Timer::Timer()
-    : m_timerUnit(0.0)
+Timer::Timer() :
+    m_timerUnit(0.0)
 {
     LARGE_INTEGER li;
     QueryPerformanceFrequency(&li);

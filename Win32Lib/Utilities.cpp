@@ -14,12 +14,12 @@ namespace fusion {
 
 std::wstring LoadString(int id)
 {
-	CString cs;
-	if (cs.LoadString(id) == 0)
-	{
-		Win32::ThrowLastError("LoadString");
-	}
-	return static_cast<const wchar_t*>(cs);
+    CString cs;
+    if (cs.LoadString(id) == 0)
+    {
+        Win32::ThrowLastError("LoadString");
+    }
+    return static_cast<const wchar_t*>(cs);
 }
 
 } // namespace fusion

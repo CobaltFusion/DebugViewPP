@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -21,59 +21,59 @@ class ILineBuffer;
 class LogSource : public fusion::noncopyable
 {
 public:
-	LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
-	virtual ~LogSource();
-	
-	virtual void SetAutoNewLine(bool value);
-	virtual bool GetAutoNewLine() const;
+    LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer);
+    virtual ~LogSource();
 
-	// maybe called multiple times, the derived class is responsible for
-	// executing initialization code once if needed.
-	virtual void Initialize();
+    virtual void SetAutoNewLine(bool value);
+    virtual bool GetAutoNewLine() const;
 
-	virtual void Abort();
+    // maybe called multiple times, the derived class is responsible for
+    // executing initialization code once if needed.
+    virtual void Initialize();
 
-	// when true is returned, the Logsource is removed from LogSources and then destroyed.
-	virtual bool AtEnd() const;
+    virtual void Abort();
 
-	// return a handle to wait for, Notify() is called when the handle is signaled. return INVALID_HANDLE_VALUE if the Logsource does not need to be notified
-	virtual HANDLE GetHandle() const = 0;
-	
-	// only when nofity is called LogSource::Add may be used to add lines to the LineBuffer
-	virtual void Notify() = 0;
+    // when true is returned, the Logsource is removed from LogSources and then destroyed.
+    virtual bool AtEnd() const;
 
-	// called for each line before it is added to the view,
-	// typically used to set the processname
-	virtual void PreProcess(Line& line) const;
+    // return a handle to wait for, Notify() is called when the handle is signaled. return INVALID_HANDLE_VALUE if the Logsource does not need to be notified
+    virtual HANDLE GetHandle() const = 0;
 
-	std::wstring GetDescription() const;
-	void SetDescription(const std::wstring& description);
+    // only when nofity is called LogSource::Add may be used to add lines to the LineBuffer
+    virtual void Notify() = 0;
 
-	SourceType::type GetSourceType() const;
+    // called for each line before it is added to the view,
+    // typically used to set the processname
+    virtual void PreProcess(Line& line) const;
 
-	// for DBWIN messages
-	void Add(HANDLE handle, const std::string& message) const;
+    std::wstring GetDescription() const;
+    void SetDescription(const std::wstring& description);
 
-	// for Loopback messages and DBWIN kernel message that have no PID
-	void Add(DWORD pid, const std::string& processName, const std::string& message);
+    SourceType::type GetSourceType() const;
 
-	// used when reading from files
-	void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
+    // for DBWIN messages
+    void Add(HANDLE handle, const std::string& message) const;
 
-	// used by Loopback and PolledLogSources writing internal status messages
-	void AddInternal(const std::string& message) const;
+    // for Loopback messages and DBWIN kernel message that have no PID
+    void Add(DWORD pid, const std::string& processName, const std::string& message);
 
-	// used by FileReader
-	void Add(const std::string& message);
+    // used when reading from files
+    void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message);
+
+    // used by Loopback and PolledLogSources writing internal status messages
+    void AddInternal(const std::string& message) const;
+
+    // used by FileReader
+    void Add(const std::string& message);
 
 private:
-	bool m_autoNewLine;
-	ILineBuffer& m_linebuffer;
-	std::wstring m_description;
-	SourceType::type m_sourceType;
-	Timer& m_timer;
-	bool m_end;
+    bool m_autoNewLine;
+    ILineBuffer& m_linebuffer;
+    std::wstring m_description;
+    SourceType::type m_sourceType;
+    Timer& m_timer;
+    bool m_end;
 };
 
-} // namespace debugviewpp 
+} // namespace debugviewpp
 } // namespace fusion

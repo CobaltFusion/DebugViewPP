@@ -15,17 +15,17 @@ namespace Win32 {
 
 ComInitialization::ComInitialization()
 {
-	// OleInitialize/OleUninitialize is used instead of CoInitializeEx/CoUninitialize because it is required for use of IDropTarget's Drag and Drop functions
-	HRESULT hr = OleInitialize(nullptr);
-	if (FAILED(hr))
-	{
-		throw Win32Error(hr, "OleInitialize");
-	}
+    // OleInitialize/OleUninitialize is used instead of CoInitializeEx/CoUninitialize because it is required for use of IDropTarget's Drag and Drop functions
+    HRESULT hr = OleInitialize(nullptr);
+    if (FAILED(hr))
+    {
+        throw Win32Error(hr, "OleInitialize");
+    }
 }
 
 ComInitialization::~ComInitialization()
 {
-	OleUninitialize();
+    OleUninitialize();
 }
 
 } // namespace Win32

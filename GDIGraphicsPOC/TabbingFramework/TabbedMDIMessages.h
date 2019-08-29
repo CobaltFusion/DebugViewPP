@@ -189,50 +189,50 @@ __declspec(selectany) UINT UWM_MDICHILDCLOSEWITHNOPROMPT = 0;
 
 struct RegisterTabbedMDIMessages
 {
-	RegisterTabbedMDIMessages()
-	{
-		UWM_MDICHILDTABTEXTCHANGE =      ::RegisterWindowMessage(UWM_MDICHILDTABTEXTCHANGE_MSG);
-		UWM_MDICHILDTABTOOLTIPCHANGE =   ::RegisterWindowMessage(UWM_MDICHILDTABTOOLTIPCHANGE_MSG);
-		UWM_MDICHILDACTIVATIONCHANGE =   ::RegisterWindowMessage(UWM_MDICHILDACTIVATIONCHANGE_MSG);
-		UWM_MDICHILDMAXIMIZED =          ::RegisterWindowMessage(UWM_MDICHILDMAXIMIZED_MSG);
-		UWM_MDICHILDUNMAXIMIZED =        ::RegisterWindowMessage(UWM_MDICHILDUNMAXIMIZED_MSG);
-		UWM_MDICHILDSHOWTABCONTEXTMENU = ::RegisterWindowMessage(UWM_MDICHILDSHOWTABCONTEXTMENU_MSG);
-		UWM_MDICHILDSAVEMODIFIED =       ::RegisterWindowMessage(UWM_MDICHILDSAVEMODIFIED_MSG);
-		UWM_MDICHILDISMODIFIED =         ::RegisterWindowMessage(UWM_MDICHILDISMODIFIED_MSG);
-		UWM_MDICHILDCLOSEWITHNOPROMPT =  ::RegisterWindowMessage(UWM_MDICHILDCLOSEWITHNOPROMPT_MSG);
-	}
+    RegisterTabbedMDIMessages()
+    {
+        UWM_MDICHILDTABTEXTCHANGE =      ::RegisterWindowMessage(UWM_MDICHILDTABTEXTCHANGE_MSG);
+        UWM_MDICHILDTABTOOLTIPCHANGE =   ::RegisterWindowMessage(UWM_MDICHILDTABTOOLTIPCHANGE_MSG);
+        UWM_MDICHILDACTIVATIONCHANGE =   ::RegisterWindowMessage(UWM_MDICHILDACTIVATIONCHANGE_MSG);
+        UWM_MDICHILDMAXIMIZED =          ::RegisterWindowMessage(UWM_MDICHILDMAXIMIZED_MSG);
+        UWM_MDICHILDUNMAXIMIZED =        ::RegisterWindowMessage(UWM_MDICHILDUNMAXIMIZED_MSG);
+        UWM_MDICHILDSHOWTABCONTEXTMENU = ::RegisterWindowMessage(UWM_MDICHILDSHOWTABCONTEXTMENU_MSG);
+        UWM_MDICHILDSAVEMODIFIED =       ::RegisterWindowMessage(UWM_MDICHILDSAVEMODIFIED_MSG);
+        UWM_MDICHILDISMODIFIED =         ::RegisterWindowMessage(UWM_MDICHILDISMODIFIED_MSG);
+        UWM_MDICHILDCLOSEWITHNOPROMPT =  ::RegisterWindowMessage(UWM_MDICHILDCLOSEWITHNOPROMPT_MSG);
+    }
 };
 
 #if (_MSC_VER >= 1300)
-	// VC 7.0 and later (the message variables are initialized with RegisterWindowMessage in declaration)
-	#pragma deprecated(RegisterTabbedMDIMessages)
+    // VC 7.0 and later (the message variables are initialized with RegisterWindowMessage in declaration)
+    #pragma deprecated(RegisterTabbedMDIMessages)
 #else
-	// VC 6.0 and earlier (need to initialize message variables with RegisterWindowMessage outside of declaration)
-	#if defined(_ATL_MIN_CRT) || defined(_TABBEDMDI_MESSAGES_EXTERN_REGISTER)
-		// With _ATL_MIN_CRT, we don't get global constructors and destructors,
-		// which is the out-of-the-box way we register the tabbed MDI window messages,
-		// so the client needs to register these messages.
-		// _TABBEDMDI_MESSAGES_EXTERN_REGISTER also skips declaring a global
-		// right here - see the note below.
+    // VC 6.0 and earlier (need to initialize message variables with RegisterWindowMessage outside of declaration)
+    #if defined(_ATL_MIN_CRT) || defined(_TABBEDMDI_MESSAGES_EXTERN_REGISTER)
+        // With _ATL_MIN_CRT, we don't get global constructors and destructors,
+        // which is the out-of-the-box way we register the tabbed MDI window messages,
+        // so the client needs to register these messages.
+        // _TABBEDMDI_MESSAGES_EXTERN_REGISTER also skips declaring a global
+        // right here - see the note below.
 
-		#if defined(_ATL_MIN_CRT) && !defined(_TABBEDMDI_MESSAGES_NO_WARN_ATL_MIN_CRT)
-			#pragma message("By defining _ATL_MIN_CRT, you are responsible for registering the custom TabbedMDI window messages")
-			#pragma message(" (Define _TABBEDMDI_MESSAGES_NO_WARN_ATL_MIN_CRT to not see this message again)")
-		#endif
-	#else
-		// Global struct, whose constructor will get called when the executable image gets loaded
-		// (the CRT makes sure global objects get constructed and destructed)
-		// See the note above the struct for a discussion on alternatives to this struct
-		// if you're targetting VC 7.0 at a minimum.
+        #if defined(_ATL_MIN_CRT) && !defined(_TABBEDMDI_MESSAGES_NO_WARN_ATL_MIN_CRT)
+            #pragma message("By defining _ATL_MIN_CRT, you are responsible for registering the custom TabbedMDI window messages")
+            #pragma message(" (Define _TABBEDMDI_MESSAGES_NO_WARN_ATL_MIN_CRT to not see this message again)")
+        #endif
+    #else
+        // Global struct, whose constructor will get called when the executable image gets loaded
+        // (the CRT makes sure global objects get constructed and destructed)
+        // See the note above the struct for a discussion on alternatives to this struct
+        // if you're targetting VC 7.0 at a minimum.
 
-		// If you are getting "already defined" errors because of including TabbedMDI.h
-		// in multiple translation units, you can either change it so that you
-		// reference this file only from stdafx.h, or you can declare
-		// "_TABBEDMDI_MESSAGES_EXTERN_REGISTER" before including TabbedMDI.h
-		// and then have an instance of the "RegisterTabbedMDIMessages"
-		// structure in a translation unit that has reference to this file.
-		RegisterTabbedMDIMessages g_RegisterTabbedMDIMessages;
-	#endif // defined(_ATL_MIN_CRT) || defined(_TABBEDMDI_MESSAGES_EXTERN_REGISTER)
+        // If you are getting "already defined" errors because of including TabbedMDI.h
+        // in multiple translation units, you can either change it so that you
+        // reference this file only from stdafx.h, or you can declare
+        // "_TABBEDMDI_MESSAGES_EXTERN_REGISTER" before including TabbedMDI.h
+        // and then have an instance of the "RegisterTabbedMDIMessages"
+        // structure in a translation unit that has reference to this file.
+        RegisterTabbedMDIMessages g_RegisterTabbedMDIMessages;
+    #endif // defined(_ATL_MIN_CRT) || defined(_TABBEDMDI_MESSAGES_EXTERN_REGISTER)
 #endif //(_MSC_VER >= 1300)
 
 

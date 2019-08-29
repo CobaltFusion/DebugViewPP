@@ -51,129 +51,129 @@ namespace fusion {
 
 
 CircularBuffer::CircularBuffer(size_t capacity) :
-	m_capacity(capacity),
-	m_buffer(new char[capacity + 1]),
-	m_readOffset(0),
-	m_writeOffset(0)
+    m_capacity(capacity),
+    m_buffer(new char[capacity + 1]),
+    m_readOffset(0),
+    m_writeOffset(0)
 {
 }
 
 size_t CircularBuffer::Capacity() const
 {
-	return m_capacity;
+    return m_capacity;
 }
 
 bool CircularBuffer::Empty() const
 {
-	return m_readOffset == m_writeOffset;
+    return m_readOffset == m_writeOffset;
 }
 
 size_t CircularBuffer::Available() const
 {
-	return m_writeOffset < m_readOffset ? m_readOffset - m_writeOffset - 1 : m_capacity - m_writeOffset + m_readOffset;
+    return m_writeOffset < m_readOffset ? m_readOffset - m_writeOffset - 1 : m_capacity - m_writeOffset + m_readOffset;
 }
 
 size_t CircularBuffer::Size() const
 {
-	return m_writeOffset < m_readOffset ? m_capacity + 1 - m_readOffset + m_writeOffset : m_writeOffset - m_readOffset;
+    return m_writeOffset < m_readOffset ? m_capacity + 1 - m_readOffset + m_writeOffset : m_writeOffset - m_readOffset;
 }
 
 bool CircularBuffer::Full() const
 {
-	//std::cerr << "full: " << NextPosition(m_writeOffset) << " ?= " << m_readOffset << "\n"
-	return NextPosition(m_writeOffset) == m_readOffset; // actually full
+    //std::cerr << "full: " << NextPosition(m_writeOffset) << " ?= " << m_readOffset << "\n"
+    return NextPosition(m_writeOffset) == m_readOffset; // actually full
 }
 
 std::string CircularBuffer::ReadStringZ()
 {
-	//std::cerr << "  ReadStringZ\n";
+    //std::cerr << "  ReadStringZ\n";
 
-	std::string message;
-	while (auto ch = Read())
-	{
-		message.push_back(ch);
-	}
-	//std::cerr << "  ReadStringZ done\n";
-	return message;
+    std::string message;
+    while (auto ch = Read())
+    {
+        message.push_back(ch);
+    }
+    //std::cerr << "  ReadStringZ done\n";
+    return message;
 }
 
 void CircularBuffer::WriteStringZ(const char* message)
 {
-	//std::cerr << "  WriteStringZ\n";
-	while (*message != 0)
-	{
-		Write(*message);
-		++message;
-	}
-	Write('\0');
-	//std::cerr << "  WriteStringZ done\n";
+    //std::cerr << "  WriteStringZ\n";
+    while (*message != 0)
+    {
+        Write(*message);
+        ++message;
+    }
+    Write('\0');
+    //std::cerr << "  WriteStringZ done\n";
 }
 
 size_t CircularBuffer::NextPosition(size_t offset) const
 {
-	return offset == m_capacity ? 0 : offset + 1;
+    return offset == m_capacity ? 0 : offset + 1;
 }
 
 const char* CircularBuffer::ReadPointer() const
 {
-	return m_buffer.get() + m_readOffset;
+    return m_buffer.get() + m_readOffset;
 }
 
 char* CircularBuffer::WritePointer() const
 {
-	return m_buffer.get() + m_writeOffset;
+    return m_buffer.get() + m_writeOffset;
 }
 
 void CircularBuffer::IncreaseReadPointer()
 {
-	m_readOffset = NextPosition(m_readOffset);
+    m_readOffset = NextPosition(m_readOffset);
 }
 
 void CircularBuffer::IncreaseWritePointer()
 {
-	m_writeOffset = NextPosition(m_writeOffset);
+    m_writeOffset = NextPosition(m_writeOffset);
 }
 
 void CircularBuffer::Clear()
 {
-	m_readOffset = 0;
-	m_writeOffset = 0;
+    m_readOffset = 0;
+    m_writeOffset = 0;
 }
 
 void CircularBuffer::Swap(CircularBuffer& cb)
 {
-	std::swap(m_capacity, cb.m_capacity);
-	std::swap(m_buffer, cb.m_buffer);
-	std::swap(m_readOffset, cb.m_readOffset);
-	std::swap(m_writeOffset, cb.m_writeOffset);
+    std::swap(m_capacity, cb.m_capacity);
+    std::swap(m_buffer, cb.m_buffer);
+    std::swap(m_readOffset, cb.m_readOffset);
+    std::swap(m_writeOffset, cb.m_writeOffset);
 }
 
 char CircularBuffer::Read()
 {
-	if (Empty())
-	{
-		throw std::exception("Read from empty buffer!");
-	}
+    if (Empty())
+    {
+        throw std::exception("Read from empty buffer!");
+    }
 
-	auto value = *ReadPointer();
-	//std::cerr << "  " << m_readOffset << " => " << unsigned int(unsigned char(value)) << "\n";
-	IncreaseReadPointer();
-	return value;
+    auto value = *ReadPointer();
+    //std::cerr << "  " << m_readOffset << " => " << unsigned int(unsigned char(value)) << "\n";
+    IncreaseReadPointer();
+    return value;
 }
 
 void CircularBuffer::Write(char value)
 {
-	//std::cerr << "  " << m_writeOffset << " <= " << unsigned int(unsigned char(value)) << "\n";
-	*WritePointer() = value;
-	IncreaseWritePointer();
+    //std::cerr << "  " << m_writeOffset << " <= " << unsigned int(unsigned char(value)) << "\n";
+    *WritePointer() = value;
+    IncreaseWritePointer();
 }
 
 void CircularBuffer::DumpStats() const
 {
-	std::cerr << "  m_readOffset:  " << m_readOffset << "\n";
-	std::cerr << "  m_writeOffset: " << m_writeOffset << "\n";
-	std::cerr << "  Empty: " << (Empty() ? "true" : "false") << "\n";
-	std::cerr << "  Full:  " << (Full() ? "true" : "false") << "\n";
+    std::cerr << "  m_readOffset:  " << m_readOffset << "\n";
+    std::cerr << "  m_writeOffset: " << m_writeOffset << "\n";
+    std::cerr << "  Empty: " << (Empty() ? "true" : "false") << "\n";
+    std::cerr << "  Full:  " << (Full() ? "true" : "false") << "\n";
 }
 
 } // namespace fusion

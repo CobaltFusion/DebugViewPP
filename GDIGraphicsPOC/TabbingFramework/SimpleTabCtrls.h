@@ -80,7 +80,7 @@ public:
       }
       dc.DrawFrameControl(&rc, DFC_BUTTON, state );
       
-	  customTabClass::TItem* pItem = this->GetItem(nItem);
+      customTabClass::TItem* pItem = this->GetItem(nItem);
       if(pItem)
       {
          if( CDIS_SELECTED == (uItemState & CDIS_SELECTED) )
@@ -200,7 +200,7 @@ public:
       }
       dc.SelectPen(hOldPen);
 
-	  customTabClass::TItem* pItem = this->GetItem(lpNMCustomDraw->nmcd.dwItemSpec);
+      customTabClass::TItem* pItem = this->GetItem(lpNMCustomDraw->nmcd.dwItemSpec);
       if(pItem) {
          // Draw text
          CString sText = pItem->GetText();
@@ -352,7 +352,7 @@ public:
          dc.LineTo(rcTab.right, rcTab.bottom);
       }
 
-	  customTabClass::TItem* pItem = this->GetItem(lpNMCustomDraw->nmcd.dwItemSpec);
+      customTabClass::TItem* pItem = this->GetItem(lpNMCustomDraw->nmcd.dwItemSpec);
 
       // Draw text
       //HFONT hOldFont = dc.SelectFont(bSelected ? lpNMCustomDraw->hFontSelected : lpNMCustomDraw->hFontInactive);

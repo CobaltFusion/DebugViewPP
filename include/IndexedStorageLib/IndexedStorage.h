@@ -18,42 +18,42 @@ namespace indexedstorage {
 class VectorStorage
 {
 public:
-	[[nodiscard]] bool Empty() const;
-	void Clear();
-	size_t Add(const std::string& value);
-	[[nodiscard]] size_t Count() const;
-	std::string operator[](size_t i) const;
-	void shrink_to_fit();
+    [[nodiscard]] bool Empty() const;
+    void Clear();
+    size_t Add(const std::string& value);
+    [[nodiscard]] size_t Count() const;
+    std::string operator[](size_t i) const;
+    void shrink_to_fit();
 
 private:
-	std::vector<std::string> m_storage;
+    std::vector<std::string> m_storage;
 };
 
 class SnappyStorage
 {
 public:
-	SnappyStorage();
+    SnappyStorage();
 
-	[[nodiscard]] bool Empty() const;
-	void Clear();
-	size_t Add(const std::string& value);
-	[[nodiscard]] size_t Count() const;
-	std::string operator[](size_t i);
+    [[nodiscard]] bool Empty() const;
+    void Clear();
+    size_t Add(const std::string& value);
+    [[nodiscard]] size_t Count() const;
+    std::string operator[](size_t i);
 
-	[[nodiscard]] std::string Compress(const std::vector<std::string>& value) const;
-	static std::vector<std::string> Decompress(const std::string& value);
-	void shrink_to_fit();
+    [[nodiscard]] std::string Compress(const std::vector<std::string>& value) const;
+    static std::vector<std::string> Decompress(const std::string& value);
+    void shrink_to_fit();
 
 private:
-	static size_t GetBlockIndex(size_t index);
-	static size_t GetRelativeIndex(size_t index);
-	std::string GetString(size_t index);
+    static size_t GetBlockIndex(size_t index);
+    static size_t GetRelativeIndex(size_t index);
+    std::string GetString(size_t index);
 
-	size_t m_writeBlockIndex;
-	size_t m_readBlockIndex;
-	std::vector<std::string> m_readList;
-	std::vector<std::string> m_writeList;
-	std::vector<std::string> m_storage;
+    size_t m_writeBlockIndex;
+    size_t m_readBlockIndex;
+    std::vector<std::string> m_readList;
+    std::vector<std::string> m_writeList;
+    std::vector<std::string> m_storage;
 };
 
 } // namespace indexedstorage

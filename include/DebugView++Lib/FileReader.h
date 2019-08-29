@@ -21,37 +21,37 @@ class ILineBuffer;
 class FileReader : public LogSource
 {
 public:
-	FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing);
-	~FileReader() override;
+    FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing);
+    ~FileReader() override;
 
-	void Initialize() override;
-	typedef boost::signals2::signal<void()> UpdateSignal;
-	boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
+    void Initialize() override;
+    typedef boost::signals2::signal<void()> UpdateSignal;
+    boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
-	void Abort() override;
-	HANDLE GetHandle() const override;
-	void Notify() override;
-	void PreProcess(Line& line) const override;
+    void Abort() override;
+    HANDLE GetHandle() const override;
+    void Notify() override;
+    void PreProcess(Line& line) const override;
 
 protected:
-	virtual void AddLine(const std::string& line);
-	std::string m_filename;
-	std::string m_name;
-	FileType::type m_fileType;
+    virtual void AddLine(const std::string& line);
+    std::string m_filename;
+    std::string m_name;
+    FileType::type m_fileType;
 
 private:
-	void SafeAddLine(const std::string& line);
-	void ReadUntilEof();
-	void PollThread();
+    void SafeAddLine(const std::string& line);
+    void ReadUntilEof();
+    void PollThread();
 
-	Win32::ChangeNotificationHandle m_handle;
-	std::ifstream m_ifstream;
-	std::string m_filenameOnly;
-	bool m_initialized;
-	std::string m_line;
-	bool m_keeptailing;
-	UpdateSignal m_update;
-	std::thread m_thread;
+    Win32::ChangeNotificationHandle m_handle;
+    std::ifstream m_ifstream;
+    std::string m_filenameOnly;
+    bool m_initialized;
+    std::string m_line;
+    bool m_keeptailing;
+    UpdateSignal m_update;
+    std::thread m_thread;
 };
 
 } // namespace debugviewpp

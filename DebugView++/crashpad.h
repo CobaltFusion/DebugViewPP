@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
@@ -75,13 +75,13 @@ static bool initializeCrashPad()
     base::FilePath handler(handler_path);
 
     bool rc = client.StartHandler(handler,
-                                  db,
-                                  db,
-                                  url,
-                                  annotations,
-                                  arguments,
-                                  true,
-                                  true);
+        db,
+        db,
+        url,
+        annotations,
+        arguments,
+        true,
+        true);
     if (rc == false)
         return false;
 
