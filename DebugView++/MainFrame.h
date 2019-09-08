@@ -56,7 +56,7 @@ public:
     typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>> TabbedFrame;
 
     CMainFrame();
-    ~CMainFrame();
+    ~CMainFrame() override;
 
     DECLARE_FRAME_WND_CLASS(nullptr, IDR_MAINFRAME)
 
@@ -90,11 +90,11 @@ public:
     void SaveConfiguration(const std::wstring& fileName);
     void Load(const std::wstring& fileName, bool keeptailing);
     void Load(HANDLE hFile);
-    void Load(std::istream& is, const std::string& name, FILETIME fileTime);
+    void Load(std::istream& file, const std::string& name, FILETIME fileTime);
     void CapturePipe(HANDLE hPipe);
     void FindNext(const std::wstring& text);
     void FindPrevious(const std::wstring& text);
-    void OnDropped(const std::wstring uri);
+    void OnDropped(std::wstring uri);
 
 private:
     enum
@@ -146,10 +146,10 @@ private:
     void SaveViewSelection(const std::wstring& fileName);
 
     void OnContextMenu(HWND /*hWnd*/, CPoint pt);
-    LRESULT OnSysCommand(UINT nCommand, CPoint);
-    LRESULT OnSystemTrayIcon(UINT, WPARAM wParam, LPARAM lParam);
-    LRESULT OnScRestore(UINT, INT, HWND);
-    LRESULT OnScClose(UINT, INT, HWND);
+    LRESULT OnSysCommand(UINT nCommand, CPoint /*unused*/);
+    LRESULT OnSystemTrayIcon(UINT /*unused*/, WPARAM wParam, LPARAM lParam);
+    LRESULT OnScRestore(UINT /*unused*/, INT /*unused*/, HWND /*unused*/);
+    LRESULT OnScClose(UINT /*unused*/, INT /*unused*/, HWND /*unused*/);
     LRESULT OnBeginTabDrag(NMHDR* pnmh);
     LRESULT OnChangeTab(NMHDR* pnmh);
     LRESULT OnCloseTab(NMHDR* pnmh);
@@ -198,11 +198,11 @@ private:
 
     LogFile m_logFile;
     std::unique_ptr<FileWriter> m_logWriter;
-    int m_filterNr;
+    int m_filterNr = 1;
     CFindDlg m_findDlg;
     Win32::HFont m_hFont;
-    bool m_linkViews;
-    bool m_hide;
+    bool m_linkViews = false;
+    bool m_hide = false;
     bool m_tryGlobal;
     CRunDlg m_runDlg;
     std::wstring m_logFileName;
@@ -212,9 +212,9 @@ private:
     NOTIFYICONDATA m_notifyIconData;
     LOGFONT m_logfont;
     std::wstring m_applicationName;
-    DBWinReader* m_pLocalReader;
-    DBWinReader* m_pGlobalReader;
-    DbgviewReader* m_pDbgviewReader;
+    DBWinReader* m_pLocalReader = nullptr;
+    DBWinReader* m_pGlobalReader = nullptr;
+    DbgviewReader* m_pDbgviewReader = nullptr;
     std::vector<SourceInfo> m_sourceInfos;
     std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;
     LogSources m_logSources;

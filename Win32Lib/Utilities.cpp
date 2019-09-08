@@ -11,6 +11,7 @@
 #include "Win32/Win32Lib.h"
 
 namespace fusion {
+namespace win32 {
 
 std::wstring LoadString(int id)
 {
@@ -22,4 +23,5 @@ std::wstring LoadString(int id)
     return static_cast<const wchar_t*>(cs);
 }
 
+} // namespace win32
 } // namespace fusion

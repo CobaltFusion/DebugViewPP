@@ -14,6 +14,8 @@
 #include "Resource.h"
 #include "FilterPage.h"
 
+#include <memory>
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -33,8 +35,12 @@ template <typename T>
 size_t GetArrayIndex(T value, const T a[], size_t size)
 {
     for (size_t i = 0; i < size; ++i)
+    {
         if (a[i] == value)
+        {
             return i;
+        }
+    }
     return 0;
 }
 
@@ -122,10 +128,10 @@ void CFilterPageImpl::UpdateGridColors(int item) const
     text.SetBkColor(supportsColor && !autoCol ? bgColor : Colors::BackGround);
     text.SetTextColor(supportsColor && !autoCol ? fg.GetColor() : Colors::Text);
 
-    bg.SetEnabled(supportsColor);
+    bg.SetEnabled(static_cast<BOOL>(supportsColor));
     bg.ShowAuto(SupportsAutoColor(GetFilterType(item)));
 
-    fg.SetEnabled(supportsColor && !autoCol);
+    fg.SetEnabled(static_cast<BOOL>(supportsColor && !autoCol));
 }
 
 void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
@@ -134,7 +140,7 @@ void CFilterPageImpl::InsertFilter(int item, const Filter& filter)
     auto pBkColor = PropCreateColorItem(L"Background Color", filter.bgColor);
     auto pTxColor = PropCreateColorItem(L"Text Color", filter.fgColor);
     auto pFilter = CreateEnumTypeItem(L"", m_filterTypes, m_filterTypeCount, filter.filterType);
-    pFilter->SetEnabled(filter.matchType != MatchType::RegexGroups);
+    pFilter->SetEnabled(static_cast<BOOL>(filter.matchType != MatchType::RegexGroups));
 
     m_grid.InsertItem(item, pFilterProp);
     m_grid.SetSubItem(item, SubItem::Enable, PropCreateCheckButton(L"", filter.enable));
@@ -200,7 +206,9 @@ void CFilterPageImpl::CheckAllItems(bool checked)
 {
     int count = m_grid.GetItemCount();
     for (int i = 0; i < count; ++i)
+    {
         SetFilterEnable(i, checked);
+    }
     m_grid.Invalidate();
 }
 
@@ -222,9 +230,13 @@ void CFilterPageImpl::SetHeaderCheckbox()
     hdi.mask = HDI_FORMAT;
     header.GetItem(SubItem::Enable, &hdi);
     if (checked)
+    {
         hdi.fmt |= HDF_CHECKED;
+    }
     else
+    {
         hdi.fmt &= ~HDF_CHECKED;
+    }
     header.SetItem(SubItem::Enable, &hdi);
     header.Invalidate();
 }
@@ -233,7 +245,7 @@ LRESULT CFilterPageImpl::OnHeaderItemStateIconClick(NMHDR* phdr)
 {
     auto& nmHeader = *reinterpret_cast<NMHEADER*>(phdr);
 
-    if (nmHeader.pitem->mask & HDI_FORMAT && nmHeader.pitem->fmt & HDF_CHECKBOX)
+    if (((nmHeader.pitem->mask & HDI_FORMAT) != 0u) && ((nmHeader.pitem->fmt & HDF_CHECKBOX) != 0))
     {
         CheckAllItems((nmHeader.pitem->fmt & HDF_CHECKED) == 0);
         SetHeaderCheckbox();
@@ -248,7 +260,9 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
     NMLISTVIEW& lv = *reinterpret_cast<NMLISTVIEW*>(phdr);
 
     if (lv.iItem < 0 || lv.iItem >= static_cast<int>(m_filters.size()))
+    {
         return 0;
+    }
 
     m_dragItem = lv.iItem;
     POINT pt = {0};
@@ -257,9 +271,9 @@ LRESULT CFilterPageImpl::OnDrag(NMHDR* phdr)
     RECT rect = {0};
     m_grid.GetItemRect(lv.iItem, &rect, LVIR_BOUNDS);
     m_dragImage.BeginDrag(0, lv.ptAction.x - rect.left, lv.ptAction.y - rect.top);
-    m_dragImage.DragEnter(*this, lv.ptAction);
+    WTL::CImageList::DragEnter(*this, lv.ptAction);
     SetCapture();
-    m_dragCursor.reset(new Win32::ScopedCursor(LoadCursor(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDC_DRAGDROP))));
+    m_dragCursor = std::make_unique<Win32::ScopedCursor>(LoadCursor(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDC_DRAGDROP)));
     return 0;
 }
 
@@ -267,7 +281,7 @@ void CFilterPageImpl::OnMouseMove(UINT /*nFlags*/, CPoint point) const
 {
     if (!m_dragImage.IsNull())
     {
-        m_dragImage.DragMove(point);
+        WTL::CImageList::DragMove(point);
     }
 }
 
@@ -275,8 +289,8 @@ void CFilterPageImpl::OnLButtonUp(UINT /*nFlags*/, CPoint point)
 {
     if (!m_dragImage.IsNull())
     {
-        m_dragImage.DragLeave(*this);
-        m_dragImage.EndDrag();
+        WTL::CImageList::DragLeave(*this);
+        WTL::CImageList::EndDrag();
         ReleaseCapture();
         m_dragImage.Destroy();
         m_dragCursor.reset();
@@ -296,7 +310,7 @@ void CFilterPageImpl::OnSize(UINT /*type*/, CSize size)
 {
     m_grid.SetColumnWidth(SubItem::Text, m_grid.GetColumnWidth(SubItem::Text) + size.cx - m_preResizeWidth);
     m_preResizeWidth = size.cx;
-    SetMsgHandled(false);
+    SetMsgHandled(win32::False);
 }
 
 LRESULT CFilterPageImpl::OnAddItem(NMHDR* /*pnmh*/)
@@ -315,7 +329,7 @@ LRESULT CFilterPageImpl::OnClickItem(NMHDR* pnmh)
 
     int iItem;
     int iSubItem;
-    if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == SubItem::Remove)
+    if ((m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) != 0) && iSubItem == SubItem::Remove)
     {
         m_grid.DeleteItem(iItem);
         m_filters.erase(m_filters.begin() + iItem);
@@ -331,8 +345,10 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
 
     int iItem;
     int iSubItem;
-    if (!m_grid.FindProperty(nmhdr.prop, iItem, iSubItem))
+    if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) == 0)
+    {
         return FALSE;
+    }
 
     if (iSubItem == SubItem::Match)
     {
@@ -340,25 +356,33 @@ LRESULT CFilterPageImpl::OnItemChanged(NMHDR* pnmh)
         if (GetMatchType(iItem) == MatchType::RegexGroups)
         {
             type.SetValue(CComVariant(GetArrayIndex(FilterType::Token, m_filterTypes, m_filterTypeCount)));
-            type.SetEnabled(false);
+            type.SetEnabled(win32::False);
         }
         else
         {
-            type.SetEnabled(true);
+            type.SetEnabled(win32::True);
         }
     }
 
     if (iSubItem == SubItem::Type)
+    {
         UpdateGridColors(iItem);
+    }
 
     if (iSubItem == SubItem::Background)
+    {
         UpdateGridColors(iItem);
+    }
 
     if (iSubItem == SubItem::Foreground)
+    {
         UpdateGridColors(iItem);
+    }
 
     if (iSubItem == SubItem::Enable)
+    {
         SetHeaderCheckbox();
+    }
 
     return 0;
 }
@@ -425,7 +449,7 @@ std::vector<Filter> CFilterPageImpl::GetFilters()
         m_grid.SetFocus();
         m_grid.SelectItem(i);
         m_grid.SendMessage(WM_KEYDOWN, VK_F2, 0);
-        filters.push_back(Filter(Str(GetFilterText(i)), GetMatchType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i)));
+        filters.emplace_back(Str(GetFilterText(i)), GetMatchType(i), GetFilterType(i), GetFilterBgColor(i), GetFilterFgColor(i), GetFilterEnable(i));
     }
 
     return filters;
@@ -434,15 +458,19 @@ std::vector<Filter> CFilterPageImpl::GetFilters()
 void CFilterPageImpl::SetFilters(const std::vector<Filter>& filters)
 {
     m_filters = filters;
-    if (IsWindow())
+    if (IsWindow() != 0)
+    {
         UpdateGrid();
+    }
 }
 
 void CFilterPageImpl::UpdateGrid(int focus)
 {
     m_grid.DeleteAllItems();
     for (auto& filter : m_filters)
+    {
         AddFilter(filter);
+    }
     m_grid.SelectItem(focus);
 }
 

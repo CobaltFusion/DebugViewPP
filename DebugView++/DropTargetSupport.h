@@ -34,11 +34,11 @@ public:
     STDMETHOD(Drop)
     (IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 
-    typedef boost::signals2::signal<void(const std::wstring& uri)> DroppedSignal;
+    using DroppedSignal = boost::signals2::signal<void(const std::wstring&)>;
     boost::signals2::connection SubscribeToDropped(DroppedSignal::slot_type slot);
 
 private:
-    HWND m_hwnd;
+    HWND m_hwnd = nullptr;
     DroppedSignal m_onDropped;
 };
 

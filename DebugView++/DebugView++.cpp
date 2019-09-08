@@ -35,7 +35,9 @@ public:
     {
         HRESULT hr = m_module.Init(nullptr, hInstance);
         if (FAILED(hr))
+        {
             Win32::ThrowWin32Error(hr, "CAppModule::Init");
+        }
     }
 
     ~CAppModuleInitialization()
@@ -110,7 +112,8 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
     CAppModuleInitialization moduleInit(_Module, hInstance);
 
     HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-    HANDLE hFile = nullptr, hPipe = nullptr;
+    HANDLE hFile = nullptr;
+    HANDLE hPipe = nullptr;
     switch (GetFileType(hStdIn))
     {
     case FILE_TYPE_DISK: hFile = hStdIn; break;
@@ -118,8 +121,10 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
     default: break;
     }
 
-    if (hPipe && IsDBWinViewerActive())
+    if ((hPipe != nullptr) && IsDBWinViewerActive())
+    {
         return ForwardMessagesFromPipe(hPipe);
+    }
 
     CMainFrame wndMain;
     MessageLoop theLoop(_Module);
@@ -141,23 +146,35 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
         else if (args[i][0] != '/')
         {
             if (!fileName.empty())
+            {
                 throw std::runtime_error("multiple filenames specified on commandline");
+            }
             fileName = args[i];
         }
     }
 
     if (wndMain.CreateEx() == nullptr)
+    {
         Win32::ThrowLastError(L"Main window creation failed!");
+    }
 
     wndMain.ShowWindow(cmdShow);
     if (boost::algorithm::iends_with(fileName, ".dbconf"))
+    {
         wndMain.LoadConfiguration(fileName);
+    }
     else if (!fileName.empty())
+    {
         wndMain.Load(fileName, false);
-    else if (hFile)
+    }
+    else if (hFile != nullptr)
+    {
         wndMain.Load(hFile);
-    else if (hPipe)
+    }
+    else if (hPipe != nullptr)
+    {
         wndMain.CapturePipe(hPipe);
+    }
 
     return theLoop.Run();
 }

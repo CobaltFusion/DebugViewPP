@@ -16,7 +16,7 @@ namespace fusion {
 using namespace std::chrono_literals;
 
 Throttle::Throttle(IExecutor& executor, int callsPerSecond, std::function<void()> fn) :
-    m_delta(std::chrono::milliseconds(1000 / callsPerSecond)),
+    m_delta(1000ms / callsPerSecond),
     m_callPending(false),
     m_fn(std::move(fn)),
     m_executor(executor)

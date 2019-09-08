@@ -48,16 +48,22 @@ std::wstring GetPersonalPath()
     std::wstring path;
     wchar_t szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
+    {
         path = szPath;
+    }
     return path;
 }
 
 std::wstring FormatUnits(int n, const std::wstring& unit)
 {
     if (n == 0)
+    {
         return L"";
+    }
     if (n == 1)
+    {
         return wstringbuilder() << n << " " << unit;
+    }
     return wstringbuilder() << n << " " << unit << "s";
 }
 
@@ -73,13 +79,19 @@ std::wstring FormatDuration(double seconds)
     hours -= 24 * days;
 
     if (days > 0)
+    {
         return wstringbuilder() << FormatUnits(days, L"day") << L" " << FormatUnits(hours, L"hour");
+    }
 
     if (hours > 0)
+    {
         return wstringbuilder() << FormatUnits(hours, L"hour") << L" " << FormatUnits(minutes, L"minute");
+    }
 
     if (minutes > 0)
+    {
         return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
+    }
 
     static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
     const wchar_t** unit = units;
@@ -140,7 +152,9 @@ BEGIN_MSG_MAP2(CMainFrame)
     if (uMsg == WM_COMMAND)
     {
         if (GetViewCount() > 0)
+        {
             GetView().SendMessage(uMsg, wParam, lParam);
+        }
         return TRUE;
     }
     CHAIN_MSG_MAP(TabbedFrame)
@@ -156,26 +170,20 @@ LOGFONT& GetDefaultLogFont()
 }
 
 CMainFrame::CMainFrame() :
-    m_filterNr(1),
     m_findDlg(*this),
-    m_linkViews(false),
-    m_hide(false),
     m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
     m_logFileName(L"DebugView++.dblog"),
     m_txtFileName(L"Messages.dblog"),
     m_configFileName(L"DebugView++.dbconf"),
     m_initialPrivateBytes(ProcessInfo::GetPrivateBytes()),
     m_logfont(GetDefaultLogFont()),
-    m_pLocalReader(nullptr),
-    m_pGlobalReader(nullptr),
-    m_pDbgviewReader(nullptr),
     m_GuiExecutorClient(std::make_unique<GuiExecutorClient>()),
     m_logSources(*m_GuiExecutorClient)
 {
     m_notifyIconData.cbSize = 0;
 }
 
-CMainFrame::~CMainFrame() {}
+CMainFrame::~CMainFrame() = default;
 
 void CMainFrame::SetLogging()
 {
@@ -220,12 +228,12 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
     AddSimpleReBarBand(hWndCmdBar);
 
     HWND hWndToolBar =
-        CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, false, ATL_SIMPLE_TOOLBAR_PANE_STYLE); // DrMemory: LEAK 1696 direct bytes
-    AddSimpleReBarBand(hWndToolBar, nullptr, true);
+        CreateSimpleToolBarCtrl(rebar, IDR_MAINFRAME, 0, ATL_SIMPLE_TOOLBAR_PANE_STYLE); // DrMemory: LEAK 1696 direct bytes
+    AddSimpleReBarBand(hWndToolBar, nullptr, 1);
     UIAddToolBar(hWndToolBar);
 
     m_findDlg.Create(rebar);
-    AddSimpleReBarBand(m_findDlg, L"Find: ", false, 10000);
+    AddSimpleReBarBand(m_findDlg, L"Find: ", 0, 10000);
     SizeSimpleReBarBands();
 
     rebar.LockBands(true);
@@ -254,7 +262,9 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
     // Resume can throw if a second debugview is running
     // so do not rely on any commands executed afterwards
     if (!IsDBWinViewerActive())
+    {
         Resume();
+    }
     return 0;
 }
 
@@ -263,7 +273,7 @@ void CMainFrame::OnClose()
     SaveSettings();
     DestroyWindow();
 
-    if (m_notifyIconData.cbSize)
+    if (m_notifyIconData.cbSize != 0u)
     {
         Shell_NotifyIcon(NIM_DELETE, &m_notifyIconData);
         m_notifyIconData.cbSize = 0;
@@ -275,7 +285,7 @@ void CMainFrame::OnClose()
 #endif
 }
 
-LRESULT CMainFrame::OnQueryEndSession(WPARAM, LPARAM)
+LRESULT CMainFrame::OnQueryEndSession(WPARAM /*unused*/, LPARAM /*unused*/)
 {
     // MSDN:
     // The WM_QUERYENDSESSION message is sent when the user chooses to end the session or when an application calls one of the system
@@ -285,7 +295,7 @@ LRESULT CMainFrame::OnQueryEndSession(WPARAM, LPARAM)
     return TRUE;
 }
 
-LRESULT CMainFrame::OnEndSession(WPARAM, LPARAM)
+LRESULT CMainFrame::OnEndSession(WPARAM /*unused*/, LPARAM /*unused*/)
 {
     OnClose();
     return TRUE;
@@ -302,10 +312,12 @@ void CMainFrame::UpdateUI()
     UISetCheck(ID_VIEW_BOOKMARK, GetView().GetBookmark());
 
     for (int id = ID_VIEW_COLUMN_FIRST; id <= ID_VIEW_COLUMN_LAST; ++id)
+    {
         UISetCheck(id, GetView().IsColumnViewed(id));
+    }
 
     UISetCheck(ID_OPTIONS_LINKVIEWS, m_linkViews);
-    UIEnable(ID_OPTIONS_LINKVIEWS, GetTabCtrl().GetItemCount() > 1);
+    UIEnable(ID_OPTIONS_LINKVIEWS, static_cast<BOOL>(GetTabCtrl().GetItemCount() > 1));
     UISetCheck(ID_OPTIONS_AUTONEWLINE, m_logSources.GetAutoNewLine());
     UISetCheck(ID_OPTIONS_PROCESS_PREFIX, m_logSources.GetProcessPrefix());
     UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
@@ -349,10 +361,14 @@ std::wstring FormatBytes(size_t size)
 std::wstring CMainFrame::GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const
 {
     if (selection.count == 0)
+    {
         return std::wstring();
+    }
 
     if (selection.count == 1)
+    {
         return label + L": " + FormatDateTime(m_logFile[selection.beginLine].systemTime);
+    }
 
     double dt = m_logFile[selection.endLine].time - m_logFile[selection.beginLine].time;
     return wstringbuilder() << label << L": " << FormatDuration(dt) << L" (" << selection.count << " lines)";
@@ -361,7 +377,9 @@ std::wstring CMainFrame::GetSelectionInfoText(const std::wstring& label, const S
 SelectionInfo CMainFrame::GetLogFileRange() const
 {
     if (m_logFile.Empty())
+    {
         return SelectionInfo();
+    }
 
     return SelectionInfo(0, m_logFile.Count() - 1, m_logFile.Count());
 }
@@ -370,7 +388,7 @@ void CMainFrame::UpdateStatusBar()
 {
     auto isearch = GetView().GetHighlightText();
     std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
-    UISetText(ID_DEFAULT_PANE, isearch.empty() ? (m_pLocalReader ? L"Ready" : L"Paused") : search.c_str());
+    UISetText(ID_DEFAULT_PANE, isearch.empty() ? (m_pLocalReader != nullptr ? L"Ready" : L"Paused") : search.c_str());
     UISetText(ID_SELECTION_PANE, GetSelectionInfoText(L"Selected", GetView().GetSelectedRange()).c_str());
     UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
     UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());
@@ -383,24 +401,32 @@ void CMainFrame::UpdateStatusBar()
 void CMainFrame::ProcessLines(const Lines& lines)
 {
     if (lines.empty())
+    {
         return;
+    }
 
     // design decision: filtering is done on the UI thread, see CLogView::Add
     // changing this would introduces extra thread and thus complexity. Do that only if it solves a problem.
 
     int views = GetViewCount();
     for (int i = 0; i < views; ++i)
+    {
         GetView(i).BeginUpdate();
+    }
 
     if (m_logSources.GetProcessPrefix())
     {
         for (auto& line : lines)
+        {
             AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, "[" + std::to_string(line.pid) + "] " + line.message));
+        }
     }
     else
     {
         for (auto& line : lines)
+        {
             AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
+        }
     }
 
     for (int i = 0; i < views; ++i)
@@ -438,7 +464,9 @@ bool CMainFrame::OnUpdate()
     }
 
     if (m_incomingMessages.empty())
+    {
         return false;
+    }
 
 
     auto linesbucket = std::move(m_incomingMessages.front());
@@ -455,7 +483,9 @@ bool CMainFrame::OnUpdate()
 bool CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint /*pt*/)
 {
     if ((nFlags & MK_CONTROL) == 0)
+    {
         return false;
+    }
 
     int size = static_cast<int>(LogFontSizeToPointSize(m_logfont.lfHeight) * std::pow(1.15, zDelta / WHEEL_DELTA) + 0.5);
     size = std::max(size, 4);
@@ -469,7 +499,7 @@ void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
 {
     if (hWnd != m_TabCtrl)
     {
-        SetMsgHandled(false);
+        SetMsgHandled(win32::False);
         return;
     }
 
@@ -521,7 +551,9 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 void CMainFrame::OnDropped(const std::wstring uri)
 {
     if (std::experimental::filesystem::is_regular_file(uri))
+    {
         HandleDroppedFile(uri);
+    }
     else
     {
         std::wstring httpmonitor = wstringbuilder() << Win32::GetExecutionPath() << "\\debugview++plugins\\HttpMonitor.exe";
@@ -543,15 +575,17 @@ void CMainFrame::OnDropped(const std::wstring uri)
     }
 }
 
-LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
+LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint /*unused*/)
 {
     switch (nCommand)
     {
     case SC_MINIMIZE:
         if (!m_hide)
+        {
             break;
+        }
 
-        if (!m_notifyIconData.cbSize)
+        if (m_notifyIconData.cbSize == 0u)
         {
             m_notifyIconData.cbSize = sizeof(m_notifyIconData);
             m_notifyIconData.hWnd = *this;
@@ -564,7 +598,9 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
             GetWindowText(sWindowText);
             _tcscpy_s(m_notifyIconData.szTip, sWindowText);
             if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData))
+            {
                 break;
+            }
         }
         ShowWindow(SW_HIDE);
         return 0;
@@ -572,11 +608,11 @@ LRESULT CMainFrame::OnSysCommand(UINT nCommand, CPoint)
         break;
     }
 
-    SetMsgHandled(false);
+    SetMsgHandled(win32::False);
     return 0;
 }
 
-LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM, LPARAM lParam)
+LRESULT CMainFrame::OnSystemTrayIcon(UINT /*unused*/, WPARAM /*unused*/, LPARAM lParam)
 {
     switch (lParam)
     {
@@ -584,7 +620,7 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM, LPARAM lParam)
     case WM_RBUTTONUP:
     {
         SetForegroundWindow(m_hWnd);
-        CMenuHandle menu = GetSystemMenu(false);
+        CMenuHandle menu = GetSystemMenu(0);
         menu.EnableMenuItem(SC_RESTORE, MF_BYCOMMAND | MF_ENABLED);
         menu.EnableMenuItem(SC_MOVE, MF_BYCOMMAND | MF_GRAYED);
         menu.EnableMenuItem(SC_SIZE, MF_BYCOMMAND | MF_GRAYED);
@@ -601,9 +637,9 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT, WPARAM, LPARAM lParam)
     return 0;
 }
 
-LRESULT CMainFrame::OnScRestore(UINT, INT, HWND)
+LRESULT CMainFrame::OnScRestore(UINT /*unused*/, INT /*unused*/, HWND /*unused*/)
 {
-    if (m_notifyIconData.cbSize)
+    if (m_notifyIconData.cbSize != 0u)
     {
         Shell_NotifyIcon(NIM_DELETE, &m_notifyIconData);
         m_notifyIconData.cbSize = 0;
@@ -613,7 +649,7 @@ LRESULT CMainFrame::OnScRestore(UINT, INT, HWND)
     return 0;
 }
 
-LRESULT CMainFrame::OnScClose(UINT, INT, HWND)
+LRESULT CMainFrame::OnScClose(UINT /*unused*/, INT /*unused*/, HWND /*unused*/)
 {
     PostMessage(WM_COMMAND, ID_APP_EXIT);
     return 0;
@@ -638,14 +674,19 @@ bool CMainFrame::LoadSettings()
     auto mutex = Win32::CreateMutex(nullptr, false, L"Local\\DebugView++");
     Win32::MutexLock lock(mutex.get());
 
-    DWORD x, y, cx, cy;
+    DWORD x = 0;
+    DWORD y = 0;
+    DWORD cx = 0;
+    DWORD cy = 0;
     CRegKey reg;
     reg.Create(HKEY_CURRENT_USER, RegistryPath);
     if (reg.QueryDWORDValue(L"X", x) == ERROR_SUCCESS && static_cast<int>(x) >= GetSystemMetrics(SM_XVIRTUALSCREEN) &&
         reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS && static_cast<int>(y) >= GetSystemMetrics(SM_YVIRTUALSCREEN) &&
         reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS && static_cast<int>(x + cx) <= GetSystemMetrics(SM_XVIRTUALSCREEN) + GetSystemMetrics(SM_CXVIRTUALSCREEN) &&
         reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS && static_cast<int>(y + cy) <= GetSystemMetrics(SM_YVIRTUALSCREEN) + GetSystemMetrics(SM_CYVIRTUALSCREEN))
+    {
         SetWindowPos(nullptr, x, y, cx, cy, SWP_NOZORDER);
+    }
 
     m_linkViews = Win32::RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
     m_logSources.SetAutoNewLine(Win32::RegGetDWORDValue(reg, L"AutoNewLine", 1) != 0);
@@ -674,13 +715,19 @@ bool CMainFrame::LoadSettings()
         {
             CRegKey regView;
             if (regView.Open(regViews, WStr(wstringbuilder() << L"View" << i)) != ERROR_SUCCESS)
+            {
                 break;
+            }
 
             auto name = Win32::RegGetStringValue(regView);
             if (i == 0)
+            {
                 GetTabCtrl().GetItem(0)->SetText(name.c_str());
+            }
             else
+            {
                 AddFilterView(name);
+            }
             GetView().LoadSettings(regView);
         }
         GetTabCtrl().SetCurSel(Win32::RegGetDWORDValue(regViews, L"Current", 0));
@@ -693,7 +740,9 @@ bool CMainFrame::LoadSettings()
     {
         auto colors = ColorDialog::GetCustomColors();
         for (int i = 0; i < 16; ++i)
+        {
             colors[i] = Win32::RegGetDWORDValue(regColors, WStr(wstringbuilder() << L"Color" << i));
+        }
     }
 
     return true;
@@ -713,10 +762,10 @@ void CMainFrame::SaveSettings()
     reg.SetDWORDValue(L"Width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
     reg.SetDWORDValue(L"Height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
 
-    reg.SetDWORDValue(L"LinkViews", m_linkViews);
-    reg.SetDWORDValue(L"AutoNewLine", m_logSources.GetAutoNewLine());
-    reg.SetDWORDValue(L"AlwaysOnTop", GetAlwaysOnTop());
-    reg.SetDWORDValue(L"Hide", m_hide);
+    reg.SetDWORDValue(L"LinkViews", static_cast<DWORD>(m_linkViews));
+    reg.SetDWORDValue(L"AutoNewLine", static_cast<DWORD>(m_logSources.GetAutoNewLine()));
+    reg.SetDWORDValue(L"AlwaysOnTop", static_cast<DWORD>(GetAlwaysOnTop()));
+    reg.SetDWORDValue(L"Hide", static_cast<DWORD>(m_hide));
 
     reg.SetStringValue(L"FontName", m_logfont.lfFaceName);
     reg.SetDWORDValue(L"FontSize", LogFontSizeToPointSize(m_logfont.lfHeight));
@@ -740,19 +789,25 @@ void CMainFrame::SaveSettings()
     regColors.Create(reg, L"Colors");
     auto colors = ColorDialog::GetCustomColors();
     for (int i = 0; i < 16; ++i)
+    {
         regColors.SetDWORDValue(WStr(wstringbuilder() << L"Color" << i), colors[i]);
+    }
 }
 
 void CMainFrame::FindNext(const std::wstring& text)
 {
     if (!GetView().FindNext(text))
+    {
         MessageBeep(MB_ICONASTERISK);
+    }
 }
 
 void CMainFrame::FindPrevious(const std::wstring& text)
 {
     if (!GetView().FindPrevious(text))
+    {
         MessageBeep(MB_ICONASTERISK);
+    }
 }
 
 void CMainFrame::AddFilterView()
@@ -760,7 +815,9 @@ void CMainFrame::AddFilterView()
     ++m_filterNr;
     CFilterDlg dlg(wstringbuilder() << L"View " << m_filterNr);
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     AddFilterView(dlg.GetName(), dlg.GetFilters());
     SaveSettings();
@@ -794,21 +851,25 @@ LRESULT CMainFrame::OnBeginTabDrag(NMHDR* pnmh)
 {
     auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
 
-    return nmhdr.iItem >= GetViewCount();
+    return static_cast<LRESULT>(nmhdr.iItem >= GetViewCount());
 }
 
 LRESULT CMainFrame::OnChangeTab(NMHDR* pnmh)
 {
-    SetMsgHandled(false);
+    SetMsgHandled(win32::False);
 
     auto& nmhdr = *reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 
     if (nmhdr.iItem2 >= 0 && nmhdr.iItem2 < GetViewCount())
+    {
         SetModifiedMark(nmhdr.iItem2, false);
+    }
 
     if (!m_linkViews || nmhdr.iItem1 == nmhdr.iItem2 || nmhdr.iItem1 < 0 || nmhdr.iItem1 >= GetViewCount() || nmhdr.iItem2 < 0 ||
         nmhdr.iItem2 >= GetViewCount())
+    {
         return 0;
+    }
 
     int line = GetView(nmhdr.iItem1).GetFocusLine();
     GetView(nmhdr.iItem2).SetFocusLine(line);
@@ -820,7 +881,9 @@ void CMainFrame::SetModifiedMark(int tabindex, bool modified)
 {
     auto name = GetView(tabindex).GetName();
     if (modified)
+    {
         name += L"*";
+    }
 
     //    GetTabCtrl().GetItem(nmhdr.iItem2)->SetHighlighted(modified)
     GetTabCtrl().GetItem(tabindex)->SetText(name.c_str());
@@ -838,7 +901,9 @@ LRESULT CMainFrame::OnDeleteTab(NMHDR* pnmh)
     auto& nmhdr = *reinterpret_cast<NMCTCITEM*>(pnmh);
 
     if (nmhdr.iItem >= 0 && nmhdr.iItem < GetViewCount())
+    {
         GetView(nmhdr.iItem).DestroyWindow();
+    }
 
     return FALSE;
 }
@@ -863,7 +928,9 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
     }
     fs.close();
     if (!fs)
+    {
         Win32::ThrowLastError(filename);
+    }
 
     m_logFileName = filename;
     UpdateStatusBar();
@@ -942,15 +1009,21 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
     for (int i = 0; i < static_cast<int>(views.size()); ++i)
     {
         if (i >= GetViewCount())
+        {
             AddFilterView(WStr(views[i].name), views[i].filters);
+        }
         else
+        {
             GetView(i).SetFilters(views[i].filters);
+        }
 
         auto& logView = GetView(i);
         logView.SetClockTime(views[i].clockTime);
         logView.SetViewProcessColors(views[i].processColors);
         if (views[i].columnsPt)
+        {
             logView.ReadColumns(*(views[i].columnsPt));
+        }
     }
 
     int i = GetViewCount();
@@ -1042,7 +1115,7 @@ void CMainFrame::SaveConfiguration(const std::wstring& fileName)
 
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileOptionDlg dlg(true, L"Keep file open", L".dblog", m_logFileName.c_str(), OFN_FILEMUSTEXIST,
+    CFileOptionDlg dlg(1, L"Keep file open", L".dblog", m_logFileName.c_str(), OFN_FILEMUSTEXIST,
         L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
         L"DebugView Log Files (*.log)\0*.log\0"
         L"All Files (*.*)\0*.*\0\0",
@@ -1058,7 +1131,9 @@ void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 void CMainFrame::Run(const std::wstring& pathName)
 {
     if (!pathName.empty())
+    {
         m_runDlg.SetPathName(pathName);
+    }
 
     if (m_runDlg.DoModal() == IDOK)
     {
@@ -1101,7 +1176,9 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
     line.processName = name;
     line.systemTime = fileTime;
     while (ReadLogFileMessage(file, line))
+    {
         AddMessage(Message(line.time, line.systemTime, line.pid, line.processName, line.message));
+    }
 }
 
 void CMainFrame::CapturePipe(HANDLE hPipe)
@@ -1116,56 +1193,66 @@ void CMainFrame::OnFileExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*
 
 void CMainFrame::OnFileSaveLog(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(false, L".dblog", m_logFileName.c_str(), OFN_OVERWRITEPROMPT,
+    CFileDialog dlg(0, L".dblog", m_logFileName.c_str(), OFN_OVERWRITEPROMPT,
         L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
         L"All Files (*.*)\0*.*\0\0",
         nullptr);
     dlg.m_ofn.nFilterIndex = 0;
     dlg.m_ofn.lpstrTitle = L"Save all messages in memory buffer";
     if (dlg.DoModal() == IDOK)
+    {
         SaveLogFile(dlg.m_szFileName);
+    }
 }
 
 void CMainFrame::OnFileSaveView(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(false, L".dblog", m_txtFileName.c_str(), OFN_OVERWRITEPROMPT,
+    CFileDialog dlg(0, L".dblog", m_txtFileName.c_str(), OFN_OVERWRITEPROMPT,
         L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
         L"All Files (*.*)\0*.*\0\0");
     dlg.m_ofn.nFilterIndex = 0;
     dlg.m_ofn.lpstrTitle = L"Save the messages in the current view";
     if (dlg.DoModal() == IDOK)
+    {
         SaveViewFile(dlg.m_szFileName);
+    }
 }
 
 void CMainFrame::OnFileSaveViewSelection(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(false, L".dblog", m_txtFileName.c_str(), OFN_OVERWRITEPROMPT,
+    CFileDialog dlg(0, L".dblog", m_txtFileName.c_str(), OFN_OVERWRITEPROMPT,
         L"DebugView++ Log Files (*.dblog)\0*.dblog\0"
         L"All Files (*.*)\0*.*\0\0");
     dlg.m_ofn.nFilterIndex = 0;
     dlg.m_ofn.lpstrTitle = L"Save the messages selected in the current view";
     if (dlg.DoModal() == IDOK)
+    {
         SaveViewSelection(dlg.m_szFileName);
+    }
 }
 
 void CMainFrame::OnFileLoadConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(true, L".dbconf", m_configFileName.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+    CFileDialog dlg(1, L".dbconf", m_configFileName.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
         L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
     dlg.m_ofn.nFilterIndex = 0;
     dlg.m_ofn.lpstrTitle = L"Load View Configuration";
     if (dlg.DoModal() == IDOK)
+    {
         LoadConfiguration(dlg.m_szFileName);
+    }
 }
 
 void CMainFrame::OnFileSaveConfiguration(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     CFileDialog dlg(
-        false, L".dbconf", m_configFileName.c_str(), OFN_OVERWRITEPROMPT, L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
+        0, L".dbconf", m_configFileName.c_str(), OFN_OVERWRITEPROMPT, L"DebugView++ Configuration Files (*.dbconf)\0*.dbconf\0\0");
     dlg.m_ofn.nFilterIndex = 0;
     dlg.m_ofn.lpstrTitle = L"Save View Configuration";
     if (dlg.DoModal() == IDOK)
+    {
         SaveConfiguration(dlg.m_szFileName);
+    }
 }
 
 void CMainFrame::ClearLog()
@@ -1192,7 +1279,9 @@ void CMainFrame::OnLogCrop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 {
     auto selection = GetView().GetSelectedRange();
     if (selection.count < 2)
+    {
         return;
+    }
 
     LogFile temp;
     temp.Append(m_logFile, selection.beginLine, selection.endLine);
@@ -1249,18 +1338,18 @@ void CMainFrame::OnAlwaysOnTop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndC
 
 bool CMainFrame::IsPaused() const
 {
-    return !m_pLocalReader;
+    return m_pLocalReader == nullptr;
 }
 
 void CMainFrame::Pause()
 {
     SetTitle(L"Paused");
-    if (m_pLocalReader)
+    if (m_pLocalReader != nullptr)
     {
         m_logSources.Remove(m_pLocalReader);
         m_pLocalReader = nullptr;
     }
-    if (m_pGlobalReader)
+    if (m_pGlobalReader != nullptr)
     {
         m_logSources.Remove(m_pGlobalReader);
         m_pGlobalReader = nullptr;
@@ -1272,7 +1361,7 @@ void CMainFrame::Resume()
 {
     SetTitle();
 
-    if (!m_pLocalReader)
+    if (m_pLocalReader == nullptr)
     {
         try
         {
@@ -1308,15 +1397,15 @@ void CMainFrame::Resume()
     }
 
     std::wstring title = L"Paused";
-    if (m_pLocalReader && m_pGlobalReader)
+    if ((m_pLocalReader != nullptr) && (m_pGlobalReader != nullptr))
     {
         title = L"Capture Win32 & Global Win32 Messages";
     }
-    else if (m_pLocalReader)
+    else if (m_pLocalReader != nullptr)
     {
         title = L"Capture Win32";
     }
-    else if (m_pGlobalReader)
+    else if (m_pGlobalReader != nullptr)
     {
         title = L"Capture Global Win32";
     }
@@ -1326,16 +1415,20 @@ void CMainFrame::Resume()
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     if (IsPaused())
+    {
         Resume();
+    }
     else
+    {
         Pause();
+    }
 }
 
 void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    m_tryGlobal = !m_pGlobalReader;
+    m_tryGlobal = (m_pGlobalReader == nullptr);
 
-    if (m_pLocalReader && m_tryGlobal)
+    if ((m_pLocalReader != nullptr) && m_tryGlobal)
     {
         Resume();
     }
@@ -1350,7 +1443,9 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 {
     CHistoryDlg dlg(m_logFile.GetHistorySize(), m_logFile.GetHistorySize() == 0);
     if (dlg.DoModal() == IDOK)
+    {
         m_logFile.SetHistorySize(dlg.GetHistorySize());
+    }
 }
 
 std::wstring GetExecutionPath()
@@ -1361,7 +1456,7 @@ std::wstring GetExecutionPath()
 
 void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    if (!m_pDbgviewReader)
+    if (m_pDbgviewReader == nullptr)
     {
         std::string dbgview = stringbuilder() << Win32::GetExecutionPath() << "\\dbgview.exe";
         if (std::experimental::filesystem::exists(dbgview.c_str()))
@@ -1386,7 +1481,9 @@ void CMainFrame::OnViewFilter(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 {
     CFilterDlg dlg(GetView().GetName(), GetView().GetFilters());
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     int tabIdx = GetTabCtrl().GetCurSel();
     GetTabCtrl().GetItem(tabIdx)->SetText(dlg.GetName().c_str());
@@ -1407,7 +1504,9 @@ void CMainFrame::OnViewDuplicate(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
     auto name = GetView().GetName() + L" (copy)";
     CFilterDlg dlg(name, GetView().GetFilters());
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     AddFilterView(dlg.GetName(), dlg.GetFilters());
 
@@ -1423,7 +1522,9 @@ void CMainFrame::OnSources(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 {
     CSourcesDlg dlg(m_sourceInfos);
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     auto sourceInfos = dlg.GetSourceInfos();
     UpdateLogSources(sourceInfos);
@@ -1435,16 +1536,22 @@ void CMainFrame::UpdateLogSources(const std::vector<SourceInfo>& sources)
 {
     m_logSources.RemoveSources([this](LogSource* logsource) {
         if (logsource == m_pLocalReader)
+        {
             return false;
+        }
         if (logsource == m_pGlobalReader)
+        {
             return false;
+        }
         return true;
     });
 
     for (auto& sourceInfo : sources)
     {
         if (sourceInfo.enabled)
+        {
             AddLogSource(sourceInfo);
+        }
     }
 }
 
@@ -1470,7 +1577,9 @@ void CMainFrame::CloseView(int i)
         GetTabCtrl().DeleteItem(i, false);
         GetTabCtrl().SetCurSel(i == views - 1 ? i - 1 : i);
         if (GetViewCount() == 1)
+        {
             HideTabControl();
+        }
     }
 }
 
@@ -1493,11 +1602,15 @@ void CMainFrame::SetLogFont()
 {
     Win32::HFont hFont(CreateFontIndirect(&m_logfont));
     if (!hFont)
+    {
         return;
+    }
 
     int views = GetViewCount();
     for (int i = 0; i < views; ++i)
+    {
         GetView(i).SetFont(hFont.get());
+    }
     m_hFont = std::move(hFont);
 }
 
@@ -1541,7 +1654,9 @@ void CMainFrame::AddMessage(const Message& message)
     m_logFile.Add(message);
     int views = GetViewCount();
     for (int i = 0; i < views; ++i)
+    {
         GetView(i).Add(beginIndex, index, message);
+    }
 }
 
 } // namespace debugviewpp

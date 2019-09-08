@@ -23,7 +23,7 @@ class CFilterDlg : public CDialogImpl<CFilterDlg>,
                    public ExceptionHandler<CFilterDlg, std::exception>
 {
 public:
-    explicit CFilterDlg(const std::wstring& name, const LogFilter& filter = LogFilter());
+    explicit CFilterDlg(std::wstring name, const LogFilter& filter = LogFilter());
 
     std::wstring GetName() const;
     LogFilter GetFilters() const;

@@ -19,7 +19,7 @@ class CSourceDlg : public CDialogImpl<CSourceDlg>,
                    public ExceptionHandler<CSourceDlg, std::exception>
 {
 public:
-    CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port);
+    CSourceDlg(std::wstring name, SourceType::type sourceType, std::wstring address, int port);
 
     enum
     {

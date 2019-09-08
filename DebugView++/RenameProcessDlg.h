@@ -17,7 +17,7 @@ class CRenameProcessDlg : public CDialogImpl<CRenameProcessDlg>,
                           public ExceptionHandler<CRenameProcessDlg, std::exception>
 {
 public:
-    explicit CRenameProcessDlg(const std::wstring& name);
+    explicit CRenameProcessDlg(std::wstring name);
 
     enum
     {

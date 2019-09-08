@@ -10,7 +10,12 @@
 #include <string>
 
 namespace fusion {
+namespace win32 {
 
 std::wstring LoadString(int id);
 
+static const int False = 0;
+static const int True = 1;
+
+} // namespace win32
 } // namespace fusion

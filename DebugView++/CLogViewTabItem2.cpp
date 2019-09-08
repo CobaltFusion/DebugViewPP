@@ -41,11 +41,17 @@ void Add(const ViewPort& viewport, gdi::Line& line, gdi::Artifact a)
 std::wstring FormatDuration(Duration d)
 {
     if (d >= 1s)
+    {
         return wstringbuilder() << d.count() / 1e9 << L" s";
+    }
     if (d >= 1ms)
+    {
         return wstringbuilder() << d.count() / 1e6 << L" ms";
+    }
     if (d >= 1us)
+    {
         return wstringbuilder() << d.count() / 1e3 << L" us";
+    }
     return wstringbuilder() << d.count() << L" ns";
 }
 
@@ -103,9 +109,13 @@ Duration Increase(Duration d)
 {
     Duration temp = d;
     while (temp > 10ns)
+    {
         temp /= 10;
+    }
     if (temp == 2ns)
+    {
         return (d * 2) + (d / 2);
+    }
     return d * 2;
 }
 
@@ -113,9 +123,13 @@ Duration Decrease(Duration d)
 {
     Duration temp = d;
     while (temp > 10ns)
+    {
         temp /= 10;
+    }
     if (temp == 5ns)
+    {
         return (d - (d / 5)) / 2;
+    }
     return std::max(1ns, d / 2);
 }
 

@@ -18,8 +18,8 @@ namespace debugviewpp {
  * https://www.codeproject.com/Articles/840/How-to-Implement-Drag-and-Drop-Between-Your-Progra
  */
 
-DropTargetSupport::DropTargetSupport() :
-    m_hwnd(nullptr)
+DropTargetSupport::DropTargetSupport()
+
 {
 }
 
@@ -39,7 +39,7 @@ bool QueryDataObject(IDataObject* pDataObject, CLIPFORMAT format)
     FORMATETC fmtetc = {format, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
 
     // does the data object support CF_TEXT using a HGLOBAL?
-    return pDataObject->QueryGetData(&fmtetc) == S_OK ? true : false;
+    return pDataObject->QueryGetData(&fmtetc) == S_OK;
 }
 
 STDMETHODIMP DropTargetSupport::DragEnter(IDataObject* pDataObject, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect)
@@ -98,7 +98,9 @@ std::wstring GetCF_HDROP(IDataObject* pDataObject)
         {
             std::vector<wchar_t> filename(DragQueryFile(hDropInfo, 0, nullptr, 0) + 1);
             if (DragQueryFile(hDropInfo, 0, filename.data(), static_cast<UINT>(filename.size())))
+            {
                 result = std::wstring(filename.data());
+            }
         }
         GlobalUnlock(stgmed.hGlobal);
 

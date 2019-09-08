@@ -29,9 +29,9 @@ struct SelectionInfo
     SelectionInfo();
     SelectionInfo(int beginLine, int endLine, int count);
 
-    int beginLine;
-    int endLine;
-    int count;
+    int beginLine = 0;
+    int endLine = 0;
+    int count = 0;
 };
 
 struct TextColor
@@ -128,12 +128,14 @@ public:
     {
         auto& nmhdr = *reinterpret_cast<NMHEADER*>(pnmh);
         if (nmhdr.iItem == 0)
+        {
             return TRUE;
+        }
 
         HDHITTESTINFO info;
         info.pt = Win32::GetMessagePos();
         ScreenToClient(&info.pt);
-        return HitTest(&info) < 1;
+        return static_cast<LRESULT>(HitTest(&info) < 1);
     }
 };
 
@@ -146,8 +148,8 @@ class CLogView : public CDoubleBufferWindowImpl<CLogView, CListViewCtrl,
                  public ExceptionHandler<CLogView, std::exception>
 {
 public:
-    CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
-    ~CLogView();
+    CLogView(std::wstring name, CMainFrame& mainFrame, LogFile& logFile, LogFilter logFilter = LogFilter());
+    ~CLogView() override;
     DECLARE_WND_SUPERCLASS(nullptr, CListViewCtrl::GetWndClassName())
 
     LRESULT DoPaint(CDCHandle dc);
@@ -245,14 +247,14 @@ private:
     void OnViewFindPrevious(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewNextProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewPreviousProcess(UINT uNotifyCode, int nID, CWindow wndCtl);
-    void AddProcessFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
+    void AddProcessFilter(FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0));
     void OnViewProcessRename(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewProcessHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewProcessInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewProcessExclude(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewProcessTrack(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewProcessOnce(UINT uNotifyCode, int nID, CWindow wndCtl);
-    void AddMessageFilter(FilterType::type filterType, COLORREF bkColor = RGB(255, 255, 255), COLORREF txColor = RGB(0, 0, 0));
+    void AddMessageFilter(FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0));
     void OnViewFilterHighlight(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewFilterInclude(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewFilterExclude(UINT uNotifyCode, int nID, CWindow wndCtl);

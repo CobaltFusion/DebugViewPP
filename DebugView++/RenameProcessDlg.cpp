@@ -9,6 +9,8 @@
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/fusionassert.h"
 #include "RenameProcessDlg.h"
+
+#include <utility>
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/fusionassert.h"
 
@@ -22,8 +24,8 @@ BEGIN_MSG_MAP2(CRenameProcessDlg)
     COMMAND_HANDLER_EX(IDC_TYPE, CBN_SELCHANGE, OnTypeSelChange)
 END_MSG_MAP()
 
-CRenameProcessDlg::CRenameProcessDlg(const std::wstring& name) :
-    m_name(name)
+CRenameProcessDlg::CRenameProcessDlg(std::wstring name) :
+    m_name(std::move(name))
 {
 }
 

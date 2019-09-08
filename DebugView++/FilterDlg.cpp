@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
+#include <utility>
 #include <atlstr.h>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/fusionassert.h"
@@ -24,18 +25,18 @@ static COLORREF HighlightColors[16] =
         RGB(255, 255, 255), // white
         RGB(192, 192, 192), // light-grey
         RGB(128, 128, 128), // mid-grey
-        RGB(64, 64, 64), // dark-grey
-        RGB(0, 0, 0), // black
-        RGB(27, 161, 226), // blue
-        RGB(160, 80, 0), // brown
-        RGB(51, 153, 51), // green
-        RGB(162, 193, 57), // lime
-        RGB(216, 0, 115), // magenta
-        RGB(240, 150, 9), // mango (orange)
+        RGB(64, 64, 64),    // dark-grey
+        RGB(0, 0, 0),       // black
+        RGB(27, 161, 226),  // blue
+        RGB(160, 80, 0),    // brown
+        RGB(51, 153, 51),   // green
+        RGB(162, 193, 57),  // lime
+        RGB(216, 0, 115),   // magenta
+        RGB(240, 150, 9),   // mango (orange)
         RGB(230, 113, 184), // pink
-        RGB(162, 0, 255), // purple
-        RGB(229, 20, 0), // red
-        RGB(0, 171, 169), // teal (viridian)
+        RGB(162, 0, 255),   // purple
+        RGB(229, 20, 0),    // red
+        RGB(0, 171, 169),   // teal (viridian)
         RGB(255, 255, 255), // white
 };
 
@@ -43,7 +44,9 @@ void InitializeCustomColors()
 {
     auto colors = ColorDialog::GetCustomColors();
     for (int i = 0; i < 16; ++i)
+    {
         colors[i] = HighlightColors[i];
+    }
 }
 
 bool CustomColorsInitialized = (InitializeCustomColors(), true);
@@ -64,18 +67,17 @@ BEGIN_MSG_MAP2(CFilterDlg)
 END_MSG_MAP()
 
 static const FilterType::type MessageFilterTypes[] =
-{
-    FilterType::Include,
-    FilterType::Exclude,
-    FilterType::Highlight,
-    FilterType::Bookmark,
-    FilterType::Token,
-    FilterType::Stop,
-    FilterType::Track,
-    FilterType::Once,
-    FilterType::Clear,
-    FilterType::Beep
-};
+    {
+        FilterType::Include,
+        FilterType::Exclude,
+        FilterType::Highlight,
+        FilterType::Bookmark,
+        FilterType::Token,
+        FilterType::Stop,
+        FilterType::Track,
+        FilterType::Once,
+        FilterType::Clear,
+        FilterType::Beep};
 
 static const FilterType::type ProcessFilterTypes[] =
     {
@@ -95,10 +97,10 @@ static const MatchType::type ProcessMatchTypes[] =
         MatchType::Wildcard,
         MatchType::Regex};
 
-CFilterDlg::CFilterDlg(const std::wstring& name, const LogFilter& filters) :
+CFilterDlg::CFilterDlg(std::wstring name, const LogFilter& filters) :
     m_messagePage(MessageFilterTypes, MessageMatchTypes, true),
     m_processPage(ProcessFilterTypes, ProcessMatchTypes, false),
-    m_name(name),
+    m_name(std::move(name)),
     m_filter(filters)
 {
     m_messagePage.SetFilters(filters.messageFilters);
@@ -134,7 +136,7 @@ BOOL CFilterDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
     m_tabCtrl.AddItem(L"Processes");
     CRect tabRect;
     m_tabCtrl.GetWindowRect(&tabRect);
-    m_tabCtrl.AdjustRect(false, &tabRect);
+    m_tabCtrl.AdjustRect(0, &tabRect);
     m_tabCtrl.ScreenToClient(&tabRect);
 
     CRect dlgRect;
@@ -168,14 +170,14 @@ void CFilterDlg::OnSize(UINT /*nType*/, CSize size)
 {
     RECT rect;
     m_tabCtrl.GetWindowRect(&rect);
-    m_tabCtrl.AdjustRect(false, &rect);
+    m_tabCtrl.AdjustRect(0, &rect);
     m_tabCtrl.ScreenToClient(&rect);
     rect.right = rect.left + size.cx - m_border.cx;
     rect.bottom = rect.top + size.cy - m_border.cy;
 
     m_messagePage.MoveWindow(&rect);
     m_processPage.MoveWindow(&rect);
-    SetMsgHandled(FALSE);
+    SetMsgHandled(win32::False);
 }
 
 LRESULT CFilterDlg::OnTabSelChange(NMHDR* /*pnmh*/)
@@ -194,14 +196,16 @@ void CFilterDlg::SelectTab(int tab)
 std::wstring GetFileNameExt(const std::wstring& fileName)
 {
     auto it = fileName.find_last_of('.');
-    if (it == fileName.npos)
+    if (it == std::wstring::npos)
+    {
         return std::wstring();
+    }
     return fileName.substr(it + 1);
 }
 
 void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(false, L".xml", m_name.c_str(), OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY,
+    CFileDialog dlg(0, L".xml", m_name.c_str(), OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY,
         L"XML Files (*.xml)\0*.xml\0"
         L"JSON Files (*.json)\0*.json\0"
         L"All Files\0*.*\0"
@@ -210,7 +214,9 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
     dlg.m_ofn.nFilterIndex = 0;
     dlg.m_ofn.lpstrTitle = L"Save DebugView Filter";
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     LogFilter filter;
     auto name = Win32::GetDlgItemText(*this, IDC_NAME);
@@ -220,15 +226,19 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
     auto ext = GetFileNameExt(dlg.m_szFileName);
     auto fileName = Str(dlg.m_szFileName).str();
     if (boost::iequals(ext, L"json"))
+    {
         SaveJson(fileName, Str(name), filter);
-    else /* if (boost::iequals(ext, L"xml")) */
+    }
+    else
+    { /* if (boost::iequals(ext, L"xml")) */
         SaveXml(fileName, Str(name), filter);
+    }
 }
 
 void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     std::wstring path;
-    CFileDialog dlg(true, L".xml", m_name.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+    CFileDialog dlg(1, L".xml", m_name.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
         L"XML Files (*.xml)\0*.xml\0"
         L"JSON Files (*.json)\0*.json\0"
         L"All Files\0*.*\0"
@@ -240,21 +250,27 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
     wchar_t szPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, szPath)))
     {
-        path = szPath;            // bug gevonden met PVS studio!!
+        path = szPath; // bug gevonden met PVS studio!!
         path += L"\\DebugView++ Filters";
         dlg.m_ofn.lpstrInitialDir = path.c_str();
     }
 
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     auto ext = GetFileNameExt(dlg.m_szFileName);
     auto fileName = Str(dlg.m_szFileName).str();
     FilterData data;
     if (boost::iequals(ext, L"json"))
+    {
         data = LoadJson(fileName);
-    else /* if (boost::iequals(ext, L"xml")) */
+    }
+    else
+    { /* if (boost::iequals(ext, L"xml")) */
         data = LoadXml(fileName);
+    }
 
     SetDlgItemTextA(*this, IDC_NAME, data.name.c_str());
 
@@ -310,15 +326,15 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
     CFilterPage* pPage = nullptr;
     try
     {
-        pPage = &m_messagePage;            // not a bug, but interesting find by PVS studio
+        pPage = &m_messagePage; // not a bug, but interesting find by PVS studio
         m_filter.messageFilters = m_messagePage.GetFilters();
         pPage = &m_processPage;
         m_filter.processFilters = m_processPage.GetFilters();
     }
     catch (std::regex_error& ex)
     {
-        SelectTab(pPage == &m_processPage);
-        MessageBox(WStr(L"Regular expression syntax error: " + GetRegexErrorDescription(ex.code())), LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+        SelectTab(static_cast<int>(pPage == &m_processPage));
+        MessageBox(WStr(L"Regular expression syntax error: " + GetRegexErrorDescription(ex.code())), win32::LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
         pPage->ShowError();
         return;
     }

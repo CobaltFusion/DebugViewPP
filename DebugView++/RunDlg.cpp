@@ -49,7 +49,7 @@ BOOL CRunDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 
 void CRunDlg::OnBrowse(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(true, L".exe", L"", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+    CFileDialog dlg(1, L".exe", L"", OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
         L"EXE Files (*.exe)\0*.exe\0"
         L"All Files\0*.*\0"
         L"\0",
@@ -58,7 +58,9 @@ void CRunDlg::OnBrowse(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
     dlg.m_ofn.lpstrTitle = L"Select Executable File";
 
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     SetDlgItemText(IDC_RUN, dlg.m_szFileName);
 }

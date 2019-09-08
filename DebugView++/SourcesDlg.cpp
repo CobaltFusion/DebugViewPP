@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
+#include <utility>
 #include <atlstr.h>
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
@@ -31,8 +32,8 @@ BEGIN_MSG_MAP2(CSourcesDlg)
     CHAIN_MSG_MAP(CDialogResize<CSourcesDlg>)
 END_MSG_MAP()
 
-CSourcesDlg::CSourcesDlg(const std::vector<SourceInfo>& sourceInfos) :
-    m_sourceInfos(sourceInfos)
+CSourcesDlg::CSourcesDlg(std::vector<SourceInfo> sourceInfos) :
+    m_sourceInfos(std::move(sourceInfos))
 {
 }
 
@@ -56,9 +57,13 @@ void CSourcesDlg::UpdateGrid()
         m_grid.SetSubItem(item, 1, PropCreateReadOnlyItem(L"", sourceInfo.description.c_str()));
         m_grid.SetSubItem(item, 2, PropCreateReadOnlyItem(L"", WStr(SourceTypeToString(sourceInfo.type))));
         if (sourceInfo.type == SourceType::System)
+        {
             m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L""));
+        }
         else
+        {
             m_grid.SetSubItem(item, 3, PropCreateReadOnlyItem(L"", L"x"));
+        }
     }
 }
 
@@ -83,7 +88,7 @@ LRESULT CSourcesDlg::OnClickItem(NMHDR* pnmh)
 
     int iItem = -1;
     int iSubItem = -1;
-    if (m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) && iSubItem == 3)
+    if ((m_grid.FindProperty(nmhdr.prop, iItem, iSubItem) != 0) && iSubItem == 3)
     {
         if (GetSourceType(iItem) != SourceType::System)
         {
@@ -127,7 +132,9 @@ void CSourcesDlg::OnAdd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     CSourceDlg dlg(L"UDP port 2020", SourceType::Udp, L"192.168.1.1", 2020);
     if (dlg.DoModal() != IDOK)
+    {
         return;
+    }
 
     auto info = SourceInfo(dlg.GetName(), dlg.GetSourceType(), dlg.GetAddress(), dlg.GetPort());
     info.enabled = true;

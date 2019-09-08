@@ -10,6 +10,8 @@
 #include "CobaltFusion/fusionassert.h"
 #include "DebugView++Lib/LogSource.h"
 #include "SourceDlg.h"
+
+#include <utility>
 #include "CobaltFusion/Str.h"
 
 namespace fusion {
@@ -22,10 +24,10 @@ BEGIN_MSG_MAP2(CSourceDlg)
     COMMAND_HANDLER_EX(IDC_TYPE, CBN_SELCHANGE, OnTypeSelChange)
 END_MSG_MAP()
 
-CSourceDlg::CSourceDlg(const std::wstring& name, SourceType::type sourceType, const std::wstring& address, int port) :
-    m_name(name),
+CSourceDlg::CSourceDlg(std::wstring name, SourceType::type sourceType, std::wstring address, int port) :
+    m_name(std::move(name)),
     m_sourceType(sourceType),
-    m_address(address),
+    m_address(std::move(address)),
     m_port(port)
 {
 }
@@ -105,8 +107,8 @@ void CSourceDlg::OnTypeSelChange(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
 void CSourceDlg::UpdateUI()
 {
     auto sourceType = StringToSourceType(Str(Win32::GetDlgItemText(*this, IDC_TYPE)));
-    GetDlgItem(IDC_PORT).EnableWindow(sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
-    GetDlgItem(IDC_IPADDRESS).EnableWindow(sourceType == SourceType::DebugViewAgent || sourceType == SourceType::Udp || sourceType == SourceType::Tcp);
+    GetDlgItem(IDC_PORT).EnableWindow(static_cast<BOOL>(sourceType == SourceType::Udp || sourceType == SourceType::Tcp));
+    GetDlgItem(IDC_IPADDRESS).EnableWindow(static_cast<BOOL>(sourceType == SourceType::DebugViewAgent || sourceType == SourceType::Udp || sourceType == SourceType::Tcp));
 }
 
 } // namespace debugviewpp

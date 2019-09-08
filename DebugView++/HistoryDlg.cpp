@@ -44,7 +44,7 @@ BOOL CHistoryDlg::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
     SetDlgItemInt(IDC_HISTORY, m_historySize);
 
     CButton unlimited(GetDlgItem(IDC_UNLIMITED));
-    unlimited.SetCheck(m_unlimited);
+    unlimited.SetCheck(static_cast<int>(m_unlimited));
     UpdateUi();
 
     CenterWindow(GetParent());
@@ -61,7 +61,7 @@ void CHistoryDlg::OnUnlimited(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 void CHistoryDlg::UpdateUi() const
 {
-    GetDlgItem(IDC_HISTORY).EnableWindow(!m_unlimited);
+    GetDlgItem(IDC_HISTORY).EnableWindow(static_cast<BOOL>(!m_unlimited));
 }
 
 void CHistoryDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)

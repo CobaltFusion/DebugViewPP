@@ -15,8 +15,10 @@ std::wstring GetGridItemText(const CPropertyGridCtrl& grid, int iItem, int iSubI
 {
     const int BufSize = 4192;
     wchar_t buf[BufSize];
-    if (grid.GetItemText(iItem, iSubItem, buf, BufSize))
+    if (grid.GetItemText(iItem, iSubItem, buf, BufSize) != 0)
+    {
         return buf;
+    }
     return L"";
 }
 

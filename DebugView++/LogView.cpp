@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <utility>
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"
@@ -58,8 +59,10 @@ int GetTextOffset(HDC hdc, const std::string& s, int xPos)
     auto exp = TabsToSpaces(s);
     int nFit = 0;
     SIZE size = {};
-    if (!GetTextExtentExPointA(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size))
+    if (GetTextExtentExPointA(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size) == 0)
+    {
         return 0;
+    }
     return SkipTabOffset(s, nFit);
 }
 
@@ -68,8 +71,10 @@ int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
     auto exp = TabsToSpaces(s);
     int nFit = 0;
     SIZE size = {};
-    if (xPos <= 0 || !GetTextExtentExPointW(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size))
+    if (xPos <= 0 || (GetTextExtentExPointW(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size) == 0))
+    {
         return 0;
+    }
     return SkipTabOffset(s, nFit);
 }
 
@@ -84,10 +89,8 @@ void AddEllipsis(HDC hdc, std::wstring& text, int width)
     }
 }
 
-SelectionInfo::SelectionInfo() :
-    beginLine(0),
-    endLine(0),
-    count(0)
+SelectionInfo::SelectionInfo()
+
 {
 }
 
@@ -202,7 +205,9 @@ void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
         }
     }
     else
-        SetMsgHandled(false);
+    {
+        SetMsgHandled(win32::False);
+    }
 }
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
@@ -212,8 +217,8 @@ void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
     UpdateColumns();
 }
 
-CLogView::CLogView(const std::wstring& name, CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
-    m_name(name),
+CLogView::CLogView(std::wstring name, CMainFrame& mainFrame, LogFile& logFile, LogFilter filter) :
+    m_name(std::move(name)),
     m_mainFrame(mainFrame),
     m_logFile(logFile),
     m_filter(std::move(filter)),
@@ -252,7 +257,9 @@ int CLogView::ColumnToSubItem(Column::type iColumn) const
         column.mask = LVCF_SUBITEM;
         GetColumn(iSubItem, &column);
         if (column.iSubItem == iColumn)
+        {
             return iSubItem;
+        }
     }
     return 0;
 }
@@ -269,13 +276,17 @@ void CLogView::UpdateColumns()
 {
     int columns = GetHeader().GetItemCount();
     for (int i = 0; i < columns; ++i)
+    {
         DeleteColumn(0);
+    }
 
     int col = 0;
     for (auto& item : m_columns)
     {
         if (item.enable)
+        {
             InsertColumn(col++, &item.column);
+        }
     }
 }
 
@@ -335,7 +346,7 @@ BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
     GetClientRect(&client);
     if (!Contains(client, pt))
     {
-        SetMsgHandled(false);
+        SetMsgHandled(win32::False);
         return FALSE;
     }
 
@@ -349,7 +360,7 @@ BOOL CLogView::OnSetCursor(CWindow /*wnd*/, UINT /*nHitTest*/, UINT /*message*/)
         return TRUE;
     }
 
-    SetMsgHandled(false);
+    SetMsgHandled(win32::False);
     return FALSE;
 }
 
@@ -359,9 +370,13 @@ int CLogView::TextHighlightHitTest(int iItem, const POINT& pt)
     auto highlights = GetItemData(iItem).highlights;
     auto it = highlights.begin();
     while (it != highlights.end() && it->end <= pos)
+    {
         ++it;
+    }
     if (it != highlights.end() && it->begin <= pos)
+    {
         return it->id;
+    }
     return 0;
 }
 
@@ -370,13 +385,15 @@ std::vector<std::string> CLogView::GetSelectedMessages() const
     std::vector<std::string> messages;
     int item = -1;
     while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+    {
         messages.push_back(Str(GetColumnText(item, Column::Message)));
+    }
     return messages;
 }
 
 void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 {
-    if (pt == CPoint(-1, -1))
+    if ((pt == CPoint(-1, -1)) != 0)
     {
         RECT rect = GetItemRect(GetNextItem(-1, LVNI_ALL | LVNI_FOCUSED), LVIR_LABEL);
         pt = CPoint(rect.left, rect.bottom - 1);
@@ -398,7 +415,9 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 
     int menuId = 0;
     if ((hdrInfo.flags & HHT_ONHEADER) != 0)
+    {
         menuId = IDR_HEADER_CONTEXTMENU;
+    }
     else if ((info.flags & LVHT_ONITEM) != 0)
     {
         switch (SubItemToColumn(info.iSubItem))
@@ -415,7 +434,9 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
         }
     }
     else
+    {
         return;
+    }
 
     CMenu menuContext;
     menuContext.LoadMenu(menuId);
@@ -426,7 +447,7 @@ void CLogView::OnContextMenu(HWND /*hWnd*/, CPoint pt)
 
 bool iswordchar(wint_t c)
 {
-    return iswalnum(c) || c == L'_';
+    return (iswalnum(c) != 0) || c == L'_';
 }
 
 LRESULT CLogView::OnClick(NMHDR* pnmh)
@@ -438,7 +459,9 @@ LRESULT CLogView::OnClick(NMHDR* pnmh)
     info.pt = nmhdr.ptAction;
     SubItemHitTest(&info);
     if ((info.flags & LVHT_ONITEM) != 0 && info.iSubItem == ColumnToSubItem(Column::Bookmark))
+    {
         ToggleBookmark(info.iItem);
+    }
 
     return 0;
 }
@@ -447,7 +470,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 {
     if ((flags & MK_SHIFT) == 0 || m_highlightText.empty())
     {
-        SetMsgHandled(false);
+        SetMsgHandled(win32::False);
         return;
     }
 
@@ -457,7 +480,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
     SubItemHitTest(&info);
     if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != ColumnToSubItem(Column::Message))
     {
-        SetMsgHandled(false);
+        SetMsgHandled(win32::False);
         return;
     }
 
@@ -473,8 +496,10 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
     for (;;)
     {
         pos = static_cast<int>(line.find(m_highlightText, pos));
-        if (pos == line.npos)
+        if (pos == std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>>::npos)
+        {
             break;
+        }
 
         int x1 = x0 + GetTextSize(dc.m_hDC, line, pos).cx;
         int x2 = x0 + GetTextSize(dc.m_hDC, line, pos + highlightTextSize).cx;
@@ -494,7 +519,7 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
     }
     if (!found)
     {
-        SetMsgHandled(false);
+        SetMsgHandled(win32::False);
         return;
     }
 
@@ -510,9 +535,11 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 
 void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 {
-    SetMsgHandled(false);
+    SetMsgHandled(win32::False);
     if (!m_dragging)
+    {
         return;
+    }
 
     m_dragEnd = point;
     m_dragEnd.x += GetScrollPos(SB_HORZ);
@@ -523,13 +550,17 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
     if (point.x < rect.left + 32)
     {
         if (m_scrollX == 0)
+        {
             SetTimer(1, 25, nullptr);
+        }
         m_scrollX = -8;
     }
     else if (point.x > rect.right - 32)
     {
         if (m_scrollX == 0)
+        {
             SetTimer(1, 25, nullptr);
+        }
         m_scrollX = +8;
     }
     else
@@ -544,13 +575,17 @@ void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 
 void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 {
-    SetMsgHandled(false);
+    SetMsgHandled(win32::False);
 
-    if (m_scrollX)
+    if (m_scrollX != 0)
+    {
         KillTimer(1);
+    }
 
     if (!m_dragging)
+    {
         return;
+    }
 
     m_dragging = false;
 
@@ -559,7 +594,9 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 
     if (abs(point.x - dragStart.x) <= GetSystemMetrics(SM_CXDRAG) &&
         abs(point.y - dragStart.y) <= GetSystemMetrics(SM_CYDRAG))
+    {
         return;
+    }
 
     LVHITTESTINFO info;
     info.flags = 0;
@@ -573,7 +610,9 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
     Invalidate();
 
     if ((info.flags & LVHT_ONITEM) == 0 || SubItemToColumn(info.iSubItem) != Column::Message)
+    {
         return;
+    }
 
     int begin = GetTextIndex(info.iItem, x1);
     int end = GetTextIndex(info.iItem, x2);
@@ -583,7 +622,9 @@ void CLogView::OnLButtonUp(UINT /*flags*/, CPoint point)
 void CLogView::OnTimer(UINT_PTR nIDEvent)
 {
     if (nIDEvent != 1)
+    {
         return;
+    }
 
     Scroll(CSize(m_scrollX, 0));
 }
@@ -629,7 +670,9 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
     auto& nmhdr = *reinterpret_cast<NMITEMACTIVATE*>(pnmh);
 
     if (SubItemToColumn(nmhdr.iSubItem) != Column::Message || nmhdr.iItem < 0 || static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
+    {
         return 0;
+    }
 
     int nFit = GetTextIndex(nmhdr.iItem, nmhdr.ptAction.x);
     auto text = TabsToSpaces(GetItemWText(nmhdr.iItem, ColumnToSubItem(Column::Message)));
@@ -638,14 +681,18 @@ LRESULT CLogView::OnDblClick(NMHDR* pnmh)
     while (begin > 0)
     {
         if (!iswordchar(text[begin - 1]))
+        {
             break;
+        }
         --begin;
     }
     int end = nFit;
     while (end < static_cast<int>(text.size()))
     {
         if (!iswordchar(text[end]))
+        {
             break;
+        }
         ++end;
     }
     SetHighlightText(std::wstring(text.begin() + begin, text.begin() + end));
@@ -659,10 +706,14 @@ LRESULT CLogView::OnItemChanged(NMHDR* pnmh)
     if ((nmhdr.uNewState & LVIS_FOCUSED) == 0 ||
         nmhdr.iItem < 0 ||
         static_cast<size_t>(nmhdr.iItem) >= m_logLines.size())
+    {
         return 0;
+    }
 
     if (m_autoScrollStop)
+    {
         m_autoScrollDown = nmhdr.iItem == GetItemCount() - 1;
+    }
 
     //this breaks F3/ShiftF3 //  SetHighlightText(L"");
     return 0;
@@ -680,7 +731,9 @@ RECT CLogView::GetSubItemRect(int iItem, int iSubItem, unsigned code) const
     RECT rect;
     CListViewCtrl::GetSubItemRect(iItem, iSubItem, code, &rect);
     if (iSubItem == 0)
+    {
         rect.right = rect.left + GetColumnWidth(0);
+    }
     return rect;
 }
 
@@ -688,7 +741,9 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
 {
     // if nothing is selected, this still gets called, so ignore the call in that case
     if (highlight.begin == highlight.end)
+    {
         return;
+    }
 
     // create a new vector that is two larger
     std::vector<Highlight> newHighlights;
@@ -703,7 +758,9 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
     }
 
     while (it != highlights.end() && it->end <= highlight.end)
+    {
         ++it;
+    }
 
     newHighlights.push_back(highlight);
 
@@ -723,7 +780,9 @@ void InsertHighlight(std::vector<Highlight>& highlights, std::wstring_view text,
     {
         auto range = boost::algorithm::ifind_first(line, match);
         if (range.empty())
+        {
             break;
+        }
         int begin = ExpandedTabOffset(text, static_cast<int>(range.begin() - text.begin()));
         int end = ExpandedTabOffset(text, static_cast<int>(range.end() - text.begin()));
         InsertHighlight(highlights, Highlight(1, begin, end, color));
@@ -739,13 +798,16 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
     for (auto& filter : m_filter.messageFilters)
     {
         if (!filter.enable || filter.filterType != FilterType::Token)
+        {
             continue;
+        }
 
         const wchar_t* testEnd = text.data() + text.size();
         std::wstring pattern = WStr(MakePattern(filter.matchType, filter.text));
         std::wregex re(pattern);
 
-        std::wcregex_iterator begin(text.data(), testEnd, re), end;
+        std::wcregex_iterator begin(text.data(), testEnd, re);
+        std::wcregex_iterator end;
         int id = ++highlightId;
         for (auto tok = begin; tok != end; ++tok)
         {
@@ -765,7 +827,9 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
                 {
                     auto itc = m_matchColors.find(Str(tok->str(i)));
                     if (itc != m_matchColors.end())
+                    {
                         InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(itc->second, Colors::Text)));
+                    }
                 }
                 else
                 {
@@ -792,7 +856,9 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
     for (auto& highlight : highlights)
     {
         if (textSize < highlight.end)
+        {
             continue;
+        }
 
         rcHighlight.right = rect.left + GetTextSize(hdc, text, highlight.begin).cx;
         ExtTextOut(hdc, pos, rcHighlight, text);
@@ -813,7 +879,9 @@ void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vect
 void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
 {
     if (!m_logLines[iItem].bookmark)
+    {
         return;
+    }
     RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
     dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16) / 2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
 }
@@ -841,7 +909,9 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
     auto dragEnd = m_dragEnd;
     dragEnd.x -= GetScrollPos(SB_HORZ);
     if (!m_dragging || !Contains(rect, dragStart))
+    {
         return Highlight(0, 0, 0, TextColor(0, 0));
+    }
 
     int x1 = std::min(dragStart.x, dragEnd.x);
     int x2 = std::max(dragStart.x, dragEnd.x);
@@ -860,11 +930,13 @@ void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData
     rect.left += margin;
     rect.right -= margin;
     if (column == Column::Message)
+    {
         return DrawHighlightedText(dc, rect, text, data.highlights, GetSelectionHighlight(dc, iItem));
+    }
 
     HDITEM item;
     item.mask = HDI_FORMAT;
-    unsigned align = (GetHeader().GetItem(iSubItem, &item)) ? GetTextAlign(item) : DT_LEFT;
+    unsigned align = (GetHeader().GetItem(iSubItem, &item)) != 0 ? GetTextAlign(item) : DT_LEFT;
     dc.DrawText(text.c_str(), static_cast<int>(text.size()), &rect, align | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
@@ -887,7 +959,9 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/) const
     int subitemCount = GetHeader().GetItemCount();
     DrawBookmark(dc, iItem);
     for (int i = 1; i < subitemCount; ++i)
+    {
         DrawSubItem(dc, iItem, i, data);
+    }
     //if (focused)
     //    dc.DrawFocusRect(&rect);
 }
@@ -915,7 +989,9 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
     auto pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pnmh);
     LVITEM& item = pDispInfo->item;
     if ((item.mask & LVIF_TEXT) == 0 || item.iItem >= static_cast<int>(m_logLines.size()))
+    {
         return 0;
+    }
 
     m_dispInfoText = GetColumnText(item.iItem, SubItemToColumn(item.iSubItem));
     item.pszText = &m_dispInfoText[0];
@@ -926,7 +1002,9 @@ SelectionInfo CLogView::GetSelectedRange() const
 {
     int first = GetNextItem(-1, LVNI_SELECTED);
     if (first < 0)
+    {
         return SelectionInfo();
+    }
 
     int item = first;
     int last = first;
@@ -942,7 +1020,9 @@ SelectionInfo CLogView::GetSelectedRange() const
 SelectionInfo CLogView::GetViewRange() const
 {
     if (m_logLines.empty())
+    {
         return SelectionInfo();
+    }
 
     return SelectionInfo(m_logLines.front().line, m_logLines.back().line, static_cast<int>(m_logLines.size()));
 }
@@ -991,7 +1071,7 @@ LRESULT CLogView::OnBeginDrag(NMHDR* pnmh)
     SubItemHitTest(&info);
     if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != ColumnToSubItem(Column::Message))
     {
-        SetMsgHandled(false);
+        SetMsgHandled(win32::False);
         return 0;
     }
 
@@ -1021,7 +1101,9 @@ void CLogView::OnViewResetToLine(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
 {
     int begin = GetNextItem(-1, LVNI_FOCUSED);
     if (begin < 0)
+    {
         return;
+    }
     ResetToLine(m_logLines[begin].line);
 }
 
@@ -1038,7 +1120,7 @@ void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*w
     int size = std::min(100, static_cast<int>(messages.size()));
     for (int i = 0; i < size; ++i)
     {
-        m_filter.messageFilters.push_back(Filter(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0)));
+        m_filter.messageFilters.emplace_back(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0));
     }
     ApplyFilters();
 }
@@ -1087,25 +1169,33 @@ void CLogView::OnEscapeKey(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/
 void CLogView::OnViewFindNext(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     if (!m_highlightText.empty())
+    {
         FindNext(m_highlightText);
+    }
 }
 
 void CLogView::OnViewFindPrevious(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     if (!m_highlightText.empty())
+    {
         FindPrevious(m_highlightText);
+    }
 }
 
 bool CLogView::FindProcess(int direction)
 {
     int begin = GetNextItem(-1, LVNI_FOCUSED);
     if (begin < 0)
+    {
         return false;
+    }
 
     auto processName = m_logFile[m_logLines[begin].line].processName;
     int line = FindLine([processName, this](const LogLine& line) { return m_logFile[line.line].processName == processName; }, direction);
     if (line < 0 || line == begin)
+    {
         return false;
+    }
 
     StopTracking();
     ScrollToIndex(line, true);
@@ -1127,10 +1217,14 @@ void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, C
     std::unordered_set<std::string> names;
     int item = -1;
     while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+    {
         names.insert(m_logFile[m_logLines[item].line].processName);
+    }
 
     for (auto& name : names)
-        m_filter.processFilters.push_back(Filter(Str(name), MatchType::Simple, filterType, bgColor, fgColor));
+    {
+        m_filter.processFilters.emplace_back(Str(name), MatchType::Simple, filterType, bgColor, fgColor);
+    }
 
     ApplyFilters();
 }
@@ -1181,9 +1275,11 @@ void CLogView::OnViewProcessOnce(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
 void CLogView::AddMessageFilter(FilterType::type filterType, COLORREF bgColor, COLORREF fgColor)
 {
     if (m_highlightText.empty())
+    {
         return;
+    }
 
-    m_filter.messageFilters.push_back(Filter(Str(m_highlightText), MatchType::Simple, filterType, bgColor, fgColor));
+    m_filter.messageFilters.emplace_back(Str(m_highlightText), MatchType::Simple, filterType, bgColor, fgColor);
     ApplyFilters();
 }
 
@@ -1234,7 +1330,9 @@ void CLogView::OnViewBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 {
     int item = GetNextItem(-1, LVIS_FOCUSED);
     if (item < 0)
+    {
         return;
+    }
 
     ToggleBookmark(item);
 }
@@ -1243,7 +1341,9 @@ void CLogView::FindBookmark(int direction)
 {
     int line = FindLine([](const LogLine& line) { return line.bookmark; }, direction);
     if (line >= 0)
+    {
         ScrollToIndex(line, false);
+    }
 }
 
 void CLogView::OnViewNextBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1259,7 +1359,9 @@ void CLogView::OnViewPreviousBookmark(UINT /*uNotifyCode*/, int /*nID*/, CWindow
 void CLogView::OnViewClearBookmarks(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     for (auto& line : m_logLines)
+    {
         line.bookmark = false;
+    }
     Invalidate();
 }
 
@@ -1271,7 +1373,7 @@ LRESULT CLogView::OnCustomDraw(NMHDR*)
 #else
 LRESULT CLogView::OnCustomDraw(NMHDR* pnmh)
 {
-    LPNMLVCUSTOMDRAW lplvcd = reinterpret_cast<LPNMLVCUSTOMDRAW>(pnmh);
+    auto lplvcd = reinterpret_cast<LPNMLVCUSTOMDRAW>(pnmh);
     if (lplvcd->nmcd.dwDrawStage == CDDS_PREPAINT)
     {
         return CDRF_NOTIFYPOSTPAINT;
@@ -1330,7 +1432,9 @@ void CLogView::SetAutoScroll(bool enable)
 {
     m_autoScrollDown = enable;
     if (enable)
+    {
         ScrollDown();
+    }
 }
 
 bool CLogView::GetAutoScrollStop() const
@@ -1356,7 +1460,9 @@ void CLogView::Clear()
     m_logLines.clear();
     m_highlightText.clear();
     if (m_autoScrollStop)
+    {
         m_autoScrollDown = true;
+    }
 
     ResetFilters();
 }
@@ -1365,7 +1471,9 @@ int CLogView::GetFocusLine() const
 {
     int item = GetNextItem(-1, LVNI_FOCUSED);
     if (item < 0)
+    {
         return -1;
+    }
 
     return m_logLines[item].line;
 }
@@ -1379,19 +1487,27 @@ void CLogView::SetFocusLine(int line)
 void CLogView::Add(int beginIndex, int line, const Message& msg)
 {
     if (IsClearMessage(msg))
+    {
         Clear();
+    }
 
     if (!IsIncluded(msg))
+    {
         return;
+    }
 
     if (IsBeepMessage(msg))
+    {
         MessageBeep(0xFFFFFFFF); // A simple beep. If the sound card is not available, the sound is generated using the speaker.
+    }
 
     m_dirty = true;
     m_changed = true;
     auto it = m_logLines.begin();
     while (it != m_logLines.end() && it->line < beginIndex)
+    {
         ++it;
+    }
     m_logLines.erase(m_logLines.begin(), it);
 
     int viewline = static_cast<int>(m_logLines.size());
@@ -1429,7 +1545,9 @@ bool CLogView::EndUpdate()
     {
         SetItemCountEx(static_cast<int>(m_logLines.size()), LVSICF_NOSCROLL);
         if (m_autoScrollDown)
+        {
             ScrollDown();
+        }
 
         m_dirty = false;
     }
@@ -1482,7 +1600,9 @@ void CLogView::ClearSelection()
     {
         item = GetNextItem(item, LVNI_SELECTED);
         if (item < 0)
+        {
             break;
+        }
         SetItemState(item, 0, LVIS_SELECTED);
     }
 }
@@ -1493,7 +1613,9 @@ void CLogView::ClearSelection()
 bool CLogView::ScrollToIndex(int index, bool center)
 {
     if (index < 0 || index >= static_cast<int>(m_logLines.size()))
+    {
         return true;
+    }
 
     ClearSelection();
     SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
@@ -1503,8 +1625,8 @@ bool CLogView::ScrollToIndex(int index, bool center)
 
     // this ensures the line is visible and not at the top of the view
     // if it does not need to be, also when coming from a higher index
-    EnsureVisible(minTopIndex, false);
-    EnsureVisible(index, false);
+    EnsureVisible(minTopIndex, 0);
+    EnsureVisible(index, 0);
 
     if (index > paddingLines)
     {
@@ -1512,7 +1634,7 @@ bool CLogView::ScrollToIndex(int index, bool center)
         if (center)
         {
             int maxBottomIndex = std::min<int>(static_cast<int>(m_logLines.size() - 1), index + paddingLines);
-            EnsureVisible(maxBottomIndex, false);
+            EnsureVisible(maxBottomIndex, 0);
             return (maxBottomIndex == (index + paddingLines));
         }
     }
@@ -1532,13 +1654,13 @@ bool CLogView::GetClockTime() const
 void CLogView::SetClockTime(bool clockTime)
 {
     m_clockTime = clockTime;
-    Invalidate(false);
+    Invalidate(0);
 }
 
 void CLogView::SetViewProcessColors(bool value)
 {
     m_processColors = value;
-    Invalidate(false);
+    Invalidate(0);
 }
 
 bool CLogView::GetViewProcessColors() const
@@ -1550,7 +1672,9 @@ void CLogView::SelectAll()
 {
     int lines = GetItemCount();
     for (int i = 0; i < lines; ++i)
+    {
         SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
+    }
 }
 
 std::wstring CLogView::GetItemWText(int item, int subItem) const
@@ -1588,7 +1712,7 @@ Win32::HGlobal MakeGlobalWideString(std::wstring_view str)
 
 void CLogView::CopyToClipboard(std::wstring_view str)
 {
-    if (OpenClipboard())
+    if (OpenClipboard() != 0)
     {
         EmptyClipboard();
         auto gstr = MakeGlobalWideString(str);
@@ -1607,7 +1731,9 @@ std::wstring CLogView::GetSelectedLines() const
     std::wostringstream ss;
     int item = -1;
     while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+    {
         ss << GetLineAsText(item) << "\r\n";
+    }
     return ss.str();
 }
 
@@ -1616,16 +1742,22 @@ std::wstring CLogView::GetSelectedMessagesAsWString() const
     std::wostringstream ss;
     int item = -1;
     while ((item = GetNextItem(item, LVNI_ALL | LVNI_SELECTED)) >= 0)
+    {
         ss << GetColumnText(item, Column::Message) << "\r\n";
+    }
     return ss.str();
 }
 
 void CLogView::Copy()
 {
     if (m_highlightText.empty())
+    {
         CopyToClipboard(GetSelectedLines());
+    }
     else
+    {
         CopyToClipboard(m_highlightText);
+    }
 }
 
 std::wstring CLogView::GetHighlightText() const
@@ -1638,7 +1770,7 @@ void CLogView::SetHighlightText(std::wstring_view text)
     if (m_highlightText != text)
     {
         m_highlightText = text;
-        Invalidate(false);
+        Invalidate(0);
         SetFocus();
     }
 }
@@ -1653,20 +1785,28 @@ int CLogView::FindLine(Predicate pred, int direction) const
     int line = begin;
 
     if (m_logLines.empty())
+    {
         return -1;
+    }
 
     auto size = static_cast<int>(m_logLines.size());
     do
     {
         line += direction;
         if (line < 0)
+        {
             line += size;
+        }
 
         if (line >= size)
+        {
             line -= size;
+        }
 
         if (pred(m_logLines[line]))
+        {
             return static_cast<int>(line);
+        }
     } while (line != begin);
 
     return -1;
@@ -1678,14 +1818,20 @@ bool CLogView::Find(std::wstring_view text, int direction)
 
     int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, Str(text)); }, direction);
     if (line < 0)
+    {
         return false;
+    }
 
     bool sameLine = GetItemState(line, LVIS_FOCUSED) != 0;
     if (!sameLine)
+    {
         ScrollToIndex(line, true);
+    }
 
     if (sameLine && text == m_highlightText)
+    {
         return false;
+    }
 
     SetHighlightText(text);
     return true;
@@ -1731,15 +1877,21 @@ void CLogView::ReadColumns(const boost::property_tree::ptree& pt)
 
                 auto enable = colPt.get_optional<bool>("Enable");
                 if (enable)
+                {
                     col.enable = *enable;
+                }
 
                 auto width = colPt.get_optional<int>("Width");
                 if (width)
+                {
                     col.column.cx = *width;
+                }
 
                 auto order = colPt.get_optional<int>("Order");
                 if (order)
+                {
                     col.column.iOrder = *order;
+                }
             }
         }
     }
@@ -1758,22 +1910,30 @@ void CLogView::LoadSettings(CRegKey& reg)
     {
         CRegKey regColumn;
         if (regColumn.Open(reg, WStr(wstringbuilder() << L"Columns\\Column" << i)) != ERROR_SUCCESS)
+        {
             break;
+        }
 
         ColumnInfo column = m_columns[i];
-        column.enable = Win32::RegGetDWORDValue(regColumn, L"Enable", column.enable) != 0;
+        column.enable = Win32::RegGetDWORDValue(regColumn, L"Enable", static_cast<DWORD>(column.enable)) != 0;
         column.column.cx = Win32::RegGetDWORDValue(regColumn, L"Width", column.column.cx);
         column.column.iOrder = Win32::RegGetDWORDValue(regColumn, L"Order", column.column.iOrder);
         columns.push_back(column);
     }
     if (columns.size() == m_columns.size())
+    {
         m_columns.swap(columns);
+    }
 
     CRegKey regFilters;
     if (regFilters.Open(reg, L"MessageFilters") == ERROR_SUCCESS)
+    {
         LoadFilterSettings(m_filter.messageFilters, regFilters);
+    }
     if (regFilters.Open(reg, L"ProcessFilters") == ERROR_SUCCESS)
+    {
         LoadFilterSettings(m_filter.processFilters, regFilters);
+    }
 
     ApplyFilters();
     UpdateColumns();
@@ -1781,16 +1941,16 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
-    reg.SetDWORDValue(L"AutoScrollStop", GetAutoScrollStop());
-    reg.SetDWORDValue(L"ClockTime", GetClockTime());
-    reg.SetDWORDValue(L"ShowProcessColors", GetViewProcessColors());
+    reg.SetDWORDValue(L"AutoScrollStop", static_cast<DWORD>(GetAutoScrollStop()));
+    reg.SetDWORDValue(L"ClockTime", static_cast<DWORD>(GetClockTime()));
+    reg.SetDWORDValue(L"ShowProcessColors", static_cast<DWORD>(GetViewProcessColors()));
 
     int i = 0;
     for (auto& col : m_columns)
     {
         CRegKey regColumn;
         regColumn.Create(reg, WStr(wstringbuilder() << L"Columns\\Column" << i));
-        regColumn.SetDWORDValue(L"Enable", col.enable);
+        regColumn.SetDWORDValue(L"Enable", static_cast<DWORD>(col.enable));
         regColumn.SetDWORDValue(L"Width", col.column.cx);
         regColumn.SetDWORDValue(L"Order", col.column.iOrder);
         ++i;
@@ -1798,15 +1958,21 @@ void CLogView::SaveSettings(CRegKey& reg)
 
     CRegKey regFilters;
     if (regFilters.Create(reg, L"MessageFilters") == ERROR_SUCCESS)
+    {
         SaveFilterSettings(m_filter.messageFilters, regFilters);
+    }
     if (regFilters.Create(reg, L"ProcessFilters") == ERROR_SUCCESS)
+    {
         SaveFilterSettings(m_filter.processFilters, regFilters);
+    }
 }
 
 void CLogView::SaveSelection(const std::wstring& fileName) const
 {
     if (!m_highlightText.empty())
+    {
         return; // token selection is invalid input for SaveSelection
+    }
 
     std::ofstream fs;
     OpenLogFile(fs, fileName);
@@ -1822,7 +1988,9 @@ void CLogView::SaveSelection(const std::wstring& fileName) const
 
     fs.close();
     if (!fs)
+    {
         Win32::ThrowLastError(fileName);
+    }
 }
 
 void CLogView::Save(const std::wstring& filename) const
@@ -1840,7 +2008,9 @@ void CLogView::Save(const std::wstring& filename) const
 
     fs.close();
     if (!fs)
+    {
         Win32::ThrowLastError(filename);
+    }
 }
 
 LogFilter CLogView::GetFilters() const
@@ -1859,8 +2029,12 @@ std::vector<int> CLogView::GetBookmarks() const
 {
     std::vector<int> bookmarks;
     for (auto& line : m_logLines)
+    {
         if (line.bookmark)
+        {
             bookmarks.push_back(line.line);
+        }
+    }
     return bookmarks;
 }
 
@@ -1869,12 +2043,16 @@ void CLogView::ResetFilters()
     for (auto& filter : m_filter.messageFilters)
     {
         if (filter.filterType == FilterType::Once)
+        {
             filter.matched = false;
+        }
     }
     for (auto& filter : m_filter.processFilters)
     {
         if (filter.filterType == FilterType::Once)
+        {
             filter.matched = false;
+        }
     }
     m_matchColors.clear();
 }
@@ -1909,7 +2087,9 @@ void CLogView::ApplyFilters()
             }
 
             if (line <= focusLine)
+            {
                 focusItem = item;
+            }
 
             ++item;
         }
@@ -1956,7 +2136,9 @@ TextColor CLogView::GetTextColor(const Message& msg) const
             {
                 auto it = m_matchColors.find(MatchKey(match, filter.matchType));
                 if (it != m_matchColors.end())
+                {
                     return TextColor(it->second, Colors::Text);
+                }
             }
             else
             {
@@ -1969,7 +2151,9 @@ TextColor CLogView::GetTextColor(const Message& msg) const
     for (auto& filter : processFilters)
     {
         if (filter.enable && FilterSupportsColor(filter.filterType) && std::regex_search(msg.processName, filter.re))
+        {
             return TextColor(filter.bgColor, filter.fgColor);
+        }
     }
 
     return TextColor(m_processColors ? msg.color : Colors::BackGround, Colors::Text);

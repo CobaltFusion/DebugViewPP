@@ -23,7 +23,7 @@ class CSourcesDlg : public CDialogImpl<CSourcesDlg>,
                     public ExceptionHandler<CSourcesDlg, std::exception>
 {
 public:
-    explicit CSourcesDlg(const std::vector<SourceInfo>& sourceInfos);
+    explicit CSourcesDlg(std::vector<SourceInfo> sourceInfos);
 
     enum
     {

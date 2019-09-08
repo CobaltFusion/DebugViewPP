@@ -48,7 +48,7 @@ public:
 
     void OnDestroy()
     {
-        if (m_btnAuto.IsWindow())
+        if (m_btnAuto.IsWindow() != 0)
         {
             m_auto = m_showAuto && m_btnAuto.GetCheck() == BST_CHECKED;
             m_btnAuto.DestroyWindow();
@@ -108,8 +108,10 @@ public:
 
     BOOL Activate(UINT action, LPARAM /*lParam*/) override
     {
-        if (!IsEnabled())
+        if (IsEnabled() == 0)
+        {
             return FALSE;
+        }
 
         switch (action)
         {
@@ -119,7 +121,7 @@ public:
             if (m_dlg.DoModal(m_hWndOwner) == IDOK)
             {
                 // Let control owner know
-                NMPROPERTYITEM nmh = {m_hWndOwner, ::GetDlgCtrlID(m_hWndOwner), PIN_ITEMCHANGED, this};
+                NMPROPERTYITEM nmh = {m_hWndOwner, static_cast<UINT_PTR>(::GetDlgCtrlID(m_hWndOwner)), PIN_ITEMCHANGED, this};
                 ::SendMessage(::GetParent(m_hWndOwner), WM_NOTIFY, nmh.hdr.idFrom, reinterpret_cast<LPARAM>(&nmh));
             }
             break;
@@ -132,8 +134,10 @@ public:
     {
         CDCHandle dc(di.hDC);
         RECT rect = di.rcItem;
-        if (!IsEnabled())
+        if (IsEnabled() == 0)
+        {
             return dc.FillSolidRect(&rect, di.clrDisabledBack);
+        }
 
         dc.FillSolidRect(&rect, di.clrBorder);
         ::InflateRect(&rect, -1, -1);
@@ -163,7 +167,9 @@ public:
     {
         CComVariant var;
         if (FAILED(VariantChangeType(&var, &value, 0, VT_COLOR)))
+        {
             return FALSE;
+        }
         SetColor(var.intVal);
         return TRUE;
     }

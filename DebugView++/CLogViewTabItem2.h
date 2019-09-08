@@ -63,7 +63,7 @@ using Duration = std::chrono::steady_clock::duration;
 class ViewPort
 {
 public:
-    ViewPort() {}
+    ViewPort() = default;
     ViewPort(TimePoint begin, TimePoint end, Duration timeUnitPerPixel);
     bool Contains(TimePoint p) const;
     gdi::Pixel ToPx(TimePoint p) const;
@@ -88,7 +88,7 @@ private:
 class CLogViewTabItem2 : public CTabViewTabItem
 {
 public:
-    ~CLogViewTabItem2();
+    ~CLogViewTabItem2() override;
     void SetView(std::shared_ptr<CLogView> pView);
     CLogView& GetView();
 
