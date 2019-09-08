@@ -13,11 +13,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-// todo: initialize these members ?
-//WSAOVERLAPPED m_overlapped;
-//WSABUF m_wsaBuf[1];
-//sockaddr_in m_from;
-
 SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :
     LogSource(timer, SourceType::Udp, lineBuffer),
     m_wsa(2, 2),
@@ -44,12 +39,18 @@ HANDLE SocketReader::GetHandle() const
     return m_event.get();
 }
 
+std::string bufferToString(const char* buffer, int size)
+{
+    size_t length = strnlen(buffer, size);
+    return std::string(buffer, length);
+}
+
 void SocketReader::Notify()
 {
     if (m_busy)
     {
         int len = CompleteReceive();
-        Add(0, GetProcessText(), std::string(m_buffer.data(), len));
+        Add(0, GetProcessText(), bufferToString(m_buffer.data(), len));
     }
 
     for (;;)
@@ -59,7 +60,7 @@ void SocketReader::Notify()
         {
             return;
         }
-        Add(0, GetProcessText(), std::string(m_buffer.data(), len));
+        Add(0, GetProcessText(), bufferToString(m_buffer.data(), len));
     }
 }
 

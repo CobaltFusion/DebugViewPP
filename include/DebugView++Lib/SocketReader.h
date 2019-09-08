@@ -34,9 +34,9 @@ private:
     Win32::Socket m_socket;
     Win32::Handle m_event;
     std::array<char, 2000> m_buffer;
-    WSAOVERLAPPED m_overlapped;
-    WSABUF m_wsaBuf[1];
-    sockaddr_in m_from;
+    WSAOVERLAPPED m_overlapped = WSAOVERLAPPED();
+    WSABUF m_wsaBuf[1]{};
+    sockaddr_in m_from = sockaddr_in();
     int m_fromLen;
     bool m_busy;
 };
