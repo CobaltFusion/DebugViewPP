@@ -140,7 +140,7 @@ BEGIN
     BEGIN
         MENUITEM "&Link Views",                 ID_OPTIONS_LINKVIEWS
         MENUITEM "&Auto Newline",               ID_OPTIONS_AUTONEWLINE
-		MENUITEM "&Prefix PID",       	        ID_OPTIONS_PROCESS_PREFIX
+        MENUITEM "&Prefix PID",                 ID_OPTIONS_PROCESS_PREFIX
         MENUITEM "&Font...",                    ID_OPTIONS_FONT
         MENUITEM "Always On &Top",              ID_OPTIONS_ALWAYSONTOP
         MENUITEM "&Hide When Minimized",        ID_OPTIONS_HIDE

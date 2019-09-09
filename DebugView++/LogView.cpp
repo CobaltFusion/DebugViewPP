@@ -1870,7 +1870,7 @@ void CLogView::ReadColumns(const boost::property_tree::ptree& pt)
         if (item.first == "Column")
         {
             const auto& colPt = item.second;
-            auto index = colPt.get_optional<int>("Index");
+            auto index = colPt.get_optional<size_t>("Index");
             if (index && *index < m_columns.size())
             {
                 ColumnInfo& col = m_columns[*index];
