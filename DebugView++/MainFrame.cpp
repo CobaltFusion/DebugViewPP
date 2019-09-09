@@ -261,10 +261,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
     // Resume can throw if a second debugview is running
     // so do not rely on any commands executed afterwards
-    if (!IsDBWinViewerActive())
-    {
-        Resume();
-    }
+    Resume();
     return 0;
 }
 

@@ -12,8 +12,9 @@
 
 namespace fusion {
 namespace debugviewpp {
-
-class ATL_NO_VTABLE DropTargetSupport : public CComObjectRootEx<CComSingleThreadModel>, public IDropTarget
+class ATL_NO_VTABLE DropTargetSupport
+    : public CComObjectRootEx<CComSingleThreadModel>
+    , public IDropTarget
 {
 public:
     BEGIN_COM_MAP(DropTargetSupport)
@@ -21,18 +22,14 @@ public:
     END_COM_MAP()
 
     DropTargetSupport();
-    ~DropTargetSupport() = default;
+    virtual ~DropTargetSupport() = default;
     void Register(HWND hwnd);
     void Unregister();
 
-    STDMETHOD(DragEnter)
-    (IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
-    STDMETHOD(DragOver)
-    (DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
-    STDMETHOD(DragLeave)
-    () override;
-    STDMETHOD(Drop)
-    (IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+    STDMETHOD(DragEnter)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+    STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
+    STDMETHOD(DragLeave)() override;
+    STDMETHOD(Drop)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 
     using DroppedSignal = boost::signals2::signal<void(const std::wstring&)>;
     boost::signals2::connection SubscribeToDropped(DroppedSignal::slot_type slot);

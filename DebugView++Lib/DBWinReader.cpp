@@ -25,7 +25,8 @@ std::wstring GetDBWinName(bool global, const std::wstring& name)
 
 Win32::Handle CreateDBWinBufferMapping(bool global)
 {
-    Win32::Handle hMap(CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), GetDBWinName(global, L"DBWIN_BUFFER").c_str()));
+    auto name = GetDBWinName(global, L"DBWIN_BUFFER");
+    Win32::Handle hMap(Win32::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), name.c_str()));
     if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
         throw std::runtime_error("CreateDBWinBufferMapping");

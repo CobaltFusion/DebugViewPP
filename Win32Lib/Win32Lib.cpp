@@ -18,8 +18,6 @@
 
 #include "Win32/Win32Lib.h"
 
-//#define DACL_MODIFY
-
 #ifdef DACL_MODIFY
 #include <AccCtrl.h>
 #endif
