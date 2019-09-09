@@ -646,12 +646,35 @@ std::wstring GetSEHcodeDescription(DWORD code)
     case EXCEPTION_INT_OVERFLOW:             return L"EXCEPTION_INT_OVERFLOW";
     case EXCEPTION_INVALID_DISPOSITION:      return L"EXCEPTION_INVALID_DISPOSITION";
     case EXCEPTION_NONCONTINUABLE_EXCEPTION: return L"EXCEPTION_NONCONTINUABLE_EXCEPTION";
-    case EXCEPTION_PRIV_INSTRUCTION:         return L"EXCEPTION_PRIV_INSTRUCTION";
+    case EXCEPTION_PRIV_INSTRUCTION:         return L"EXCEPTION_PRIVILEGED_INSTRUCTION";
     case EXCEPTION_SINGLE_STEP:              return L"EXCEPTION_SINGLE_STEP";
     case EXCEPTION_STACK_OVERFLOW:           return L"EXCEPTION_STACK_OVERFLOW";
+    case EXCEPTION_GUARD_PAGE:               return L"EXCEPTION_GUARD_PAGE";
+    case EXCEPTION_INVALID_HANDLE:           return L"EXCEPTION_INVALID_HANDLE";
+    case STATUS_DLL_NOT_FOUND:               return L"EXCEPTION_DLL_NOT_FOUND";
+    case STATUS_NO_MEMORY:                   return L"EXCEPTION_NO_MEMORY";
+    case STATUS_ORDINAL_NOT_FOUND :          return L"EXCEPTION_ORDINAL_NOT_FOUND";
+    case STATUS_ENTRYPOINT_NOT_FOUND:        return L"EXCEPTION_ENTRYPOINT_NOT_FOUND";
+    case STATUS_CONTROL_C_EXIT:              return L"EXCEPTION_CONTROL_C_EXIT"; 
+    case STATUS_DLL_INIT_FAILED:             return L"DllMain returned false";
+    case STATUS_FLOAT_MULTIPLE_FAULTS:       return L"EXCEPTION_FLOAT_MULTIPLE_FAULTS";
+    case STATUS_FLOAT_MULTIPLE_TRAPS:        return L"EXCEPTION_FLOAT_MULTIPLE_TRAPS";
+    case STATUS_REG_NAT_CONSUMPTION:         return L"EXCEPTION_REG_NAT_CONSUMPTION";
+    case STATUS_STACK_BUFFER_OVERRUN:        return L"EXCEPTION_STACK_BUFFER_OVERRUN";
+    case STATUS_INVALID_CRUNTIME_PARAMETER:  return L"EXCEPTION_INVALID_CRUNTIME_PARAMETER";  
+    case STATUS_ASSERTION_FAILURE:           return L"EXCEPTION_ASSERTION_FAILURE";
+    case DBG_EXCEPTION_HANDLED:              return L"DBG_EXCEPTION_HANDLED";
+    case DBG_CONTINUE:                       return L"DBG_CONTINUE";
+    case STATUS_SEGMENT_NOTIFICATION:        return L"STATUS_SEGMENT_NOTIFICATION";
+    case DBG_TERMINATE_THREAD:               return L"DBG_TERMINATE_THREAD";
+    case DBG_TERMINATE_PROCESS:              return L"DBG_TERMINATE_PROCESS";
+    case DBG_CONTROL_C:                      return L"DBG_CONTROL_C";
+    case DBG_PRINTEXCEPTION_C:               return L"DBG_PRINTEXCEPTION_C";
+    case DBG_RIPEXCEPTION:                   return L"DBG_RIPEXCEPTION";
+    case DBG_CONTROL_BREAK:                  return L"DBG_CONTROL_BREAK";
+    case DBG_COMMAND_EXCEPTION:              return L"DBG_COMMAND_EXCEPTION";
 
     // undocumented? but regularly seen codes
-    case 0xC0000142:                         return L"DllMain returned false";
     case 0xC0000022:                         return L"executable or one of the dependant dlls do not have execute rights";
     default: return L"UNKNOWN EXCEPTION";
     }
