@@ -26,6 +26,12 @@ bool IsWindowsVistaOrGreater()
     return (osvi.dwMajorVersion > 5);
 }
 
+bool IsDBWinViewerActive()
+{
+    Win32::Handle hMap(::OpenFileMapping(FILE_MAP_READ, 0, L"DBWIN_BUFFER"));
+    return hMap != nullptr;
+}
+
 bool HasGlobalDBWinReaderRights()
 {
     Win32::Handle hMap(::CreateFileMapping(nullptr, nullptr, PAGE_READWRITE, 0, sizeof(DbWinBuffer), L"Global\\DBWIN_BUFFER"));

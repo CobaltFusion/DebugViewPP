@@ -20,6 +20,7 @@ struct DbWinBuffer
 static_assert(sizeof(DbWinBuffer) == 4096, "DBWIN_BUFFER size must be 4096");
 
 bool IsWindowsVistaOrGreater();
+bool IsDBWinViewerActive();
 bool HasGlobalDBWinReaderRights();
 
 } // namespace debugviewpp
