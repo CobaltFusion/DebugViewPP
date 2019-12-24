@@ -31,7 +31,8 @@ std::wstring GetExecutionPath()
 std::wstring GetModuleFilenameUnspoofable()
 {
     std::vector<wchar_t> data(260);
-    GetMappedFileName(GetCurrentProcess(), GetModuleFilename, data.data(), static_cast<DWORD>(data.size()));
+    auto filename = GetModuleFilename();
+    GetMappedFileNameW(GetCurrentProcess(), filename.data(), data.data(), static_cast<DWORD>(data.size()));
     return data.data();
 }
 
