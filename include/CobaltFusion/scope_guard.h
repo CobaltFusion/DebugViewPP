@@ -9,6 +9,9 @@
 
 #include "noncopyable.h"
 
+#include <memory>
+#include <cassert>
+
 namespace fusion {
 
 template <typename F>
