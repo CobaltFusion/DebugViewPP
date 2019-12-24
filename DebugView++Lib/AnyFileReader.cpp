@@ -19,7 +19,7 @@ namespace debugviewpp {
 AnyFileReader::AnyFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
     FileReader(timer, linebuffer, filetype, filename, keeptailing),
     m_linenumber(0),
-    m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().wstring())
+    m_filenameOnly(std::filesystem::path(m_filename).filename().wstring())
 {
 }
 

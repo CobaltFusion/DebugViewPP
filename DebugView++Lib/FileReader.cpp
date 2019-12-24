@@ -18,7 +18,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
     LogSource(timer, SourceType::File, linebuffer),
@@ -27,7 +27,7 @@ FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type fil
     m_fileType(filetype),
     m_handle(FindFirstChangeNotification(fs::path(m_filename).parent_path().wstring().c_str(), 0, FILE_NOTIFY_CHANGE_SIZE)), //todo: maybe adding FILE_NOTIFY_CHANGE_LAST_WRITE could have benefits, not sure what though.
     m_ifstream(m_filename, std::ios::in),
-    m_filenameOnly(std::experimental::filesystem::path(m_filename).filename().string()),
+    m_filenameOnly(std::filesystem::path(m_filename).filename().string()),
     m_initialized(false),
     m_keeptailing(keeptailing),
     m_thread([this] { PollThread(); })

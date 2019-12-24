@@ -19,12 +19,12 @@ std::wstring GetModuleFilename()
 {
     std::vector<wchar_t> data(260);
     ::GetModuleFileName(nullptr, data.data(), static_cast<DWORD>(data.size()));
-    return std::experimental::filesystem::canonical(data.data());
+    return std::filesystem::canonical(data.data());
 }
 
 std::wstring GetExecutionPath()
 {
-    return std::experimental::filesystem::system_complete(Win32::GetModuleFilename()).remove_filename();
+    return std::filesystem::absolute(Win32::GetModuleFilename()).remove_filename();
 }
 
 // unspoofable, but in \Device\HarddiskVolume4\project\DebugViewPP\Debug\DebugView++.exe form

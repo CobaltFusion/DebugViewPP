@@ -523,7 +523,7 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
     SetTitle(file);
     using boost::algorithm::iequals;
-    auto ext = std::experimental::filesystem::path(file).extension().wstring();
+    auto ext = std::filesystem::path(file).extension().wstring();
     if (iequals(ext, L".exe"))
     {
         Run(file);
@@ -547,14 +547,14 @@ void CMainFrame::HandleDroppedFile(const std::wstring& file)
 
 void CMainFrame::OnDropped(const std::wstring uri)
 {
-    if (std::experimental::filesystem::is_regular_file(uri))
+    if (std::filesystem::is_regular_file(uri))
     {
         HandleDroppedFile(uri);
     }
     else
     {
         std::wstring httpmonitor = wstringbuilder() << Win32::GetExecutionPath() << "\\debugview++plugins\\HttpMonitor.exe";
-        if (std::experimental::filesystem::exists(httpmonitor))
+        if (std::filesystem::exists(httpmonitor))
         {
             if (m_httpMonitorHandle)
             {
@@ -1147,7 +1147,7 @@ void CMainFrame::Load(const std::wstring& filename, bool keeptailing)
 {
     SetTitle(filename);
     ClearLog();
-    m_logSources.AddAnyFileReader(WStr(std::experimental::filesystem::path(filename).filename().string()), keeptailing);
+    m_logSources.AddAnyFileReader(WStr(std::filesystem::path(filename).filename().string()), keeptailing);
 }
 
 void CMainFrame::SetTitle(const std::wstring& title)
@@ -1447,7 +1447,7 @@ void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCt
 
 std::wstring GetExecutionPath()
 {
-    auto path = std::experimental::filesystem::system_complete(Win32::GetModuleFilename());
+    auto path = std::filesystem::absolute(Win32::GetModuleFilename());
     return path.remove_filename().c_str();
 }
 
@@ -1456,7 +1456,7 @@ void CMainFrame::OnLogDebugviewAgent(UINT /*uNotifyCode*/, int /*nID*/, CWindow 
     if (m_pDbgviewReader == nullptr)
     {
         std::string dbgview = stringbuilder() << Win32::GetExecutionPath() << "\\dbgview.exe";
-        if (std::experimental::filesystem::exists(dbgview.c_str()))
+        if (std::filesystem::exists(dbgview.c_str()))
         {
             std::string cmd = stringbuilder() << "start \"\" " << dbgview << " /a";
             system(cmd.c_str());

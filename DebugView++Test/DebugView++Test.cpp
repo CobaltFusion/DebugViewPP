@@ -84,7 +84,7 @@ private:
 
 std::string GetTestFileName()
 {
-    using namespace std::experimental::filesystem;
+    using namespace std::filesystem;
     return absolute(path("SaveLoadLogFile_unique_test_filename")).string();
 }
 
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 
 std::wstring GetExecutePath()
 {
-    auto path = system_complete(std::experimental::filesystem::path(Win32::GetCommandLineArguments()[0]));
+    auto path = absolute(std::filesystem::path(Win32::GetCommandLineArguments()[0]));
     return path.remove_filename().c_str();
 }
 
@@ -721,6 +721,8 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 
 #pragma warning(disable : 4996)
 
+#ifndef _HAS_CXX17
+
 std::string CreateUTF16LETestFile(int linecount)
 {
     auto filename = GetTestFileName();
@@ -758,6 +760,8 @@ BOOST_AUTO_TEST_CASE(LoadUTF16LE)
     // (lineCount + 1) because the first line looks like: "Started tailing ....txt identified as '...'
     BOOST_TEST(totalLines == (lineCount + 1));
 }
+
+#endif
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
 
