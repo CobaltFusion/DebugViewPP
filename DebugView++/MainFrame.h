@@ -53,7 +53,7 @@ class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTa
                    public CIdleHandler
 {
 public:
-    typedef CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>> TabbedFrame;
+    using TabbedFrame = CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>>;
 
     CMainFrame();
     ~CMainFrame() override;

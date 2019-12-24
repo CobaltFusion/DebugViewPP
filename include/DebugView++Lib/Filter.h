@@ -19,7 +19,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-typedef std::unordered_map<std::string, COLORREF> MatchColors;
+using MatchColors = std::unordered_map<std::string, COLORREF>;
 
 struct Filter
 {

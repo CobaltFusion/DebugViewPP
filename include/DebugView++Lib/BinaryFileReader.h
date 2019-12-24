@@ -29,7 +29,7 @@ public:
     void PreProcess(Line& line) const override;
     void AddLine(const std::string& line);
 
-    typedef boost::signals2::signal<void()> UpdateSignal;
+    using UpdateSignal = boost::signals2::signal<void()>;
     boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
 protected:

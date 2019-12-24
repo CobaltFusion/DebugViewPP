@@ -30,7 +30,7 @@ struct SocketDeleter
     void operator()(pointer p) const;
 };
 
-typedef std::unique_ptr<void, SocketDeleter> Socket;
+using Socket = std::unique_ptr<void, SocketDeleter>;
 
 Socket WSASocket(int af, int type, int protocol);
 Socket WSASocket(int af, int type, int protocol, const WSAPROTOCOL_INFO* pProtocolInfo, GROUP g, DWORD flags);

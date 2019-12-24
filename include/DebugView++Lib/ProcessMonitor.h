@@ -16,7 +16,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-typedef std::unordered_map<DWORD, Win32::Handle> PidMap;
+using PidMap = std::unordered_map<DWORD, Win32::Handle>;
 
 class ProcessMonitor
 {
