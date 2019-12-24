@@ -12,7 +12,7 @@
 #include "FilterPage.h"
 #include "PropertyColorItem.h"
 #include "RegExDlg.h"
-#include "Resource.h"
+#include "resource.h"
 #include "Filter.h"
 
 namespace fusion {

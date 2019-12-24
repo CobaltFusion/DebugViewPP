@@ -35,7 +35,7 @@ struct Line
     const LogSource* pLogSource;
 };
 
-typedef std::vector<Line> Lines;
+using Lines = std::vector<Line>;
 
 } // namespace debugviewpp
 } // namespace fusion

@@ -84,9 +84,9 @@ class GuiExecutor : private ExecutorBase,
                     private GuiExecutorBase
 {
 public:
-    typedef std::chrono::steady_clock Clock;
-    typedef Clock::time_point TimePoint;
-    typedef Clock::duration Duration;
+    using Clock = std::chrono::steady_clock;
+    using TimePoint = Clock::time_point;
+    using Duration = Clock::duration;
 
     GuiExecutor();
     ~GuiExecutor() override;
@@ -95,7 +95,7 @@ public:
     auto Call(Fn fn)
     {
         assert(!IsExecutorThread());
-        typedef decltype(fn()) R;
+        using R = decltype(fn());
         std::packaged_task<R()> task(fn);
         m_q.Push([&task]() { task(); });
         m_wnd.Notify();
@@ -105,7 +105,7 @@ public:
     template <typename Fn>
     auto CallAsync(Fn fn)
     {
-        typedef decltype(fn()) R;
+        using R = decltype(fn());
         auto pTask = std::make_shared<std::packaged_task<R()>>(fn);
         m_q.Push([pTask]() { (*pTask)(); });
         m_wnd.Notify();
@@ -123,7 +123,7 @@ public:
     void Synchronize();
 
 private:
-    typedef TimedCalls::CallData CallData;
+    using CallData = TimedCalls::CallData;
 
     void OnMessage() override;
     void OnTimer() override;

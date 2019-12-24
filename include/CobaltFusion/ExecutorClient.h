@@ -16,8 +16,7 @@ namespace fusion {
 class IExecutor
 {
 public:
-    virtual ~IExecutor() = default;
-    typedef std::chrono::steady_clock Clock;
+    using Clock = std::chrono::steady_clock;
     virtual void Call(std::function<void()> fn) = 0;
     virtual void CallAsync(std::function<void()> fn) = 0;
     virtual ScheduledCall CallAfter(const Clock::duration& interval, std::function<void()> fn) = 0;
@@ -27,6 +26,8 @@ public:
 
     // shall cancel all scheduled calls that are not in progress
     virtual void Cancel() = 0;
+
+    virtual ~IExecutor() = default;
 };
 
 class GuiExecutor;

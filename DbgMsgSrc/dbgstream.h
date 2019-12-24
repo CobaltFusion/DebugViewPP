@@ -43,7 +43,7 @@ protected:
         return 0;
     }
 
-    using int_type = std::basic_streambuf<Elem, Tr>::int_type;
+    using int_type = typename std::basic_streambuf<Elem, Tr>::int_type;
     int_type overflow(int_type c) override
     {
         if (c == std::basic_streambuf<Elem, Tr>::traits_type::eof())
@@ -100,11 +100,11 @@ private:
     basic_nullbuf<Elem, Tr> buf;
 };
 
-typedef basic_nullstream<char> nullstream;
-typedef basic_nullstream<wchar_t> wnullstream;
+using nullstream = basic_nullstream<char>;
+using wnullstream = basic_nullstream<wchar_t>;
 
-typedef basic_dbgstream<char> dbgstream;
-typedef basic_dbgstream<wchar_t> wdbgstream;
+using dbgstream = basic_dbgstream<char>;
+using wdbgstream = basic_dbgstream<wchar_t>;
 
 } // namespace dbgstream
 

@@ -28,7 +28,7 @@ private:
     Lines m_backingBuffer;
 };
 
-typedef VectorLineBuffer LineBuffer;
+using LineBuffer = VectorLineBuffer;
 
 } // namespace debugviewpp
 } // namespace fusion

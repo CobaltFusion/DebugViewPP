@@ -21,7 +21,7 @@ typedef std::unordered_map<DWORD, Win32::Handle> PidMap;
 class ProcessMonitor
 {
 public:
-    typedef boost::signals2::signal<void(DWORD, HANDLE)> ProcessEnded;
+    using ProcessEnded = boost::signals2::signal<void(DWORD, HANDLE)>;
 
     ProcessMonitor();
     ~ProcessMonitor();

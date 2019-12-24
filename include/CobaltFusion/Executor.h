@@ -70,9 +70,9 @@ private:
 class TimedCalls
 {
 public:
-    typedef std::chrono::steady_clock Clock;
-    typedef Clock::time_point TimePoint;
-    typedef Clock::duration Duration;
+    using Clock = std::chrono::steady_clock;
+    using TimePoint = Clock::time_point;
+    using Duration = Clock::duration;
 
     struct CallData
     {
@@ -145,9 +145,9 @@ class TimedExecutor : private ExecutorBase,
                       public Executor
 {
 public:
-    typedef TimedCalls::Clock Clock;
-    typedef TimedCalls::TimePoint TimePoint;
-    typedef TimedCalls::Duration Duration;
+    using Clock = TimedCalls::Clock;
+    using TimePoint = TimedCalls::TimePoint;
+    using Duration = TimedCalls::Duration;
 
     ScheduledCall CallAt(const TimePoint& at, std::function<void()> fn);
     ScheduledCall CallAfter(const Duration& interval, std::function<void()> fn);
@@ -158,7 +158,7 @@ public:
     void RunOne() override;
 
 private:
-    typedef TimedCalls::CallData CallData;
+    using CallData = TimedCalls::CallData;
 
     TimedCalls m_scheduledCalls;
 };

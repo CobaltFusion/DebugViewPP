@@ -100,7 +100,7 @@ private:
     basic_handlebuf<Elem, Tr> m_buf;
 };
 
-typedef basic_handlestream<char> hstream;
-typedef basic_handlestream<wchar_t> whstream;
+using hstream = basic_handlestream<char>;
+using whstream = basic_handlestream<wchar_t>;
 
 } // namespace fusion

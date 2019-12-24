@@ -33,7 +33,7 @@ class Loopback;
 class DbgviewReader;
 class SocketReader;
 
-typedef std::vector<HANDLE> LogSourceHandles;
+using LogSourceHandles = std::vector<HANDLE>;
 
 template <typename T>
 void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
@@ -55,7 +55,7 @@ void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
 class LogSources
 {
 public:
-    typedef boost::signals2::signal<bool()> UpdateSignal;
+    using UpdateSignal = boost::signals2::signal<bool()>;
 
     LogSources(IExecutor& executor, bool startListening = true);
     virtual ~LogSources();

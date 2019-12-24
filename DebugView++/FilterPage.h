@@ -14,7 +14,7 @@
 #include "DebugView++Lib/FilterType.h"
 #include "DebugView++Lib/Filter.h"
 #include "Grid.h"
-#include "Resource.h"
+#include "resource.h"
 
 namespace fusion {
 namespace debugviewpp {

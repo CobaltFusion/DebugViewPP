@@ -12,7 +12,7 @@
 #include "DebugView++Lib/LogSources.h"
 #include "Grid.h"
 #include "PropertyColorItem.h"
-#include "Resource.h"
+#include "resource.h"
 #include "Filter.h"
 
 namespace fusion {

@@ -15,7 +15,7 @@
 #include "CobaltFusion/fusionassert.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "DebugView++Lib/LogSource.h"
-#include "Resource.h"
+#include "resource.h"
 #include "SourceDlg.h"
 #include "SourcesDlg.h"
 

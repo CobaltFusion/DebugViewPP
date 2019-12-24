@@ -102,11 +102,11 @@ private:
     basic_nullbuf<Elem, Tr> buf;
 };
 
-typedef basic_nullstream<char> nullstream;
-typedef basic_nullstream<wchar_t> wnullstream;
+using nullstream = basic_nullstream<char>;
+using wnullstream = basic_nullstream<wchar_t>;
 
-typedef basic_dbgstream<char> dbgstream;
-typedef basic_dbgstream<wchar_t> wdbgstream;
+using dbgstream = basic_dbgstream<char>;
+using wdbgstream = basic_dbgstream<wchar_t>;
 
 } // namespace dbgstream
 

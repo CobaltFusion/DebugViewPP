@@ -8,7 +8,7 @@
 #pragma once
 
 #include "CobaltFusion/AtlWinExt.h"
-#include "Resource.h"
+#include "resource.h"
 
 namespace fusion {
 namespace debugviewpp {

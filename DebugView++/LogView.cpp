@@ -21,7 +21,7 @@
 #include "Win32/Registry.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/FileIO.h"
-#include "Resource.h"
+#include "resource.h"
 #include "MainFrame.h"
 #include "LogView.h"
 #include "RenameProcessDlg.h"

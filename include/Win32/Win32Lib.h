@@ -38,7 +38,7 @@ public:
 
 struct LocalAllocDeleter
 {
-    typedef HLOCAL pointer;
+    using pointer = HLOCAL;
 
     void operator()(pointer p) const;
 };
@@ -47,7 +47,7 @@ typedef std::unique_ptr<void, LocalAllocDeleter> HLocal;
 
 struct GlobalAllocDeleter
 {
-    typedef HGLOBAL pointer;
+    using pointer = HGLOBAL;
 
     void operator()(pointer p) const;
 };
@@ -56,7 +56,7 @@ typedef std::unique_ptr<void, GlobalAllocDeleter> HGlobal;
 
 struct HandleDeleter
 {
-    typedef HANDLE pointer;
+    using pointer = HANDLE;
 
     void operator()(pointer p) const;
 };
@@ -65,7 +65,7 @@ typedef std::unique_ptr<void, HandleDeleter> Handle;
 
 struct ChangeNotificationHandleDeleter
 {
-    typedef HANDLE pointer;
+    using pointer = HANDLE;
 
     void operator()(pointer p) const;
 };
@@ -75,7 +75,7 @@ typedef std::unique_ptr<void, ChangeNotificationHandleDeleter> ChangeNotificatio
 template <typename T>
 struct GdiObjectDeleter
 {
-    typedef T pointer;
+    using pointer = T;
 
     void operator()(pointer p) const
     {
@@ -87,7 +87,7 @@ struct GdiObjectDeleter
 template <>
 struct GdiObjectDeleter<HICON>
 {
-    typedef HICON pointer;
+    using pointer = HICON;
 
     void operator()(pointer p) const
     {

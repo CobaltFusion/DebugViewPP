@@ -10,7 +10,7 @@
 #include <vector>
 #include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogSource.h"
-#include "Resource.h"
+#include "resource.h"
 
 namespace fusion {
 namespace debugviewpp {

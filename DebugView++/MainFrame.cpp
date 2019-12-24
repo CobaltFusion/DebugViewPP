@@ -27,7 +27,7 @@
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/LogFilter.h"
-#include "Resource.h"
+#include "resource.h"
 #include "RunDlg.h"
 #include "HistoryDlg.h"
 #include "FilterDlg.h"

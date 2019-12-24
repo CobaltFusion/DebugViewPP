@@ -14,7 +14,7 @@
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/LogFilter.h"
-#include "Resource.h"
+#include "resource.h"
 #include "FilterDlg.h"
 
 namespace fusion {

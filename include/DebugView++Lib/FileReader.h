@@ -25,7 +25,7 @@ public:
     ~FileReader() override;
 
     void Initialize() override;
-    typedef boost::signals2::signal<void()> UpdateSignal;
+    using UpdateSignal = boost::signals2::signal<void()>;
     boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
     void Abort() override;

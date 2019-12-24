@@ -25,7 +25,7 @@ void WSAThrowLastError(const std::string& what);
 
 struct SocketDeleter
 {
-    typedef SOCKET pointer;
+    using pointer = SOCKET;
 
     void operator()(pointer p) const;
 };

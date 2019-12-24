@@ -11,7 +11,7 @@
 #include "CobaltFusion/fusionassert.h"
 #include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
-#include "Resource.h"
+#include "resource.h"
 #include "FilterPage.h"
 
 #include <memory>
