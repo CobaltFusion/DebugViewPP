@@ -12,6 +12,9 @@
 #include "DebugView++Lib/DbgviewReader.h"
 #include "DebugView++Lib/LineBuffer.h"
 
+#include <iomanip>
+#include <string>
+#include <thread>
 
 namespace fusion {
 namespace debugviewpp {
