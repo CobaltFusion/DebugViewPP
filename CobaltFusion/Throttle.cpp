@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include <chrono>
-#include <iostream>
 #include "CobaltFusion/Throttle.h"
 #include "CobaltFusion/stringbuilder.h"
 
@@ -25,24 +24,28 @@ Throttle::Throttle(IExecutor& executor, int callsPerSecond, std::function<void()
 
 void Throttle::operator()()
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_lastCallTimePoint = Clock::now();
+    auto now = Clock::now();
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_lastCallTime = now;
     if (!m_callPending)
     {
-        m_lastScheduledCallTimePoint = m_lastCallTimePoint;
+        m_lastSchedulingTime = now;
         m_callPending = true;
-        m_executor.CallAt(Clock::now() + m_delta, [this] { PendingCall(); });
+        lock.unlock();
+        m_executor.CallAt(now + m_delta, [this] { PendingCall(); });
     }
 }
 
 void Throttle::PendingCall()
 {
     m_fn();
-    std::lock_guard<std::mutex> lock(m_mutex);
-    if (m_lastCallTimePoint > m_lastScheduledCallTimePoint)
+    auto now = Clock::now();
+    std::unique_lock<std::mutex> lock(m_mutex);
+    if (m_lastCallTime > m_lastSchedulingTime)
     {
-        m_lastScheduledCallTimePoint = Clock::now();
-        m_executor.CallAt(Clock::now() + m_delta, [this] { PendingCall(); });
+        m_lastSchedulingTime = now;
+        lock.unlock();
+        m_executor.CallAt(now + m_delta, [this] { PendingCall(); });
     }
     else
     {

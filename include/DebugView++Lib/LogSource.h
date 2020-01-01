@@ -67,12 +67,12 @@ public:
     void Add(const std::string& message);
 
 private:
-    bool m_autoNewLine;
+    bool m_autoNewLine = true;
     ILineBuffer& m_linebuffer;
     std::wstring m_description;
     SourceType::type m_sourceType;
     Timer& m_timer;
-    bool m_end;
+    bool m_end = false;
 };
 
 } // namespace debugviewpp

@@ -27,8 +27,8 @@ public:
 
 private:
     Clock::duration m_delta;
-    Clock::time_point m_lastCallTimePoint;
-    Clock::time_point m_lastScheduledCallTimePoint;
+    Clock::time_point m_lastCallTime;
+    Clock::time_point m_lastSchedulingTime;
     bool m_callPending;
     std::function<void()> m_fn;
     std::mutex m_mutex;

@@ -19,7 +19,7 @@ public:
 
     void Add(double time, FILETIME systemTime, HANDLE handle, const std::string& message, const LogSource* pSource) override;
     void Add(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pSource) override;
-    Lines GetLines() override;
+    [[nodiscard]] Lines GetLines() override;
     [[nodiscard]] bool Empty() const override;
 
 private:

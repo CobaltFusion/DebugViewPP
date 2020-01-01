@@ -122,10 +122,10 @@ void LogSources::CallSources(std::function<void(LogSource*)> predicate)
     }
 }
 
-void LogSources::CallSources(std::function<void(LogSource*)> predicate) const
+void LogSources::CallSources(std::function<void(const LogSource*)> predicate) const
 {
     std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
-    for (auto& pSource : m_sources)
+    for (const auto& pSource : m_sources)
     {
         predicate(pSource.get());
     }
@@ -212,6 +212,7 @@ void LogSources::ListenUntilUpdateEvent()
                 continue;
             }
             HANDLE handle = source->GetHandle();
+            assert(handle != nullptr && "GetHandle() cant return nullptr");
             if (handle != INVALID_HANDLE_VALUE)
             {
                 waitHandles.push_back(handle);
@@ -275,7 +276,7 @@ void LogSources::UpdateSources()
         InternalRemove(pLogSource);
     }
 
-    for (auto& pLogSource : sourcesToAdd)
+    for (auto&& pLogSource : sourcesToAdd)
     {
         UpdateSettings(pLogSource);
         m_sources.emplace_back(std::move(pLogSource));
@@ -348,9 +349,17 @@ void LogSources::OnProcessEnded(DWORD pid, HANDLE handle)
 
 bool LogSources::IsRemoved(const LogSource* logsource) const
 {
+    // the loopback is a special LogSource that is never added to m_sources
+    if (logsource == m_loopback.get())
+        return false;
+
     bool present = false;
-    CallSources([&](LogSource* l) { if (l == logsource) { present = true; 
-} });
+    CallSources([&](const LogSource* l) {
+        if (l == logsource)
+        {
+            present = true;
+        }
+    });
     return !present;
 }
 
@@ -358,10 +367,12 @@ Lines LogSources::GetLines()
 {
     assert(m_executor.IsExecutorThread());
     Lines lines;
+
     for (auto&& inputLine : m_linebuffer.GetLines())
     {
         if (IsRemoved(inputLine.pLogSource))
         {
+            std::cerr << "'" << inputLine.message << "' ignored because source was removed\n";
             continue;
         }
         // let the logsource decide how to create processname
@@ -403,6 +414,7 @@ Lines LogSources::GetLines()
             }
         }
     }
+
     return lines;
 }
 
@@ -419,8 +431,10 @@ TestSource* LogSources::AddTestSource()
 {
     assert(m_executor.IsExecutorThread());
     auto pTestSource = std::make_unique<TestSource>(m_timer, m_linebuffer);
+    pTestSource->SetDescription(L"TestSource");
     auto pResult = pTestSource.get();
     Add(std::move(pTestSource));
+    UpdateSources();
     return pResult;
 }
 

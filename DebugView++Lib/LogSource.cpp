@@ -15,11 +15,9 @@ namespace fusion {
 namespace debugviewpp {
 
 LogSource::LogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer) :
-    m_autoNewLine(true),
     m_linebuffer(linebuffer),
     m_sourceType(sourceType),
-    m_timer(timer),
-    m_end(false)
+    m_timer(timer)
 {
 }
 

@@ -68,14 +68,13 @@ public:
 
     void ResetTimer();
     void Listen();
-    void ListenUntilUpdateEvent();
     void Abort();
     bool IsRemoved(const LogSource* logsource) const;
     Lines GetLines();
     void Remove(LogSource* pLogSource);
     void RemoveSources(std::function<bool(LogSource*)> predicate);
     void CallSources(std::function<void(LogSource*)> predicate);
-    void CallSources(std::function<void(LogSource*)> predicate) const;
+    void CallSources(std::function<void(const LogSource*)> predicate) const;
 
     DBWinReader* AddDBWinReader(bool global);
     ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
@@ -90,6 +89,7 @@ public:
 
 private:
     void UpdateSources();
+    void ListenUntilUpdateEvent();
     void InternalRemove(LogSource*);
     void UpdateSettings(const std::unique_ptr<LogSource>& pSource);
     void Add(std::unique_ptr<LogSource> pSource);
@@ -103,14 +103,16 @@ private:
     std::vector<std::unique_ptr<LogSource>> m_sourcesScheduleToAdd;
     std::vector<LogSource*> m_sourcesScheduledToRemove;
 
-    bool m_autoNewLine = false;
+    bool m_autoNewLine = true;
     bool m_processPrefix = false;
     Win32::Handle m_updateEvent;
     bool m_end = false;
-    VectorLineBuffer m_linebuffer;
+    LineBuffer m_linebuffer;
     PidMap m_pidMap;
     ProcessMonitor m_processMonitor;
     NewlineFilter m_newlineFilter;
+
+    // not part of this class so const members can write to m_loopback
     std::unique_ptr<Loopback> m_loopback;
     Timer m_timer;
 

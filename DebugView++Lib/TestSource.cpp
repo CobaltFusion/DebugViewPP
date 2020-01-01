@@ -23,7 +23,7 @@ bool TestSource::AtEnd() const
 
 HANDLE TestSource::GetHandle() const
 {
-    return nullptr;
+    return INVALID_HANDLE_VALUE;
 }
 
 void TestSource::Notify()

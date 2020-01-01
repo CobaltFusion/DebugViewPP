@@ -472,23 +472,21 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 {
     using namespace std::chrono_literals;
 
-    std::string dbgMsgSrc = stringbuilder() << GetExecutePath() << "\\DbgMsgSrc.exe";
-    BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
-    std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
-
     Lines lines;
     auto executor = std::make_unique<ActiveExecutorClient>();
     {
         LogSources logsources(*executor, true);
         executor->Call([&] { logsources.AddDBWinReader(false); });
+        executor->Call([&] { logsources.AddTestSource(); });
         executor->Call([&] { logsources.SetAutoNewLine(true); });
 
         executor->Call([&] { logsources.AddMessage("Test message 1"); });
         executor->Call([&] { logsources.AddMessage("Test message 2"); });
         std::this_thread::sleep_for(200ms);
-        executor->Call([&] { logsources.Abort(); });
-
         executor->Call([&] { lines = logsources.GetLines(); });
+
+        // Abort will remove the source and no messages can be received from remove sources
+        executor->Call([&] { logsources.Abort(); });
     }
     executor.reset();
 
