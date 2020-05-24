@@ -227,10 +227,13 @@ void TestSendMessage(const std::string& filename)
     auto lines = GetFileContent(filename);
     std::cout << "writing... " << lines.size() << " lines\n";
     Timer timer;
+
+    HWND debugviewpp = FindWindow(NULL, L"[Capture Win32] - DebugView++");
+
     auto t1 = timer.now();
     for (const auto& s : lines)
     {
-        SendMessageDebugViewpp(s);
+        SendMessage(debugviewpp, EM_REPLACESEL, GetCurrentProcessId(), (LPARAM)s.data());
     }
     auto elepsed = timer.now() - t1;
     std::cout << "SendMessage " << lines.size() << " lines, took: " << static_cast<int>(Timer::ToMs(elepsed)) << " ms\n";
