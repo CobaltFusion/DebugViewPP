@@ -106,14 +106,16 @@ FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
 bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& ft)
 {
     std::istringstream is(text);
-    WORD h;
-    WORD m;
-    WORD s;
-    char c1;
-    char c2;
-    char p1;
-    char p2;
-    if (!((is >> h >> c1 >> m >> c2 >> s) && c1 == ':' && c2 == ':'))
+    WORD h = 0;
+    WORD m = 0;
+    WORD s = 0;
+    char c1 = 0;
+    char c2 = 0;
+    char p1 = 0;
+    char p2 = 0;
+    is >> h >> c1 >> m >> c2 >> s;
+
+    if (!(is && c1 == ':' && c2 == ':'))
     {
         return false;
     }
@@ -122,7 +124,8 @@ bool USTimeConverter::ReadLocalTimeUSRegion(const std::string& text, FILETIME& f
         h = 0;
     }
 
-    if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+    is >> p1 >> p2;
+    if (is && p1 == 'P' && p2 == 'M')
     {
         h += 12;
     }
@@ -136,16 +139,18 @@ bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME&
 {
     std::istringstream is(text);
 
-    WORD h;
-    WORD m;
-    WORD s;
-    WORD ms;
-    char c1;
-    char c2;
-    char p1;
-    char p2;
-    char d1;
-    if (!((is >> h >> c1 >> m >> c2 >> s >> d1 >> ms) && c1 == ':' && c2 == ':' && d1 == '.'))
+    WORD h = 0;
+    WORD m = 0;
+    WORD s = 0;
+    WORD ms = 0;
+    char c1 = 0;
+    char c2 = 0;
+    char p1 = 0;
+    char p2 = 0;
+    char d1 = 0;
+
+    is >> h >> c1 >> m >> c2 >> s >> d1 >> ms;
+    if (!(is && c1 == ':' && c2 == ':' && d1 == '.'))
     {
         return false;
     }
@@ -154,7 +159,8 @@ bool USTimeConverter::ReadLocalTimeUSRegionMs(const std::string& text, FILETIME&
         h = 0;
     }
 
-    if (is >> p1 >> p2 && p1 == 'P' && p2 == 'M')
+    is >> p1 >> p2;
+    if (is && p1 == 'P' && p2 == 'M')
     {
         h += 12;
     }
