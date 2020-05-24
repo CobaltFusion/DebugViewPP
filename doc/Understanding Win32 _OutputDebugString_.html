@@ -1,0 +1,586 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- saved from url=(0054)http://www.unixwiz.net/techtips/outputdebugstring.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="./Understanding Win32 _OutputDebugString__files/unixwiz.css">
+<link rel="shortcut icon" href="http://www.unixwiz.net/favicon.ico">
+
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://unixwiz.net/techtips/techtips.rss">
+<meta name="version" content="$Id: //websites/unixwiz/unixwiz.net/webroot/techtips/outputdebugstring.web#11 $">
+<!-- RSS description = a running program. -->
+<!-- RSS pubDate = 2003/12/10 -->
+<!-- Host: amz.unixwiz.net -->
+<style type="text/css">
+.red	{ color:red; }
+</style>
+<title>Understanding Win32 "OutputDebugString"</title>
+<script data-dapp-detection="">
+(function() {
+  let alreadyInsertedMetaTag = false
+
+  function __insertDappDetected() {
+    if (!alreadyInsertedMetaTag) {
+      const meta = document.createElement('meta')
+      meta.name = 'dapp-detected'
+      document.head.appendChild(meta)
+      alreadyInsertedMetaTag = true
+    }
+  }
+
+  if (window.hasOwnProperty('web3')) {
+    // Note a closure can't be used for this var because some sites like
+    // www.wnyc.org do a second script execution via eval for some reason.
+    window.__disableDappDetectionInsertion = true
+    // Likely oldWeb3 is undefined and it has a property only because
+    // we defined it. Some sites like wnyc.org are evaling all scripts
+    // that exist again, so this is protection against multiple calls.
+    if (window.web3 === undefined) {
+      return
+    }
+    __insertDappDetected()
+  } else {
+    var oldWeb3 = window.web3
+    Object.defineProperty(window, 'web3', {
+      configurable: true,
+      set: function (val) {
+        if (!window.__disableDappDetectionInsertion)
+          __insertDappDetected()
+        oldWeb3 = val
+      },
+      get: function () {
+        if (!window.__disableDappDetectionInsertion)
+          __insertDappDetected()
+        return oldWeb3
+      }
+    })
+  }
+})()</script></head>
+<body>
+<div id="warning">
+  <h2>Does this site look plain?</h2>
+  <p>This site uses advanced css techniques</p>
+</div>
+<div id="logo">
+ <a href="http://www.unixwiz.net/">
+  <img src="./Understanding Win32 _OutputDebugString__files/unixwiz-logo-140x80.gif" alt="[Steve Friedl Logo]">
+ </a>
+</div>
+<div id="pageheader">
+<h1> Steve Friedl's Unixwiz.net Tech Tips </h1>
+<h2> Understanding Win32 "OutputDebugString" </h2>
+</div>
+<div id="navmenu">
+  <ul>
+<li><a href="http://www.unixwiz.net/"> Home </a> </li>
+<li><a href="http://www.unixwiz.net/contact"> Contact </a> </li>
+<li><a href="http://www.unixwiz.net/about/"> About </a> </li>
+<li><a href="http://www.unixwiz.net/techtips/"> TechTips </a> </li>
+<li><a href="http://www.unixwiz.net/tools/"> Tools&amp;Source </a> </li>
+<li><a href="http://www.unixwiz.net/evo/"> Evo Payroll </a> </li>
+<li><a href="http://www.unixwiz.net/cmdletters/"> CmdLetters </a> </li>
+<li><a href="http://www.unixwiz.net/research/"> Research </a> </li>
+<li><a href="http://www.unixwiz.net/3b2.html"> AT&amp;T 3B2 </a> </li>
+<li><a href="http://www.unixwiz.net/advisories.html"> Advisories </a> </li>
+<li><a href="http://www.unixwiz.net/news.html"> News/Pubs </a> </li>
+<li><a href="http://www.unixwiz.net/literacy.html"> Literacy </a> </li>
+<li><a href="http://www.unixwiz.net/voting/"> Calif.Voting </a> </li>
+<li><a href="http://www.unixwiz.net/personal/"> Personal </a> </li>
+<li><a href="http://blog.unixwiz.net/"> Tech Blog </a> </li>
+<li><a href="http://evoblog.unixwiz.net/"> Evo Blog </a> </li>
+</ul>
+</div>
+<div id="pagecontent">
+
+<p>
+Hardcore Win32 developers are probably familiar with the
+<a href="http://msdn.microsoft.com/library/en-us/debug/base/outputdebugstring.asp"><b>OutputDebugString()</b></a>
+API function that lets your program talk with a debugger. It's handier than having
+to create a logfile, and all the "real" debuggers can use it.
+The mechanism by which an application talks to the debugger is straightforward,
+and this Tech Tip documents how the whole thing works.
+</p>
+
+<div id="toc">
+<center>Table of Contents</center>
+<ol>
+<li><a href="http://www.unixwiz.net/techtips/outputdebugstring.html#appuse">Application program usage</a> </li>
+<li><a href="http://www.unixwiz.net/techtips/outputdebugstring.html#protocol">The Protocol</a> </li>
+<li><a href="http://www.unixwiz.net/techtips/outputdebugstring.html#perms">The permission problem</a> </li>
+<li><a href="http://www.unixwiz.net/techtips/outputdebugstring.html#impl">Detailed implementation</a> </li>
+<li><a href="http://www.unixwiz.net/techtips/outputdebugstring.html#random">Random thoughts</a> </li>
+<li><a href="http://www.unixwiz.net/tools/dbmutex.html">Unixwiz.net tool: dbmutex</a> </li>
+</ol>
+</div>
+
+<p>
+This Tech Tip was prompted first by our observation that <b>OutputDebugString()</b>
+didn't always work reliably when Admin and non-Admin users tried to work and
+play together (on Win2000, at least). We suspected permissions issues on some
+of the kernel objects involved, and in the process ran across enough information
+that we had to write it up.
+</p>
+
+<p>
+We'll note that though we're using the term "debugger", it's not used in the
+Debugging API sense: there is no "single stepping" or "breakpoints" or
+"attach to process" going on like one might find in MS Visual C or some
+real interactive development environment. Any program that implements
+<a href="http://www.unixwiz.net/techtips/outputdebugstring.html#protocol">the protocol</a> is a "debugger" in this sense. This
+could be a very simple command-line tool, or one more advanced such
+as <a href="http://www.sysinternals.com/ntw2k/freeware/debugview.shtml">DebugView</a>
+from the very smart guys at <a href="http://www.sysinternals.com/">SysInternals</a>.
+</p>
+
+<br clear="all">
+
+<h1 id="appuse"> Application program usage </h1>
+
+<p>
+The <tt>&lt;windows.h&gt;</tt> file declares two version of the
+<b>OutputDebugString()</b> function - one for ASCII, one for Unicode -
+and unlike most of the Win32 API, the native version is ASCII. Most of
+the Win32 API is Unicode native.
+</p>
+
+<p>
+Simply calling <b>OutputDebugString()</b> with a NUL-terminated string buffer
+causes the message to appear on the debugger, if there is one. Common
+usage builds a message and sends it
+</p>
+
+<pre class="codeblock">sprintf(msgbuf, "Cannot open file %s [err=%ld]\n", fname, GetLastError());
+
+OutputDebugString(msgbuf);
+</pre>
+
+<p>
+but in practice many of us create a front-end function that allows us
+to use printf-style formatting.  The <tt>odprintf()</tt> function formats
+the string, insures that there is a proper CR/LF at the end (removing
+any previous line terminations), and sends the message to the debugger.
+</p>
+
+<pre class="codeblock">#include &lt;stdio.h&gt;
+#include &lt;stdarg.h&gt;
+#include &lt;ctype.h&gt;
+
+void __cdecl odprintf(const char *format, ...)
+{
+char    buf[4096], *p = buf;
+va_list args;
+int     n;
+
+        va_start(args, format);
+        n = _vsnprintf(p, sizeof buf - 3, format, args); // buf-3 is room for CR/LF/NUL
+        va_end(args);
+
+        p += (n &lt; 0) ? sizeof buf - 3 : n;
+
+        while ( p &gt; buf  &amp;&amp;  isspace(p[-1]) )
+                *--p = '\0';
+
+        *p++ = '\r';
+        *p++ = '\n';
+        *p   = '\0';
+
+        OutputDebugString(buf);
+}
+</pre>
+
+<p>
+Then using it in code is easy:
+</p>
+
+<pre class="codeblock">        ...
+        odprintf("Cannot open file %s [err=%ld]", fname, GetLastError());
+        ...
+</pre>
+
+<p>
+We've been using this for years.
+</p>
+
+<h1 id="protocol"> The protocol </h1>
+
+<p>
+Passing of data between the application and the debugger is done via
+a 4kbyte chunk of shared memory, with a Mutex and two Event objects
+protecting access to it.  These are the four kernel objects involved:
+</p>
+
+<table class="standard">
+<thead>
+<tr> <th>object name	         </th> <th> object type </th> </tr>
+</thead>
+<tbody><tr> <td> <b>DBWinMutex</b>         </td> <td> Mutex </td> </tr>
+<tr> <td> <b>DBWIN_BUFFER</b>	 </td> <td> Section (shared memory) </td> </tr>
+<tr> <td> <b>DBWIN_BUFFER_READY</b> </td> <td> Event </td> </tr>
+<tr> <td> <b>DBWIN_DATA_READY</b>   </td> <td> Event </td> </tr>
+</tbody></table>
+
+<p>
+The mutex generally remains on the system all the time, but the other
+three are only present if a debugger is around to accept the messages.
+Indeed - if a debugger finds the last three objects already exist,
+it will refuse to run.
+</p>
+
+<p>
+The DBWIN_BUFFER, when present, is organized like this structure. The
+process ID shows where the message came from, and string data fills out
+the remainder of the 4k. By convention, a NUL byte is <i>always</i> included
+at the end of the message.
+</p>
+
+<pre class="codeblock">struct dbwin_buffer {
+        DWORD   dwProcessId;
+        char    data[4096-sizeof(DWORD)];
+};
+</pre>
+
+<p>
+When <b>OutputDebugString()</b> is called by an application, it takes these
+steps. Note that a failure at any point abandons the whole thing and
+treats the debugging request as a no-op (the string isn't sent anywhere).
+</p>
+
+<ol>
+<li>
+Open <b>DBWinMutex</b> and wait until we have exclusive access to it.
+</li>
+
+<li>
+Map the <b>DBWIN_BUFFER</b> segment into memory: if it's not found, there
+is no debugger running so the entire request is ignored.
+</li>
+
+<li>
+Open the <b>DBWIN_BUFFER_READY</b> and <b>DBWIN_DATA_READY</b> events.
+As with the shared memory segment, missing objects mean that no debugger
+is available.
+</li>
+
+<li>
+Wait for the <b>DBWIN_BUFFER_READY</b> event to be signaled: this says
+that the memory buffer is no longer in use. Most of the time, this event
+will be signaled immediately when it's examined, but it won't wait longer
+than 10 seconds for the buffer to become ready (a timeout abandons
+the request).
+</li>
+
+<li>
+Copy up to about 4kbytes of data to the memory buffer, and store the
+current process ID there as well. Always put a NUL byte at the end of
+the string.
+</li>
+
+<li>
+Tell the debugger that the buffer is ready by setting the
+<b>DBWIN_DATA_READY</b> event. The debugger takes it from there.
+</li>
+
+<li>
+Release the mutex
+</li>
+
+<li>
+Close the Event and Section objects, though we keep the handle
+to the mutex around for later.
+</li>
+
+</ol>
+
+<p>
+On the debugger front, it's a bit simpler. The mutex is not used at all,
+and if the events and/or shared memory objects already exist, we presume
+that some other debugger is already running. Only one debugger can be in
+the system at a time.
+</p>
+
+<ol>
+<li>
+Create the shared memory segment and the two events. If we can't, exit.
+</li>
+
+<li>
+Set the <b>DBWIN_BUFFER_READY</b> event so the applications know that
+the buffer is available.
+</li>
+
+<li>
+Wait for the <b>DBWIN_DATA_READY</b> event to be signaled.
+</li>
+
+<li>
+Extract the process ID NUL-terminated string from the memory buffer.
+</li>
+
+<li>
+Go to step #2
+</li>
+</ol>
+
+<p>
+This doesn't strike us as being a low-cost way of sending messages,
+and the application is at the mercy of the debugger for the speed at
+which it runs.
+</p>
+
+<h1 id="perms"> The Permissions Problem </h1>
+
+<p>
+We have seen problems for <i>years</i> with <b>OutputDebugString()</b>
+being unreliable at times, and we're not quite sure why Microsoft has
+such a hard time getting this right. Curiously, the problem has always
+revolved around the <b>DBWinMutex</b> object, and it requires that we visit
+the permissions system to find out why this is so troublesome.
+</p>
+
+<p>
+The mutex object is alive and allocated until the last program using it
+closes its handle, so it can remain long after the original application
+which created it has exited. Since this object is so widely shared, it
+must be given explicit permissions that allow anybody to use it.
+Indeed, the "default" permissions are almost never suitable, and
+this mistake accounted for
+<a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;q160603">the
+first bug we observed</a> in NT 3.51 and NT 4.0.
+</p>
+
+<p>
+The fix - at the time - was to create this mutex with a wide-open DACL
+that allowed anybody to access it, but it seems that in Win2000 these
+permissions have been tightened up. Superficially they look correct, as
+we see in this table:
+</p>
+
+<table class="standard">
+<tbody><tr>
+    <td> SYSTEM 	</td>
+    <td><tt>MUTEX_ALL_ACCESS</tt> </td>
+</tr>
+
+<tr>
+    <td> Administrators	</td>
+    <td><tt>MUTEX_ALL_ACCESS</tt> </td>
+</tr>
+
+<tr>
+    <td> Everybody      </td>
+    <td><tt>SYNCHRONIZE | READ_CONTROL | MUTEX_QUERY_STATE</tt></td>
+</tr>
+</tbody></table>
+
+<p>
+An application wishing to send debugging messages needs only the
+ability to wait for and acquire the mutex, and this is represented by
+the <b>SYNCHRONIZE</b> right. The permissions above are entirely correct
+to all all users to participate this way.
+</p>
+
+<p>
+The surprise occurs when one looks at the behavior of
+<b>
+<a href="http://msdn.microsoft.com/library/en-us/dllproc/base/createmutex.asp">CreateMutex()</a></b>
+when the object already exists. In that case, Win32 behaves as if we
+were calling:
+</p>
+
+<pre class="codeblock">OpenMutex(<span class="red"><b>MUTEX_ALL_ACCESS</b></span>, FALSE, "DBWinMutex");
+</pre>
+
+<p>
+Even though we only really need <b>SYNCHRONIZE</b> access, it presumes
+the caller wishes to do <i>everything</i> (<b>MUTEX_ALL_ACCESS</b>). Because
+non-admins do not have these rights - only the few listed above - the
+mutex cannot be opened or acquired, so <b>OutputDebugString()</b> quietly
+returns without doing anything.
+</p>
+
+<p>
+Even deciding to perform all software development as an administrator
+is not a complete fix: if there are other users (services, for instance)
+that run as non-admins, their debugging information will be lost if the
+permissions are not right.
+</p>
+
+<p>
+Our feeling is that the real fix requires that Microsoft add a
+parameter to <b>CreateMutex()</b> - the access mask to use for the implied
+<b>OpenMutex()</b> if the object already exists. Perhaps someday we'll see
+a <b>CreateMutexEx()</b>, but in the medium term we have to take another
+approach. Instead, we'll just hard-change the permissions on the object
+as it lives in memory.
+</p>
+
+<p>
+This revolves around the
+<a href="http://msdn.microsoft.com/library/en-us/security/security/setkernelobjectsecurity.asp"><b>SetKernelObjectSecurity()</b></a> call, and this fragment shows how a
+program can open the mutex and install a new DACL. This DACL remains even after
+this program exits, as long as any other programs maintain HANDLEs to it.
+</p>
+
+<pre class="codeblock">...
+// open the mutex that we're going to adjust
+HANDLE hMutex = <span class="red">OpenMutex</span>(MUTEX_ALL_ACCESS, FALSE, "DBWinMutex");
+
+// create SECURITY_DESCRIPTOR with an explicit, empty DACL
+// that allows full access to everybody
+
+SECURITY_DESCRIPTOR     sd;
+<span class="red">InitializeSecurityDescriptor</span>(&amp;sd, SECURITY_DESCRIPTOR_REVISION);
+<span class="red">SetSecurityDescriptorDacl</span>(
+        &amp;sd,            // addr of SD
+        TRUE,           // TRUE=DACL present
+        NULL,           // ... but it's empty (wide open)
+        FALSE);         // DACL explicitly set, not defaulted
+
+// plug in the new DACL
+<span class="red">SetKernelObjectSecurity</span>(hMutex, DACL_SECURITY_INFORMATION, &amp;sd);
+...
+</pre>
+
+<p>
+This approach is clearly going down the right road, but we still must
+find a place to put this logic. It would be possible to put this in a
+small program that could be run on demand, but this seems like it would
+be interruptive. Our approach has been to write a Win32 service that
+takes care of this.
+</p>
+
+<p>
+<a href="http://www.unixwiz.net/tools/dbmutex.html">Our dbmutex tool</a> performs just this
+job: it launches at system boot time, opens or creates the mutex, and
+then sets the object's security to allow wide access. It then sleeps until
+shutdown, holding the mutex open in the process. It consumes no CPU time.
+</p>
+
+<h1 id="impl"> Detailed implementation </h1>
+
+<p>
+We've spent a bunch of time with <a href="http://www.datarescue.com/idabase/">IDA Pro</a> digging into the
+Windows 2000 KERNEL32.DLL implementation, and we think we have a good
+handle on how it's working on a more precise basis. Here we present
+pseudocode (e.g., we've not compiled it) for the <b>OutputDebugString()</b>
+function, plus the function that creates the mutex.
+</p>
+
+<p>
+We are purposely skipping most of the error checking: if things go
+wrong, it frees up allocated resources and exits as if no debugger were
+available. The goal here is to show the general behavior, not a complete
+reverse engineering of the code.
+</p>
+
+<p>
+The "setup" function - whose name we have manufactured - creates the
+mutex or opens it if not already there. They go to some pains to set
+the security on the mutex object so that anybody can use it, though in
+practice we'll see that they haven't quite gotten it right.
+</p>
+
+<p>
+•
+<a href="http://www.unixwiz.net/techtips/OutputDebugString.txt">OutputDebugString.txt</a>
+</p>
+
+<h1 id="random"> Random thoughts </h1>
+
+<p>
+It might strike some that this is a security matter, but it's
+really not. Non-admin users <i>do</i> have all the rights necessary to properly
+use <b>OutputDebugString()</b>, but due to the common mistake of "asking
+for more rights than required", a legitimate request is denied for a
+question posed in the wrong form.
+</p>
+
+<p>
+But unlike most problems of this type, this is less intentional than most.
+Most mistakes are where the developer explicitly asks for too much
+(e.g., "MUTEX_ALL_ACCESS"), but this mask is <i>implied</i> by the behavior
+of <b>CreateMutex()</b>. This makes it harder to avoid without a change in
+the Win32 API.
+</p>
+
+<p> --- </p><p>
+
+</p><p>
+While picking apart <b>OutputDebugStringA()</b> in KERNEL32.DLL, it became
+apparent how a non-admin could likely cripple a system. Once the mutex
+has been acquired, an application wishing to send a debug message waits
+up to ten seconds for the DBWIN_BUFFER_READY event to become ready,
+giving up if it times out. This seems like a prudent precaution to avoid
+starvation if the debugging system is busy.
+</p>
+
+<p>
+But the earlier step, waiting for the mutex, has no such timeout. If
+any process on the system - including a non-privilged one - can open
+this mutex asking for SYNCHRONIZE rights, and just sit on it. Any other
+process attempting to acquire this mutex will be stopped dead in its
+tracks with no time limit.
+</p>
+
+<p>
+Our investigation shows that all kinds of programs send
+random bits of debugging information (for instance, the <a href="http://www.musicmatch.com/">MusicMatch Jukebox</a> has a keyboard
+hook that's very chatty), and these threads are all halted by a few lines
+of code. It won't necessarily stop the whole program - there could be
+other threads - but in practice, developers don't plan on
+<b>OutputDebugString()</b> will be a denial-of-service avenue.
+</p>
+
+<p> --- </p><p>
+
+</p><p>
+Oddly enough, we found that <b>OutputDebugString()</b> is not a native
+Unicode function. Most of the Win32 API has the "real" function to
+use Unicode (the "W" version), and they automatically convert from
+ASCII to UNICODE if the "A" version of the function is called.
+</p>
+
+<p>
+But since <b>OutputDebugString</b> ultimately passes data to the debugger
+in the memory buffer strictly as ASCII, they have inverted the usual
+A/W pairing. This suggests that for sending a quick message to a debugger even in
+a Unicode program, it can be done by calling the "A" version directly:
+</p>
+
+<pre class="codeblock">OutputDebugStringA("Got here to place X");
+</pre>
+
+<h1 id="ts">Terminal Services considerations</h1>
+
+<p>
+We've discovered that in a Terminal Services environment, debug messages
+are generally relative to the current session and capturing <u>global</u>
+debugging messages is problematic. This appears to be because the
+mutex is now session relative rather than global.
+</p>
+
+<hr>
+
+<div id="navmore">
+  <a href="http://www.unixwiz.net/techtips/index.html"> More Tech Tips </a>
+</div>
+
+</div>
+<div id="pagefooter">
+  <span class="bottomright"> </span>
+  <div class="pagefootercontent">
+    <a href="http://www.unixwiz.net/"> Home </a>
+	<span class="divbrick"> &nbsp; </span> 
+    <a href="http://www.unixwiz.net/contact.html">Stephen J. Friedl</a>
+    <span class="divbrick"> &nbsp;</span>
+    Software Consultant
+    <span class="divbrick"> &nbsp;</span>
+    Orange County, CA USA
+    <span class="divbrick"> &nbsp;</span>
+    <img src="./Understanding Win32 _OutputDebugString__files/steve-email.gif" alt="[Steve&#39;s Email]">
+<span class="divbrick"> &nbsp; </span>
+  <a href="http://unixwiz.net/techtips/techtips.rss">
+    <img src="./Understanding Win32 _OutputDebugString__files/feed-icon-14x14.png" alt="[RSS Feed available]" width="14" height="14" border="0">
+  </a>
+  </div>
+</div>
+
+</body></html>

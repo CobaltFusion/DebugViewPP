@@ -1,0 +1,665 @@
+/* $Id: //websites/unixwiz/unixwiz.net/webroot/unixwiz.css#30 $ */
+
+/* Thanks to Chris Mospaw (www.mospaw.com) for the new design;
+ * any bugs you see were introduced by Steve
+ */
+
+/* just a note for older browsers */
+#warning { display: none; }
+
+
+.right    { float: right;
+	    padding: 4px 0 4px 4px; }
+.left     { float: left;
+	    padding: 4px 4px 4px 0; }
+.centered { display: block;
+	    text-align: center;
+	    padding: 4px;
+	    margin: 0; }
+
+.cleared  { clear: both; }
+
+TABLE {
+	border-collapse: collapse;
+}
+
+HTML {
+	position: absolute;
+	background: #FBFBF2;
+	width: 100%; /* Necessary for IE 5.2 on Mac */
+}
+
+
+/* My main logo in the upper left */
+
+BODY {
+	font-family: Verdana, Tahoma, Trebuchet,
+		"Trebuchet MS", Arial, Geneva, Helvetica, sans-serif;
+	position: relative;
+	background: url(images/pageframe-right.gif) #ffffff right top repeat-y;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	width: 100%; /* Necessary for IE 5.2 on Mac */
+}
+
+#rsslogo {
+        float: left;
+}
+
+#logo IMG {
+	position: absolute;
+	top:  5px;
+	left: 5px;
+	width: 140px; height: 80px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	z-index: 1; /* makes it visible above the rest of the page */
+}
+
+/* Header Information */
+
+#pageheader {
+	width: auto;
+	right: 40px;
+	left:  0;
+	position: relative;
+	background: url(images/pageframe-left-160.gif) left top repeat-y;
+	margin: 0;
+	padding-top:     0px;
+	padding-right:  23px;
+	padding-left:  165px;
+	padding-bottom: 18px;
+	line-height: 1.4em;
+}
+
+#pageheader p {
+	margin: 0;
+	border: 0;
+	padding: 0 0 1em 0;
+}
+
+/* h1 used for the top top title of the page */
+#pageheader h1 {
+	padding: 12px 0.5em 0 0;
+	margin: 0;
+	text-align: right;
+	font-size: 150%;
+	font-weight: normal;
+}
+
+/* h2 used for the subtitle of the page (if any) */
+#pageheader h2 {
+	margin: 0;
+	padding: 0.5em 0.5em 0.5em 0;
+	font-size: 125%;
+	text-align: right;
+	border-bottom: 3px solid #F00;
+}
+
+/* Nav menu on the left */
+
+#navmenu {
+	font-size: 75%;
+	position: absolute;
+	top:  90px;
+	left: 2px;
+	width: 165px;
+	z-index: 2;
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+#navmenu ul {
+	list-style: none;
+	padding: 0;
+	margin: 0 33px 0 5px;
+	border: 0;
+}
+
+#navmenu li {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+#navmenu a {
+	background: url(images/menublock.gif) left center no-repeat;
+	display: block;
+	color: #003;
+	padding: 0;
+	text-decoration: none;
+	padding: 3px 3px 3px 12px;
+	margin: 0 3px 0 8px;
+	width: 100%;
+}
+
+#navmenu a:hover {
+	background: url(images/menuback.gif) #F00 right top repeat-y;
+	font-weight: bold;
+	color: #fff;
+	border-left:   2px solid #000;
+	border-top:    1px solid #000;
+	border-bottom: 1px solid #000;
+	margin-left: 6px;
+	padding: 2px 3px 2px 12px;
+}
+
+#postnav CENTER {
+	font-weight: bold;
+}
+
+#postnav {
+	margin: 1em;
+	background: pink;
+	margin-right: 2em;
+	padding: 4px;
+	border: black dashed 1px;
+}
+
+/* Main content */
+
+#pagecontent {
+	width: auto;
+	right: 40px;
+	left: 0;
+	position: relative;
+	background: url(images/pageframe-left-160.gif) left top repeat-y;
+	margin: 0;
+	padding-top: 1px;	 /* quirk for FF 1.0.2 */
+	padding-right: 33px;
+	padding-bottom: 1px;	 /* quirk for FF 1.0.2: if 0, leaves gap */
+	padding-left: 170px;
+	/* line-height: 1.4em; */
+}
+
+#pagecontent a         { text-decoration: none; border-bottom: 1px dotted #C77; }
+#pagecontent a:visited { text-decoration: none; border-bottom: 1px dotted #D77; }
+#pagecontent a:hover   { text-decoration: none; border-bottom: 1px solid #049;}
+
+#pagecontent p {
+	margin: 0px;
+	border: 0;
+	padding: 0 0 0.5em 0;
+}
+
+#pagecontent hr {
+	text-decoration: none;
+	color: #F00;
+	height: 0;
+	border-bottom: 2px solid #f00;
+}
+
+#pagecontent blockquote {
+	padding: 6px;
+	width: 80%;
+	text-align: left;
+	display: block;
+	margin-top: 4pt;
+}
+
+#pagecontent blockquote hr {
+	text-decoration: none;
+	color: #966;
+	height: 0;
+	border-bottom: 1px solid #966;
+}
+
+
+/* We really like our monospace to use the coolest fonts available */
+#pagecontent PRE,
+#pagecontent TT {
+    font-family: "Lucida Console", "Courier New", Courier, Aria, monospace;
+}
+
+/* top-level header: red border on top & the left */
+#pagecontent H1 {
+	font-size: 120%;
+	font-weight: normal;
+	padding-left: 8px;
+	margin-top: 16pt;
+	border-top: solid red 2px;
+	border-left: solid red 2px;
+}
+
+
+#pagecontent H2 {
+	font-size: 110%;
+	padding-left: 8px;
+	border-left: red solid 8px;
+	margin-top: 8pt;
+	margin-bottom: 6pt;
+}
+
+/* blocklabel & codeblock need the same margin-left */
+#pagecontent .blocklabel {
+	background: url(images/mglass.gif) left center no-repeat;
+	margin-left: 3em;
+	text-indent: 14px;	/* 11px = width of mglass.gif */
+	font-size: 90%;
+	border-width: 2px;
+	line-height: 1.4em;
+	margin-bottom: -0.75em;
+}
+
+/* used in (PRE class="codeblock") */
+#pagecontent .codeblock {
+	border-top: solid black 2px;
+	border-left: solid black 2px;
+	border-bottom: solid black 2px;
+        margin-left: 3em;
+	padding: 0.5em;
+        background: #FEE;
+        width: 80%;
+	font-size: 90%;
+}
+
+/* used in (PRE class="email") */
+#pagecontent .email {
+	border-top-style: solid;
+	border-bottom-style: solid;
+	border-color: #888;
+	margin-left: 3em;
+	padding: .5em;
+	background: #FEE;
+	width: 80%;
+	font-size: 90%;
+}
+
+/* table of contents at the start of a Tech Tip */
+
+#toc {
+	background: #FFE8E8;		/* pale pink */
+	border: black 2px solid;
+	margin-right: 1em;
+	float: left;
+	font-size: 80%;
+	width: 30%;
+	padding-top: 4px;
+	padding-right: 4px;
+	padding-bottom: 8px;
+}
+/* holds the title "table of contents" */
+#toc CENTER {
+	font-weight: bold;
+}
+
+/* *DEPRECATED */
+#pagecontent DIV.toc {
+	background: #FFE8E8;		/* pale pink */
+	border: black 2px solid;
+	margin-right: 8px;
+	float: left;
+	font-size: 80%;
+	width: 30%;
+	padding-top: 4px;
+	padding-right: 4px;
+	padding-bottom: 4px;
+}
+/* holds the title "table of contents" (DEPRECATED) */
+#pagecontent DIV.toc CENTER {
+	font-weight: bold;
+}
+/* used in right-aligned images */
+#pagecontent .imageright {
+	float: right;
+}
+
+/* dimensions of the little red bricks */
+#pagecontent .redbrick {
+	height: 14px;
+	width:  6px;
+}
+
+/* for DL lists representing cmdline options */
+
+#pagecontent .cmdopt DT {
+	font-family: "Lucida Console", "Courier New", Courier, Arial, monospace;
+	font-weight: bold;
+	font-size: 100%;
+	margin-left: 1em;
+	text-indent: 0.5em;
+	margin-top: 12pt;
+	border-top-style: solid;
+	border-left-style: solid;
+	border-color: red;
+	border-width: 1px;
+	background: #FFDDDD;
+	width: 33%;
+}
+#pagecontent .cmdopt DD {
+	margin-top: 6pt;
+}
+
+/* "LI" should always spaced a bit, but we do have an option for nospace */
+#pagecontent LI { margin-top: 0.5em; }
+
+#pagecontent .nospace LI { margin-top: 0; }
+
+#pagecontent .redbrick IMG {
+	height: 14px;
+	width: 6px;
+}
+
+#pagecontent .reddot IMG {
+	height: 6px;
+	width:  6px;
+}
+
+#pagecontent .smiley IMG {
+	height: 15px;
+	width:  15px;
+}
+
+#pagecontent .required IMG {
+	height: 16px;
+	width:  29px;
+}
+
+/* dotted boxes at the start of the document: "work in progress",
+ * "warnings" or "this is obsolete".
+ */
+#pagecontent .obsolete,
+#pagecontent .warning,
+#pagecontent .wip,
+#pagecontent .topnote {
+	border: dashed black 2px;
+	padding: 4px;
+	margin-left: 5em;
+	margin-bottom: 1em;
+	width: 75%;
+	background: #FAAFBE;	/* pink */
+	padding: 8px;
+	font-size: 100%;
+}
+
+/* a DL with dotted-line left decorations */
+#pagecontent DL.defnlist {
+	margin-left: 0.5em;
+}
+#pagecontent .defnlist DT {
+	font-weight: bold;
+	border-left: red dotted 5px;
+	padding-left: 8px;	/* between border & text */
+	margin-top: 6pt;
+}
+#pagecontent .defnlist DD {
+	margin-left: 2em;
+	margin-top: 6pt;
+}
+
+
+/* standard information tables: mainly includes just
+ * spacing
+ */
+
+#pagecontent TABLE.standard {
+        margin-left:   2em;
+        border: solid black 1px;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+#pagecontent .standard TH,
+#pagecontent .standard TD {
+        border: solid black 1px;
+        padding: 6px;
+}
+#pagecontent .standard TD {
+        vertical-align: top;
+}
+#pagecontent .standard TH {
+        background: #FAAFBE;	/* pink */
+}
+#pagecontent .standard CAPTION {
+        font-weight: bold;
+        margin-bottom: 0.5em;
+}
+
+/* inline image, ala <blockquote> */
+#pagecontent IMG.leftImage {
+        margin-left: 2em;
+}
+
+#pagecontent IMG.floatRight,
+#pagecontent IMG.floatRightTop {
+        float: right;
+        border: 0;
+        margin: 1em 0 1em 1em;
+}
+
+#pagecontent IMG.floatRightTop {
+        margin-top: 0;
+}
+
+#pagecontent IMG.floatLeft {
+        float: left;
+	/* top right bottom left */
+        margin: 4px 0 4px 0;
+}
+
+#pagecontent IMG.floatFarLeft {
+        float: left;
+	/* top right bottom left */
+        margin: 4px 2em 4px 2px;
+}
+
+/* used by the @NAV{} business */
+
+#navmore {
+	margin-top: 2em;
+	margin-bottom: 1em;
+}
+
+#navmore A {
+	display: inline;
+	background: #FAAFBE;	/* pink */
+	padding: 0.5em 1em 0.5em 1em;
+	border: dashed black 1px;
+}
+
+/* MVP logo requires 1/2 of height spacing on all sides */
+#logogroup IMG {
+	margin: 36px;
+}
+
+/* PAGEFOOTER BELOW CONTENT AREA */
+
+#pagefooter {
+   /*	position: relative; */
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: url(images/pageframe-b-left-160.gif)
+		#FBFBF2
+		no-repeat
+		left top;
+}
+
+#pagefooter .bottomright {
+	position: relative;
+	font-size: 1px; color: #FBFBF2;
+	background:
+		url(images/pageframe-b-right.gif)
+		no-repeat
+		top
+		right;
+	float: right;
+	height: 17px;
+	width: 56px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+#pagefooter .pagefootercontent {
+	padding-top:    18px;
+	padding-bottom: 38px;
+	padding-left:  197px;
+	margin: 0;
+	font-size: .75em;
+	color: #A6857E;
+	text-align: center;
+}
+
+#pagefooter .pagefootercontent IMG {
+	vertical-align: middle;
+}
+
+#pagefooter .pagefootercontent a {
+	color: #89B; text-decoration: none;
+}
+
+#pagefooter .pagefootercontent a:hover {
+	color: #A6857E;
+	text-decoration: underline;
+}
+
+#pagefooter .divbrick {
+	border-left: solid red 0.5em;
+	margin-left: 0.25em;
+}
+
+#pagecontent .funicon {
+	vertical-align: middle;
+}
+
+/* used for (a href="...." class="mirror")M(/a) */
+#pagecontent .mirror {
+	font-size: 50%;
+	background: pink;
+	padding-left: 2px;
+	padding-right: 2px;
+	border: black solid 1px;
+}
+
+/* for prety quoted text */
+#pagecontent DIV.quote {
+        margin-top: 0.25em;
+        margin-left: 0.5in;
+        font-size: 75%;
+        width: 75%;
+}
+#pagecontent DIV.qbody {
+        margin-left: 0.5in;
+        margin-top: 2px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+	padding-left: 1em;
+	padding-right: 1em;
+        border-top: red 2px solid;
+        border-bottom: red 2px solid;
+        margin-bottom: 0.5em;
+        width: 75%;
+	background: #FFEEEE;
+}
+#pagecontent DIV.qbody LI { margin-top: 0; }
+#pagecontent DIV.qbody UL,
+#pagecontent DIV.qbody OL {
+        margin-bottom: 2px;
+        margin-top: 2px;
+}
+
+/* Sidebars are getting quite popular, but note
+ * that they are not always DIV: we also use a
+ * TABLE for a sidebar */
+#pagecontent .sidebar,
+#pagecontent .smallsidebar {
+        background: #FFE8E8;
+        float: right;
+        font-size: 90%;
+        border: 2px black solid;
+        padding: 4px;
+        margin:  4px;
+	width: 25%;
+}
+#pagecontent .sidebar {
+        width: 30%;
+}
+#pagecontent .smallsidebar CENTER,
+#pagecontent .sidebar CENTER {
+        font-weight: bold;
+        font-size: 110%;
+}
+
+#pagecontent .sidebar A {
+	font-size: 90%;
+}
+
+/*
+ * PRINTING STYLESHEET: turn off the fancy nav stuff that
+ * doesn't look right.
+ */
+
+@media print {
+	HTML          { background: none; }
+	BODY          { background: none; font-size: 10pt; }
+	#pageheader   { background: none; }
+	#pagecontent  { background: none; }
+	#pagefooter   { background: none; }
+	#pagefooter
+         .bottomright { display: none;    }
+	#navmenu      { display: none;    }
+
+	/* the "Other Tech Tips" doesn't display at all */
+	#navmore      { display: none;    }
+
+	#logo {
+		padding-right: 2em;
+	}
+
+	#pageheader {
+		border: none;
+	}
+
+	#pageheader h1,
+	#pageheader h2 {
+		padding-right: 0;
+		margin-right: 0;
+	}
+
+	#pageheader h2 {
+		border-bottom: none;
+	}
+
+	#pagecontent {
+		right: 0;
+		border-top:    black solid 2px;
+		border-bottom: black solid 2px;
+		padding-top: 1em;
+		padding-left: 0;
+		padding-right: 0;
+		padding-bottom: 0;
+	}
+
+	#pagefooter .menublock {
+		border-left-color: black;
+	}
+
+	#pagefooter {
+		border-top: none;
+	}
+
+	#pagefooter .pagefootercontent {
+		color: black;
+		padding-left: 0;
+		text-align: left;
+		font-size: 100%;
+	}
+
+	/* don't need to colorize URLs */
+	#pagefooter .pagefootercontent a,
+	#pagecontent                   a {
+		color: black;
+		border-bottom: 1px dotted black;
+	}
+
+	/* no red lines when printing */
+	#pagecontent h1 {
+		border-color: black;
+	}
+}
