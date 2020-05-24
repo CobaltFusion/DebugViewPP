@@ -85,6 +85,7 @@ public:
     PipeReader* AddPipeReader(DWORD pid, HANDLE hPipe);
     TestSource* AddTestSource(); // for unittesting
     void AddMessage(const std::string& message);
+    void AddMessage(DWORD pid, const std::string& processName, const std::string& message);
     boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
 private:

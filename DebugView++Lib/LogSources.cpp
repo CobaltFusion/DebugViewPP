@@ -73,6 +73,12 @@ void LogSources::AddMessage(const std::string& message)
     m_throttledUpdate();
 }
 
+void LogSources::AddMessage(DWORD pid, const std::string& processName, const std::string& message)
+{
+    m_loopback->Add(pid, processName, message);
+    m_throttledUpdate();
+}
+
 void LogSources::UpdateSettings(const std::unique_ptr<LogSource>& pSource)
 {
     pSource->SetAutoNewLine(GetAutoNewLine());

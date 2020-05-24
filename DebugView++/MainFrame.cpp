@@ -147,6 +147,11 @@ BEGIN_MSG_MAP2(CMainFrame)
     NOTIFY_CODE_HANDLER_EX(CTCN_CLOSE, OnCloseTab)
     NOTIFY_CODE_HANDLER_EX(CTCN_DELETEITEM, OnDeleteTab)
 
+    if (uMsg == EM_REPLACESEL)
+    {
+        m_logSources.AddMessage(wParam, "SendMessage", Str(reinterpret_cast<wchar_t*>(lParam)));
+    }
+
     // forward WM_COMMANDs directly to the active LogView, otherwise TabbedFrame forwards WM_COMMANDs to the Splitter
     // which has FORWARD_NOTIFICATIONS() and sends it back the the CMainFrame causing an infinite loop
     if (uMsg == WM_COMMAND)
@@ -614,8 +619,7 @@ LRESULT CMainFrame::OnSystemTrayIcon(UINT /*unused*/, WPARAM /*unused*/, LPARAM 
     switch (lParam)
     {
     case WM_LBUTTONDBLCLK: SendMessage(WM_COMMAND, SC_RESTORE); break;
-    case WM_RBUTTONUP:
-    {
+    case WM_RBUTTONUP: {
         SetForegroundWindow(m_hWnd);
         CMenuHandle menu = GetSystemMenu(0);
         menu.EnableMenuItem(SC_RESTORE, MF_BYCOMMAND | MF_ENABLED);

@@ -130,6 +130,19 @@ void SocketTest()
     OutputDebugStringA("1010101010");
 }
 
+void SendMessageTestNotepad(std::string msg)
+{
+    HWND notepad = FindWindowA(NULL, "Untitled - Notepad");
+    HWND edit = FindWindowExA(notepad, NULL, "EDIT", NULL);
+    SendMessageA(edit, EM_REPLACESEL, TRUE, (LPARAM)msg.data());
+}
+
+void SendMessageDebugViewpp(std::string msg)
+{
+    HWND debugviewpp = FindWindowA(NULL, "[Capture Win32] - DebugView++");
+    SendMessageA(debugviewpp, EM_REPLACESEL, GetCurrentProcessId(), (LPARAM)msg.data());
+}
+
 void DbgMsgClearTest()
 {
     char buffer[200];
@@ -175,7 +188,7 @@ void testLongString()
     OutputDebugStringA(test.c_str());
 }
 
-void Output(const std::string& filename)
+std::vector<std::string> GetFileContent(const std::string& filename)
 {
     std::fstream fs;
     fs.open(filename, std::fstream::in);
@@ -183,7 +196,7 @@ void Output(const std::string& filename)
     if (!fs)
     {
         std::cout << "\"" << filename << "\" not found!\n";
-        return;
+        return {};
     }
 
     std::cout << "Reading " << filename << "...\n";
@@ -192,7 +205,12 @@ void Output(const std::string& filename)
     while (getline(fs, line))
         lines.push_back(line);
     fs.close();
+    return lines;
+}
 
+void TestODS(const std::string& filename)
+{
+    auto lines = GetFileContent(filename);
     std::cout << "writing... " << lines.size() << " lines\n";
     Timer timer;
     auto t1 = timer.now();
@@ -202,6 +220,20 @@ void Output(const std::string& filename)
     }
     auto elepsed = timer.now() - t1;
     std::cout << "OutputDebugStringA " << lines.size() << " lines, took: " << static_cast<int>(Timer::ToMs(elepsed)) << " ms\n";
+}
+
+void TestSendMessage(const std::string& filename)
+{
+    auto lines = GetFileContent(filename);
+    std::cout << "writing... " << lines.size() << " lines\n";
+    Timer timer;
+    auto t1 = timer.now();
+    for (const auto& s : lines)
+    {
+        SendMessageDebugViewpp(s);
+    }
+    auto elepsed = timer.now() - t1;
+    std::cout << "SendMessage " << lines.size() << " lines, took: " << static_cast<int>(Timer::ToMs(elepsed)) << " ms\n";
 }
 
 void EndlessTest()
@@ -346,14 +378,19 @@ int Main(int argc, char* argv[])
         std::string arg(argv[i]);
         if (arg == "-1")
         {
-            Output("titan_crash_debugview_43mb.log");
+            TestODS("titan_crash_debugview_43mb.log");
+            return 0;
+        }
+        if (arg == "-1n")
+        {
+            TestSendMessage("titan_crash_debugview_43mb.log");
             return 0;
         }
         else if (arg == "-2")
         {
             if (i + 1 < argc)
             {
-                Output(argv[i + 1]);
+                TestODS(argv[i + 1]);
             }
             else
             {
@@ -470,8 +507,8 @@ int Main(int argc, char* argv[])
         }
         else if (arg == "-b")
         {
-            OutputDebugStringA("test long string with enough chars to present small string optimizations (SSO)\n"); // 79 chars + '\n' + '0';
-            OutputDebugStringA("test long string with enough chars to present small string optimizations (SSO)\n"); // 79 chars + '\n' + '0';
+            OutputDebugStringA("test long string with enough chars to exceed small string optimizations (SSO)\n"); // 79 chars + '\n' + '0';
+            OutputDebugStringA("test long string with enough chars to exceed small string optimizations (SSO)\n"); // 79 chars + '\n' + '0';
             return 0;
         }
         else if (arg == "-c")
@@ -480,9 +517,15 @@ int Main(int argc, char* argv[])
             OutputDebugStringW(L"some \u4E2D\u6587 and more \u4E2D\u6587\u4FE1\u606F\n"); // ????
             return 0;
         }
+        else if (arg == "-no")
+        {
+            TestSendMessage("test long string with enough chars to exceed small string optimizations (SSO)\n");
+            TestSendMessage("test long string with enough chars to exceed small string optimizations (SSO)\n");
+            return 0;
+        }
         else
         {
-            Output(arg);
+            TestODS(arg);
             return 0;
         }
     }
@@ -493,7 +536,8 @@ int Main(int argc, char* argv[])
 } // namespace DbgMsgSrc
 } // namespace fusion
 
-int main(int argc, char* argv[]) try
+int main(int argc, char* argv[])
+try
 {
     return fusion::DbgMsgSrc::Main(argc, argv);
 }
