@@ -285,7 +285,7 @@ class ScopedCursor : noncopyable
 {
 public:
     explicit ScopedCursor(HCURSOR hCursor);
-    ScopedCursor(ScopedCursor&& sc);
+    ScopedCursor(ScopedCursor&& sc) noexcept;
     ~ScopedCursor();
 
 private:

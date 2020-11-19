@@ -149,7 +149,7 @@ BEGIN_MSG_MAP2(CMainFrame)
 
     if (uMsg == EM_REPLACESEL)
     {
-        m_logSources.AddMessage(wParam, "SendMessage", Str(reinterpret_cast<wchar_t*>(lParam)));
+        m_logSources.AddMessage(static_cast<DWORD>(wParam), "SendMessage", Str(reinterpret_cast<wchar_t*>(lParam)));
     }
 
     // forward WM_COMMANDs directly to the active LogView, otherwise TabbedFrame forwards WM_COMMANDs to the Splitter

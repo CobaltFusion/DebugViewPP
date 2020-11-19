@@ -477,7 +477,7 @@ ScopedCursor::ScopedCursor(HCURSOR hCursor) :
 {
 }
 
-ScopedCursor::ScopedCursor(ScopedCursor&& sc) :
+ScopedCursor::ScopedCursor(ScopedCursor&& sc) noexcept :
     m_hCursor(sc.m_hCursor)
 {
     sc.m_hCursor = nullptr;
