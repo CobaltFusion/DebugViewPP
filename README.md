@@ -253,6 +253,11 @@ Since we use ATL and support Windows XP still some extra installation options ar
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
  decompress the archive and you're done (add zip.exe to the path)
 
+# VS2019 
+
+There are [known issues](https://twitter.com/janwilmans/status/1369956897726599176?s=20) with compilation using Visual Studio 2019 16.10.x (preview at March 11, 2021).
+Know good combinations are Boost 1.69 + Visual studio 2019 16.9.1. (I have seen problems with Asio in Boost 1.72 + Visual studio 2019 16.9.1 and Boost 1.72 + Visual studio 2019 16.10.x)
+
 -= Cobalt Fusion =-
 
 Jan Wilmans
