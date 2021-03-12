@@ -191,7 +191,15 @@ void Executor::Add(std::function<void()> fn)
 
 void Executor::Synchronize()
 {
-    Call([] {});
+    assert(!IsExecutorThread() && "Calling Synchronize() inside Call() will cause a deadlock");
+    SynchronizeInternally();
+}
+
+void Executor::SynchronizeInternally()
+{
+    std::promise<bool> sync;
+    Add([&sync]() { sync.set_value(true); });
+    sync.get_future().get();
 }
 
 ScheduledCall TimedExecutor::CallAt(const TimePoint& at, std::function<void()> fn)

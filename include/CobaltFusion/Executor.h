@@ -104,7 +104,7 @@ public:
     template <typename Fn>
     auto Call(Fn fn)
     {
-        assert(!IsExecutorThread());
+        assert(!IsExecutorThread() && "Calling Call() inside Call() will cause a deadlock");
         std::packaged_task<decltype(fn())()> task(fn);
         Add([&task]() { task(); });
         return task.get_future().get();
@@ -126,6 +126,7 @@ public:
     void Synchronize();
 
 protected:
+    void SynchronizeInternally();
     void SetExecutorThread();
     void SetExecutorThread(std::thread::id id);
     void Add(std::function<void()> fn);
@@ -138,7 +139,7 @@ protected:
 
 private:
     SynchronizedQueue<std::function<void()>> m_q;
-    std::thread::id m_threadId;
+    std::atomic<std::thread::id> m_threadId;
 };
 
 class TimedExecutor : private ExecutorBase,
