@@ -1,0 +1,92 @@
+@startuml
+
+class LogSource {
+  ILineBuffer
+  m_timer 
+}
+
+class ProcessReader
+{
+  PipeReader m_stdout
+  PipeReader m_stderr
+}
+
+class LogSources
+{
+  AddMessage(const std::string& message);
+}
+
+class CMainFrame
+{
+  LogSources m_logSources;
+}
+
+class CLogView
+{
+  deque<LogLine> m_logLines
+}
+
+class CLogViewTabItem
+{
+  std::shared_ptr<CLogView> m_pView;
+}
+
+class CLogViewTabItem2
+{
+  std::shared_ptr<CLogView> m_pView; 
+  CHorSplitterWindow m_split;
+  CMyPaneContainer m_top;
+  CMyPaneContainer m_bottom;
+  gdi::CTimelineView m_timelineView;
+  ViewPort m_viewPort;
+}
+
+CCustomTabItem <|-- CTabViewTabItem
+CTabViewTabItem <|-- CLogViewTabItem
+CTabViewTabItem <|--- CLogViewTabItem2
+
+CTabbedFrameImpl <|-- CMainFrame 
+CMainFrame --> LogSources
+CMainFrame -> CLogView
+'CLogView -> CLogViewTabItem
+CLogView -> CLogViewTabItem2
+LogSources --> LogSource
+
+CLogViewTabItem2 -->  CTimelineView
+
+class CTimelineView
+{
+  +PaintScale()
+  +PaintCursors()
+  +PaintTimelines()
+}
+
+class TimelineDC
+{
+  DrawTextOut()
+  DrawPolygon()
+  DrawTimeline()
+  DrawSolidFlag()
+  DrawFlag()
+}
+
+CTimelineView -> Line
+Line -> Artifact
+CTimelineView --> TimelineDC
+
+
+LogSource <|--- Loopback
+LogSource <|--- TestSource
+LogSource <|--- PolledLogSource
+LogSource <|--- SocketReader
+LogSource <|-- DBWinReader
+LogSource <|-- FileReader
+LogSource <|-- BinaryFileReader
+
+PolledLogSource <|-- PipeReader
+PolledLogSource <|-- DbgviewReader
+PolledLogSource <|-- ProcessReader
+
+CListViewCtrl <|-- CLogView
+
+@enduml

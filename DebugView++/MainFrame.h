@@ -32,7 +32,6 @@ using ATL::CString;
 #include "DebugView++Lib/LineBuffer.h"
 #include "DebugView++Lib/LogSources.h"
 #include "DebugView++Lib/FileWriter.h"
-#include "DebugView++Lib/CTimelineView.h"
 #include "CLogViewTabItem2.h"
 #include "FindDlg.h"
 #include "RunDlg.h"
