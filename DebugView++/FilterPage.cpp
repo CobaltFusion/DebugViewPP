@@ -49,6 +49,7 @@ bool SupportsColor(FilterType::type filterType)
     switch (filterType)
     {
     case FilterType::Exclude:
+    case FilterType::Include:
         return false;
     default:
         return true;

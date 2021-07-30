@@ -2107,7 +2107,6 @@ bool FilterSupportsColor(FilterType::type value)
 {
     switch (value)
     {
-    case FilterType::Include:
     case FilterType::Highlight:
     case FilterType::Track:
     case FilterType::Stop:
