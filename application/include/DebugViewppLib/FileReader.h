@@ -30,6 +30,7 @@ public:
     HANDLE GetHandle() const override;
     void Notify() override;
     void PreProcess(Line& line) const override;
+    virtual bool GetAutoNewLine() const override;
 
 protected:
     virtual void AddLine(const std::string& line);

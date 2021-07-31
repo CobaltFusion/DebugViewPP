@@ -43,6 +43,11 @@ void FileReader::Abort()
     }
 }
 
+bool FileReader::GetAutoNewLine() const
+{
+    return true;
+}
+
 void FileReader::PollThread()
 {
     // FILE_NOTIFY_CHANGE_SIZE is broken on windows vista and above in that it does not
