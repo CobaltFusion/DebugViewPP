@@ -90,6 +90,7 @@ public:
     void Load(const std::wstring& fileName, bool keeptailing);
     void Load(HANDLE hFile);
     void Load(std::istream& file, const std::string& name, FILETIME fileTime);
+    void SetSelectTabByName(const std::wstring tabName);
     void CapturePipe(HANDLE hPipe);
     void FindNext(const std::wstring& text);
     void FindPrevious(const std::wstring& text);

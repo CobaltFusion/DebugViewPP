@@ -131,6 +131,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 
     auto args = Win32::GetCommandLineArguments();
     std::wstring fileName;
+    std::wstring selectTabName;
 
     for (size_t i = 1; i < args.size(); ++i)
     {
@@ -142,6 +143,10 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
         {
             //wndMain.SetLogging();        // todo: implement: FileWriter needs to concurrently access m_logfile, it now causes a crash if DbgMsgSrc -1 is run
             // this should be replaced by the new streaming-to-disk feature we discussed.
+        }
+        else if (boost::icontains(args[i], L"/tab:"))
+        {
+            selectTabName = args[i].substr(std::wstring(L"/tabs:").length() - 1, args[i].length());
         }
         else if (args[i][0] != '/')
         {
@@ -175,7 +180,10 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
     {
         wndMain.CapturePipe(hPipe);
     }
-
+    if (!selectTabName.empty())
+    {
+        wndMain.SetSelectTabByName(selectTabName);
+    }
     return theLoop.Run();
 }
 
