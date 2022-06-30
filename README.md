@@ -1,4 +1,7 @@
-Cobalt Fusion presents:
+-- Notice:
+
+* I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
+* 2022 update: I'm going to re-vamp the project structure soon, updating libraries and visual studio version, fix the CI builds and do some bugfixes, be on the lookout for updates.
 
 Debugview++, currently at v1.8
 ------------------------------
