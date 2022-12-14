@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <cassert>
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/GuiExecutor.h"

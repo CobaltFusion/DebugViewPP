@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/hstream.h"

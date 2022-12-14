@@ -5,7 +5,11 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
+
+#include "winsock2.h"
+#include "windows.h"
+
 #include "Win32/Win32Lib.h"
 #include "Win32/Socket.h"
 

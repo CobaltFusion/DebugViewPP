@@ -5,13 +5,17 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 
 #include <algorithm>
 #include <filesystem>
+#include <optional>
+#include <iostream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/stringbuilder.h"
@@ -27,6 +31,7 @@
 #include "DebugView++Lib/FileReader.h"
 #include "DebugView++Lib/FileIO.h"
 #include "DebugView++Lib/LogFilter.h"
+
 #include "resource.h"
 #include "RunDlg.h"
 #include "HistoryDlg.h"
@@ -36,7 +41,6 @@
 #include "FileOptionDlg.h"
 #include "LogView.h"
 #include "MainFrame.h"
-#include <iostream>
 
 namespace fusion {
 namespace debugviewpp {
@@ -961,7 +965,7 @@ struct View
     bool clockTime;
     bool processColors;
     LogFilter filters;
-    boost::optional<boost::property_tree::ptree> columnsPt;
+    std::optional<boost::property_tree::ptree> columnsPt;
 };
 
 struct SourceInfoHelper

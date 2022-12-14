@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugView++Lib/LogSource.h"
 #include "DebugView++Lib/ProcessInfo.h"

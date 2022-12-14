@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include "windows.h"
 
 #pragma warning(disable : 4702 4389) //ignore signed/unsigned comparision and unreachable code in boost/test

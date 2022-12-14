@@ -6,7 +6,7 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ini_parser.hpp>

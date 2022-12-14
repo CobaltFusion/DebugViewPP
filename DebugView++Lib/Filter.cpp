@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <boost/algorithm/string/case_conv.hpp>
 #include "Win32/Registry.h"
 #include "CobaltFusion/stringbuilder.h"

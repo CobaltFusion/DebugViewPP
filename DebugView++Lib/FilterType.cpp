@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <cassert>
 #include <stdexcept>
 #include "DebugView++Lib/FilterType.h"

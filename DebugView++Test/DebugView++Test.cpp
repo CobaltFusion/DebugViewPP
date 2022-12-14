@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 
 #define BOOST_TEST_MODULE DebugView++ Lib Unit Test
 

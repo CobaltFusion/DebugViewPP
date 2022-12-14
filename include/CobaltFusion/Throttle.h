@@ -9,7 +9,7 @@
 
 #include <chrono>
 #include <functional>
-#include "boost/optional.hpp"
+#include <optional>
 #include "CobaltFusion/ExecutorClient.h"
 
 namespace fusion {

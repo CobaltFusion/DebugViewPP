@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include "CLogViewTabItem2.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"

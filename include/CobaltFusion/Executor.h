@@ -7,12 +7,14 @@
 
 #pragma once
 
+#include "CobaltFusion/SynchronizedQueue.h"
+
+#include <cassert>
 #include <memory>
 #include <functional>
 #include <thread>
 #include <future>
 #include <chrono>
-#include "CobaltFusion/SynchronizedQueue.h"
 
 namespace fusion {
 

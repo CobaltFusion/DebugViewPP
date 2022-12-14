@@ -3,6 +3,8 @@
 * I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
 * 2022 update: I'm going to re-vamp the project structure soon, updating libraries and visual studio version, fix the CI builds and do some bugfixes, be on the lookout for updates.
 
+* nuget.exe can be downloaded from https://www.nuget.org/downloads
+
 Debugview++, currently at v1.8
 ------------------------------
 <a href="https://twitter.com/intent/follow?screen_name=janwilmans">

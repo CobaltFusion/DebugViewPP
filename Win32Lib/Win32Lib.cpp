@@ -5,7 +5,10 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
+
+#include "Win32/Win32Lib.h"
+
 #include <vector>
 #include <cassert>
 #include <iostream>
@@ -15,8 +18,6 @@
 #include "comdef.h"
 #include <clocale>
 #include <cstdlib>
-
-#include "Win32/Win32Lib.h"
 
 #ifdef DACL_MODIFY
 #include <AccCtrl.h>

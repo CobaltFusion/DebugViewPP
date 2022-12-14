@@ -1,7 +1,7 @@
 // PropertyControlTest.cpp : main source file for PropertyControlTest.exe
 //
 
-#include "stdafx.h"
+// #include "stdafx.h"
 
 #include <atlframe.h>
 #include <atlctrls.h>

@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <chrono>
 #include "CobaltFusion/Throttle.h"
 #include "CobaltFusion/stringbuilder.h"

@@ -5,7 +5,7 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include "DebugView++Lib/DBWinBuffer.h"
 #include "DebugView++Lib/DBWinReader.h"
 #include "DebugView++Lib/ProcessInfo.h"

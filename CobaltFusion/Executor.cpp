@@ -5,13 +5,15 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
-#include "stdafx.h"
+// #include "stdafx.h"
+
+#include "CobaltFusion/Executor.h"
+#include "CobaltFusion/dbgstream.h"
+
 #include <cassert>
 #include <algorithm>
 #include <atomic>
 #include <utility>
-#include "CobaltFusion/Executor.h"
-#include "CobaltFusion/dbgstream.h"
 
 namespace fusion {
 
