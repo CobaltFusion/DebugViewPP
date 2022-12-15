@@ -21,11 +21,7 @@ target_include_directories(nuget_boost_test INTERFACE "${NUGET_PACKAGES_PATH}/bo
 target_link_directories(nuget_boost_test INTERFACE "${NUGET_PACKAGES_PATH}/boost_unit_test_framework-vc143.1.80.0/lib/native")
 add_library(nuget::boost_test ALIAS nuget_boost_test)
 
-
-add_library(nuget_snappy
-	"${NUGET_PACKAGES_PATH}/Snappy.1.1.1.7/lib/native/src/snappy-single-file.cpp"
-)
-
+add_library(nuget_snappy "${NUGET_PACKAGES_PATH}/Snappy.1.1.1.7/lib/native/src/snappy-single-file.cpp")
 target_compile_definitions(nuget_snappy PUBLIC SNAPPY_STATIC)
 target_include_directories(nuget_snappy PUBLIC "${NUGET_PACKAGES_PATH}/Snappy.1.1.1.7/lib/native/include")
 add_library(nuget::snappy ALIAS nuget_snappy)
