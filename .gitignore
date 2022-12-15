@@ -1,7 +1,7 @@
 Debug/
 Release/
 ipch/
-packages/
+nuget/packages/
 *.vcxproj.user
 *.opensdf
 *.sdf
@@ -18,3 +18,5 @@ bin
 /VsSDK.props
 *.user
 .vs/
+build/
+out/

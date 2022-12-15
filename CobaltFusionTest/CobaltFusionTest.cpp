@@ -3,9 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Repository at: https://github.com/djeedjay/DebugViewPP/
-
-// #include "stdafx.h"
 #include "windows.h"
 
 #pragma warning(disable : 4702 4389) //ignore signed/unsigned comparision and unreachable code in boost/test

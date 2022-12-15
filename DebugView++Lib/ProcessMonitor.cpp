@@ -3,9 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Repository at: https://github.com/djeedjay/DebugViewPP/
-
-// #include "stdafx.h"
 #include <array>
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/ProcessMonitor.h"

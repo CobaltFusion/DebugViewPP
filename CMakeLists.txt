@@ -11,7 +11,10 @@ project(
   LANGUAGES CXX C
 )
 
-enable_testing() 
+enable_testing()
+
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+include(CMakeLists.nuget)
 
 add_library(project_definitions INTERFACE)
 add_library(project_compile_features INTERFACE)
@@ -35,30 +38,6 @@ add_library(project::compile_features ALIAS project_compile_features)
 add_library(project::compile_options ALIAS project_compile_options)
 add_library(project::gui_link_options ALIAS msvc_gui_link_options)
 add_library(project::console_link_options ALIAS msvc_console_link_options)
-
-add_library(nuget_boost INTERFACE)
-target_include_directories(nuget_boost INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost.1.80.0/lib/native/include")
-target_link_directories(nuget_boost INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost_date_time-vc143.1.80.0/lib/native")
-target_link_directories(nuget_boost INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost_regex-vc143.1.80.0/lib/native")
-target_link_directories(nuget_boost INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost_system-vc143.1.80.0/lib/native")
-add_library(nuget::boost ALIAS nuget_boost)
-
-add_library(nuget_boost_test INTERFACE)
-target_include_directories(nuget_boost_test INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost.1.80.0/lib/native/include")
-target_link_directories(nuget_boost_test INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost_unit_test_framework-vc143.1.80.0/lib/native")
-add_library(nuget::boost_test ALIAS nuget_boost_test)
-
-add_library(nuget_snappy
-	"${CMAKE_CURRENT_SOURCE_DIR}/packages/Snappy.1.1.1.7/lib/native/src/snappy-single-file.cpp"
-)
-
-target_compile_definitions(nuget_snappy PUBLIC SNAPPY_STATIC)
-target_include_directories(nuget_snappy PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/packages/Snappy.1.1.1.7/lib/native/include")
-add_library(nuget::snappy ALIAS nuget_snappy)
-
-add_library(nuget_wtl INTERFACE)
-target_include_directories(nuget_wtl INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/wtl.10.0.10320/lib/native/include")
-add_library(nuget::wtl ALIAS nuget_wtl)
 
 add_subdirectory(CobaltFusion)
 add_subdirectory(CobaltFusionTest)

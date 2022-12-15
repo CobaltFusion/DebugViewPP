@@ -31,7 +31,6 @@ add_library(${PROJECT_NAME}
     ProcessReader.cpp
     SocketReader.cpp
     SourceType.cpp
-    stdafx.cpp
     TestSource.cpp
     TimelineDC.cpp
     VectorLineBuffer.cpp

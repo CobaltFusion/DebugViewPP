@@ -3,9 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Repository at: https://github.com/djeedjay/DebugViewPP/
-
-// #include "stdafx.h"
 #define BOOST_TEST_NO_GUI_INIT
 #include <boost/test/unit_test_gui.hpp>
 #include "CobaltFusion/GuiExecutor.h"

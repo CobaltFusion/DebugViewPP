@@ -3,9 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Repository at: https://github.com/djeedjay/DebugViewPP/
-
-// #include "stdafx.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -98,7 +95,7 @@ std::wstring FormatDuration(double seconds)
         return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
     }
 
-    static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
+    static const wchar_t* units[] = {L"s", L"ms", L"ï¿½s", L"ns", nullptr};
     const wchar_t** unit = units;
     while (*unit != nullptr && seconds > 0 && seconds < 1)
     {

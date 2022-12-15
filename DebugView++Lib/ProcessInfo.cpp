@@ -3,9 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Repository at: https://github.com/djeedjay/DebugViewPP/
-
-// #include "stdafx.h"
 
 #include "DebugView++Lib/ProcessInfo.h"
 #include "CobaltFusion/Str.h"
