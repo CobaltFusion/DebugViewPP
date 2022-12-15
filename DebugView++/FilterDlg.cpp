@@ -6,16 +6,22 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 // #include "stdafx.h"
-#include <boost/algorithm/string.hpp>
-#include <utility>
-#include <atlstr.h>
+
+#include "FilterDlg.h"
+
+#include "atleverything.h"
+
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/fusionassert.h"
 #include "Win32/Utilities.h"
 #include "CobaltFusion/Str.h"
 #include "DebugView++Lib/LogFilter.h"
 #include "resource.h"
-#include "FilterDlg.h"
+
+#include <boost/algorithm/string.hpp>
+
+#include <utility>
+#include <atlstr.h>
 
 namespace fusion {
 namespace debugviewpp {
@@ -334,7 +340,7 @@ void CFilterDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
     catch (std::regex_error& ex)
     {
         SelectTab(static_cast<int>(pPage == &m_processPage));
-        MessageBox(WStr(L"Regular expression syntax error: " + GetRegexErrorDescription(ex.code())), win32::LoadString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
+        MessageBox(WStr(L"Regular expression syntax error: " + GetRegexErrorDescription(ex.code())), win32::LoadWString(IDR_APPNAME).c_str(), MB_ICONERROR | MB_OK);
         pPage->ShowError();
         return;
     }

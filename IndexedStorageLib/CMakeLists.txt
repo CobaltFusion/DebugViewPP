@@ -1,12 +1,13 @@
 project(IndexedStorageLib)
 
 add_library(${PROJECT_NAME} IndexedStorage.cpp)
-add_library(dv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+add_library(dv::indexedstorage ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        project_definitions
-        project_compile_features
+        project::definitions
+        project::compile_features
+        project::compile_options
         nuget::snappy
         dv::win32
 )

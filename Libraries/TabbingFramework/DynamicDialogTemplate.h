@@ -58,9 +58,9 @@ public:
 class CDynamicDialogTemplate
 {
 protected:
-	HGLOBAL this->m_hDialogTemplateMemory;
-	size_t this->m_bytesAllocated;
-	size_t this->m_bytesUsed;
+	HGLOBAL m_hDialogTemplateMemory;
+	size_t m_bytesAllocated;
+	size_t m_bytesUsed;
 
 protected:
 	enum
@@ -477,7 +477,7 @@ template <class T, class TBase = ATL::CWindow, class TDynamicDialogTemplate = CD
 class ATL_NO_VTABLE CDynamicDialogImpl : public ATL::CDialogImplBaseT<TBase>
 {
 protected:
-	TDynamicDialogTemplate this->m_dynamicDialogTemplate;
+	TDynamicDialogTemplate m_dynamicDialogTemplate;
 
 	// Overrideables
 public:
@@ -486,7 +486,7 @@ public:
 
 public:
 #ifdef _DEBUG
-	bool this->m_bModal;
+	bool m_bModal;
 	CDynamicDialogImpl() :
 		m_bModal(false) {}
 #endif //_DEBUG

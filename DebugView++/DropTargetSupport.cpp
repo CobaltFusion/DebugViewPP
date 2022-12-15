@@ -9,6 +9,8 @@
 #include "DropTargetSupport.h"
 #include "CobaltFusion/Str.h"
 
+#include "shellapi.h"
+
 namespace fusion {
 namespace debugviewpp {
 

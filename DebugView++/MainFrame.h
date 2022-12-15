@@ -9,8 +9,8 @@
 
 #include <memory>
 
-#include "atlgdix.h"
-#include "atlcoll.h"
+#include "atleverything.h"
+
 namespace WTL {
 using ATL::CString;
 }

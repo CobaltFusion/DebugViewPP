@@ -5,9 +5,9 @@ add_library(dv::cobaltfusion ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        project_definitions
-        project_compile_features
-        project_compile_options
+        project::definitions
+        project::compile_features
+        project::compile_options
         nuget::boost
         dv::win32
 )

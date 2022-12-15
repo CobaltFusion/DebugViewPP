@@ -4,11 +4,11 @@ add_executable(${PROJECT_NAME} CobaltFusionTest.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 	PRIVATE
-		CobaltFusion
-		project_definitions
-		project_compile_features
-		project_compile_options
+        project::definitions
+        project::compile_features
+        project::compile_options
 		nuget::boost_test
+		CobaltFusion
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

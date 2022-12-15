@@ -12,7 +12,7 @@
 namespace fusion {
 namespace win32 {
 
-std::wstring LoadString(int id);
+std::wstring LoadWString(int id);
 
 static const int False = 0;
 static const int True = 1;

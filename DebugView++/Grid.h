@@ -7,13 +7,16 @@
 
 #pragma once
 
-#include <string>
+#include "atleverything.h"
 
 #pragma warning(push, 3)
 #pragma warning(disable : 4838)
 #include "PropertyGrid.h"
 #include "PropertyColorItem.h"
 #pragma warning(pop)
+
+#include <string>
+
 
 namespace fusion {
 namespace debugviewpp {

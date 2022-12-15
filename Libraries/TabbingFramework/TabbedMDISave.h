@@ -50,6 +50,10 @@
 
 #pragma once
 
+#include "atlbase.h"
+#include "atlapp.h"
+#include "atlframe.h"
+
 #if _WTL_VER < 0x0710
 #error TabbedMDISave.h requires WTL 7.1 or higher
 #endif

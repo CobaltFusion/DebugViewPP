@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <atlbase.h>
 #include <atlcom.h>
 #include <boost/signals2/signal.hpp>
 

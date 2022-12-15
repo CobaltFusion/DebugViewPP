@@ -7,10 +7,13 @@
 
 #pragma once
 
-#include <vector>
 #include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/LogSource.h"
 #include "resource.h"
+
+#include <vector>
+
+#include "atleverything.h"
 
 namespace fusion {
 namespace debugviewpp {

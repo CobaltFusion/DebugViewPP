@@ -7,9 +7,12 @@
 
 #pragma once
 
-#include <string>
 #include "CobaltFusion/AtlWinExt.h"
 #include "resource.h"
+
+#include "atleverything.h"
+
+#include <string>
 
 namespace fusion {
 namespace debugviewpp {

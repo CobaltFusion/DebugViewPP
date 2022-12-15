@@ -10,6 +10,8 @@
 #include <streambuf>
 #include <vector>
 
+#include "windows.h"
+
 namespace fusion {
 
 template <class Elem, class Tr = std::char_traits<Elem>, class Alloc = std::allocator<Elem>>

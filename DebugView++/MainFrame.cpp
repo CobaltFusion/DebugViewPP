@@ -12,6 +12,7 @@
 #include <optional>
 #include <iostream>
 
+#include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -965,7 +966,7 @@ struct View
     bool clockTime;
     bool processColors;
     LogFilter filters;
-    std::optional<boost::property_tree::ptree> columnsPt;
+    boost::optional<boost::property_tree::ptree> columnsPt;
 };
 
 struct SourceInfoHelper

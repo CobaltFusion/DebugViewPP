@@ -7,6 +7,24 @@
 
 #pragma once
 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlwin.h>
+#include <atlcrack.h>
+#include <atlframe.h>
+#include <atlsplit.h>
+#include <atlctrls.h>
+#include <atlctrlx.h>
+#include <atlctrlw.h>
+#include <atldlgs.h>
+#include <atlmisc.h>
+#include <atlstr.h>
+#include "atlgdi.h"
+#include "atlgdix.h"
+#include "atlcoll.h"
+
+#include "windows.h"
+
 #include "PropertyList.h"
 #include "PropertyTree.h"
 #include "PropertyGrid.h"

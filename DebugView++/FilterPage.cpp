@@ -6,13 +6,17 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 // #include "stdafx.h"
+
+#include "FilterPage.h"
+
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/fusionassert.h"
 #include "CobaltFusion/Str.h"
 #include "Win32/Utilities.h"
 #include "resource.h"
-#include "FilterPage.h"
+
+#include "CommCtrl.h"
 
 #include <memory>
 

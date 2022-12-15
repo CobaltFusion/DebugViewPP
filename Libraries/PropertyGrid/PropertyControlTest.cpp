@@ -3,16 +3,19 @@
 
 // #include "stdafx.h"
 
+
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlwin.h>
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
 #include <atlctrlw.h>
 
-#include "resource.h"
-
-#include "maindlg.h"
-
 CAppModule _Module;
+
+#include "resource.h"
+#include "maindlg.h"
 
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*lpstrCmdLine*/, int /*nCmdShow*/)

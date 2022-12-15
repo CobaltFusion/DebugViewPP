@@ -10,6 +10,7 @@
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"
 #include "LogView.h"
+
 #include <chrono>
 #include <algorithm>
 #include <iostream>

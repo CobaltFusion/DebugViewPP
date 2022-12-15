@@ -12,6 +12,8 @@
 #include "version.h"
 #include "AboutDlg.h"
 
+#include <array>
+
 namespace fusion {
 namespace debugviewpp {
 

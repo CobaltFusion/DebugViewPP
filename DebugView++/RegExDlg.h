@@ -10,6 +10,8 @@
 #include "CobaltFusion/AtlWinExt.h"
 #include "resource.h"
 
+#include "atleverything.h"
+
 namespace fusion {
 namespace debugviewpp {
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 project(
   debugviewpp
@@ -16,17 +16,25 @@ enable_testing()
 add_library(project_definitions INTERFACE)
 add_library(project_compile_features INTERFACE)
 add_library(project_compile_options INTERFACE)
-#add_library(project_link_options INTERFACE)
+add_library(msvc_gui_link_options INTERFACE)
+add_library(msvc_console_link_options INTERFACE)
 
-target_compile_features(project_compile_features INTERFACE cxx_constexpr cxx_auto_type cxx_final cxx_std_20)
+target_compile_features(project_compile_features INTERFACE cxx_constexpr cxx_auto_type cxx_final cxx_std_17)
 target_compile_definitions(project_definitions
 	INTERFACE
-	UNICODE _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN WIN32 WIN64
+	UNICODE _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN
+	WIN32 WIN64 "_WIN32_WINNT=0x0601"
 	_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
-target_compile_options(project_compile_options INTERFACE /utf-8)
+target_compile_options(project_compile_options INTERFACE /utf-8 /permissive)
+target_link_options(msvc_gui_link_options INTERFACE /SUBSYSTEM:WINDOWS /NOLOGO)
+target_link_options(msvc_console_link_options INTERFACE /SUBSYSTEM:CONSOLE /NOLOGO)
 
-#target_link_directories(project_link_options INTERFACE )
+add_library(project::definitions ALIAS project_definitions)
+add_library(project::compile_features ALIAS project_compile_features)
+add_library(project::compile_options ALIAS project_compile_options)
+add_library(project::gui_link_options ALIAS msvc_gui_link_options)
+add_library(project::console_link_options ALIAS msvc_console_link_options)
 
 add_library(nuget_boost INTERFACE)
 target_include_directories(nuget_boost INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/boost.1.80.0/lib/native/include")
@@ -52,15 +60,16 @@ add_library(nuget_wtl INTERFACE)
 target_include_directories(nuget_wtl INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/packages/wtl.10.0.10320/lib/native/include")
 add_library(nuget::wtl ALIAS nuget_wtl)
 
-#add_subdirectory(DebugView++)
 add_subdirectory(CobaltFusion)
 add_subdirectory(CobaltFusionTest)
 add_subdirectory(DbgMsgSrc)
+add_subdirectory(DebugView++)
 add_subdirectory(DebugView++Lib)
 #add_subdirectory(DebugView++Test)
 #add_subdirectory(DebugViewConsole)
 #add_subdirectory(GDIGraphicsPOC)
 add_subdirectory(IndexedStorageLib)
-#add_subdirectory(libsnappy)
 add_subdirectory(Win32Lib)
+add_subdirectory(Libraries)
 
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Debugviewpp)

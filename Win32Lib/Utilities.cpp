@@ -13,7 +13,7 @@
 namespace fusion {
 namespace win32 {
 
-std::wstring LoadString(int id)
+std::wstring LoadWString(int id)
 {
     CString cs;
     if (cs.LoadString(id) == 0)

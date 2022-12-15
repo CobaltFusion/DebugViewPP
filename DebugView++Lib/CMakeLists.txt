@@ -34,14 +34,16 @@ add_library(${PROJECT_NAME}
     stdafx.cpp
     TestSource.cpp
     TimelineDC.cpp
+    VectorLineBuffer.cpp
 )
 
 add_library(dv::library ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        project_definitions
-        project_compile_features
+        project::definitions
+        project::compile_features
+        project::compile_options
         nuget::boost
         nuget::wtl
         dv::cobaltfusion

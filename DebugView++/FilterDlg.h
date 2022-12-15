@@ -7,13 +7,16 @@
 
 #pragma once
 
-#include <vector>
-#include "CobaltFusion/AtlWinExt.h"
 #include "FilterPage.h"
 #include "PropertyColorItem.h"
 #include "RegExDlg.h"
 #include "resource.h"
 #include "Filter.h"
+
+#include "CobaltFusion/AtlWinExt.h"
+#include "atleverything.h"
+
+#include <vector>
 
 namespace fusion {
 namespace debugviewpp {

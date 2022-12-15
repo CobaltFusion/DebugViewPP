@@ -7,14 +7,18 @@
 
 #pragma once
 
-#include <regex>
-#include <vector>
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/AtlWinExt.h"
 #include "DebugView++Lib/FilterType.h"
 #include "DebugView++Lib/Filter.h"
 #include "Grid.h"
 #include "resource.h"
+
+#include "atleverything.h"
+#include "CommCtrl.h"
+
+#include <regex>
+#include <vector>
 
 namespace fusion {
 namespace debugviewpp {
