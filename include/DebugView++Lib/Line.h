@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "windows.h"
+
 namespace fusion {
 namespace debugviewpp {
 

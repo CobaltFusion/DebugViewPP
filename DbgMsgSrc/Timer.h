@@ -2,7 +2,6 @@
 
 #include <mutex>
 #include <chrono>
-#include <windows.h>
 
 class Timer
 {

@@ -24,10 +24,11 @@
 
 #pragma once
 
+#include <sstream>
+#include <fstream>
 #include <streambuf>
 #include <string>
 
-#define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
 namespace dbgstream {

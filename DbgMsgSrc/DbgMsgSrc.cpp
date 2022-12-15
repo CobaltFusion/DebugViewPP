@@ -5,18 +5,22 @@
 
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
+#include "dbgstream.h"
+#include "Win32/Win32Lib.h"
+#include "Timer.h"
+
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <vector>
+
 #include <windows.h>
 #include <WinSock.h>
 #include <psapi.h>
 #include <sys/timeb.h>
-#include "Win32/Win32Lib.h"
-#include "dbgstream.h"
-#include "Timer.h"
+
+#include "shellapi.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "psapi.lib")

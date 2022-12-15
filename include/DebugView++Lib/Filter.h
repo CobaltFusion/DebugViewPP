@@ -7,12 +7,15 @@
 
 #pragma once
 
+#include "MatchType.h"
+#include "FilterType.h"
+
+#include "atlbase.h"
+
 #include <string>
 #include <regex>
 #include <vector>
 #include <unordered_map>
-#include "MatchType.h"
-#include "FilterType.h"
 
 #pragma comment(lib, "DebugView++Lib.lib")
 

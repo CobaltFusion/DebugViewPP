@@ -7,7 +7,8 @@ target_link_libraries(${PROJECT_NAME}
 		CobaltFusion
 		project_definitions
 		project_compile_features
-		nuget_boost_test
+		project_compile_options
+		nuget::boost_test
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

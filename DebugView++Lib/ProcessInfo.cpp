@@ -6,14 +6,18 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 // #include "stdafx.h"
-#include <cassert>
-#include <array>
-#include <psapi.h>
+
+#include "DebugView++Lib/ProcessInfo.h"
 #include "CobaltFusion/Str.h"
 #include "Win32/Win32Lib.h"
 #include "DebugView++Lib/Conversions.h"
 #include "DebugView++Lib/Colors.h"
-#include "DebugView++Lib/ProcessInfo.h"
+
+#include <cassert>
+#include <array>
+
+#include "windows.h"
+#include <psapi.h>
 
 #pragma comment(lib, "psapi.lib")
 

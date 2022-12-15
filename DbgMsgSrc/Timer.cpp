@@ -1,6 +1,9 @@
+#include "Timer.h"
+
 #include <stdexcept>
 #include <chrono>
-#include "Timer.h"
+
+#include "windows.h"
 
 #define MICROSECONDS (1e6 / li.QuadPart)
 

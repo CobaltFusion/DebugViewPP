@@ -10,6 +10,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "windows.h"
+
 #pragma comment(lib, "DebugView++Lib.lib")
 
 namespace fusion {

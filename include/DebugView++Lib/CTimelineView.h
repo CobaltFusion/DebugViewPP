@@ -7,9 +7,16 @@
 
 #pragma once
 
-#include "windows.h"
+#include "DebugView++Lib/TimelineDC.h"
+#include "CobaltFusion/Math.h"
+
 #include <string>
 #include <vector>
+#include <memory>
+#include <functional>
+
+#include "windows.h"
+
 #include "atlapp.h"
 #include "atlgdi.h"
 #include "atlframe.h"
@@ -17,10 +24,6 @@
 #include "atlctrls.h"
 #include "atlmisc.h"
 #include "atlscrl.h"
-#include "DebugView++Lib/TimelineDC.h"
-#include "CobaltFusion/Math.h"
-#include <memory>
-#include <functional>
 
 namespace fusion {
 namespace gdi {

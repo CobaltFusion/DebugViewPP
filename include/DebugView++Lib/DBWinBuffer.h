@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "windows.h"
+
 namespace fusion {
 namespace debugviewpp {
 

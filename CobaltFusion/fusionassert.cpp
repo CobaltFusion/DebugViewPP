@@ -6,11 +6,14 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 // #include "stdafx.h"
-#include <string>
-#include "Win32/Win32Lib.h"
-#include "CobaltFusion/stringbuilder.h"
+
 #include "CobaltFusion/fusionassert.h"
+#include "CobaltFusion/stringbuilder.h"
+#include "Win32/Win32Lib.h"
+
 #include <boost/algorithm/string.hpp>
+
+#include <string>
 
 namespace fusion {
 

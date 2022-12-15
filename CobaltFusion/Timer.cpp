@@ -6,8 +6,11 @@
 // Repository at: https://github.com/djeedjay/DebugViewPP/
 
 // #include "stdafx.h"
-#include <stdexcept>
 #include "CobaltFusion/Timer.h"
+
+#include <stdexcept>
+
+#include "windows.h"
 
 namespace fusion {
 
