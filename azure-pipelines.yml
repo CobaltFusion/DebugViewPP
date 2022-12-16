@@ -10,27 +10,21 @@ pool:
   vmImage: 'windows-2022'
 
 variables:
-  solution: 'DebugView++.sln'
+  solution: 'vs2022\DebugViewpp.sln'
   buildPlatform: 'x64'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 steps:
 - checkout: self
-  submodules: true
   
-- task: NuGetToolInstaller@0
-
-- task: NuGetCommand@2
+- task: CMake@1
   inputs:
-    restoreSolution: '$(solution)'
+    cmakeArgs: '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=Release -G Ninja -B build .'
 
-- task: VSBuild@1
+- task: CMake@1
   inputs:
-    platform: 'x64'
-    solution: '$(solution)'
-    configuration: '$(buildConfiguration)'
-    msbuildArgs: '-m /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+    cmakeArgs: '--build build'
 
 - task: VSTest@2
   inputs:
