@@ -1,7 +1,7 @@
 -- Notice:
 
 * I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
-* 2022 update: I'm going to re-vamp the project structure soon, updating libraries and visual studio version, fix the CI builds and do some bugfixes, be on the lookout for updates.
+* 2022 update: The project was migrated to VS2022 and boost 1.80, WindowsXP (32 bit) support was removed.
 
 * nuget.exe can be downloaded from https://www.nuget.org/downloads
 
@@ -10,6 +10,9 @@ Debugview++, currently at v1.8
 <a href="https://twitter.com/intent/follow?screen_name=janwilmans">
 <img src="https://img.shields.io/twitter/follow/janwilmans.svg?style=social&logo=twitter"
 alt="follow on Twitter"></a>
+
+<img src="https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social"
+alt="follow on Mastodon"></a>
 
 [![Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master) [![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest) [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Version 1.8.x](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/v1.8.0.44/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/tag/v1.8.0.44)
