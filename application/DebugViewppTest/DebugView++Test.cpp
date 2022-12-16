@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
     std::string dbgMsgSrc = stringbuilder() << GetExecutePath() << "\\DbgMsgSrc.exe";
     BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
     std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
-
+    std::cout << "cmd: " << cmd << "\n";
     auto executor = std::make_unique<ActiveExecutorClient>();
     Lines lines;
     {

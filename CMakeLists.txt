@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(
   debugviewpp
@@ -13,6 +13,15 @@ project(
 
 enable_testing()
 
+if(BUILD_WITH_ASAN)
+    add_compile_options(/fsanitize=address /D_DISABLE_VECTOR_ANNOTATION=0)
+    message("-- build with ASAN enabled")
+endif(BUILD_WITH_ASAN)
+
+if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(CMakeLists.nuget)
 
@@ -22,14 +31,14 @@ add_library(project_compile_options INTERFACE)
 add_library(msvc_gui_link_options INTERFACE)
 add_library(msvc_console_link_options INTERFACE)
 
-target_compile_features(project_compile_features INTERFACE cxx_constexpr cxx_auto_type cxx_final cxx_std_17)
+target_compile_features(project_compile_features INTERFACE cxx_constexpr cxx_auto_type cxx_final cxx_std_20)
 target_compile_definitions(project_definitions
 	INTERFACE
 	UNICODE _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN
 	WIN32 WIN64 "_WIN32_WINNT=0x0601"
 	_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
-target_compile_options(project_compile_options INTERFACE /utf-8 /permissive)
+target_compile_options(project_compile_options INTERFACE /utf-8)
 target_link_options(msvc_gui_link_options INTERFACE /SUBSYSTEM:WINDOWS /NOLOGO)
 target_link_options(msvc_console_link_options INTERFACE /SUBSYSTEM:CONSOLE /NOLOGO)
 
@@ -42,3 +51,15 @@ add_library(project::console_link_options ALIAS msvc_console_link_options)
 add_subdirectory(application)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Debugviewpp)
+
+# this include needs to be after all install() rules
+include(CPack)
+
+message("")
+message("configuration:        ${CMAKE_BUILD_TYPE}")
+message("will be built in:     ${CMAKE_BINARY_DIR}")
+message("CMAKE_C_COMPILER:     ${CMAKE_C_COMPILER}")
+message("CMAKE_CXX_COMPILER:   ${CMAKE_CXX_COMPILER}")
+message("will be installed in: ${CMAKE_INSTALL_PREFIX}")
+message("\n")
+

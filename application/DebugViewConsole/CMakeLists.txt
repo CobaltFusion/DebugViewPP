@@ -17,5 +17,3 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
 )
-
-add_test(${PROJECT_NAME} ${PROJECT_NAME})
