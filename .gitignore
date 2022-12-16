@@ -1,7 +1,7 @@
 Debug/
 Release/
 ipch/
-nuget/packages/
+packages/
 *.vcxproj.user
 *.opensdf
 *.sdf

@@ -1,4 +1,4 @@
-set(NUGET_SOLUTION ${CMAKE_SOURCE_DIR}/nuget/DebugViewpp-nuget.sln)
+set(NUGET_SOLUTION ${CMAKE_SOURCE_DIR}/application/nuget/DebugViewpp-nuget.sln)
 
 if (NOT EXISTS ${NUGET_SOLUTION})
 	MESSAGE(FATAL_ERROR " NUGET solution ${NUGET_SOLUTION} not found!")
@@ -6,8 +6,7 @@ else()
 	execute_process(COMMAND ${CMAKE_SOURCE_DIR}/nuget.exe restore ${NUGET_SOLUTION} COMMAND_ERROR_IS_FATAL ANY)
 endif()
 
-
-set(NUGET_PACKAGES_PATH ${CMAKE_SOURCE_DIR}/nuget/packages)
+set(NUGET_PACKAGES_PATH ${CMAKE_SOURCE_DIR}/application/nuget/packages)
 
 add_library(nuget_boost INTERFACE)
 target_include_directories(nuget_boost INTERFACE "${NUGET_PACKAGES_PATH}/boost.1.80.0/lib/native/include")

@@ -11,7 +11,7 @@ target_link_libraries(${PROJECT_NAME}
 		dv::library
 		dv::indexedstorage
 		CobaltFusion
-		docopt_s
+		docopt
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
