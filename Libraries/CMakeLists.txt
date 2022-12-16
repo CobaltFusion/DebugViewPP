@@ -1,2 +1,3 @@
+add_subdirectory(docopt)
 add_subdirectory(PropertyGrid)
 add_subdirectory(TabbingFramework)

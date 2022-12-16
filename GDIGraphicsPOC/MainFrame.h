@@ -1,15 +1,12 @@
 #pragma once
 
-// try not to use CString
-//#define _WTL_USE_CSTRING 
-
 #include <atlbase.h>       // base ATL classes
 #include <atlapp.h>        // base WTL classes
 extern CAppModule _Module; // WTL version of CComModule
 #include <atlwin.h>        // ATL GUI classes
 #include <atlframe.h>      // WTL frame window classes
-// #include <atlmisc.h>       // WTL utility classes like CString // incompatible with _WTL_USE_CSTRING + CustomTabCtrl.h 
 #include <atlcrack.h>      // WTL enhanced msg map macros
+#include <atlstr.h>
 
 // CustomTabCtrl.h prerequisites
 #include "atlctrls.h"

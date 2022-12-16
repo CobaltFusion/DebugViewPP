@@ -1,11 +1,14 @@
 #pragma once
 
+#include "resource.h"
+
 #include <atlbase.h>       // base ATL classes
 #include <atlapp.h>        // base WTL classes
 extern CAppModule _Module; // WTL version of CComModule
 #include <atlwin.h>        // ATL GUI classes
 #include <atlframe.h>      // WTL frame window classes
 #include <atlcrack.h>      // WTL enhanced msg map macros
+#include <atlstr.h> 
 
 // CustomTabCtrl.h prerequisites
 #include "atlctrls.h"

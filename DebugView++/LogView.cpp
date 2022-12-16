@@ -3,14 +3,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iomanip>
-#include <array>
-#include <regex>
-#include <unordered_set>
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <utility>
+#include "LogView.h"
+
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/dbgstream.h"
@@ -20,9 +14,18 @@
 #include "DebugView++Lib/FileIO.h"
 #include "resource.h"
 #include "MainFrame.h"
-#include "LogView.h"
 #include "RenameProcessDlg.h"
 //#include "VersionHelpers.h"  // IsWindows10OrGreater ??
+
+#include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+#include <iomanip>
+#include <array>
+#include <regex>
+#include <unordered_set>
+#include <algorithm>
+#include <utility>
 
 namespace fusion {
 namespace debugviewpp {

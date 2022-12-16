@@ -3,20 +3,20 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
-
 #pragma once
 
-#include <vector>
-#include <deque>
-
-
+#include "atlbase.h"
 #include "atlapp.h"
 #include "atlgdi.h"
 #include "atlframe.h"
 #include "atlctrls.h"
-#include "AtlWinExt.h"
 #include <atlcrack.h>
+
+#include "AtlWinExt.h"
+
+#include <vector>
+#include <deque>
+
 
 namespace fusion {
 

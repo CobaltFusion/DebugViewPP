@@ -3,13 +3,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
-
 #pragma once
 
-#include <vector>
-#include <deque>
-#include <boost/property_tree/ptree_fwd.hpp>
+#include "atleverything.h"
 #include "Win32/Window.h"
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/AtlWinExt.h"
@@ -18,6 +14,11 @@
 #include "FilterDlg.h"
 #include "DropTargetSupport.h"
 #include "Win32/Com.h"
+
+#include <boost/property_tree/ptree_fwd.hpp>
+
+#include <vector>
+#include <deque>
 
 namespace fusion {
 namespace debugviewpp {

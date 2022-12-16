@@ -10,11 +10,6 @@
 #include <memory>
 
 #include "atleverything.h"
-
-namespace WTL {
-using ATL::CString;
-}
-
 #include <atlcom.h>
 
 #pragma warning(push, 3)

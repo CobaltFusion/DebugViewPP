@@ -1,5 +1,3 @@
-// #include "stdafx.h"
-
 #include "MainFrame.h"
 #include "CMainFrame2.h"
 

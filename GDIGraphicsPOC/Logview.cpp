@@ -3,13 +3,17 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <regex>
+#include "LogView.h"
+
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/fusionassert.h"
-#include "LogView.h"
+
+#include <winbase.h>
+
 #include <atlcrack.h>
 #include <atlmisc.h>
-#include <winbase.h>
+
+#include <regex>
 
 namespace fusion {
 

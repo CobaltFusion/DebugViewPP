@@ -58,7 +58,7 @@ inline std::wstring FormatDuration(double seconds)
     if (minutes > 0)
         return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
 
-    static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
+    static const wchar_t* units[] = {L"s", L"ms", L"Âµs", L"ns", nullptr};
     const wchar_t** unit = units;
     while (*unit != nullptr && seconds > 0 && seconds < 1)
     {
@@ -89,10 +89,10 @@ public:
         return m_logview;
     }
 
-    gdi::CTimelineView& GetTimeLineView()
-    {
-        return m_timelineView;
-    }
+//    gdi::CTimelineView& GetTimeLineView()
+//    {
+//        return m_timelineView;
+//    }
 
     void DisablePaneHeader(CMyPaneContainer& panecontainer)
     {

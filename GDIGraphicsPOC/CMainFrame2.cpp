@@ -1,10 +1,8 @@
-// #include "stdafx.h"
 #include "windows.h"
-#include <string>
-
-#define WIN32_LEAN_AND_MEAN
 
 #include "CMainFrame2.h"
+
+#include <string>
 
 LRESULT fusion::CMainFrame2::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
