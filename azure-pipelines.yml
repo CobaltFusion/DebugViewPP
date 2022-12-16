@@ -20,10 +20,12 @@ steps:
   
 - task: CMake@1
   inputs:
+    workingDirectory: '.'
     cmakeArgs: '-DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=Release -G Ninja -B build .'
 
 - task: CMake@1
   inputs:
+    workingDirectory: '.'
     cmakeArgs: '--build build'
 
 - task: VSTest@2
