@@ -9,4 +9,3 @@ add_subdirectory(GDIGraphicsPOC)
 add_subdirectory(IndexedStorageLib)
 add_subdirectory(Win32Lib)
 add_subdirectory(Libraries)
-

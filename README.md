@@ -11,8 +11,7 @@ Debugview++, currently at v1.8
 <img src="https://img.shields.io/twitter/follow/janwilmans.svg?style=social&logo=twitter"
 alt="follow on Twitter"></a>
 
-<img src="https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social"
-alt="follow on Mastodon"></a>
+![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 
 [![Azure Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master) [![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest) [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/ho962elp8chrdga0/branch/develop?svg=true)](https://ci.appveyor.com/project/janwilmans/debugview/branch/develop)

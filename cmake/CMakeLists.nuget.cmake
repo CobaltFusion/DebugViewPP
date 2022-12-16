@@ -3,7 +3,7 @@ set(NUGET_SOLUTION ${CMAKE_SOURCE_DIR}/application/nuget/DebugViewpp-nuget.sln)
 if (NOT EXISTS ${NUGET_SOLUTION})
 	MESSAGE(FATAL_ERROR " NUGET solution ${NUGET_SOLUTION} not found!")
 else()
-	execute_process(COMMAND ${CMAKE_SOURCE_DIR}/nuget.exe restore ${NUGET_SOLUTION} COMMAND_ERROR_IS_FATAL ANY)
+	execute_process(COMMAND ${CMAKE_SOURCE_DIR}/utils/nuget.exe restore ${NUGET_SOLUTION} COMMAND_ERROR_IS_FATAL ANY)
 endif()
 
 set(NUGET_PACKAGES_PATH ${CMAKE_SOURCE_DIR}/application/nuget/packages)
