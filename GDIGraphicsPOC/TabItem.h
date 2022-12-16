@@ -24,8 +24,8 @@
 
 #include "AtlWinExt.h"
 
-#include "DebugView++Lib/TimelineDC.h"
-#include "DebugView++Lib/CTimelineView.h"
+#include "DebugViewppLib/TimelineDC.h"
+#include "DebugViewppLib/CTimelineView.h"
 
 namespace fusion {
 
