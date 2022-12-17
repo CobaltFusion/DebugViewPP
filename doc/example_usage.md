@@ -1,7 +1,10 @@
 
 # An {fmt} wrapper around OutputDebugString
 
-Thus makes sending formatted message much more plesant.
+This makes sending formatted message much more plesant.
+
+see: https://godbolt.org/z/75aq9Ef58
+
  
 ```
 #include <fmt/format.h>
@@ -35,6 +38,9 @@ int main()
 ```
 
 # A simple ostream wrapper
+
+see: https://godbolt.org/z/b186hx5xM
+
 ```
 #include <sstream>
 #include <ostream>
