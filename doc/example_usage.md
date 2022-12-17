@@ -33,3 +33,39 @@ int main()
     return 0;
 }
 ```
+
+# A simple ostream wrapper
+```
+#include <sstream>
+#include <ostream>
+#include <windows.h>
+ 
+class dbgview_buffer : public std::stringbuf
+{
+public:
+    ~dbgview_buffer() override {  sync(); }
+ 
+    int sync()
+    {
+        OutputDebugString(str().c_str());
+        str("");
+        return 0;
+    }
+};
+
+class dbgview_t : public std::ostream
+{
+public:
+    dbgview_t() : std::ostream(&m_buf) {}
+private:
+    dbgview_buffer m_buf;
+};
+ 
+__declspec(selectany) dbgview_t dbgview;
+
+int main()
+{
+    dbgview << "Just a message printing number " << 42;
+    return 0;
+}
+```
