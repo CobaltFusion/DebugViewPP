@@ -1,5 +1,8 @@
 
-# An {fmt} wrapper around OutputDebugString makes sending formatted message much more plesant.
+# An {fmt} wrapper around OutputDebugString
+
+Thus makes sending formatted message much more plesant.
+ 
 ```
 #include <fmt/format.h>
 
