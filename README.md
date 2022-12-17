@@ -2,7 +2,7 @@
 
 * I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
 * 2022 update: The project was migrated to VS2022 and boost 1.80, WindowsXP (32 bit) support was removed.
-
+* the OutputForwarder companinion extention for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
 * nuget.exe can be downloaded from https://www.nuget.org/downloads
 
 Debugview++, currently at v1.8
@@ -13,7 +13,8 @@ alt="follow on Twitter"></a>
 
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 
-[![Azure Build Status](https://debugview.visualstudio.com/Debugviewpp/_apis/build/status/CobaltFusion.DebugViewPP?branchName=master)](https://debugview.visualstudio.com/Debugviewpp/_build/latest?definitionId=4&branchName=master) [![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest) [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
+[![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest) 
+[![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/ho962elp8chrdga0/branch/develop?svg=true)](https://ci.appveyor.com/project/janwilmans/debugview/branch/develop)
 
 [![Version 1.8.x](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/v1.8.0.44/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/tag/v1.8.0.44)
