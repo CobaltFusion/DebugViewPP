@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="OutputForwarder2022.b4a10ab8-5a3b-47df-a851-d34dfa9af13c" Version="2.0.22" Language="en-US" Publisher="Jan Wilmans" />
+        <DisplayName>OutputForwarder2022</DisplayName>
+        <Description xml:space="preserve">This extention is a companion to DebugView++ that forwards visual studio 2022's output window to the Trace API, effectively forwarding messages from the application being debugged to DebugView++ (or similar application)</Description>
+        <GettingStartedGuide>There are no setup steps, just install and enjoy.</GettingStartedGuide>
+        <ReleaseNotes>Updated to work with VS2022</ReleaseNotes>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+    </Dependencies>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    </Assets>
+</PackageManifest>

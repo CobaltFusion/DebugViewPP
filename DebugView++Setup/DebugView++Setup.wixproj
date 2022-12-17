@@ -41,32 +41,6 @@
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DebugView++\DebugView++.vcxproj">
-      <Name>DebugView++</Name>
-      <Project>{e37ba0c9-8a2f-4f2e-bbf8-839f3429d3a7}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
-    <ProjectReference Include="..\DebugViewConsole\DebugViewConsole.vcxproj">
-      <Name>DebugViewConsole</Name>
-      <Project>{c824932a-2819-4148-b54f-214d65015c54}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
-    <ProjectReference Include="..\OutputForwarderVSIX\OutputForwarderVSIX.csproj">
-      <Name>OutputForwarderVSIX</Name>
-      <Project>{f7f5db6e-b52d-46c1-9e40-43934514aeeb}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <WixExtension Include="WixVSExtension">
       <HintPath>$(WixExtDir)\WixVSExtension.dll</HintPath>
       <Name>WixVSExtension</Name>
