@@ -1,45 +1,74 @@
-
-# An {fmt} wrapper around OutputDebugString
+## An {fmt} v7 or earlier wrapper around OutputDebugString
 
 This makes sending formatted message much more plesant.
 
-see: https://godbolt.org/z/75aq9Ef58
+see: https://godbolt.org/z/e7KraEM73
 
+Notice the example uses gcc to demonstrate because the mscv {fmt} is fixed at some higher version on compiler-explorer.
  
 ```
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 #include <sstream>
 #include <string_view>
 
-void OutputDebugString(const char * message)
-{
-    fmt::print("{}", message);
-}
-
-void DebugMessage(std::string_view message)
-{
-    OutputDebugString(message.data());
-}
+#include "windows.h"
 
 template <typename... Args>
 void DebugMessage(std::string_view format, Args &&... args)
 {
     auto formatted = fmt::vformat(format, fmt::make_args_checked<Args...>(format, std::forward<Args>(args)...));
-    OutputDebugString(formatted.data());
+    OutputDebugStringA(formatted.data());
 }
 
 int main()
 {
-    DebugMessage("test");
-    DebugMessage("[{}]", 42);
+    const int answer = 42;
+    DebugMessage("Just a message preceeded by the current thread-id\n");
+    DebugMessage("The variable '{}' contains the value '{}'.\n", "answer", answer);
     return 0;
 }
 ```
 
-# A simple ostream wrapper
+https://godbolt.org/z/49r7Ydq17
+
+## An {fmt} v8 or later wrapper around OutputDebugString
+
+see: https://godbolt.org/z/58TxqhKWP
+
+Notice that the checks of format arguments are done at compile time by `fmt::make_format_args`
+
+```
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
+
+#include <string_view>
+#include <thread>
+
+#include "windows.h"
+
+template <typename... Args>
+void DebugMessage(const char* format_string, Args &&... args)
+{
+    auto formatted = fmt::vformat(format_string, fmt::make_format_args(std::forward<Args>(args)...));
+    OutputDebugStringA(fmt::format("[tid {}] {}\n", ::GetCurrentThreadId(), formatted).data());
+}
+
+int main()
+{
+    const int answer = 42;
+    DebugMessage("Just a message preceeded by the current thread-id");
+    DebugMessage("The variable '{}' contains the value '{}'.", "answer", answer);
+    return 0;
+}
+```
+
+## A simple ostream wrapper
 
 see: https://godbolt.org/z/b186hx5xM
+
+this is old-school streaming, its slower and has no compile time checks.
 
 ```
 #include <sstream>
