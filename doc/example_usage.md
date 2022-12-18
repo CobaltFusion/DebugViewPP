@@ -5,6 +5,7 @@ This makes sending formatted message much more plesant.
 see: https://godbolt.org/z/e7KraEM73
 
 Notice the example uses gcc to demonstrate because the mscv {fmt} is fixed at some higher version on compiler-explorer.
+However the code below was checked working on vs2022.
  
 ```
 #define FMT_HEADER_ONLY
@@ -60,6 +61,34 @@ int main()
     const int answer = 42;
     DebugMessage("Just a message preceeded by the current thread-id");
     DebugMessage("The variable '{}' contains the value '{}'.", "answer", answer);
+    return 0;
+}
+```
+
+## An standard C++20 wrapper around OutputDebugString
+
+If you are on C++20, fmt is included in the standard library and you can do this.
+
+https://godbolt.org/z/hrGW3Kn5P
+
+```
+#include <format>
+#include <string_view>
+
+#include "windows.h"
+
+template <typename... Args>
+void DebugMessage(std::string_view format_string, Args &&... args)
+{
+    auto formatted = std::vformat(format_string, std::make_format_args(std::forward<Args>(args)...));
+    OutputDebugStringA(std::format("[tid {}] {}\n", ::GetCurrentThreadId(), formatted).data());
+}
+
+int main()
+{
+    const int answer = 42;
+    DebugMessage("Just a message preceeded by the current thread-id\n");
+    DebugMessage("The variable '{}' contains the value '{}'.\n", "answer", answer);
     return 0;
 }
 ```
