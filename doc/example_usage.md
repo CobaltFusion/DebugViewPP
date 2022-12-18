@@ -1,23 +1,20 @@
 ## An {fmt} v7 or earlier wrapper around OutputDebugString
 
-This makes sending formatted message much more plesant.
+This makes sending formatted message much more plesant and works on almost _any_ compiler, even with just C++11.
 
-see: https://godbolt.org/z/e7KraEM73
+see: https://godbolt.org/z/ab68shhfP
 
-Notice the example uses gcc to demonstrate because the mscv {fmt} is fixed at some higher version on compiler-explorer.
-However the code below was checked working on vs2022.
+Notice the example uses gcc4 to demonstrate because the mscv {fmt} is fixed at some higher version on compiler-explorer.
+However the code below was checked working on vs2022 and gcc 4 (which is from 2014)
  
 ```
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-#include <sstream>
-#include <string_view>
-
 #include "windows.h"
 
 template <typename... Args>
-void DebugMessage(std::string_view format, Args &&... args)
+void DebugMessage(fmt::string_view format, Args &&... args)
 {
     auto formatted = fmt::vformat(format, fmt::make_args_checked<Args...>(format, std::forward<Args>(args)...));
     OutputDebugStringA(formatted.data());
@@ -38,21 +35,19 @@ https://godbolt.org/z/49r7Ydq17
 
 see: https://godbolt.org/z/58TxqhKWP
 
-Notice that the checks of format arguments are done at compile time by `fmt::make_format_args`
+Notice that the checks of format arguments are done at compile time by `fmt::make_format_args` and because of that, you need
+a compiler with constexpr support.
 
 ```
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-#include <string_view>
-#include <thread>
-
 #include "windows.h"
 
 template <typename... Args>
-void DebugMessage(const char* format_string, Args &&... args)
+void DebugMessage(fmt::string_view format, Args &&... args)
 {
-    auto formatted = fmt::vformat(format_string, fmt::make_format_args(std::forward<Args>(args)...));
+    auto formatted = fmt::vformat(format, fmt::make_format_args(std::forward<Args>(args)...));
     OutputDebugStringA(fmt::format("[tid {}] {}\n", ::GetCurrentThreadId(), formatted).data());
 }
 
@@ -97,6 +92,7 @@ int main()
 
 see: https://godbolt.org/z/b186hx5xM
 
+If you are on an OLD compiler from before 2010, you can still do this,
 this is old-school streaming, its slower and has no compile time checks.
 
 ```
