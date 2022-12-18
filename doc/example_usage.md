@@ -63,6 +63,7 @@ int main()
 ## An standard C++20 wrapper around OutputDebugString
 
 If you are on C++20, fmt is included in the standard library and you can do this.
+This has the advantage of having no extra library dependencies and format arguments checked at compile time.
 
 https://godbolt.org/z/hrGW3Kn5P
 
