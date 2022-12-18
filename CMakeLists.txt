@@ -3,9 +3,15 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(CMakeLists.buildnumber)
+include(CMakeLists.nuget)
+
+MESSAGE("Building DebugViewpp version: ${DEBUGVIEW_VERSION}")
+
 project(
   debugviewpp
-  VERSION 0.0.1
+  VERSION ${DEBUGVIEW_VERSION}
   DESCRIPTION "DebugView++, collects, views, filters your application logs"
   HOMEPAGE_URL "https://github.com/CobaltFusion/DebugViewPP"
   LANGUAGES CXX C
@@ -23,9 +29,6 @@ if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 endif()
 
 set(PROJECT_UTILS_DIRECTORY "${PROJECT_SOURCE_DIR}/utils")
-
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-include(CMakeLists.nuget)
 
 add_library(project_definitions INTERFACE)
 add_library(project_compile_features INTERFACE)
@@ -53,9 +56,6 @@ add_library(project::console_link_options ALIAS msvc_console_link_options)
 add_subdirectory(application)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Debugviewpp)
-
-# this include needs to be after all install() rules
-include(CPack)
 
 message("")
 message("configuration:        ${CMAKE_BUILD_TYPE}")

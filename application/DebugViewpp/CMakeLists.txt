@@ -1,6 +1,6 @@
 project(Debugviewpp)
 
-add_executable(${PROJECT_NAME}
+add_executable(Debugviewpp
     AboutDlg.cpp
     CLogViewTabItem2.cpp
     DebugView++.cpp
@@ -21,7 +21,7 @@ add_executable(${PROJECT_NAME}
     DebugView++.rc
  )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(Debugviewpp
     PRIVATE
         project::definitions
         project::compile_features
@@ -38,8 +38,12 @@ target_link_libraries(${PROJECT_NAME}
         fmt::fmt
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+install(TARGETS Debugviewpp RUNTIME DESTINATION debugviewpp)
+
+target_include_directories(Debugviewpp PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
 )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND echo test ${PROJECT_UTILS_DIRECTORY}/upx.exe ${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR})
+get_property(EXE_NAME TARGET Debugviewpp PROPERTY TARGET_FILE_NAME)
+add_custom_command(TARGET Debugviewpp POST_BUILD COMMAND  ${PROJECT_UTILS_DIRECTORY}/upx.exe --best $<TARGET_FILE:Debugviewpp>)
+

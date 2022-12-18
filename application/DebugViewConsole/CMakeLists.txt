@@ -1,8 +1,8 @@
 project(DebugViewConsole)
 
-add_executable(${PROJECT_NAME} DebugViewConsole.cpp)
+add_executable(DebugViewConsole DebugViewConsole.cpp)
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(DebugViewConsole
 	PRIVATE
         project::definitions
         project::compile_features
@@ -14,6 +14,13 @@ target_link_libraries(${PROJECT_NAME}
 		docopt
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+install(TARGETS DebugViewConsole RUNTIME DESTINATION debugviewpp)
+
+target_include_directories(DebugViewConsole PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
 )
+
+get_property(EXE_NAME TARGET DebugViewConsole PROPERTY TARGET_FILE_NAME)
+add_custom_command(TARGET DebugViewConsole POST_BUILD COMMAND ${PROJECT_UTILS_DIRECTORY}/upx.exe --best $<TARGET_FILE:DebugViewConsole>)
+
+# CPACK_ARCHIVE_FILE_NAME
