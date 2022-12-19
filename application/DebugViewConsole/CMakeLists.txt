@@ -14,7 +14,7 @@ target_link_libraries(DebugViewConsole
 		docopt
 )
 
-install(TARGETS DebugViewConsole RUNTIME DESTINATION debugviewpp)
+install(TARGETS DebugViewConsole RUNTIME DESTINATION bin)
 
 target_include_directories(DebugViewConsole PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>

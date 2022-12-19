@@ -10,13 +10,9 @@ add_subdirectory(IndexedStorageLib)
 add_subdirectory(Win32Lib)
 add_subdirectory(Libraries EXCLUDE_FROM_ALL)
 
-set(CPACK_PACKAGE_CONTACT "janwilmans@gmail.com")
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME ALL)
 set(CPACK_PACKAGE_VERSION "${DEBUGVIEW_VERSION}")
-set(CPACK_DEBIAN_PACKAGE_RELEASE "December 2022")
-set(CPACK_PACKAGING_INSTALL_PREFIX "debugviewpp")
 set(CPACK_GENERATOR "ZIP")
-set(CPACK_DEB_COMPONENT_INSTALL OFF)
-set(CPACK_MONOLITHIC_INSTALL ON)
 
 # this include needs to be after all install() rules
 include(CPack)
