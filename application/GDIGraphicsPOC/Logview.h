@@ -17,7 +17,6 @@
 #include <vector>
 #include <deque>
 
-
 namespace fusion {
 
 template <typename T>

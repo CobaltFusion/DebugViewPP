@@ -3,8 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
-
 // OutputDebugString as an ostream:
 // cdbg << "Hello " << name << std::endl;
 // wcdbg << L"Hello " << wname << std::endl;
