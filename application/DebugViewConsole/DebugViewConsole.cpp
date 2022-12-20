@@ -10,7 +10,6 @@
 #include <memory>
 #include <algorithm>
 #include <boost/asio.hpp>
-#include <boost/algorithm/string.hpp>
 #include "Win32/Utilities.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/Str.h"
@@ -297,7 +296,8 @@ fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt:
     return settings;
 }
 
-int main(int argc, char* argv[]) try
+int main(int argc, char* argv[])
+try
 {
     using namespace fusion::debugviewpp;
 

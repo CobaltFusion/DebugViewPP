@@ -3,12 +3,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
 #include "CobaltFusion/fusionassert.h"
 #include "CobaltFusion/stringbuilder.h"
+#include "CobaltFusion/stringformat.h"
 #include "Win32/Win32Lib.h"
-
-#include <boost/algorithm/string.hpp>
 
 #include <string>
 
@@ -31,8 +29,7 @@ void assertmessage(const std::string& assertion, const std::string& message, con
 
 void exceptionmessage(const char* what, const char* location)
 {
-    auto trimmed = boost::trim_copy_if(std::string(what), boost::is_any_of("\r\n\t"));
-    errormessage(stringbuilder() << "Exception '" << trimmed << "' occured at " << location, "Exception occurred");
+    errormessage(stringbuilder() << "Exception '" << strip(what, "\r\n\t") << "' occured at " << location, "Exception occurred");
 }
 
 void exceptionmessage(const std::exception& ex, const char* location)

@@ -22,5 +22,3 @@ target_include_directories(DebugViewConsole PUBLIC
 
 get_property(EXE_NAME TARGET DebugViewConsole PROPERTY TARGET_FILE_NAME)
 add_custom_command(TARGET DebugViewConsole POST_BUILD COMMAND ${PROJECT_UTILS_DIRECTORY}/upx.exe --best $<TARGET_FILE:DebugViewConsole>)
-
-# CPACK_ARCHIVE_FILE_NAME

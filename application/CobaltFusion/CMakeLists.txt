@@ -1,6 +1,15 @@
 project(CobaltFusion)
 
-add_library(${PROJECT_NAME} CircularBuffer.cpp Executor.cpp ExecutorClient.cpp fusionassert.cpp GuiExecutor.cpp Throttle.cpp Timer.cpp)
+add_library(${PROJECT_NAME}
+    CircularBuffer.cpp
+    Executor.cpp
+    ExecutorClient.cpp
+    fusionassert.cpp
+    GuiExecutor.cpp
+    Throttle.cpp
+    Timer.cpp
+    stringformat.cpp
+)
 add_library(dv::cobaltfusion ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}

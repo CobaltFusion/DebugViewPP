@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <algorithm>
 
-#include <boost/asio.hpp> // must be included _before_ windows.h
 #include "windows.h"
 #include "ShellApi.h"
 
@@ -59,6 +58,3 @@ extern CAppModule _Module;
 #include <string>
 #include <vector>
 #include <sstream>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
