@@ -6,7 +6,7 @@ else()
 	execute_process(COMMAND ${CMAKE_SOURCE_DIR}/utils/nuget.exe restore ${NUGET_SOLUTION} COMMAND_ERROR_IS_FATAL ANY)
 endif()
 
-set(NUGET_PACKAGES_PATH ${CMAKE_SOURCE_DIR}/application/nuget/packages)
+set(NUGET_PACKAGES_PATH ${CMAKE_SOURCE_DIR}/application/nuget/packages CACHE PATH "Directory containing nuget packages")
 
 add_library(nuget_boost INTERFACE)
 target_include_directories(nuget_boost INTERFACE "${NUGET_PACKAGES_PATH}/boost.1.80.0/lib/native/include")
