@@ -682,12 +682,22 @@ bool CMainFrame::LoadSettings()
     DWORD cy = 0;
     CRegKey reg;
     reg.Create(HKEY_CURRENT_USER, RegistryPath);
-    if (reg.QueryDWORDValue(L"X", x) == ERROR_SUCCESS && static_cast<int>(x) >= GetSystemMetrics(SM_XVIRTUALSCREEN) &&
-        reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS && static_cast<int>(y) >= GetSystemMetrics(SM_YVIRTUALSCREEN) &&
-        reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS && static_cast<int>(x + cx) <= GetSystemMetrics(SM_XVIRTUALSCREEN) + GetSystemMetrics(SM_CXVIRTUALSCREEN) &&
-        reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS && static_cast<int>(y + cy) <= GetSystemMetrics(SM_YVIRTUALSCREEN) + GetSystemMetrics(SM_CYVIRTUALSCREEN))
+    if (reg.QueryDWORDValue(L"X", x) == ERROR_SUCCESS &&
+        reg.QueryDWORDValue(L"Y", y) == ERROR_SUCCESS &&
+        reg.QueryDWORDValue(L"Width", cx) == ERROR_SUCCESS &&
+        reg.QueryDWORDValue(L"Height", cy) == ERROR_SUCCESS)
     {
-        SetWindowPos(nullptr, x, y, cx, cy, SWP_NOZORDER);
+        WINDOWPLACEMENT placement = {0};
+        placement.length = sizeof(placement);
+
+        placement.rcNormalPosition.left = x;
+        placement.rcNormalPosition.top = y;
+        placement.rcNormalPosition.right = x + cx;
+        placement.rcNormalPosition.bottom = y + cy;
+
+        // Ignore errors, the worst that can happen is that the window doesn't
+        // appear at the correct position, but this is not the end of the world.
+        ::SetWindowPlacement(*this, &placement);
     }
 
     m_linkViews = Win32::RegGetDWORDValue(reg, L"LinkViews", 0) != 0;
