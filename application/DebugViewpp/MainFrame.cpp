@@ -695,6 +695,31 @@ bool CMainFrame::LoadSettings()
         placement.rcNormalPosition.right = x + cx;
         placement.rcNormalPosition.bottom = y + cy;
 
+        if (reg.QueryDWORDValue(L"MaxX", x) == ERROR_SUCCESS &&
+            reg.QueryDWORDValue(L"MaxY", y) == ERROR_SUCCESS)
+        {
+            placement.ptMaxPosition.x = x;
+            placement.ptMaxPosition.y = y;
+        }
+
+        // This is tricky: we should _not_ use the show command corresponding
+        // to the actual initial window state in WINDOWPLACEMENT because doing
+        // this loses the normal geometry, i.e. if we pass SW_SHOWMAXIMIZED to
+        // SetWindowPlacement(), the window appears maximized initially, but
+        // restoring it doesn't restore its previous rectangle.
+        //
+        // Instead, we always use SW_SHOWNORMAL here, but use the appropriate
+        // show command for the ShowWindow() call in Main(), as this ensures
+        // both that the window starts initially maximized, if it was closed in
+        // this state, and that it can be restored to its last normal position.
+        DWORD on = FALSE;
+        if (reg.QueryDWORDValue(L"Maximized", on) == ERROR_SUCCESS && on)
+            m_showCmd = SW_SHOWMAXIMIZED;
+        else if (reg.QueryDWORDValue(L"Minimized", on) == ERROR_SUCCESS && on)
+            m_showCmd = SW_SHOWMINIMIZED;
+
+        placement.showCmd = SW_SHOWNORMAL;
+
         // Ignore errors, the worst that can happen is that the window doesn't
         // appear at the correct position, but this is not the end of the world.
         ::SetWindowPlacement(*this, &placement);
@@ -773,6 +798,12 @@ void CMainFrame::SaveSettings()
     reg.SetDWORDValue(L"Y", placement.rcNormalPosition.top);
     reg.SetDWORDValue(L"Width", placement.rcNormalPosition.right - placement.rcNormalPosition.left);
     reg.SetDWORDValue(L"Height", placement.rcNormalPosition.bottom - placement.rcNormalPosition.top);
+
+    reg.SetDWORDValue(L"Maximized", placement.showCmd == SW_SHOWMAXIMIZED);
+    reg.SetDWORDValue(L"Minimized", placement.showCmd == SW_SHOWMINIMIZED);
+
+    reg.SetDWORDValue(L"MaxX", placement.ptMaxPosition.x);
+    reg.SetDWORDValue(L"MaxY", placement.ptMaxPosition.y);
 
     reg.SetDWORDValue(L"LinkViews", static_cast<DWORD>(m_linkViews));
     reg.SetDWORDValue(L"AutoNewLine", static_cast<DWORD>(m_logSources.GetAutoNewLine()));
