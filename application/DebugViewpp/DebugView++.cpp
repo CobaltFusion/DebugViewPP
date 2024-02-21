@@ -159,7 +159,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
         Win32::ThrowLastError(L"Main window creation failed!");
     }
 
-    wndMain.ShowWindow(cmdShow);
+    wndMain.ShowWindow(cmdShow == SW_SHOWDEFAULT ? wndMain.GetShowCommand() : cmdShow);
     if (boost::algorithm::iends_with(fileName, ".dbconf"))
     {
         wndMain.LoadConfiguration(fileName);

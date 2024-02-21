@@ -93,6 +93,10 @@ public:
     void FindPrevious(const std::wstring& text);
     void OnDropped(std::wstring uri);
 
+    // Return the command which should be used to show the window, it is
+    // restored from the registry when creating it.
+    int GetShowCommand() const { return m_showCmd; }
+
 private:
     enum
     {
@@ -218,6 +222,7 @@ private:
     Win32::JobObject m_jobs;
     Win32::Handle m_httpMonitorHandle;
     std::deque<Lines> m_incomingMessages;
+    int m_showCmd = SW_SHOWDEFAULT;
 };
 
 } // namespace debugviewpp
