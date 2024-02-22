@@ -1,4 +1,8 @@
 @echo off
+
+echo UpdateBuildNr.cmd updating %1
+echo UpdateBuildNr.cmd updating %2
+
 set file=%1
 set xmlfile=%2
 for /f "tokens=3,4,5,* delims=, " %%i in (%file%) do (
