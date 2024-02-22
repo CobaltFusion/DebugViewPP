@@ -140,7 +140,7 @@ bool AreEqual(const Message& a, const Message& b)
         return false;
     if (a.text != b.text)
         return false;
-    //if (a.color != b.color) return false;    // not stored in file
+    // if (a.color != b.color) return false;    // not stored in file
     return true;
 }
 
@@ -280,11 +280,11 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2) // test overflows boosttestui with log-out
     std::cout << "LineBufferTest2 running..." << std::endl;
     for (int j = 0; j < 100; ++j)
     {
-        //BOOST_TEST_MESSAGE("j: " << j << "\n");
+        // BOOST_TEST_MESSAGE("j: " << j << "\n");
 
         for (int i = 0; i < 17; ++i)
         {
-            //BOOST_TEST_MESSAGE("i: " << i << "\n");
+            // BOOST_TEST_MESSAGE("i: " << i << "\n");
             FILETIME ft;
             ft.dwLowDateTime = 43;
             ft.dwHighDateTime = 44;
@@ -495,19 +495,14 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
 
     std::string dbgMsgSrc = stringbuilder() << GetExecutePath() << "\\DbgMsgSrc.exe";
     BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
-    std::string cmd = stringbuilder() << "start \"\" " << dbgMsgSrc << " ";
-    std::cout << "cmd: " << cmd << "\n";
+    std::string cmd = stringbuilder() << dbgMsgSrc << " -n";
     auto executor = std::make_unique<ActiveExecutorClient>();
     Lines lines;
     {
         LogSources logsources(*executor, true);
         executor->Call([&] { logsources.SetAutoNewLine(true); });
         executor->Call([&] { logsources.AddDBWinReader(false); });
-
-        BOOST_TEST_MESSAGE("cmd: " << cmd);
-        system((cmd + "-n").c_str());
-        BOOST_TEST_MESSAGE("done.");
-        std::this_thread::sleep_for(200ms);
+        system(cmd.c_str());
         executor->Call([&] { logsources.Abort(); });
         executor->Call([&] { lines = logsources.GetLines(); });
     }
@@ -637,7 +632,7 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte)
     for (auto& line : lines)
     {
         BOOST_TEST(line.message.find("xception") == std::string::npos);
-        //std::cout << line.message << std::endl;
+        // std::cout << line.message << std::endl;
     }
     BOOST_TEST(lines.size() == 6);
     BOOST_TEST(lines.at(0).message.back() == '0'); // line ends in '...offset 0'
