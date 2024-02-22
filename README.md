@@ -5,7 +5,7 @@
 * the OutputForwarder companinion extention for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
 * nuget.exe can be downloaded from https://www.nuget.org/downloads
 
-Debugview++, currently at v1.8
+Debugview++, currently at v1.9 (2024 Update!)
 ------------------------------
 <a href="https://twitter.com/intent/follow?screen_name=janwilmans">
 <img src="https://img.shields.io/twitter/follow/janwilmans.svg?style=social&logo=twitter"
