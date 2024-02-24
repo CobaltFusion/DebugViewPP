@@ -44,6 +44,9 @@ target_include_directories(Debugviewpp PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
 )
 
-get_property(EXE_NAME TARGET Debugviewpp PROPERTY TARGET_FILE_NAME)
-add_custom_command(TARGET Debugviewpp POST_BUILD COMMAND  ${PROJECT_UTILS_DIRECTORY}/upx.exe --best $<TARGET_FILE:Debugviewpp>)
+install(CODE "
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debugviewpp.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debugviewpp-small.exe)
+  execute_process(COMMAND ${PROJECT_UTILS_DIRECTORY}/upx.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debugviewpp-small.exe)
+")
 
+INSTALL(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debugviewpp-small.exe DESTINATION bin)

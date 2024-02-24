@@ -43,9 +43,12 @@ target_compile_definitions(project_definitions
 	WIN32 WIN64 "_WIN32_WINNT=0x0601"
 	_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
-target_compile_options(project_compile_options INTERFACE /utf-8)
-target_link_options(msvc_gui_link_options INTERFACE /SUBSYSTEM:WINDOWS /NOLOGO)
-target_link_options(msvc_console_link_options INTERFACE /SUBSYSTEM:CONSOLE /NOLOGO)
+
+# /Oy and /RELEASE are added to avoid tripping malware detection
+# this is quite random, ymmv
+target_compile_options(project_compile_options INTERFACE /utf-8 /Oy)
+target_link_options(msvc_gui_link_options INTERFACE /SUBSYSTEM:WINDOWS /NOLOGO /RELEASE)
+target_link_options(msvc_console_link_options INTERFACE /SUBSYSTEM:CONSOLE /NOLOGO /RELEASE)
 
 add_library(project::definitions ALIAS project_definitions)
 add_library(project::compile_features ALIAS project_compile_features)
