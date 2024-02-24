@@ -38,7 +38,7 @@ target_link_libraries(Debugviewpp
         fmt::fmt
 )
 
-install(TARGETS Debugviewpp RUNTIME DESTINATION bin)
+install(TARGETS Debugviewpp DESTINATION bin)
 
 target_include_directories(Debugviewpp PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
