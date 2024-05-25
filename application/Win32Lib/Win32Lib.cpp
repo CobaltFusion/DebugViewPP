@@ -307,6 +307,7 @@ void DeleteObjectDACL(HANDLE hObject)
 }
 
 //add necessary permissions for "Authenticated Users" group (all non-anonymous users)
+//and for "All Application Packages", "All Restricted Application Packages" for UWP support
 void AdjustObjectDACL(HANDLE hObject)
 {
     ACL* pOldDACL;
@@ -317,20 +318,41 @@ void AdjustObjectDACL(HANDLE hObject)
     SID_IDENTIFIER_AUTHORITY authNt = SECURITY_NT_AUTHORITY;
     AllocateAndInitializeSid(&authNt, 1, SECURITY_AUTHENTICATED_USER_RID, 0, 0, 0, 0, 0, 0, 0, &pSid);
 
-    EXPLICIT_ACCESS ea = {};
-    ea.grfAccessMode = GRANT_ACCESS;
-    ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE;
-    ea.grfInheritance = NO_INHERITANCE;
-    ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-    ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-    ea.Trustee.ptstrName = static_cast<LPTSTR>(pSid);
+    PSID pAnyPackageSid = nullptr;
+    SID_IDENTIFIER_AUTHORITY SIDAuthAppPackage = SECURITY_APP_PACKAGE_AUTHORITY;
+    AllocateAndInitializeSid(&SIDAuthAppPackage, SECURITY_BUILTIN_APP_PACKAGE_RID_COUNT,
+        SECURITY_APP_PACKAGE_BASE_RID, SECURITY_BUILTIN_PACKAGE_ANY_PACKAGE,
+        0, 0, 0, 0, 0, 0,
+        &pAnyPackageSid);
+
+    PSID pAnyRestrictedPackageSid = nullptr;
+    AllocateAndInitializeSid(&SIDAuthAppPackage, SECURITY_BUILTIN_APP_PACKAGE_RID_COUNT,
+        SECURITY_APP_PACKAGE_BASE_RID, SECURITY_BUILTIN_PACKAGE_ANY_RESTRICTED_PACKAGE,
+        0, 0, 0, 0, 0, 0,
+        &pAnyRestrictedPackageSid);
+
+    EXPLICIT_ACCESS ea[3] = {};
+    for (auto& item : ea)
+    {
+        item.grfAccessMode = GRANT_ACCESS;
+        item.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE;
+        item.grfInheritance = NO_INHERITANCE;
+        item.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+        item.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+    }
+
+    ea[0].Trustee.ptstrName = static_cast<LPTSTR>(pSid);
+    ea[1].Trustee.ptstrName = static_cast<LPTSTR>(pAnyPackageSid);
+    ea[2].Trustee.ptstrName = static_cast<LPTSTR>(pAnyRestrictedPackageSid);
 
     ACL* pNewDACL = nullptr;
-    SetEntriesInAcl(1, &ea, pOldDACL, &pNewDACL);
+    SetEntriesInAcl(std::size(ea), ea, pOldDACL, &pNewDACL);
 
     Win32::SetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, pNewDACL, nullptr);
 
     FreeSid(pSid);
+    FreeSid(pAnyPackageSid);
+    FreeSid(pAnyRestrictedPackageSid);
     LocalFree(pNewDACL);
     LocalFree(pSD);
 }
