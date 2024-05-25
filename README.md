@@ -2,7 +2,7 @@
 
 * I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
 * 2022 update: The project was migrated to VS2022 and boost 1.80, WindowsXP (32 bit) support was removed.
-* the OutputForwarder companinion extention for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
+* the OutputForwarder companion extension for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
 * nuget.exe can be downloaded from https://www.nuget.org/downloads
 
 Debugview++, currently at v1.9 (2024 Update!)
@@ -70,7 +70,7 @@ New in stable version 1.8.x:
 - no other new features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
-- a gantt chart-like view, a horzontal timeline, with bars/flags/signs on it to identify events
+- a gantt chart-like view, a horizontal timeline, with bars/flags/signs on it to identify events
 - a better plugin based input system
 - transparent background streaming to disk
 - proper memory limits
@@ -109,7 +109,7 @@ And more features:
 - SAIT (search-as-I-type) + token highlighting
 - bookmarks
 - statusbar shows detailed log/view/selection information
-- open saved logs for post-mortum analysis
+- open saved logs for post-mortem analysis
 - commandline version
 - capture stdin piped messages, allows you to connect any kind of logging
 - beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
@@ -183,7 +183,7 @@ Pressing OK will open a new view without any filters.
 
 Different types of filters:
 
-All filters support regular expressions, if you are not familliar with regular expressions you can
+All filters support regular expressions, if you are not familiar with regular expressions you can
 just type any word or part of a word to match.
 
 - include: if an include filter is added only lines containing a matching expression will be included.
@@ -215,7 +215,7 @@ Other features:
 
 Consider this use case:
 
-If you want to have auto scoll on, but some high frequeny messages are annoying you, but you cannot exclude them because they help you diagnose your event when it occurs, try this:
+If you want to have auto scroll on, but some high frequency messages are annoying you, but you cannot exclude them because they help you diagnose your event when it occurs, try this:
 
 Use two views, one where the diagnostic messages are filtered and autoscroll is on, and one where the messages are included (and maybe highlighted), next turn on the 'link views' feature.
 
@@ -235,7 +235,7 @@ turned off if any other line is selected.
 
 **ClockTime**: when enabled the time is displayed as provided by the system's real-time clock (RTC). Such a timestamp has a 16ms resolution on a typical desktop PC. When disabled, time is displayed as a relative time to the first message, however this timestamp is obtained from the High-Performance Counter (HPC) which typically has a sub-microsecond resolution.
 
-The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occured, it is the time the message was received by DebugView++. Also there is no quarantee that the time between occurance and reception of messages is constant, *however* in practice this is **pretty** constant :)
+The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occurred, it is the time the message was received by DebugView++. Also there is no guarantee that the time between occurrence and reception of messages is constant, *however* in practice this is **pretty** constant :)
 
 How to build
 ------------
