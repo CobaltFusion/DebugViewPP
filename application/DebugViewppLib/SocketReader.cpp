@@ -27,7 +27,7 @@ SocketReader::SocketReader(Timer& timer, ILineBuffer& lineBuffer, int port) :
     sockaddr_in sa;
     sa.sin_family = AF_INET;
     sa.sin_addr.s_addr = htonl(INADDR_ANY);
-    sa.sin_port = htons(port);
+    sa.sin_port = htons(u_short(port));
     Win32::bind(m_socket, sa);
 }
 

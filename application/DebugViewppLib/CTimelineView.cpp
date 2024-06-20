@@ -91,28 +91,28 @@ LONG CTimelineView::GetTrackPos32(int nBar)
     return si.nTrackPos;
 }
 
-void CTimelineView::OnMouseMove(UINT nFlags, CPoint point)
+void CTimelineView::OnMouseMove(UINT /*nFlags*/, CPoint point)
 {
     m_cursorPosition = std::max(int(point.x), gdi::s_leftTextAreaBorder);
     SetFocus();
     Invalidate();
 }
 
-BOOL CTimelineView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+BOOL CTimelineView::OnMouseWheel(UINT /*nFlags*/, short zDelta, CPoint /*pt*/)
 {
     m_mouseScrollCallback(m_cursorPosition - gdi::s_leftTextAreaBorder, m_selectedPosition - gdi::s_leftTextAreaBorder, zDelta);
     Invalidate();
     return TRUE;
 }
 
-void CTimelineView::OnLButtonDown(UINT flags, CPoint point)
+void CTimelineView::OnLButtonDown(UINT /*flags*/, CPoint point)
 {
     m_selectedPosition = std::max(int(point.x), gdi::s_leftTextAreaBorder);
     SetFocus();
     Invalidate();
 }
 
-void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
+void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar /*pScrollBar*/)
 {
     if (nSBCode == SB_THUMBTRACK)
     {
@@ -122,9 +122,9 @@ void CTimelineView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar pScrollBar)
     }
 }
 
-BOOL CTimelineView::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+BOOL CTimelineView::OnInitDialog(CWindow /*wndFocus*/, LPARAM /*lInitParam*/)
 {
-    //SetScrollRange(SB_HORZ, 1, 500);    // no effect??
+    // SetScrollRange(SB_HORZ, 1, 500);    // no effect??
     return 1;
 }
 
@@ -157,7 +157,7 @@ void CTimelineView::SetMouseScrollCallback(MouseScrollCallback f)
     m_mouseScrollCallback = f;
 }
 
-TimeLines CTimelineView::Recalculate(gdi::TimelineDC& dc)
+TimeLines CTimelineView::Recalculate(gdi::TimelineDC& /*dc*/)
 {
     return m_dataProvider();
 }
@@ -174,7 +174,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
     auto x = gdi::s_leftTextAreaBorder + m_tickOffset;
     int lastX = 0;
 
-    //auto pos = m_tickOffset;
+    // auto pos = m_tickOffset;
     int majorTicks = width / m_minorTicksPerMajorTick;
     for (int i = 0; i < majorTicks; ++i)
     {
@@ -187,7 +187,7 @@ void CTimelineView::PaintScale(gdi::TimelineDC& dc)
     }
 
     x = gdi::s_leftTextAreaBorder;
-    //int minorTicks = width / m_minorTickSize;
+    // int minorTicks = width / m_minorTickSize;
     for (; x < lastX;)
     {
         dc.MoveTo(x, y);
@@ -217,14 +217,14 @@ void CTimelineView::PaintTimelines(gdi::TimelineDC& dc)
     auto rect = dc.GetClientArea();
 
     int y = topTimelinePos;
-    y += GetTrackPos32(SB_HORZ); //test
+    y += GetTrackPos32(SB_HORZ); // test
     for (const auto& line : m_timelines)
     {
         auto grey = RGB(160, 160, 170);
         dc.DrawTimeline(line->GetName(), 0, y, rect.right, grey);
         for (auto& artifact : line->GetArtifacts())
         {
-            //switch (artifact.
+            // switch (artifact.
             dc.DrawSolidFlag(L"tag", artifact.GetPosition() + gdi::s_leftTextAreaBorder, y, artifact.GetColor(), artifact.GetFillColor());
         }
         y += 25;

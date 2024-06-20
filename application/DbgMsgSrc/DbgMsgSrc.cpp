@@ -243,7 +243,7 @@ void TestSendMessage(const std::string& filename)
 
 void EndlessTest()
 {
-    int length = 40; //260
+    int length = 40; // 260
     std::ostringstream ss;
     ss << "123456:jan-7890_ABC__DEF-te m_test";
     ss << length;
@@ -254,7 +254,7 @@ void EndlessTest()
     ss << "\n";
     test = ss.str();
 
-    //testLongString();
+    // testLongString();
 
     for (;;)
     {
@@ -273,7 +273,7 @@ void EndlessTest()
             std::cout << "took: " << t2 - t1 << " ms\n";
             Sleep(50);
         }
-        //OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
+        // OutputDebugStringA("    ----> DBGVIEWCLEAR\n");
     }
 }
 
@@ -321,7 +321,7 @@ void UdpTest(const std::string& address, int port)
 
     sockaddr_in sa;
     sa.sin_family = AF_INET;
-    sa.sin_port = htons(port);
+    sa.sin_port = htons(u_short(port));
     sa.sin_addr.s_addr = inet_addr(address.c_str());
 
     std::string message = "DbgMsgSrc UDP message";
@@ -335,7 +335,7 @@ void UdpTest(const std::string& address, int port)
 void CoutCerrTest2()
 {
     std::cout << "One message on cout with newline\n";
-    //std::cerr << "One message on cerr with newline\n";
+    // std::cerr << "One message on cerr with newline\n";
 }
 
 
@@ -364,19 +364,19 @@ void PrintUsage()
                  "  -8 <frequency> DbgMsgSrc, Send OutputDebugStringA test lines with the specified frequency\n"
                  "  -9 DBGVIEWCLEAR test\n"
                  "  -A cout/cerr test\n"
-                 "  -u <address> <port> Send UDP messsages to address:port\n";
-    "  -b Send 4 lines large enough to rule out any small string optimizations (50 chars)\n";
-    "  -c Send 2 lines with utf-8 encoded unicode (chinese characters)\n";
+                 "  -u <address> <port> Send UDP messsages to address:port\n"
+                 "  -b Send 4 lines large enough to rule out any small string optimizations (50 chars)\n"
+                 "  -c Send 2 lines with utf-8 encoded unicode (chinese characters)\n";
 }
 
 int Main(int argc, char* argv[])
 {
     std::cout << "DbgMsgSrc, pid: " << GetCurrentProcessId() << std::endl;
 
-    //HANDLE handle1 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
-    //HANDLE handle2 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
-    //HANDLE handle3 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
-    //printf(" %p, %p, %p\n", handle1, handle2, handle3);
+    // HANDLE handle1 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+    // HANDLE handle2 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+    // HANDLE handle3 = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
+    // printf(" %p, %p, %p\n", handle1, handle2, handle3);
 
     for (int i = 1; i < argc; ++i)
     {
@@ -429,7 +429,7 @@ int Main(int argc, char* argv[])
         else if (arg == "-e")
         {
             std::cout << "Send empty OutputDebugStringA message (0 bytes)\n";
-            OutputDebugStringA(""); //empty message
+            OutputDebugStringA(""); // empty message
             return 0;
         }
         else if (arg == "-4")

@@ -71,7 +71,7 @@ USTimeConverter::USTimeConverter() :
 {
 }
 
-FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
+FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD /*ms*/)
 {
     if (m_firstValue)
     {
@@ -80,7 +80,7 @@ FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD ms)
         st.wHour = h;
         st.wMinute = m;
         st.wSecond = s;
-        st.wMilliseconds = 0;
+        st.wMilliseconds = 0; // todo: why is 'ms' not used?
         m_lastFileTime = Win32::SystemTimeToFileTime(st);
     }
 

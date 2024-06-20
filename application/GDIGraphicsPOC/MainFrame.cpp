@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hInstPrev*/, LPSTR /*szCmdLi
 {
     // CMainFrame is a CTabbedFrameImpl<> and does not render as intended
     // CMainFrame2 is a CFrameWindowImpl<> and _does_ render as intended
-    
+
     fusion::CMainFrame2 wndMain;
 
     // Create & show our main window
@@ -30,47 +30,46 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hInstPrev*/, LPSTR /*szCmdLi
     return msg.wParam;
 }
 
-namespace fusion
+namespace fusion {
+
+LRESULT CMainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-
-    LRESULT CMainFrame::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        DestroyWindow();
-        return 0;
-    }
-
-    LRESULT CMainFrame::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-
-    LRESULT CMainFrame::OnSize(UINT nType, CSize Extent)
-    {
-        cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
-        UpdateLayout();
-        return 1;
-    }
-
-    void CMainFrame::AddTab(const std::wstring name)
-    {
-        auto lvi = std::make_shared<CLogViewTabItem2>();
-        m_tabitems.push_back(lvi);    // InsertItem takes ownership of the raw pointer, so this is not correct 
-        lvi->SetText(name.c_str());
-        lvi->Create(*this);
-
-        int newIndex = GetTabCtrl().GetItemCount();
-        GetTabCtrl().InsertItem(newIndex, lvi.get());
-        GetTabCtrl().SetCurSel(newIndex);
-    }
-
-    LRESULT CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        CreateTabWindow(*this, CWindow::rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
-        AddTab(L"Tab1");
-        AddTab(L"Tab2");
-        ShowTabControl();
-        return 0;
-    }
-
+    DestroyWindow();
+    return 0;
 }
+
+LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+    PostQuitMessage(0);
+    return 0;
+}
+
+LRESULT CMainFrame::OnSize(UINT /*nType*/, CSize Extent)
+{
+    cdbg << "OnSize:: " << Extent.cx << ", " << Extent.cy << "\n";
+    UpdateLayout();
+    return 1;
+}
+
+void CMainFrame::AddTab(const std::wstring name)
+{
+    auto lvi = std::make_shared<CLogViewTabItem2>();
+    m_tabitems.push_back(lvi); // InsertItem takes ownership of the raw pointer, so this is not correct
+    lvi->SetText(name.c_str());
+    lvi->Create(*this);
+
+    int newIndex = GetTabCtrl().GetItemCount();
+    GetTabCtrl().InsertItem(newIndex, lvi.get());
+    GetTabCtrl().SetCurSel(newIndex);
+}
+
+LRESULT CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    CreateTabWindow(*this, CWindow::rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
+    AddTab(L"Tab1");
+    AddTab(L"Tab2");
+    ShowTabControl();
+    return 0;
+}
+
+} // namespace fusion

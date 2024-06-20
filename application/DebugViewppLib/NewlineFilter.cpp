@@ -49,7 +49,7 @@ Lines NewlineFilter::Process(const Line& line)
     return lines;
 }
 
-Lines NewlineFilter::FlushLinesFromTerminatedProcess(DWORD pid, HANDLE handle)
+Lines NewlineFilter::FlushLinesFromTerminatedProcess(DWORD pid, HANDLE /*handle*/) // todo: why is handle unused?
 {
     Lines lines;
     if (m_lineBuffers.find(pid) != m_lineBuffers.end())

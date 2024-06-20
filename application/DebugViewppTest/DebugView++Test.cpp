@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
     auto lines = buffer.GetLines();
     auto& line = lines[0];
     BOOST_TEST(line.time == 42.0);
-    BOOST_TEST(line.systemTime.dwLowDateTime == 42);
-    BOOST_TEST(line.systemTime.dwHighDateTime == 43);
+    BOOST_TEST(line.systemTime.dwLowDateTime == DWORD(42));
+    BOOST_TEST(line.systemTime.dwHighDateTime == DWORD(43));
     BOOST_TEST(buffer.Empty());
 }
 
@@ -296,8 +296,8 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2) // test overflows boosttestui with log-out
         for (auto& line : lines)
         {
             BOOST_TEST(line.time == 42.0);
-            BOOST_TEST(line.systemTime.dwLowDateTime == 43);
-            BOOST_TEST(line.systemTime.dwHighDateTime == 44);
+            BOOST_TEST(line.systemTime.dwLowDateTime == DWORD(43));
+            BOOST_TEST(line.systemTime.dwHighDateTime == DWORD(44));
         }
     }
 }
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
     size_t usedBySnappy = m2 - m1;
 
     BOOST_TEST_MESSAGE("SnappyStorage requires: " << usedBySnappy / 1024 << " kB (" << (100 * usedBySnappy) / usedByVector << "%)");
-    BOOST_TEST(0.50 * usedByVector > usedBySnappy);
+    BOOST_TEST(size_t(0.50 * usedByVector) > usedBySnappy);
 }
 
 // execute as:
@@ -611,9 +611,11 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte)
     }
     auto content = GetTestFileAsString();
 
-    std::ofstream fs;
-    fs.open(GetTestFileName(), std::ofstream::trunc);
-    fs.close();
+    {
+        std::ofstream fs;
+        fs.open(GetTestFileName(), std::ofstream::trunc);
+        fs.close();
+    }
     std::this_thread::sleep_for(100ms);
     for (char c : content)
     {
