@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hInstPrev*/, LPSTR /*szCmdLi
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-    return msg.wParam;
+    return int(msg.wParam);
 }
 
 namespace fusion {
@@ -63,7 +63,7 @@ void CMainFrame::AddTab(const std::wstring name)
     GetTabCtrl().SetCurSel(newIndex);
 }
 
-LRESULT CMainFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
     CreateTabWindow(*this, CWindow::rcDefault, CTCS_CLOSEBUTTON | CTCS_DRAGREARRANGE);
     AddTab(L"Tab1");

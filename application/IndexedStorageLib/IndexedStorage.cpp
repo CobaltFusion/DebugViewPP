@@ -44,12 +44,6 @@ void VectorStorage::shrink_to_fit()
     m_storage.shrink_to_fit();
 }
 
-SnappyStorage::SnappyStorage() :
-    m_writeBlockIndex(0),
-    m_readBlockIndex(-1)
-{
-}
-
 bool SnappyStorage::Empty() const
 {
     return m_storage.empty();
@@ -62,7 +56,7 @@ void SnappyStorage::Clear()
 
     m_readList.clear();
     m_readList.shrink_to_fit();
-    m_readBlockIndex = -1;
+    m_readBlockIndex = UNSET_VALUE;
 
     m_writeList.clear();
     m_writeList.shrink_to_fit();

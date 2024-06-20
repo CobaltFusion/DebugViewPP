@@ -88,7 +88,7 @@ void CLogView::DrawItem(CDCHandle dc, int iItem, unsigned /*iItemState*/)
     Win32::ScopedTextColor tcol(dc, txColor);
 
     std::wstring text = wstringbuilder() << iItem + 1 << L" If the logview is rendered correctly then exactly 40 lines will fit";
-    dc.DrawText(text.c_str(), text.size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+    dc.DrawText(text.c_str(), int(text.size()), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 
     if (focused)
         dc.DrawFocusRect(&rect);

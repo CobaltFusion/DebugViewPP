@@ -7,11 +7,14 @@
 
 #include <vector>
 #include <string>
+#include <limits>
 
 #pragma comment(lib, "IndexedStorageLib.lib")
 
 namespace fusion {
 namespace indexedstorage {
+
+inline constexpr size_t UNSET_VALUE = std::numeric_limits<size_t>::max();
 
 class VectorStorage
 {
@@ -30,7 +33,7 @@ private:
 class SnappyStorage
 {
 public:
-    SnappyStorage();
+    SnappyStorage() = default;
 
     [[nodiscard]] bool Empty() const;
     void Clear();
@@ -47,8 +50,8 @@ private:
     static size_t GetRelativeIndex(size_t index);
     std::string GetString(size_t index);
 
-    size_t m_writeBlockIndex;
-    size_t m_readBlockIndex;
+    size_t m_writeBlockIndex = 0;
+    size_t m_readBlockIndex = UNSET_VALUE;
     std::vector<std::string> m_readList;
     std::vector<std::string> m_writeList;
     std::vector<std::string> m_storage;
