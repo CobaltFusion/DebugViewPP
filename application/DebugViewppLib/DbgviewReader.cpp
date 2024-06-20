@@ -38,24 +38,24 @@ std::vector<unsigned char> Read(std::stringstream& is, size_t amount)
 }
 
 namespace Magic {
-const int ColumnnOneMark = 1;
-const int ColumnnTwoMark = 2;
-const int Base = 0x83050000;
-const int CaptureKernelEnable = Base + 0x00;              // 0
-const int CaptureKernelDisable = Base + 0x04;             // 1
-const int VerboseKernelMessagesEnable = Base + 0x08;      // 2    // Meaning of these 'VerboseKernel' values was never confirmed
-const int VerboseKernelMessagesDisable = Base + 0x0C;     // 3    //
-const int PassThroughDisable = Base + 0x10;               // 4
-const int PassThroughEnable = Base + 0x14;                // 5
-const int CaptureWin32Enable = Base + 0x18;               // 6
-const int CaptureWin32Disable = Base + 0x1c;              // 7
-const int Unknown3 = Base + 0x20;                         // 8
-const int RequestUnknown = Base + 0x24;                   // 9    // answer: 0x7fffffff
-const int RequestQueryPerformanceFrequency = Base + 0x28; // A
-const int Unknown4 = Base + 0x2C;
-const int Unknown5 = Base + 0x30;
-const int ForceCarriageReturnsEnable = Base + 0x34;
-const int ForceCarriageReturnsDisable = Base + 0x38;
+const DWORD ColumnnOneMark = 1;
+const DWORD ColumnnTwoMark = 2;
+const DWORD Base = 0x83050000;
+const DWORD CaptureKernelEnable = Base + 0x00;              // 0
+const DWORD CaptureKernelDisable = Base + 0x04;             // 1
+const DWORD VerboseKernelMessagesEnable = Base + 0x08;      // 2    // Meaning of these 'VerboseKernel' values was never confirmed
+const DWORD VerboseKernelMessagesDisable = Base + 0x0C;     // 3    //
+const DWORD PassThroughDisable = Base + 0x10;               // 4
+const DWORD PassThroughEnable = Base + 0x14;                // 5
+const DWORD CaptureWin32Enable = Base + 0x18;               // 6
+const DWORD CaptureWin32Disable = Base + 0x1c;              // 7
+const DWORD Unknown3 = Base + 0x20;                         // 8
+const DWORD RequestUnknown = Base + 0x24;                   // 9    // answer: 0x7fffffff
+const DWORD RequestQueryPerformanceFrequency = Base + 0x28; // A
+const DWORD Unknown4 = Base + 0x2C;
+const DWORD Unknown5 = Base + 0x30;
+const DWORD ForceCarriageReturnsEnable = Base + 0x34;
+const DWORD ForceCarriageReturnsDisable = Base + 0x38;
 } // namespace Magic
 
 template <typename T>

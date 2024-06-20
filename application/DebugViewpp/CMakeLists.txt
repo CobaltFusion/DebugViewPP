@@ -35,7 +35,6 @@ target_link_libraries(Debugviewpp
         dv::indexedstorage
         dv::library
         dv::win32
-        fmt::fmt
 )
 
 install(TARGETS Debugviewpp DESTINATION bin)
