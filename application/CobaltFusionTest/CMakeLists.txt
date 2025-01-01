@@ -1,6 +1,6 @@
 project(CobaltFusionTest)
 
-add_executable(${PROJECT_NAME} CobaltFusionTest.cpp)
+add_executable(${PROJECT_NAME} CobaltFusionTest.cpp TestExecutor.cpp TestGuiExecutor.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 	PRIVATE

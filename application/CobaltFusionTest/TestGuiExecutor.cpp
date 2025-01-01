@@ -7,6 +7,8 @@
 #include <boost/test/unit_test_gui.hpp>
 #include "CobaltFusion/GuiExecutor.h"
 
+using namespace std::chrono_literals;
+
 namespace fusion {
 
 BOOST_AUTO_TEST_SUITE(TestExecutor)
@@ -55,6 +57,58 @@ BOOST_AUTO_TEST_CASE(TestGuiExecutor)
     testThread.join();
 }
 
+void TestGuiExecutionOrderImpl(GuiExecutor& executor)
+{
+    enum class mark
+    {
+        unset,
+        scheduled_call,
+        immediate
+    };
+
+    mark task_mark = mark::unset;
+
+    auto scheduled_call = executor.CallAfter(5min, [&] { task_mark = mark::scheduled_call; });
+    executor.Call([&] { task_mark = mark::immediate; });
+    scheduled_call.Cancel();
+    BOOST_CHECK(task_mark == mark::immediate);
+}
+
+BOOST_AUTO_TEST_CASE(TestGuiExecutionOrder)
+{
+    GuiExecutor executor;
+    std::thread testThread([&executor]() { TestGuiExecutionOrderImpl(executor); });
+
+    bool elapsed = false;
+    executor.CallAfter(1s, [&executor, &elapsed]() { elapsed = true; });
+
+    GuiWaitFor([&executor, &elapsed]() { return elapsed; });
+
+    testThread.join();
+}
+
+void TestActiveExecutorOrderImpl(ActiveExecutor& executor)
+{
+    enum class mark
+    {
+        unset,
+        scheduled_call,
+        immediate
+    };
+
+    mark task_mark = mark::unset;
+
+    auto scheduled_call = executor.CallAfter(5min, [&] { task_mark = mark::scheduled_call; });
+    executor.Call([&] { task_mark = mark::immediate; });
+    scheduled_call.Cancel();
+    BOOST_CHECK(task_mark == mark::immediate);
+}
+
+BOOST_AUTO_TEST_CASE(TestActiveExecutionOrder)
+{
+    ActiveExecutor executor;
+    TestActiveExecutorOrderImpl(executor);
+}
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace fusion
