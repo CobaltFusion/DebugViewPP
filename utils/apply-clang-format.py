@@ -85,7 +85,7 @@ def main():
     if HasInvalidArgs():
         print ("Usage: " + os.path.basename(sys.argv[0]) + " <filemask> [/s] [/f]")
         print ("  note: gen\ and gen64\ directories are ignored")
-        print ("  /s = recursively process files in subdirecties");
+        print ("  /s = recursively process files in subdirectories");
         print ("  /f = actually format the selected files instead of just listing them");
         print ("")
         print ("  example: ")
