@@ -26,19 +26,19 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""atlres.h""\r\n"
     "#include ""verrsrc.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""Version.rc2""\r\n"
     "\0"
@@ -245,6 +245,12 @@ IDR_MAINFRAME           ICON                    "res\\DebugView++.ico"
 
 IDR_BOOKMARK            ICON                    "res\\Bookmark.ico"
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// RCDATA
+//
+
+IDR_DBGV_DRIVER RCDATA "res\\Dbgv.sys"
 
 /////////////////////////////////////////////////////////////////////////////
 //
