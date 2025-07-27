@@ -130,6 +130,8 @@ BEGIN_MSG_MAP2(CMainFrame)
     COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
     COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
     COMMAND_ID_HANDLER_EX(ID_LOG_KERNEL, OnLogKernel)
+    COMMAND_ID_HANDLER_EX(ID_LOG_KERNEL_VERBOSE, OnLogKernelVerbose)
+    COMMAND_ID_HANDLER_EX(ID_LOG_KERNEL_PASSTHROUGH, OnLogKernelPassThrough)
     COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
     COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
     COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
@@ -330,6 +332,10 @@ void CMainFrame::UpdateUI()
     UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
     UISetCheck(ID_LOG_GLOBAL, m_tryGlobal);
     UISetCheck(ID_LOG_KERNEL, m_tryKernel);
+    UIEnable(ID_LOG_KERNEL_VERBOSE, !!m_pKernelReader);
+    UIEnable(ID_LOG_KERNEL_PASSTHROUGH, !!m_pKernelReader);
+    UISetCheck(ID_LOG_KERNEL_VERBOSE, m_verboseKernelMessage);
+    UISetCheck(ID_LOG_KERNEL_PASSTHROUGH, m_passthroughMode);
 }
 
 std::wstring FormatDateTime(const SYSTEMTIME& systemTime)
@@ -1527,6 +1533,24 @@ void CMainFrame::OnLogKernel(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
         m_pKernelReader = nullptr;
     }
     UpdateTitle();
+}
+
+void CMainFrame::OnLogKernelVerbose(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+    m_verboseKernelMessage = !m_verboseKernelMessage;
+    if (m_pKernelReader)
+    {
+        m_pKernelReader->SetVerbose(m_verboseKernelMessage);
+    }
+}
+
+void CMainFrame::OnLogKernelPassThrough(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+    m_passthroughMode = !m_passthroughMode;
+    if (m_pKernelReader)
+    {
+        m_pKernelReader->SetPassThrough(m_passthroughMode);
+    }
 }
 
 void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

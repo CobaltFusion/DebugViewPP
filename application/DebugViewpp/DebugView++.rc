@@ -112,6 +112,8 @@ BEGIN
         MENUITEM "&Pause\tPause",               ID_LOG_PAUSE
         MENUITEM "Capture &Global Win32",       ID_LOG_GLOBAL
         MENUITEM "Capture &Kernel Messages",    ID_LOG_KERNEL
+        MENUITEM "&Verbose Kernel Messages",    ID_LOG_KERNEL_VERBOSE
+        MENUITEM "Pass-&Through mode",          ID_LOG_KERNEL_PASSTHROUGH
         MENUITEM "Connect DebugView &Agent",    ID_LOG_DEBUGVIEW_AGENT
         MENUITEM "Sources...",                  ID_LOG_SOURCES
         MENUITEM "History Size...",             ID_LOG_HISTORY
@@ -622,7 +624,9 @@ STRINGTABLE
 BEGIN
     ID_LOG_PAUSE            "Pause log recording\nPause"
     ID_LOG_GLOBAL           "Capture logs from all processes\nCapture Global Win32"
-    ID_LOG_KERNEL           "Capture logs from kerenel processes\nCapture Kernel Messages"
+    ID_LOG_KERNEL           "Capture logs from kernel processes\nCapture Kernel Messages"
+    ID_LOG_KERNEL_VERBOSE   "Enable verbose kernel messsages\nVerbose Kernel Messages"
+    ID_LOG_KERNEL_PASSTHROUGH "Enable Pass-throught mode\nPass-Through mode"
     ID_LOG_DEBUGVIEW_AGENT  "Connect DbgView Agent\nConnect DbgView Agent"
     ID_LOG_HISTORY          "Configure log file history size\nConfigure History Size"
     ID_VIEW_CLEAR           "Clear log view\nClear View"

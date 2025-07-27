@@ -25,11 +25,15 @@ public:
     void Abort() override;
     bool AtEnd() const override;
 
+    void SetVerbose(bool value);
+    void SetPassThrough(bool value);
+
 private:
     void Poll() override;
 
     void StartListening();
     void StopListening();
+    void SetKernelMessagesDriverFeature(DWORD);
 
     Win32::Handle m_handle;
     PLOG_ITEM m_pBuf;

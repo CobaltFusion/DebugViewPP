@@ -11,7 +11,9 @@ const std::string driverPath = "dbgv.sys";
 
 void InstallKernelMessagesDriver()
 {
+    // try to uninstall first, in case the driver is somehow still loaded.
     UninstallKernelMessagesDriver();
+
     SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!hSCManager) {
         std::cout << "Failed to open Service Control Manager. Error: " << GetLastError() << std::endl;
@@ -44,20 +46,23 @@ void InstallKernelMessagesDriver()
 void UninstallKernelMessagesDriver()
 {
     SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!hSCManager) {
+    if (!hSCManager)
+    {
         std::cout << "Failed to open Service Control Manager. Error: " << GetLastError() << std::endl;
+        return;
     }
 
     SC_HANDLE hService = OpenServiceA(hSCManager, DRIVER_SERVICE_NAME, DELETE);
-    if (!hService) {
+    if (!hService)
+    {
         std::cout << "Failed to open service. Error: " << GetLastError() << std::endl;
         CloseServiceHandle(hSCManager);
+        return;
     }
 
-    if (!DeleteService(hService)) {
+    if (!DeleteService(hService))
+    {
         std::cout << "Failed to delete service. Error: " << GetLastError() << std::endl;
-        CloseServiceHandle(hService);
-        CloseServiceHandle(hSCManager);
     }
     CloseServiceHandle(hService);
     CloseServiceHandle(hSCManager);

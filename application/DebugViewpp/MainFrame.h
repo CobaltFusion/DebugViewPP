@@ -62,6 +62,8 @@ public:
         UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
         UPDATE_ELEMENT(ID_LOG_KERNEL, UPDUI_MENUPOPUP)
+        UPDATE_ELEMENT(ID_LOG_KERNEL_VERBOSE, UPDUI_MENUPOPUP)
+        UPDATE_ELEMENT(ID_LOG_KERNEL_PASSTHROUGH, UPDUI_MENUPOPUP)
         UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_VIEW_SCROLL_STOP, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
@@ -177,6 +179,8 @@ private:
     void OnLogPause(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogGlobal(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogKernel(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void OnLogKernelVerbose(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void OnLogKernelPassThrough(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogHistory(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogDebugviewAgent(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewFind(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -208,8 +212,8 @@ private:
     Win32::HFont m_hFont;
     bool m_linkViews = false;
     bool m_hide = false;
-    bool m_tryGlobal;
-    bool m_tryKernel;
+    bool m_tryGlobal = false;
+    bool m_tryKernel = false;
     CRunDlg m_runDlg;
     std::wstring m_logFileName;
     std::wstring m_txtFileName;
@@ -221,6 +225,8 @@ private:
     DBWinReader* m_pLocalReader = nullptr;
     DBWinReader* m_pGlobalReader = nullptr;
     KernelReader* m_pKernelReader = nullptr;
+    bool m_verboseKernelMessage = false;
+    bool m_passthroughMode = false;
     DbgviewReader* m_pDbgviewReader = nullptr;
     std::vector<SourceInfo> m_sourceInfos;
     std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;

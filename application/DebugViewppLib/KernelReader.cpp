@@ -38,7 +38,7 @@ void KernelReader::StartListening()
     }
 
     // enable verbose kernel messages
-    bRet = DeviceIoControl(handle.get(), DBGV_ENABLE_FILTER_STATE, NULL, 0, NULL, 0, NULL, NULL);
+    bRet = DeviceIoControl(handle.get(), DBGV_SET_VERBOSE_MESSAGES, NULL, 0, NULL, 0, NULL, NULL);
     if (!bRet)
     {
         printf("DBGV_ENABLE_FILTER_STATE failed, err=%d\n", ::GetLastError());
@@ -99,6 +99,42 @@ void KernelReader::Poll()
     {
         AddMessage(0, "kernel", pNextItem->strData);
         pNextItem = (PLOG_ITEM)((char*)pNextItem + sizeof(LOG_ITEM) + (strlen(pNextItem->strData) + 4) / 4 * 4);
+    }
+}
+
+void KernelReader::SetKernelMessagesDriverFeature(DWORD feature)
+{
+    DWORD dwOut = 0;
+    DWORD dwReturned = 0;
+    BOOL bRet = DeviceIoControl(m_handle.get(), feature, NULL, 0, &dwOut, sizeof(dwOut), &dwReturned, NULL);
+    if (!bRet)
+    {
+        printf("SetKernelMessagesDriverFeature for '%s' failed, err=%d\n", feature_to_string(feature).c_str(), ::GetLastError());
+        return;
+    }
+}
+
+void KernelReader::SetVerbose(bool value)
+{
+    if (value)
+    {
+        SetKernelMessagesDriverFeature(DBGV_SET_VERBOSE_MESSAGES);
+    }
+    else
+    {
+        SetKernelMessagesDriverFeature(DBGV_UNSET_VERBOSE_MESSAGES);
+    }
+}
+
+void KernelReader::SetPassThrough(bool value)
+{
+    if (value)
+    {
+        SetKernelMessagesDriverFeature(DBGV_SET_PASSTHROUGH);
+    }
+    else
+    {
+        SetKernelMessagesDriverFeature(DBGV_UNSET_PASSTHROUGH);
     }
 }
 
