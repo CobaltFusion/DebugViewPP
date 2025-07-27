@@ -1399,6 +1399,11 @@ void CMainFrame::Pause()
         m_logSources.Remove(m_pGlobalReader);
         m_pGlobalReader = nullptr;
     }
+    if (m_pKernelReader != nullptr)
+    {
+        m_logSources.Remove(m_pKernelReader);
+        m_pKernelReader = nullptr;
+    }
     m_logSources.AddMessage("<paused>");
 }
 

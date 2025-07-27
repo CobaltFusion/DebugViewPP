@@ -38,10 +38,10 @@ void UninstallKernelMessagesDriver();
 #pragma pack(1)
 typedef struct
 {
-	DWORD dwIndex;
-	FILETIME liSystemTime;
-	LARGE_INTEGER liPerfCounter;
-	CHAR strData[0];
+    DWORD dwIndex;
+    FILETIME liSystemTime;
+    LARGE_INTEGER liPerfCounter;
+    CHAR strData[0];
 } LOG_ITEM, *PLOG_ITEM;
 #pragma pack()
 

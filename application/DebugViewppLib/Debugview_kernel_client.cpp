@@ -6,7 +6,7 @@
 #include "DebugViewppLib/Debugview_kernel_client.h"
 
 constexpr const char* DRIVER_SERVICE_NAME = "debugviewdriver";
-constexpr const char* DRIVER_DISPLAY_NAME = "DebugViewPP Kernel Message Driver";
+constexpr const char* DRIVER_DISPLAY_NAME = "DbgView Kernel Message Driver";
 const std::string driverPath = "dbgv.sys";
 
 void InstallKernelMessagesDriver()

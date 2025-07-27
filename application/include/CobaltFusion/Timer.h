@@ -19,7 +19,7 @@ public:
 
     void Reset();
     double Get();
-    double GetTimeSince(long long);
+    double GetTimeSinceOrigin(long long);
 
 private:
     double m_timerUnit;

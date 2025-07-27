@@ -92,5 +92,11 @@ void LogSource::AddInternal(const std::string& message) const
     m_linebuffer.Add(m_timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "[internal]", message, this);
 }
 
+double LogSource::GetTimeSinceOrigin(long long ticks) const
+{
+    return m_timer.GetTimeSinceOrigin(ticks);
+}
+
+
 } // namespace debugviewpp
 } // namespace fusion

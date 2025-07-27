@@ -64,7 +64,6 @@ KernelReader::KernelReader(Timer& timer, ILineBuffer& linebuffer) :
 {
     SetDescription(L"Kernel Message Reader");
     InstallKernelMessagesDriver();
-    AddMessage(0, "kernel", "Started capturing kernel messages");
     Signal();
     StartListening();
     StartThread();

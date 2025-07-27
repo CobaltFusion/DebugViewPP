@@ -64,6 +64,9 @@ public:
     // used by FileReader
     void Add(const std::string& message);
 
+    // get the relative time since the start of the session given the QWORD of the performance counter
+    double GetTimeSinceOrigin(long long ticks) const;
+
 private:
     bool m_autoNewLine = true;
     ILineBuffer& m_linebuffer;

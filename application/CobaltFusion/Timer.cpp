@@ -40,10 +40,10 @@ void Timer::Reset()
 
 double Timer::Get()
 {
-    return GetTimeSince(GetTicks());
+    return GetTimeSinceOrigin(GetTicks());
 }
 
-double Timer::GetTimeSince(long long ticks)
+double Timer::GetTimeSinceOrigin(long long ticks)
 {
     // double-checked locking, prevents pessimizing the happy-path
     if (!m_init)
