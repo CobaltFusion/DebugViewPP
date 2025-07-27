@@ -46,5 +46,5 @@ typedef struct
 #pragma pack()
 
 constexpr const wchar_t * strDbgviewKernelDriverDeviceName = L"\\\\.\\dbgv";
-constexpr const DWORD dwBufLen = 0x10000;
+constexpr const DWORD kernelMessageBufferSize = 0x10000;
 

@@ -45,7 +45,7 @@ void KernelReader::StartListening()
         return;
     }
     m_handle = std::move(handle);
-    m_pBuf = (PLOG_ITEM)malloc(dwBufLen);
+    m_pBuf = reinterpret_cast<PLOG_ITEM>(malloc(kernelMessageBufferSize));
 }
 
 void KernelReader::StopListening()
@@ -89,9 +89,9 @@ bool KernelReader::AtEnd() const
 
 void KernelReader::Poll()
 {
-    memset(m_pBuf, 0, dwBufLen);
+    memset(m_pBuf, 0, kernelMessageBufferSize);
     DWORD dwOut = 0;
-    ::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, dwBufLen, &dwOut, NULL);
+    ::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, kernelMessageBufferSize, &dwOut, NULL);
     if (dwOut == 0) return; // no messages to be read
 
     PLOG_ITEM pNextItem = m_pBuf;
