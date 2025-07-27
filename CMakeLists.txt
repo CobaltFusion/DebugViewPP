@@ -19,6 +19,8 @@ project(
 
 enable_testing()
 
+add_compile_options(/MP)
+
 if(BUILD_WITH_ASAN)
     add_compile_options(/fsanitize=address /D_DISABLE_VECTOR_ANNOTATION=0)
     message("-- build with ASAN enabled")
@@ -42,7 +44,7 @@ target_compile_definitions(project_definitions
 	UNICODE
 	NOMINMAX
 	WIN32_LEAN_AND_MEAN
-	_CRT_SECURE_NO_WARNINGS 
+	_CRT_SECURE_NO_WARNINGS
 	_WINSOCK_DEPRECATED_NO_WARNINGS
 	WIN32
 	WIN64

@@ -110,6 +110,24 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
     std::cout.clear();
 #endif
 
+
+    HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_DBGV_DRIVER), RT_RCDATA);
+    if (hRes)
+    {
+        HGLOBAL hLoadedRes = LoadResource(NULL, hRes);
+        if (hLoadedRes)
+        {
+            DWORD dwSize = SizeofResource(NULL, hRes);
+            void* pLockedRes = LockResource(hLoadedRes);
+            if (pLockedRes)
+            {
+                std::ofstream outFile("dbgv.sys", std::ios::binary);
+                outFile.write(static_cast<const char*>(pLockedRes), dwSize);
+                outFile.close();
+            }
+        }
+    }
+
     CAppModuleInitialization moduleInit(_Module, hInstance);
 
     HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
