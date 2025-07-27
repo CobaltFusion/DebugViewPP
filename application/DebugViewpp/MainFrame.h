@@ -27,6 +27,7 @@ using ATL::CString;
 #include "CobaltFusion/ExecutorClient.h"
 #include "DebugViewppLib/DBWinBuffer.h"
 #include "DebugViewppLib/DBWinReader.h"
+#include "DebugViewppLib/KernelReader.h"
 #include "DebugViewppLib/LineBuffer.h"
 #include "DebugViewppLib/LogSources.h"
 #include "DebugViewppLib/FileWriter.h"
@@ -60,6 +61,7 @@ public:
     BEGIN_UPDATE_UI_MAP(CMainFrame)
         UPDATE_ELEMENT(ID_LOG_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_LOG_GLOBAL, UPDUI_MENUPOPUP)
+        UPDATE_ELEMENT(ID_LOG_KERNEL, UPDUI_MENUPOPUP)
         UPDATE_ELEMENT(ID_VIEW_SCROLL, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_VIEW_SCROLL_STOP, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
         UPDATE_ELEMENT(ID_VIEW_TIME, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
@@ -174,6 +176,7 @@ private:
     void OnLogCrop(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogPause(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogGlobal(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void OnLogKernel(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogHistory(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogDebugviewAgent(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnViewFind(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -206,6 +209,7 @@ private:
     bool m_linkViews = false;
     bool m_hide = false;
     bool m_tryGlobal;
+    bool m_tryKernel;
     CRunDlg m_runDlg;
     std::wstring m_logFileName;
     std::wstring m_txtFileName;
@@ -216,6 +220,7 @@ private:
     std::wstring m_applicationName;
     DBWinReader* m_pLocalReader = nullptr;
     DBWinReader* m_pGlobalReader = nullptr;
+    KernelReader* m_pKernelReader = nullptr;
     DbgviewReader* m_pDbgviewReader = nullptr;
     std::vector<SourceInfo> m_sourceInfos;
     std::unique_ptr<GuiExecutorClient> m_GuiExecutorClient;

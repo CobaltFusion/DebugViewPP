@@ -129,6 +129,7 @@ BEGIN_MSG_MAP2(CMainFrame)
     COMMAND_ID_HANDLER_EX(ID_LOG_CROP, OnLogCrop)
     COMMAND_ID_HANDLER_EX(ID_LOG_PAUSE, OnLogPause)
     COMMAND_ID_HANDLER_EX(ID_LOG_GLOBAL, OnLogGlobal)
+    COMMAND_ID_HANDLER_EX(ID_LOG_KERNEL, OnLogKernel)
     COMMAND_ID_HANDLER_EX(ID_LOG_HISTORY, OnLogHistory)
     COMMAND_ID_HANDLER_EX(ID_LOG_DEBUGVIEW_AGENT, OnLogDebugviewAgent)
     COMMAND_ID_HANDLER_EX(ID_VIEW_FIND, OnViewFind)
@@ -328,6 +329,7 @@ void CMainFrame::UpdateUI()
     UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
     UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
     UISetCheck(ID_LOG_GLOBAL, m_tryGlobal);
+    UISetCheck(ID_LOG_KERNEL, m_tryKernel);
 }
 
 std::wstring FormatDateTime(const SYSTEMTIME& systemTime)
@@ -1438,7 +1440,7 @@ void CMainFrame::Resume()
         }
     }
 
-    if (m_tryGlobal)
+    if (m_tryGlobal && m_pGlobalReader == nullptr)
     {
         try
         {
@@ -1454,6 +1456,25 @@ void CMainFrame::Resume()
                        L"'Run As Administator' even if you have administrator rights.",
                 m_applicationName.c_str(), MB_ICONERROR | MB_OK);
             m_tryGlobal = false;
+        }
+    }
+
+    if (m_tryKernel && m_pKernelReader == nullptr)
+    {
+        try
+        {
+            m_pKernelReader = m_logSources.AddKernelReader();
+        }
+        catch (std::exception&)
+        {
+            MessageBox(L"Unable to capture Kernel Messages.\n"
+                       L"\n"
+                       L"Make sure you have appropriate permissions.\n"
+                       L"\n"
+                       L"You may need to start this application by right-clicking it and selecting\n"
+                       L"'Run As Administator' even if you have administrator rights.",
+                m_applicationName.c_str(), MB_ICONERROR | MB_OK);
+            m_tryKernel = false;
         }
     }
     UpdateTitle();
@@ -1475,7 +1496,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 {
     m_tryGlobal = (m_pGlobalReader == nullptr);
 
-    if ((m_pLocalReader != nullptr) && m_tryGlobal)
+    if (m_tryGlobal)
     {
         Resume();
     }
@@ -1483,6 +1504,22 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
     {
         m_logSources.Remove(m_pGlobalReader);
         m_pGlobalReader = nullptr;
+    }
+    UpdateTitle();
+}
+
+void CMainFrame::OnLogKernel(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+    m_tryKernel = (m_pKernelReader == nullptr);
+
+    if (m_tryKernel)
+    {
+        Resume();
+    }
+    else
+    {
+        m_logSources.Remove(m_pKernelReader);
+        m_pKernelReader = nullptr;
     }
     UpdateTitle();
 }

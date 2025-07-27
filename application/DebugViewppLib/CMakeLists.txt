@@ -16,6 +16,7 @@ add_library(${PROJECT_NAME}
     FileWriter.cpp
     Filter.cpp
     FilterType.cpp
+    KernelReader.cpp
     Line.cpp
     LineBuffer.cpp
     LogFile.cpp

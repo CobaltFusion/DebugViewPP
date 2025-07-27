@@ -130,7 +130,7 @@ boost::signals2::connection BinaryFileReader::SubscribeToUpdate(UpdateSignal::sl
 
 // todo: Reading support for more filetypes, maybe not, who logs in unicode anyway?
 // see #107
-// posepone until we have a valid usecase
+// postpone until we have a valid usecase
 // ANSI/ASCII
 // UTF-8
 // UTF-16

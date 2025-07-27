@@ -45,6 +45,7 @@ PollLine::PollLine(double time, FILETIME systemTime, DWORD pid, const std::strin
 {
 }
 
+// pollFrequency is in Hz
 PolledLogSource::PolledLogSource(Timer& timer, SourceType::type sourceType, ILineBuffer& linebuffer, long pollFrequency) :
     LogSource(timer, sourceType, linebuffer),
     m_microsecondInterval(pollFrequency > 0 ? 1000000 / pollFrequency : 0),

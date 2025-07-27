@@ -126,6 +126,8 @@
 #define ID_VIEW_COPY_MESSAGES 32857
 #define ID_VIEW_PROCESS_RENAME 32858
 #define ID_OPTIONS_PROCESS_PREFIX 32859
+#define ID_LOG_KERNEL 32860
+
 
 // Next default values for new objects
 //

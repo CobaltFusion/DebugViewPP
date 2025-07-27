@@ -19,6 +19,7 @@ namespace fusion {
 namespace debugviewpp {
 
 class DBWinReader;
+class KernelReader;
 class ProcessReader;
 class FileReader;
 class AnyFileReader;
@@ -73,6 +74,7 @@ public:
     void CallSources(std::function<void(const LogSource*)> predicate) const;
 
     DBWinReader* AddDBWinReader(bool global);
+    KernelReader* AddKernelReader();
     ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
     BinaryFileReader* AddBinaryFileReader(const std::wstring& filename);
     AnyFileReader* AddAnyFileReader(const std::wstring& filename, bool keeptailing);

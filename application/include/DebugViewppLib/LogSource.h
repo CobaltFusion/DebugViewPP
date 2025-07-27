@@ -37,7 +37,7 @@ public:
     // return a handle to wait for, Notify() is called when the handle is signaled. return INVALID_HANDLE_VALUE if the Logsource does not need to be notified
     virtual HANDLE GetHandle() const = 0;
 
-    // only when nofity is called LogSource::Add may be used to add lines to the LineBuffer
+    // only when notify is called LogSource::Add may be used to add lines to the LineBuffer
     virtual void Notify() = 0;
 
     // called for each line before it is added to the view,

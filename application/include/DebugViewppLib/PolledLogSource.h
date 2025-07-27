@@ -41,7 +41,7 @@ public:
     virtual void Poll();
     void Abort() override;
 
-    // in contrast to the LogSource::Add methdods, these methods are de-coupled using m_backBuffer so they
+    // in contrast to the LogSource::Add methods, these methods are de-coupled using m_backBuffer so they
     // can be used to add messages from any thread. The typical use-case are messages from the UI thread.
     void AddMessage(Win32::Handle handle, const std::string& message);
     void AddMessage(DWORD pid, const std::string& processName, const std::string& message);

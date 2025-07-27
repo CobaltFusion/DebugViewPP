@@ -19,6 +19,7 @@
 #include "DebugViewppLib/BinaryFileReader.h"
 #include "DebugViewppLib/AnyFileReader.h"
 #include "DebugViewppLib/DBWinReader.h"
+#include "DebugViewppLib/KernelReader.h"
 #include "DebugViewppLib/DbgviewReader.h"
 #include "DebugViewppLib/SocketReader.h"
 #include "DebugViewppLib/TestSource.h"
@@ -29,7 +30,7 @@
 #include "DebugViewppLib/Loopback.h"
 
 // class Logsources has a vector<LogSource> and start a thread for LogSources::Listen()
-// - Listen() exectues every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
+// - Listen() executes every LogSource::GetHandle() in m_sources and calls Notify() for any signaled handle.
 // - LogSource::Notify reads input en writes to linebuffer (passed at construction)
 //
 
@@ -427,6 +428,15 @@ DBWinReader* LogSources::AddDBWinReader(bool global)
     auto pDbWinReader = std::make_unique<DBWinReader>(m_timer, m_linebuffer, global);
     auto pResult = pDbWinReader.get();
     Add(std::move(pDbWinReader));
+    return pResult;
+}
+
+KernelReader* LogSources::AddKernelReader()
+{
+    assert(m_executor.IsExecutorThread());
+    auto kernelReader = std::make_unique<KernelReader>(m_timer, m_linebuffer);
+    auto pResult = kernelReader.get();
+    Add(std::move(kernelReader));
     return pResult;
 }
 
