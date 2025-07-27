@@ -37,13 +37,6 @@ void KernelReader::StartListening()
         return;
     }
 
-    // enable verbose kernel messages
-    bRet = DeviceIoControl(handle.get(), DBGV_SET_VERBOSE_MESSAGES, NULL, 0, NULL, 0, NULL, NULL);
-    if (!bRet)
-    {
-        printf("DBGV_ENABLE_FILTER_STATE failed, err=%d\n", ::GetLastError());
-        return;
-    }
     m_handle = std::move(handle);
     m_pBuf = reinterpret_cast<PLOG_ITEM>(malloc(kernelMessageBufferSize));
 }
