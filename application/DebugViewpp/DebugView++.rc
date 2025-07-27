@@ -250,7 +250,7 @@ IDR_BOOKMARK            ICON                    "res\\Bookmark.ico"
 // RCDATA
 //
 
-IDR_DBGV_DRIVER RCDATA "res\\Dbgv.sys"
+IDR_DBGV_DRIVER         RCDATA                  "res\\Dbgv.sys"
 
 /////////////////////////////////////////////////////////////////////////////
 //

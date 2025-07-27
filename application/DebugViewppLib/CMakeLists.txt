@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME}
     Conversions.cpp
     CTimelineView.cpp
     DbgviewReader.cpp
+    Debugview_kernel_client.cpp
     DBWinBuffer.cpp
     DBWinReader.cpp
     DBWinWriter.cpp

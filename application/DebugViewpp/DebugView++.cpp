@@ -12,8 +12,6 @@
 #include "DebugViewppLib/DBWinWriter.h"
 #include "Win32/Com.h"
 
-#include <iostream>
-
 #include "atleverything.h"
 
 //#define ENABLE_CRASHPAD
@@ -90,27 +88,8 @@ int ForwardMessagesFromPipe(HANDLE hPipe)
     return 0;
 }
 
-int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine*/, int cmdShow)
+void WriteDriverFromResource()
 {
-    Win32::SetPrivilege(SE_DEBUG_NAME, true);
-    Win32::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
-
-    Win32::ComInitialization com;
-
-    // this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
-    ::DefWindowProc(nullptr, 0, 0, 0L);
-
-    AtlInitCommonControls(ICC_BAR_CLASSES); // add flags to support other controls
-
-#ifdef CONSOLE_DEBUG
-    FILE* standardOut;
-    AllocConsole();
-    freopen_s(&standardOut, "CONOUT$", "wb", stdout);
-    auto fileGuard = make_guard([standardOut] { fclose(standardOut); });
-    std::cout.clear();
-#endif
-
-
     HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_DBGV_DRIVER), RT_RCDATA);
     if (hRes)
     {
@@ -127,6 +106,28 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
             }
         }
     }
+}
+
+int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine*/, int cmdShow)
+{
+    Win32::SetPrivilege(SE_DEBUG_NAME, true);
+    Win32::SetPrivilege(SE_CREATE_GLOBAL_NAME, true);
+    Win32::SetPrivilege(SE_LOAD_DRIVER_NAME, true);
+
+    Win32::ComInitialization com;
+
+    // this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
+    ::DefWindowProc(nullptr, 0, 0, 0L);
+
+    AtlInitCommonControls(ICC_BAR_CLASSES); // add flags to support other controls
+
+#ifdef CONSOLE_DEBUG
+    FILE* standardOut;
+    AllocConsole();
+    freopen_s(&standardOut, "CONOUT$", "wb", stdout);
+    auto fileGuard = make_guard([standardOut] { fclose(standardOut); });
+    std::cout.clear();
+#endif
 
     CAppModuleInitialization moduleInit(_Module, hInstance);
 
