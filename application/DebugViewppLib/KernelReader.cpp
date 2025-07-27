@@ -98,24 +98,7 @@ void KernelReader::Poll()
     PLOG_ITEM pNextItem = m_pBuf;
     while (pNextItem->dwIndex != 0)
     {
-        SYSTEMTIME st = { 0 };
-        FILETIME lt = { 0 };
-        FileTimeToLocalFileTime(&pNextItem->liSystemTime, &lt);
-        FileTimeToSystemTime(&lt, &st);
-
-        char message[4000];
-        sprintf(message, "%d, Time:%04d-%02d-%02d %02d:%02d:%02d.%03d, %s\n",
-            pNextItem->dwIndex,
-            st.wYear,
-            st.wMonth,
-            st.wDay,
-            st.wHour,
-            st.wMinute,
-            st.wSecond,
-            st.wMilliseconds,
-            pNextItem->strData);
-
-        AddMessage(0, "kernel", message);
+        AddMessage(0, "kernel", pNextItem->strData);
         pNextItem = (PLOG_ITEM)((char*)pNextItem + sizeof(LOG_ITEM) + (strlen(pNextItem->strData) + 4) / 4 * 4);
     }
 }

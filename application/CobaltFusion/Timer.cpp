@@ -11,6 +11,13 @@
 
 namespace fusion {
 
+long long GetTicks()
+{
+    LARGE_INTEGER li;
+    QueryPerformanceCounter(&li);
+    return li.QuadPart;
+}
+
 Timer::Timer() :
     m_timerUnit(0.0),
     m_init(false),
@@ -33,21 +40,22 @@ void Timer::Reset()
 
 double Timer::Get()
 {
-    auto ticks = GetTicks();
-    std::lock_guard<std::mutex> lock(m_mutex);
-    if (!m_init)
-    {
-        m_offset = ticks;
-        m_init = true;
-    }
-    return (ticks - m_offset) * m_timerUnit;
+    return GetTimeSince(GetTicks());
 }
 
-long long Timer::GetTicks()
+double Timer::GetTimeSince(long long ticks)
 {
-    LARGE_INTEGER li;
-    QueryPerformanceCounter(&li);
-    return li.QuadPart;
+    // double-checked locking, prevents pessimizing the happy-path
+    if (!m_init)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (!m_init)
+        {
+            m_offset = ticks;
+            m_init = true;
+        }
+    }
+    return (ticks - m_offset) * m_timerUnit;
 }
 
 } // namespace fusion

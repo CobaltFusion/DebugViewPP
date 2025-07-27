@@ -10,6 +10,8 @@
 
 namespace fusion {
 
+long long GetTicks();
+
 class Timer
 {
 public:
@@ -17,10 +19,9 @@ public:
 
     void Reset();
     double Get();
+    double GetTimeSince(long long);
 
 private:
-    static long long GetTicks();
-
     double m_timerUnit;
     bool m_init;
     long long m_offset;

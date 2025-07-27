@@ -20,7 +20,7 @@ struct PollLine
     PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
     PollLine(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource);
 
-    bool timesValid;
+    bool timesAreValid; // indicated 'time' and 'systemTime' were assigned values at construction
     double time;
     FILETIME systemTime;
     Win32::Handle handle;

@@ -13,7 +13,7 @@ namespace debugviewpp {
 
 
 PollLine::PollLine(Win32::Handle handle, const std::string& message, const LogSource* pLogSource) :
-    timesValid(false),
+    timesAreValid(false),
     time(0.0),
     systemTime(FILETIME()),
     handle(std::move(handle)),
@@ -24,7 +24,7 @@ PollLine::PollLine(Win32::Handle handle, const std::string& message, const LogSo
 }
 
 PollLine::PollLine(DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
-    timesValid(false),
+    timesAreValid(false),
     time(0.0),
     systemTime(FILETIME()),
     pid(pid),
@@ -35,7 +35,7 @@ PollLine::PollLine(DWORD pid, const std::string& processName, const std::string&
 }
 
 PollLine::PollLine(double time, FILETIME systemTime, DWORD pid, const std::string& processName, const std::string& message, const LogSource* pLogSource) :
-    timesValid(true),
+    timesAreValid(true),
     time(time),
     systemTime(systemTime),
     pid(pid),
@@ -116,7 +116,7 @@ void PolledLogSource::Notify()
         {
             Add(line.handle.release(), line.message);
         }
-        else if (line.timesValid)
+        else if (line.timesAreValid)
         {
             Add(line.time, line.systemTime, line.pid, line.processName, line.message);
         }
