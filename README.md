@@ -1,5 +1,11 @@
+Debugview++ v1.9.x.x (2025 Update coming soon!)
+------------------------------
+- Noteworthy new features: capture kernel messages, verbose mode and pass-through mode.
+
 -- Notice:
 
+* This project is in low-maintenance mode, this means new features are only added if PRs are provided with tests.
+* Updates are limited to keeping the status-quo and OS-related updated.
 * I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
 * 2022 update: The project was migrated to VS2022 and boost 1.80, WindowsXP (32 bit) support was removed.
 * the OutputForwarder companion extension for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
@@ -7,13 +13,11 @@
 
 Debugview++, currently at v1.9 (2024 Update!)
 ------------------------------
-<a href="https://twitter.com/intent/follow?screen_name=janwilmans">
-<img src="https://img.shields.io/twitter/follow/janwilmans.svg?style=social&logo=twitter"
-alt="follow on Twitter"></a>
 
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
+![Github Follow](https://img.shields.io/github/followers/janwilmans)
 
-[![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest) 
+[![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/ho962elp8chrdga0/branch/develop?svg=true)](https://ci.appveyor.com/project/janwilmans/debugview/branch/develop)
 
@@ -21,9 +25,9 @@ alt="follow on Twitter"></a>
 
 [Download latest release](https://github.com/djeedjay/DebugViewPP/releases), I would really like to hear what you think! Leave any [**comments here**](https://github.com/djeedjay/DebugViewPP/issues/283)
 
-[Download head version ](https://ci.appveyor.com/project/janwilmans/debugview/build/artifacts) ** only pick this if your feeling lucky and want to try the latest commits **
+[Download head version](https://ci.appveyor.com/project/janwilmans/debugview/build/artifacts) ** only pick this if your feeling lucky and want to try the latest commits **
 
-Questions? Tweet me at [**@janwilmans**](https://twitter.com/janwilmans) or chat on skype at 'janwilmans'.
+Questions? Find me at [@janwilmans.bsky.social](janwilmans.bsky.social) or chat on discord as 'janwilmans'.
 There is also a [slack channel](https://cpplang.slack.com/messages/debugviewpp). If you need an invite, go [here](https://cpplang.now.sh/).
 
 Debugview++ started as a viewer for Win32 OutputDebugString messages in the style of
@@ -58,7 +62,7 @@ So when is this Debugview++ thing useful?
 
 - first of all, with debugview++ you can see messages from different processes, not just 'attached' processes.
 - also: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
-- finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view. 
+- finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view.
 
 New in stable version 1.8.x:
 - bugfixes (namely in file-tailing)
@@ -99,12 +103,12 @@ Here are some features:
 - tailing files (drag ascii or UTF files into debugview to tail it)
 
 And more features:
- 
+
 - capture both Win32 and Global Win32 messages
 - tabbed views
 - resolve process PID to name and track their lifetime
 - filter by process or message
-- advanced filtering, exclude, track, stop, clear (optionally using regular expressions) 
+- advanced filtering, exclude, track, stop, clear (optionally using regular expressions)
 - line and token highlighting (create your own syntax highlighting)
 - SAIT (search-as-I-type) + token highlighting
 - bookmarks
@@ -113,7 +117,7 @@ And more features:
 - commandline version
 - capture stdin piped messages, allows you to connect any kind of logging
 - beep-filter for monitoring without seeing the screen (To hear it make sure a 'Default Beep' sound is defined in Control Panel->Sounds)
-- clear Log now releases the message buffer instead of reusing the memory (useful when running debugview 
+- clear Log now releases the message buffer instead of reusing the memory (useful when running debugview
   for a very long time)
 - tailing logfiles over samba network (experimental)
 - support for reading and tailing Sysinternals Dbgview logfiles (in the four most common formats)
@@ -179,7 +183,7 @@ Filters:
 
 
 Filters can be defined per view, for example choose File -> New View, and the filter dialog will popup.
-Pressing OK will open a new view without any filters. 
+Pressing OK will open a new view without any filters.
 
 Different types of filters:
 
@@ -188,18 +192,18 @@ just type any word or part of a word to match.
 
 - include: if an include filter is added only lines containing a matching expression will be included.
 - exclude: lines containing a matching expression will be excluded from the view, excluding always takes precedence over including
-- once: only the first line containing a matching expression will be included, this resets automatically at 'clear view'. 
+- once: only the first line containing a matching expression will be included, this resets automatically at 'clear view'.
 - highlight: lines containing a matching expression will be highlighted using the specified foreground and background colors
 - token: only the matching expression will be highlighted using the specified foreground and background colors
-- track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched 
+- track: lines containing a matching expression will be focused and centered if possible. Note: auto scroll turns off if a track filter is matched
 - stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only if autoscroll is on, think of a stop-filter as a single-shot track filter
-- beep: a standard windows beep (configurable in config panel->sounds) is played 
+- beep: a standard windows beep (configurable in config panel->sounds) is played
 
 *Practical uses*:
 
 Include, exclude, once and highlight filters are the most intuitive filters to use. Track and stop can be a little confusing, let me try to give some examples.
 
-**track**: use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result. 
+**track**: use this filter to focus interesting lines that do not occur very often, but at a regular interval, for example, so you are monitoring a process that logs output every 30 seconds and you need to check the result.
 
 **stop**: this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
 
@@ -263,7 +267,7 @@ Since we use ATL and support Windows XP still some extra installation options ar
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
  decompress the archive and you're done (add zip.exe to the path)
 
-# VS2019 
+# VS2019
 
 There are [known issues](https://twitter.com/janwilmans/status/1369956897726599176?s=20) with compilation using Visual Studio 2019 16.10.x (preview at March 11, 2021).
 Know good combinations are Boost 1.69 + Visual studio 2019 16.9.1. (I have seen problems with Asio in Boost 1.72 + Visual studio 2019 16.9.1 and Boost 1.72 + Visual studio 2019 16.10.x)
