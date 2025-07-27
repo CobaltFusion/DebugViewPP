@@ -8,6 +8,10 @@
 #include "PipeReader.h"
 #include "PolledLogSource.h"
 
+#include "Win32/Win32Lib.h"
+
+#include "Debugview_kernel_client.h"
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -23,6 +27,12 @@ public:
 
 private:
     void Poll() override;
+
+    void StartListening();
+    void StopListening();
+
+    Win32::Handle m_handle;
+    PLOG_ITEM m_pBuf;
 };
 
 } // namespace debugviewpp
