@@ -87,7 +87,7 @@ Alternatively manual installation is done using (unix)::
 To link *docopt.cpp*, the simplest is to use CMake. The general structure of your
 ``CMakeLists.txt`` would be as follows::
 
-    cmake_minimum_required(VERSION 3.1)
+    cmake_minimum_required(VERSION 3.16)
 
     project(example)
 
