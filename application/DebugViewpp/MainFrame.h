@@ -132,6 +132,7 @@ private:
     bool IsPaused() const;
     void Pause();
     void Resume();
+    void UpdateTitle();
     bool GetAlwaysOnTop() const;
     void SetAlwaysOnTop(bool value);
 

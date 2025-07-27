@@ -1400,6 +1400,24 @@ void CMainFrame::Pause()
     m_logSources.AddMessage("<paused>");
 }
 
+void CMainFrame::UpdateTitle()
+{
+    std::wstring title = L"Paused";
+    if ((m_pLocalReader != nullptr) && (m_pGlobalReader != nullptr))
+    {
+        title = L"Capture Win32 & Global Win32 Messages";
+    }
+    else if (m_pLocalReader != nullptr)
+    {
+        title = L"Capture Win32";
+    }
+    else if (m_pGlobalReader != nullptr)
+    {
+        title = L"Capture Global Win32";
+    }
+    SetTitle(title);
+}
+
 void CMainFrame::Resume()
 {
     SetTitle();
@@ -1438,21 +1456,7 @@ void CMainFrame::Resume()
             m_tryGlobal = false;
         }
     }
-
-    std::wstring title = L"Paused";
-    if ((m_pLocalReader != nullptr) && (m_pGlobalReader != nullptr))
-    {
-        title = L"Capture Win32 & Global Win32 Messages";
-    }
-    else if (m_pLocalReader != nullptr)
-    {
-        title = L"Capture Win32";
-    }
-    else if (m_pGlobalReader != nullptr)
-    {
-        title = L"Capture Global Win32";
-    }
-    SetTitle(title);
+    UpdateTitle();
 }
 
 void CMainFrame::OnLogPause(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1480,6 +1484,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
         m_logSources.Remove(m_pGlobalReader);
         m_pGlobalReader = nullptr;
     }
+    UpdateTitle();
 }
 
 void CMainFrame::OnLogHistory(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
