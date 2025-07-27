@@ -10,8 +10,6 @@
 
 #include "windows.h"
 
-#pragma comment(lib, "DebugView++Lib.lib")
-
 namespace fusion {
 namespace debugviewpp {
 

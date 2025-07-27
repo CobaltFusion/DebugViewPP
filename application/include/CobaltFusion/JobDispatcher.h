@@ -1,6 +1,6 @@
 // (C) Copyright Gert-Jan de Vos and Jan Wilmans 2013.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #pragma once
@@ -13,19 +13,17 @@
 #include <boost/noncopyable.hpp>
 #include <boost/signals2.hpp>
 
-#pragma comment(lib, "CobaltFusion.lib")
-
 namespace fusion {
 
 // Two use cases are supported by JobDispatcher
-// 
+//
 // 1) BackgroundDispatcher
 //    any Queue'd jobs by the caller will then be executed on a background thread until stop is called.
 //
 // 2) OnDemandDispatcher
 //      call ExecuteQueuedJobs() to have the queued jobs executed on the caller thread
-//     
-    
+//
+
 typedef std::function<void()> Job;
 
 class JobDispatcher
@@ -34,7 +32,7 @@ public:
     JobDispatcher();
     virtual ~JobDispatcher();
 
-    // guarentees and all jobs queued before Flush() have been executed 
+    // guarentees and all jobs queued before Flush() have been executed
     virtual void Flush();
 
     // returns immediately after queueing

@@ -9,8 +9,6 @@
 #include <string>
 #include <limits>
 
-#pragma comment(lib, "IndexedStorageLib.lib")
-
 namespace fusion {
 namespace indexedstorage {
 

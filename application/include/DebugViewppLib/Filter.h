@@ -15,8 +15,6 @@
 #include <vector>
 #include <unordered_map>
 
-#pragma comment(lib, "DebugView++Lib.lib")
-
 namespace fusion {
 namespace debugviewpp {
 

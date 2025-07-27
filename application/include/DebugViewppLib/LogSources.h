@@ -15,8 +15,6 @@
 #include "DebugviewppLib/ProcessMonitor.h"
 #include "CobaltFusion/Throttle.h"
 
-#pragma comment(lib, "DebugView++Lib.lib")
-
 namespace fusion {
 namespace debugviewpp {
 

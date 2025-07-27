@@ -9,8 +9,6 @@
 #include <string>
 #include "noncopyable.h"
 
-#pragma comment(lib, "CobaltFusion.lib")
-
 namespace fusion {
 
 class CircularBuffer : fusion::noncopyable
