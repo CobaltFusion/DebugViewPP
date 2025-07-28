@@ -7,12 +7,75 @@
 
 constexpr const char* DRIVER_SERVICE_NAME = "debugviewdriver";
 constexpr const char* DRIVER_DISPLAY_NAME = "DbgView Kernel Message Driver";
-const std::string driverPath = "dbgv.sys";
+const std::string driverPath = "C:\\Windows\\System32\\drivers\\dbgvpp.sys";
+
+bool FileExists(const std::string& path) {
+    DWORD fileAttributes = GetFileAttributesA(path.c_str());
+    return (fileAttributes != INVALID_FILE_ATTRIBUTES &&
+        !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool StartDriverSvc()
+{
+    SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    if (!hSCManager) return false;
+
+    SC_HANDLE hService = OpenServiceA(hSCManager, DRIVER_SERVICE_NAME, SERVICE_START);
+    if (!hService) {
+        CloseServiceHandle(hSCManager);
+        return false;
+    }
+
+    if (!StartService(hService, 0, NULL)) {
+        if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING) {
+            std::cout << "Service is already running.\n";
+            CloseServiceHandle(hService);
+            CloseServiceHandle(hSCManager);
+            return true;
+        }
+        std::cout << "Failed to start service. Error: " << GetLastError() << std::endl;
+        CloseServiceHandle(hService);
+        CloseServiceHandle(hSCManager);
+        return false;
+    }
+
+    CloseServiceHandle(hService);
+    CloseServiceHandle(hSCManager);
+    return true;
+}
+
+bool StopDriverSvc()
+{
+    SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    if (!hSCManager) return false;
+
+    SC_HANDLE hService = OpenServiceA(hSCManager, DRIVER_SERVICE_NAME, SERVICE_STOP);
+    if (!hService) {
+        CloseServiceHandle(hSCManager);
+        return false;
+    }
+
+    SERVICE_STATUS status;
+    if (!ControlService(hService, SERVICE_CONTROL_STOP, &status)) {
+        DWORD err = GetLastError();
+        if (err != ERROR_SERVICE_NOT_ACTIVE) {
+            std::cout << "Failed to stop service. Error: " << err << std::endl;
+        }
+    }
+
+    CloseServiceHandle(hService);
+    CloseServiceHandle(hSCManager);
+    return true;
+}
 
 void InstallKernelMessagesDriver()
 {
     // try to uninstall first, in case the driver is somehow still loaded.
     UninstallKernelMessagesDriver();
+
+    if (!FileExists(driverPath)) {
+        std::cout << "Driver file not found at: " << driverPath << std::endl;
+    }
 
     SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!hSCManager) {
@@ -41,10 +104,14 @@ void InstallKernelMessagesDriver()
     }
     CloseServiceHandle(hService);
     CloseServiceHandle(hSCManager);
+
+    StartDriverSvc();
 }
 
 void UninstallKernelMessagesDriver()
 {
+    StopDriverSvc();
+
     SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!hSCManager)
     {

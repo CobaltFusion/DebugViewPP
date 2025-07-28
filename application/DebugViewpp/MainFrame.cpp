@@ -1517,7 +1517,7 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
     UpdateTitle();
 }
 
-static const auto driver_name = "dbgv.sys";
+static const auto driver_name = "C:\\Windows\\System32\\drivers\\dbgvpp.sys";
 
 void WriteDriverFromResource()
 {
@@ -1535,6 +1535,7 @@ void WriteDriverFromResource()
             void* pLockedRes = LockResource(hLoadedRes);
             if (pLockedRes)
             {
+                std::cout << "write to " << driver_name << "\n";
                 std::ofstream outFile(driver_name, std::ios::binary);
                 outFile.write(static_cast<const char*>(pLockedRes), dwSize);
                 outFile.close();
