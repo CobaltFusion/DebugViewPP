@@ -192,7 +192,10 @@ CMainFrame::CMainFrame() :
     m_notifyIconData.cbSize = 0;
 }
 
-CMainFrame::~CMainFrame() = default;
+CMainFrame::~CMainFrame()
+{
+    RemoveDriver();
+}
 
 void CMainFrame::SetLogging()
 {
@@ -284,11 +287,6 @@ void CMainFrame::OnClose()
         Shell_NotifyIcon(NIM_DELETE, &m_notifyIconData);
         m_notifyIconData.cbSize = 0;
     }
-
-#ifdef CONSOLE_DEBUG
-    fclose(stdout);
-    FreeConsole();
-#endif
 }
 
 LRESULT CMainFrame::OnQueryEndSession(WPARAM /*unused*/, LPARAM /*unused*/)
@@ -1519,18 +1517,51 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
     UpdateTitle();
 }
 
+static const auto driver_name = "dbgv.sys";
+
+void WriteDriverFromResource()
+{
+    if (std::filesystem::exists(driver_name))
+    {
+        return;
+    }
+    HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_DBGV_DRIVER), RT_RCDATA);
+    if (hRes)
+    {
+        HGLOBAL hLoadedRes = LoadResource(NULL, hRes);
+        if (hLoadedRes)
+        {
+            DWORD dwSize = SizeofResource(NULL, hRes);
+            void* pLockedRes = LockResource(hLoadedRes);
+            if (pLockedRes)
+            {
+                std::ofstream outFile(driver_name, std::ios::binary);
+                outFile.write(static_cast<const char*>(pLockedRes), dwSize);
+                outFile.close();
+            }
+        }
+    }
+}
+
+void RemoveDriver()
+{
+    std::filesystem::remove(driver_name);
+}
+
 void CMainFrame::OnLogKernel(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     m_tryKernel = (m_pKernelReader == nullptr);
 
     if (m_tryKernel)
     {
+        WriteDriverFromResource();
         Resume();
     }
     else
     {
         m_logSources.Remove(m_pKernelReader);
         m_pKernelReader = nullptr;
+        RemoveDriver();
     }
     UpdateTitle();
 }

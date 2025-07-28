@@ -48,14 +48,15 @@ void UninstallKernelMessagesDriver()
     SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!hSCManager)
     {
-        std::cout << "Failed to open Service Control Manager. Error: " << GetLastError() << std::endl;
+        std::cout << "Failed to open Service Control Manager for uninstall. Error: " << GetLastError() << std::endl;
         return;
     }
 
     SC_HANDLE hService = OpenServiceA(hSCManager, DRIVER_SERVICE_NAME, DELETE);
     if (!hService)
     {
-        std::cout << "Failed to open service. Error: " << GetLastError() << std::endl;
+        // this happens when the service is first loaded, because we always uninstall before installing
+        // std::cout << "Failed to open service for uninstall. Error: " << GetLastError() << std::endl;
         CloseServiceHandle(hSCManager);
         return;
     }

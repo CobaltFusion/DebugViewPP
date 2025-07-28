@@ -44,6 +44,8 @@ class DbgviewReader;
 
 using SelectedTabItem = CLogViewTabItem;
 
+void RemoveDriver();
+
 class CMainFrame : public CTabbedFrameImpl<CMainFrame, CDotNetTabCtrl<SelectedTabItem>>,
                    public CUpdateUI<CMainFrame>,
                    public ExceptionHandler<CMainFrame, std::exception>,

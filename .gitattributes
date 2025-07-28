@@ -1,2 +1,13 @@
 *     text=auto eol=crlf
 *.sh  text=auto eol=lf
+
+# Define binary files
+*.sys     -text diff
+*.sln     -text diff
+*.suo     -text diff
+*.vcxproj -text diff
+*.gif     -text diff
+*.ico     -text diff
+*.jpeg    -text diff
+*.jpg     -text diff
+*.png     -text diff

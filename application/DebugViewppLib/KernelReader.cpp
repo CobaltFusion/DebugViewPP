@@ -23,8 +23,8 @@ void KernelReader::StartListening()
         NULL));
     if (handle.get() == INVALID_HANDLE_VALUE)
     {
-        AddMessage(0, "internal", "Could not connected to kernel messages driver");
-        return;
+        printf("Could not connect to kernel messages driver");
+        throw std::runtime_error("Could not connect to kernel messages driver");
     }
 
     // enable capture
@@ -34,7 +34,7 @@ void KernelReader::StartListening()
     if (!bRet)
     {
         printf("DBGV_CAPTURE_KERNEL failed, err=%d\n", ::GetLastError());
-        return;
+        throw std::runtime_error("Could not connect to kernel messages driver");
     }
 
     m_handle = std::move(handle);

@@ -14,6 +14,9 @@
 
 #include "atleverything.h"
 
+#include <filesystem>
+#include <cstdlib>  // for std::getenv
+
 //#define ENABLE_CRASHPAD
 #ifdef ENABLE_CRASHPAD
 #include "crashpad.h"
@@ -88,25 +91,26 @@ int ForwardMessagesFromPipe(HANDLE hPipe)
     return 0;
 }
 
-void WriteDriverFromResource()
+class DebugConsole
 {
-    HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_DBGV_DRIVER), RT_RCDATA);
-    if (hRes)
+public:
+    DebugConsole()
     {
-        HGLOBAL hLoadedRes = LoadResource(NULL, hRes);
-        if (hLoadedRes)
-        {
-            DWORD dwSize = SizeofResource(NULL, hRes);
-            void* pLockedRes = LockResource(hLoadedRes);
-            if (pLockedRes)
-            {
-                std::ofstream outFile("dbgv.sys", std::ios::binary);
-                outFile.write(static_cast<const char*>(pLockedRes), dwSize);
-                outFile.close();
-            }
-        }
+        ::AllocConsole();
+        ::freopen_s(&standardOut, "CONOUT$", "wb", stdout);
+        std::cout.clear();
     }
-}
+
+    ~DebugConsole()
+    {
+        fclose(standardOut);
+        fclose(stdout);
+        FreeConsole();
+    }
+
+private:
+    FILE* standardOut = nullptr;
+};
 
 int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine*/, int cmdShow)
 {
@@ -121,13 +125,11 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 
     AtlInitCommonControls(ICC_BAR_CLASSES); // add flags to support other controls
 
-#ifdef CONSOLE_DEBUG
-    FILE* standardOut;
-    AllocConsole();
-    freopen_s(&standardOut, "CONOUT$", "wb", stdout);
-    auto fileGuard = make_guard([standardOut] { fclose(standardOut); });
-    std::cout.clear();
-#endif
+    std::unique_ptr<DebugConsole> debugConsole;
+    if (std::getenv("DEBUGVIEWPP_CONSOLE_DEBUG") != nullptr)
+    {
+        debugConsole = std::make_unique<DebugConsole>();
+    }
 
     CAppModuleInitialization moduleInit(_Module, hInstance);
 
