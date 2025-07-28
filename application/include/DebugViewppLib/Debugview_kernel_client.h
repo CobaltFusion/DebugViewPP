@@ -5,9 +5,6 @@
 
 #pragma once
 
-void InstallKernelMessagesDriver();
-void UninstallKernelMessagesDriver();
-
 #include <windows.h>
 #include <tchar.h>
 #include <winioctl.h>
@@ -69,3 +66,5 @@ typedef struct
 constexpr const wchar_t * strDbgviewKernelDriverDeviceName = L"\\\\.\\dbgv";
 constexpr const DWORD kernelMessageBufferSize = 0x10000;
 
+void InstallKernelMessagesDriver(const std::string& driverLocation);
+void UninstallKernelMessagesDriver();

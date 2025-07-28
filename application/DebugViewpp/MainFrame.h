@@ -204,6 +204,9 @@ private:
     void AddLogSource(const SourceInfo& info);
     void CloseView(int i);
 
+    void WriteDriverFromResource();
+    void RemoveDriver();
+
     CCommandBarCtrl m_cmdBar;
     CMultiPaneStatusBarCtrl m_statusBar;
 
@@ -237,6 +240,7 @@ private:
     Win32::Handle m_httpMonitorHandle;
     std::deque<Lines> m_incomingMessages;
     int m_showCmd = SW_SHOWDEFAULT;
+    std::string m_driverLocation = GetDebugviewDriverLocation();
 };
 
 } // namespace debugviewpp

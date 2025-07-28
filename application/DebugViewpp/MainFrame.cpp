@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <optional>
 #include <iostream>
+#include <format>
+#include <cstdio>
 
 #include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
@@ -1474,15 +1476,15 @@ void CMainFrame::Resume()
         {
             m_pKernelReader = m_logSources.AddKernelReader();
         }
-        catch (std::exception&)
+        catch (std::exception& e)
         {
-            MessageBox(L"Unable to capture Kernel Messages.\n"
-                       L"\n"
-                       L"Make sure you have appropriate permissions.\n"
-                       L"\n"
-                       L"You may need to start this application by right-clicking it and selecting\n"
-                       L"'Run As Administator' even if you have administrator rights.",
-                m_applicationName.c_str(), MB_ICONERROR | MB_OK);
+            const auto message = std::format("Unable to capture Kernel Messages.\n"
+                       "({})\n\n"
+                       "Make sure you have appropriate permissions.\n"
+                       "\n"
+                       "You may need to start this application by right-clicking it and selecting\n"
+                       "'Run As Administator' even if you have administrator rights.", e.what());
+            MessageBox(WStr(message), m_applicationName.c_str(), MB_ICONERROR | MB_OK);
             m_tryKernel = false;
         }
     }
@@ -1517,11 +1519,9 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
     UpdateTitle();
 }
 
-static const auto driver_name = "C:\\Windows\\System32\\drivers\\dbgvpp.sys";
-
-void WriteDriverFromResource()
+void CMainFrame::WriteDriverFromResource()
 {
-    if (std::filesystem::exists(driver_name))
+    if (std::filesystem::exists(m_driverLocation))
     {
         return;
     }
@@ -1535,8 +1535,7 @@ void WriteDriverFromResource()
             void* pLockedRes = LockResource(hLoadedRes);
             if (pLockedRes)
             {
-                std::cout << "write to " << driver_name << "\n";
-                std::ofstream outFile(driver_name, std::ios::binary);
+                std::ofstream outFile(m_driverLocation.c_str(), std::ios::binary);
                 outFile.write(static_cast<const char*>(pLockedRes), dwSize);
                 outFile.close();
             }
@@ -1544,9 +1543,10 @@ void WriteDriverFromResource()
     }
 }
 
-void RemoveDriver()
+void CMainFrame::RemoveDriver()
 {
-    std::filesystem::remove(driver_name);
+    // can fail silently
+    std::remove(m_driverLocation.c_str());
 }
 
 void CMainFrame::OnLogKernel(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

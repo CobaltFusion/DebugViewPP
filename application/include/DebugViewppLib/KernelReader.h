@@ -15,6 +15,8 @@
 namespace fusion {
 namespace debugviewpp {
 
+std::string GetDebugviewDriverLocation();
+
 class ILineBuffer;
 
 class KernelReader : public PolledLogSource

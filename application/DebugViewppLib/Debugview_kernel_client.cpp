@@ -68,7 +68,7 @@ bool StopDriverSvc()
     return true;
 }
 
-void InstallKernelMessagesDriver()
+void InstallKernelMessagesDriver(const std::string& driverLocation)
 {
     // try to uninstall first, in case the driver is somehow still loaded.
     UninstallKernelMessagesDriver();
@@ -90,7 +90,7 @@ void InstallKernelMessagesDriver()
         SERVICE_KERNEL_DRIVER,
         SERVICE_DEMAND_START,
         SERVICE_ERROR_NORMAL,
-        driverPath.c_str(),
+        driverLocation.c_str(),
         NULL, NULL, NULL, NULL, NULL
     );
 

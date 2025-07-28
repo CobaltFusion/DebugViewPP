@@ -9,8 +9,27 @@
 #include "DebugViewppLib/LineBuffer.h"
 #include "DebugViewppLib/Debugview_kernel_client.h"
 
+#include <filesystem>
+#include <format>
 namespace fusion {
 namespace debugviewpp {
+
+std::string GetDebugviewDriverLocation()
+{
+    const auto driver_name = "dbgvpp.sys";
+    // this has issues, because there could already be an existing file
+    // in that case we would load a possibly different driver verion?
+    // an we also do not seem to be able to (always?) remove it ?
+    // windows something reports it is 'in-use' even through we unloaded it.
+
+    std::filesystem::path driverLocation = driver_name;
+    const auto systemRoot = std::getenv("SystemRoot");
+    if (systemRoot != nullptr)
+    {
+        driverLocation = std::format("{}\\System32\\driver\\{}", systemRoot, driver_name);
+    }
+    return driverLocation.string();
+}
 
 void KernelReader::StartListening()
 {
@@ -56,7 +75,7 @@ KernelReader::KernelReader(Timer& timer, ILineBuffer& linebuffer) :
     PolledLogSource(timer, SourceType::Pipe, linebuffer, 1)
 {
     SetDescription(L"Kernel Message Reader");
-    InstallKernelMessagesDriver();
+    InstallKernelMessagesDriver(GetDebugviewDriverLocation());
     Signal();
     StartListening();
     StartThread();
