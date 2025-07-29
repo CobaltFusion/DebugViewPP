@@ -1,21 +1,29 @@
-Debugview++ v1.9.x.x (2025 Update coming soon!)
-------------------------------
-- Noteworthy new features: capture kernel messages, verbose mode and pass-through mode.
+## Contact information
+
+![Discord User](https://img.shields.io/badge/discord-janwilmans-blue?link=https%3A%2F%2Fdiscordapp.com%2Fusers%2F456038206987567105)
+![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
+![Github Follow](https://img.shields.io/github/followers/janwilmans)
+
+## Debugview++ v1.20.x.x (Summer 2025 Update coming soon!)
+
+- new features: capture kernel messages, verbose mode and pass-through mode, big thanks to x64bugreport and 593749519 for providing information, contributions and test scenarios.
+- fixed #365: support for messages from UWP applications (poorly tested), feedback welcome!
+- fixed #396: depending on the runtime dlls, this broke when we moved to cmake, now we link the runtime statically again.
+- fixed title bar not being updated when 'Global Win32' was toggled.
+- new commandline argument /tab:<name> to select a tab that get focus at startup, contributed by KirisameMarisa
+- removed color support from 'include' filter by request (a highlight filter can still achieve the same result), contributed by Ishmaeel.
+- faster building by adding /MP.
 
 -- Notice:
 
-* This project is in low-maintenance mode, this means new features are only added if PRs are provided with tests.
-* Updates are limited to keeping the status-quo and OS-related updated.
-* I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
-* 2022 update: The project was migrated to VS2022 and boost 1.80, WindowsXP (32 bit) support was removed.
-* the OutputForwarder companion extension for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
-* nuget.exe can be downloaded from https://www.nuget.org/downloads
+- This project is in low-maintenance mode, this means new features are only added if PRs are provided with tests.
+- Updates are limited to keeping the status-quo and OS-related updated.
+- I'm looking for maintainers, so if you would like to join me in bugfixing or adding features, please let me know.
+- 2022 update: The project was migrated to VS2022 and boost 1.80, WindowsXP (32 bit) support was removed.
+- the OutputForwarder companion extension for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
+- nuget.exe can be downloaded from https://www.nuget.org/downloads
 
-Debugview++, currently at v1.9 (2024 Update!)
-------------------------------
-
-![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
-![Github Follow](https://img.shields.io/github/followers/janwilmans)
+## Debugview++, currently at v1.9 (2024 Update!)
 
 [![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
@@ -32,6 +40,7 @@ There is also a [slack channel](https://cpplang.slack.com/messages/debugviewpp).
 
 Debugview++ started as a viewer for Win32 OutputDebugString messages in the style of
 Sysinternals DebugView. However, it can now be attached to virtually any other kind of logging, such as:
+
 - tailing ascii and UTF logfiles (just drag it onto the window)
 - Android ADB (or any console based standard output)
 - serial ports (using plink)
@@ -40,8 +49,7 @@ Sysinternals DebugView. However, it can now be attached to virtually any other k
 
 See examples down below.
 
-Sponsors
---------
+## Sponsors
 
 This project is sponsored by:
 
@@ -49,7 +57,7 @@ This project is sponsored by:
 
 Build in code analysis, handy auto-fixes and refactoring options
 
-[![Backtrace logo](art/backtrace_logo.png)](https://backtrace.io/ )
+[![Backtrace logo](art/backtrace_logo.png)](https://backtrace.io/)
 
 Gather and analyse crash information.
 
@@ -57,14 +65,14 @@ Gather and analyse crash information.
 
 We use Incredibuild to make use of all cores of multiple machines to accelerate building our C++ projects.
 
-So when is this Debugview++ thing useful?
-------------------------------------------
+## So when is this Debugview++ thing useful?
 
 - first of all, with debugview++ you can see messages from different processes, not just 'attached' processes.
 - also: filtering, coloring and linking. To make sense of a large amount of information humans need to filter it or order it understand it. Also it helps if important events have different colors to quickly interpret the occurring patterns.
 - finally, filtering is nice, but sometimes you need to see a line in its context to understand it, this is where linked views can help to quickly switch between a fully filtered view and a fully detailed view.
 
 New in stable version 1.8.x:
+
 - bugfixes (namely in file-tailing)
 - tested on windows 10
 - last version with (official) XP support (v141_xp target)
@@ -74,23 +82,25 @@ New in stable version 1.8.x:
 - no other new features planned, if you're missing something you need, file an issue!
 
 Features we dream about and will create when we choose to spend the time:
+
 - a gantt chart-like view, a horizontal timeline, with bars/flags/signs on it to identify events
 - a better plugin based input system
 - transparent background streaming to disk
 - proper memory limits
 
 Known issues:
+
 - the history limit doesn't work right, this is troublesome for long-running duration-tests.
   A workaround is to send 'DBGVIEWCLEAR' before each test-cycle (this clears all logs from memory).
 - there is no 'pass-through' mode like the original dbgview had, if you can help me implement this, please contact me.
 - same goes for catching kernel messages, help wanted.
 
-References
-----------
-[OutputDebugString on MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa363362(v=vs.85).aspx)
+## References
 
-Screenshot
------------
+[OutputDebugString on MSDN](<https://msdn.microsoft.com/en-us/library/windows/desktop/aa363362(v=vs.85).aspx>)
+
+## Screenshot
+
 ![DebugView++ Screenshot](art/syntax_high.png "DebugView++ Screenshot")
 
 Here are some features:
@@ -128,18 +138,18 @@ And more features:
 - View->Process Colors, easy way to give every process its own color!
 - Options->Link views, best effort to synchronize the line-selection over all views
 
-Download old version (stable, dated 20 Sept 2015)
------------------------
-+ [DebugView v1.5.x Zipped executables](https://github.com/CobaltFusion/DebugViewPP/files/1408599/DebugView.v1.5.zip)
-+ [DebugView v1.5.x Win32 installer](https://github.com/CobaltFusion/DebugViewPP/files/1408607/DebugView.v1.5_msi.zip)
+## Download old version (stable, dated 20 Sept 2015)
+
+- [DebugView v1.5.x Zipped executables](https://github.com/CobaltFusion/DebugViewPP/files/1408599/DebugView.v1.5.zip)
+- [DebugView v1.5.x Win32 installer](https://github.com/CobaltFusion/DebugViewPP/files/1408607/DebugView.v1.5_msi.zip)
 
 Screenshot demonstrating bookmarks and highlighting features.
 
 **Highlighted**:
 
-- regex (token filter):     ``[^\s]*\\[\\\w+\.\s]+``    filenames in blue
-- regex (token filter):     ``0x\w+``                   hexadecimal numbers in red
-- regex (highlight filter): ``Unittest``                lines with the word 'Unittest' have a lightgreen background
+- regex (token filter): `[^\s]*\\[\\\w+\.\s]+` filenames in blue
+- regex (token filter): `0x\w+` hexadecimal numbers in red
+- regex (highlight filter): `Unittest` lines with the word 'Unittest' have a lightgreen background
 - a doubleclick on 'bytes' causes all instances of 'bytes' to highlight in yellow
 
 See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
@@ -150,8 +160,7 @@ See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for sup
 
 Screenshot demonstrating connecting to ADB logcat (Android Debug Bridge)
 
-More examples
--------------
+## More examples
 
 **Connect any pipe**:
 
@@ -159,7 +168,7 @@ To connect directly to a port or service, [plink] can be used, make sure an inst
 
 > plink -ssh -batch -v 192.168.0.1 2>&1 | debugview++
 
-Notice that 2>&1 is used *before* the pipe (|) symbol to redirect stderr to stdout.
+Notice that 2>&1 is used _before_ the pipe (|) symbol to redirect stderr to stdout.
 
 [plink]: http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 
@@ -170,17 +179,15 @@ And connect DebugView++ using Log->Connect DebugView Agent. Note that 'Log->Conn
 
 **Use RegexGroups + Token Highlighting**:
 
-Suppose you want to highlight some data value in your logging, since the actually value may differ, you cannot use normal matching to highlight them. With RegexGroups you can match text _before_ or _after the actual token you want to highlight.
+Suppose you want to highlight some data value in your logging, since the actually value may differ, you cannot use normal matching to highlight them. With RegexGroups you can match text _before_ or \_after the actual token you want to highlight.
 
 Example:
 
 ![FilterDialog Screenshot](art/regexgroups.png "RegexGroups Screenshot")
 
-Filters:
---------
+## Filters:
 
 ![FilterDialog Screenshot](art/filterdialog.png "FilterDialog Screenshot")
-
 
 Filters can be defined per view, for example choose File -> New View, and the filter dialog will popup.
 Pressing OK will open a new view without any filters.
@@ -199,7 +206,7 @@ just type any word or part of a word to match.
 - stop: if a matching expression is found autoscroll is turned off, all track filters will be disabled and the line is focused. Note: stop filters work only if autoscroll is on, think of a stop-filter as a single-shot track filter
 - beep: a standard windows beep (configurable in config panel->sounds) is played
 
-*Practical uses*:
+_Practical uses_:
 
 Include, exclude, once and highlight filters are the most intuitive filters to use. Track and stop can be a little confusing, let me try to give some examples.
 
@@ -207,10 +214,10 @@ Include, exclude, once and highlight filters are the most intuitive filters to u
 
 **stop**: this filter is good when some special event occurs (an exception?) and you want to inspect the context of the event in the log before continuing. A press of the 'end' button will resume auto scrolling.
 
-Other features:
-----------------
+## Other features:
 
 **views**:
+
 - reset view; make the first line in the logbuffer the first line in the view
 - reset view to this line; make the current like the first line in the view
 - clear view; make next incoming message the first line in the view
@@ -227,8 +234,7 @@ Now you can monitor the filtered view, and when your event occurs, select a line
 
 **process colors**: If enabled each process (even processed with identical names) will get a its own background color automatically without adding any filters.
 
-Other documentation:
---------------------
+## Other documentation:
 
 **Auto Scroll**: scrolls down to new incoming lines automatically
 
@@ -239,11 +245,12 @@ turned off if any other line is selected.
 
 **ClockTime**: when enabled the time is displayed as provided by the system's real-time clock (RTC). Such a timestamp has a 16ms resolution on a typical desktop PC. When disabled, time is displayed as a relative time to the first message, however this timestamp is obtained from the High-Performance Counter (HPC) which typically has a sub-microsecond resolution.
 
-The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occurred, it is the time the message was received by DebugView++. Also there is no guarantee that the time between occurrence and reception of messages is constant, *however* in practice this is **pretty** constant :)
+The resolution should not be confused with accuracy here, the recorded timestamp is not the actual time the message occurred, it is the time the message was received by DebugView++. Also there is no guarantee that the time between occurrence and reception of messages is constant, _however_ in practice this is **pretty** constant :)
 
-How to build
-------------
+## How to build
+
 This project has a special configuration:
+
 - 32bit debug/release configurations are targeted to v140_XP, SDK v7.0 (windows XP SP3 and up)
 - 64bit debug/release configurations are targeted to v141, SDK v8.1 (runs on windows 7 and up)
 - only the release configurations also build the Wix installer
@@ -265,7 +272,7 @@ Since we use ATL and support Windows XP still some extra installation options ar
 ![VS2017 Option screen](art/vs2017_options.png "VS2017 Option screen")
 
 - zip.exe, http://gnuwin32.sourceforge.net/packages/zip.htm, choose [zip-3.0-setup.exe]
- decompress the archive and you're done (add zip.exe to the path)
+  decompress the archive and you're done (add zip.exe to the path)
 
 # VS2019
 
@@ -279,4 +286,3 @@ mailto:janwilmans _at_ gmail.com
 
 Gert-Jan de Vos
 mailto:boosttestui@on.nl
-
