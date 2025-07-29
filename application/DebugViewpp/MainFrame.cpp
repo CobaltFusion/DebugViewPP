@@ -1232,6 +1232,19 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
     }
 }
 
+void CMainFrame::SetSelectTabByName(const std::wstring& tabName)
+{
+    const int views = GetViewCount();
+    for (int i = 0; i < views; ++i)
+    {
+        if (GetView(i).GetName() == tabName)
+        {
+            GetTabCtrl().SetCurSel(i);
+            break;
+        }
+    }
+}
+
 void CMainFrame::CapturePipe(HANDLE hPipe)
 {
     m_logSources.AddPipeReader(Win32::GetParentProcessId(), hPipe);
