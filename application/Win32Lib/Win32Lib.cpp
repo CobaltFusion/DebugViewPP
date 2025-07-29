@@ -300,14 +300,14 @@ void SetSecurityInfo(HANDLE hObject, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMA
 
 #ifdef DACL_MODIFY
 
-//delete DACL at all, so permit Full Access for Everyone
+// delete DACL at all, so permit Full Access for Everyone
 void DeleteObjectDACL(HANDLE hObject)
 {
     Win32::SetSecurityInfo(hObject, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nullptr, nullptr, nullptr, nullptr);
 }
 
-//add necessary permissions for "Authenticated Users" group (all non-anonymous users)
-//and for "All Application Packages", "All Restricted Application Packages" for UWP support
+// add necessary permissions for "Authenticated Users" group (all non-anonymous users)
+// and for "All Application Packages", "All Restricted Application Packages" for UWP support
 void AdjustObjectDACL(HANDLE hObject)
 {
     ACL* pOldDACL;

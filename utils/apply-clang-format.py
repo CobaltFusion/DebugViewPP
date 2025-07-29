@@ -30,12 +30,20 @@ def IsCppFile(fullname):
         return True
     if ext.lower().endswith(".hh"):
         return True
-    return False    
+    return False
 
 def IsIgnoredDirectory(dirname):
-    if dirname.lower().endswith("\gen"):
+    if dirname.lower().endswith("\\gen"):
         return True
-    if dirname.lower().endswith("\gen64"):
+    if dirname.lower().endswith("\\gen64"):
+        return True
+    if dirname.lower().endswith("\\nuget"):
+        return True
+    if dirname.lower().endswith("\\packages"):
+        return True
+    if "\\application\\Libraries\\" in dirname.lower():
+        return True
+    if "\\nuget\\packages\\" in dirname.lower():
         return True
     return False
 
@@ -44,22 +52,22 @@ def GetFiles(filemask, recurse):
         result = []
         path = os.path.dirname(os.path.abspath(filemask))
         for dirName, subdirList, fileList in os.walk(path):
-            if IsIgnoredDirectory(dirName): 
+            if IsIgnoredDirectory(dirName):
                 continue
             for fname in fileList:
                 filename = dirName + "\\" +  fname
-                if not IsCppFile(filename): 
+                if not IsCppFile(filename):
                     continue
                 result += [filename]
         return result
     else:
         result = []
         for filename in glob.glob(filemask):
-            if not IsCppFile(filename): 
+            if not IsCppFile(filename):
                 continue
             result += [os.path.abspath(filename)]
         return result
-    
+
 def filter(keyword):
     for line in sys.stdin:
         if not keyword in line:
@@ -80,7 +88,7 @@ def HasInvalidArgs():
     if sys.argv[1].startswith("/"):
         return True
     return False
-    
+
 def main():
     if HasInvalidArgs():
         print ("Usage: " + os.path.basename(sys.argv[0]) + " <filemask> [/s] [/f]")
@@ -105,7 +113,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     except Exception:
-        traceback.print_exc(file=sys.stdout) 
+        traceback.print_exc(file=sys.stdout)
     sys.exit(0)
-    
+
 

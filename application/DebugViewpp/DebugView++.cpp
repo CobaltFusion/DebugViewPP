@@ -15,9 +15,9 @@
 #include "atleverything.h"
 
 #include <filesystem>
-#include <cstdlib>  // for std::getenv
+#include <cstdlib> // for std::getenv
 
-//#define ENABLE_CRASHPAD
+// #define ENABLE_CRASHPAD
 #ifdef ENABLE_CRASHPAD
 #include "crashpad.h"
 #endif
@@ -161,8 +161,8 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
         }
         else if (boost::iequals(args[i], L"/log"))
         {
-            //wndMain.SetLogging();        // todo: implement: FileWriter needs to concurrently access m_logfile, it now causes a crash if DbgMsgSrc -1 is run
-            // this should be replaced by the new streaming-to-disk feature we discussed.
+            // wndMain.SetLogging();        // todo: implement: FileWriter needs to concurrently access m_logfile, it now causes a crash if DbgMsgSrc -1 is run
+            //  this should be replaced by the new streaming-to-disk feature we discussed.
         }
         else if (boost::icontains(args[i], L"/tab:"))
         {
@@ -213,7 +213,8 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 } // namespace fusion
 
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCmdLine, int nCmdShow) try
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpstrCmdLine, int nCmdShow)
+try
 {
 #ifdef ENABLE_CRASHPAD
     initializeCrashPad();

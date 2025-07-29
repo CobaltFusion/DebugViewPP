@@ -18,7 +18,6 @@ namespace debugviewpp {
  */
 
 DropTargetSupport::DropTargetSupport()
-
 {
 }
 

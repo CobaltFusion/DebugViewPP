@@ -3,6 +3,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+//
+// this is the dbgv.sys interface
+//
+
 #pragma once
 
 #include <windows.h>
@@ -13,9 +17,9 @@
 #include <string>
 #include <iostream>
 
-// this is the dbgv.sys interface
 #define FILE_DEVICE_DBGV 0x8305
 
+// clang-format off
 #define DBGV_CAPTURE_KERNEL          CTL_CODE(FILE_DEVICE_DBGV, DWORD(0), METHOD_BUFFERED, FILE_ANY_ACCESS)     //0x00  //enable capture kernel
 #define DBGV_UNCAPTURE_KERNEL        CTL_CODE(FILE_DEVICE_DBGV, DWORD(1), METHOD_BUFFERED, FILE_ANY_ACCESS)     //0x04  //
 #define DBGV_CLEAR_DISPLAY           CTL_CODE(FILE_DEVICE_DBGV, DWORD(2), METHOD_BUFFERED, FILE_ANY_ACCESS)     //0x08  //clear display
@@ -28,6 +32,7 @@
 #define DBGV_UNSET_CARRIAGE_RETURN   CTL_CODE(FILE_DEVICE_DBGV, DWORD(0x0e), METHOD_BUFFERED, FILE_ANY_ACCESS)  //0x38  //
 #define DBGV_SET_VERBOSE_MESSAGES    CTL_CODE(FILE_DEVICE_DBGV, DWORD(0x0f), METHOD_BUFFERED, FILE_ANY_ACCESS)  //0x3C  //enable log verbose
 #define DBGV_UNSET_VERBOSE_MESSAGES  CTL_CODE(FILE_DEVICE_DBGV, DWORD(0x10), METHOD_BUFFERED, FILE_ANY_ACCESS)  //0x40  //reset log verbose
+// clang-format on
 
 inline std::string feature_to_string(DWORD value)
 {
@@ -51,7 +56,7 @@ inline std::string feature_to_string(DWORD value)
 }
 
 // suppress the non-standard use of zero-sized array in struct/union
-#pragma warning(disable:4200)
+#pragma warning(disable : 4200)
 
 #pragma pack(1)
 typedef struct
@@ -63,7 +68,7 @@ typedef struct
 } LOG_ITEM, *PLOG_ITEM;
 #pragma pack()
 
-constexpr const wchar_t * strDbgviewKernelDriverDeviceName = L"\\\\.\\dbgv";
+constexpr const wchar_t* strDbgviewKernelDriverDeviceName = L"\\\\.\\dbgv";
 constexpr const DWORD kernelMessageBufferSize = 0x10000;
 
 void InstallKernelMessagesDriver(const std::string& driverLocation);

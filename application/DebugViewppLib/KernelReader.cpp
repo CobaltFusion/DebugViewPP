@@ -104,7 +104,10 @@ void KernelReader::Poll()
     memset(m_pBuf, 0, kernelMessageBufferSize);
     DWORD dwOut = 0;
     ::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, kernelMessageBufferSize, &dwOut, NULL);
-    if (dwOut == 0) return; // no messages to be read
+    if (dwOut == 0)
+    {
+        return; // no messages to be read
+    }
 
     PLOG_ITEM pNextItem = m_pBuf;
     while (pNextItem->dwIndex != 0)

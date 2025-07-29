@@ -234,7 +234,7 @@ LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
     HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
     m_cmdBar.AttachMenu(GetMenu());
     m_cmdBar.LoadImages(IDR_MAINFRAME);
-    SetMenu(nullptr); //disable second menu bar
+    SetMenu(nullptr); // disable second menu bar
 
     CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
     CReBarCtrl rebar(m_hWndToolBar);
@@ -1492,11 +1492,12 @@ void CMainFrame::Resume()
         catch (std::exception& e)
         {
             const auto message = std::format("Unable to capture Kernel Messages.\n"
-                       "({})\n\n"
-                       "Make sure you have appropriate permissions.\n"
-                       "\n"
-                       "You may need to start this application by right-clicking it and selecting\n"
-                       "'Run As Administator' even if you have administrator rights.", e.what());
+                                             "({})\n\n"
+                                             "Make sure you have appropriate permissions.\n"
+                                             "\n"
+                                             "You may need to start this application by right-clicking it and selecting\n"
+                                             "'Run As Administator' even if you have administrator rights.",
+                e.what());
             MessageBox(WStr(message), m_applicationName.c_str(), MB_ICONERROR | MB_OK);
             m_tryKernel = false;
         }
@@ -1669,10 +1670,10 @@ void CMainFrame::OnViewDuplicate(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
 
     AddFilterView(dlg.GetName(), dlg.GetFilters());
 
-    //auto &view = GetView();
-    //auto newLogView = std::make_shared<CLogView>(view);        // no copy constructor available
-    //newLogView->SetName(view.GetName() + L" (copy)");
-    //AddFilterView(newLogView);
+    // auto &view = GetView();
+    // auto newLogView = std::make_shared<CLogView>(view);        // no copy constructor available
+    // newLogView->SetName(view.GetName() + L" (copy)");
+    // AddFilterView(newLogView);
 
     SaveSettings();
 }
