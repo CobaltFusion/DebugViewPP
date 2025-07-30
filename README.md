@@ -1,6 +1,6 @@
 ## Contact information
 
-![Discord User](https://img.shields.io/badge/discord-janwilmans-blue?link=https%3A%2F%2Fdiscordapp.com%2Fusers%2F456038206987567105)
+[![Discord Invite](https://img.shields.io/badge/Discord%20Live%20Coding%20Chat-invite-blue)](https://discord.gg/V6HRYgBFUX)
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 ![Github Follow](https://img.shields.io/github/followers/janwilmans)
 
