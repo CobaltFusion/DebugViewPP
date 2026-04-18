@@ -54,9 +54,9 @@ public:
 
     wstringbuilder& operator<<(const std::string& str)
     {
-        m_ss << WStr(str);
+        m_ss << WStr(str).str();
         return *this;
-    }
+    } 
 
     operator std::wstring() const
     {
