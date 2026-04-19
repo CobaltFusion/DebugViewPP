@@ -4,7 +4,7 @@
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 ![Github Follow](https://img.shields.io/github/followers/janwilmans)
 
-## Debugview++ v1.20.x.x (Summer 2025 Update coming soon!)
+## Debugview++ v1.20.x.x (upcoming release)
 
 - new features: capture kernel messages, verbose mode and pass-through mode, big thanks to x64bugreport and 593749519 for providing information, contributions and test scenarios.
 - fixed #365: support for messages from UWP applications (poorly tested), feedback welcome!
