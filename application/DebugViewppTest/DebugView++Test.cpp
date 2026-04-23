@@ -547,6 +547,43 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLines)
     BOOST_TEST(lines.size() == amountOfTestLines);
 }
 
+BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLongerLines)
+{
+    using namespace std::chrono_literals;
+
+    std::string test_string = "ThisIsALongerTestMessageThisIsALongerTestMessageThisIsALongerTestMessageThisIsALongerTestMessage";
+    constexpr int amountOfTestLines = 150000;
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    Lines lines;
+    {
+        LogSources logsources(*executor, true);
+        executor->Call([&] { logsources.SetAutoNewLine(true); });
+        executor->Call([&] { logsources.AddDBWinReader(false); });
+
+        for (int i = 0; i < amountOfTestLines; ++i)
+        {
+            std::string message = stringbuilder() << i << test_string << test_string << '\n';
+            OutputDebugStringA(message.c_str());
+        }
+        executor->Call([&] { logsources.Abort(); });
+        executor->Call([&] { lines = logsources.GetLines(); });
+    }
+    executor.reset();
+
+
+    for (int i = 0; i < amountOfTestLines; ++i)
+    {
+        std::string message = stringbuilder() << i << test_string << test_string;
+        if (lines[i].message != message)
+        {
+            std::print("'{}' is not '{}'\n", lines[i].message, message);
+        }
+        BOOST_TEST(lines[i].message == message);
+    }
+    BOOST_TEST(lines.size() == amountOfTestLines);
+}
+
+
 std::string CreateTestFile()
 {
     Timer timer;

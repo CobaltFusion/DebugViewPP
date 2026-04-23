@@ -6,6 +6,8 @@
 
 ## Debugview++ v1.20.x.x (upcoming release)
 
+- bugfix: every 5000th line was not visible in the viewer (thanks to roman-orekhov for reporting and reproducing)
+- bugfix: unicode message were messed up (depending on windows utf-8 settings)
 - new features: capture kernel messages, verbose mode and pass-through mode, big thanks to x64bugreport and 593749519 for providing information, contributions and test scenarios.
 - fixed #365: support for messages from UWP applications (poorly tested), feedback welcome!
 - fixed #396: depending on the runtime dlls, this broke when we moved to cmake, now we link the runtime statically again.

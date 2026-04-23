@@ -96,7 +96,7 @@ std::wstring FormatDuration(double seconds)
         return wstringbuilder() << FormatUnits(minutes, L"minute") << L" " << FormatUnits(FloorTo<int>(seconds), L"second");
     }
 
-    static const wchar_t* units[] = {L"s", L"ms", L"µs", L"ns", nullptr};
+    static const wchar_t* units[] = {L"s", L"ms", L"\u03BCs", L"ns", nullptr}; // visualstudio is apparently unable to display the micro-sign correctly in UTF-8 encoded files
     const wchar_t** unit = units;
     while (*unit != nullptr && seconds > 0 && seconds < 1)
     {
