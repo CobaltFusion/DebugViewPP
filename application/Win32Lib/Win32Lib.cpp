@@ -411,7 +411,7 @@ WaitResult WaitForMultipleObjects(const HANDLE* begin, const HANDLE* end, bool w
     {
         ThrowLastError("WaitForMultipleObjects");
     }
-    if (rc >= WAIT_OBJECT_0 && rc < WAIT_OBJECT_0 + count)
+    if (rc < WAIT_OBJECT_0 + count)
     {
         return WaitResult(true, rc - WAIT_OBJECT_0);
     }
