@@ -458,11 +458,9 @@ bool CMainFrame::OnUpdate()
     int count = 0;
     for (auto&& line : lines)
     {
-        if (count++ < 5000)
-        {
-            bucket.emplace_back(std::move(line));
-        }
-        else
+        ++count;
+        bucket.emplace_back(std::move(line));
+        if (count == 5000)
         {
             count = 0;
             m_incomingMessages.emplace_back(std::move(bucket));
@@ -478,7 +476,6 @@ bool CMainFrame::OnUpdate()
     {
         return false;
     }
-
 
     auto linesbucket = std::move(m_incomingMessages.front());
     m_incomingMessages.pop_front();
