@@ -41,18 +41,18 @@ add_library(msvc_console_link_options INTERFACE)
 
 target_compile_features(project_compile_features INTERFACE cxx_constexpr cxx_auto_type cxx_final cxx_std_20)
 target_compile_definitions(project_definitions
-	INTERFACE
-	UNICODE
-	NOMINMAX
-	WIN32_LEAN_AND_MEAN
-	_CRT_SECURE_NO_WARNINGS
-	_WINSOCK_DEPRECATED_NO_WARNINGS
-	WIN32
-	WIN64
-	_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
-	"_WIN32_WINNT=0x0601"
+    INTERFACE
+    UNICODE
+    NOMINMAX
+    WIN32_LEAN_AND_MEAN
+    _CRT_SECURE_NO_WARNINGS
+    _WINSOCK_DEPRECATED_NO_WARNINGS
+    WIN32
+    WIN64
+    _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+    "_WIN32_WINNT=0x0601"
 )
-# 	"_ITERATOR_DEBUG_LEVEL=0" # trips over debug/release mismatches
+# "_ITERATOR_DEBUG_LEVEL=0" # trips over debug/release mismatches
 
 # /Oy and /RELEASE are added to avoid tripping malware detection
 # this is quite random, ymmv
@@ -80,4 +80,3 @@ message("CMAKE_C_COMPILER:     ${CMAKE_C_COMPILER}")
 message("CMAKE_CXX_COMPILER:   ${CMAKE_CXX_COMPILER}")
 message("will be installed in: ${CMAKE_INSTALL_PREFIX}")
 message("\n")
-
