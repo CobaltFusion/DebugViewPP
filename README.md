@@ -1,10 +1,8 @@
-## Contact information
-
 [![Discord Invite](https://img.shields.io/badge/Discord%20Live%20Coding%20Chat-invite-blue)](https://discord.gg/V6HRYgBFUX)
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 ![Github Follow](https://img.shields.io/github/followers/janwilmans)
 
-## Debugview++ v1.20.x.x (upcoming release)
+## Debugview++ v1.20.0.0 (released 23 April 2026)
 
 - bugfix: every 5000th line was not visible in the viewer (thanks to roman-orekhov for reporting and reproducing)
 - bugfix: unicode message were messed up (depending on windows utf-8 settings)
@@ -25,7 +23,7 @@
 - the OutputForwarder companion extension for VS2022 can be found in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JanWilmans.OutputForwarder2022)
 - nuget.exe can be downloaded from https://www.nuget.org/downloads
 
-## Debugview++, currently at v1.9 (2024 Update!)
+## Debugview++, currently at v1.9 (2024)
 
 [![All Releases](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
 [![Current Release](https://img.shields.io/github/downloads/CobaltFusion/DebugViewPP/latest/total.svg)](https://github.com/CobaltFusion/DebugViewPP/releases/latest)
