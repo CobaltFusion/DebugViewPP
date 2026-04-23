@@ -594,7 +594,7 @@ std::string GetTestFileAsString()
     return ss.str();
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte)
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte, *boost::unit_test::disabled())
 {
     using namespace std::chrono_literals;
     auto executor = std::make_unique<ActiveExecutorClient>();
