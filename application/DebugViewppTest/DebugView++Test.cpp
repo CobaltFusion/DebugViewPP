@@ -11,6 +11,7 @@
 #include <random>
 #include <fstream>
 #include <iostream>
+#include <print>
 
 #include "Win32/Utilities.h"
 #include "Win32/Win32Lib.h"
@@ -32,7 +33,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-BOOST_AUTO_TEST_SUITE(DebugViewPlusPlusLib)
+BOOST_AUTO_TEST_SUITE(DebugViewPlusPlusTest)
 
 std::string GetTestString(size_t i)
 {
@@ -509,6 +510,41 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
     executor.reset();
 
     BOOST_TEST(lines.size() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLines)
+{
+    using namespace std::chrono_literals;
+
+    constexpr int amountOfTestLines = 150000;
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    Lines lines;
+    {
+        LogSources logsources(*executor, true);
+        executor->Call([&] { logsources.SetAutoNewLine(true); });
+        executor->Call([&] { logsources.AddDBWinReader(false); });
+
+        for (int i = 0; i < amountOfTestLines; ++i)
+        {
+            std::string message = stringbuilder() << i << '\n';
+            OutputDebugStringA(message.c_str());
+        }
+        executor->Call([&] { logsources.Abort(); });
+        executor->Call([&] { lines = logsources.GetLines(); });
+    }
+    executor.reset();
+
+
+    for (int i = 0; i < amountOfTestLines; ++i)
+    {
+        std::string message = stringbuilder() << i;
+        if (lines[i].message != message)
+        {
+            std::print("'{}' is not '{}'\n", lines[i].message, message);
+        }
+        BOOST_TEST(lines[i].message == message);
+    }
+    BOOST_TEST(lines.size() == amountOfTestLines);
 }
 
 std::string CreateTestFile()
