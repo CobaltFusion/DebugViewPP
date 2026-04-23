@@ -7,7 +7,6 @@
 
 constexpr const char* DRIVER_SERVICE_NAME = "debugviewdriver";
 constexpr const char* DRIVER_DISPLAY_NAME = "DbgView Kernel Message Driver";
-const std::string driverPath = "C:\\Windows\\System32\\drivers\\dbgvpp.sys";
 
 bool FileExists(const std::string& path)
 {
@@ -82,9 +81,9 @@ void InstallKernelMessagesDriver(const std::string& driverLocation)
     // try to uninstall first, in case the driver is somehow still loaded.
     UninstallKernelMessagesDriver();
 
-    if (!FileExists(driverPath))
+    if (!FileExists(driverLocation))
     {
-        std::cout << "Driver file not found at: " << driverPath << std::endl;
+        std::cout << "Driver file not found at: " << driverLocation << std::endl;
     }
 
     SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);

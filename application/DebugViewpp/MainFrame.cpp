@@ -1549,11 +1549,18 @@ void CMainFrame::WriteDriverFromResource()
             void* pLockedRes = LockResource(hLoadedRes);
             if (pLockedRes)
             {
+                std::cout << "Write " << m_driverLocation << "\n";
                 std::ofstream outFile(m_driverLocation.c_str(), std::ios::binary);
                 outFile.write(static_cast<const char*>(pLockedRes), dwSize);
                 outFile.close();
             }
         }
+    }
+
+    if (!std::filesystem::exists(m_driverLocation))
+    {
+        std::cout << "Could not write to " << m_driverLocation << "\n";
+        m_logSources.AddMessage("Unable to access kernel messages driver");
     }
 }
 
