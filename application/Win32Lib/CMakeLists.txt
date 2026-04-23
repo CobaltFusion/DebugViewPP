@@ -4,10 +4,10 @@ add_library(${PROJECT_NAME} Com.cpp Process.cpp Registry.cpp Socket.cpp Utilitie
 add_library(dv::win32 ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
-	PRIVATE
-        project::definitions
-        project::compile_features
-        project::compile_options
+PRIVATE
+    project::definitions
+    project::compile_features
+    project::compile_options
 )
 
 target_include_directories(win32lib PUBLIC

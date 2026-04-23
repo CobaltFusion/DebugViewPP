@@ -3,15 +3,15 @@ project(DbgMsgSrc)
 add_executable(${PROJECT_NAME} DbgMsgSrc.cpp Timer.cpp)
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-        project::definitions
-        project::compile_features
-        project::compile_options
-        project::console_link_options
-        nuget::boost
-        dv::cobaltfusion
-        dv::library
-        dv::win32
+PRIVATE
+    project::definitions
+    project::compile_features
+    project::compile_options
+    project::console_link_options
+    nuget::boost
+    dv::cobaltfusion
+    dv::library
+    dv::win32
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

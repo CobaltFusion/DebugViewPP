@@ -41,14 +41,14 @@ add_library(${PROJECT_NAME}
 add_library(dv::library ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-        project::definitions
-        project::compile_features
-        project::compile_options
-        nuget::boost
-        nuget::wtl
-        dv::cobaltfusion
-        dv::win32
+PRIVATE
+    project::definitions
+    project::compile_features
+    project::compile_options
+    nuget::boost
+    nuget::wtl
+    dv::cobaltfusion
+    dv::win32
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

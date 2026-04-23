@@ -17,7 +17,7 @@ option(USE_BOOST_REGEX "Replace std::regex with Boost.Regex" OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 if(NOT CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 11)
-	set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 11)
 endif()
 
 #============================================================================
@@ -25,11 +25,11 @@ endif()
 #============================================================================
 set(docopt_SOURCES docopt.cpp)
 set(docopt_HEADERS
-		docopt.h
-		docopt_private.h
-		docopt_util.h
-		docopt_value.h
-		)
+    docopt.h
+    docopt_private.h
+    docopt_util.h
+    docopt_value.h
+    )
 
 #============================================================================
 # Compile targets
@@ -52,10 +52,10 @@ if(MSVC AND BUILD_SHARED_LIBS)
 endif()
 
 if(USE_BOOST_REGEX)
-	add_definitions("-DDOCTOPT_USE_BOOST_REGEX")
-	# This is needed on Linux, where linking a static library into docopt.so
-	# fails because boost static libs are not compiled with -fPIC
-	set(Boost_USE_STATIC_LIBS OFF)
+    add_definitions("-DDOCTOPT_USE_BOOST_REGEX")
+    # This is needed on Linux, where linking a static library into docopt.so
+    # fails because boost static libs are not compiled with -fPIC
+    set(Boost_USE_STATIC_LIBS OFF)
     find_package(Boost 1.53 REQUIRED COMPONENTS regex)
     include_directories(${Boost_INCLUDE_DIRS})
     target_link_libraries(docopt ${Boost_LIBRARIES})
@@ -65,24 +65,24 @@ endif()
 # Examples
 #============================================================================
 if(WITH_EXAMPLE)
-	add_executable(docopt_example examples/naval_fate.cpp)
-	target_link_libraries(docopt_example docopt)
+    add_executable(docopt_example examples/naval_fate.cpp)
+    target_link_libraries(docopt_example docopt)
 endif()
 
 #============================================================================
 # Tests
 #============================================================================
 if(WITH_TESTS)
-	set(TESTPROG "${CMAKE_CURRENT_BINARY_DIR}/run_testcase")
-	set(TESTCASES "${PROJECT_SOURCE_DIR}/testcases.docopt")
-	add_executable(run_testcase run_testcase.cpp)
-	target_link_libraries(run_testcase docopt)
-	configure_file(
-			"${PROJECT_SOURCE_DIR}/run_tests.py"
-			"${CMAKE_CURRENT_BINARY_DIR}/run_tests"
-			ESCAPE_QUOTES
-	)
-	add_test("Testcases docopt" ${TESTPROG})
+    set(TESTPROG "${CMAKE_CURRENT_BINARY_DIR}/run_testcase")
+    set(TESTCASES "${PROJECT_SOURCE_DIR}/testcases.docopt")
+    add_executable(run_testcase run_testcase.cpp)
+    target_link_libraries(run_testcase docopt)
+    configure_file(
+            "${PROJECT_SOURCE_DIR}/run_tests.py"
+            "${CMAKE_CURRENT_BINARY_DIR}/run_tests"
+            ESCAPE_QUOTES
+    )
+    add_test("Testcases docopt" ${TESTPROG})
 endif()
 
 #============================================================================
@@ -92,9 +92,9 @@ set(export_name "docopt-targets")
 
 # Runtime package
 install(TARGETS docopt EXPORT ${export_name}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Development package
 install(FILES ${docopt_HEADERS} DESTINATION include/docopt)
