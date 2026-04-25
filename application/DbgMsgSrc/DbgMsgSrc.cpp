@@ -277,6 +277,22 @@ void EndlessTest()
     }
 }
 
+void EncodingTest()
+{
+    const wchar_t* utf16Message = L"This message is UTF-16 encoded and send through OutputDebugStringW \u65E5\u672C\u8A9E"; // 日本語 UTF-16 encoded
+    OutputDebugStringW(utf16Message);
+
+    // 日本語 😀" encoded as UTF-8 bytes
+    const char* utf8Message = "This message is UTF-8 encoded and send through OutputDebugStringA (with special windows settings): "
+        "\xE6\x97\xA5" // 日 // Ni
+        "\xE6\x9C\xAC" // 本 // Hon
+        "\xE8\xAA\x9E" // 語 // Go
+        " "
+        "\xF0\x9F\x98\x80"; // 😀
+
+    OutputDebugStringA(utf8Message);
+}
+
 void SeparateProcessTest()
 {
     std::cerr << "SeparateProcessTest\n";
@@ -407,6 +423,11 @@ int Main(int argc, char* argv[])
         else if (arg == "-3")
         {
             EndlessTest();
+            return 0;
+        }
+        else if (arg == "-4")
+        {
+            EncodingTest();
             return 0;
         }
         else if (arg == "-s") // run separate process test
