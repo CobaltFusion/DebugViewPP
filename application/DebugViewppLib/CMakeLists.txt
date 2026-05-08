@@ -49,6 +49,7 @@ PRIVATE
     nuget::wtl
     dv::cobaltfusion
     dv::win32
+    winmm
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
