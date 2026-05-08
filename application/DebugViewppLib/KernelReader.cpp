@@ -11,6 +11,9 @@
 
 #include <filesystem>
 #include <format>
+
+#include <mmsystem.h> // timeBeginPeriod / timeEndPeriod
+
 namespace fusion {
 namespace debugviewpp {
 
@@ -46,10 +49,13 @@ void KernelReader::StartListening()
         throw std::runtime_error("Could not find the kernel messages driver device name");
     }
 
-    // enable capture
-    DWORD dwOut = 0;
     DWORD dwReturned = 0;
-    BOOL bRet = DeviceIoControl(handle.get(), DBGV_CAPTURE_KERNEL, NULL, 0, &dwOut, sizeof(dwOut), &dwReturned, NULL);
+
+    // flush any stale events left over from a previous session
+    ::DeviceIoControl(handle.get(), DBGV_CLEAR_DISPLAY, NULL, 0, NULL, 0, &dwReturned, NULL);
+
+    DWORD dwOut = 0;
+    BOOL bRet = ::DeviceIoControl(handle.get(), DBGV_CAPTURE_KERNEL, NULL, 0, &dwOut, sizeof(dwOut), &dwReturned, NULL);
     if (!bRet)
     {
         printf("DBGV_CAPTURE_KERNEL failed, err=%d\n", ::GetLastError());
@@ -62,28 +68,37 @@ void KernelReader::StartListening()
 
 void KernelReader::StopListening()
 {
-    BOOL bRet = DeviceIoControl(m_handle.get(), DBGV_UNCAPTURE_KERNEL, NULL, 0, NULL, 0, NULL, NULL);
+    // clear verbose / pass-through bits so the driver is left in a clean state for the next load
+    ::DeviceIoControl(m_handle.get(), DBGV_UNSET_VERBOSE_MESSAGES, NULL, 0, NULL, 0, NULL, NULL);
+    ::DeviceIoControl(m_handle.get(), DBGV_UNSET_PASSTHROUGH, NULL, 0, NULL, 0, NULL, NULL);
+
+    BOOL bRet = ::DeviceIoControl(m_handle.get(), DBGV_UNCAPTURE_KERNEL, NULL, 0, NULL, 0, NULL, NULL);
     if (!bRet)
     {
         printf("DBGV_UNCAPTURE_KERNEL failed, err=%d\n", ::GetLastError());
     }
     m_handle.reset();
     ::free(m_pBuf);
+    m_pBuf = nullptr;
 }
 
 KernelReader::KernelReader(Timer& timer, ILineBuffer& linebuffer) :
-    PolledLogSource(timer, SourceType::Pipe, linebuffer, 1)
+    PolledLogSource(timer, SourceType::Pipe, linebuffer, 1000) // 1ms poll
 {
     SetDescription(L"Kernel Message Reader");
     InstallKernelMessagesDriver(GetDebugviewDriverLocation());
     Signal();
     StartListening();
+    // bump the system timer resolution so the base class sleep_for(1ms) is actually ~1ms
+    // instead of being rounded up to the default Windows scheduler tick
+    ::timeBeginPeriod(1);
     StartThread();
 }
 
 KernelReader::~KernelReader()
 {
     StopListening();
+    ::timeEndPeriod(1);
     UninstallKernelMessagesDriver();
 }
 
@@ -101,19 +116,24 @@ bool KernelReader::AtEnd() const
 
 void KernelReader::Poll()
 {
-    memset(m_pBuf, 0, kernelMessageBufferSize);
-    DWORD dwOut = 0;
-    ::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, kernelMessageBufferSize, &dwOut, NULL);
-    if (dwOut == 0)
+    // drain the driver ring until empty; a single IOCTL per poll was dropping
+    // messages whenever the producer outran the poll rate
+    for (;;)
     {
-        return; // no messages to be read
-    }
+        memset(m_pBuf, 0, kernelMessageBufferSize);
+        DWORD dwOut = 0;
+        ::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, kernelMessageBufferSize, &dwOut, NULL);
+        if (dwOut == 0)
+        {
+            return; // no messages to be read
+        }
 
-    PLOG_ITEM pNextItem = m_pBuf;
-    while (pNextItem->dwIndex != 0)
-    {
-        AddMessage(0, "kernel", pNextItem->strData);
-        pNextItem = (PLOG_ITEM)((char*)pNextItem + sizeof(LOG_ITEM) + (strlen(pNextItem->strData) + 4) / 4 * 4);
+        PLOG_ITEM pNextItem = m_pBuf;
+        while (pNextItem->dwIndex != 0)
+        {
+            AddMessage(0, "kernel", pNextItem->strData);
+            pNextItem = (PLOG_ITEM)((char*)pNextItem + sizeof(LOG_ITEM) + (strlen(pNextItem->strData) + 4) / 4 * 4);
+        }
     }
 }
 
