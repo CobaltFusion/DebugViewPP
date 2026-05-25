@@ -9,7 +9,12 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+
+#pragma warning(push)
+#pragma warning(disable : 4242)
 #include <boost/asio.hpp>
+#pragma warning(pop)
+
 #include "Win32/Utilities.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/Str.h"

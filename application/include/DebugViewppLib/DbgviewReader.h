@@ -5,7 +5,11 @@
 
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable : 4242)
 #include <boost/asio.hpp>
+#pragma warning(pop)
+
 #include "PolledLogSource.h"
 
 namespace fusion {
