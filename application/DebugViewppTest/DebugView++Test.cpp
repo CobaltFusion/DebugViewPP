@@ -6,6 +6,7 @@
 #define BOOST_TEST_MODULE DebugView++ Lib Unit Test
 
 #include <boost/test/unit_test_gui.hpp>
+#include "Win32/Process.h"
 
 #include <filesystem>
 #include <random>
@@ -494,16 +495,15 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
 {
     using namespace std::chrono_literals;
 
-    std::string dbgMsgSrc = stringbuilder() << GetExecutePath() << "\\DbgMsgSrc.exe";
-    BOOST_TEST(FileExists(dbgMsgSrc.c_str()));
-    std::string cmd = stringbuilder() << dbgMsgSrc << " -n";
+    auto dbgMsgSrc = std::filesystem::path(GetExecutePath()) / "DbgMsgSrc.exe";
+    BOOST_TEST(std::filesystem::exists(dbgMsgSrc));
     auto executor = std::make_unique<ActiveExecutorClient>();
     Lines lines;
     {
         LogSources logsources(*executor, true);
         executor->Call([&] { logsources.SetAutoNewLine(true); });
         executor->Call([&] { logsources.AddDBWinReader(false); });
-        system(cmd.c_str());
+        Win32::Process(dbgMsgSrc.wstring(), L"-n").Wait();
         executor->Call([&] { logsources.Abort(); });
         executor->Call([&] { lines = logsources.GetLines(); });
     }
