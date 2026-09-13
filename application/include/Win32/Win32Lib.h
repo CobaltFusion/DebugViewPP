@@ -8,6 +8,7 @@
 #include "Utilities.h"
 
 #include <string>
+#include <string_view>
 #include <memory>
 #include <vector>
 #include <system_error>
@@ -177,6 +178,17 @@ class Win32Error : public std::system_error
 public:
     Win32Error(DWORD error, const std::string& what);
 };
+
+inline constexpr std::string_view utf8_bom = "\xEF\xBB\xBF";
+
+inline std::string_view StripUtf8Bom(std::string_view str) noexcept
+{
+    if (str.starts_with(utf8_bom))
+    {
+        str.remove_prefix(utf8_bom.size());
+    }
+    return str;
+}
 
 std::wstring MultiByteToWideChar(std::string_view str);
 std::wstring MultiByteToWideChar_std(std::string_view str);

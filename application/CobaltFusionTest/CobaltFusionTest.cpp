@@ -292,18 +292,17 @@ std::ostream& operator<<(std::ostream& os, const std::chrono::steady_clock::dura
     return os << duration_cast<milliseconds>(p).count() << "ms";
 }
 
-// this test requires the 'Language for non-unicode programs' to be set to 'chinese-simplified'
-// see Run "intl.cpl" -> Administrative -> 'Language for non-unicode programs'
-//BOOST_AUTO_TEST_CASE(RoundTripUnicodeTest)
-//{
-//    auto t1 = ::setlocale(LC_ALL, "chinese-simplified");
-//    BOOST_REQUIRE(t1 != nullptr);    // nulltr means 'could not set locale'
-//
-//    std::wstring chineseLanguage = L"\u4e2d\u6587"; // 中文";
-//    std::string s = Str(chineseLanguage);
-//    std::wstring w = WStr(s);
-//    BOOST_REQUIRE(w == chineseLanguage);
-//}
+BOOST_AUTO_TEST_CASE(RoundTripUnicodeTest)
+{
+    std::wstring unicodeSample = L"Hello, 世界! é/Ω/€ 🚀";
+    std::string s = Str(unicodeSample);
+    std::wstring w = WStr(s);
+    BOOST_REQUIRE(w == unicodeSample);
+
+    std::string sWithBom = "\xEF\xBB\xBF" + s;
+    std::wstring wStripped = WStr(sWithBom);
+    BOOST_REQUIRE(wStripped == unicodeSample);
+}
 
 BOOST_AUTO_TEST_CASE(ThrottleTest)
 {

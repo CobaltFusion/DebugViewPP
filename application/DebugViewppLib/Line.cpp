@@ -14,7 +14,7 @@ Line::Line(double time, FILETIME systemTime, HANDLE handle, const std::string& m
     systemTime(systemTime),
     handle(handle),
     pid(0),
-    message(message),
+    message(Win32::StripUtf8Bom(message)),
     pLogSource(pLogSource)
 {
 }
@@ -25,7 +25,7 @@ Line::Line(double time, FILETIME systemTime, DWORD pid, const std::string& proce
     handle(nullptr),
     pid(pid),
     processName(processName),
-    message(message),
+    message(Win32::StripUtf8Bom(message)),
     pLogSource(pLogSource)
 {
 }

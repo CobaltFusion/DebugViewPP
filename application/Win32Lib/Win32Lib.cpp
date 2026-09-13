@@ -118,10 +118,30 @@ ScopedTextAlign::~ScopedTextAlign()
 
 std::wstring MultiByteToWideChar(std::string_view str)
 {
-    int buf_size = static_cast<int>(str.size() + 2);
-    std::vector<wchar_t> buf(buf_size);
-    size_t write_len = ::MultiByteToWideChar(0, 0, str.data(), static_cast<int>(str.size()), buf.data(), buf_size);
-    return std::wstring(buf.data(), buf.data() + write_len);
+    str = StripUtf8Bom(str);
+
+    if (str.empty())
+    {
+        return {};
+    }
+
+    int utf8_len = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), nullptr, 0);
+    if (utf8_len > 0)
+    {
+        std::wstring wstr(utf8_len, L'\0');
+        ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), wstr.data(), utf8_len);
+        return wstr;
+    }
+
+    int acp_len = ::MultiByteToWideChar(CP_ACP, 0, str.data(), static_cast<int>(str.size()), nullptr, 0);
+    if (acp_len > 0)
+    {
+        std::wstring wstr(acp_len, L'\0');
+        ::MultiByteToWideChar(CP_ACP, 0, str.data(), static_cast<int>(str.size()), wstr.data(), acp_len);
+        return wstr;
+    }
+
+    return {};
 }
 
 std::wstring MultiByteToWideChar_std(std::string_view str) // supposedly more reliable, but not working.
@@ -134,10 +154,20 @@ std::wstring MultiByteToWideChar_std(std::string_view str) // supposedly more re
 
 std::string WideCharToMultiByte(std::wstring_view str)
 {
-    size_t buf_size = str.size() * 2 + 2;
-    std::vector<char> buf(buf_size);
-    size_t write_len = ::WideCharToMultiByte(0, 0, str.data(), static_cast<int>(str.size()), buf.data(), static_cast<int>(buf.size()), nullptr, nullptr);
-    return std::string(buf.data(), buf.data() + write_len);
+    if (str.empty())
+    {
+        return {};
+    }
+
+    int len = ::WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), nullptr, 0, nullptr, nullptr);
+    if (len > 0)
+    {
+        std::string res(len, '\0');
+        ::WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), res.data(), len, nullptr, nullptr);
+        return res;
+    }
+
+    return {};
 }
 
 Win32Error::Win32Error(DWORD error, const std::string& what) :
