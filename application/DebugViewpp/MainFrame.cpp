@@ -1536,6 +1536,20 @@ void CMainFrame::WriteDriverFromResource()
     {
         return;
     }
+    const auto driverDirectory = std::filesystem::path(m_driverLocation).parent_path();
+    if (!driverDirectory.empty())
+    {
+        std::error_code error;
+        std::filesystem::create_directories(driverDirectory, error);
+        if (error)
+        {
+            std::cout << "Could not create driver directory " << driverDirectory
+                      << ": " << error.message() << "\n";
+            m_logSources.AddMessage("Unable to create kernel messages driver directory: " + error.message());
+            return;
+        }
+    }
+
     HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_DBGV_DRIVER), RT_RCDATA);
     if (hRes)
     {
