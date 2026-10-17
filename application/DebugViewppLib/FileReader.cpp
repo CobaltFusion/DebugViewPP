@@ -17,6 +17,15 @@ namespace debugviewpp {
 
 namespace fs = std::filesystem;
 
+// returns the previous size when the size cannot be determined (the file is temporarily gone, being rotated, etc.),
+// fs::file_size(path) would throw, and an exception escaping the polling thread terminates the application.
+static uintmax_t TryGetFileSize(const std::string& filename, uintmax_t previousSize)
+{
+    std::error_code ec;
+    const auto size = fs::file_size(fs::path(filename), ec);
+    return ec ? previousSize : size;
+}
+
 FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
     LogSource(timer, SourceType::File, linebuffer),
     m_filename(Str(filename).str()),
@@ -67,7 +76,7 @@ void FileReader::PollThread()
     // MSDN: 'For operating systems that use extensive caching, detection occurs only when the cache is sufficiently flushed.'
     // affect: timestamps for lines read from logfiles have > 500ms accuracy and unittests are slow.
 
-    uintmax_t filesize = fs::file_size(fs::path(m_filename));
+    uintmax_t filesize = TryGetFileSize(m_filename, 0);
     ReadUntilEof();
     while (!AtEnd())
     {
@@ -80,7 +89,7 @@ void FileReader::PollThread()
         else
         {
             // timeout occurred, poll the filesize
-            uintmax_t newFilesize = fs::file_size(fs::path(m_filename));
+            uintmax_t newFilesize = TryGetFileSize(m_filename, filesize);
             if (filesize != newFilesize)
             {
                 filesize = newFilesize;
