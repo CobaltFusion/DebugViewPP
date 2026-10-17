@@ -620,28 +620,38 @@ void RemoveLinesFromFile(const std::string& filename, int linesToRemove)
     Win32::HFile(GetTestFileName()).resize(offset);
 }
 
+// Polls until expectedCount lines have arrived (or the timeout expires), then waits one
+// more settle interval and reads again, so that unexpected extra lines (duplicates after a
+// resync, for example) are returned too and get caught by the caller's size check.
 Lines WaitForLines(ActiveExecutorClient& executor, LogSources& logsources, size_t expectedCount,
                    std::chrono::milliseconds timeout = std::chrono::milliseconds(2000),
-                   std::chrono::milliseconds interval = std::chrono::milliseconds(50))
+                   std::chrono::milliseconds interval = std::chrono::milliseconds(50),
+                   std::chrono::milliseconds settle = std::chrono::milliseconds(100))
 {
     Lines accumulated;
-    const auto startTime = std::chrono::steady_clock::now();
-    while (accumulated.size() < expectedCount)
-    {
+    auto readMore = [&] {
         Lines batch;
         executor.Call([&] { batch = logsources.GetLines(); });
         accumulated.insert(accumulated.end(),
                            std::make_move_iterator(batch.begin()),
                            std::make_move_iterator(batch.end()));
+    };
 
+    const auto startTime = std::chrono::steady_clock::now();
+    for (;;)
+    {
+        readMore();
         if (accumulated.size() >= expectedCount)
             break;
 
         if (std::chrono::steady_clock::now() - startTime >= timeout)
-            break;
+            return accumulated;
 
         std::this_thread::sleep_for(interval);
     }
+
+    std::this_thread::sleep_for(settle);
+    readMore();
     return accumulated;
 }
 
