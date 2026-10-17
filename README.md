@@ -2,6 +2,23 @@
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 [![Github Follow](https://img.shields.io/github/followers/janwilmans?style=social)](https://github.com/janwilmans)
 
+## Debugview++ v1.21 (released 18 October 2026)
+
+- new commandline argument /delay:<milliseconds> to deliberately slow down every process that calls OutputDebugString (fixes #400)
+- new: UTF-8 messages are decoded properly (falling back to the ANSI code page for invalid UTF-8) and a leading UTF-8 BOM is stripped, contributed by Shan Zhou (#425)
+- fixed #415: lines longer than ~2340 characters were invisible (GDI cannot draw text wider than 32767 pixels), selecting text in such lines works too.
+- fixed #301: loading a DebugView++ logfile no longer replaces the process names with the filename.
+- kernel messages: the driver is now loaded with NtLoadDriver and is placed in System32\drivers (it was System32\driver), a different driver file is replaced, and failures give a clear error message, thanks to x64bugreport (#413).
+- kernel messages: fixed lost messages caused by the 1Hz poll rate and stale capture state on start/stop, contributed by Jiahe Wang.
+- fixed wildcard filters: '?' matches exactly one character instead of also matching nothing.
+- fixed a crash when a tailed file disappears or is rotated.
+- fixed lines from tailed Sysinternals and DebugView++ logfiles occasionally being parsed as plain text (a race when the file reader started).
+- fixed an out-of-bounds read when receiving a short message from a Dbgview agent.
+- fixed a data race between adding/removing log sources and processing messages, and a process handle leak for messages of removed sources.
+- fixed timestamps going back a day after midnight in Sysinternals logfiles saved in a US region format, which also failed for logs spanning more than a month.
+- more reliable tests (tailing tests no longer depend on fixed sleeps), contributed by Shan Zhou; stricter Str()/WStr() conversions that no longer print a pointer instead of text.
+- build: all compiler and linker warnings are errors now, third party headers are included as SYSTEM, vscode settings and recommended extensions were added, and CI was updated.
+
 ## Debugview++ v1.20.0.0 (released 23 April 2026)
 
 - bugfix: every 5000th line was not visible in the viewer (thanks to roman-orekhov for reporting and reproducing)
@@ -11,7 +28,6 @@
 - fixed #396: depending on the runtime dlls, this broke when we moved to cmake, now we link the runtime statically again.
 - fixed title bar not being updated when 'Global Win32' was toggled.
 - new commandline argument /tab:<name> to select a tab that get focus at startup, contributed by KirisameMarisa
-- new commandline argument /delay:<milliseconds> to deliberately slow down every process that calls OutputDebugString (fixes #400)
 - removed color support from 'include' filter by request (a highlight filter can still achieve the same result), contributed by Ishmaeel.
 - faster building by adding /MP.
 
