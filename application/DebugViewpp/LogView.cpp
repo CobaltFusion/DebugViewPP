@@ -42,10 +42,51 @@ unsigned GetTextAlign(const HDITEM& item)
     return HDF_LEFT;
 }
 
+// Returns the number of characters, starting at 'first', that fit entirely within maxExtent pixels and sets
+// usedWidth to their width. The text is measured in chunks because GDI text functions fail when the extent of
+// a single string exceeds 32767 device units.
+size_t CountFittingChars(HDC hdc, const std::wstring& text, size_t first, int maxExtent, int& usedWidth)
+{
+    constexpr size_t chunkSize = 512;
+    usedWidth = 0;
+    size_t count = 0;
+    while (first + count < text.size() && usedWidth < maxExtent)
+    {
+        const wchar_t* chunk = text.c_str() + first + count;
+        const int chunkLength = static_cast<int>(std::min(chunkSize, text.size() - first - count));
+        int fit = 0;
+        SIZE size = {};
+        if (GetTextExtentExPointW(hdc, chunk, chunkLength, maxExtent - usedWidth, &fit, nullptr, &size) == 0)
+        {
+            break;
+        }
+        if (fit < chunkLength)
+        {
+            SIZE fitSize = {};
+            if (fit > 0 && GetTextExtentPoint32W(hdc, chunk, fit, &fitSize) != 0)
+            {
+                usedWidth += fitSize.cx;
+            }
+            count += fit;
+            break;
+        }
+        usedWidth += size.cx;
+        count += chunkLength;
+    }
+    return count;
+}
+
 SIZE GetTextSize(CDCHandle dc, const std::wstring& text, int length)
 {
+    constexpr int chunkSize = 512;
     SIZE size = {0};
-    dc.GetTextExtent(text.c_str(), length, &size);
+    for (int pos = 0; pos < length; pos += chunkSize)
+    {
+        SIZE chunk = {0};
+        dc.GetTextExtent(text.c_str() + pos, std::min(chunkSize, length - pos), &chunk);
+        size.cx += chunk.cx;
+        size.cy = std::max(size.cy, chunk.cy);
+    }
     return size;
 }
 
@@ -68,14 +109,14 @@ int GetTextOffset(HDC hdc, const std::string& s, int xPos)
 
 int GetTextOffset(HDC hdc, const std::wstring& s, int xPos)
 {
-    auto exp = TabsToSpaces(s);
-    int nFit = 0;
-    SIZE size = {};
-    if (xPos <= 0 || (GetTextExtentExPointW(hdc, exp.c_str(), static_cast<int>(exp.size()), xPos, &nFit, nullptr, &size) == 0))
+    if (xPos <= 0)
     {
         return 0;
     }
-    return SkipTabOffset(s, nFit);
+    auto exp = TabsToSpaces(s);
+    int width = 0;
+    const auto nFit = CountFittingChars(hdc, exp, 0, xPos, width);
+    return SkipTabOffset(s, static_cast<int>(nFit));
 }
 
 void AddEllipsis(HDC hdc, std::wstring& text, int width)
@@ -842,40 +883,6 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
     InsertHighlight(highlights, text, m_highlightText, TextColor(Colors::Highlight, Colors::Text));
 
     return highlights;
-}
-
-// Returns the number of characters, starting at 'first', that fit entirely within maxExtent pixels and sets
-// usedWidth to their width. The text is measured in chunks because GDI text functions fail when the extent of
-// a single string exceeds 32767 device units.
-size_t CountFittingChars(HDC hdc, const std::wstring& text, size_t first, int maxExtent, int& usedWidth)
-{
-    constexpr size_t chunkSize = 512;
-    usedWidth = 0;
-    size_t count = 0;
-    while (first + count < text.size() && usedWidth < maxExtent)
-    {
-        const wchar_t* chunk = text.c_str() + first + count;
-        const int chunkLength = static_cast<int>(std::min(chunkSize, text.size() - first - count));
-        int fit = 0;
-        SIZE size = {};
-        if (GetTextExtentExPointW(hdc, chunk, chunkLength, maxExtent - usedWidth, &fit, nullptr, &size) == 0)
-        {
-            break;
-        }
-        if (fit < chunkLength)
-        {
-            SIZE fitSize = {};
-            if (fit > 0 && GetTextExtentPoint32W(hdc, chunk, fit, &fitSize) != 0)
-            {
-                usedWidth += fitSize.cx;
-            }
-            count += fit;
-            break;
-        }
-        usedWidth += size.cx;
-        count += chunkLength;
-    }
-    return count;
 }
 
 // Very long lines are wider than GDI can draw (32767 device units) and would not be drawn at all.
