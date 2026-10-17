@@ -11,6 +11,7 @@
 - fixed #396: depending on the runtime dlls, this broke when we moved to cmake, now we link the runtime statically again.
 - fixed title bar not being updated when 'Global Win32' was toggled.
 - new commandline argument /tab:<name> to select a tab that get focus at startup, contributed by KirisameMarisa
+- new commandline argument /delay:<milliseconds> to deliberately slow down every process that calls OutputDebugString (fixes #400)
 - removed color support from 'include' filter by request (a highlight filter can still achieve the same result), contributed by Ishmaeel.
 - faster building by adding /MP.
 

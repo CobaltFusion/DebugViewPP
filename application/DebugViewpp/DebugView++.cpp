@@ -152,6 +152,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
     auto args = Win32::GetCommandLineArguments();
     std::wstring fileName;
     std::wstring selectTabName;
+    std::chrono::milliseconds delay{0};
 
     for (size_t i = 1; i < args.size(); ++i)
     {
@@ -168,6 +169,18 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
         {
             selectTabName = args[i].substr(5);
         }
+        else if (boost::istarts_with(args[i], L"/delay:"))
+        {
+            // delay the processes that call OutputDebugString(), in milliseconds
+            try
+            {
+                delay = std::chrono::milliseconds(std::stoll(args[i].substr(7)));
+            }
+            catch (std::exception&)
+            {
+                throw std::runtime_error("invalid value for /delay:<milliseconds>");
+            }
+        }
         else if (args[i][0] != '/')
         {
             if (!fileName.empty())
@@ -183,6 +196,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
         Win32::ThrowLastError(L"Main window creation failed!");
     }
 
+    wndMain.SetDelay(delay);
     wndMain.ShowWindow(cmdShow == SW_SHOWDEFAULT ? wndMain.GetShowCommand() : cmdShow);
     if (boost::algorithm::iends_with(fileName, ".dbconf"))
     {

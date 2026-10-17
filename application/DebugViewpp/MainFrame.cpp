@@ -1304,6 +1304,20 @@ void CMainFrame::Load(std::istream& file, const std::string& name, FILETIME file
     }
 }
 
+// Delays every process that calls OutputDebugString() by the given time, see DBWinReader::SetDelay
+void CMainFrame::SetDelay(std::chrono::milliseconds delay)
+{
+    m_delay = delay;
+    if (m_pLocalReader != nullptr)
+    {
+        m_pLocalReader->SetDelay(delay);
+    }
+    if (m_pGlobalReader != nullptr)
+    {
+        m_pGlobalReader->SetDelay(delay);
+    }
+}
+
 void CMainFrame::SetSelectTabByName(const std::wstring& tabName)
 {
     const int views = GetViewCount();
@@ -1525,6 +1539,7 @@ void CMainFrame::Resume()
         try
         {
             m_pLocalReader = m_logSources.AddDBWinReader(false);
+            m_pLocalReader->SetDelay(m_delay);
         }
         catch (std::exception&)
         {
@@ -1541,6 +1556,7 @@ void CMainFrame::Resume()
         try
         {
             m_pGlobalReader = m_logSources.AddDBWinReader(true);
+            m_pGlobalReader->SetDelay(m_delay);
         }
         catch (std::exception&)
         {

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <atomic>
+#include <chrono>
 #include "Win32/Win32Lib.h"
 #include "LogSource.h"
 
@@ -28,9 +30,16 @@ class DBWinReader : public LogSource
 {
 public:
     DBWinReader(Timer& timer, ILineBuffer& lineBuffer, bool global);
+    ~DBWinReader() override;
 
     HANDLE GetHandle() const override;
     void Notify() override;
+
+    // Delays the process that calls OutputDebugString(): a sender waits for DBWIN_BUFFER_READY before it can write its
+    // message, by signalling that event later, every call is slowed down by (at least) the given time.
+    // Useful to slow a process down on purpose while debugging. Zero (the default) means no delay.
+    void SetDelay(std::chrono::milliseconds delay);
+    std::chrono::milliseconds GetDelay() const;
 
 private:
     Win32::Handle m_hBuffer;
@@ -38,6 +47,8 @@ private:
     Win32::Handle m_dbWinDataReady;
     Win32::MappedViewOfFile m_mappedViewOfFile;
     const DbWinBuffer* m_dbWinBuffer;
+    std::atomic<long long> m_delayMs{0};
+    PTP_TIMER m_delayTimer = nullptr;
 };
 
 } // namespace debugviewpp

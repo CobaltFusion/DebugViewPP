@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <algorithm>
 #include "DebugViewppLib/DBWinBuffer.h"
 #include "DebugViewppLib/DBWinReader.h"
 #include "DebugViewppLib/ProcessInfo.h"
@@ -31,6 +32,16 @@ Win32::Handle CreateDBWinBufferMapping(bool global)
     return hMap;
 }
 
+namespace {
+
+// context is the DBWIN_BUFFER_READY event
+VOID CALLBACK SignalBufferReady(PTP_CALLBACK_INSTANCE /*instance*/, PVOID context, PTP_TIMER /*timer*/)
+{
+    ::SetEvent(static_cast<HANDLE>(context));
+}
+
+} // namespace
+
 DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
     LogSource(timer, SourceType::System, linebuffer),
     m_hBuffer(CreateDBWinBufferMapping(global)),
@@ -47,7 +58,34 @@ DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
     Win32::AdjustObjectDACL(m_dbWinBufferReady.get());
     Win32::AdjustObjectDACL(m_dbWinDataReady.get());
 
+    m_delayTimer = ::CreateThreadpoolTimer(&SignalBufferReady, m_dbWinBufferReady.get(), nullptr);
+    if (m_delayTimer == nullptr)
+    {
+        Win32::ThrowLastError("CreateThreadpoolTimer");
+    }
+
     Win32::SetEvent(m_dbWinBufferReady);
+}
+
+DBWinReader::~DBWinReader()
+{
+    // cancel a pending delay and wait for a running callback, the callback uses the m_dbWinBufferReady event.
+    ::SetThreadpoolTimer(m_delayTimer, nullptr, 0, 0);
+    ::WaitForThreadpoolTimerCallbacks(m_delayTimer, TRUE);
+    ::CloseThreadpoolTimer(m_delayTimer);
+
+    // do not leave a sender waiting for a buffer that is never going to be read
+    ::SetEvent(m_dbWinBufferReady.get());
+}
+
+void DBWinReader::SetDelay(std::chrono::milliseconds delay)
+{
+    m_delayMs = std::max<long long>(delay.count(), 0);
+}
+
+std::chrono::milliseconds DBWinReader::GetDelay() const
+{
+    return std::chrono::milliseconds(m_delayMs.load());
 }
 
 HANDLE DBWinReader::GetHandle() const
@@ -89,7 +127,22 @@ void DBWinReader::Notify()
         }
 #endif
     }
-    ::SetEvent(m_dbWinBufferReady.get());
+
+    // signalling the buffer is ready lets the sender continue, so delaying it delays the sender.
+    // (only one message is in flight at a time, the sender can not write again until the event is set, so one timer is enough)
+    const auto delayMs = m_delayMs.load();
+    if (delayMs <= 0)
+    {
+        ::SetEvent(m_dbWinBufferReady.get());
+        return;
+    }
+
+    LARGE_INTEGER relativeDueTime; // negative means relative, in 100ns units
+    relativeDueTime.QuadPart = -delayMs * 10'000;
+    FILETIME dueTime;
+    dueTime.dwLowDateTime = relativeDueTime.LowPart;
+    dueTime.dwHighDateTime = static_cast<DWORD>(relativeDueTime.HighPart);
+    ::SetThreadpoolTimer(m_delayTimer, &dueTime, 0, 0);
 }
 
 } // namespace debugviewpp

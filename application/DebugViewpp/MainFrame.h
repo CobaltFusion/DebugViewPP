@@ -95,6 +95,7 @@ public:
     void Load(HANDLE hFile);
     void Load(std::istream& file, const std::string& name, FILETIME fileTime);
     void SetSelectTabByName(const std::wstring& tabName);
+    void SetDelay(std::chrono::milliseconds delay);
     void CapturePipe(HANDLE hPipe);
     void FindNext(const std::wstring& text);
     void FindPrevious(const std::wstring& text);
@@ -230,6 +231,7 @@ private:
     std::wstring m_applicationName;
     DBWinReader* m_pLocalReader = nullptr;
     DBWinReader* m_pGlobalReader = nullptr;
+    std::chrono::milliseconds m_delay{0}; // delay for the process calling OutputDebugString
     KernelReader* m_pKernelReader = nullptr;
     bool m_verboseKernelMessage = false;
     bool m_passthroughMode = false;

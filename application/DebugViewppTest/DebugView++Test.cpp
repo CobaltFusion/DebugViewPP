@@ -24,6 +24,7 @@
 #include "DebugViewppLib/DBWinBuffer.h"
 #include "DebugViewppLib/LogSources.h"
 #include "DebugViewppLib/LogSource.h"
+#include "DebugViewppLib/DBWinReader.h"
 #include "DebugViewppLib/TestSource.h"
 #include "DebugViewppLib/VectorLineBuffer.h"
 #include "DebugViewppLib/LogFile.h"
@@ -687,6 +688,53 @@ Lines WaitForLines(ActiveExecutorClient& executor, LogSources& logsources, size_
     std::this_thread::sleep_for(settle);
     readMore();
     return accumulated;
+}
+
+BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
+{
+    using namespace std::chrono_literals;
+
+    constexpr int messageCount = 6;
+    constexpr auto delay = 50ms;
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+    DBWinReader* pReader = nullptr;
+    executor->Call([&] { pReader = logsources.AddDBWinReader(false); });
+    BOOST_REQUIRE(pReader != nullptr);
+
+    BOOST_TEST(pReader->GetDelay().count() == 0);
+    pReader->SetDelay(delay);
+    BOOST_TEST(pReader->GetDelay().count() == delay.count());
+
+    // OutputDebugString() can only deliver a message once the previous one is released by the reader, the first message
+    // is not delayed, so N messages take at least (N - 1) delays.
+    const auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < messageCount; ++i)
+    {
+        OutputDebugStringA("delayed message\n");
+    }
+    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+    BOOST_TEST(elapsed.count() >= ((messageCount - 1) * delay - 10ms).count());
+
+    // the messages themselves are all delivered
+    auto lines = WaitForLines(*executor, logsources, messageCount);
+    BOOST_TEST(lines.size() == messageCount);
+
+    // no delay: the sender is not slowed down anymore
+    pReader->SetDelay(0ms);
+    BOOST_TEST(pReader->GetDelay().count() == 0);
+    const auto startUndelayed = std::chrono::steady_clock::now();
+    for (int i = 0; i < messageCount; ++i)
+    {
+        OutputDebugStringA("undelayed message\n");
+    }
+    const auto elapsedUndelayed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startUndelayed);
+    BOOST_TEST(elapsedUndelayed.count() < ((messageCount - 1) * delay).count());
+    WaitForLines(*executor, logsources, messageCount);
+
+    executor->Call([&] { logsources.Abort(); });
 }
 
 BOOST_AUTO_TEST_CASE(LogSourceAnyFileReader)
