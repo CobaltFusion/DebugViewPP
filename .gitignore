@@ -1,5 +1,7 @@
 .vs/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 vs2022/
 build/
 out/
