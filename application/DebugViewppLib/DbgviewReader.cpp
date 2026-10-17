@@ -161,6 +161,12 @@ void DbgviewReader::Loop()
         // this allows us to use ss.tellg() to determine the amount of trash bytes.
         std::vector<char> buffer(messageLength);
         m_iostream.read(buffer.data(), messageLength);
+        if (!m_iostream)
+        {
+            AddMessage(0, processName, "<error reading message>");
+            Signal();
+            break;
+        }
         std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios::binary);
         ss.write(buffer.data(), buffer.size());
 
@@ -183,7 +189,8 @@ void DbgviewReader::Loop()
             }
             auto time = (qpcTime - t0) * timerUnit;
 
-            if (buffer[20] == Magic::ColumnnOneMark)
+            // the mark directly follows the 20 byte header (lineNr, filetime, qpcTime) of this message
+            if (ss.peek() == static_cast<int>(Magic::ColumnnOneMark))
             {
                 unsigned char c1 = 0;
                 unsigned char c2 = 0;
