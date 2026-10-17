@@ -35,6 +35,7 @@ class DbgviewReader : public PolledLogSource
 {
 public:
     DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname);
+    ~DbgviewReader() override;
 
     void SetAutoNewLine(bool value) override;
     void Abort() override;

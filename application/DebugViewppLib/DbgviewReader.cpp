@@ -218,11 +218,20 @@ void DbgviewReader::Loop()
     }
 }
 
+DbgviewReader::~DbgviewReader()
+{
+    DbgviewReader::Abort();
+}
+
+// Abort() is called more than once (for example by LogSources::Abort and again when the source is removed)
 void DbgviewReader::Abort()
 {
     m_iostream.close();
     LogSource::Abort();
-    m_thread.join();
+    if (m_thread.joinable())
+    {
+        m_thread.join();
+    }
 }
 
 } // namespace debugviewpp

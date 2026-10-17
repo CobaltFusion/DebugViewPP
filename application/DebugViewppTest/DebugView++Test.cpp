@@ -6,6 +6,7 @@
 #define BOOST_TEST_MODULE DebugView++ Lib Unit Test
 
 #include <boost/test/unit_test_gui.hpp>
+#include <boost/asio.hpp>
 #include "Win32/Process.h"
 
 #include <filesystem>
@@ -735,6 +736,67 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
     WaitForLines(*executor, logsources, messageCount);
 
     executor->Call([&] { logsources.Abort(); });
+}
+
+// A Dbgview agent can be specified by hostname as well as by IP address (#363), this fake agent implements just enough
+// of the protocol (answering the performance frequency request) for the reader to consider itself connected.
+BOOST_AUTO_TEST_CASE(LogSourceDbgviewReaderConnectsByHostname)
+{
+    namespace asio = boost::asio;
+
+    asio::io_context io;
+    asio::ip::tcp::acceptor acceptor(io, asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), 2020));
+    std::thread agent([&] {
+        boost::system::error_code ec;
+        asio::ip::tcp::socket socket(io);
+        acceptor.accept(socket, ec);
+        if (ec)
+        {
+            return;
+        }
+
+        DWORD request = 0;
+        asio::read(socket, asio::buffer(&request, sizeof(request)), ec);
+        DWORD frequency = 10'000'000;
+        asio::write(socket, asio::buffer(&frequency, sizeof(frequency)), ec);
+
+        // keep the connection open until the reader disconnects
+        char buffer[64];
+        while (!ec)
+        {
+            socket.read_some(asio::buffer(buffer), ec);
+        }
+    });
+
+    // also releases the agent when the reader never connected, or when the test fails with an exception
+    struct StopAgent
+    {
+        asio::ip::tcp::acceptor& acceptor;
+        std::thread& agent;
+        ~StopAgent()
+        {
+            acceptor.close();
+            agent.join();
+        }
+    } stopAgent{acceptor, agent};
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    Lines lines;
+    {
+        LogSources logsources(*executor, true);
+        executor->Call([&] { logsources.SetAutoNewLine(true); });
+        executor->Call([&] { logsources.AddDbgviewReader("localhost"); }); // a name, not an IP address
+        lines = WaitForLines(*executor, logsources, 2);
+        executor->Call([&] { logsources.Abort(); });
+    }
+    executor.reset();
+
+    bool connected = false;
+    for (const auto& line : lines)
+    {
+        connected |= line.message.find("Connected to Dbgview Agent at localhost") != std::string::npos;
+    }
+    BOOST_TEST(connected);
 }
 
 BOOST_AUTO_TEST_CASE(LogSourceAnyFileReader)

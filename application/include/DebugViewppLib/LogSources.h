@@ -98,10 +98,8 @@ private:
     void AddTerminateMessage(DWORD pid, HANDLE handle) const;
 
     mutable std::mutex m_sources_mutex;                // protects access to m_sources
-    std::vector<std::unique_ptr<LogSource>> m_sources; // only the thread that calls Listen() modifies it (with m_sources_mutex held), other threads may only read it with m_sources_mutex held.
 
     mutable std::mutex m_sourcesSchedule_mutex; // protects access to m_sourcesSchedule* vectors
-    std::vector<std::unique_ptr<LogSource>> m_sourcesScheduleToAdd;
     std::vector<LogSource*> m_sourcesScheduledToRemove;
 
     std::atomic<bool> m_autoNewLine = true;
@@ -120,6 +118,11 @@ private:
     IExecutor& m_executor;
     UpdateSignal m_update;
     Throttle m_throttledUpdate;
+
+    // The sources use m_linebuffer, m_timer and m_loopback (also while they are destroyed, PolledLogSource flushes its pending
+    // lines), so they must be declared after those to be destroyed before them.
+    std::vector<std::unique_ptr<LogSource>> m_sources; // only the thread that calls Listen() modifies it (with m_sources_mutex held), other threads may only read it with m_sources_mutex held.
+    std::vector<std::unique_ptr<LogSource>> m_sourcesScheduleToAdd; // protected by m_sourcesSchedule_mutex
 
     // make sure this thread is last to initialize
     ActiveExecutorClient m_listenThread;
