@@ -57,11 +57,11 @@ target_compile_definitions(project_definitions
 # /Oy and /RELEASE are added to avoid tripping malware detection
 # this is quite random, ymmv
 target_compile_options(project_compile_options INTERFACE /utf-8 /Oy)
-target_link_options(msvc_gui_link_options INTERFACE /SUBSYSTEM:WINDOWS /NOLOGO /RELEASE)
-target_link_options(msvc_console_link_options INTERFACE /SUBSYSTEM:CONSOLE /NOLOGO /RELEASE)
+target_link_options(msvc_gui_link_options INTERFACE /SUBSYSTEM:WINDOWS /NOLOGO /RELEASE /WX)
+target_link_options(msvc_console_link_options INTERFACE /SUBSYSTEM:CONSOLE /NOLOGO /RELEASE /WX)
 
-# warnings (the project picked up a bunch of unresolved warnings with migrating to new VS versions and when {fmt} was added, work in progress...)
-target_compile_options(project_compile_options INTERFACE /W4 /w14242 /w14254 /w14263 /w14265 /w14287 /w14289 /w14296 /w14311 /w14545 /w14546 /w14547 /w14549 /w14555 /w14640 /w14826 /w14905 /w14906 /w14928 /we4715)
+# warnings, all warnings are errors (/WX for the compiler, and for the linker above)
+target_compile_options(project_compile_options INTERFACE /W4 /w14242 /w14254 /w14263 /w14265 /w14287 /w14289 /w14296 /w14311 /w14545 /w14546 /w14547 /w14549 /w14555 /w14640 /w14826 /w14905 /w14906 /w14928 /WX)
 
 add_library(project::definitions ALIAS project_definitions)
 add_library(project::compile_features ALIAS project_compile_features)
