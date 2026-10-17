@@ -81,7 +81,8 @@ void AnyFileReader::AddLine(const std::string& data)
 
 void AnyFileReader::PreProcess(Line& line) const
 {
-    line.processName = Str(m_filenameOnly).str();
+    if (line.processName.empty())
+        line.processName = Str(m_filenameOnly).str();
 }
 
 } // namespace debugviewpp
