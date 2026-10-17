@@ -844,9 +844,100 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
     return highlights;
 }
 
-void DrawHighlightedText(HDC hdc, const RECT& rect, std::wstring text, std::vector<Highlight> highlights, const Highlight& selection)
+// Returns the number of characters, starting at 'first', that fit entirely within maxExtent pixels and sets
+// usedWidth to their width. The text is measured in chunks because GDI text functions fail when the extent of
+// a single string exceeds 32767 device units.
+size_t CountFittingChars(HDC hdc, const std::wstring& text, size_t first, int maxExtent, int& usedWidth)
 {
+    constexpr size_t chunkSize = 512;
+    usedWidth = 0;
+    size_t count = 0;
+    while (first + count < text.size() && usedWidth < maxExtent)
+    {
+        const wchar_t* chunk = text.c_str() + first + count;
+        const int chunkLength = static_cast<int>(std::min(chunkSize, text.size() - first - count));
+        int fit = 0;
+        SIZE size = {};
+        if (GetTextExtentExPointW(hdc, chunk, chunkLength, maxExtent - usedWidth, &fit, nullptr, &size) == 0)
+        {
+            break;
+        }
+        if (fit < chunkLength)
+        {
+            SIZE fitSize = {};
+            if (fit > 0 && GetTextExtentPoint32W(hdc, chunk, fit, &fitSize) != 0)
+            {
+                usedWidth += fitSize.cx;
+            }
+            count += fit;
+            break;
+        }
+        usedWidth += size.cx;
+        count += chunkLength;
+    }
+    return count;
+}
+
+// Very long lines are wider than GDI can draw (32767 device units) and would not be drawn at all.
+// Only the part of the text that is actually visible is needed, so cut the text down to that part.
+// On return 'rect' starts where the remaining text starts, and 'highlights' are relative to the remaining text.
+void ClipTextToVisibleRange(HDC hdc, RECT& rect, std::wstring& text, std::vector<Highlight>& highlights)
+{
+    constexpr size_t minLengthToClip = 512;
+    if (text.size() < minLengthToClip)
+    {
+        return;
+    }
+
+    RECT clip = rect;
+    const int clipType = GetClipBox(hdc, &clip);
+    if (clipType == ERROR || clipType == NULLREGION)
+    {
+        clip = rect;
+    }
+
+    const int visibleLeft = std::max(rect.left, clip.left);
+    const int visibleRight = std::min(rect.right, clip.right);
+    if (visibleRight <= visibleLeft)
+    {
+        text.clear();
+        highlights.clear();
+        return;
+    }
+
+    int skippedWidth = 0;
+    const size_t skipped = CountFittingChars(hdc, text, 0, visibleLeft - rect.left, skippedWidth);
+
+    // when the text is cut at the right edge of the column, keep one extra character so AddEllipsis sees the overflow
+    int visibleWidth = 0;
+    size_t length = CountFittingChars(hdc, text, skipped, visibleRight - (rect.left + skippedWidth), visibleWidth);
+    if (visibleRight == rect.right && skipped + length < text.size())
+    {
+        ++length;
+    }
+
+    text = text.substr(skipped, length);
+    rect.left += skippedWidth;
+
+    const int offset = static_cast<int>(skipped);
+    const int size = static_cast<int>(text.size());
+    std::vector<Highlight> clipped;
+    for (auto& highlight : highlights)
+    {
+        if (highlight.end <= offset || highlight.begin >= offset + size)
+        {
+            continue;
+        }
+        clipped.emplace_back(highlight.id, std::max(highlight.begin - offset, 0), std::min(highlight.end - offset, size), highlight.color);
+    }
+    highlights = std::move(clipped);
+}
+
+void DrawHighlightedText(HDC hdc, const RECT& columnRect, std::wstring text, std::vector<Highlight> highlights, const Highlight& selection)
+{
+    RECT rect = columnRect;
     InsertHighlight(highlights, selection);
+    ClipTextToVisibleRange(hdc, rect, text, highlights);
     AddEllipsis(hdc, text, rect.right - rect.left);
 
     int textSize = static_cast<int>(text.size());
