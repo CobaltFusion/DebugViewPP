@@ -33,6 +33,8 @@ public:
     virtual bool GetAutoNewLine() const override;
 
 protected:
+    // must be called by the most derived class at the end of its constructor
+    void StartThread();
     virtual void AddLine(const std::string& line);
     std::string m_filename;
     std::string m_name;

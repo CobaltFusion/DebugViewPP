@@ -18,6 +18,13 @@ AnyFileReader::AnyFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::ty
     m_linenumber(0),
     m_filenameOnly(std::filesystem::path(m_filename).filename().wstring())
 {
+    StartThread();
+}
+
+AnyFileReader::~AnyFileReader()
+{
+    // stop the thread before the members it uses are destroyed
+    Abort();
 }
 
 uint64_t FileTimeToUInt64(const FILETIME& ft)

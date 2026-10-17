@@ -26,13 +26,21 @@ FileReader::FileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type fil
     m_ifstream(m_filename, std::ios::in),
     m_filenameOnly(std::filesystem::path(m_filename).filename().string()),
     m_initialized(false),
-    m_keeptailing(keeptailing),
-    m_thread([this] { PollThread(); })
+    m_keeptailing(keeptailing)
 {
     SetDescription(filename);
 }
 
-FileReader::~FileReader() = default;
+FileReader::~FileReader()
+{
+    FileReader::Abort();
+}
+
+// The thread calls virtual functions (AddLine), so it must not be started before the most derived class is constructed.
+void FileReader::StartThread()
+{
+    m_thread = std::thread([this] { PollThread(); });
+}
 
 void FileReader::Abort()
 {

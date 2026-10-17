@@ -18,6 +18,7 @@ class AnyFileReader : public FileReader
 {
 public:
     AnyFileReader(Timer& timer, ILineBuffer& lineBuffer, FileType::type fileType, const std::wstring& filename, bool keeptailing);
+    ~AnyFileReader() override;
 
     void AddLine(const std::string& line) override;
     void PreProcess(Line& line) const override;
