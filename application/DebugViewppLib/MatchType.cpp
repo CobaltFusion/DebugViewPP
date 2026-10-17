@@ -53,7 +53,7 @@ std::string MakeWildcardPattern(const std::string& text)
     {
         switch (c)
         {
-        case '?': pattern += ".?"; break;
+        case '?': pattern += "."; break;
         case '*': pattern += ".*"; break;
         default:
             if (IsSpecialRegexCharacter(c))
