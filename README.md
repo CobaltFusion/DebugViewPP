@@ -1,6 +1,6 @@
 [![Discord Invite](https://img.shields.io/badge/Discord%20Live%20Coding%20Chat-invite-blue)](https://discord.gg/V6HRYgBFUX)
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
-![Github Follow](https://img.shields.io/github/followers/janwilmans)
+[![Github Follow](https://img.shields.io/github/followers/janwilmans?style=social)](https://github.com/janwilmans)
 
 ## Debugview++ v1.20.0.0 (released 23 April 2026)
 
