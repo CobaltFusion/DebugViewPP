@@ -403,6 +403,10 @@ Lines LogSources::GetLines()
         if (IsRemoved(inputLine.pLogSource))
         {
             std::cerr << "'" << inputLine.message << "' ignored because source was removed\n";
+            if (inputLine.handle != nullptr)
+            {
+                Win32::Handle closeHandle(inputLine.handle); // the line owns the process handle, close it
+            }
             continue;
         }
         // let the logsource decide how to create processname
