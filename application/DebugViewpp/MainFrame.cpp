@@ -4,7 +4,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <algorithm>
+#include <array>
+#include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <optional>
 #include <iostream>
 #include <format>
@@ -45,6 +48,79 @@ namespace fusion {
 namespace debugviewpp {
 
 using namespace std::chrono_literals;
+
+namespace {
+
+struct ResourceData
+{
+    const char* pData;
+    DWORD size;
+};
+
+std::optional<ResourceData> GetResourceData(int resourceId)
+{
+    HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(resourceId), RT_RCDATA);
+    if (!hRes)
+    {
+        return std::nullopt;
+    }
+
+    HGLOBAL hLoadedRes = LoadResource(NULL, hRes);
+    if (!hLoadedRes)
+    {
+        return std::nullopt;
+    }
+
+    void* pLockedRes = LockResource(hLoadedRes);
+    if (!pLockedRes)
+    {
+        return std::nullopt;
+    }
+
+    return ResourceData{static_cast<const char*>(pLockedRes), SizeofResource(NULL, hRes)};
+}
+
+bool FileMatchesData(const std::string& path, const char* pData, DWORD size)
+{
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec) || ec)
+    {
+        return false;
+    }
+
+    const auto fileSize = std::filesystem::file_size(path, ec);
+    if (ec || fileSize != size)
+    {
+        return false;
+    }
+
+    std::ifstream file(path, std::ios::binary);
+    if (!file)
+    {
+        return false;
+    }
+
+    std::array<char, 4096> buffer = {};
+    size_t offset = 0;
+    while (offset < size)
+    {
+        const size_t bytesToRead = std::min(buffer.size(), static_cast<size_t>(size - offset));
+        file.read(buffer.data(), static_cast<std::streamsize>(bytesToRead));
+        if (file.gcount() != static_cast<std::streamsize>(bytesToRead))
+        {
+            return false;
+        }
+        if (std::memcmp(buffer.data(), pData + offset, bytesToRead) != 0)
+        {
+            return false;
+        }
+        offset += bytesToRead;
+    }
+
+    return true;
+}
+
+} // namespace
 
 std::wstring GetPersonalPath()
 {
@@ -196,7 +272,6 @@ CMainFrame::CMainFrame() :
 
 CMainFrame::~CMainFrame()
 {
-    RemoveDriver();
 }
 
 void CMainFrame::SetLogging()
@@ -1532,39 +1607,49 @@ void CMainFrame::OnLogGlobal(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
 
 void CMainFrame::WriteDriverFromResource()
 {
-    if (std::filesystem::exists(m_driverLocation))
+    const auto resourceData = GetResourceData(IDR_DBGV_DRIVER);
+    if (!resourceData)
+    {
+        m_logSources.AddMessage("Unable to access embedded kernel messages driver");
+        return;
+    }
+
+    if (FileMatchesData(m_driverLocation, resourceData->pData, resourceData->size))
     {
         return;
     }
-    HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_DBGV_DRIVER), RT_RCDATA);
-    if (hRes)
+
+    std::error_code ec;
+    if (std::filesystem::exists(m_driverLocation, ec) && !ec)
     {
-        HGLOBAL hLoadedRes = LoadResource(NULL, hRes);
-        if (hLoadedRes)
-        {
-            DWORD dwSize = SizeofResource(NULL, hRes);
-            void* pLockedRes = LockResource(hLoadedRes);
-            if (pLockedRes)
-            {
-                std::cout << "Write " << m_driverLocation << "\n";
-                std::ofstream outFile(m_driverLocation.c_str(), std::ios::binary);
-                outFile.write(static_cast<const char*>(pLockedRes), dwSize);
-                outFile.close();
-            }
-        }
+        std::cout << "Existing kernel messages driver differs from embedded resource, replacing " << m_driverLocation << "\n";
+        UninstallKernelMessagesDriver();
+        RemoveDriver();
     }
 
-    if (!std::filesystem::exists(m_driverLocation))
+    std::cout << "Write " << m_driverLocation << "\n";
+    std::ofstream outFile(m_driverLocation.c_str(), std::ios::binary | std::ios::trunc);
+    if (outFile)
     {
-        std::cout << "Could not write to " << m_driverLocation << "\n";
+        outFile.write(resourceData->pData, resourceData->size);
+        outFile.close();
+    }
+
+    if (!FileMatchesData(m_driverLocation, resourceData->pData, resourceData->size))
+    {
+        std::cout << "Could not write embedded kernel messages driver to " << m_driverLocation << "\n";
         m_logSources.AddMessage("Unable to access kernel messages driver");
     }
 }
 
 void CMainFrame::RemoveDriver()
 {
-    // can fail silently
-    std::remove(m_driverLocation.c_str());
+    std::error_code ec;
+    std::filesystem::remove(m_driverLocation, ec);
+    if (ec)
+    {
+        std::cout << "Could not delete " << m_driverLocation << ", error=" << ec.value() << "\n";
+    }
 }
 
 void CMainFrame::OnLogKernel(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
@@ -1580,7 +1665,6 @@ void CMainFrame::OnLogKernel(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl
     {
         m_logSources.Remove(m_pKernelReader);
         m_pKernelReader = nullptr;
-        RemoveDriver();
     }
     UpdateTitle();
 }

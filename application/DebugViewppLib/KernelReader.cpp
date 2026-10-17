@@ -9,8 +9,10 @@
 #include "DebugViewppLib/LineBuffer.h"
 #include "DebugViewppLib/Debugview_kernel_client.h"
 
+#include <chrono>
 #include <filesystem>
 #include <format>
+#include <thread>
 
 #include <mmsystem.h> // timeBeginPeriod / timeEndPeriod
 
@@ -29,24 +31,50 @@ std::string GetDebugviewDriverLocation()
     const auto systemRoot = std::getenv("SystemRoot");
     if (systemRoot != nullptr)
     {
-        driverLocation = std::format("{}\\System32\\driver\\{}", systemRoot, driver_name);
+        driverLocation = std::format("{}\\System32\\drivers\\{}", systemRoot, driver_name);
     }
     return driverLocation.string();
 }
 
 void KernelReader::StartListening()
 {
-    Win32::Handle handle(::CreateFile(strDbgviewKernelDriverDeviceName,
-        GENERIC_READ,
-        FILE_SHARE_READ,
-        NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL));
-    if (handle.get() == INVALID_HANDLE_VALUE)
+    Win32::Handle handle;
+    DWORD lastError = ERROR_SUCCESS;
+    for (int attempt = 0; attempt < 20; ++attempt)
     {
-        printf("Could not find the kernel messages driver device name");
-        throw std::runtime_error("Could not find the kernel messages driver device name");
+        handle.reset(::CreateFile(strDbgviewKernelDriverDeviceName,
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL));
+        if (handle.get() != INVALID_HANDLE_VALUE && handle.get() != nullptr)
+        {
+            break;
+        }
+
+        lastError = ::GetLastError();
+        handle.reset();
+        if (IsDbgviewDeviceBusyError(lastError) || !IsDbgviewDeviceMissingError(lastError))
+        {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    if (handle.get() == INVALID_HANDLE_VALUE || handle.get() == nullptr)
+    {
+        printf("Could not open the kernel messages driver device, err=%d\n", lastError);
+        if (IsDbgviewDeviceBusyError(lastError))
+        {
+            throw std::runtime_error(std::format("Kernel messages driver is already in use by another process. Error: {}", lastError));
+        }
+        if (IsDbgviewDeviceMissingError(lastError))
+        {
+            throw std::runtime_error(std::format("Could not find the kernel messages driver device name. Error: {}", lastError));
+        }
+        throw std::runtime_error(std::format("Could not open the kernel messages driver device. Error: {}", lastError));
     }
 
     DWORD dwReturned = 0;
@@ -58,16 +86,27 @@ void KernelReader::StartListening()
     BOOL bRet = ::DeviceIoControl(handle.get(), DBGV_CAPTURE_KERNEL, NULL, 0, &dwOut, sizeof(dwOut), &dwReturned, NULL);
     if (!bRet)
     {
-        printf("DBGV_CAPTURE_KERNEL failed, err=%d\n", ::GetLastError());
-        throw std::runtime_error("Could not enable capturing kernel messages");
+        const auto error = ::GetLastError();
+        printf("DBGV_CAPTURE_KERNEL failed, err=%d\n", error);
+        throw std::runtime_error(std::format("Could not enable capturing kernel messages. Error: {}", error));
     }
 
     m_handle = std::move(handle);
     m_pBuf = reinterpret_cast<PLOG_ITEM>(malloc(kernelMessageBufferSize));
+    if (m_pBuf == nullptr)
+    {
+        StopListening();
+        throw std::runtime_error("Could not allocate kernel message buffer");
+    }
 }
 
 void KernelReader::StopListening()
 {
+    if (m_handle.get() == nullptr || m_handle.get() == INVALID_HANDLE_VALUE)
+    {
+        return;
+    }
+
     // clear verbose / pass-through bits so the driver is left in a clean state for the next load
     ::DeviceIoControl(m_handle.get(), DBGV_UNSET_VERBOSE_MESSAGES, NULL, 0, NULL, 0, NULL, NULL);
     ::DeviceIoControl(m_handle.get(), DBGV_UNSET_PASSTHROUGH, NULL, 0, NULL, 0, NULL, NULL);
@@ -86,20 +125,40 @@ KernelReader::KernelReader(Timer& timer, ILineBuffer& linebuffer) :
     PolledLogSource(timer, SourceType::Pipe, linebuffer, 1000) // 1ms poll
 {
     SetDescription(L"Kernel Message Reader");
-    InstallKernelMessagesDriver(GetDebugviewDriverLocation());
-    Signal();
-    StartListening();
-    // bump the system timer resolution so the base class sleep_for(1ms) is actually ~1ms
-    // instead of being rounded up to the default Windows scheduler tick
-    ::timeBeginPeriod(1);
-    StartThread();
+    bool timerPeriodRaised = false;
+    try
+    {
+        InstallKernelMessagesDriver(GetDebugviewDriverLocation());
+        Signal();
+        StartListening();
+        // bump the system timer resolution so the base class sleep_for(1ms) is actually ~1ms
+        // instead of being rounded up to the default Windows scheduler tick
+        ::timeBeginPeriod(1);
+        timerPeriodRaised = true;
+        StartThread();
+    }
+    catch (...)
+    {
+        StopListening();
+        if (timerPeriodRaised)
+        {
+            ::timeEndPeriod(1);
+        }
+        UninstallKernelMessagesDriver();
+        std::error_code ec;
+        std::filesystem::remove(GetDebugviewDriverLocation(), ec);
+        throw;
+    }
 }
 
 KernelReader::~KernelReader()
 {
+    PolledLogSource::Abort();
     StopListening();
     ::timeEndPeriod(1);
     UninstallKernelMessagesDriver();
+    std::error_code ec;
+    std::filesystem::remove(GetDebugviewDriverLocation(), ec);
 }
 
 void KernelReader::Abort()
@@ -116,14 +175,21 @@ bool KernelReader::AtEnd() const
 
 void KernelReader::Poll()
 {
-    // drain the driver ring until empty; a single IOCTL per poll was dropping
+    if (m_handle.get() == nullptr || m_handle.get() == INVALID_HANDLE_VALUE || m_pBuf == nullptr)
+    {
+        return;
+    }
+
+    // drain the driver ring until empty (bounded in time); a single IOCTL per poll was dropping
     // messages whenever the producer outran the poll rate
+    const auto drainStarted = std::chrono::steady_clock::now();
+    constexpr auto maxDrainTime = std::chrono::milliseconds(300);
+
     for (;;)
     {
         memset(m_pBuf, 0, kernelMessageBufferSize);
         DWORD dwOut = 0;
-        ::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, kernelMessageBufferSize, &dwOut, NULL);
-        if (dwOut == 0)
+        if (!::DeviceIoControl(m_handle.get(), DBGV_READ_LOG, NULL, 0, m_pBuf, kernelMessageBufferSize, &dwOut, NULL) || dwOut == 0)
         {
             return; // no messages to be read
         }
@@ -133,6 +199,11 @@ void KernelReader::Poll()
         {
             AddMessage(0, "kernel", pNextItem->strData);
             pNextItem = (PLOG_ITEM)((char*)pNextItem + sizeof(LOG_ITEM) + (strlen(pNextItem->strData) + 4) / 4 * 4);
+        }
+
+        if (std::chrono::steady_clock::now() - drainStarted >= maxDrainTime)
+        {
+            return;
         }
     }
 }

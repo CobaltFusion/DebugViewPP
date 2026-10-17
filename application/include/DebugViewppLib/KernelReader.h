@@ -38,7 +38,7 @@ private:
     void SetKernelMessagesDriverFeature(DWORD);
 
     Win32::Handle m_handle;
-    PLOG_ITEM m_pBuf;
+    PLOG_ITEM m_pBuf = nullptr;
 };
 
 } // namespace debugviewpp

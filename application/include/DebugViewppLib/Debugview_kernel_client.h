@@ -71,5 +71,7 @@ typedef struct
 constexpr const wchar_t* strDbgviewKernelDriverDeviceName = L"\\\\.\\dbgv";
 constexpr const DWORD kernelMessageBufferSize = 0x10000;
 
+bool IsDbgviewDeviceMissingError(DWORD error);
+bool IsDbgviewDeviceBusyError(DWORD error);
 void InstallKernelMessagesDriver(const std::string& driverLocation);
 void UninstallKernelMessagesDriver();
