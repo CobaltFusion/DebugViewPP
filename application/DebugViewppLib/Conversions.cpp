@@ -71,6 +71,25 @@ USTimeConverter::USTimeConverter() :
 {
 }
 
+namespace {
+
+constexpr uint64_t oneDay = 24ULL * 60 * 60 * 10'000'000; // in 100ns units
+
+uint64_t ToUInt64(const FILETIME& ft)
+{
+    return (static_cast<uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+}
+
+FILETIME ToFileTime(uint64_t value)
+{
+    FILETIME ft;
+    ft.dwHighDateTime = static_cast<DWORD>(value >> 32);
+    ft.dwLowDateTime = static_cast<DWORD>(value & 0xffffffffULL);
+    return ft;
+}
+
+} // namespace
+
 FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD /*ms*/)
 {
     if (m_firstValue)
@@ -93,9 +112,10 @@ FILETIME USTimeConverter::USTimeToFiletime(WORD h, WORD m, WORD s, WORD /*ms*/)
 
     if (ft < m_lastFileTime) // is ft before m_lastFileTime, then assume it is on the next day.
     {
-        st.wDay += 1;
+        // add a day to the time itself, incrementing st.wDay fails at the end of a month and left the returned time on the old day.
+        ft = ToFileTime(ToUInt64(ft) + oneDay);
     }
-    m_lastFileTime = Win32::SystemTimeToFileTime(st);
+    m_lastFileTime = ft;
     return Win32::LocalFileTimeToFileTime(ft); // convert to UTC
 }
 

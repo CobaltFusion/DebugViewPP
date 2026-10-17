@@ -225,6 +225,40 @@ BOOST_AUTO_TEST_CASE(TimeZone)
     }
 }
 
+uint64_t FileTimeToUInt64(const FILETIME& ft)
+{
+    return (static_cast<uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+}
+
+BOOST_AUTO_TEST_CASE(USTimeConverterMidnightRollover)
+{
+    constexpr uint64_t oneSecond = 10'000'000;
+    constexpr uint64_t oneDay = 24 * 60 * 60 * oneSecond;
+
+    USTimeConverter converter;
+    FILETIME before = {};
+    FILETIME after = {};
+    BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("11:59:59 PM", before));
+    BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("12:00:01 AM", after));
+
+    // two seconds later, on the next day
+    BOOST_TEST(FileTimeToUInt64(after) - FileTimeToUInt64(before) == 2 * oneSecond);
+
+    // the next days again, past the end of a month (not too long, to stay clear of daylight saving time changes)
+    auto previous = FileTimeToUInt64(after);
+    for (int day = 0; day < 40; ++day)
+    {
+        FILETIME t1 = {};
+        FILETIME t2 = {};
+        BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("11:59:59 PM", t1));
+        BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("12:00:01 AM", t2));
+        BOOST_TEST(FileTimeToUInt64(t1) > previous);
+        BOOST_TEST(FileTimeToUInt64(t2) - FileTimeToUInt64(t1) == 2 * oneSecond);
+        BOOST_TEST(FileTimeToUInt64(t1) - previous < oneDay);
+        previous = FileTimeToUInt64(t2);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
     static const HANDLE nullHandle = nullptr;
