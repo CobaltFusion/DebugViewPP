@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <string_view>
 #include "Win32/Win32Lib.h"
@@ -39,7 +40,8 @@ public:
         return m_str;
     }
 
-    operator const char*() const
+    // only allowed on temporaries, see WStr
+    operator const char*() const&&
     {
         return m_str.c_str();
     }
@@ -75,8 +77,10 @@ public:
         return m_str;
     }
 
-    // nice to have a temporary WStr decay into a wchar_t* but also easy to use wrong like "const wchar_t* p = WStr(msg.text);" is very wrong.
-    operator const wchar_t*() const
+    // only allowed on temporaries, so a WStr can decay into a wchar_t* for the duration of a function call,
+    // but a named WStr cannot be used to obtain a pointer that outlives it.
+    // note: "const wchar_t* p = WStr(msg.text);" is still very wrong, the temporary dies at the end of the statement.
+    operator const wchar_t*() const&&
     {
         return m_str.c_str();
     }
@@ -84,5 +88,10 @@ public:
 private:
     std::wstring m_str;
 };
+
+// Streaming a Str/WStr would otherwise convert to a pointer and then to const void*, printing an address instead of the text.
+// Use .str() to stream the contents.
+std::ostream& operator<<(std::ostream&, const Str&) = delete;
+std::wostream& operator<<(std::wostream&, const WStr&) = delete;
 
 } // namespace fusion
