@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <chrono>
@@ -93,25 +94,45 @@ void LogSources::Add(std::unique_ptr<LogSource> pSource)
 
 void LogSources::InternalRemove(LogSource* pLogSource)
 {
-    auto description = pLogSource->GetDescription();
-    EraseElements(m_sources, {pLogSource});
+    // take the source out of m_sources while holding the lock, but abort and destroy it without the lock held.
+    std::unique_ptr<LogSource> removed;
+    {
+        std::lock_guard<std::mutex> lock(m_sources_mutex);
+        auto it = std::find_if(m_sources.begin(), m_sources.end(), [pLogSource](const auto& p) { return p.get() == pLogSource; });
+        if (it == m_sources.end())
+        {
+            return; // already removed
+        }
+        removed = std::move(*it);
+        m_sources.erase(it);
+    }
+
+    auto description = removed->GetDescription();
+    removed->Abort();
+    removed.reset();
     AddMessage(stringbuilder() << "Source '" << description << "' was removed.");
 }
 
 void LogSources::Remove(LogSource* pLogSource)
 {
-    m_sourcesScheduledToRemove.push_back(pLogSource);
+    {
+        std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+        m_sourcesScheduledToRemove.push_back(pLogSource);
+    }
     Win32::SetEvent(m_updateEvent);
 }
 
 void LogSources::RemoveSources(std::function<bool(LogSource*)> predicate)
 {
-    std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
-    for (auto& pSource : m_sources)
     {
-        if (predicate(pSource.get()))
+        std::lock_guard<std::mutex> sourcesLock(m_sources_mutex);
+        std::lock_guard<std::mutex> scheduleLock(m_sourcesSchedule_mutex);
+        for (auto& pSource : m_sources)
         {
-            m_sourcesScheduledToRemove.push_back(pSource.get());
+            if (predicate(pSource.get()))
+            {
+                m_sourcesScheduledToRemove.push_back(pSource.get());
+            }
         }
     }
     Win32::SetEvent(m_updateEvent);
@@ -119,7 +140,7 @@ void LogSources::RemoveSources(std::function<bool(LogSource*)> predicate)
 
 void LogSources::CallSources(std::function<void(LogSource*)> predicate)
 {
-    std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+    std::lock_guard<std::mutex> lock(m_sources_mutex);
     for (auto& pSource : m_sources)
     {
         predicate(pSource.get());
@@ -128,7 +149,7 @@ void LogSources::CallSources(std::function<void(LogSource*)> predicate)
 
 void LogSources::CallSources(std::function<void(const LogSource*)> predicate) const
 {
-    std::lock_guard<std::mutex> lock(m_sourcesSchedule_mutex);
+    std::lock_guard<std::mutex> lock(m_sources_mutex);
     for (const auto& pSource : m_sources)
     {
         predicate(pSource.get());
@@ -139,6 +160,7 @@ void LogSources::CallSources(std::function<void(const LogSource*)> predicate) co
 void LogSources::SetAutoNewLine(bool value)
 {
     m_autoNewLine = value;
+    std::lock_guard<std::mutex> lock(m_sources_mutex);
     for (auto& pSource : m_sources)
     {
         pSource->SetAutoNewLine(value);
@@ -266,23 +288,27 @@ void LogSources::UpdateSources()
 
     if (m_end)
     {
-        for (auto const& pLogSource : m_sources)
+        std::vector<std::unique_ptr<LogSource>> sources;
+        {
+            std::lock_guard<std::mutex> lock(m_sources_mutex);
+            sources.swap(m_sources);
+        }
+        for (auto const& pLogSource : sources)
         {
             pLogSource->Abort();
         }
-        m_sources.clear();
         return;
     }
 
     for (auto pLogSource : sourcesToRemove)
     {
-        pLogSource->Abort();
         InternalRemove(pLogSource);
     }
 
     for (auto&& pLogSource : sourcesToAdd)
     {
         UpdateSettings(pLogSource);
+        std::lock_guard<std::mutex> lock(m_sources_mutex);
         m_sources.emplace_back(std::move(pLogSource));
     }
 

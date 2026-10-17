@@ -5,7 +5,9 @@
 
 #pragma once
 
+#include <atomic>
 #include <memory>
+#include <mutex>
 #include <boost/signals2.hpp>
 #include "Win32/Win32Lib.h"
 #include "DebugviewppLib/LogSource.h"
@@ -96,16 +98,16 @@ private:
     void AddTerminateMessage(DWORD pid, HANDLE handle) const;
 
     mutable std::mutex m_sources_mutex;                // protects access to m_sources
-    std::vector<std::unique_ptr<LogSource>> m_sources; // owned by the thread that calls Listen(), nobody else is allowed to read/write it.
+    std::vector<std::unique_ptr<LogSource>> m_sources; // only the thread that calls Listen() modifies it (with m_sources_mutex held), other threads may only read it with m_sources_mutex held.
 
     mutable std::mutex m_sourcesSchedule_mutex; // protects access to m_sourcesSchedule* vectors
     std::vector<std::unique_ptr<LogSource>> m_sourcesScheduleToAdd;
     std::vector<LogSource*> m_sourcesScheduledToRemove;
 
-    bool m_autoNewLine = true;
+    std::atomic<bool> m_autoNewLine = true;
     bool m_processPrefix = false;
     Win32::Handle m_updateEvent;
-    bool m_end = false;
+    std::atomic<bool> m_end = false;
     LineBuffer m_linebuffer;
     PidMap m_pidMap;
     ProcessMonitor m_processMonitor;
