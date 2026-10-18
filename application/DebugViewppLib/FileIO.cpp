@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <charconv>
 #include <fstream>
 #include <algorithm>
 #include <sstream>
@@ -13,7 +14,6 @@
 #include "DebugViewppLib/LogFile.h"
 #include "DebugViewppLib/FileIO.h"
 #include "DebugViewppLib/Conversions.h"
-#include <boost/lexical_cast.hpp>
 
 namespace fusion {
 namespace debugviewpp {
@@ -57,7 +57,13 @@ FILETIME MakeFileTime(uint64_t t)
 // very old debugview++ version wrote the clocktime time as a 64-bit number
 FILETIME MakeFileTimeFromV1TimeStamp(const std::string& text)
 {
-    return MakeFileTime(boost::lexical_cast<uint64_t>(text));
+    uint64_t value = 0;
+    const auto [end, ec] = std::from_chars(text.data(), text.data() + text.size(), value);
+    if (ec != std::errc() || end != text.data() + text.size())
+    {
+        throw std::invalid_argument("invalid timestamp: " + text);
+    }
+    return MakeFileTime(value);
 }
 
 FILETIME MakeFileTimeFromDateTime(const std::string& text)

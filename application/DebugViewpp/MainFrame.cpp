@@ -13,7 +13,6 @@
 #include <format>
 #include <cstdio>
 
-#include <boost/optional.hpp>
 #include "CobaltFusion/StringUtil.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -1141,7 +1140,7 @@ struct View
     bool clockTime;
     bool processColors;
     LogFilter filters;
-    boost::optional<boost::property_tree::ptree> columnsPt;
+    std::optional<boost::property_tree::ptree> columnsPt;
 };
 
 struct SourceInfoHelper
@@ -1178,7 +1177,10 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
             view.processColors = viewPt.get<bool>("ProcessColors");
             view.filters.messageFilters = MakeFilters(viewPt.get_child("MessageFilters"));
             view.filters.processFilters = MakeFilters(viewPt.get_child("ProcessFilters"));
-            view.columnsPt = viewPt.get_child_optional("Columns");
+            if (auto columns = viewPt.get_child_optional("Columns"))
+            {
+                view.columnsPt = *columns;
+            }
             views.push_back(view);
         }
     }
@@ -1249,11 +1251,7 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 
 void CMainFrame::SaveConfiguration(const std::wstring& fileName)
 {
-#if BOOST_VERSION < 105600
-    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#else
     boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#endif
 
     boost::property_tree::ptree mainPt;
     mainPt.put("AutoNewline", m_logSources.GetAutoNewLine());
