@@ -7,6 +7,8 @@
 
 #include <boost/test/unit_test_gui.hpp>
 #include <boost/asio.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include "Win32/Process.h"
 
 #include <filesystem>
@@ -32,6 +34,7 @@
 #include "DebugViewppLib/FileIO.h"
 #include "DebugViewppLib/Conversions.h"
 #include "DebugViewppLib/Filter.h"
+#include "DebugViewppLib/LogFilter.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
@@ -289,6 +292,115 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
 }
 
 // #284: a copy of a view can use the lines of the other view when the filters are the same
+// The files in testdata were written by the application (see testdata/README.md), before boost was removed. Files that users saved
+// with older versions must stay readable, so these tests describe what is in them, whatever reads them.
+std::string TestDataFile(const std::string& name)
+{
+    return std::string(TESTDATA_DIR) + "/" + name;
+}
+
+BOOST_AUTO_TEST_CASE(LegacyFilterFilesCanBeLoaded)
+{
+    for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
+    {
+        BOOST_TEST_MESSAGE(file);
+        const auto data = file.ends_with(".json") ? LoadJson(TestDataFile(file)) : LoadXml(TestDataFile(file));
+        BOOST_TEST(data.name == "Überblick: errors & warnings");
+
+        const auto& messageFilters = data.filter.messageFilters;
+        const auto& processFilters = data.filter.processFilters;
+        BOOST_REQUIRE(messageFilters.size() == 10);
+        BOOST_REQUIRE(processFilters.size() == 2);
+
+        auto check = [](const Filter& f, const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bg, COLORREF fg, bool enable) {
+            BOOST_TEST(f.text == text);
+            BOOST_TEST(f.matchType == matchType);
+            BOOST_TEST(f.filterType == filterType);
+            BOOST_TEST(f.bgColor == bg);
+            BOOST_TEST(f.fgColor == fg);
+            BOOST_TEST(f.enable == enable);
+        };
+        const COLORREF white = RGB(255, 255, 255);
+        const COLORREF black = RGB(0, 0, 0);
+        check(messageFilters[0], "error", MatchType::Simple, FilterType::Include, white, black, true);
+        check(messageFilters[1], "noise.*", MatchType::Regex, FilterType::Exclude, RGB(1, 2, 3), RGB(4, 5, 6), true);
+        check(messageFilters[2], "a & b <c> \"quoted\" 'single'", MatchType::Wildcard, FilterType::Highlight, RGB(250, 240, 200), RGB(10, 20, 30), false);
+        check(messageFilters[3], "id=(\\d+)", MatchType::RegexGroups, FilterType::Token, Colors::Auto, black, true);
+        check(messageFilters[4], "CaseSensitive", MatchType::RegexCase, FilterType::Track, RGB(255, 255, 0), black, true);
+        check(messageFilters[5], "fatal", MatchType::Simple, FilterType::Stop, RGB(255, 0, 0), white, true);
+        check(messageFilters[6], "first only", MatchType::Simple, FilterType::Once, white, black, true);
+        check(messageFilters[7], "DBGVIEWCLEAR", MatchType::Simple, FilterType::Clear, white, black, true);
+        check(messageFilters[8], "beep", MatchType::Simple, FilterType::Beep, white, black, true);
+        check(messageFilters[9], "bookmark me", MatchType::Simple, FilterType::Bookmark, white, black, true);
+        check(processFilters[0], "app.exe", MatchType::Simple, FilterType::Include, white, black, true);
+        check(processFilters[1], "helper", MatchType::Wildcard, FilterType::Highlight, RGB(200, 220, 255), black, true);
+    }
+}
+
+// the .dbconf files of the application: what is in them (the views, their filters and columns, the sources)
+BOOST_AUTO_TEST_CASE(LegacySessionFilesContent)
+{
+    namespace pt = boost::property_tree;
+    for (const std::string file : {"session_input.dbconf", "session_saved_by_app.dbconf"})
+    {
+        BOOST_TEST_MESSAGE(file);
+        pt::ptree tree;
+        pt::read_xml(TestDataFile(file), tree, pt::xml_parser::trim_whitespace);
+        const auto& root = tree.get_child("DebugViewPP");
+        BOOST_TEST(root.get<bool>("AutoNewline") == false);
+        BOOST_TEST(root.get<bool>("LinkViews") == true);
+
+        std::vector<const pt::ptree*> views;
+        for (const auto& item : root.get_child("Views"))
+        {
+            if (item.first == "View")
+            {
+                views.push_back(&item.second);
+            }
+        }
+        BOOST_REQUIRE(views.size() == 2);
+        BOOST_TEST(views[0]->get<std::string>("Name") == "Errors");
+        BOOST_TEST(views[0]->get<bool>("ClockTime") == true);
+        BOOST_TEST(views[0]->get<bool>("ProcessColors") == false);
+        BOOST_TEST(views[0]->get_child("MessageFilters").size() == 10u);
+        BOOST_TEST(views[0]->get_child("ProcessFilters").size() == 2u);
+        BOOST_TEST(views[1]->get<std::string>("Name") == "Überblick: errors & warnings");
+        BOOST_TEST(views[1]->get<bool>("ClockTime") == false);
+        BOOST_TEST(views[1]->get<bool>("ProcessColors") == true);
+        BOOST_TEST(views[1]->get_child("MessageFilters").size() == 0u);
+
+        // the filter with an automatic color has an attribute, the others have a color
+        const auto& tokenFilter = std::next(views[0]->get_child("MessageFilters").begin(), 3)->second;
+        BOOST_TEST(tokenFilter.get<std::string>("Text") == "id=(\\d+)");
+        BOOST_TEST(tokenFilter.get<bool>("BackColor.<xmlattr>.Auto") == true);
+
+        // the columns: Time is not shown, the width the user gave the line column is kept
+        const auto& columns = views[0]->get_child("Columns");
+        BOOST_REQUIRE(columns.size() == 7u);
+        auto column = [&](size_t i) -> const pt::ptree& { return std::next(columns.begin(), static_cast<std::ptrdiff_t>(i))->second; };
+        BOOST_TEST(column(1).get<int>("Width") == 111);
+        BOOST_TEST(column(3).get<bool>("Enable") == false);
+        BOOST_TEST(column(6).get<int>("Width") == 1234);
+        // the application saves the second view with columns too
+        if (file == "session_saved_by_app.dbconf")
+        {
+            BOOST_TEST(views[1]->get_child("Columns").size() == 7u);
+        }
+
+        std::vector<const pt::ptree*> sources;
+        for (const auto& item : root.get_child("Sources"))
+        {
+            sources.push_back(&item.second);
+        }
+        BOOST_REQUIRE(sources.size() == 2);
+        BOOST_TEST(sources[0]->get<std::string>("SourceType") == "UDP Socket");
+        BOOST_TEST(sources[0]->get<int>("Port") == 2021);
+        BOOST_TEST(sources[0]->get<bool>("Enabled") == false);
+        BOOST_TEST(sources[1]->get<std::string>("SourceType") == "DbgView Agent");
+        BOOST_TEST(sources[1]->get<std::string>("Address") == "build-server.example.org");
+    }
+}
+
 BOOST_AUTO_TEST_CASE(FilterSameDefinition)
 {
     LogFilter a;

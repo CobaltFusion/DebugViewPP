@@ -11,3 +11,6 @@
 *.jpeg    -text diff
 *.jpg     -text diff
 *.png     -text diff
+
+# files that tests read byte for byte (files written by older versions of the application)
+application/DebugViewppTest/testdata/* -text

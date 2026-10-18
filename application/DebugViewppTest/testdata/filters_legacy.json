@@ -1,0 +1,201 @@
+{
+    "Filter": {
+        "Name": "Überblick: errors & warnings",
+        "MessageFilters": {
+            "Filter": {
+                "Enable": "true",
+                "Text": "error",
+                "MatchType": "Simple",
+                "FilterType": "Include",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "noise.*",
+                "MatchType": "Regex",
+                "FilterType": "Exclude",
+                "BackColor": {
+                    "Red": "1",
+                    "Green": "2",
+                    "Blue": "3"
+                },
+                "TextColor": {
+                    "Red": "4",
+                    "Green": "5",
+                    "Blue": "6"
+                }
+            },
+            "Filter": {
+                "Enable": "false",
+                "Text": "a & b <c> \"quoted\" 'single'",
+                "MatchType": "Wildcard",
+                "FilterType": "Highlight",
+                "BackColor": {
+                    "Red": "250",
+                    "Green": "240",
+                    "Blue": "200"
+                },
+                "TextColor": {
+                    "Red": "10",
+                    "Green": "20",
+                    "Blue": "30"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "id=(\\d+)",
+                "MatchType": "RegexGroups",
+                "FilterType": "Token",
+                "BackColor": {
+                    "<xmlattr>": {
+                        "Auto": "true"
+                    }
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "CaseSensitive",
+                "MatchType": "RegexCase",
+                "FilterType": "Track",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "0"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "fatal",
+                "MatchType": "Simple",
+                "FilterType": "Stop",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "0",
+                    "Blue": "0"
+                },
+                "TextColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "first only",
+                "MatchType": "Simple",
+                "FilterType": "Once",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "DBGVIEWCLEAR",
+                "MatchType": "Simple",
+                "FilterType": "Clear",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "beep",
+                "MatchType": "Simple",
+                "FilterType": "Beep",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "bookmark me",
+                "MatchType": "Simple",
+                "FilterType": "Bookmark",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            }
+        },
+        "ProcessFilters": {
+            "Filter": {
+                "Enable": "true",
+                "Text": "app.exe",
+                "MatchType": "Simple",
+                "FilterType": "Include",
+                "BackColor": {
+                    "Red": "255",
+                    "Green": "255",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            },
+            "Filter": {
+                "Enable": "true",
+                "Text": "helper",
+                "MatchType": "Wildcard",
+                "FilterType": "Highlight",
+                "BackColor": {
+                    "Red": "200",
+                    "Green": "220",
+                    "Blue": "255"
+                },
+                "TextColor": {
+                    "Red": "0",
+                    "Green": "0",
+                    "Blue": "0"
+                }
+            }
+        }
+    }
+}
