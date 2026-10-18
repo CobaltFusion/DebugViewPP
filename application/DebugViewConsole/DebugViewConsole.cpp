@@ -10,12 +10,8 @@
 #include <memory>
 #include <algorithm>
 
-#pragma warning(push)
-#pragma warning(disable : 4242)
-#include <boost/asio.hpp>
-#pragma warning(pop)
-
 #include "Win32/Utilities.h"
+#include "Win32/TcpStream.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/Str.h"
 #include "CobaltFusion/ExecutorClient.h"
@@ -348,22 +344,10 @@ try
 
     if (args.at("-u").asBool())
     {
-        std::string msg = argv[2];
+        std::string msg = argc > 2 ? argv[2] : "DebugViewConsole UDP test message"; // -u itself has no argument
         msg += "\n";
         std::cout << "Broadcast to 255.255.255.255 on UDP port 2020, message: " << msg;
-        using namespace boost::asio::ip;
-        boost::asio::io_service io_service;
-        udp::resolver resolver(io_service);
-        udp::resolver::query query(udp::v4(), "255.255.255.255", "2020");
-        udp::endpoint receiver_endpoint = *resolver.resolve(query);
-        udp::socket socket(io_service);
-        socket.open(udp::v4());
-
-        // enable broadcast
-        boost::asio::socket_base::broadcast option(true);
-        socket.set_option(option);
-
-        socket.send_to(boost::asio::buffer(msg), receiver_endpoint);
+        fusion::Win32::SendBroadcast(2020, msg);
         std::cout << "Done." << std::endl;
         return 0;
     }
