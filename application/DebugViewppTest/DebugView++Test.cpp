@@ -36,6 +36,7 @@
 #include "DebugViewppLib/Filter.h"
 #include "DebugViewppLib/LogFilter.h"
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/StringUtil.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
 namespace fusion {
@@ -292,6 +293,111 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
 }
 
 // #284: a copy of a view can use the lines of the other view when the filters are the same
+BOOST_AUTO_TEST_CASE(StringUtilCaseInsensitive)
+{
+    // equal
+    BOOST_TEST(IEquals("/Min", "/min"));
+    BOOST_TEST(IEquals(std::string("JSON"), "json"));
+    BOOST_TEST(IEquals(std::wstring(L"/MIN"), L"/min"));
+    BOOST_TEST(IEquals("", ""));
+    BOOST_TEST(!IEquals("abc", "abd"));
+    BOOST_TEST(!IEquals("abc", "abcd")); // not a prefix
+    BOOST_TEST(!IEquals("abcd", "abc"));
+
+    // a narrow and a wide string can be compared, the text is ASCII
+    BOOST_TEST(IEquals(std::wstring(L".TXT"), ".txt"));
+    BOOST_TEST(IEndsWith(std::wstring(L"c:\\logs\\Some.LOG"), ".log"));
+    BOOST_TEST(!IEndsWith(std::wstring(L"c:\\logs\\Some.LOG"), ".txt"));
+
+    // only ASCII letters are folded, the other characters (and non-ASCII text in UTF-8) are compared as they are
+    BOOST_TEST(!IEquals("\xc3\x84", "\xc3\xa4")); // A with diaeresis and a with diaeresis in UTF-8
+    BOOST_TEST(IEquals("\xc3\x84x", "\xc3\x84X"));
+    BOOST_TEST(!IEquals("a[", "A{")); // '[' and '{' are not the same, although they are 32 apart
+    BOOST_TEST(!IEquals("@", "`"));
+
+    // starts with and ends with
+    BOOST_TEST(IStartsWith(std::wstring(L"/Delay:100"), L"/delay:"));
+    BOOST_TEST(!IStartsWith(std::wstring(L"/del"), L"/delay:")); // shorter than the prefix
+    BOOST_TEST(IStartsWith("abc", ""));
+    BOOST_TEST(IEndsWith("abc", ""));
+    BOOST_TEST(IEndsWith("Test.DbConf", ".dbconf"));
+    BOOST_TEST(!IEndsWith("conf", ".dbconf"));
+    BOOST_TEST(EndsWith("File Identification Header", "Header"));
+    BOOST_TEST(!EndsWith("File Identification Header", "header")); // case sensitive
+    BOOST_TEST(!EndsWith("ab", "cab"));
+    BOOST_TEST(EndsWith("ab", ""));
+
+    // embedded 0 characters are just characters
+    const std::string withNul("a\0B", 3);
+    BOOST_TEST(IEquals(withNul, std::string("A\0b", 3)));
+    BOOST_TEST(!IEquals(withNul, std::string("A\0c", 3)));
+    BOOST_TEST(IContains(withNul, std::string("\0b", 2)));
+}
+
+BOOST_AUTO_TEST_CASE(StringUtilFindAndContains)
+{
+    const std::string text = "Hello Hello world, HELLO";
+    BOOST_TEST(IFind(text, "hello") == 0u);
+    BOOST_TEST(IFind(text, "hello", 1) == 6u); // from a position
+    BOOST_TEST(IFind(text, "HELLO", 7) == 19u);
+    BOOST_TEST(IFind(text, "hello", 20) == std::string::npos);
+    BOOST_TEST(IFind(text, "WORLD") == 12u);
+    BOOST_TEST(IFind(text, "worlds") == std::string::npos);
+    BOOST_TEST(IFind(text, "o") == 4u);
+
+    // the match can be at the end, and a pattern as long as the text works
+    BOOST_TEST(IFind("abcdef", "EF") == 4u);
+    BOOST_TEST(IFind("abc", "ABC") == 0u);
+    BOOST_TEST(IFind("abc", "abcd") == std::string::npos);
+    BOOST_TEST(IFind("", "a") == std::string::npos);
+
+    // a partial match is not a match, the search goes on
+    BOOST_TEST(IFind("aab", "ab") == 1u);
+    BOOST_TEST(IFind("ababac", "abac") == 2u);
+
+    // an empty pattern is found at the start position (like std::string::find), but not after the end
+    BOOST_TEST(IFind("abc", "") == 0u);
+    BOOST_TEST(IFind("abc", "", 3) == 3u);
+    BOOST_TEST(IFind("abc", "", 4) == std::string::npos);
+    BOOST_TEST(IContains("abc", ""));
+
+    BOOST_TEST(IContains(std::wstring(L"/TAB:name"), L"/tab:"));
+    BOOST_TEST(!IContains(std::wstring(L"/min"), L"/tab:"));
+    BOOST_TEST(IContains(std::string("The ERROR is here"), std::string("error")));
+
+    // wide text with a narrow pattern, and wide characters that are not ASCII are not folded
+    BOOST_TEST(IFind(std::wstring(L"x.LOG"), ".log") == 1u);
+    BOOST_TEST(IFind(std::wstring(L"\u00c4"), L"\u00e4") == std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(StringUtilLowerAndTrim)
+{
+    BOOST_TEST(ToLower(std::string("Mixed CASE 123 \xc3\x84")) == "mixed case 123 \xc3\x84"); // the UTF-8 bytes are unchanged
+    BOOST_TEST((ToLower(std::wstring(L"AbC")) == L"abc"));
+    BOOST_TEST(ToLower(std::string()) == "");
+
+    std::string message = "text with trailing space \r\n\t ";
+    TrimRight(message, " \r\n\t");
+    BOOST_TEST(message == "text with trailing space");
+    TrimRight(message, " \r\n\t"); // nothing more to remove
+    BOOST_TEST(message == "text with trailing space");
+
+    std::string onlySpaces = " \r\n";
+    TrimRight(onlySpaces, " \r\n\t");
+    BOOST_TEST(onlySpaces == "");
+
+    std::string empty;
+    TrimRight(empty, " ");
+    BOOST_TEST(empty == "");
+
+    // the characters inside are kept, only the ends are trimmed
+    BOOST_TEST(TrimCopy(std::string("  a b \t"), " \r\n\t") == "a b");
+    BOOST_TEST(TrimCopy(std::string("a"), " ") == "a");
+    BOOST_TEST(TrimCopy(std::string("   "), " ") == "");
+    BOOST_TEST(TrimCopy(std::string(""), " ") == "");
+    BOOST_TEST((TrimCopy(std::wstring(L"\t x \n"), L" \t\n") == L"x"));
+}
+
 // The files in testdata were written by the application (see testdata/README.md), before boost was removed. Files that users saved
 // with older versions must stay readable, so these tests describe what is in them, whatever reads them.
 std::string TestDataFile(const std::string& name)
