@@ -18,6 +18,7 @@ add_library(${PROJECT_NAME}
     FilterJson.cpp
     FilterType.cpp
     KernelReader.cpp
+    LegacyConfig.cpp
     Line.cpp
     LineBuffer.cpp
     LogFile.cpp
@@ -51,6 +52,7 @@ PRIVATE
     dv::cobaltfusion
     dv::win32
     dv::json
+    dv::pugixml
     winmm
 )
 

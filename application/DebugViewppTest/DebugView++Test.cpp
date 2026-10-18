@@ -38,6 +38,7 @@
 #include "CobaltFusion/StringUtil.h"
 #include "DebugViewppLib/DbgviewReader.h"
 #include "Win32/TcpStream.h"
+#include "DebugViewppLib/LegacyConfig.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
 namespace fusion {
@@ -493,6 +494,58 @@ BOOST_AUTO_TEST_CASE(FilterDataJsonDefaultsAndErrors)
     BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"matchType": "Simple", "filterType": "Include"}]})"), std::runtime_error); // no text
     BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": {"text": "t"}})"), std::runtime_error); // not an array
     BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include", "backColor": {"r": 300, "g": 0, "b": 0}}]})"), std::runtime_error);
+}
+
+// the readers of the legacy files give the same as the code that wrote them (property_tree), for the golden files
+BOOST_AUTO_TEST_CASE(LegacyFilterReadersMatchTheFilesOfTheOldVersion)
+{
+    for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
+    {
+        BOOST_TEST_MESSAGE(file);
+        std::ifstream stream(TestDataFile(file), std::ios::binary);
+        const std::string text((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        BOOST_REQUIRE(!text.empty());
+
+        const auto expected = file.ends_with(".json") ? LoadJson(TestDataFile(file)) : LoadXml(TestDataFile(file));
+        const auto data = file.ends_with(".json") ? FilterDataFromLegacyJson(text) : FilterDataFromLegacyXml(text);
+        BOOST_TEST(data.name == "Überblick: errors & warnings");
+        BOOST_TEST(data.name == expected.name);
+        BOOST_REQUIRE(data.filter.messageFilters.size() == 10);
+        BOOST_REQUIRE(data.filter.processFilters.size() == 2);
+        BOOST_TEST(SameDefinition(data.filter, expected.filter));
+        BOOST_TEST(data.filter.messageFilters[3].bgColor == Colors::Auto);
+        BOOST_TEST(data.filter.messageFilters[2].text == "a & b <c> \"quoted\" 'single'");
+        BOOST_TEST(!data.filter.messageFilters[2].enable);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(LegacyReadersHandleMalformedInput)
+{
+    BOOST_CHECK_THROW(FilterDataFromLegacyXml(""), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromLegacyXml("<Filter><Name>x</Filter>"), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromLegacyXml("<Other/>"), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromLegacyXml("<Filter><Name>x</Name><MessageFilters/></Filter>"), std::runtime_error); // no ProcessFilters
+    BOOST_CHECK_THROW(FilterDataFromLegacyJson(""), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromLegacyJson("{\"Filter\": {"), std::runtime_error);
+
+    // no filters at all is fine: an empty element, and the empty string property_tree wrote for it in JSON
+    const auto xml = FilterDataFromLegacyXml("<?xml version=\"1.0\" encoding=\"utf-8\"?><Filter><Name>n</Name><MessageFilters/><ProcessFilters></ProcessFilters></Filter>");
+    BOOST_TEST(xml.name == "n");
+    BOOST_TEST(xml.filter.messageFilters.empty());
+    const auto json = FilterDataFromLegacyJson(R"({"Filter": {"Name": "n", "MessageFilters": "", "ProcessFilters": ""}})");
+    BOOST_TEST(json.name == "n");
+    BOOST_TEST(json.filter.processFilters.empty());
+
+    // text is kept as it is, also a single space; numbers and booleans may have white space around them
+    const auto spaces = FilterDataFromLegacyXml(
+        "<Filter><Name>n</Name><MessageFilters>"
+        "<Filter><Enable> true </Enable><Text> </Text><MatchType>Simple</MatchType><FilterType>Include</FilterType>"
+        "<BackColor><Red> 1</Red><Green>2 </Green><Blue>3</Blue></BackColor><TextColor Auto=\"true\"/></Filter>"
+        "</MessageFilters><ProcessFilters/></Filter>");
+    BOOST_REQUIRE(spaces.filter.messageFilters.size() == 1);
+    BOOST_TEST(spaces.filter.messageFilters[0].text == " ");
+    BOOST_TEST(spaces.filter.messageFilters[0].bgColor == RGB(1, 2, 3));
+    BOOST_TEST(spaces.filter.messageFilters[0].fgColor == Colors::Auto);
 }
 
 // the .dbconf files of the application: what is in them (the views, their filters and columns, the sources)
