@@ -1,5 +1,6 @@
 add_subdirectory(docopt.cpp)
 add_subdirectory(nlohmann_json)
+add_subdirectory(pcre2)
 add_subdirectory(PropertyGrid)
 add_subdirectory(pugixml)
 add_subdirectory(TabbingFramework)
