@@ -1003,7 +1003,9 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
     }
     executor.reset();
 
-    BOOST_TEST(lines.size() == 2);
+    // the DBWIN reader is active too, other programs may have written to the shared buffer: only count the messages of this test
+    const auto count = std::count_if(lines.begin(), lines.end(), [](const Line& line) { return line.message.starts_with("Test message"); });
+    BOOST_TEST(count == 2);
 }
 
 // The DBWIN_BUFFER is shared by the whole machine, other programs (Teams, game launchers, ...) send their messages to it as well,
