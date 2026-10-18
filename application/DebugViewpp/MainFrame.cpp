@@ -258,7 +258,7 @@ LOGFONT& GetDefaultLogFont()
 
 CMainFrame::CMainFrame() :
     m_findDlg(*this),
-    m_tryGlobal(IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights()),
+    m_tryGlobal(ShouldAddGlobalDBWinReader()),
     m_logFileName(L"DebugView++.dblog"),
     m_txtFileName(L"Messages.dblog"),
     m_configFileName(L"DebugView++.dbconf"),

@@ -752,6 +752,34 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderLogsCommandLineOnTermination)
     BOOST_TEST(terminationMessage.find(" -n") != std::string::npos);
 }
 
+// #349: in session 0 (services) the local and the Global namespace are the same, so a second DBWinReader fails because
+// DBWIN_BUFFER already exists. The failure must not break the reader that exists already.
+BOOST_AUTO_TEST_CASE(LogSourceSecondDBWinReaderForSameNamespaceFails)
+{
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+    executor->Call([&] { logsources.AddDBWinReader(false); });
+
+    bool failed = false;
+    executor->Call([&] {
+        try
+        {
+            logsources.AddDBWinReader(false);
+        }
+        catch (const std::runtime_error&)
+        {
+            failed = true;
+        }
+    });
+    BOOST_TEST(failed);
+
+    OutputDebugStringA("still received\n");
+    auto lines = WaitForLines(*executor, logsources, 1);
+    BOOST_TEST(std::any_of(lines.begin(), lines.end(), [](const Line& line) { return line.message == "still received"; }));
+    executor->Call([&] { logsources.Abort(); });
+}
+
 BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
 {
     using namespace std::chrono_literals;

@@ -35,5 +35,16 @@ bool HasGlobalDBWinReaderRights()
     return hMap != nullptr;
 }
 
+bool IsSessionZero()
+{
+    DWORD sessionId = 0;
+    return ::ProcessIdToSessionId(::GetCurrentProcessId(), &sessionId) != 0 && sessionId == 0;
+}
+
+bool ShouldAddGlobalDBWinReader()
+{
+    return IsWindowsVistaOrGreater() && !IsSessionZero() && HasGlobalDBWinReaderRights();
+}
+
 } // namespace debugviewpp
 } // namespace fusion

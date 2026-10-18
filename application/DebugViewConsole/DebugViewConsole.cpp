@@ -127,8 +127,18 @@ void LogMessages(Settings settings)
     LogSources logsources(executor);
     executor.Call([&] {
         logsources.AddDBWinReader(false);
-        if (IsWindowsVistaOrGreater() && HasGlobalDBWinReaderRights())
-            logsources.AddDBWinReader(true);
+        if (ShouldAddGlobalDBWinReader())
+        {
+            try
+            {
+                logsources.AddDBWinReader(true);
+            }
+            catch (const std::exception& e)
+            {
+                // the messages of other sessions are not available, but the messages of this session still can be logged
+                std::cerr << "Unable to capture Global Win32 messages: " << e.what() << "\n";
+            }
+        }
         logsources.SetAutoNewLine(settings.autonewline);
     });
 
