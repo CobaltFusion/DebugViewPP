@@ -79,6 +79,8 @@ public:
     DBWinReader* AddDBWinReader(bool global);
     KernelReader* AddKernelReader();
     ProcessReader* AddProcessReader(const std::wstring& pathName, const std::wstring& args);
+    // sends an Enter to the stdin of all processes started by a ProcessReader that are still running, returns the number of processes
+    int SendEnterToProcessReaders();
     BinaryFileReader* AddBinaryFileReader(const std::wstring& filename);
     AnyFileReader* AddAnyFileReader(const std::wstring& filename, bool keeptailing);
     DbgviewReader* AddDbgviewReader(const std::string& hostname);

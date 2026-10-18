@@ -790,6 +790,107 @@ BOOST_AUTO_TEST_CASE(LogSourceSecondDBWinReaderForSameNamespaceFails)
     executor->Call([&] { logsources.Abort(); });
 }
 
+// #293: a process that waits for an Enter (or a batch file with 'pause') must be able to get one
+BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSendsEnterToStdin)
+{
+    using namespace std::chrono_literals;
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+
+    // 'set /p' waits until a line is entered
+    executor->Call([&] { logsources.AddProcessReader(L"cmd.exe", L"/Q /C \"set /p dummy=& echo got-the-enter\""); });
+
+    int sent = 0;
+    executor->Call([&] { sent = logsources.SendEnterToProcessReaders(); });
+    BOOST_TEST(sent == 1);
+
+    bool received = false;
+    for (int attempt = 0; attempt < 40 && !received; ++attempt)
+    {
+        for (const auto& line : WaitForLines(*executor, logsources, 1, 100ms))
+        {
+            received |= line.message.find("got-the-enter") != std::string::npos;
+        }
+    }
+    BOOST_TEST(received);
+    executor->Call([&] { logsources.Abort(); });
+}
+
+// every Enter satisfies exactly one 'pause'
+BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSingleEnterSatisfiesSinglePause)
+{
+    using namespace std::chrono_literals;
+
+    const auto batchFile = std::filesystem::temp_directory_path() / "debugviewpp_pause_test.cmd";
+    {
+        std::ofstream fs(batchFile);
+        fs << "echo \"start\"\n"
+           << "\n"
+           << "pause\n"
+           << "\n"
+           << "echo \"after pause\n"
+           << "\n"
+           << "pause\n"
+           << "\n"
+           << "echo \"got 2x enter\"\n"
+           << "\n"
+           << "pause\n";
+    }
+    auto removeBatchFile = make_guard([&] {
+        std::error_code ec;
+        std::filesystem::remove(batchFile, ec);
+    });
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+    executor->Call([&] { logsources.AddProcessReader(L"cmd.exe", L"/Q /C \"" + batchFile.wstring() + L"\""); });
+
+    std::vector<std::string> messages;
+    auto hasMessage = [&](const std::string& text) {
+        return std::any_of(messages.begin(), messages.end(), [&](const std::string& m) { return m.find(text) != std::string::npos; });
+    };
+    // collects the output for the given time, or until the text appears
+    auto collect = [&](const std::string& until, std::chrono::milliseconds maxTime) {
+        const auto deadline = std::chrono::steady_clock::now() + maxTime;
+        while (std::chrono::steady_clock::now() < deadline && (until.empty() || !hasMessage(until)))
+        {
+            for (const auto& line : WaitForLines(*executor, logsources, 1, 100ms))
+            {
+                messages.push_back(line.message);
+            }
+        }
+    };
+    auto sendEnter = [&] {
+        int sent = 0;
+        executor->Call([&] { sent = logsources.SendEnterToProcessReaders(); });
+        return sent;
+    };
+
+    collect("start", 5s);
+    BOOST_TEST(hasMessage("start"));
+    BOOST_TEST(!hasMessage("after pause")); // waiting at the first pause
+
+    // the first Enter ends the first pause only
+    BOOST_TEST(sendEnter() == 1);
+    collect("after pause", 5s);
+    BOOST_TEST(hasMessage("after pause"));
+    collect("", 1500ms); // give it the chance to continue past the second pause, when it should not
+    BOOST_TEST(!hasMessage("got 2x enter"));
+
+    // the second Enter ends the second pause
+    BOOST_TEST(sendEnter() == 1);
+    collect("got 2x enter", 5s);
+    BOOST_TEST(hasMessage("got 2x enter"));
+
+    // the third ends the last pause, so the process ends
+    sendEnter();
+    collect("", 500ms);
+    executor->Call([&] { logsources.Abort(); });
+}
+
 BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
 {
     using namespace std::chrono_literals;

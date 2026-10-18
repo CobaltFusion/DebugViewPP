@@ -496,6 +496,19 @@ ProcessReader* LogSources::AddProcessReader(const std::wstring& pathName, const 
     return pResult;
 }
 
+int LogSources::SendEnterToProcessReaders()
+{
+    int count = 0;
+    CallSources([&count](LogSource* pSource) {
+        auto pProcessReader = dynamic_cast<ProcessReader*>(pSource);
+        if (pProcessReader != nullptr && !pProcessReader->AtEnd() && pProcessReader->SendEnter())
+        {
+            ++count;
+        }
+    });
+    return count;
+}
+
 BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
 {
     assert(m_executor.IsExecutorThread());

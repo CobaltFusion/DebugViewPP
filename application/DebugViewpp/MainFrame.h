@@ -101,6 +101,8 @@ public:
     void FindPrevious(const std::wstring& text);
     // shows 'Searching', 'Found' or 'Not found' followed by the text in the status bar, immediately (a search blocks the user interface)
     void SetSearchStatus(const wchar_t* state, const std::wstring& text);
+    // sends an Enter to the stdin of the processes that are being run by DebugView++ (#293), returns false if there are none
+    bool SendEnterToProcesses();
     void OnDropped(std::wstring uri);
 
     // Return the command which should be used to show the window, it is

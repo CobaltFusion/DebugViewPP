@@ -248,6 +248,10 @@ void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
             Copy();
         }
     }
+    else if (nChar == VK_RETURN && m_mainFrame.SendEnterToProcesses())
+    {
+        // handled: programs that are run by DebugView++ and wait for an Enter (like a batch file with 'pause') get it
+    }
     else
     {
         SetMsgHandled(win32::False);

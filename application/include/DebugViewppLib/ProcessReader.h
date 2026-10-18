@@ -22,6 +22,10 @@ public:
     void Abort() override;
     bool AtEnd() const override;
 
+    // Writes an Enter (a single line feed) to the stdin of the process, for programs and batch files that wait for it (like 'pause'). Returns false if
+    // that is not possible, because the process ended for example.
+    bool SendEnter();
+
 private:
     void Poll() override;
 

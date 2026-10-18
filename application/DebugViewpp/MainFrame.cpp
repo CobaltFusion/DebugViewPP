@@ -949,6 +949,11 @@ void CMainFrame::FindPrevious(const std::wstring& text)
     }
 }
 
+bool CMainFrame::SendEnterToProcesses()
+{
+    return m_logSources.SendEnterToProcessReaders() > 0;
+}
+
 void CMainFrame::SetSearchStatus(const wchar_t* state, const std::wstring& text)
 {
     m_searchStatus = wstringbuilder() << state << L": \"" << text << L"\"";
