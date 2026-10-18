@@ -147,6 +147,7 @@ BEGIN
         MENUITEM "&Font...",                    ID_OPTIONS_FONT
         MENUITEM "Always On &Top",              ID_OPTIONS_ALWAYSONTOP
         MENUITEM "&Hide When Minimized",        ID_OPTIONS_HIDE
+        MENUITEM "&Dark Theme",                 ID_OPTIONS_DARKTHEME
     END
     POPUP "&Help"
     BEGIN
@@ -670,6 +671,7 @@ BEGIN
     ID_OPTIONS_FONT         "Select font\nFont"
     ID_OPTIONS_HIDE         "Hide DebugView++ when it is minimized\nHide When Minimized"
     ID_OPTIONS_ALWAYSONTOP  "Keep DebugView++ window on top\nAlways On Top"
+    ID_OPTIONS_DARKTHEME    "Use dark colors for the log\nDark Theme"
 END
 
 STRINGTABLE

@@ -224,6 +224,7 @@ BEGIN_MSG_MAP2(CMainFrame)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_FONT, OnViewFont)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_ALWAYSONTOP, OnAlwaysOnTop)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_HIDE, OnHide)
+    COMMAND_ID_HANDLER_EX(ID_OPTIONS_DARKTHEME, OnDarkTheme)
     COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
     NOTIFY_CODE_HANDLER_EX(CTCN_BEGINITEMDRAG, OnBeginTabDrag)
     NOTIFY_CODE_HANDLER_EX(CTCN_SELCHANGE, OnChangeTab)
@@ -405,6 +406,7 @@ void CMainFrame::UpdateUI()
     UISetCheck(ID_OPTIONS_PROCESS_PREFIX, m_logSources.GetProcessPrefix());
     UISetCheck(ID_OPTIONS_ALWAYSONTOP, GetAlwaysOnTop());
     UISetCheck(ID_OPTIONS_HIDE, m_hide);
+    UISetCheck(ID_OPTIONS_DARKTHEME, m_darkTheme);
     UISetCheck(ID_LOG_PAUSE, !m_pLocalReader);
     UIEnable(ID_LOG_GLOBAL, !!m_pLocalReader);
     UISetCheck(ID_LOG_GLOBAL, m_tryGlobal);
@@ -852,6 +854,7 @@ bool CMainFrame::LoadSettings()
     SetTitle();
 
     m_hide = Win32::RegGetDWORDValue(reg, L"Hide", 0) != 0;
+    SetDarkTheme(Win32::RegGetDWORDValue(reg, L"DarkTheme", 0) != 0);
     m_logFile.SetHistorySize(static_cast<int>(Win32::RegGetDWORDValue(reg, L"HistorySize", 0))); // 0 is unlimited
 
     auto fontName = Win32::RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
@@ -929,6 +932,7 @@ void CMainFrame::SaveSettings()
     reg.SetDWORDValue(L"AutoNewLine", static_cast<DWORD>(m_logSources.GetAutoNewLine()));
     reg.SetDWORDValue(L"AlwaysOnTop", static_cast<DWORD>(GetAlwaysOnTop()));
     reg.SetDWORDValue(L"Hide", static_cast<DWORD>(m_hide));
+    reg.SetDWORDValue(L"DarkTheme", static_cast<DWORD>(m_darkTheme));
     reg.SetDWORDValue(L"HistorySize", static_cast<DWORD>(m_logFile.GetHistorySize()));
 
     reg.SetStringValue(L"FontName", m_logfont.lfFaceName);
@@ -1539,6 +1543,43 @@ void CMainFrame::SetAlwaysOnTop(bool value)
 void CMainFrame::OnAlwaysOnTop(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     SetAlwaysOnTop(!GetAlwaysOnTop());
+}
+
+void CMainFrame::OnDarkTheme(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+    SetDarkTheme(!m_darkTheme);
+}
+
+// The dark theme changes the colors of the log (see Colors), the scrollbars and header of the log, and the title bar.
+// The menu, toolbar and status bar are drawn by Windows and keep the colors of Windows.
+void CMainFrame::SetDarkTheme(bool dark)
+{
+    m_darkTheme = dark;
+    Colors::SetDarkTheme(dark);
+
+    // dark title bar, Windows 10 20H1 (19 on older builds of Windows 10) and later, ignored if not available
+    const BOOL useDark = dark ? TRUE : FALSE;
+    using DwmSetWindowAttributeFn = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
+    static const auto dwmSetWindowAttribute = reinterpret_cast<DwmSetWindowAttributeFn>(::GetProcAddress(::LoadLibraryW(L"dwmapi.dll"), "DwmSetWindowAttribute"));
+    if (dwmSetWindowAttribute != nullptr && m_hWnd != nullptr)
+    {
+        constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+        if (FAILED(dwmSetWindowAttribute(m_hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDark, sizeof(useDark))))
+        {
+            dwmSetWindowAttribute(m_hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, &useDark, sizeof(useDark));
+        }
+    }
+
+    int views = GetViewCount();
+    for (int i = 0; i < views; ++i)
+    {
+        GetView(i).ApplyTheme();
+    }
+    if (m_hWnd != nullptr)
+    {
+        Invalidate();
+    }
 }
 
 bool CMainFrame::IsPaused() const

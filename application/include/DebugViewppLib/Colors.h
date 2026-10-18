@@ -13,12 +13,26 @@ namespace debugviewpp {
 namespace Colors {
 
 extern const COLORREF Auto;
-extern const COLORREF BackGround;
-extern const COLORREF Text;
-extern const COLORREF Highlight;
-extern const COLORREF Selection;
-extern const COLORREF ItemHighlight;
-extern const COLORREF ItemHighlightText;
+
+// The colors of the theme (the system colors, or the colors of the dark theme), these change when the theme is set,
+// so always use them where is is drawn and do not keep a copy.
+extern COLORREF BackGround;
+extern COLORREF Text;
+extern COLORREF Highlight;
+extern COLORREF Selection;
+extern COLORREF ItemHighlight;
+extern COLORREF ItemHighlightText;
+
+void SetDarkTheme(bool dark);
+bool IsDarkTheme();
+
+// The color a color that was picked for a light background (random process colors, colors for matches) should have in the theme,
+// the same color for the light theme, a darker color for the dark theme.
+COLORREF Adapt(COLORREF color);
+
+// The text color to use on the background color, in the light theme this is the normal text color (the background colors are
+// light), in the dark theme it is black on a light and white on a dark background.
+COLORREF TextOn(COLORREF background);
 
 } // namespace Colors
 

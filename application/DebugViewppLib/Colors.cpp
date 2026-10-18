@@ -14,12 +14,66 @@ namespace debugviewpp {
 namespace Colors {
 
 extern const COLORREF Auto = 0x80808080;
-extern const COLORREF BackGround = GetSysColor(COLOR_WINDOW);
-extern const COLORREF Text = GetSysColor(COLOR_WINDOWTEXT);
-extern const COLORREF Highlight = RGB(255, 255, 55);
-extern const COLORREF Selection = RGB(128, 255, 255);
-extern const COLORREF ItemHighlight = GetSysColor(COLOR_HIGHLIGHT);
-extern const COLORREF ItemHighlightText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+COLORREF BackGround = GetSysColor(COLOR_WINDOW);
+COLORREF Text = GetSysColor(COLOR_WINDOWTEXT);
+COLORREF Highlight = RGB(255, 255, 55);
+COLORREF Selection = RGB(128, 255, 255);
+COLORREF ItemHighlight = GetSysColor(COLOR_HIGHLIGHT);
+COLORREF ItemHighlightText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+
+static bool g_darkTheme = false;
+
+void SetDarkTheme(bool dark)
+{
+    g_darkTheme = dark;
+    if (dark)
+    {
+        BackGround = RGB(30, 30, 30);
+        Text = RGB(220, 220, 220);
+        Highlight = RGB(138, 110, 0);
+        Selection = RGB(38, 79, 120);
+        ItemHighlight = RGB(0, 90, 158);
+        ItemHighlightText = RGB(255, 255, 255);
+    }
+    else
+    {
+        BackGround = GetSysColor(COLOR_WINDOW);
+        Text = GetSysColor(COLOR_WINDOWTEXT);
+        Highlight = RGB(255, 255, 55);
+        Selection = RGB(128, 255, 255);
+        ItemHighlight = GetSysColor(COLOR_HIGHLIGHT);
+        ItemHighlightText = GetSysColor(COLOR_HIGHLIGHTTEXT);
+    }
+}
+
+bool IsDarkTheme()
+{
+    return g_darkTheme;
+}
+
+COLORREF Adapt(COLORREF color)
+{
+    if (!g_darkTheme)
+    {
+        return color;
+    }
+
+    // the colors are light (a high value, a low saturation or a high saturation), make them dark but keep the hue
+    constexpr int percentage = 40;
+    return RGB(GetRValue(color) * percentage / 100, GetGValue(color) * percentage / 100, GetBValue(color) * percentage / 100);
+}
+
+COLORREF TextOn(COLORREF background)
+{
+    if (!g_darkTheme)
+    {
+        return Text;
+    }
+
+    // the perceived brightness of the background
+    const int brightness = (GetRValue(background) * 299 + GetGValue(background) * 587 + GetBValue(background) * 114) / 1000;
+    return brightness > 140 ? RGB(0, 0, 0) : RGB(240, 240, 240);
+}
 
 } // namespace Colors
 

@@ -158,6 +158,7 @@ public:
     std::wstring GetName() const;
     void SetName(const std::wstring& name);
     void SetFont(HFONT hFont);
+    void ApplyTheme(); // after the theme of the colors changed (Colors::SetDarkTheme)
     // the window is on a monitor with another scaling, the columns have the same size relative to the font
     void OnDpiChanged(UINT oldDpi, UINT newDpi);
     bool GetAutoScroll() const;
@@ -346,6 +347,7 @@ private:
     CToolTipCtrl m_toolTip;
     std::wstring m_toolTipText; // the text the tooltip points to
     int m_toolTipItem = -1;
+    bool m_darkThemeApplied = false;
     std::wstring m_dispInfoText;
     Win32::ComObjectPtr<DropTargetSupport> m_pDropTargetSupport;
 };

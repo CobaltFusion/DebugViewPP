@@ -286,6 +286,44 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
     BOOST_TEST(cut.find(L'y') == 0);
 }
 
+// #368: the colors of the dark theme
+BOOST_AUTO_TEST_CASE(DarkThemeColors)
+{
+    auto brightness = [](COLORREF c) { return (GetRValue(c) * 299 + GetGValue(c) * 587 + GetBValue(c) * 114) / 1000; };
+
+    // the light theme has the system colors, colors are not changed
+    Colors::SetDarkTheme(false);
+    BOOST_TEST(!Colors::IsDarkTheme());
+    const COLORREF lightBackGround = Colors::BackGround;
+    const COLORREF lightText = Colors::Text;
+    BOOST_TEST(lightBackGround == ::GetSysColor(COLOR_WINDOW));
+    BOOST_TEST(Colors::Adapt(RGB(200, 230, 250)) == RGB(200, 230, 250));
+    BOOST_TEST(Colors::TextOn(RGB(200, 230, 250)) == lightText);
+
+    Colors::SetDarkTheme(true);
+    BOOST_TEST(Colors::IsDarkTheme());
+    BOOST_TEST(brightness(Colors::BackGround) < 80);
+    BOOST_TEST(brightness(Colors::Text) > 160);
+    BOOST_TEST(brightness(Colors::ItemHighlightText) > brightness(Colors::ItemHighlight)); // selected lines can be read
+
+    // light colors (random colors for processes and matches are light) are made dark, the text on them is light
+    const COLORREF pastel = RGB(250, 240, 200);
+    const COLORREF adapted = Colors::Adapt(pastel);
+    BOOST_TEST(brightness(adapted) < 120);
+    BOOST_TEST(GetRValue(adapted) > GetBValue(adapted)); // the hue is kept
+    BOOST_TEST(brightness(Colors::TextOn(adapted)) > 160);
+
+    // the text color contrasts with the background, also for the colors that are not adapted (colors of filters)
+    BOOST_TEST(Colors::TextOn(RGB(255, 255, 200)) == RGB(0, 0, 0));
+    BOOST_TEST(brightness(Colors::TextOn(RGB(20, 20, 20))) > 200);
+    BOOST_TEST(brightness(Colors::TextOn(Colors::Highlight)) != brightness(Colors::Highlight)); // not unreadable
+
+    // back to the system colors
+    Colors::SetDarkTheme(false);
+    BOOST_TEST(Colors::BackGround == lightBackGround);
+    BOOST_TEST(Colors::Text == lightText);
+}
+
 // sizes are scaled for the monitor (#321)
 BOOST_AUTO_TEST_CASE(DpiScaling)
 {

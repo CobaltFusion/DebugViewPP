@@ -17,6 +17,8 @@
 #include "RenameProcessDlg.h"
 //#include "VersionHelpers.h"  // IsWindows10OrGreater ??
 
+#include <uxtheme.h>
+#pragma comment(lib, "uxtheme.lib") // SetWindowTheme
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -425,6 +427,8 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
     m_columns.push_back(MakeColumn(Column::Process, L"Process", LVCFMT_LEFT, Win32::ScaleToDpi(140, dpi)));
     m_columns.push_back(MakeColumn(Column::Message, L"Message", LVCFMT_LEFT, Win32::ScaleToDpi(1500, dpi)));
     UpdateColumns();
+
+    ApplyTheme(); // the view can be created when the dark theme is active
 
     ApplyFilters();
 
@@ -946,7 +950,7 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
                     auto itc = m_matchColors.find(Str(tok->str(i)));
                     if (itc != m_matchColors.end())
                     {
-                        InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(itc->second, Colors::Text)));
+                        InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(Colors::Adapt(itc->second), Colors::TextOn(Colors::Adapt(itc->second)))));
                     }
                 }
                 else
@@ -957,7 +961,7 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
         }
     }
 
-    InsertHighlight(highlights, text, m_highlightText, TextColor(Colors::Highlight, Colors::Text));
+    InsertHighlight(highlights, text, m_highlightText, TextColor(Colors::Highlight, Colors::TextOn(Colors::Highlight)));
 
     return highlights;
 }
@@ -1094,7 +1098,7 @@ Highlight CLogView::GetSelectionHighlight(CDCHandle dc, int iItem) const
 
     int begin = GetTextIndex(dc, iItem, x1);
     int end = GetTextIndex(dc, iItem, x2);
-    return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::Text));
+    return Highlight(0, begin, end, TextColor(Colors::Selection, Colors::TextOn(Colors::Selection)));
 }
 
 void CLogView::DrawSubItem(CDCHandle dc, int iItem, int iSubItem, const ItemData& data) const
@@ -1618,6 +1622,27 @@ std::wstring CLogView::GetName() const
 void CLogView::SetName(const std::wstring& name)
 {
     m_name = name;
+}
+
+// The colors of the log come from Colors (see Colors::SetDarkTheme), this makes the scrollbars and the header dark too.
+// It uses the 'DarkMode_Explorer' visual style (Windows 10 1809 and later), which is not documented but is what the dark
+// Explorer uses. When it is not available nothing changes.
+void CLogView::ApplyTheme()
+{
+    if (Colors::IsDarkTheme())
+    {
+        ::SetWindowTheme(*this, L"DarkMode_Explorer", nullptr);
+        ::SetWindowTheme(GetHeader(), L"DarkMode_Explorer", nullptr);
+        m_darkThemeApplied = true;
+    }
+    else if (m_darkThemeApplied)
+    {
+        ::SetWindowTheme(*this, nullptr, nullptr);
+        ::SetWindowTheme(GetHeader(), nullptr, nullptr);
+        m_darkThemeApplied = false;
+    }
+    Invalidate();
+    GetHeader().Invalidate();
 }
 
 void CLogView::SetFont(HFONT hFont)
@@ -2370,7 +2395,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
                 auto it = m_matchColors.find(MatchKey(match, filter.matchType));
                 if (it != m_matchColors.end())
                 {
-                    return TextColor(it->second, Colors::Text);
+                    return TextColor(Colors::Adapt(it->second), Colors::TextOn(Colors::Adapt(it->second)));
                 }
             }
             else
@@ -2389,7 +2414,12 @@ TextColor CLogView::GetTextColor(const Message& msg) const
         }
     }
 
-    return TextColor(m_processColors ? msg.color : Colors::BackGround, Colors::Text);
+    if (m_processColors)
+    {
+        const auto background = Colors::Adapt(msg.color);
+        return TextColor(background, Colors::TextOn(background));
+    }
+    return TextColor(Colors::BackGround, Colors::Text);
 }
 
 bool CLogView::IsClearMessage(const Message& msg) const

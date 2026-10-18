@@ -81,6 +81,7 @@ public:
         UPDATE_ELEMENT(ID_OPTIONS_PROCESS_PREFIX, UPDUI_MENUPOPUP)
         UPDATE_ELEMENT(ID_OPTIONS_ALWAYSONTOP, UPDUI_MENUPOPUP)
         UPDATE_ELEMENT(ID_OPTIONS_HIDE, UPDUI_MENUPOPUP)
+        UPDATE_ELEMENT(ID_OPTIONS_DARKTHEME, UPDUI_MENUPOPUP)
         UPDATE_ELEMENT(ID_DEFAULT_PANE, UPDUI_STATUSBAR)
         UPDATE_ELEMENT(ID_SELECTION_PANE, UPDUI_STATUSBAR)
         UPDATE_ELEMENT(ID_VIEW_PANE, UPDUI_STATUSBAR)
@@ -184,6 +185,8 @@ private:
     void OnProcessPrefix(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnHide(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnAlwaysOnTop(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void OnDarkTheme(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void SetDarkTheme(bool dark);
     void OnLogClear(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogCrop(UINT uNotifyCode, int nID, CWindow wndCtl);
     void OnLogPause(UINT uNotifyCode, int nID, CWindow wndCtl);
@@ -217,6 +220,7 @@ private:
 
     CCommandBarCtrl m_cmdBar;
     CMultiPaneStatusBarCtrl m_statusBar;
+    bool m_darkTheme = false;
     UINT m_dpi = Win32::DefaultDpi; // the DPI of the monitor the window is on, it changes when the window is moved to another monitor
     std::wstring m_searchStatus;          // text of the default pane after a search, valid as long as the highlighted text is m_searchStatusHighlight
     std::wstring m_searchStatusHighlight;
