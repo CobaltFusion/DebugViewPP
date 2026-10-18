@@ -8,13 +8,6 @@ endif()
 
 set(NUGET_PACKAGES_PATH ${CMAKE_SOURCE_DIR}/application/nuget/packages CACHE PATH "Directory containing nuget packages")
 
-add_library(nuget_boost INTERFACE)
-target_include_directories(nuget_boost SYSTEM INTERFACE "${NUGET_PACKAGES_PATH}/boost.1.80.0/lib/native/include")
-target_link_directories(nuget_boost INTERFACE "${NUGET_PACKAGES_PATH}/boost_date_time-vc143.1.80.0/lib/native")
-target_link_directories(nuget_boost INTERFACE "${NUGET_PACKAGES_PATH}/boost_regex-vc143.1.80.0/lib/native")
-target_link_directories(nuget_boost INTERFACE "${NUGET_PACKAGES_PATH}/boost_system-vc143.1.80.0/lib/native")
-add_library(nuget::boost ALIAS nuget_boost)
-
 add_library(nuget_boost_test INTERFACE)
 target_include_directories(nuget_boost_test SYSTEM INTERFACE "${NUGET_PACKAGES_PATH}/boost.1.80.0/lib/native/include")
 target_link_directories(nuget_boost_test INTERFACE "${NUGET_PACKAGES_PATH}/boost_unit_test_framework-vc143.1.80.0/lib/native")

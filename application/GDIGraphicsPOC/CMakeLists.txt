@@ -13,7 +13,6 @@ PRIVATE
     project::compile_features
     project::compile_options
     project::gui_link_options
-    nuget::boost
     nuget::wtl
     dv::cobaltfusion
     dv::tabbingframework

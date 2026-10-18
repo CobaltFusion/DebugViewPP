@@ -17,7 +17,6 @@ PRIVATE
     project::definitions
     project::compile_features
     project::compile_options
-    nuget::boost
     dv::win32
 )
 

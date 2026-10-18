@@ -8,7 +8,6 @@ PRIVATE
     project::compile_features
     project::compile_options
     project::console_link_options
-    nuget::boost
     dv::cobaltfusion
     dv::library
     dv::win32

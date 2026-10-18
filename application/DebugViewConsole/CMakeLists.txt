@@ -7,7 +7,6 @@ PRIVATE
     project::definitions
     project::compile_features
     project::compile_options
-    nuget::boost_test
     dv::library
     dv::indexedstorage
     CobaltFusion

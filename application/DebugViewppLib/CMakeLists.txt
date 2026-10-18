@@ -49,7 +49,6 @@ PRIVATE
     project::definitions
     project::compile_features
     project::compile_options
-    nuget::boost
     nuget::wtl
     dv::cobaltfusion
     dv::win32
