@@ -36,6 +36,7 @@
 #include "Win32/TcpStream.h"
 #include "DebugViewppLib/ConfigFile.h"
 #include "DebugViewppLib/LegacyConfig.h"
+#include "DebugViewppLib/Regex.h"
 #include "DebugViewppLib/SessionConfig.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
@@ -814,6 +815,177 @@ TEST(DebugViewPlusPlusTest, LegacySessionFileIsConvertedWhenLoaded)
     EXPECT_THROW(LoadSessionFile(dir.path / "missing.dbconf", message), std::runtime_error);
     { std::ofstream(dir.path / "text.dbconf") << "not a configuration"; }
     EXPECT_THROW(LoadSessionFile(dir.path / "text.dbconf", message), std::runtime_error);
+}
+
+// the regular expressions of the filters: PCRE2
+TEST(DebugViewPlusPlusTest, RegexSearch)
+{
+    EXPECT_TRUE(Regex("error", true).Search("An ERROR occurred"));
+    EXPECT_FALSE(Regex("error", false).Search("An ERROR occurred")); // RegexCase
+    EXPECT_TRUE(Regex("ERROR", false).Search("An ERROR occurred"));
+    EXPECT_FALSE(Regex("^error", true).Search("An error occurred"));
+    EXPECT_TRUE(Regex("occurred$", true).Search("An error occurred"));
+    EXPECT_FALSE(Regex("occurred$", true).Search("An error occurred\n")); // like ECMAScript: $ is the end of the text
+    EXPECT_TRUE(Regex(R"(\d+\.\d+)", true).Search("version 1.22"));
+    EXPECT_TRUE(Regex("a.c", true).Search("abc"));
+    EXPECT_FALSE(Regex("a.c", true).Search("a\nc"));
+    EXPECT_TRUE(Regex("", true).Search("anything")); // the empty pattern matches everything
+    EXPECT_TRUE(Regex().Search(""));
+    EXPECT_TRUE(Regex().Search("anything"));
+    EXPECT_TRUE(Regex("a|b", true).Search("xxb"));
+    EXPECT_FALSE(Regex("x", true).Search(""));
+
+    // the patterns of the Simple and Wildcard filters
+    EXPECT_TRUE(Regex(MakePattern(MatchType::Simple, "a.b(c)[d]{e}+*?|^$\\"), true).Search("x a.b(c)[d]{e}+*?|^$\\ y"));
+    EXPECT_FALSE(Regex(MakePattern(MatchType::Simple, "a.b"), true).Search("axb"));
+    EXPECT_TRUE(Regex(MakePattern(MatchType::Wildcard, "error*done"), true).Search("error it is done"));
+    EXPECT_TRUE(Regex(MakePattern(MatchType::Wildcard, "a?c"), true).Search("abc"));
+    EXPECT_FALSE(Regex(MakePattern(MatchType::Wildcard, "a?c"), true).Search("ac"));
+
+    // bytes that are not text
+    EXPECT_TRUE(Regex("b", true).Search(std::string("a\0b", 3)));
+    EXPECT_TRUE(Regex("caf", true).Search("caf\xE9 invalid utf-8"));
+}
+
+// #411
+TEST(DebugViewPlusPlusTest, RegexLookbehindAndOtherPcre2Syntax)
+{
+    RegexMatch match;
+
+    EXPECT_TRUE(Regex(R"((?<=id=)\d+)", true).Search("request id=4711 done", match));
+    EXPECT_EQ(match.Group(), "4711");
+    EXPECT_EQ(match.Position(), 11u);
+
+    EXPECT_TRUE(Regex(R"((?<!id=)\d+)", true).Search("id=12 and 34", match));
+    EXPECT_EQ(match.Group(), "2"); // the "1" follows "id=", the "2" does not
+    EXPECT_FALSE(Regex(R"((?<=id=)\d+)", true).Search("no number: id=x"));
+
+    EXPECT_TRUE(Regex(R"(foo(?=bar))", true).Search("foobar", match)); // lookahead
+    EXPECT_EQ(match.Group(), "foo");
+    EXPECT_FALSE(Regex(R"(foo(?!bar))", true).Search("foobar"));
+    EXPECT_TRUE(Regex(R"((\w)\1)", true).Search("hello")); // backreference
+    EXPECT_FALSE(Regex(R"((\w)\1)", true).Search("helo"));
+    EXPECT_TRUE(Regex(R"((?<word>\w+) \k<word>)", true).Search("this is is a test")); // named group
+    EXPECT_TRUE(Regex(R"(foo\Kbar)", true).Search("foobar", match));
+    EXPECT_EQ(match.Group(), "bar");
+    EXPECT_TRUE(Regex(R"((?i)ERROR(?-i)X)", false).Search("errorX"));
+}
+
+TEST(DebugViewPlusPlusTest, RegexGroups)
+{
+    RegexMatch match;
+    Regex groups(R"((\w+)=(\d+)(;(x))?)", true);
+    EXPECT_TRUE(groups.Search("name=42;x other", match));
+    ASSERT_EQ(match.size(), 5u); // the whole match and 4 groups
+    EXPECT_EQ(match.Group(0), "name=42;x");
+    EXPECT_EQ(match.Group(1), "name");
+    EXPECT_EQ(match.Group(2), "42");
+    EXPECT_EQ(match.Group(3), ";x");
+    EXPECT_EQ(match.Group(4), "x");
+    EXPECT_FALSE(match.Matched(9));
+
+    EXPECT_TRUE(groups.Search("name=42 other", match));
+    ASSERT_EQ(match.size(), 5u); // groups that did not take part are there, and empty
+    EXPECT_EQ(match.Group(0), "name=42");
+    EXPECT_TRUE(match.Matched(2));
+    EXPECT_FALSE(match.Matched(3));
+    EXPECT_FALSE(match.Matched(4));
+    EXPECT_EQ(match.Group(4), "");
+    EXPECT_EQ(match.Length(4), 0u);
+}
+
+TEST(DebugViewPlusPlusTest, RegexSearchFromAnOffset)
+{
+    RegexMatch match;
+    Regex lookbehind(R"((?<=a)b)", true);
+    EXPECT_TRUE(lookbehind.Search("ab", match, 1)); // the 'a' before the offset is seen
+    EXPECT_EQ(match.Position(), 1u);
+    EXPECT_FALSE(Regex("^b", true).Search("ab", match, 1)); // and ^ is not at the offset
+    EXPECT_TRUE(Regex(R"(\bb)", true).Search("a b", match, 2));
+    EXPECT_FALSE(Regex("a", true).Search("a", match, 5)); // after the end
+    EXPECT_TRUE(Regex("", true).Search("abc", match, 3));
+    EXPECT_FALSE(Regex("", true).Search("abc", match, 4));
+}
+
+TEST(DebugViewPlusPlusTest, RegexForEachMatch)
+{
+    std::vector<std::string> found;
+    Regex(R"(\d+)", true).ForEachMatch("a1 bb22 ccc333", [&](const RegexMatch& m) { found.push_back(std::string(m.Group())); });
+    EXPECT_EQ(found, (std::vector<std::string>{"1", "22", "333"}));
+
+    // matches without length are found once per position, and the search ends
+    found.clear();
+    Regex("x*", true).ForEachMatch("axxb", [&](const RegexMatch& m) { found.push_back(std::string(m.Group())); });
+    EXPECT_EQ(found, (std::vector<std::string>{"", "xx", "", ""}));
+
+    found.clear();
+    Regex(R"((?<=\d)[a-z])", true).ForEachMatch("1a 2b c3d", [&](const RegexMatch& m) { found.push_back(std::string(m.Group())); });
+    EXPECT_EQ(found, (std::vector<std::string>{"a", "b", "d"}));
+
+    int count = 0;
+    Regex("a", true).ForEachMatch("", [&](const RegexMatch&) { ++count; });
+    EXPECT_EQ(count, 0);
+}
+
+TEST(DebugViewPlusPlusTest, RegexErrors)
+{
+    EXPECT_THROW(Regex("(", true), RegexError);
+    EXPECT_THROW(Regex("[a-", true), RegexError);
+    EXPECT_THROW(Regex("*a", true), RegexError);
+    EXPECT_THROW(Regex(R"((?<=a+)b)", true), RegexError); // lookbehind must have a fixed length
+    EXPECT_THROW(Regex(R"(\1)", true), RegexError);
+
+    try
+    {
+        Regex("ab(cd", true);
+        FAIL() << "no exception";
+    }
+    catch (const RegexError& error)
+    {
+        EXPECT_NE(std::string(error.what()).find("missing closing parenthesis"), std::string::npos) << error.what();
+        EXPECT_EQ(error.offset(), 5u);
+    }
+    EXPECT_NO_THROW(Regex("a{", true)); // a '{' that is not a quantifier is a character
+}
+
+TEST(DebugViewPlusPlusTest, RegexCopiesAndThreads)
+{
+    Regex original(R"(a+b)", true);
+    Regex copy = original;
+    Regex assigned;
+    assigned = original;
+    EXPECT_TRUE(copy.Search("xaab"));
+    EXPECT_TRUE(assigned.Search("xaab"));
+    EXPECT_FALSE(original.Search("xaac"));
+
+    std::atomic<int> matches{0};
+    std::vector<std::thread> threads;
+    for (int t = 0; t < 4; ++t)
+    {
+        threads.emplace_back([&] {
+            RegexMatch match;
+            for (int i = 0; i < 20000; ++i)
+            {
+                if (original.Search("xxaaab", match) && match.Group() == "aaab")
+                {
+                    ++matches;
+                }
+            }
+        });
+    }
+    for (auto& thread : threads)
+    {
+        thread.join();
+    }
+    EXPECT_EQ(matches, 80000);
+}
+
+TEST(DebugViewPlusPlusTest, RegexThatBacktracksWithoutEndIsNoMatch)
+{
+    // (a+)+b on a long text of a's takes exponential time, the match limit ends it
+    const auto start = std::chrono::steady_clock::now();
+    EXPECT_FALSE(Regex("^(a+)+b", true).Search(std::string(60, 'a') + "c"));
+    EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::seconds(5));
 }
 
 TEST(DebugViewPlusPlusTest, FilterSameDefinition)

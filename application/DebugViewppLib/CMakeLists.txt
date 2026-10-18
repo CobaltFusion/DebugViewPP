@@ -34,6 +34,7 @@ add_library(${PROJECT_NAME}
     ProcessInfo.cpp
     ProcessMonitor.cpp
     ProcessReader.cpp
+    Regex.cpp
     SessionConfig.cpp
     SocketReader.cpp
     SourceType.cpp
@@ -53,6 +54,7 @@ PRIVATE
     dv::cobaltfusion
     dv::win32
     dv::json
+    dv::pcre2
     dv::pugixml
     winmm
 )
