@@ -6,6 +6,7 @@
 
 - the whole message is shown in a tooltip when hovering the message column (fixes #372)
 - dropping an empty file on the window no longer fails, it is tailed until content appears.
+- documentation: [Views, filters and the log buffer](doc/views.md) explains what a view is, how filters apply to views (not to the memory buffer), and how reset view, reset to line and clear view work (fixes #316)
 - new: dark theme (Options, Dark Theme) for the log: dark background, text, selection and match colors, dark header and scrollbars and a dark title bar. It is remembered between runs. The menu, toolbar and status bar are drawn by Windows and keep their colors (fixes #368)
 - DebugView++ is per-monitor DPI aware: on a monitor with scaling (125%, 150%, ...) it is no longer stretched (blurry) by Windows, the font and columns are scaled and are scaled again when the window is moved to another monitor (fixes #321). The toolbar icons are not scaled yet.
 - the history size (Log, History...) works: the oldest messages are removed when there are more, in blocks of 400, and the setting is remembered between runs (fixes #409)
@@ -220,6 +221,7 @@ Example:
 ![FilterDialog Screenshot](art/filterdialog.png "FilterDialog Screenshot")
 
 Filters can be defined per view, for example choose File -> New View, and the filter dialog will popup.
+Filters decide what a view shows, they do not change what is stored, see [Views, filters and the log buffer](doc/views.md).
 Pressing OK will open a new view without any filters.
 
 Different types of filters:
@@ -246,11 +248,13 @@ Include, exclude, once and highlight filters are the most intuitive filters to u
 
 ## Other features:
 
-**views**:
+**views**: every tab is a view on one shared log buffer, filters apply to the view and never remove a message from the buffer.
+See [Views, filters and the log buffer](doc/views.md) for how this works and for examples.
 
 - reset view; make the first line in the logbuffer the first line in the view
 - reset view to this line; make the current like the first line in the view
 - clear view; make next incoming message the first line in the view
+- clear log (Log menu); remove all messages from the log buffer, in all views
 
 **link views**: the selected line in the current view is located re-selected when you switch to another view. This is done on a best-effort bases, so if the exact line is not found, the nearest line is selected. In that case switching views will cause the currently selected line to change.
 
