@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <Include> 
     <?define ProductVersion.Major="1" ?> 
-    <?define ProductVersion.Minor="21" ?> 
+    <?define ProductVersion.Minor="30" ?> 
     <?define ProductVersion.Revision="0" ?> 
-    <?define ProductVersion.Build="2" ?> 
-    <?define ProductVersion="1.21.0.2" ?> 
+    <?define ProductVersion.Build="0" ?> 
+    <?define ProductVersion="1.30.0.0" ?> 
 </Include> 
