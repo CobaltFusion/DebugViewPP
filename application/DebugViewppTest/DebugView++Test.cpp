@@ -37,6 +37,7 @@
 #include "DebugViewppLib/LogFilter.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/StringUtil.h"
+#include "Win32/TcpStream.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
 namespace fusion {
@@ -1471,6 +1472,90 @@ BOOST_AUTO_TEST_CASE(LogSourceDbgviewReaderConnectsByHostname)
         connected |= line.message.find("Connected to Dbgview Agent at localhost") != std::string::npos;
     }
     BOOST_TEST(connected);
+}
+
+BOOST_AUTO_TEST_CASE(TcpStreamConnectsByNameAndExchangesData)
+{
+    Win32::TcpListener listener(2031);
+    std::string received;
+    std::thread server([&] {
+        Win32::TcpStream stream;
+        if (listener.Accept(stream))
+        {
+            std::getline(stream, received);
+            stream << "pong\n";
+        }
+    });
+
+    Win32::TcpStream client;
+    BOOST_TEST(client.Connect("localhost", 2031)); // a name, not an IP address
+    client << "ping\n";
+    std::string reply;
+    std::getline(client, reply);
+    server.join();
+
+    BOOST_TEST(received == "ping");
+    BOOST_TEST(reply == "pong");
+
+    // the server is gone: the end of the stream
+    char c;
+    client.read(&c, 1);
+    BOOST_TEST(client.eof());
+}
+
+BOOST_AUTO_TEST_CASE(TcpStreamConnectFailureHasMessage)
+{
+    Win32::TcpStream client;
+    BOOST_TEST(!client.Connect("127.0.0.1", 2032)); // nobody listens
+    BOOST_TEST(!client);
+    BOOST_TEST(!client.ErrorMessage().empty());
+
+    Win32::TcpStream unknown;
+    BOOST_TEST(!unknown.Connect("no-such-host.invalid", 2032));
+    BOOST_TEST(!unknown.ErrorMessage().empty());
+}
+
+BOOST_AUTO_TEST_CASE(TcpStreamCloseWakesUpBlockedRead)
+{
+    using namespace std::chrono_literals;
+
+    Win32::TcpListener listener(2033);
+    Win32::TcpStream server;
+    std::thread accepter([&] { listener.Accept(server); });
+
+    Win32::TcpStream client;
+    BOOST_REQUIRE(client.Connect("127.0.0.1", 2033));
+    accepter.join();
+
+    std::atomic<bool> readReturned{false};
+    std::thread reader([&] {
+        char c;
+        client.read(&c, 1); // the server never sends anything
+        readReturned = true;
+    });
+
+    std::this_thread::sleep_for(200ms);
+    BOOST_TEST(!readReturned);
+    client.Close();
+    reader.join();
+    BOOST_TEST(readReturned);
+    BOOST_TEST(client.eof());
+}
+
+BOOST_AUTO_TEST_CASE(TcpListenerCloseWakesUpAccept)
+{
+    Win32::TcpListener listener(2034);
+    Win32::TcpStream stream;
+    bool accepted = true;
+    std::thread accepter([&] { accepted = listener.Accept(stream); });
+    listener.Close();
+    accepter.join();
+    BOOST_TEST(!accepted);
+}
+
+BOOST_AUTO_TEST_CASE(SendBroadcastDoesNotThrow)
+{
+    BOOST_CHECK_NO_THROW(Win32::SendBroadcast(2035, "broadcast test\n"));
 }
 
 BOOST_AUTO_TEST_CASE(LogSourceAnyFileReader)
