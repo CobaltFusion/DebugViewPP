@@ -111,7 +111,7 @@ void FileReader::Initialize()
     //}
 }
 
-boost::signals2::connection FileReader::SubscribeToUpdate(UpdateSignal::slot_type slot)
+fusion::Connection FileReader::SubscribeToUpdate(UpdateSignal::slot_type slot)
 {
     return m_update.connect(slot);
 }

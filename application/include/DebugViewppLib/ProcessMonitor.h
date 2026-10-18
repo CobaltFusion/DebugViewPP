@@ -6,7 +6,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <boost/signals2.hpp>
+#include "CobaltFusion/Signal.h"
 #include <thread>
 #include "Win32/Win32Lib.h"
 #include "CobaltFusion/SynchronizedQueue.h"
@@ -19,13 +19,13 @@ using PidMap = std::unordered_map<DWORD, Win32::Handle>;
 class ProcessMonitor
 {
 public:
-    using ProcessEnded = boost::signals2::signal<void(DWORD, HANDLE)>;
+    using ProcessEnded = fusion::Signal<void(DWORD, HANDLE)>;
 
     ProcessMonitor();
     ~ProcessMonitor();
 
     void Add(DWORD pid, HANDLE handle);
-    boost::signals2::connection ConnectProcessEnded(ProcessEnded::slot_type slot);
+    fusion::Connection ConnectProcessEnded(ProcessEnded::slot_type slot);
     void Abort();
 
 private:

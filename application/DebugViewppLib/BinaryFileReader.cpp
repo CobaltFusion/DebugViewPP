@@ -123,7 +123,7 @@ void BinaryFileReader::PreProcess(Line& line) const
     line.processName = Str(m_filenameOnly).str();
 }
 
-boost::signals2::connection BinaryFileReader::SubscribeToUpdate(UpdateSignal::slot_type slot)
+fusion::Connection BinaryFileReader::SubscribeToUpdate(UpdateSignal::slot_type slot)
 {
     return m_update.connect(slot);
 }

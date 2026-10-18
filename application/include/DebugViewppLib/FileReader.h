@@ -9,7 +9,7 @@
 #include "FileIO.h"
 #include "Win32/Win32Lib.h"
 #include "DebugviewppLib/LogSource.h"
-#include <boost/signals2.hpp>
+#include "CobaltFusion/Signal.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -23,8 +23,8 @@ public:
     ~FileReader() override;
 
     void Initialize() override;
-    using UpdateSignal = boost::signals2::signal<void()>;
-    boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
+    using UpdateSignal = fusion::Signal<void()>;
+    fusion::Connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
     void Abort() override;
     HANDLE GetHandle() const override;

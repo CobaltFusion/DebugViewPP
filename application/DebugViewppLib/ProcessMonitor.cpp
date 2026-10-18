@@ -4,6 +4,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <array>
+#include <cassert>
 #include "Win32/Win32Lib.h"
 #include "DebugViewppLib/ProcessMonitor.h"
 
@@ -36,7 +37,7 @@ void ProcessMonitor::Add(DWORD pid, HANDLE handle)
     Win32::SetEvent(m_event);
 }
 
-boost::signals2::connection ProcessMonitor::ConnectProcessEnded(ProcessEnded::slot_type slot)
+fusion::Connection ProcessMonitor::ConnectProcessEnded(ProcessEnded::slot_type slot)
 {
     return m_processEnded.connect(slot);
 }

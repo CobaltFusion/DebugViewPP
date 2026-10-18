@@ -198,7 +198,7 @@ void LogSources::ResetTimer()
     m_timer.Reset();
 }
 
-boost::signals2::connection LogSources::SubscribeToUpdate(UpdateSignal::slot_type slot)
+fusion::Connection LogSources::SubscribeToUpdate(UpdateSignal::slot_type slot)
 {
     return m_update.connect(slot);
 }

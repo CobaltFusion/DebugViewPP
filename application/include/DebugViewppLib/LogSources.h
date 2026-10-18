@@ -8,7 +8,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include <boost/signals2.hpp>
+#include "CobaltFusion/Signal.h"
 #include "Win32/Win32Lib.h"
 #include "DebugviewppLib/LogSource.h"
 #include "DebugviewppLib/VectorLineBuffer.h"
@@ -55,7 +55,7 @@ void EraseElements(std::vector<std::unique_ptr<T>>& v, const std::vector<T*>& e)
 class LogSources
 {
 public:
-    using UpdateSignal = boost::signals2::signal<bool()>;
+    using UpdateSignal = fusion::Signal<bool()>;
 
     LogSources(IExecutor& executor, bool startListening = true);
     virtual ~LogSources();
@@ -89,7 +89,7 @@ public:
     TestSource* AddTestSource(); // for unittesting
     void AddMessage(const std::string& message);
     void AddMessage(DWORD pid, const std::string& processName, const std::string& message);
-    boost::signals2::connection SubscribeToUpdate(UpdateSignal::slot_type slot);
+    fusion::Connection SubscribeToUpdate(UpdateSignal::slot_type slot);
 
 private:
     void UpdateSources();
