@@ -93,6 +93,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "New &View\tCtrl+N",           ID_FILE_NEWVIEW
+        MENUITEM "&Copy View",                  ID_VIEW_DUPLICATE
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM "&Run...",                     ID_FILE_RUN
         MENUITEM SEPARATOR
@@ -602,6 +603,7 @@ END
 STRINGTABLE
 BEGIN
     ID_FILE_NEWVIEW         "New View\nNew View"
+    ID_VIEW_DUPLICATE       "Create a new view that starts with the filters of this view\nCopy View"
     ID_FILE_RUN             "Run program\nRun"
     ID_FILE_SAVE_LOG        "Save log contents\nSave Log"
     ID_FILE_SAVE_VIEW       "Save view contents\nSave View"
