@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <boost/property_tree/ptree_fwd.hpp>
 #include <filesystem>
 #include "Filter.h"
 
@@ -17,9 +16,6 @@ struct FilterData
     std::string name;
     LogFilter filter;
 };
-
-boost::property_tree::ptree MakePTree(const std::vector<Filter>& filters);
-std::vector<Filter> MakeFilters(const boost::property_tree::ptree& pt);
 
 // The JSON text of the filter file format (the version 2 format, see FilterJson.h):
 //   {"version": 2, "name": "...", "messageFilters": [ ... ], "processFilters": [ ... ]}

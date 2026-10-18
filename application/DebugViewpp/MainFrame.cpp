@@ -14,8 +14,6 @@
 #include <cstdio>
 
 #include "CobaltFusion/StringUtil.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/scope_guard.h"
@@ -32,6 +30,7 @@
 #include "DebugViewppLib/FileReader.h"
 #include "DebugViewppLib/FileIO.h"
 #include "DebugViewppLib/LogFilter.h"
+#include "DebugViewppLib/SessionConfig.h"
 
 #include "resource.h"
 #include "RunDlg.h"
@@ -1133,62 +1132,28 @@ void CMainFrame::SaveViewSelection(const std::wstring& filename)
     m_txtFileName = filename;
     UpdateStatusBar();
 }
-struct View
-{
-    int index;
-    std::string name;
-    bool clockTime;
-    bool processColors;
-    LogFilter filters;
-    std::optional<boost::property_tree::ptree> columnsPt;
-};
-
-struct SourceInfoHelper
-{
-    SourceInfoHelper(int index, const std::wstring& description, SourceType::type sourceType) :
-        index(index),
-        sourceInfo(description, sourceType)
-    {
-    }
-
-    int index;
-    SourceInfo sourceInfo;
-};
-
 void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 {
-    boost::property_tree::ptree pt;
-    boost::property_tree::read_xml(Str(fileName), pt, boost::property_tree::xml_parser::trim_whitespace);
-
-    auto autoNewline = pt.get<bool>("DebugViewPP.AutoNewline");
-    auto linkViews = pt.get<bool>("DebugViewPP.LinkViews");
-
-    auto viewsPt = pt.get_child("DebugViewPP.Views");
-    std::vector<View> views;
-    for (auto& item : viewsPt)
+    SessionConfig config;
+    try
     {
-        if (item.first == "View")
+        std::string message;
+        config = LoadSessionFile(std::filesystem::path(fileName), message);
+        if (!message.empty())
         {
-            View view;
-            auto& viewPt = item.second;
-            view.index = viewPt.get<int>("Index");
-            view.name = viewPt.get<std::string>("Name");
-            view.clockTime = viewPt.get<bool>("ClockTime");
-            view.processColors = viewPt.get<bool>("ProcessColors");
-            view.filters.messageFilters = MakeFilters(viewPt.get_child("MessageFilters"));
-            view.filters.processFilters = MakeFilters(viewPt.get_child("ProcessFilters"));
-            if (auto columns = viewPt.get_child_optional("Columns"))
-            {
-                view.columnsPt = *columns;
-            }
-            views.push_back(view);
+            m_logSources.AddMessage(message);
         }
     }
-    std::sort(views.begin(), views.end(), [](const View& v1, const View& v2) { return v1.index < v2.index; });
+    catch (const std::exception& ex)
+    {
+        MessageBox(WStr(std::string(ex.what())), L"Load View Configuration", MB_ICONERROR | MB_OK);
+        return;
+    }
 
-    m_logSources.SetAutoNewLine(autoNewline);
-    m_linkViews = linkViews;
+    m_logSources.SetAutoNewLine(config.autoNewline);
+    m_linkViews = config.linkViews;
 
+    const auto& views = config.views;
     for (int i = 0; i < static_cast<int>(views.size()); ++i)
     {
         if (i >= GetViewCount())
@@ -1203,47 +1168,29 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
         auto& logView = GetView(i);
         logView.SetClockTime(views[i].clockTime);
         logView.SetViewProcessColors(views[i].processColors);
-        if (views[i].columnsPt)
+        if (views[i].columns)
         {
-            logView.ReadColumns(*(views[i].columnsPt));
+            logView.ReadColumns(*views[i].columns);
         }
     }
 
+    // a file without views leaves the views as they are
     int i = GetViewCount();
     auto size = static_cast<int>(views.size());
-    while (i > size)
+    while (i > size && size > 0)
     {
         --i;
         CloseView(i);
     }
 
     std::vector<SourceInfo> sourceInfos;
-    auto sourcesPt = pt.get_child_optional("DebugViewPP.Sources");
-    if (sourcesPt)
+    for (const auto& source : config.sources)
     {
-        std::vector<SourceInfoHelper> sources;
-        for (const auto& item : *sourcesPt)
-        {
-            if (item.first == "Source")
-            {
-                auto& sourcePt = item.second;
-                int index = sourcePt.get<int>("Index");
-                SourceType::type type = StringToSourceType(sourcePt.get<std::string>("SourceType"));
-                std::wstring description = WStr(sourcePt.get<std::string>("Description"));
-                SourceInfoHelper helper(index, description, type);
-                helper.sourceInfo.address = WStr(sourcePt.get<std::string>("Address")).str();
-                helper.sourceInfo.port = sourcePt.get<int>("Port");
-                helper.sourceInfo.enabled = sourcePt.get<bool>("Enabled");
-                sources.push_back(helper);
-            }
-        }
-
-        std::sort(sources.begin(), sources.end(), [](const SourceInfoHelper& si1, const SourceInfoHelper& si2) { return si1.index < si2.index; });
-
-        for (const auto& helper : sources)
-        {
-            sourceInfos.push_back(helper.sourceInfo);
-        }
+        SourceInfo sourceInfo(WStr(source.description), source.type);
+        sourceInfo.address = WStr(source.address).str();
+        sourceInfo.port = source.port;
+        sourceInfo.enabled = source.enabled;
+        sourceInfos.push_back(sourceInfo);
     }
     UpdateLogSources(sourceInfos);
     m_sourceInfos = sourceInfos;
@@ -1251,45 +1198,42 @@ void CMainFrame::LoadConfiguration(const std::wstring& fileName)
 
 void CMainFrame::SaveConfiguration(const std::wstring& fileName)
 {
-    boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-
-    boost::property_tree::ptree mainPt;
-    mainPt.put("AutoNewline", m_logSources.GetAutoNewLine());
-    mainPt.put("LinkViews", m_linkViews);
+    SessionConfig config;
+    config.autoNewline = m_logSources.GetAutoNewLine();
+    config.linkViews = m_linkViews;
 
     int views = GetViewCount();
     for (int i = 0; i < views; ++i)
     {
         auto& logView = GetView(i);
-        auto filters = logView.GetFilters();
-        boost::property_tree::ptree viewPt;
-        viewPt.put("Index", i);
-        viewPt.put("Name", Str(logView.GetName()).str());
-        viewPt.put("ClockTime", logView.GetClockTime());
-        viewPt.put("ProcessColors", logView.GetViewProcessColors());
-        viewPt.put_child("MessageFilters", MakePTree(filters.messageFilters));
-        viewPt.put_child("ProcessFilters", MakePTree(filters.processFilters));
-        viewPt.put_child("Columns", MakePTree(logView.GetColumns()));
-        mainPt.add_child("Views.View", viewPt);
+        ViewConfig view;
+        view.name = Str(logView.GetName()).str();
+        view.clockTime = logView.GetClockTime();
+        view.processColors = logView.GetViewProcessColors();
+        view.filters = logView.GetFilters();
+        view.columns = MakeColumnConfigs(logView.GetColumns());
+        config.views.push_back(std::move(view));
     }
 
-    for (int i = 0; i < static_cast<int>(m_sourceInfos.size()); ++i)
+    for (const auto& sourceInfo : m_sourceInfos)
     {
-        const auto& sourceInfo = m_sourceInfos[i];
-        boost::property_tree::ptree sourcePt;
-        sourcePt.put("Index", i);
-        sourcePt.put("Enabled", sourceInfo.enabled);
-        sourcePt.put("Description", Str(sourceInfo.description).str());
-        sourcePt.put("SourceType", SourceTypeToString(sourceInfo.type));
-        sourcePt.put("Address", Str(sourceInfo.address).str());
-        sourcePt.put("Port", sourceInfo.port);
-        mainPt.add_child("Sources.Source", sourcePt);
+        SourceConfig source;
+        source.enabled = sourceInfo.enabled;
+        source.description = Str(sourceInfo.description).str();
+        source.type = sourceInfo.type;
+        source.address = Str(sourceInfo.address).str();
+        source.port = sourceInfo.port;
+        config.sources.push_back(std::move(source));
     }
 
-    boost::property_tree::ptree pt;
-    pt.add_child("DebugViewPP", mainPt);
-
-    boost::property_tree::write_xml(Str(fileName), pt, std::locale(), settings);
+    try
+    {
+        SaveSessionFile(std::filesystem::path(fileName), config);
+    }
+    catch (const std::exception& ex)
+    {
+        MessageBox(WStr(std::string(ex.what())), L"Save View Configuration", MB_ICONERROR | MB_OK);
+    }
 }
 
 void CMainFrame::OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)

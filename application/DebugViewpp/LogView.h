@@ -16,7 +16,7 @@
 #include "DropTargetSupport.h"
 #include "Win32/Com.h"
 
-#include <boost/property_tree/ptree_fwd.hpp>
+#include "DebugViewppLib/SessionConfig.h"
 
 #include <vector>
 #include <deque>
@@ -92,7 +92,7 @@ struct ColumnInfo
     LVCOLUMN column;
 };
 
-boost::property_tree::ptree MakePTree(const std::vector<ColumnInfo>& columns);
+std::vector<ColumnConfig> MakeColumnConfigs(const std::vector<ColumnInfo>& columns);
 
 class CMyHeaderCtrl : public CWindowImpl<CMyHeaderCtrl, CHeaderCtrl>
 {
@@ -175,7 +175,7 @@ public:
     void SetAutoScrollStop(bool enable);
     // the width and order of the columns as they are now (the user can change them in the header)
     const std::vector<ColumnInfo>& GetColumns();
-    void ReadColumns(const boost::property_tree::ptree& pt);
+    void ReadColumns(const std::vector<ColumnConfig>& columns);
     void Clear();
     int GetFocusLine() const;
     void SetFocusLine(int line);

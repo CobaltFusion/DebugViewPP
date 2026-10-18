@@ -6,8 +6,6 @@
 #define BOOST_TEST_MODULE DebugView++ Lib Unit Test
 
 #include <boost/test/unit_test_gui.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 #include "Win32/Process.h"
 
 #include <filesystem>
@@ -821,70 +819,6 @@ BOOST_AUTO_TEST_CASE(LegacySessionFileIsConvertedWhenLoaded)
     BOOST_CHECK_THROW(LoadSessionFile(dir.path / "missing.dbconf", message), std::runtime_error);
     { std::ofstream(dir.path / "text.dbconf") << "not a configuration"; }
     BOOST_CHECK_THROW(LoadSessionFile(dir.path / "text.dbconf", message), std::runtime_error);
-}
-
-// the .dbconf files of the application: what is in them (the views, their filters and columns, the sources)
-BOOST_AUTO_TEST_CASE(LegacySessionFilesContent)
-{
-    namespace pt = boost::property_tree;
-    for (const std::string file : {"session_input.dbconf", "session_saved_by_app.dbconf"})
-    {
-        BOOST_TEST_MESSAGE(file);
-        pt::ptree tree;
-        pt::read_xml(TestDataFile(file), tree, pt::xml_parser::trim_whitespace);
-        const auto& root = tree.get_child("DebugViewPP");
-        BOOST_TEST(root.get<bool>("AutoNewline") == false);
-        BOOST_TEST(root.get<bool>("LinkViews") == true);
-
-        std::vector<const pt::ptree*> views;
-        for (const auto& item : root.get_child("Views"))
-        {
-            if (item.first == "View")
-            {
-                views.push_back(&item.second);
-            }
-        }
-        BOOST_REQUIRE(views.size() == 2);
-        BOOST_TEST(views[0]->get<std::string>("Name") == "Errors");
-        BOOST_TEST(views[0]->get<bool>("ClockTime") == true);
-        BOOST_TEST(views[0]->get<bool>("ProcessColors") == false);
-        BOOST_TEST(views[0]->get_child("MessageFilters").size() == 10u);
-        BOOST_TEST(views[0]->get_child("ProcessFilters").size() == 2u);
-        BOOST_TEST(views[1]->get<std::string>("Name") == "Überblick: errors & warnings");
-        BOOST_TEST(views[1]->get<bool>("ClockTime") == false);
-        BOOST_TEST(views[1]->get<bool>("ProcessColors") == true);
-        BOOST_TEST(views[1]->get_child("MessageFilters").size() == 0u);
-
-        // the filter with an automatic color has an attribute, the others have a color
-        const auto& tokenFilter = std::next(views[0]->get_child("MessageFilters").begin(), 3)->second;
-        BOOST_TEST(tokenFilter.get<std::string>("Text") == "id=(\\d+)");
-        BOOST_TEST(tokenFilter.get<bool>("BackColor.<xmlattr>.Auto") == true);
-
-        // the columns: Time is not shown, the width the user gave the line column is kept
-        const auto& columns = views[0]->get_child("Columns");
-        BOOST_REQUIRE(columns.size() == 7u);
-        auto column = [&](size_t i) -> const pt::ptree& { return std::next(columns.begin(), static_cast<std::ptrdiff_t>(i))->second; };
-        BOOST_TEST(column(1).get<int>("Width") == 111);
-        BOOST_TEST(column(3).get<bool>("Enable") == false);
-        BOOST_TEST(column(6).get<int>("Width") == 1234);
-        // the application saves the second view with columns too
-        if (file == "session_saved_by_app.dbconf")
-        {
-            BOOST_TEST(views[1]->get_child("Columns").size() == 7u);
-        }
-
-        std::vector<const pt::ptree*> sources;
-        for (const auto& item : root.get_child("Sources"))
-        {
-            sources.push_back(&item.second);
-        }
-        BOOST_REQUIRE(sources.size() == 2);
-        BOOST_TEST(sources[0]->get<std::string>("SourceType") == "UDP Socket");
-        BOOST_TEST(sources[0]->get<int>("Port") == 2021);
-        BOOST_TEST(sources[0]->get<bool>("Enabled") == false);
-        BOOST_TEST(sources[1]->get<std::string>("SourceType") == "DbgView Agent");
-        BOOST_TEST(sources[1]->get<std::string>("Address") == "build-server.example.org");
-    }
 }
 
 BOOST_AUTO_TEST_CASE(FilterSameDefinition)

@@ -20,7 +20,6 @@
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib") // SetWindowTheme
 #include "CobaltFusion/StringUtil.h"
-#include <boost/property_tree/ptree.hpp>
 
 #include <iomanip>
 #include <limits>
@@ -2145,51 +2144,40 @@ bool CLogView::FindPrevious(std::wstring_view text)
     return Find(text, -1);
 }
 
-boost::property_tree::ptree MakePTree(const std::vector<ColumnInfo>& columns)
+std::vector<ColumnConfig> MakeColumnConfigs(const std::vector<ColumnInfo>& columns)
 {
-    boost::property_tree::ptree pt;
+    std::vector<ColumnConfig> result;
     for (int i = 0; i < Column::Count; ++i)
     {
         const ColumnInfo& col = columns[i];
-        boost::property_tree::ptree colPt;
-        colPt.put("Index", i);
-        colPt.put("Enable", col.enable);
-        colPt.put("Width", col.column.cx);
-        colPt.put("Order", col.column.iOrder);
-        pt.add_child("Column", colPt);
+        ColumnConfig config;
+        config.index = i;
+        config.enable = col.enable;
+        config.width = col.column.cx;
+        config.order = col.column.iOrder;
+        result.push_back(config);
     }
-    return pt;
+    return result;
 }
 
-void CLogView::ReadColumns(const boost::property_tree::ptree& pt)
+void CLogView::ReadColumns(const std::vector<ColumnConfig>& columns)
 {
-    for (auto& item : pt)
+    for (const auto& config : columns)
     {
-        if (item.first == "Column")
+        if (config.index >= 0 && static_cast<size_t>(config.index) < m_columns.size())
         {
-            const auto& colPt = item.second;
-            auto index = colPt.get_optional<size_t>("Index");
-            if (index && *index < m_columns.size())
+            ColumnInfo& col = m_columns[config.index];
+            if (config.enable)
             {
-                ColumnInfo& col = m_columns[*index];
-
-                auto enable = colPt.get_optional<bool>("Enable");
-                if (enable)
-                {
-                    col.enable = *enable;
-                }
-
-                auto width = colPt.get_optional<int>("Width");
-                if (width)
-                {
-                    col.column.cx = *width;
-                }
-
-                auto order = colPt.get_optional<int>("Order");
-                if (order)
-                {
-                    col.column.iOrder = *order;
-                }
+                col.enable = *config.enable;
+            }
+            if (config.width)
+            {
+                col.column.cx = *config.width;
+            }
+            if (config.order)
+            {
+                col.column.iOrder = *config.order;
             }
         }
     }
