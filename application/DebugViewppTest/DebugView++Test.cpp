@@ -40,6 +40,7 @@
 #include "Win32/TcpStream.h"
 #include "DebugViewppLib/ConfigFile.h"
 #include "DebugViewppLib/LegacyConfig.h"
+#include "DebugViewppLib/SessionConfig.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
 namespace fusion {
@@ -661,6 +662,165 @@ BOOST_AUTO_TEST_CASE(FilterFilesSaveAndLoad)
     BOOST_CHECK_THROW(LoadFilterFile(dir.path / "other.json", message), std::runtime_error);
     { std::ofstream(dir.path / "text.json") << "just text"; }
     BOOST_CHECK_THROW(LoadFilterFile(dir.path / "text.json", message), std::runtime_error);
+}
+
+// the session files: the golden files of the old version, read with the legacy reader
+BOOST_AUTO_TEST_CASE(LegacySessionReaderReadsTheGoldenFiles)
+{
+    for (const std::string file : {"session_input.dbconf", "session_saved_by_app.dbconf"})
+    {
+        BOOST_TEST_MESSAGE(file);
+        const auto config = SessionConfigFromLegacyXml(ReadTextFile(TestDataFile(file)));
+        BOOST_TEST(!config.autoNewline);
+        BOOST_TEST(config.linkViews);
+
+        BOOST_REQUIRE(config.views.size() == 2);
+        const auto& first = config.views[0];
+        BOOST_TEST(first.name == "Errors");
+        BOOST_TEST(first.clockTime);
+        BOOST_TEST(!first.processColors);
+        BOOST_TEST(first.filters.messageFilters.size() == 10u);
+        BOOST_TEST(first.filters.processFilters.size() == 2u);
+        BOOST_TEST(first.filters.messageFilters[3].bgColor == Colors::Auto);
+        BOOST_TEST(first.filters.messageFilters[3].text == "id=(\\d+)");
+
+        BOOST_REQUIRE(first.columns.has_value());
+        BOOST_REQUIRE(first.columns->size() == 7u);
+        BOOST_TEST((*first.columns)[1].index == 1);
+        BOOST_TEST(*(*first.columns)[1].width == 111);
+        BOOST_TEST(*(*first.columns)[3].enable == false);
+        BOOST_TEST(*(*first.columns)[6].width == 1234);
+
+        const auto& second = config.views[1];
+        BOOST_TEST(second.name == "Überblick: errors & warnings");
+        BOOST_TEST(!second.clockTime);
+        BOOST_TEST(second.processColors);
+        BOOST_TEST(second.filters.messageFilters.empty());
+        // the file the application saved has the columns of the second view, the hand written one does not
+        BOOST_TEST(second.columns.has_value() == (file == "session_saved_by_app.dbconf"));
+
+        BOOST_REQUIRE(config.sources.size() == 2);
+        BOOST_TEST((config.sources[0].type == SourceType::Udp));
+        BOOST_TEST(config.sources[0].port == 2021);
+        BOOST_TEST(!config.sources[0].enabled);
+        BOOST_TEST(config.sources[0].description == "Test UDP source");
+        BOOST_TEST((config.sources[1].type == SourceType::DebugViewAgent));
+        BOOST_TEST(config.sources[1].address == "build-server.example.org");
+    }
+}
+
+BOOST_AUTO_TEST_CASE(SessionConfigJsonRoundTrip)
+{
+    for (const std::string file : {"session_input.dbconf", "session_saved_by_app.dbconf"})
+    {
+        BOOST_TEST_MESSAGE(file);
+        const auto config = SessionConfigFromLegacyXml(ReadTextFile(TestDataFile(file)));
+        const auto json = SessionConfigToJson(config);
+        BOOST_TEST((DetectConfigFormat(json) == ConfigFormat::Json));
+
+        const auto again = SessionConfigFromJson(json);
+        BOOST_TEST(SessionConfigToJson(again) == json); // nothing is lost or changed
+        BOOST_REQUIRE(again.views.size() == config.views.size());
+        for (size_t i = 0; i < config.views.size(); ++i)
+        {
+            BOOST_TEST(again.views[i].name == config.views[i].name);
+            BOOST_TEST(SameDefinition(again.views[i].filters, config.views[i].filters));
+            BOOST_TEST(again.views[i].columns.has_value() == config.views[i].columns.has_value());
+        }
+        BOOST_REQUIRE(again.sources.size() == config.sources.size());
+        BOOST_TEST(again.sources[1].address == config.sources[1].address);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(LegacySessionViewsAndSourcesAreOrderedByIndex)
+{
+    const auto config = SessionConfigFromLegacyXml(
+        "<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>false</LinkViews><Views>"
+        "<View><Index>1</Index><Name>second</Name><ClockTime>true</ClockTime><ProcessColors>false</ProcessColors><MessageFilters/><ProcessFilters/></View>"
+        "<View><Index>0</Index><Name>first</Name><ClockTime>false</ClockTime><ProcessColors>true</ProcessColors><MessageFilters/><ProcessFilters/>"
+        "<Columns><Column><Index>2</Index><Width>50</Width></Column><Column><Enable>true</Enable></Column></Columns></View>"
+        "</Views><Sources>"
+        "<Source><Index>1</Index><Enabled>true</Enabled><Description>b</Description><SourceType>File</SourceType><Address></Address><Port>0</Port></Source>"
+        "<Source><Index>0</Index><Enabled>false</Enabled><Description>a</Description><SourceType>System</SourceType><Address></Address><Port>0</Port></Source>"
+        "</Sources></DebugViewPP>");
+    BOOST_TEST(config.autoNewline);
+    BOOST_TEST(!config.linkViews);
+    BOOST_REQUIRE(config.views.size() == 2);
+    BOOST_TEST(config.views[0].name == "first");
+    BOOST_TEST(config.views[1].name == "second");
+    BOOST_TEST(!config.views[1].columns.has_value());
+
+    // a column without an index is skipped, the fields that are missing stay unset
+    BOOST_REQUIRE(config.views[0].columns.has_value());
+    BOOST_REQUIRE(config.views[0].columns->size() == 1u);
+    BOOST_TEST((*config.views[0].columns)[0].index == 2);
+    BOOST_TEST(*(*config.views[0].columns)[0].width == 50);
+    BOOST_TEST(!(*config.views[0].columns)[0].enable.has_value());
+    BOOST_TEST(!(*config.views[0].columns)[0].order.has_value());
+
+    BOOST_REQUIRE(config.sources.size() == 2);
+    BOOST_TEST(config.sources[0].description == "a");
+    BOOST_TEST(config.sources[1].description == "b");
+
+    // Sources is optional
+    const auto noSources = SessionConfigFromLegacyXml(
+        "<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>false</LinkViews><Views/></DebugViewPP>");
+    BOOST_TEST(noSources.views.empty());
+    BOOST_TEST(noSources.sources.empty());
+}
+
+BOOST_AUTO_TEST_CASE(SessionConfigErrors)
+{
+    BOOST_CHECK_THROW(SessionConfigFromLegacyXml(""), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromLegacyXml("<Other/>"), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromLegacyXml("<DebugViewPP><AutoNewline>maybe</AutoNewline><LinkViews>true</LinkViews><Views/></DebugViewPP>"), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromLegacyXml("<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>true</LinkViews></DebugViewPP>"), std::runtime_error); // no Views
+    BOOST_CHECK_THROW(SessionConfigFromJson(""), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromJson("[]"), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"version": 3})"), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": {}})"), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": [{"clockTime": true}]})"), std::runtime_error); // no name
+    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": [{"name": 5}]})"), std::runtime_error);
+    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": [{"name": "a", "columns": [{"width": 1}]}]})"), std::runtime_error); // column without index
+    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"sources": [{"description": "a", "type": "no such type"}]})"), std::exception);
+
+    // the minimum is fine
+    const auto minimal = SessionConfigFromJson("{}");
+    BOOST_TEST(minimal.views.empty());
+    const auto view = SessionConfigFromJson(R"({"views": [{"name": "a"}]})");
+    BOOST_REQUIRE(view.views.size() == 1);
+    BOOST_TEST(view.views[0].clockTime);
+    BOOST_TEST(!view.views[0].columns.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(LegacySessionFileIsConvertedWhenLoaded)
+{
+    TempDirectory dir;
+    const auto file = dir.path / "mine.dbconf";
+    std::filesystem::copy_file(TestDataFile("session_saved_by_app.dbconf"), file);
+    const auto original = ReadWholeFile(file);
+
+    std::string message;
+    const auto config = LoadSessionFile(file, message);
+    BOOST_TEST(config.views.size() == 2u);
+    BOOST_TEST(!message.empty());
+
+    // the same name is JSON now, the XML is kept
+    BOOST_TEST((DetectConfigFormat(ReadWholeFile(file)) == ConfigFormat::Json));
+    BOOST_REQUIRE(std::filesystem::exists(dir.path / "mine.dbconf.archived"));
+    BOOST_TEST(ReadWholeFile(dir.path / "mine.dbconf.archived") == original);
+
+    std::string secondMessage;
+    const auto again = LoadSessionFile(file, secondMessage);
+    BOOST_TEST(secondMessage.empty());
+    BOOST_TEST(SessionConfigToJson(again) == SessionConfigToJson(config));
+
+    // saving and loading
+    SaveSessionFile(dir.path / "saved.dbconf", config);
+    BOOST_TEST(SessionConfigToJson(LoadSessionFile(dir.path / "saved.dbconf", secondMessage)) == SessionConfigToJson(config));
+    BOOST_CHECK_THROW(LoadSessionFile(dir.path / "missing.dbconf", message), std::runtime_error);
+    { std::ofstream(dir.path / "text.dbconf") << "not a configuration"; }
+    BOOST_CHECK_THROW(LoadSessionFile(dir.path / "text.dbconf", message), std::runtime_error);
 }
 
 // the .dbconf files of the application: what is in them (the views, their filters and columns, the sources)

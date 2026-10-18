@@ -34,6 +34,7 @@ add_library(${PROJECT_NAME}
     ProcessInfo.cpp
     ProcessMonitor.cpp
     ProcessReader.cpp
+    SessionConfig.cpp
     SocketReader.cpp
     SourceType.cpp
     TestSource.cpp
