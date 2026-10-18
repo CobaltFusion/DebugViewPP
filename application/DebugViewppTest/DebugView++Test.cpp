@@ -691,6 +691,42 @@ Lines WaitForLines(ActiveExecutorClient& executor, LogSources& logsources, size_
     return accumulated;
 }
 
+// #401: a process that sends a message and terminates immediately is only recognizable by its commandline,
+// it is logged with the termination message.
+BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderLogsCommandLineOnTermination)
+{
+    using namespace std::chrono_literals;
+
+    auto dbgMsgSrc = std::filesystem::path(GetExecutePath()) / "DbgMsgSrc.exe";
+    BOOST_REQUIRE(std::filesystem::exists(dbgMsgSrc));
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    std::string terminationMessage;
+    {
+        LogSources logsources(*executor, true);
+        executor->Call([&] { logsources.SetAutoNewLine(true); });
+        executor->Call([&] { logsources.AddDBWinReader(false); });
+        Win32::Process(dbgMsgSrc.wstring(), L"-n").Wait();
+
+        for (int attempt = 0; attempt < 40 && terminationMessage.empty(); ++attempt)
+        {
+            for (const auto& line : WaitForLines(*executor, logsources, 1, 100ms))
+            {
+                if (line.message.find("has terminated") != std::string::npos)
+                {
+                    terminationMessage = line.message;
+                }
+            }
+        }
+        executor->Call([&] { logsources.Abort(); });
+    }
+    executor.reset();
+
+    BOOST_TEST_MESSAGE(terminationMessage);
+    BOOST_TEST(terminationMessage.find("command line: ") != std::string::npos);
+    BOOST_TEST(terminationMessage.find("DbgMsgSrc.exe") != std::string::npos);
+    BOOST_TEST(terminationMessage.find(" -n") != std::string::npos);
+}
+
 BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
 {
     using namespace std::chrono_literals;

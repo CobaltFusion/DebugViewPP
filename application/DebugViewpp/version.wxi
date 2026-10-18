@@ -3,6 +3,6 @@
     <?define ProductVersion.Major="1" ?> 
     <?define ProductVersion.Minor="21" ?> 
     <?define ProductVersion.Revision="0" ?> 
-    <?define ProductVersion.Build="1" ?> 
-    <?define ProductVersion="1.21.0.1" ?> 
+    <?define ProductVersion.Build="2" ?> 
+    <?define ProductVersion="1.21.0.2" ?> 
 </Include> 

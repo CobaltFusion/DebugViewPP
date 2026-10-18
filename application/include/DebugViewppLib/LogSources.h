@@ -14,6 +14,7 @@
 #include "DebugviewppLib/VectorLineBuffer.h"
 #include "CobaltFusion/ExecutorClient.h"
 #include "DebugviewppLib/NewlineFilter.h"
+#include "DebugviewppLib/ProcessInfo.h"
 #include "DebugviewppLib/ProcessMonitor.h"
 #include "CobaltFusion/Throttle.h"
 
@@ -108,6 +109,7 @@ private:
     std::atomic<bool> m_end = false;
     LineBuffer m_linebuffer;
     PidMap m_pidMap;
+    mutable ProcessCommandLines m_commandLines; // written by the DBWinReader(s), taken when a process terminates
     ProcessMonitor m_processMonitor;
     NewlineFilter m_newlineFilter;
 

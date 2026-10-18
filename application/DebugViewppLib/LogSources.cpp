@@ -354,6 +354,12 @@ void LogSources::AddTerminateMessage(DWORD pid, HANDLE handle) const
         terminateMessage += " with ";
         terminateMessage += FormatExitCode(exitCode);
     }
+    auto commandLine = m_commandLines.Take(pid);
+    if (!commandLine.empty())
+    {
+        terminateMessage += ", command line: ";
+        terminateMessage += Str(commandLine).str();
+    }
     terminateMessage += ">";
     m_loopback->Add(pid, processName, terminateMessage);
 }
@@ -455,7 +461,7 @@ Lines LogSources::GetLines()
 DBWinReader* LogSources::AddDBWinReader(bool global)
 {
     assert(m_executor.IsExecutorThread());
-    auto pDbWinReader = std::make_unique<DBWinReader>(m_timer, m_linebuffer, global);
+    auto pDbWinReader = std::make_unique<DBWinReader>(m_timer, m_linebuffer, global, &m_commandLines);
     auto pResult = pDbWinReader.get();
     Add(std::move(pDbWinReader));
     return pResult;

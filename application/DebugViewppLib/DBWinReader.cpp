@@ -42,14 +42,15 @@ VOID CALLBACK SignalBufferReady(PTP_CALLBACK_INSTANCE /*instance*/, PVOID contex
 
 } // namespace
 
-DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global) :
+DBWinReader::DBWinReader(Timer& timer, ILineBuffer& linebuffer, bool global, ProcessCommandLines* pCommandLines) :
     LogSource(timer, SourceType::System, linebuffer),
     m_hBuffer(CreateDBWinBufferMapping(global)),
 
     m_dbWinBufferReady(Win32::CreateEvent(nullptr, false, true, GetDBWinName(global, L"DBWIN_BUFFER_READY").c_str())),
     m_dbWinDataReady(Win32::CreateEvent(nullptr, false, false, GetDBWinName(global, L"DBWIN_DATA_READY").c_str())),
     m_mappedViewOfFile(m_hBuffer.get(), PAGE_READONLY, 0, 0, sizeof(DbWinBuffer)),
-    m_dbWinBuffer(static_cast<const DbWinBuffer*>(m_mappedViewOfFile.Ptr()))
+    m_dbWinBuffer(static_cast<const DbWinBuffer*>(m_mappedViewOfFile.Ptr())),
+    m_pCommandLines(pCommandLines)
 {
     SetDescription(global ? L"Global Win32 Messages" : L"Win32 Messages");
 
@@ -119,6 +120,10 @@ void DBWinReader::Notify()
         // - check the m_dbWinDataReady is already set again after Add()
         if (handle != nullptr)
         {
+            if (m_pCommandLines != nullptr && !m_pCommandLines->Has(m_dbWinBuffer->processId))
+            {
+                m_pCommandLines->Set(m_dbWinBuffer->processId, ProcessInfo::GetProcessCommandLine(handle));
+            }
             Add(handle, m_dbWinBuffer->data);
         }
         else

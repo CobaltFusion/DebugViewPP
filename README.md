@@ -2,6 +2,10 @@
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 [![Github Follow](https://img.shields.io/github/followers/janwilmans?style=social)](https://github.com/janwilmans)
 
+## Debugview++ v1.22 (unreleased)
+
+- the commandline of a process is logged with its 'has terminated' message (fixes #401), this needs Windows 8.1 or later.
+
 ## Debugview++ v1.21 (released 18 October 2026)
 
 - new commandline argument /delay:<milliseconds> to deliberately slow down every process that calls OutputDebugString (fixes #400)

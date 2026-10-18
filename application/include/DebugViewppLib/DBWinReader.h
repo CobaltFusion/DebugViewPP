@@ -14,6 +14,7 @@ namespace fusion {
 namespace debugviewpp {
 
 class ILineBuffer;
+class ProcessCommandLines;
 
 struct DBWinMessage
 {
@@ -29,7 +30,9 @@ struct DbWinBuffer;
 class DBWinReader : public LogSource
 {
 public:
-    DBWinReader(Timer& timer, ILineBuffer& lineBuffer, bool global);
+    // when pCommandLines is given, the commandline of every process that sends a message is stored in it,
+    // this must be done here while the sender is still waiting for the buffer to be released, so the process is certainly alive.
+    DBWinReader(Timer& timer, ILineBuffer& lineBuffer, bool global, ProcessCommandLines* pCommandLines = nullptr);
     ~DBWinReader() override;
 
     HANDLE GetHandle() const override;
@@ -47,6 +50,7 @@ private:
     Win32::Handle m_dbWinDataReady;
     Win32::MappedViewOfFile m_mappedViewOfFile;
     const DbWinBuffer* m_dbWinBuffer;
+    ProcessCommandLines* m_pCommandLines;
     std::atomic<long long> m_delayMs{0};
     PTP_TIMER m_delayTimer = nullptr;
 };

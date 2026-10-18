@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <array>
+#include <vector>
 
 #include "windows.h"
 #include <psapi.h>
@@ -90,6 +91,46 @@ std::wstring ProcessInfo::GetStartTime(HANDLE handle)
     return WStr(GetTimeText(creation)).str();
 }
 
+std::wstring ProcessInfo::GetProcessCommandLine(HANDLE handle)
+{
+    // NtQueryInformationProcess(ProcessCommandLineInformation) is available since Windows 8.1, so resolve it at runtime.
+    using NtQueryInformationProcessFn = LONG(NTAPI*)(HANDLE, ULONG, PVOID, ULONG, PULONG);
+    static const auto ntQueryInformationProcess = reinterpret_cast<NtQueryInformationProcessFn>(::GetProcAddress(::GetModuleHandleW(L"ntdll.dll"), "NtQueryInformationProcess"));
+    if (ntQueryInformationProcess == nullptr)
+    {
+        return L"";
+    }
+
+    constexpr ULONG ProcessCommandLineInformation = 60;
+    ULONG size = 0;
+    ntQueryInformationProcess(handle, ProcessCommandLineInformation, nullptr, 0, &size); // fails with the required size
+    if (size == 0 || size > 1024 * 1024)
+    {
+        return L"";
+    }
+
+    // the result is a UNICODE_STRING followed by the characters it points to
+    struct UnicodeString
+    {
+        USHORT length; // in bytes
+        USHORT maximumLength;
+        PWSTR buffer;
+    };
+
+    std::vector<unsigned char> buffer(size);
+    if (ntQueryInformationProcess(handle, ProcessCommandLineInformation, buffer.data(), size, &size) < 0)
+    {
+        return L"";
+    }
+
+    const auto* commandLine = reinterpret_cast<const UnicodeString*>(buffer.data());
+    if (commandLine->buffer == nullptr)
+    {
+        return L"";
+    }
+    return std::wstring(commandLine->buffer, commandLine->length / sizeof(wchar_t));
+}
+
 std::wstring ProcessInfo::GetProcessNameByPid(DWORD processId)
 {
     Win32::Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION, 0, processId));
@@ -136,6 +177,31 @@ ProcessProperties ProcessInfo::GetProcessProperties(DWORD uid) const
     }
 
     return ProcessProperties(it->second);
+}
+
+bool ProcessCommandLines::Has(DWORD pid) const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_commandLines.find(pid) != m_commandLines.end();
+}
+
+void ProcessCommandLines::Set(DWORD pid, const std::wstring& commandLine)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_commandLines[pid] = commandLine;
+}
+
+std::wstring ProcessCommandLines::Take(DWORD pid)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    auto it = m_commandLines.find(pid);
+    if (it == m_commandLines.end())
+    {
+        return L"";
+    }
+    auto commandLine = std::move(it->second);
+    m_commandLines.erase(it);
+    return commandLine;
 }
 
 } // namespace debugviewpp
