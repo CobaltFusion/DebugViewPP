@@ -1133,6 +1133,14 @@ int CLogView::GetMessageItemAt(CPoint point)
 // The tooltip of a listview (LVN_GETINFOTIP) is only shown for the first column, so a tooltip control is used.
 LRESULT CLogView::OnToolTipGetDispInfo(NMHDR* pnmh)
 {
+    // the listview has tooltips of its own (using a different font), that send TTN_GETDISPINFO to this window too, leave those alone,
+    // otherwise they show the message as well.
+    if (pnmh->hwndFrom != m_toolTip.m_hWnd)
+    {
+        SetMsgHandled(win32::False);
+        return 0;
+    }
+
     CPoint point;
     ::GetCursorPos(&point);
     ScreenToClient(&point);
