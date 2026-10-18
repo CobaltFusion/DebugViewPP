@@ -7,7 +7,7 @@
 
 #include <atlbase.h>
 #include <atlcom.h>
-#include <boost/signals2/signal.hpp>
+#include "CobaltFusion/Signal.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -30,8 +30,8 @@ public:
     STDMETHOD(DragLeave)() override;
     STDMETHOD(Drop)(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) override;
 
-    using DroppedSignal = boost::signals2::signal<void(const std::wstring&)>;
-    boost::signals2::connection SubscribeToDropped(DroppedSignal::slot_type slot);
+    using DroppedSignal = fusion::Signal<void(const std::wstring&)>;
+    fusion::Connection SubscribeToDropped(DroppedSignal::slot_type slot);
 
 private:
     HWND m_hwnd = nullptr;

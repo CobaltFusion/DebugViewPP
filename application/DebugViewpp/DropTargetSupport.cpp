@@ -126,7 +126,7 @@ STDMETHODIMP DropTargetSupport::Drop(IDataObject* pDataObject, DWORD /*grfKeySta
     return S_OK;
 }
 
-boost::signals2::connection DropTargetSupport::SubscribeToDropped(DroppedSignal::slot_type slot)
+fusion::Connection DropTargetSupport::SubscribeToDropped(DroppedSignal::slot_type slot)
 {
     return m_onDropped.connect(slot);
 }

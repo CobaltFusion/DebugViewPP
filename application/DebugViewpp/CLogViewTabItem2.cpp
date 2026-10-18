@@ -8,6 +8,7 @@
 #include "CobaltFusion/dbgstream.h"
 #include "LogView.h"
 
+#include <cassert>
 #include <chrono>
 #include <algorithm>
 #include <iostream>
