@@ -158,6 +158,8 @@ public:
     std::wstring GetName() const;
     void SetName(const std::wstring& name);
     void SetFont(HFONT hFont);
+    // the window is on a monitor with another scaling, the columns have the same size relative to the font
+    void OnDpiChanged(UINT oldDpi, UINT newDpi);
     bool GetAutoScroll() const;
     void SetAutoScroll(bool enable);
     bool GetAutoScrollStop() const;

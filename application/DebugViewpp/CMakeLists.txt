@@ -19,6 +19,7 @@ add_executable(Debugviewpp
     SourceDlg.cpp
     SourcesDlg.cpp
     DebugView++.rc
+    DebugView++.manifest
  )
 
 target_link_libraries(Debugviewpp

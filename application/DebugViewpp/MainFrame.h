@@ -101,6 +101,7 @@ public:
     void FindPrevious(const std::wstring& text);
     // shows 'Searching', 'Found' or 'Not found' followed by the text in the status bar, immediately (a search blocks the user interface)
     void SetSearchStatus(const wchar_t* state, const std::wstring& text);
+    UINT GetDpi() const { return m_dpi; }
     // sends an Enter to the stdin of the processes that are being run by DebugView++ (#293), returns false if there are none
     bool SendEnterToProcesses();
     void OnDropped(std::wstring uri);
@@ -133,6 +134,7 @@ private:
 
     int LogFontSizeFromPointSize(int fontSize);
     int LogFontSizeToPointSize(int logFontSize);
+    void OnDpiChanged(UINT dpiX, UINT dpiY, PRECT pRect);
 
     std::wstring GetSelectionInfoText(const std::wstring& label, const SelectionInfo& selection) const;
     SelectionInfo GetLogFileRange() const;
@@ -215,6 +217,7 @@ private:
 
     CCommandBarCtrl m_cmdBar;
     CMultiPaneStatusBarCtrl m_statusBar;
+    UINT m_dpi = Win32::DefaultDpi; // the DPI of the monitor the window is on, it changes when the window is moved to another monitor
     std::wstring m_searchStatus;          // text of the default pane after a search, valid as long as the highlighted text is m_searchStatusHighlight
     std::wstring m_searchStatusHighlight;
 

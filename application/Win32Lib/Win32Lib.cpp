@@ -563,6 +563,39 @@ bool SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
     return ::GetLastError() != ERROR_NOT_ALL_ASSIGNED;
 }
 
+UINT GetDpiForWindow(HWND hWnd)
+{
+    // GetDpiForWindow exists since Windows 10 1607
+    using GetDpiForWindowFn = UINT(WINAPI*)(HWND);
+    static const auto getDpiForWindow = reinterpret_cast<GetDpiForWindowFn>(::GetProcAddress(::GetModuleHandleW(L"user32.dll"), "GetDpiForWindow"));
+    if (getDpiForWindow != nullptr && hWnd != nullptr)
+    {
+        const UINT dpi = getDpiForWindow(hWnd);
+        if (dpi != 0)
+        {
+            return dpi;
+        }
+    }
+
+    HDC hdc = ::GetDC(nullptr);
+    const int systemDpi = hdc != nullptr ? ::GetDeviceCaps(hdc, LOGPIXELSX) : 0;
+    if (hdc != nullptr)
+    {
+        ::ReleaseDC(nullptr, hdc);
+    }
+    return systemDpi > 0 ? static_cast<UINT>(systemDpi) : DefaultDpi;
+}
+
+int ScaleToDpi(int pixelsAt96Dpi, UINT dpi)
+{
+    return ::MulDiv(pixelsAt96Dpi, static_cast<int>(dpi), static_cast<int>(DefaultDpi));
+}
+
+int ScaleBetweenDpi(int pixels, UINT fromDpi, UINT toDpi)
+{
+    return fromDpi == 0 ? pixels : ::MulDiv(pixels, static_cast<int>(toDpi), static_cast<int>(fromDpi));
+}
+
 bool SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 {
     HANDLE handle;

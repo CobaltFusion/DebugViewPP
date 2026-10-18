@@ -342,6 +342,17 @@ void CLogView::SyncColumns()
     }
 }
 
+void CLogView::OnDpiChanged(UINT oldDpi, UINT newDpi)
+{
+    SyncColumns(); // use the widths the user gave the columns
+    for (auto& item : m_columns)
+    {
+        item.column.cx = Win32::ScaleBetweenDpi(item.column.cx, oldDpi, newDpi);
+    }
+    UpdateColumns();
+    Invalidate();
+}
+
 void CLogView::UpdateColumns()
 {
     int columns = GetHeader().GetItemCount();
@@ -404,14 +415,15 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
     CRect everywhere(0, 0, 32000, 32000);
     CToolInfo toolInfo(TTF_SUBCLASS, m_hWnd, 1, &everywhere, LPSTR_TEXTCALLBACK);
     m_toolTip.AddTool(&toolInfo);
-    m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
-    m_columns.push_back(MakeColumn(Column::Line, L"Line", LVCFMT_RIGHT, 60));
-    m_columns.push_back(MakeColumn(Column::Date, L"Date", LVCFMT_RIGHT, 90));
+    const UINT dpi = Win32::GetDpiForWindow(*this); // the default width of the columns is in pixels at 96 DPI
+    m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, Win32::ScaleToDpi(20, dpi)));
+    m_columns.push_back(MakeColumn(Column::Line, L"Line", LVCFMT_RIGHT, Win32::ScaleToDpi(60, dpi)));
+    m_columns.push_back(MakeColumn(Column::Date, L"Date", LVCFMT_RIGHT, Win32::ScaleToDpi(90, dpi)));
     m_columns.back().enable = false; // Default no Date column
-    m_columns.push_back(MakeColumn(Column::Time, L"Time", LVCFMT_RIGHT, 90));
-    m_columns.push_back(MakeColumn(Column::Pid, L"PID", LVCFMT_RIGHT, 60));
-    m_columns.push_back(MakeColumn(Column::Process, L"Process", LVCFMT_LEFT, 140));
-    m_columns.push_back(MakeColumn(Column::Message, L"Message", LVCFMT_LEFT, 1500));
+    m_columns.push_back(MakeColumn(Column::Time, L"Time", LVCFMT_RIGHT, Win32::ScaleToDpi(90, dpi)));
+    m_columns.push_back(MakeColumn(Column::Pid, L"PID", LVCFMT_RIGHT, Win32::ScaleToDpi(60, dpi)));
+    m_columns.push_back(MakeColumn(Column::Process, L"Process", LVCFMT_LEFT, Win32::ScaleToDpi(140, dpi)));
+    m_columns.push_back(MakeColumn(Column::Message, L"Message", LVCFMT_LEFT, Win32::ScaleToDpi(1500, dpi)));
     UpdateColumns();
 
     ApplyFilters();
@@ -1046,7 +1058,8 @@ void CLogView::DrawBookmark(CDCHandle dc, int iItem) const
         return;
     }
     RECT rect = GetSubItemRect(iItem, 0, LVIR_BOUNDS);
-    dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - 16) / 2, m_hBookmarkIcon.get(), 0, 0, 0, nullptr, DI_NORMAL | DI_COMPAT);
+    const int iconSize = Win32::ScaleToDpi(16, Win32::GetDpiForWindow(*this)); // the icon is 16x16 pixels at 96 DPI
+    dc.DrawIconEx(rect.left /* + GetHeader().GetBitmapMargin() */, rect.top + (rect.bottom - rect.top - iconSize) / 2, m_hBookmarkIcon.get(), iconSize, iconSize, 0, nullptr, DI_NORMAL | DI_COMPAT);
 }
 
 ItemData CLogView::GetItemData(int iItem) const

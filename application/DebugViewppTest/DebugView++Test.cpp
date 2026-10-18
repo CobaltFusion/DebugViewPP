@@ -286,6 +286,26 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
     BOOST_TEST(cut.find(L'y') == 0);
 }
 
+// sizes are scaled for the monitor (#321)
+BOOST_AUTO_TEST_CASE(DpiScaling)
+{
+    BOOST_TEST(Win32::ScaleToDpi(16, 96) == 16); // 100%
+    BOOST_TEST(Win32::ScaleToDpi(16, 120) == 20); // 125%
+    BOOST_TEST(Win32::ScaleToDpi(16, 144) == 24); // 150%
+    BOOST_TEST(Win32::ScaleToDpi(100, 192) == 200); // 200%
+    BOOST_TEST(Win32::ScaleToDpi(0, 144) == 0);
+
+    // moving from one monitor to another, and back, gives the same size
+    BOOST_TEST(Win32::ScaleBetweenDpi(60, 96, 144) == 90);
+    BOOST_TEST(Win32::ScaleBetweenDpi(90, 144, 96) == 60);
+    BOOST_TEST(Win32::ScaleBetweenDpi(-12, 96, 144) == -18); // the height of a font is negative
+    BOOST_TEST(Win32::ScaleBetweenDpi(60, 0, 144) == 60); // an unknown DPI does not scale
+
+    // there is always a DPI, also without a window
+    BOOST_TEST(Win32::GetDpiForWindow(nullptr) >= 48u);
+    BOOST_TEST(Win32::GetDpiForWindow(::GetDesktopWindow()) >= 48u);
+}
+
 // SetPrivilege reports if the privilege could be changed, it is not an error when the token does not have the privilege (#412)
 BOOST_AUTO_TEST_CASE(SetPrivilegeReportsMissingPrivilege)
 {

@@ -185,6 +185,7 @@ std::wstring FormatDuration(double seconds)
 
 BEGIN_MSG_MAP2(CMainFrame)
     MSG_WM_CREATE(OnCreate)
+    MSG_WM_DPICHANGED(OnDpiChanged)
     MSG_WM_CLOSE(OnClose)
     MSG_WM_QUERYENDSESSION(OnQueryEndSession)
     MSG_WM_ENDSESSION(OnEndSession)
@@ -304,6 +305,7 @@ BOOL CMainFrame::OnIdle()
 
 LRESULT CMainFrame::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
+    m_dpi = Win32::GetDpiForWindow(*this);
     m_notifyIconData.cbSize = 0;
 
     HWND hWndCmdBar = m_cmdBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_CMDBAR_PANE_STYLE);
@@ -757,14 +759,35 @@ const wchar_t* RegistryPath = L"Software\\Cobalt Fusion\\DebugView++";
 
 int CMainFrame::LogFontSizeFromPointSize(int fontSize)
 {
-    CDC dc(GetDC());
-    return -MulDiv(fontSize, GetDeviceCaps(dc, LOGPIXELSY), 72);
+    return -MulDiv(fontSize, static_cast<int>(m_dpi), 72);
 }
 
 int CMainFrame::LogFontSizeToPointSize(int logFontSize)
 {
-    CDC dc(GetDC());
-    return -MulDiv(logFontSize, 72, GetDeviceCaps(dc, LOGPIXELSY));
+    return -MulDiv(logFontSize, 72, static_cast<int>(m_dpi));
+}
+
+// The window was moved to a monitor with another scaling (or the scaling was changed). The size of everything that is not scaled
+// by the system has to be changed: the font (a font size is in points, so its height in pixels changes), the columns, and the
+// window itself to the size that the system suggests.
+void CMainFrame::OnDpiChanged(UINT dpiX, UINT /*dpiY*/, PRECT pRect)
+{
+    const UINT oldDpi = m_dpi;
+    m_dpi = dpiX;
+    if (oldDpi == m_dpi)
+    {
+        return;
+    }
+
+    SetWindowPos(nullptr, pRect->left, pRect->top, pRect->right - pRect->left, pRect->bottom - pRect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+
+    m_logfont.lfHeight = Win32::ScaleBetweenDpi(m_logfont.lfHeight, oldDpi, m_dpi);
+    SetLogFont();
+    int views = GetViewCount();
+    for (int i = 0; i < views; ++i)
+    {
+        GetView(i).OnDpiChanged(oldDpi, m_dpi);
+    }
 }
 
 bool CMainFrame::LoadSettings()

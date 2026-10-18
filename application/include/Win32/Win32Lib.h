@@ -230,6 +230,13 @@ void AdjustObjectDACL(HANDLE hObject);
 bool SetPrivilege(const wchar_t* privilege, bool enablePrivilege);
 bool SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege);
 
+// DPI: sizes in pixels have to be scaled for the monitor a window is on, every monitor can have another scaling (per-monitor DPI awareness).
+// A DPI of 96 is 100%. Anything that draws (GDI now, Direct2D later) should use these instead of fixed pixel sizes.
+constexpr UINT DefaultDpi = 96;
+UINT GetDpiForWindow(HWND hWnd); // the DPI of the monitor of the window, the system DPI when that is not available
+int ScaleToDpi(int pixelsAt96Dpi, UINT dpi);
+int ScaleBetweenDpi(int pixels, UINT fromDpi, UINT toDpi);
+
 struct WaitResult
 {
     explicit WaitResult(bool signaled = false, int index = 0);
