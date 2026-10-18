@@ -6,7 +6,6 @@
 #define BOOST_TEST_MODULE DebugView++ Lib Unit Test
 
 #include <boost/test/unit_test_gui.hpp>
-#include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include "Win32/Process.h"
@@ -37,6 +36,7 @@
 #include "DebugViewppLib/LogFilter.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/StringUtil.h"
+#include "DebugViewppLib/DbgviewReader.h"
 #include "Win32/TcpStream.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
@@ -1417,40 +1417,32 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
 // of the protocol (answering the performance frequency request) for the reader to consider itself connected.
 BOOST_AUTO_TEST_CASE(LogSourceDbgviewReaderConnectsByHostname)
 {
-    namespace asio = boost::asio;
-
-    asio::io_context io;
-    asio::ip::tcp::acceptor acceptor(io, asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), 2020));
+    Win32::TcpListener acceptor(2020);
     std::thread agent([&] {
-        boost::system::error_code ec;
-        asio::ip::tcp::socket socket(io);
-        acceptor.accept(socket, ec);
-        if (ec)
+        Win32::TcpStream socket;
+        if (!acceptor.Accept(socket))
         {
             return;
         }
 
-        DWORD request = 0;
-        asio::read(socket, asio::buffer(&request, sizeof(request)), ec);
-        DWORD frequency = 10'000'000;
-        asio::write(socket, asio::buffer(&frequency, sizeof(frequency)), ec);
+        Read<DWORD>(socket); // the request for the performance frequency
+        Write<DWORD>(socket, DWORD(10'000'000));
 
         // keep the connection open until the reader disconnects
         char buffer[64];
-        while (!ec)
+        while (socket.read(buffer, sizeof(buffer)) || socket.gcount() > 0)
         {
-            socket.read_some(asio::buffer(buffer), ec);
         }
     });
 
     // also releases the agent when the reader never connected, or when the test fails with an exception
     struct StopAgent
     {
-        asio::ip::tcp::acceptor& acceptor;
+        Win32::TcpListener& acceptor;
         std::thread& agent;
         ~StopAgent()
         {
-            acceptor.close();
+            acceptor.Close();
             agent.join();
         }
     } stopAgent{acceptor, agent};

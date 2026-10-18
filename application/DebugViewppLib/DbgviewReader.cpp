@@ -16,7 +16,7 @@
 namespace fusion {
 namespace debugviewpp {
 
-const std::string SysinternalsDebugViewAgentPort = "2020";
+const uint16_t SysinternalsDebugViewAgentPort = 2020;
 
 DbgviewReader::DbgviewReader(Timer& timer, ILineBuffer& linebuffer, const std::string& hostname) :
     PolledLogSource(timer, SourceType::Pipe, linebuffer, 40),
@@ -98,7 +98,7 @@ void DbgviewReader::SetAutoNewLine(bool value)
 void DbgviewReader::Loop()
 {
     SetDescription(wstringbuilder() << "Dbgview Agent at " << m_hostname);
-    m_iostream.connect(m_hostname, SysinternalsDebugViewAgentPort);
+    m_iostream.Connect(m_hostname, SysinternalsDebugViewAgentPort);
     const std::string processName("[tcp]");
 
     Write<DWORD>(m_iostream, Magic::RequestQueryPerformanceFrequency);
@@ -108,7 +108,7 @@ void DbgviewReader::Loop()
 
     if (!m_iostream || qpFrequency == 0)
     {
-        LogSource::Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.error().message());
+        LogSource::Add(stringbuilder() << "Unable to connect to " << GetDescription() << ", " << m_iostream.ErrorMessage());
         Signal();
         return;
     }
@@ -156,7 +156,7 @@ void DbgviewReader::Loop()
             continue;
         }
 
-        // dont read from the tcp::iostream directly,
+        // dont read from the tcp stream directly,
         // instead use read() to receive the complete message.
         // this allows us to use ss.tellg() to determine the amount of trash bytes.
         std::vector<char> buffer(messageLength);
@@ -226,7 +226,7 @@ DbgviewReader::~DbgviewReader()
 // Abort() is called more than once (for example by LogSources::Abort and again when the source is removed)
 void DbgviewReader::Abort()
 {
-    m_iostream.close();
+    m_iostream.Close();
     LogSource::Abort();
     if (m_thread.joinable())
     {

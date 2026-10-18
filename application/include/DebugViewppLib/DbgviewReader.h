@@ -5,11 +5,7 @@
 
 #pragma once
 
-#pragma warning(push)
-#pragma warning(disable : 4242)
-#include <boost/asio.hpp>
-#pragma warning(pop)
-
+#include "Win32/TcpStream.h"
 #include "PolledLogSource.h"
 
 namespace fusion {
@@ -43,7 +39,7 @@ public:
 private:
     void Loop();
     std::string m_hostname;
-    boost::asio::ip::tcp::iostream m_iostream;
+    Win32::TcpStream m_iostream;
 
     std::thread m_thread;
 };
