@@ -26,6 +26,7 @@
 #include <regex>
 #include <unordered_set>
 #include <algorithm>
+#include <numeric>
 #include <utility>
 
 namespace fusion {
@@ -255,6 +256,7 @@ void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 
 void CLogView::OnViewColumn(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
+    SyncColumns(); // UpdateColumns recreates the columns, keep the width and order the user gave them
     auto& column = m_columns[nID - ID_VIEW_COLUMN_FIRST];
     column.enable = !column.enable;
     UpdateColumns();
@@ -315,6 +317,27 @@ Column::type CLogView::SubItemToColumn(int iSubItem) const
     return static_cast<Column::type>(column.iSubItem);
 }
 
+// The user can change the width and the order of the columns in the header, m_columns is what is saved (and used to create
+// the columns again) so it has to be updated from the columns. The order of a column that is shown is its position in the header,
+// the order of a column that is not shown does not change.
+void CLogView::SyncColumns()
+{
+    const int columns = GetHeader().GetItemCount();
+    for (int i = 0; i < columns; ++i)
+    {
+        LVCOLUMN column = {};
+        column.mask = LVCF_SUBITEM | LVCF_WIDTH | LVCF_ORDER;
+        if (GetColumn(i, &column) == 0 || column.iSubItem < 0 || column.iSubItem >= static_cast<int>(m_columns.size()))
+        {
+            continue;
+        }
+
+        auto& info = m_columns[column.iSubItem];
+        info.column.cx = column.cx;
+        info.column.iOrder = column.iOrder;
+    }
+}
+
 void CLogView::UpdateColumns()
 {
     int columns = GetHeader().GetItemCount();
@@ -323,13 +346,31 @@ void CLogView::UpdateColumns()
         DeleteColumn(0);
     }
 
-    int col = 0;
+    // insert in the order of the columns, then move them, the order of a column can not be set before the columns it is
+    // ordered between exist (and the order of a column that is not shown is not part of the order of those that are).
+    std::vector<ColumnInfo*> shown;
     for (auto& item : m_columns)
     {
         if (item.enable)
         {
-            InsertColumn(col++, &item.column);
+            shown.push_back(&item);
         }
+    }
+
+    int col = 0;
+    for (auto* pItem : shown)
+    {
+        LVCOLUMN column = pItem->column;
+        column.mask &= ~static_cast<UINT>(LVCF_ORDER);
+        InsertColumn(col++, &column);
+    }
+
+    std::vector<int> order(shown.size());
+    std::iota(order.begin(), order.end(), 0);
+    std::stable_sort(order.begin(), order.end(), [&shown](int a, int b) { return shown[a]->column.iOrder < shown[b]->column.iOrder; });
+    if (!order.empty())
+    {
+        SetColumnOrderArray(static_cast<int>(order.size()), order.data());
     }
 }
 
@@ -1603,8 +1644,9 @@ void CLogView::SetAutoScrollStop(bool enable)
     m_autoScrollStop = enable;
 }
 
-const std::vector<ColumnInfo>& CLogView::GetColumns() const
+const std::vector<ColumnInfo>& CLogView::GetColumns()
 {
+    SyncColumns();
     return m_columns;
 }
 
@@ -2107,6 +2149,7 @@ void CLogView::LoadSettings(CRegKey& reg)
 
 void CLogView::SaveSettings(CRegKey& reg)
 {
+    SyncColumns();
     reg.SetDWORDValue(L"AutoScrollStop", static_cast<DWORD>(GetAutoScrollStop()));
     reg.SetDWORDValue(L"ClockTime", static_cast<DWORD>(GetClockTime()));
     reg.SetDWORDValue(L"ShowProcessColors", static_cast<DWORD>(GetViewProcessColors()));

@@ -162,7 +162,8 @@ public:
     void SetAutoScroll(bool enable);
     bool GetAutoScrollStop() const;
     void SetAutoScrollStop(bool enable);
-    const std::vector<ColumnInfo>& GetColumns() const;
+    // the width and order of the columns as they are now (the user can change them in the header)
+    const std::vector<ColumnInfo>& GetColumns();
     void ReadColumns(const boost::property_tree::ptree& pt);
     void Clear();
     int GetFocusLine() const;
@@ -275,6 +276,7 @@ private:
     std::vector<std::string> GetSelectedMessages() const;
     std::wstring GetSelectedLines() const;
     void UpdateColumns();
+    void SyncColumns();
     int ColumnToSubItem(Column::type column) const;
     Column::type SubItemToColumn(int iSubItem) const;
     int GetTextIndex(int iItem, int xPos) const;

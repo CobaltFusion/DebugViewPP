@@ -6,6 +6,7 @@
 
 - the whole message is shown in a tooltip when hovering the message column (fixes #372)
 - dropping an empty file on the window no longer fails, it is tailed until content appears.
+- the width and order of the columns, as changed by the user, are saved in the dbconf (and in the settings) and are kept when columns are shown or hidden (fixes #346)
 - DebugViewConsole (and DebugView++) can run as a windows service: in session 0 the global DBWIN_BUFFER is the same as the local one, so no second reader is created (fixes #349)
 - the status bar shows 'Searching', 'Found' or 'Not found' for the text being searched, as soon as the search starts and ends (fixes #366)
 - the commandline of a process is logged with its 'has terminated' message (fixes #401), this needs Windows 8.1 or later.
