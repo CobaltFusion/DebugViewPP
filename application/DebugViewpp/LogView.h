@@ -226,6 +226,8 @@ private:
     void OnTimer(UINT_PTR nIDEvent);
     BOOL OnSetCursor(CWindow wnd, UINT nHitTest, UINT message);
     LRESULT OnGetDispInfo(NMHDR* pnmh);
+    LRESULT OnToolTipGetDispInfo(NMHDR* pnmh);
+    int GetMessageItemAt(CPoint point);
     LRESULT OnClick(NMHDR* pnmh);
     LRESULT OnDblClick(NMHDR* pnmh);
     LRESULT OnItemChanged(NMHDR* pnmh);
@@ -330,6 +332,9 @@ private:
     CPoint m_dragEnd;
     bool m_dragging;
     int m_scrollX;
+    CToolTipCtrl m_toolTip;
+    std::wstring m_toolTipText; // the text the tooltip points to
+    int m_toolTipItem = -1;
     std::wstring m_dispInfoText;
     Win32::ComObjectPtr<DropTargetSupport> m_pDropTargetSupport;
 };

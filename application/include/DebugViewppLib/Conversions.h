@@ -19,6 +19,12 @@ std::string GetDateTimeText(const FILETIME& filetime);
 std::string GetTimeText(const SYSTEMTIME& st);
 std::string GetTimeText(const FILETIME& ft);
 
+// Text for the tooltip of a message: tabs are expanded and the text is wrapped in lines of at most maxLineLength characters
+// (use a large value to let the tooltip control do the wrapping).
+// The result is at most maxLength characters, if the text does not fit it is cut off and ends with "..."
+// (the infotip of a listview (LVN_GETINFOTIP) is limited to INFOTIPSIZE (1024) characters)
+std::wstring MakeInfoTipText(const std::wstring& message, size_t maxLineLength = 100, size_t maxLength = 1023);
+
 template <typename CharT>
 std::basic_string<CharT> TabsToSpaces(const std::basic_string<CharT>& s, int tabsize = 4)
 {

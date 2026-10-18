@@ -261,6 +261,31 @@ BOOST_AUTO_TEST_CASE(USTimeConverterMidnightRollover)
     }
 }
 
+BOOST_AUTO_TEST_CASE(InfoTipText)
+{
+    // a short message is shown as is, tabs are expanded
+    BOOST_TEST((MakeInfoTipText(L"short message") == L"short message"));
+    BOOST_TEST((MakeInfoTipText(L"a\tb") == L"a   b"));
+    BOOST_TEST((MakeInfoTipText(L"") == L""));
+
+    // a long message is wrapped, without losing characters
+    const std::wstring text(250, L'x');
+    const auto wrapped = MakeInfoTipText(text, 100, 1023);
+    BOOST_TEST(std::count(wrapped.begin(), wrapped.end(), L'\n') == 2);
+    BOOST_TEST(std::count(wrapped.begin(), wrapped.end(), L'x') == 250);
+    BOOST_TEST(wrapped.find(L'\n') == 100);
+
+    // a text that fits exactly is not cut off
+    BOOST_TEST((MakeInfoTipText(std::wstring(30, L'x'), 100, 30) == std::wstring(30, L'x')));
+
+    // a text that is too long is cut off and ends with an ellipsis, within the limit of a tooltip
+    const std::wstring huge(100000, L'y');
+    const auto cut = MakeInfoTipText(huge);
+    BOOST_TEST(cut.size() == 1023);
+    BOOST_TEST((cut.substr(cut.size() - 3) == L"..."));
+    BOOST_TEST(cut.find(L'y') == 0);
+}
+
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
     static const HANDLE nullHandle = nullptr;

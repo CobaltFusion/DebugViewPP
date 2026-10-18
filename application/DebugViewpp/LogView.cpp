@@ -21,6 +21,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <iomanip>
+#include <limits>
 #include <array>
 #include <regex>
 #include <unordered_set>
@@ -181,6 +182,7 @@ BEGIN_MSG_MAP2(CLogView)
     REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_DBLCLK, OnDblClick)
     REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ITEMCHANGED, OnItemChanged)
     REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_GETDISPINFO, OnGetDispInfo)
+    NOTIFY_CODE_HANDLER_EX(TTN_GETDISPINFO, OnToolTipGetDispInfo)
     REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_INCREMENTALSEARCH, OnIncrementalSearch)
     REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ODCACHEHINT, OnOdCacheHint)
     REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_BEGINDRAG, OnBeginDrag)
@@ -347,7 +349,16 @@ ColumnInfo MakeColumn(Column::type column, const wchar_t* name, int format, int 
 LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 {
     DefWindowProc();
+
     m_hdr.SubclassWindow(GetHeader());
+
+    // the tooltip with the whole message, the text is requested (TTN_GETDISPINFO) when the tooltip is about to be shown.
+    // It covers the whole window (TTF_SUBCLASS makes it follow the mouse), what is shown depends on the item under the mouse.
+    m_toolTip.Create(m_hWnd, nullptr, nullptr, TTS_NOPREFIX | TTS_ALWAYSTIP);
+    m_toolTip.SetMaxTipWidth(::GetSystemMetrics(SM_CXSCREEN) / 2); // required for multiple lines
+    CRect everywhere(0, 0, 32000, 32000);
+    CToolInfo toolInfo(TTF_SUBCLASS, m_hWnd, 1, &everywhere, LPSTR_TEXTCALLBACK);
+    m_toolTip.AddTool(&toolInfo);
     m_columns.push_back(MakeColumn(Column::Bookmark, L"", LVCFMT_RIGHT, 20));
     m_columns.push_back(MakeColumn(Column::Line, L"Line", LVCFMT_RIGHT, 60));
     m_columns.push_back(MakeColumn(Column::Date, L"Date", LVCFMT_RIGHT, 90));
@@ -577,6 +588,15 @@ void CLogView::OnLButtonDown(UINT flags, CPoint point)
 void CLogView::OnMouseMove(UINT /*flags*/, CPoint point)
 {
     SetMsgHandled(win32::False);
+
+    // the tooltip shows the message of the item below the mouse, hide it when the mouse moves to another item so it is requested again
+    const int item = GetMessageItemAt(point);
+    if (item != m_toolTipItem)
+    {
+        m_toolTipItem = item;
+        m_toolTip.Pop();
+    }
+
     if (!m_dragging)
     {
         return;
@@ -1093,6 +1113,36 @@ LRESULT CLogView::OnGetDispInfo(NMHDR* pnmh)
 
     m_dispInfoText = GetColumnText(item.iItem, SubItemToColumn(item.iSubItem));
     item.pszText = &m_dispInfoText[0];
+    return 0;
+}
+
+// returns the item when the point is over the message column of an item, otherwise -1
+int CLogView::GetMessageItemAt(CPoint point)
+{
+    LVHITTESTINFO info = {};
+    info.pt = point;
+    SubItemHitTest(&info);
+    if ((info.flags & LVHT_ONITEM) == 0 || info.iSubItem != ColumnToSubItem(Column::Message) || info.iItem >= static_cast<int>(m_logLines.size()))
+    {
+        return -1;
+    }
+    return info.iItem;
+}
+
+// Shows the whole message in a tooltip when the mouse is over the message column (like Sysinternals DebugView does).
+// The tooltip of a listview (LVN_GETINFOTIP) is only shown for the first column, so a tooltip control is used.
+LRESULT CLogView::OnToolTipGetDispInfo(NMHDR* pnmh)
+{
+    CPoint point;
+    ::GetCursorPos(&point);
+    ScreenToClient(&point);
+
+    const int item = GetMessageItemAt(point);
+    // the tooltip wraps the text itself (see SetMaxTipWidth), so no line length is imposed
+    m_toolTipText = item < 0 ? L"" : MakeInfoTipText(WStr(m_logFile[m_logLines[item].line].text).str(), std::numeric_limits<size_t>::max(), 100000);
+
+    auto pInfo = reinterpret_cast<NMTTDISPINFOW*>(pnmh);
+    pInfo->lpszText = m_toolTipText.data();
     return 0;
 }
 

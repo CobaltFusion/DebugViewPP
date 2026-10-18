@@ -13,6 +13,36 @@
 namespace fusion {
 namespace debugviewpp {
 
+std::wstring MakeInfoTipText(const std::wstring& message, size_t maxLineLength, size_t maxLength)
+{
+    static const std::wstring ellipsis(L"...");
+    if (maxLineLength == 0 || maxLength <= ellipsis.size())
+    {
+        return L"";
+    }
+
+    // wrapping and expanding tabs only add characters, so there is no need to look at more than maxLength + 1 characters
+    const auto text = TabsToSpaces(message.substr(0, maxLength + 1));
+
+    std::wstring wrapped;
+    wrapped.reserve(text.size() + text.size() / maxLineLength);
+    for (size_t i = 0; i < text.size(); ++i)
+    {
+        if (i > 0 && i % maxLineLength == 0)
+        {
+            wrapped.push_back(L'\n');
+        }
+        wrapped.push_back(text[i]);
+    }
+
+    if (wrapped.size() <= maxLength)
+    {
+        return wrapped;
+    }
+    wrapped.resize(maxLength - ellipsis.size());
+    return wrapped + ellipsis;
+}
+
 std::string GetTimeText(double time)
 {
     return stringbuilder() << std::fixed << std::setprecision(6) << time;
