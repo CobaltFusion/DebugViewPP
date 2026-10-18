@@ -7,7 +7,7 @@ PRIVATE
     project::definitions
     project::compile_features
     project::compile_options
-    nuget::boost_test
+    GTest::gtest_main
     CobaltFusion
 )
 

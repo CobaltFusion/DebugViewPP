@@ -5,12 +5,9 @@
 
 #include "windows.h"
 
-#pragma warning(disable : 4702 4389) //ignore signed/unsigned comparision and unreachable code in boost/test
+// run as CobaltFusionTest.exe, or with --gtest_filter=Suite.Test and --gtest_list_tests
 
-// run as CobaltFusionTest.exe --log_level=test_suite
-
-#define BOOST_TEST_MODULE CobaltFusionLib Unit Test
-#include <boost/test/unit_test_gui.hpp>
+#include <gtest/gtest.h>
 
 #include <mutex>
 #include <thread>
@@ -25,8 +22,6 @@
 #include "CobaltFusion/tohex.h"
 
 namespace fusion {
-
-BOOST_AUTO_TEST_SUITE(ColbaltFusionLib)
 
 class SynchronizedCircularBuffer
 {
@@ -144,117 +139,115 @@ private:
     CircularBuffer m_buffer;
 };
 
-BOOST_AUTO_TEST_CASE(CircularBufferSize)
+TEST(ColbaltFusionLib, CircularBufferSize)
 {
     CircularBuffer buffer(100);
     CircularBuffer buffer2(2 * 1024 * 1024);
-    BOOST_CHECK_EQUAL(buffer2.Capacity(), 2 * 1024 * 1024);
+    EXPECT_EQ(buffer2.Capacity(), 2 * 1024 * 1024);
 }
 
-BOOST_AUTO_TEST_CASE(CircularBufferInitialLevels)
+TEST(ColbaltFusionLib, CircularBufferInitialLevels)
 {
     size_t testsize = 100;
     CircularBuffer buffer(testsize);
-    BOOST_REQUIRE_EQUAL(testsize, buffer.Capacity());
+    ASSERT_EQ(testsize, buffer.Capacity());
 
-    BOOST_CHECK(buffer.Empty());
-    BOOST_CHECK(!buffer.Full());
+    EXPECT_TRUE(buffer.Empty());
+    EXPECT_FALSE(buffer.Full());
     for (size_t i = 0; i < buffer.Capacity(); ++i)
         buffer.Write(1);
 
-    BOOST_CHECK(!buffer.Empty());
-    BOOST_CHECK(buffer.Full());
+    EXPECT_FALSE(buffer.Empty());
+    EXPECT_TRUE(buffer.Full());
 
     for (size_t i = 0; i < buffer.Capacity(); ++i)
         buffer.Read();
 
-    BOOST_CHECK(buffer.Empty());
-    BOOST_CHECK(!buffer.Full());
+    EXPECT_TRUE(buffer.Empty());
+    EXPECT_FALSE(buffer.Full());
 }
 
-BOOST_AUTO_TEST_CASE(CircularBufferCycle)
+TEST(ColbaltFusionLib, CircularBufferCycle)
 {
     size_t testsize = 100;
     CircularBuffer buffer(testsize);
 
     for (int j = 0; j < 1500; ++j)
     {
-        BOOST_CHECK(buffer.Empty());
+        EXPECT_TRUE(buffer.Empty());
         for (int i = 0; i < 17; ++i)
             buffer.Write(1);
 
-        BOOST_CHECK(!buffer.Empty());
+        EXPECT_FALSE(buffer.Empty());
 
         for (int i = 0; i < 17; ++i)
             buffer.Read();
 
-        BOOST_CHECK(buffer.Empty());
+        EXPECT_TRUE(buffer.Empty());
     }
 }
 
-BOOST_AUTO_TEST_CASE(CircularBufferCycleStringZ)
+TEST(ColbaltFusionLib, CircularBufferCycleStringZ)
 {
     size_t testsize = 100;
     CircularBuffer buffer(testsize);
 
     for (int j = 0; j < 1000; ++j)
     {
-        BOOST_CHECK(buffer.Empty());
+        EXPECT_TRUE(buffer.Empty());
         for (int i = 0; i < 17; ++i)
             buffer.WriteStringZ("test");
 
-        BOOST_CHECK(!buffer.Empty());
+        EXPECT_FALSE(buffer.Empty());
 
         for (int i = 0; i < 17; ++i)
-            BOOST_CHECK_EQUAL(buffer.ReadStringZ(), "test");
+            EXPECT_EQ(buffer.ReadStringZ(), "test");
 
-        BOOST_CHECK(buffer.Empty());
+        EXPECT_TRUE(buffer.Empty());
     }
 }
 
-BOOST_AUTO_TEST_CASE(CircularBufferCycleStringZPrime)
+TEST(ColbaltFusionLib, CircularBufferCycleStringZPrime)
 {
     size_t testsize = 200;
     CircularBuffer buffer(testsize);
 
     for (int j = 0; j < 500; ++j)
     {
-        BOOST_CHECK(buffer.Empty());
+        EXPECT_TRUE(buffer.Empty());
         for (size_t i = 0; i < 17; ++i)
             buffer.WriteStringZ("test123");
 
-        BOOST_CHECK(!buffer.Empty());
+        EXPECT_FALSE(buffer.Empty());
 
         for (int i = 0; i < 17; ++i)
-            BOOST_CHECK_EQUAL(buffer.ReadStringZ(), "test123");
+            EXPECT_EQ(buffer.ReadStringZ(), "test123");
 
-        BOOST_CHECK(buffer.Empty());
+        EXPECT_TRUE(buffer.Empty());
     }
 }
 
-BOOST_AUTO_TEST_CASE(CircularBufferBufferFullTimeout)
+TEST(ColbaltFusionLib, CircularBufferBufferFullTimeout)
 {
     size_t testsize = 80;
     SynchronizedCircularBuffer buffer(testsize);
-    BOOST_CHECK(buffer.Empty());
-    BOOST_CHECK(!buffer.Full());
+    EXPECT_TRUE(buffer.Empty());
+    EXPECT_FALSE(buffer.Full());
 
     int iterations = 0;
     int writeIterations = 0;
-    BOOST_CHECK_THROW(
-        {
+    EXPECT_THROW({
             for (int i = 0; i < 100; ++i)
             {
                 ++iterations;
                 buffer.WriteStringZ("test123", std::chrono::seconds(1));
                 ++writeIterations;
-                BOOST_CHECK(!buffer.Empty());
+                EXPECT_FALSE(buffer.Empty());
             }
-        },
-        std::exception);
+        }, std::exception);
 
-    BOOST_TEST_MESSAGE("iterations: " << iterations);
-    BOOST_CHECK(buffer.Full());
+    SCOPED_TRACE(::testing::Message() << "iterations: " << iterations);
+    EXPECT_TRUE(buffer.Full());
 
     int readInterations = 0;
     while (!buffer.Empty())
@@ -262,12 +255,12 @@ BOOST_AUTO_TEST_CASE(CircularBufferBufferFullTimeout)
         buffer.ReadStringZ();
         ++readInterations;
     }
-    BOOST_CHECK(buffer.Empty());
-    BOOST_CHECK(!buffer.Full());
-    BOOST_CHECK_EQUAL(readInterations, writeIterations);
+    EXPECT_TRUE(buffer.Empty());
+    EXPECT_FALSE(buffer.Full());
+    EXPECT_EQ(readInterations, writeIterations);
 }
 
-BOOST_AUTO_TEST_CASE(CircularBufferSwapping)
+TEST(ColbaltFusionLib, CircularBufferSwapping)
 {
     size_t testsize = 30;
     CircularBuffer buffer(testsize);
@@ -279,13 +272,13 @@ BOOST_AUTO_TEST_CASE(CircularBufferSwapping)
     buffer.WriteStringZ("test");
     buffer2.WriteStringZ("test");
 
-    BOOST_REQUIRE_EQUAL(buffer.Size(), 10);
-    BOOST_REQUIRE_EQUAL(buffer2.Size(), 5);
+    ASSERT_EQ(buffer.Size(), 10);
+    ASSERT_EQ(buffer2.Size(), 5);
 
     buffer.Swap(buffer2);
 
-    BOOST_REQUIRE_EQUAL(buffer.Size(), 5);
-    BOOST_REQUIRE_EQUAL(buffer2.Size(), 10);
+    ASSERT_EQ(buffer.Size(), 5);
+    ASSERT_EQ(buffer2.Size(), 10);
 }
 
 std::ostream& operator<<(std::ostream& os, const std::chrono::steady_clock::duration& p)
@@ -294,19 +287,19 @@ std::ostream& operator<<(std::ostream& os, const std::chrono::steady_clock::dura
     return os << duration_cast<milliseconds>(p).count() << "ms";
 }
 
-BOOST_AUTO_TEST_CASE(RoundTripUnicodeTest)
+TEST(ColbaltFusionLib, RoundTripUnicodeTest)
 {
     std::wstring unicodeSample = L"Hello, 世界! é/Ω/€ 🚀";
     std::string s = Str(unicodeSample);
     std::wstring w = WStr(s);
-    BOOST_REQUIRE(w == unicodeSample);
+    ASSERT_EQ(w, unicodeSample);
 
     std::string sWithBom = "\xEF\xBB\xBF" + s;
     std::wstring wStripped = WStr(sWithBom);
-    BOOST_REQUIRE(wStripped == unicodeSample);
+    ASSERT_EQ(wStripped, unicodeSample);
 }
 
-BOOST_AUTO_TEST_CASE(ThrottleTest)
+TEST(ColbaltFusionLib, ThrottleTest)
 {
     using namespace std::chrono_literals;
     using namespace std::chrono;
@@ -351,16 +344,16 @@ BOOST_AUTO_TEST_CASE(ThrottleTest)
     auto lastDelta = lastexecutionTime - lastcallTime;
     std::cout << "Incoming: " << incomingCounter << " calls, Outgoing: " << outgoingCounter << " calls, over " << testtime << " = " << callsPerSecond << "cps\n";
     std::cout << "Last execution was " << lastDelta << " after last call.\n";
-    BOOST_CHECK_LT(callsPerSecond, testCPS);
-    BOOST_CHECK_GT(lastDelta.count(), 0);
+    EXPECT_LT(callsPerSecond, testCPS);
+    EXPECT_GT(lastDelta.count(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(TimerTest)
+TEST(ColbaltFusionLib, TimerTest)
 {
     Timer t;
 }
 
-BOOST_AUTO_TEST_CASE(SignalCallsSlotsInConnectionOrder)
+TEST(ColbaltFusionLib, SignalCallsSlotsInConnectionOrder)
 {
     Signal<void(int)> signal;
     std::vector<int> calls;
@@ -368,77 +361,77 @@ BOOST_AUTO_TEST_CASE(SignalCallsSlotsInConnectionOrder)
     signal.connect([&](int v) { calls.push_back(v * 10 + 2); });
     signal.connect([&](int v) { calls.push_back(v * 10 + 3); });
     signal(4);
-    BOOST_TEST((calls == std::vector<int>{41, 42, 43}));
+    EXPECT_EQ(calls, (std::vector<int>{41, 42, 43}));
 }
 
-BOOST_AUTO_TEST_CASE(SignalWithoutSlotsIsHarmless)
+TEST(ColbaltFusionLib, SignalWithoutSlotsIsHarmless)
 {
     Signal<void()> signal;
-    BOOST_TEST(signal.empty());
+    EXPECT_TRUE(signal.empty());
     signal();
 
     Signal<int()> withResult;
-    BOOST_TEST(withResult() == 0);
+    EXPECT_EQ(withResult(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(SignalReturnsTheResultOfTheLastSlot)
+TEST(ColbaltFusionLib, SignalReturnsTheResultOfTheLastSlot)
 {
     Signal<bool()> signal;
     signal.connect([] { return true; });
     signal.connect([] { return false; });
-    BOOST_TEST(!signal());
+    EXPECT_FALSE(signal());
     signal.connect([] { return true; });
-    BOOST_TEST(signal());
+    EXPECT_TRUE(signal());
 }
 
-BOOST_AUTO_TEST_CASE(SignalDisconnect)
+TEST(ColbaltFusionLib, SignalDisconnect)
 {
     Signal<void()> signal;
     int a = 0;
     int b = 0;
     auto ca = signal.connect([&] { ++a; });
     signal.connect([&] { ++b; });
-    BOOST_TEST(ca.connected());
+    EXPECT_TRUE(ca.connected());
 
     signal();
     ca.disconnect();
-    BOOST_TEST(!ca.connected());
+    EXPECT_FALSE(ca.connected());
     ca.disconnect(); // twice is fine
     signal();
 
-    BOOST_TEST(a == 1);
-    BOOST_TEST(b == 2);
+    EXPECT_EQ(a, 1);
+    EXPECT_EQ(b, 2);
 
     Connection none;
-    BOOST_TEST(!none.connected());
+    EXPECT_FALSE(none.connected());
     none.disconnect();
 }
 
-BOOST_AUTO_TEST_CASE(SignalDisconnectAllSlots)
+TEST(ColbaltFusionLib, SignalDisconnectAllSlots)
 {
     Signal<void()> signal;
     int calls = 0;
     auto c = signal.connect([&] { ++calls; });
     signal.disconnect_all_slots();
     signal();
-    BOOST_TEST(calls == 0);
-    BOOST_TEST(!c.connected());
-    BOOST_TEST(signal.empty());
+    EXPECT_EQ(calls, 0);
+    EXPECT_FALSE(c.connected());
+    EXPECT_TRUE(signal.empty());
 }
 
-BOOST_AUTO_TEST_CASE(SignalConnectionCanOutliveTheSignal)
+TEST(ColbaltFusionLib, SignalConnectionCanOutliveTheSignal)
 {
     Connection c;
     {
         Signal<void()> signal;
         c = signal.connect([] {});
-        BOOST_TEST(c.connected());
+        EXPECT_TRUE(c.connected());
     }
     c.disconnect();
-    BOOST_TEST(!c.connected());
+    EXPECT_FALSE(c.connected());
 }
 
-BOOST_AUTO_TEST_CASE(SignalSlotCanDisconnectItselfAndConnectOthers)
+TEST(ColbaltFusionLib, SignalSlotCanDisconnectItselfAndConnectOthers)
 {
     Signal<void()> signal;
     int first = 0;
@@ -451,14 +444,14 @@ BOOST_AUTO_TEST_CASE(SignalSlotCanDisconnectItselfAndConnectOthers)
     });
 
     signal();
-    BOOST_TEST(first == 1);
-    BOOST_TEST(added == 0);
+    EXPECT_EQ(first, 1);
+    EXPECT_EQ(added, 0);
     signal();
-    BOOST_TEST(first == 1);
-    BOOST_TEST(added == 1);
+    EXPECT_EQ(first, 1);
+    EXPECT_EQ(added, 1);
 }
 
-BOOST_AUTO_TEST_CASE(SignalConcurrentEmitAndConnect)
+TEST(ColbaltFusionLib, SignalConcurrentEmitAndConnect)
 {
     Signal<void()> signal;
     std::atomic<int> calls{0};
@@ -479,10 +472,8 @@ BOOST_AUTO_TEST_CASE(SignalConcurrentEmitAndConnect)
     stop = true;
     emitter1.join();
     emitter2.join();
-    BOOST_TEST(calls > 0);
-    BOOST_TEST(!signal.empty());
+    EXPECT_GT(calls, 0);
+    EXPECT_FALSE(signal.empty());
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace fusion
