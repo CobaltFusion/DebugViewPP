@@ -562,6 +562,14 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
     BOOST_TEST(lines.size() == 2);
 }
 
+// The DBWIN_BUFFER is shared by the whole machine, other programs (Teams, game launchers, ...) send their messages to it as well,
+// and those end up between the messages of the test. Only look at the messages of the process that is expected to send them.
+Lines OnlyFromProcess(Lines lines, DWORD pid)
+{
+    lines.erase(std::remove_if(lines.begin(), lines.end(), [pid](const Line& line) { return line.pid != pid; }), lines.end());
+    return lines;
+}
+
 BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
 {
     using namespace std::chrono_literals;
@@ -570,16 +578,20 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
     BOOST_TEST(std::filesystem::exists(dbgMsgSrc));
     auto executor = std::make_unique<ActiveExecutorClient>();
     Lines lines;
+    DWORD pid = 0;
     {
         LogSources logsources(*executor, true);
         executor->Call([&] { logsources.SetAutoNewLine(true); });
         executor->Call([&] { logsources.AddDBWinReader(false); });
-        Win32::Process(dbgMsgSrc.wstring(), L"-n").Wait();
+        Win32::Process process(dbgMsgSrc.wstring(), L"-n");
+        process.Wait();
+        pid = process.GetProcessId();
         executor->Call([&] { logsources.Abort(); });
         executor->Call([&] { lines = logsources.GetLines(); });
     }
     executor.reset();
 
+    lines = OnlyFromProcess(std::move(lines), pid);
     BOOST_TEST(lines.size() == 1);
 }
 
@@ -605,7 +617,7 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLines)
     }
     executor.reset();
 
-
+    lines = OnlyFromProcess(std::move(lines), ::GetCurrentProcessId());
     for (int i = 0; i < amountOfTestLines; ++i)
     {
         std::string message = stringbuilder() << i;
@@ -641,7 +653,7 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLongerLines)
     }
     executor.reset();
 
-
+    lines = OnlyFromProcess(std::move(lines), ::GetCurrentProcessId());
     for (int i = 0; i < amountOfTestLines; ++i)
     {
         std::string message = stringbuilder() << i << test_string << test_string;
@@ -790,6 +802,23 @@ BOOST_AUTO_TEST_CASE(LogSourceSecondDBWinReaderForSameNamespaceFails)
     executor->Call([&] { logsources.Abort(); });
 }
 
+// A source that was added is only known to LogSources when the listen thread has picked it up, wait for that. Nothing is sent
+// to the process as long as the result is 0, so this does not send the Enter more than once.
+int SendEnterToProcessReaders(ActiveExecutorClient& executor, LogSources& logsources)
+{
+    using namespace std::chrono_literals;
+    int sent = 0;
+    for (int attempt = 0; attempt < 50 && sent == 0; ++attempt)
+    {
+        executor.Call([&] { sent = logsources.SendEnterToProcessReaders(); });
+        if (sent == 0)
+        {
+            std::this_thread::sleep_for(20ms);
+        }
+    }
+    return sent;
+}
+
 // #293: a process that waits for an Enter (or a batch file with 'pause') must be able to get one
 BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSendsEnterToStdin)
 {
@@ -802,9 +831,7 @@ BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSendsEnterToStdin)
     // 'set /p' waits until a line is entered
     executor->Call([&] { logsources.AddProcessReader(L"cmd.exe", L"/Q /C \"set /p dummy=& echo got-the-enter\""); });
 
-    int sent = 0;
-    executor->Call([&] { sent = logsources.SendEnterToProcessReaders(); });
-    BOOST_TEST(sent == 1);
+    BOOST_TEST(SendEnterToProcessReaders(*executor, logsources) == 1);
 
     bool received = false;
     for (int attempt = 0; attempt < 40 && !received; ++attempt)
@@ -863,11 +890,7 @@ BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSingleEnterSatisfiesSinglePause)
             }
         }
     };
-    auto sendEnter = [&] {
-        int sent = 0;
-        executor->Call([&] { sent = logsources.SendEnterToProcessReaders(); });
-        return sent;
-    };
+    auto sendEnter = [&] { return SendEnterToProcessReaders(*executor, logsources); };
 
     collect("start", 5s);
     BOOST_TEST(hasMessage("start"));
@@ -919,9 +942,14 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
     const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
     BOOST_TEST(elapsed.count() >= ((messageCount - 1) * delay - 10ms).count());
 
-    // the messages themselves are all delivered
-    auto lines = WaitForLines(*executor, logsources, messageCount);
-    BOOST_TEST(lines.size() == messageCount);
+    // the messages themselves are all delivered (other programs may send messages too, only count those of this process)
+    Lines lines;
+    for (int attempt = 0; attempt < 40 && OnlyFromProcess(lines, ::GetCurrentProcessId()).size() < messageCount; ++attempt)
+    {
+        auto received = WaitForLines(*executor, logsources, 1, 100ms);
+        lines.insert(lines.end(), received.begin(), received.end());
+    }
+    BOOST_TEST(OnlyFromProcess(lines, ::GetCurrentProcessId()).size() == messageCount);
 
     // no delay: the sender is not slowed down anymore
     pReader->SetDelay(0ms);
