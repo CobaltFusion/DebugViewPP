@@ -255,6 +255,7 @@ private:
     Win32::JobObject m_jobs;
     Win32::Handle m_httpMonitorHandle;
     std::deque<Lines> m_incomingMessages;
+    bool m_updateContinuationPending = false; // a follow-up of OnUpdate is scheduled, see OnUpdate
     int m_showCmd = SW_SHOWDEFAULT;
     std::string m_driverLocation = GetDebugviewDriverLocation();
 };

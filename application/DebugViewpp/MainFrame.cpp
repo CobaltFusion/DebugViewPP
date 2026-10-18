@@ -573,9 +573,16 @@ bool CMainFrame::OnUpdate()
     auto linesbucket = std::move(m_incomingMessages.front());
     m_incomingMessages.pop_front();
     ProcessLines(linesbucket);
-    if (!m_incomingMessages.empty())
+    // At most one follow-up may be scheduled. OnUpdate is also called by the throttle of the log sources, and every call that found more
+    // lines waiting would otherwise start another chain of follow-ups that never ends while lines keep coming. After a few seconds of
+    // heavy output the GUI thread would spend all its time in OnUpdate.
+    if (!m_incomingMessages.empty() && !m_updateContinuationPending)
     {
-        m_GuiExecutorClient->CallAfter(20ms, [this] { OnUpdate(); });
+        m_updateContinuationPending = true;
+        m_GuiExecutorClient->CallAfter(20ms, [this] {
+            m_updateContinuationPending = false;
+            OnUpdate();
+        });
     }
 
     return true;
