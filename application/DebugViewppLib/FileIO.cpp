@@ -6,7 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
+#include "CobaltFusion/StringUtil.h"
 #include "Win32/Win32Lib.h"
 #include "Win32/Utilities.h"
 #include "CobaltFusion/stringbuilder.h"
@@ -144,25 +144,25 @@ FileType::type IdentifyFile(const std::wstring& filename)
     }
 
     // first we check for our own header
-    auto trimmed = boost::trim_copy_if(line, boost::is_any_of(" \r\n\t"));
-    if (boost::ends_with(trimmed, g_debugViewPPIdentification1))
+    auto trimmed = TrimCopy(line, " \r\n\t");
+    if (EndsWith(trimmed, g_debugViewPPIdentification1))
     {
         return FileType::DebugViewPP1;
     }
-    if (boost::ends_with(trimmed, g_debugViewPPIdentification2))
+    if (EndsWith(trimmed, g_debugViewPPIdentification2))
     {
         return FileType::DebugViewPP2;
     }
 
     // if the extension is .txt (and we did not find our own header)
     // we say it is an ascii-file.
-    if (boost::iends_with(filename, ".txt"))
+    if (IEndsWith(filename, ".txt"))
     {
         return FileType::AsciiText;
     }
 
     // .log files are potentially sysinternals dbgview files
-    if (boost::iends_with(filename, ".log"))
+    if (IEndsWith(filename, ".log"))
     {
         // to test for sysinternals debugview-logfiles, we need to check the second line
         // since the first line contains the computer-name in some cases (depending on how it was saved)
@@ -347,7 +347,7 @@ std::string GetOffsetText(double time) // todo: use libfmt ? consider speed here
 
 void WriteLogFileMessage(std::ofstream& ofstream, double time, FILETIME filetime, DWORD pid, const std::string& processName, std::string message)
 {
-    boost::trim_right_if(message, boost::is_any_of(" \r\n\t"));
+    TrimRight(message, " \r\n\t");
     ofstream << GetOffsetText(time) << "\t" << GetDateTimeText(filetime) << "\t" << pid << "\t" << processName << "\t" << message << "\n";
 }
 

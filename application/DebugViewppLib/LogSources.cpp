@@ -7,7 +7,6 @@
 #include <cassert>
 #include <iostream>
 #include <chrono>
-#include <boost/algorithm/string.hpp>
 #include "CobaltFusion/stringbuilder.h"
 #include "CobaltFusion/thread.h"
 #include "CobaltFusion/fusionassert.h"

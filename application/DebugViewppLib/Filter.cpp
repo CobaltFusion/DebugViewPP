@@ -4,7 +4,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <algorithm>
-#include <boost/algorithm/string/case_conv.hpp>
+#include "CobaltFusion/StringUtil.h"
 #include "Win32/Registry.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugViewppLib/Colors.h"
@@ -25,11 +25,11 @@ std::string MatchKey(const std::smatch& match, MatchType::type matchType)
             {
                 key.append(1, '\0');
             }
-            key += boost::to_lower_copy(it->str());
+            key += ToLower(it->str());
         }
         return key;
     }
-    return boost::to_lower_copy(match.str());
+    return ToLower(match.str());
 }
 
 Filter::Filter() :
