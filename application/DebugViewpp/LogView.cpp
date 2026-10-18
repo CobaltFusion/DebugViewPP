@@ -24,7 +24,6 @@
 #include <iomanip>
 #include <limits>
 #include <array>
-#include <regex>
 #include <unordered_set>
 #include <algorithm>
 #include <numeric>
@@ -943,9 +942,33 @@ void InsertHighlight(std::vector<Highlight>& highlights, std::wstring_view text,
     }
 }
 
+// For every byte of the UTF-8 text, the index of the character it is part of in the UTF-16 text (and one more for the end).
+std::vector<int> Utf8ToWideIndex(const std::string& utf8)
+{
+    std::vector<int> index;
+    index.reserve(utf8.size() + 1);
+    int wide = 0;
+    int current = 0;
+    for (unsigned char c : utf8)
+    {
+        if ((c & 0xC0) != 0x80) // not a continuation byte: the start of a character
+        {
+            current = wide;
+            wide += c >= 0xF0 ? 2 : 1; // characters outside the BMP are 2 wide characters
+        }
+        index.push_back(current);
+    }
+    index.push_back(wide);
+    return index;
+}
+
 std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
 {
     std::vector<Highlight> highlights;
+
+    // the filters work on UTF-8, the text of the view is UTF-16: search in the UTF-8 text, the positions are converted back
+    std::string narrow;
+    std::vector<int> wideIndex;
 
     int highlightId = 1;
     for (auto& filter : m_filter.messageFilters)
@@ -955,30 +978,33 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
             continue;
         }
 
-        const wchar_t* testEnd = text.data() + text.size();
-        std::wstring pattern = WStr(MakePattern(filter.matchType, filter.text));
-        std::wregex re(pattern);
-
-        std::wcregex_iterator begin(text.data(), testEnd, re);
-        std::wcregex_iterator end;
-        int id = ++highlightId;
-        for (auto tok = begin; tok != end; ++tok)
+        if (wideIndex.empty())
         {
-            int first = 0;
-            int count = 1;
-            if (tok->size() > 1 && filter.matchType == MatchType::RegexGroups)
+            narrow = Str(text).str();
+            wideIndex = Utf8ToWideIndex(narrow);
+        }
+
+        int id = ++highlightId;
+        filter.re.ForEachMatch(narrow, [&](const RegexMatch& match) {
+            size_t first = 0;
+            size_t count = 1;
+            if (match.size() > 1 && filter.matchType == MatchType::RegexGroups)
             {
                 first = 1;
-                count = static_cast<int>(tok->size());
+                count = match.size();
             }
-            for (int i = first; i < count; ++i)
+            for (size_t i = first; i < count; ++i)
             {
-                int beginIndex = ExpandedTabOffset(text, static_cast<int>(tok->position(i)));
-                int endIndex = ExpandedTabOffset(text, static_cast<int>(tok->position(i) + tok->length(i)));
+                if (!match.Matched(i))
+                {
+                    continue;
+                }
+                int beginIndex = ExpandedTabOffset(text, wideIndex[match.Position(i)]);
+                int endIndex = ExpandedTabOffset(text, wideIndex[match.Position(i) + match.Length(i)]);
 
                 if (filter.bgColor == Colors::Auto)
                 {
-                    auto itc = m_matchColors.find(Str(tok->str(i)));
+                    auto itc = m_matchColors.find(ToLower(std::string(match.Group(i)))); // the keys are in lower case, see MatchKey
                     if (itc != m_matchColors.end())
                     {
                         InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(Colors::Adapt(itc->second), Colors::TextOn(Colors::Adapt(itc->second)))));
@@ -989,7 +1015,7 @@ std::vector<Highlight> CLogView::GetHighlights(std::wstring_view text) const
                     InsertHighlight(highlights, Highlight(id, beginIndex, endIndex, TextColor(filter.bgColor, filter.fgColor)));
                 }
             }
-        }
+        });
     }
 
     InsertHighlight(highlights, text, m_highlightText, TextColor(Colors::Highlight, Colors::TextOn(Colors::Highlight)));
@@ -2475,8 +2501,8 @@ TextColor CLogView::GetTextColor(const Message& msg) const
     auto messageFilters = MoveHighlighFiltersToFront(m_filter.messageFilters);
     for (auto& filter : messageFilters)
     {
-        std::smatch match;
-        if (filter.enable && FilterSupportsColor(filter.filterType) && std::regex_search(msg.text, match, filter.re))
+        RegexMatch match;
+        if (filter.enable && FilterSupportsColor(filter.filterType) && filter.re.Search(msg.text, match))
         {
             if (filter.bgColor == Colors::Auto)
             {
@@ -2496,7 +2522,7 @@ TextColor CLogView::GetTextColor(const Message& msg) const
     auto processFilters = MoveHighlighFiltersToFront(m_filter.processFilters);
     for (auto& filter : processFilters)
     {
-        if (filter.enable && FilterSupportsColor(filter.filterType) && std::regex_search(msg.processName, filter.re))
+        if (filter.enable && FilterSupportsColor(filter.filterType) && filter.re.Search(msg.processName))
         {
             return TextColor(filter.bgColor, filter.fgColor);
         }

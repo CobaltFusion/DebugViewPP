@@ -7,11 +7,11 @@
 
 #include "MatchType.h"
 #include "FilterType.h"
+#include "Regex.h"
 
 #include "atlbase.h"
 
 #include <string>
-#include <regex>
 #include <vector>
 #include <unordered_map>
 
@@ -26,7 +26,7 @@ struct Filter
     Filter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, bool matched = false);
 
     std::string text;
-    std::regex re;
+    Regex re;
     MatchType::type matchType;
     FilterType::type filterType;
     COLORREF bgColor;
@@ -53,7 +53,7 @@ bool SameDefinition(const LogFilter& a, const LogFilter& b);
 bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColors& matchColors);
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
 
-std::string MatchKey(const std::smatch& match, MatchType::type matchType);
+std::string MatchKey(const RegexMatch& match, MatchType::type matchType);
 
 // Temporary backward compatibilty for loading FilterType::MatchColor:
 Filter MakeFilter(const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bgColor = RGB(255, 255, 255), COLORREF fgColor = RGB(0, 0, 0), bool enable = true, bool matched = false);

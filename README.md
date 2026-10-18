@@ -4,6 +4,7 @@
 
 ## Debugview++ v1.31 (unreleased)
 
+- the regular expressions of the filters are PCRE2 instead of std::regex: lookbehind works, `(?<=id=)\d+` highlights only the number after `id=` (fixes #411), and so do lookahead, named groups and possessive quantifiers. Filtering is about 3 times faster (150000 lines in 60 ms instead of 200 ms). A pattern that backtracks without end no longer freezes the window, it counts as 'no match'. Patterns are written as before, except for the rare differences between the two syntaxes (an invalid pattern is reported when you press OK in the filter dialog, with the position of the problem), see the [PCRE2 syntax](https://www.pcre.org/current/doc/html/pcre2syntax.html). Highlighting of token filters is case insensitive like the filter itself.
 - fixed: after 'Reset View to this line' the offset time (the Time column when it does not show the clock time) is relative to that line, it starts at 0.000000 again (fixes #282)
 
 ## Debugview++ v1.30
@@ -197,7 +198,7 @@ Screenshot demonstrating bookmarks and highlighting features.
 - regex (highlight filter): `Unittest` lines with the word 'Unittest' have a lightgreen background
 - a doubleclick on 'bytes' causes all instances of 'bytes' to highlight in yellow
 
-See http://www.cplusplus.com/reference/regex/ECMAScript/ for all options for supported regular expressions
+See https://www.pcre.org/current/doc/html/pcre2syntax.html for all options for supported regular expressions (PCRE2: lookbehind, lookahead, named groups, ...)
 
 **Android ADB example**:
 
@@ -305,7 +306,7 @@ This project has a special configuration:
 
 The projects are configured to use Nuget to get there dependencies (WTL and Snappy). The unit tests use [GoogleTest](https://github.com/google/googletest),
 CMake downloads it when it configures the project (a release tag, pinned in CMakeLists.txt), so the first configure needs internet access.
-[nlohmann/json](https://github.com/nlohmann/json) and [pugixml](https://pugixml.org) are included in application/Libraries.
+[nlohmann/json](https://github.com/nlohmann/json), [pugixml](https://pugixml.org) and [PCRE2](https://github.com/PCRE2Project/pcre2) are included in application/Libraries.
 However, to build the installer you have to install [Wix Toolset manually](http://wixtoolset.org/)
 
 ## Running the tests

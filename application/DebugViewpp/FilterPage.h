@@ -15,7 +15,6 @@
 #include "atleverything.h"
 #include "CommCtrl.h"
 
-#include <regex>
 #include <vector>
 
 namespace fusion {

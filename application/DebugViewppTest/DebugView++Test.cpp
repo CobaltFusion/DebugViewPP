@@ -892,6 +892,13 @@ TEST(DebugViewPlusPlusTest, RegexGroups)
     EXPECT_FALSE(match.Matched(4));
     EXPECT_EQ(match.Group(4), "");
     EXPECT_EQ(match.Length(4), 0u);
+
+    // MatchKey of RegexGroups: the groups, lower case, and of the others: the whole match
+    EXPECT_EQ(MatchKey(match, MatchType::RegexGroups), std::string("name\0" "42\0\0", 9)); // a group that did not take part is empty
+    EXPECT_EQ(MatchKey(match, MatchType::Regex), "name=42");
+    RegexMatch noGroups;
+    EXPECT_TRUE(Regex("ABC", true).Search("xAbCx", noGroups));
+    EXPECT_EQ(MatchKey(noGroups, MatchType::RegexGroups), "abc");
 }
 
 TEST(DebugViewPlusPlusTest, RegexSearchFromAnOffset)
@@ -986,6 +993,36 @@ TEST(DebugViewPlusPlusTest, RegexThatBacktracksWithoutEndIsNoMatch)
     const auto start = std::chrono::steady_clock::now();
     EXPECT_FALSE(Regex("^(a+)+b", true).Search(std::string(60, 'a') + "c"));
     EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::seconds(5));
+}
+
+// the filters use the regular expressions
+TEST(DebugViewPlusPlusTest, FilterWithLookbehind)
+{
+    std::vector<Filter> include;
+    include.push_back(MakeFilter(R"((?<=user=)admin)", MatchType::Regex, FilterType::Include));
+    MatchColors colors;
+    EXPECT_TRUE(IsIncluded(include, "login user=admin ok", colors));
+    EXPECT_FALSE(IsIncluded(include, "login admin ok", colors));
+
+    std::vector<Filter> exclude;
+    exclude.push_back(MakeFilter(R"((?<!not )interesting)", MatchType::Regex, FilterType::Exclude));
+    EXPECT_FALSE(IsIncluded(exclude, "this is interesting", colors));
+    EXPECT_TRUE(IsIncluded(exclude, "this is not interesting", colors));
+
+    // a token filter with an automatic color: one color per value, here the value after 'id='
+    std::vector<Filter> token;
+    token.push_back(MakeFilter(R"((?<=id=)\d+)", MatchType::Regex, FilterType::Token, Colors::Auto, Colors::Auto));
+    MatchColors tokenColors;
+    EXPECT_TRUE(IsIncluded(token, "id=12 id=34 id=12", tokenColors));
+    EXPECT_EQ(tokenColors.size(), 2u);
+    EXPECT_TRUE(tokenColors.count("12"));
+    EXPECT_TRUE(tokenColors.count("34"));
+
+    std::vector<Filter> groups;
+    groups.push_back(MakeFilter(R"((\w+)@(\w+))", MatchType::RegexGroups, FilterType::Token, Colors::Auto, Colors::Auto));
+    MatchColors groupColors;
+    EXPECT_TRUE(IsIncluded(groups, "mail a@b and A@B", groupColors));
+    EXPECT_EQ(groupColors.size(), 1u); // the key is the groups in lower case
 }
 
 TEST(DebugViewPlusPlusTest, FilterSameDefinition)
