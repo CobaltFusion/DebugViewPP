@@ -14,7 +14,7 @@
 #include "DebugViewppLib/LogFilter.h"
 #include "resource.h"
 
-#include <boost/algorithm/string.hpp>
+#include "CobaltFusion/StringUtil.h"
 
 #include <utility>
 #include <atlstr.h>
@@ -227,12 +227,12 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 
     auto ext = GetFileNameExt(dlg.m_szFileName);
     auto fileName = Str(dlg.m_szFileName).str();
-    if (boost::iequals(ext, L"json"))
+    if (IEquals(ext, L"json"))
     {
         SaveJson(fileName, Str(name), filter);
     }
     else
-    { /* if (boost::iequals(ext, L"xml")) */
+    { /* if (IEquals(ext, L"xml")) */
         SaveXml(fileName, Str(name), filter);
     }
 }
@@ -265,12 +265,12 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
     auto ext = GetFileNameExt(dlg.m_szFileName);
     auto fileName = Str(dlg.m_szFileName).str();
     FilterData data;
-    if (boost::iequals(ext, L"json"))
+    if (IEquals(ext, L"json"))
     {
         data = LoadJson(fileName);
     }
     else
-    { /* if (boost::iequals(ext, L"xml")) */
+    { /* if (IEquals(ext, L"xml")) */
         data = LoadXml(fileName);
     }
 

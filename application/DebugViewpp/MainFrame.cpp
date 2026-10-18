@@ -14,7 +14,7 @@
 #include <cstdio>
 
 #include <boost/optional.hpp>
-#include <boost/algorithm/string.hpp>
+#include "CobaltFusion/StringUtil.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
@@ -628,13 +628,12 @@ void CMainFrame::OnContextMenu(HWND hWnd, CPoint pt)
 void CMainFrame::HandleDroppedFile(const std::wstring& file)
 {
     SetTitle(file);
-    using boost::algorithm::iequals;
     auto ext = std::filesystem::path(file).extension().wstring();
-    if (iequals(ext, L".exe"))
+    if (IEquals(ext, L".exe"))
     {
         Run(file);
     }
-    else if (iequals(ext, L".cmd") || iequals(ext, L".bat"))
+    else if (IEquals(ext, L".cmd") || IEquals(ext, L".bat"))
     {
         m_logSources.AddProcessReader(L"cmd.exe", wstringbuilder() << L"/Q /C \"" << file << "\"");
     }

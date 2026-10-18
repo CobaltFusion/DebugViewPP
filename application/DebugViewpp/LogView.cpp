@@ -19,7 +19,7 @@
 
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib") // SetWindowTheme
-#include <boost/algorithm/string.hpp>
+#include "CobaltFusion/StringUtil.h"
 #include <boost/property_tree/ptree.hpp>
 
 #include <iomanip>
@@ -923,18 +923,23 @@ void InsertHighlight(std::vector<Highlight>& highlights, const Highlight& highli
 
 void InsertHighlight(std::vector<Highlight>& highlights, std::wstring_view text, std::wstring match, TextColor color)
 {
-    auto line = boost::make_iterator_range(text);
+    if (match.empty())
+    {
+        return; // nothing to highlight
+    }
+
+    size_t pos = 0;
     for (;;)
     {
-        auto range = boost::algorithm::ifind_first(line, match);
-        if (range.empty())
+        const size_t found = IFind(text, match, pos);
+        if (found == std::wstring_view::npos)
         {
             break;
         }
-        int begin = ExpandedTabOffset(text, static_cast<int>(range.begin() - text.begin()));
-        int end = ExpandedTabOffset(text, static_cast<int>(range.end() - text.begin()));
+        int begin = ExpandedTabOffset(text, static_cast<int>(found));
+        int end = ExpandedTabOffset(text, static_cast<int>(found + match.size()));
         InsertHighlight(highlights, Highlight(1, begin, end, color));
-        line = boost::make_iterator_range(range.end(), line.end());
+        pos = found + match.size(); // the next match is after this one
     }
 }
 
@@ -1273,7 +1278,7 @@ SelectionInfo CLogView::GetViewRange() const
 
 bool Contains(const std::string& text, const std::string& substring)
 {
-    return !boost::algorithm::ifind_first(text, substring).empty();
+    return !substring.empty() && IContains(text, substring); // an empty text is never found
 }
 
 LRESULT CLogView::OnIncrementalSearch(NMHDR* pnmh)

@@ -5,7 +5,7 @@
 
 #include "MainFrame.h"
 
-#include <boost/algorithm/string.hpp>
+#include "CobaltFusion/StringUtil.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/hstream.h"
 #include "CobaltFusion/fusionassert.h"
@@ -156,20 +156,20 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 
     for (size_t i = 1; i < args.size(); ++i)
     {
-        if (boost::iequals(args[i], L"/min"))
+        if (IEquals(args[i], L"/min"))
         {
             cmdShow = SW_MINIMIZE;
         }
-        else if (boost::iequals(args[i], L"/log"))
+        else if (IEquals(args[i], L"/log"))
         {
             // wndMain.SetLogging();        // todo: implement: FileWriter needs to concurrently access m_logfile, it now causes a crash if DbgMsgSrc -1 is run
             //  this should be replaced by the new streaming-to-disk feature we discussed.
         }
-        else if (boost::icontains(args[i], L"/tab:"))
+        else if (IContains(args[i], L"/tab:"))
         {
             selectTabName = args[i].substr(5);
         }
-        else if (boost::istarts_with(args[i], L"/delay:"))
+        else if (IStartsWith(args[i], L"/delay:"))
         {
             // delay the processes that call OutputDebugString(), in milliseconds
             try
@@ -198,7 +198,7 @@ int Main(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPWSTR /*lpstrCmdLine
 
     wndMain.SetDelay(delay);
     wndMain.ShowWindow(cmdShow == SW_SHOWDEFAULT ? wndMain.GetShowCommand() : cmdShow);
-    if (boost::algorithm::iends_with(fileName, ".dbconf"))
+    if (IEndsWith(fileName, ".dbconf"))
     {
         wndMain.LoadConfiguration(fileName);
     }
