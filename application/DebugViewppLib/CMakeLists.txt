@@ -4,6 +4,7 @@ add_library(${PROJECT_NAME}
     AnyFileReader.cpp
     BinaryFileReader.cpp
     Colors.cpp
+    ConfigFile.cpp
     Conversions.cpp
     CTimelineView.cpp
     DbgviewReader.cpp

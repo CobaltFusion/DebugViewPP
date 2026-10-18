@@ -14,7 +14,7 @@ like these exist on the machines of users, so they must stay readable, whatever 
 Things to know when reading them:
 
 - Line endings are CRLF, the text is UTF-8, boost wrote `&quot;` and `&apos;` as well as `&amp;`, `&lt;`, `&gt;`.
-- A color that is automatic is an XML attribute: `<BackColor Auto="true"/>` (in JSON `"BackColor": {"Auto": "true"}`).
+- A color that is automatic is an XML attribute: `<BackColor Auto="true"/>` (in JSON `"BackColor": {"<xmlattr>": {"Auto": "true"}}`).
 - **The JSON is not valid JSON in the strict sense:** a list of filters is written as the key `"Filter"` repeated inside one object (property_tree has no arrays here), and
   every value is a string (`"true"`, `"255"`). A standard JSON parser keeps only the last `"Filter"`, so a reader of this file has to collect the duplicate keys.
 - In `session_saved_by_app.dbconf` the order of a column is its position in the header (columns that are not shown are skipped), and a view without a `Columns` element in the input gets one when it is saved.

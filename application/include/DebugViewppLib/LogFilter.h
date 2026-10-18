@@ -6,6 +6,7 @@
 #pragma once
 
 #include <boost/property_tree/ptree_fwd.hpp>
+#include <filesystem>
 #include "Filter.h"
 
 namespace fusion {
@@ -26,10 +27,11 @@ std::vector<Filter> MakeFilters(const boost::property_tree::ptree& pt);
 std::string FilterDataToJson(const FilterData& data);
 FilterData FilterDataFromJson(const std::string& text);
 
-void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter);
-void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter);
-FilterData LoadXml(const std::string& fileName);
-FilterData LoadJson(const std::string& fileName);
+// Filter files are JSON. Files that older versions wrote (XML, or JSON of property_tree) are still read: they are converted, see
+// ConvertLegacyFile: the old file is renamed to <name>.archived and the JSON is written next to it as <name>.json.
+// 'message' tells what was converted (or why not), it is empty when nothing was converted. Throws std::runtime_error when the file can not be read.
+FilterData LoadFilterFile(const std::filesystem::path& fileName, std::string& message);
+void SaveFilterFile(const std::filesystem::path& fileName, const std::string& name, const LogFilter& filter);
 
 } // namespace debugviewpp
 } // namespace fusion

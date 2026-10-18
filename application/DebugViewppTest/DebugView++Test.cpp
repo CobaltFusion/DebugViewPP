@@ -38,6 +38,7 @@
 #include "CobaltFusion/StringUtil.h"
 #include "DebugViewppLib/DbgviewReader.h"
 #include "Win32/TcpStream.h"
+#include "DebugViewppLib/ConfigFile.h"
 #include "DebugViewppLib/LegacyConfig.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
@@ -412,7 +413,8 @@ BOOST_AUTO_TEST_CASE(LegacyFilterFilesCanBeLoaded)
     for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
     {
         BOOST_TEST_MESSAGE(file);
-        const auto data = file.ends_with(".json") ? LoadJson(TestDataFile(file)) : LoadXml(TestDataFile(file));
+        const auto text = ReadTextFile(TestDataFile(file));
+        const auto data = file.ends_with(".json") ? FilterDataFromLegacyJson(text) : FilterDataFromLegacyXml(text);
         BOOST_TEST(data.name == "Überblick: errors & warnings");
 
         const auto& messageFilters = data.filter.messageFilters;
@@ -496,23 +498,19 @@ BOOST_AUTO_TEST_CASE(FilterDataJsonDefaultsAndErrors)
     BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include", "backColor": {"r": 300, "g": 0, "b": 0}}]})"), std::runtime_error);
 }
 
-// the readers of the legacy files give the same as the code that wrote them (property_tree), for the golden files
-BOOST_AUTO_TEST_CASE(LegacyFilterReadersMatchTheFilesOfTheOldVersion)
+// the legacy readers and the files of the old version: what is in the golden files
+BOOST_AUTO_TEST_CASE(LegacyFilterReadersKeepAutoColorAndSpecialCharacters)
 {
     for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
     {
         BOOST_TEST_MESSAGE(file);
-        std::ifstream stream(TestDataFile(file), std::ios::binary);
-        const std::string text((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        const auto text = ReadTextFile(TestDataFile(file));
         BOOST_REQUIRE(!text.empty());
 
-        const auto expected = file.ends_with(".json") ? LoadJson(TestDataFile(file)) : LoadXml(TestDataFile(file));
         const auto data = file.ends_with(".json") ? FilterDataFromLegacyJson(text) : FilterDataFromLegacyXml(text);
         BOOST_TEST(data.name == "Überblick: errors & warnings");
-        BOOST_TEST(data.name == expected.name);
         BOOST_REQUIRE(data.filter.messageFilters.size() == 10);
         BOOST_REQUIRE(data.filter.processFilters.size() == 2);
-        BOOST_TEST(SameDefinition(data.filter, expected.filter));
         BOOST_TEST(data.filter.messageFilters[3].bgColor == Colors::Auto);
         BOOST_TEST(data.filter.messageFilters[2].text == "a & b <c> \"quoted\" 'single'");
         BOOST_TEST(!data.filter.messageFilters[2].enable);
@@ -546,6 +544,123 @@ BOOST_AUTO_TEST_CASE(LegacyReadersHandleMalformedInput)
     BOOST_TEST(spaces.filter.messageFilters[0].text == " ");
     BOOST_TEST(spaces.filter.messageFilters[0].bgColor == RGB(1, 2, 3));
     BOOST_TEST(spaces.filter.messageFilters[0].fgColor == Colors::Auto);
+}
+
+// Filter files are JSON. A file of an older version is converted when it is loaded, and the old file is kept as .archived
+struct TempDirectory
+{
+    TempDirectory() :
+        path(std::filesystem::temp_directory_path() / ("dvpp_test_" + std::to_string(GetCurrentProcessId()) + "_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())))
+    {
+        std::filesystem::create_directories(path);
+    }
+
+    ~TempDirectory()
+    {
+        std::error_code ignored;
+        std::filesystem::remove_all(path, ignored);
+    }
+
+    std::filesystem::path path;
+};
+
+std::string ReadWholeFile(const std::filesystem::path& file)
+{
+    std::ifstream stream(file, std::ios::binary);
+    return std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+}
+
+BOOST_AUTO_TEST_CASE(LegacyFilterFileIsConvertedWhenLoaded)
+{
+    for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
+    {
+        BOOST_TEST_MESSAGE(file);
+        TempDirectory dir;
+        const auto source = dir.path / file;
+        std::filesystem::copy_file(TestDataFile(file), source);
+        const auto original = ReadWholeFile(source);
+        const auto target = dir.path / "filters_legacy.json";
+
+        std::string message;
+        const auto data = LoadFilterFile(source, message);
+        BOOST_TEST(data.filter.messageFilters.size() == 10);
+        BOOST_TEST(!message.empty());
+
+        // the old file is still there, byte for byte, under another name
+        const auto archived = std::filesystem::path(source.string() + ".archived");
+        BOOST_REQUIRE(std::filesystem::exists(archived));
+        BOOST_TEST(ReadWholeFile(archived) == original);
+
+        // and the filters are JSON now, that loads without a conversion
+        BOOST_REQUIRE(std::filesystem::exists(target));
+        BOOST_TEST((DetectConfigFormat(ReadWholeFile(target)) == ConfigFormat::Json));
+        std::string secondMessage;
+        const auto again = LoadFilterFile(target, secondMessage);
+        BOOST_TEST(secondMessage.empty());
+        BOOST_TEST(again.name == data.name);
+        BOOST_TEST(SameDefinition(again.filter, data.filter));
+        BOOST_TEST(again.filter.messageFilters[3].bgColor == Colors::Auto);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(LegacyFilterFileIsNotConvertedOverAnExistingFile)
+{
+    TempDirectory dir;
+    const auto source = dir.path / "filters.xml";
+    const auto target = dir.path / "filters.json";
+    std::filesystem::copy_file(TestDataFile("filters_legacy.xml"), source);
+    { std::ofstream(target) << "precious"; }
+
+    std::string message;
+    const auto data = LoadFilterFile(source, message);
+    BOOST_TEST(data.filter.messageFilters.size() == 10); // still loaded
+    BOOST_TEST(!message.empty());
+    BOOST_TEST(std::filesystem::exists(source)); // and nothing was renamed or overwritten
+    BOOST_TEST(!std::filesystem::exists(source.string() + ".archived"));
+    BOOST_TEST(ReadWholeFile(target) == "precious");
+}
+
+BOOST_AUTO_TEST_CASE(ArchiveNamesAreNumberedAndTheLegacyContentIsNeverLost)
+{
+    TempDirectory dir;
+    const auto file = dir.path / "x.dbconf";
+    { std::ofstream(file) << "<first/>"; }
+    { std::ofstream(dir.path / "x.dbconf.archived") << "<older/>"; }
+
+    const auto message = ConvertLegacyFile(file, file, "{}");
+    BOOST_TEST(!message.empty());
+    BOOST_TEST(ReadWholeFile(file) == "{}");
+    BOOST_TEST(ReadWholeFile(dir.path / "x.dbconf.archived") == "<older/>");
+    BOOST_TEST(ReadWholeFile(dir.path / "x.dbconf.archived2") == "<first/>");
+    BOOST_TEST(!std::filesystem::exists(dir.path / "x.dbconf.new"));
+
+    // a target in a folder that does not exist: reported, and the legacy file stays where it is
+    { std::ofstream(dir.path / "y.xml") << "<y/>"; }
+    const auto failed = ConvertLegacyFile(dir.path / "y.xml", dir.path / "nowhere" / "y.json", "{}");
+    BOOST_TEST(!failed.empty());
+    BOOST_TEST(ReadWholeFile(dir.path / "y.xml") == "<y/>");
+}
+
+BOOST_AUTO_TEST_CASE(FilterFilesSaveAndLoad)
+{
+    TempDirectory dir;
+    LogFilter filter;
+    filter.messageFilters.push_back(MakeFilter("Überblick", MatchType::Simple, FilterType::Include, RGB(1, 2, 3), Colors::Auto));
+    const auto file = dir.path / "mine.json";
+    SaveFilterFile(file, "näme", filter);
+    BOOST_TEST((DetectConfigFormat(ReadWholeFile(file)) == ConfigFormat::Json));
+
+    std::string message;
+    const auto data = LoadFilterFile(file, message);
+    BOOST_TEST(message.empty());
+    BOOST_TEST(data.name == "näme");
+    BOOST_TEST(SameDefinition(data.filter, filter));
+
+    BOOST_CHECK_THROW(LoadFilterFile(dir.path / "missing.json", message), std::runtime_error);
+    { std::ofstream(dir.path / "other.json") << "{\"something\": 1}"; }
+    BOOST_CHECK_THROW(LoadFilterFile(dir.path / "other.json", message), std::runtime_error);
+    { std::ofstream(dir.path / "text.json") << "just text"; }
+    BOOST_CHECK_THROW(LoadFilterFile(dir.path / "text.json", message), std::runtime_error);
 }
 
 // the .dbconf files of the application: what is in them (the views, their filters and columns, the sources)

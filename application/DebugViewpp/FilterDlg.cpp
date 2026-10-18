@@ -195,20 +195,9 @@ void CFilterDlg::SelectTab(int tab)
     m_processPage.ShowWindow(tab == 1 ? SW_SHOW : SW_HIDE);
 }
 
-std::wstring GetFileNameExt(const std::wstring& fileName)
-{
-    auto it = fileName.find_last_of('.');
-    if (it == std::wstring::npos)
-    {
-        return std::wstring();
-    }
-    return fileName.substr(it + 1);
-}
-
 void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
-    CFileDialog dlg(0, L".xml", m_name.c_str(), OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY,
-        L"XML Files (*.xml)\0*.xml\0"
+    CFileDialog dlg(0, L".json", m_name.c_str(), OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY,
         L"JSON Files (*.json)\0*.json\0"
         L"All Files\0*.*\0"
         L"\0",
@@ -225,24 +214,22 @@ void CFilterDlg::OnSave(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
     filter.messageFilters = m_messagePage.GetFilters();
     filter.processFilters = m_processPage.GetFilters();
 
-    auto ext = GetFileNameExt(dlg.m_szFileName);
-    auto fileName = Str(dlg.m_szFileName).str();
-    if (IEquals(ext, L"json"))
+    try
     {
-        SaveJson(fileName, Str(name), filter);
+        SaveFilterFile(std::filesystem::path(dlg.m_szFileName), Str(name), filter);
     }
-    else
-    { /* if (IEquals(ext, L"xml")) */
-        SaveXml(fileName, Str(name), filter);
+    catch (const std::exception& ex)
+    {
+        MessageBox(WStr(ex.what()), L"Save DebugView Filter", MB_ICONERROR | MB_OK);
     }
 }
 
 void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
 {
     std::wstring path;
-    CFileDialog dlg(1, L".xml", m_name.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
-        L"XML Files (*.xml)\0*.xml\0"
+    CFileDialog dlg(1, L".json", m_name.c_str(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
         L"JSON Files (*.json)\0*.json\0"
+        L"XML Files of older versions (*.xml)\0*.xml\0"
         L"All Files\0*.*\0"
         L"\0",
         nullptr);
@@ -262,16 +249,20 @@ void CFilterDlg::OnLoad(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
         return;
     }
 
-    auto ext = GetFileNameExt(dlg.m_szFileName);
-    auto fileName = Str(dlg.m_szFileName).str();
     FilterData data;
-    if (IEquals(ext, L"json"))
+    try
     {
-        data = LoadJson(fileName);
+        std::string message;
+        data = LoadFilterFile(std::filesystem::path(dlg.m_szFileName), message);
+        if (!message.empty())
+        {
+            MessageBox(WStr(message), L"Load DebugView Filter", MB_ICONINFORMATION | MB_OK);
+        }
     }
-    else
-    { /* if (IEquals(ext, L"xml")) */
-        data = LoadXml(fileName);
+    catch (const std::exception& ex)
+    {
+        MessageBox(WStr(ex.what()), L"Load DebugView Filter", MB_ICONERROR | MB_OK);
+        return;
     }
 
     SetDlgItemTextA(*this, IDC_NAME, data.name.c_str());

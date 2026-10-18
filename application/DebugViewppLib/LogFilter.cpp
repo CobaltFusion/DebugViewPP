@@ -6,11 +6,9 @@
 // #include "stdafx.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#pragma warning(push, 3)
-#include <boost/property_tree/json_parser.hpp>
-#pragma warning(pop)
 #include "DebugViewppLib/Colors.h"
+#include "DebugViewppLib/ConfigFile.h"
+#include "DebugViewppLib/LegacyConfig.h"
 #include "DebugViewppLib/LogFilter.h"
 
 namespace fusion {
@@ -88,50 +86,29 @@ std::vector<Filter> MakeFilters(const ptree& pt)
     return filters;
 }
 
-ptree MakePTree(const FilterData& view)
+FilterData LoadFilterFile(const std::filesystem::path& fileName, std::string& message)
 {
-    ptree pt;
-    pt.put("Filter.Name", view.name);
-    pt.put_child("Filter.MessageFilters", MakePTree(view.filter.messageFilters));
-    pt.put_child("Filter.ProcessFilters", MakePTree(view.filter.processFilters));
-    return pt;
+    message.clear();
+    const auto text = ReadTextFile(fileName);
+    const auto format = DetectConfigFormat(text);
+    switch (format)
+    {
+    case ConfigFormat::Json: return FilterDataFromJson(text);
+    case ConfigFormat::LegacyXml:
+    case ConfigFormat::LegacyJson:
+    {
+        auto data = format == ConfigFormat::LegacyXml ? FilterDataFromLegacyXml(text) : FilterDataFromLegacyJson(text);
+        auto target = fileName;
+        message = ConvertLegacyFile(fileName, target.replace_extension(".json"), FilterDataToJson(data));
+        return data;
+    }
+    default: throw std::runtime_error("this is not a DebugView++ filter file");
+    }
 }
 
-FilterData MakeFilterData(const ptree& pt)
+void SaveFilterFile(const std::filesystem::path& fileName, const std::string& name, const LogFilter& filter)
 {
-    FilterData data;
-    data.name = pt.get<std::string>("Filter.Name");
-    data.filter.messageFilters = MakeFilters(pt.get_child("Filter.MessageFilters"));
-    data.filter.processFilters = MakeFilters(pt.get_child("Filter.ProcessFilters"));
-
-    return data;
-}
-
-void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter)
-{
-    boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-    FilterData view = {name, filter};
-    write_xml(fileName, MakePTree(view), std::locale(), settings);
-}
-
-void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter)
-{
-    FilterData view = {name, filter};
-    write_json(fileName, MakePTree(view));
-}
-
-FilterData LoadXml(const std::string& fileName)
-{
-    ptree pt;
-    read_xml(fileName, pt, boost::property_tree::xml_parser::trim_whitespace);
-    return MakeFilterData(pt);
-}
-
-FilterData LoadJson(const std::string& fileName)
-{
-    ptree pt;
-    read_json(fileName, pt);
-    return MakeFilterData(pt);
+    WriteTextFile(fileName, FilterDataToJson(FilterData{name, filter}));
 }
 
 } // namespace debugviewpp
