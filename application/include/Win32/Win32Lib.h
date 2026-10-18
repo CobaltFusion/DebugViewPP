@@ -225,8 +225,10 @@ void DeleteObjectDACL(HANDLE hObject);
 void AdjustObjectDACL(HANDLE hObject);
 #endif
 
-void SetPrivilege(const wchar_t* privilege, bool enablePrivilege);
-void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege);
+// Enables or disables a privilege of the token. Returns false if the token does not have the privilege (which is not an error, for example when
+// not running as administrator), so the privilege could not be changed, true if it is enabled/disabled now.
+bool SetPrivilege(const wchar_t* privilege, bool enablePrivilege);
+bool SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege);
 
 struct WaitResult
 {

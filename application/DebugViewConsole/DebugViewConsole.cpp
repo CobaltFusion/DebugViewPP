@@ -374,6 +374,25 @@ try
         return 1;
     }
 
+    // Without the debug privilege OpenProcess() can fail for processes of other accounts (services for example), the name
+    // of such a process is not available then, it is shown as <system>. The privilege is available when running as administrator (#412).
+    bool hasDebugPrivilege = false;
+    try
+    {
+        hasDebugPrivilege = fusion::Win32::SetPrivilege(SE_DEBUG_NAME, true);
+    }
+    catch (const std::exception& e)
+    {
+        if (settings.verbose)
+        {
+            std::cout << "Unable to enable the debug privilege: " << e.what() << "\n";
+        }
+    }
+    if (settings.verbose && !hasDebugPrivilege)
+    {
+        std::cout << "The debug privilege is not available (run as administrator), the process names of some processes (of other accounts) may not be available.\n";
+    }
+
     std::cout << "Listening for OutputDebugString messages..." << std::endl;
     LogMessages(settings);
     std::cout << "Process ended normally.\n";

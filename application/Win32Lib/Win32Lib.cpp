@@ -540,7 +540,7 @@ ScopedCursor::~ScopedCursor()
     }
 }
 
-void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
+bool SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
 {
     TOKEN_PRIVILEGES tp;
     LUID luid;
@@ -553,13 +553,17 @@ void SetPrivilege(HANDLE hToken, const wchar_t* privilege, bool enablePrivilege)
     tp.Privileges[0].Luid = luid;
     tp.Privileges[0].Attributes = enablePrivilege ? SE_PRIVILEGE_ENABLED : 0;
 
+    ::SetLastError(ERROR_SUCCESS);
     if (AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), nullptr, nullptr) == 0)
     {
         ThrowLastError("AdjustTokenPrivileges");
     }
+
+    // AdjustTokenPrivileges succeeds when the token does not have the privilege, but then it reports ERROR_NOT_ALL_ASSIGNED
+    return ::GetLastError() != ERROR_NOT_ALL_ASSIGNED;
 }
 
-void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
+bool SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
 {
     HANDLE handle;
     if (::OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle) == 0)
@@ -568,7 +572,7 @@ void SetPrivilege(const wchar_t* privilege, bool enablePrivilege)
     }
 
     Handle hToken(handle);
-    SetPrivilege(hToken.get(), privilege, enablePrivilege);
+    return SetPrivilege(hToken.get(), privilege, enablePrivilege);
 }
 
 // this retrieves the GetParentProcessId on platforms that support it

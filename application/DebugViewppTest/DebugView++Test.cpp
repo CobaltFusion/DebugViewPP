@@ -286,6 +286,16 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
     BOOST_TEST(cut.find(L'y') == 0);
 }
 
+// SetPrivilege reports if the privilege could be changed, it is not an error when the token does not have the privilege (#412)
+BOOST_AUTO_TEST_CASE(SetPrivilegeReportsMissingPrivilege)
+{
+    // every account has this privilege, and it is enabled by default
+    BOOST_TEST(Win32::SetPrivilege(SE_CHANGE_NOTIFY_NAME, true));
+
+    // only the system has this privilege, an administrator does not
+    BOOST_TEST(!Win32::SetPrivilege(SE_TCB_NAME, true));
+}
+
 BOOST_AUTO_TEST_CASE(HandleTest)
 {
     static const HANDLE nullHandle = nullptr;
