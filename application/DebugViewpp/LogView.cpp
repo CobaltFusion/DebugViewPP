@@ -291,6 +291,7 @@ CLogView::CLogView(std::wstring name, CMainFrame& mainFrame, LogFile& logFile, L
     m_logFile(logFile),
     m_filter(std::move(filter)),
     m_firstLine(0),
+    m_timeOrigin(0.0),
     m_clockTime(false),
     m_processColors(false),
     m_autoScrollDown(true),
@@ -1185,7 +1186,7 @@ std::wstring CLogView::GetColumnText(int iItem, Column::type column) const
     {
     case Column::Line: return std::to_wstring(iItem + 1ULL);
     case Column::Date: return WStr(GetDateText(msg.systemTime));
-    case Column::Time: return WStr(m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time));
+    case Column::Time: return WStr(m_clockTime ? GetTimeText(msg.systemTime) : GetTimeText(msg.time - m_timeOrigin));
     case Column::Pid: return std::to_wstring(msg.processId + 0ULL);
     case Column::Process: return WStr(msg.processName);
     case Column::Message: return WStr(msg.text);
@@ -1359,6 +1360,10 @@ void CLogView::ResetToLine(int line)
 {
     StopTracking();
     m_firstLine = line;
+
+    // the offset time is relative to the first line of the view: after 'Reset View to this line' that line is at 0.000000 (#282),
+    // after 'Reset View' (line 0) the offsets are again those of the log buffer
+    m_timeOrigin = (line > 0 && line >= m_logFile.BeginIndex() && line < m_logFile.EndIndex()) ? m_logFile[line].time : 0.0;
     ApplyFilters();
 }
 
@@ -1734,6 +1739,10 @@ const std::vector<ColumnInfo>& CLogView::GetColumns()
 void CLogView::Clear()
 {
     m_firstLine = m_logFile.EndIndex();
+    if (m_logFile.EndIndex() == 0)
+    {
+        m_timeOrigin = 0.0; // the log was cleared, its timer starts again
+    }
     SetItemCount(0);
     m_dirty = false;
     m_logLines.clear();
@@ -2321,6 +2330,7 @@ void CLogView::CopyLinesFrom(const CLogView& source)
     m_filter = source.m_filter; // with the state of the filters, for example if a 'once' filter matched already
     m_matchColors = source.m_matchColors;
     m_firstLine = source.m_firstLine;
+    m_timeOrigin = source.m_timeOrigin;
     m_logLines = source.m_logLines;
     m_linesCopied = true;
 }

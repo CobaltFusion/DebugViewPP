@@ -2,6 +2,10 @@
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 [![Github Follow](https://img.shields.io/github/followers/janwilmans?style=social)](https://github.com/janwilmans)
 
+## Debugview++ v1.31 (unreleased)
+
+- fixed: after 'Reset View to this line' the offset time (the Time column when it does not show the clock time) is relative to that line, it starts at 0.000000 again (fixes #282)
+
 ## Debugview++ v1.30
 
 - boost is no longer used: the build does not download it any more, the unit tests use GoogleTest (fetched by CMake when it configures)

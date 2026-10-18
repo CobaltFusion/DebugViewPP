@@ -63,7 +63,7 @@ menu of a view), and one that removes data from the buffer (in the **Log** menu)
 |----------------------------|----------------------------------------------------------------------------------------------------------------|----------------|-----------------------|
 | **Clear View**             | The view is emptied, and shows only messages that are received *after* this moment. The first line of the view becomes the next message to arrive. | this view      | no                    |
 | **Reset View**             | The first line of the view becomes the first line of the log buffer, so the view shows everything that is in the buffer (that matches the filters). | this view      | no                    |
-| **Reset View to this line**| The first line of the view becomes the line that is selected (focused). Everything before it is not shown in this view. | this view      | no                    |
+| **Reset View to this line**| The first line of the view becomes the line that is selected (focused). Everything before it is not shown in this view, and the offset time (when the Time column does not show the clock time) counts from this line. | this view      | no                    |
 | **Clear Log** (Ctrl+Shift+X) | Removes all messages from the log buffer and empties all views.                                              | all views      | **yes**               |
 
 In other words: *Clear View*, *Reset View* and *Reset View to this line* only move the **first line** of one view. The log

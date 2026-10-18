@@ -336,6 +336,7 @@ private:
     CMyHeaderCtrl m_hdr;
     std::vector<ColumnInfo> m_columns;
     int m_firstLine;
+    double m_timeOrigin; // the offset time (not the clock time) is shown relative to this, the time of the line the view was reset to
     std::deque<LogLine> m_logLines;
     bool m_clockTime;
     bool m_processColors;
