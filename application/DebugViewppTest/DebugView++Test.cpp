@@ -3,9 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_TEST_MODULE DebugView++ Lib Unit Test
-
-#include <boost/test/unit_test_gui.hpp>
+#include <gtest/gtest.h>
 #include "Win32/Process.h"
 
 #include <filesystem>
@@ -44,8 +42,6 @@
 namespace fusion {
 namespace debugviewpp {
 
-BOOST_AUTO_TEST_SUITE(DebugViewPlusPlusTest)
-
 std::string GetTestString(size_t i)
 {
     return stringbuilder() << "BB_TEST_ABCDEFGHI_EE_" << i;
@@ -66,7 +62,6 @@ public:
         throw std::exception("WaitForReader timeout");
     }
 };
-
 
 class ScopedTimezoneBias
 {
@@ -169,7 +164,7 @@ bool AreEqual(const LogFile& a, const LogFile& b)
     return true;
 }
 
-BOOST_AUTO_TEST_CASE(TimeZone)
+TEST(DebugViewPlusPlusTest, TimeZone)
 {
     Timer timer;
     LogFile logFile;
@@ -182,48 +177,48 @@ BOOST_AUTO_TEST_CASE(TimeZone)
     auto t4 = Win32::GetSystemTimeAsFileTime();
     logFile.Add(Message(0, t4, 0, "processname", "message 4 (zero time message)"));
 
-    BOOST_TEST_MESSAGE("UTC");
+    SCOPED_TRACE("UTC");
     {
         ScopedTimezoneBias(0);
         auto result = LoadLogFile(SaveLogFile(logFile));
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
-    BOOST_TEST_MESSAGE("(UTC-8) Fremond");
+    SCOPED_TRACE("(UTC-8) Fremond");
     {
         ScopedTimezoneBias(-480);
         auto result = LoadLogFile(SaveLogFile(logFile));
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
-    BOOST_TEST_MESSAGE("(UTC+8:30) Pyongyang Standard Time");
+    SCOPED_TRACE("(UTC+8:30) Pyongyang Standard Time");
     {
         ScopedTimezoneBias(+510);
         auto result = LoadLogFile(SaveLogFile(logFile));
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
-    BOOST_TEST_MESSAGE("test boundry case (UTC-12) Baker- / Howland Island (uninhabited islands belonging to the United States)");
+    SCOPED_TRACE("test boundry case (UTC-12) Baker- / Howland Island (uninhabited islands belonging to the United States)");
     {
         ScopedTimezoneBias(-720);
         auto result = LoadLogFile(SaveLogFile(logFile));
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
-    BOOST_TEST_MESSAGE("test boundry case (UTC+14) Kiritimati (Christmas Island, also uninhabited, part of the Kiribati Line Islands)");
+    SCOPED_TRACE("test boundry case (UTC+14) Kiritimati (Christmas Island, also uninhabited, part of the Kiribati Line Islands)");
     {
         ScopedTimezoneBias(+720);
         auto result = LoadLogFile(SaveLogFile(logFile));
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
 
     // test crossing timezones
-    BOOST_TEST_MESSAGE("test sending a logfile into the past (UTC -> UTC-8)");
+    SCOPED_TRACE("test sending a logfile into the past (UTC -> UTC-8)");
     {
         auto filename = SaveLogFile(logFile);
         ScopedTimezoneBias(-480);
         auto result = LoadLogFile(filename);
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
 
     // test crossing timezones
-    BOOST_TEST_MESSAGE("test sending a logfile into the future (UTC-8 -> UTC)");
+    SCOPED_TRACE("test sending a logfile into the future (UTC-8 -> UTC)");
     {
         std::string filename;
         {
@@ -231,16 +226,16 @@ BOOST_AUTO_TEST_CASE(TimeZone)
             filename = SaveLogFile(logFile);
         }
         auto result = LoadLogFile(filename);
-        BOOST_TEST(AreEqual(result, logFile));
+        EXPECT_TRUE((AreEqual(result, logFile)));
     }
 }
 
-uint64_t FileTimeToUInt64(const FILETIME& ft)
+static uint64_t FileTimeToUInt64(const FILETIME& ft)
 {
     return (static_cast<uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
 }
 
-BOOST_AUTO_TEST_CASE(USTimeConverterMidnightRollover)
+TEST(DebugViewPlusPlusTest, USTimeConverterMidnightRollover)
 {
     constexpr uint64_t oneSecond = 10'000'000;
     constexpr uint64_t oneDay = 24 * 60 * 60 * oneSecond;
@@ -248,11 +243,11 @@ BOOST_AUTO_TEST_CASE(USTimeConverterMidnightRollover)
     USTimeConverter converter;
     FILETIME before = {};
     FILETIME after = {};
-    BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("11:59:59 PM", before));
-    BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("12:00:01 AM", after));
+    ASSERT_TRUE((converter.ReadLocalTimeUSRegion("11:59:59 PM", before)));
+    ASSERT_TRUE((converter.ReadLocalTimeUSRegion("12:00:01 AM", after)));
 
     // two seconds later, on the next day
-    BOOST_TEST(FileTimeToUInt64(after) - FileTimeToUInt64(before) == 2 * oneSecond);
+    EXPECT_EQ(FileTimeToUInt64(after) - FileTimeToUInt64(before), 2 * oneSecond);
 
     // the next days again, past the end of a month (not too long, to stay clear of daylight saving time changes)
     auto previous = FileTimeToUInt64(after);
@@ -260,144 +255,144 @@ BOOST_AUTO_TEST_CASE(USTimeConverterMidnightRollover)
     {
         FILETIME t1 = {};
         FILETIME t2 = {};
-        BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("11:59:59 PM", t1));
-        BOOST_REQUIRE(converter.ReadLocalTimeUSRegion("12:00:01 AM", t2));
-        BOOST_TEST(FileTimeToUInt64(t1) > previous);
-        BOOST_TEST(FileTimeToUInt64(t2) - FileTimeToUInt64(t1) == 2 * oneSecond);
-        BOOST_TEST(FileTimeToUInt64(t1) - previous < oneDay);
+        ASSERT_TRUE((converter.ReadLocalTimeUSRegion("11:59:59 PM", t1)));
+        ASSERT_TRUE((converter.ReadLocalTimeUSRegion("12:00:01 AM", t2)));
+        EXPECT_GT(FileTimeToUInt64(t1), previous);
+        EXPECT_EQ(FileTimeToUInt64(t2) - FileTimeToUInt64(t1), 2 * oneSecond);
+        EXPECT_LT(FileTimeToUInt64(t1) - previous, oneDay);
         previous = FileTimeToUInt64(t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(InfoTipText)
+TEST(DebugViewPlusPlusTest, InfoTipText)
 {
     // a short message is shown as is, tabs are expanded
-    BOOST_TEST((MakeInfoTipText(L"short message") == L"short message"));
-    BOOST_TEST((MakeInfoTipText(L"a\tb") == L"a   b"));
-    BOOST_TEST((MakeInfoTipText(L"") == L""));
+    EXPECT_EQ(MakeInfoTipText(L"short message"), L"short message");
+    EXPECT_EQ(MakeInfoTipText(L"a\tb"), L"a   b");
+    EXPECT_EQ(MakeInfoTipText(L""), L"");
 
     // a long message is wrapped, without losing characters
     const std::wstring text(250, L'x');
     const auto wrapped = MakeInfoTipText(text, 100, 1023);
-    BOOST_TEST(std::count(wrapped.begin(), wrapped.end(), L'\n') == 2);
-    BOOST_TEST(std::count(wrapped.begin(), wrapped.end(), L'x') == 250);
-    BOOST_TEST(wrapped.find(L'\n') == 100);
+    EXPECT_EQ((std::count(wrapped.begin(), wrapped.end(), L'\n')), 2);
+    EXPECT_EQ((std::count(wrapped.begin(), wrapped.end(), L'x')), 250);
+    EXPECT_EQ(wrapped.find(L'\n'), 100);
 
     // a text that fits exactly is not cut off
-    BOOST_TEST((MakeInfoTipText(std::wstring(30, L'x'), 100, 30) == std::wstring(30, L'x')));
+    EXPECT_EQ((MakeInfoTipText(std::wstring(30, L'x'), 100, 30)), (std::wstring(30, L'x')));
 
     // a text that is too long is cut off and ends with an ellipsis, within the limit of a tooltip
     const std::wstring huge(100000, L'y');
     const auto cut = MakeInfoTipText(huge);
-    BOOST_TEST(cut.size() == 1023);
-    BOOST_TEST((cut.substr(cut.size() - 3) == L"..."));
-    BOOST_TEST(cut.find(L'y') == 0);
+    EXPECT_EQ(cut.size(), 1023);
+    EXPECT_EQ(cut.substr(cut.size() - 3), L"...");
+    EXPECT_EQ(cut.find(L'y'), 0);
 }
 
 // #284: a copy of a view can use the lines of the other view when the filters are the same
-BOOST_AUTO_TEST_CASE(StringUtilCaseInsensitive)
+TEST(DebugViewPlusPlusTest, StringUtilCaseInsensitive)
 {
     // equal
-    BOOST_TEST(IEquals("/Min", "/min"));
-    BOOST_TEST(IEquals(std::string("JSON"), "json"));
-    BOOST_TEST(IEquals(std::wstring(L"/MIN"), L"/min"));
-    BOOST_TEST(IEquals("", ""));
-    BOOST_TEST(!IEquals("abc", "abd"));
-    BOOST_TEST(!IEquals("abc", "abcd")); // not a prefix
-    BOOST_TEST(!IEquals("abcd", "abc"));
+    EXPECT_TRUE((IEquals("/Min", "/min")));
+    EXPECT_TRUE((IEquals(std::string("JSON"), "json")));
+    EXPECT_TRUE((IEquals(std::wstring(L"/MIN"), L"/min")));
+    EXPECT_TRUE((IEquals("", "")));
+    EXPECT_FALSE((IEquals("abc", "abd")));
+    EXPECT_FALSE((IEquals("abc", "abcd"))); // not a prefix
+    EXPECT_FALSE((IEquals("abcd", "abc")));
 
     // a narrow and a wide string can be compared, the text is ASCII
-    BOOST_TEST(IEquals(std::wstring(L".TXT"), ".txt"));
-    BOOST_TEST(IEndsWith(std::wstring(L"c:\\logs\\Some.LOG"), ".log"));
-    BOOST_TEST(!IEndsWith(std::wstring(L"c:\\logs\\Some.LOG"), ".txt"));
+    EXPECT_TRUE((IEquals(std::wstring(L".TXT"), ".txt")));
+    EXPECT_TRUE((IEndsWith(std::wstring(L"c:\\logs\\Some.LOG"), ".log")));
+    EXPECT_FALSE((IEndsWith(std::wstring(L"c:\\logs\\Some.LOG"), ".txt")));
 
     // only ASCII letters are folded, the other characters (and non-ASCII text in UTF-8) are compared as they are
-    BOOST_TEST(!IEquals("\xc3\x84", "\xc3\xa4")); // A with diaeresis and a with diaeresis in UTF-8
-    BOOST_TEST(IEquals("\xc3\x84x", "\xc3\x84X"));
-    BOOST_TEST(!IEquals("a[", "A{")); // '[' and '{' are not the same, although they are 32 apart
-    BOOST_TEST(!IEquals("@", "`"));
+    EXPECT_FALSE((IEquals("\xc3\x84", "\xc3\xa4"))); // A with diaeresis and a with diaeresis in UTF-8
+    EXPECT_TRUE((IEquals("\xc3\x84x", "\xc3\x84X")));
+    EXPECT_FALSE((IEquals("a[", "A{"))); // '[' and '{' are not the same, although they are 32 apart
+    EXPECT_FALSE((IEquals("@", "`")));
 
     // starts with and ends with
-    BOOST_TEST(IStartsWith(std::wstring(L"/Delay:100"), L"/delay:"));
-    BOOST_TEST(!IStartsWith(std::wstring(L"/del"), L"/delay:")); // shorter than the prefix
-    BOOST_TEST(IStartsWith("abc", ""));
-    BOOST_TEST(IEndsWith("abc", ""));
-    BOOST_TEST(IEndsWith("Test.DbConf", ".dbconf"));
-    BOOST_TEST(!IEndsWith("conf", ".dbconf"));
-    BOOST_TEST(EndsWith("File Identification Header", "Header"));
-    BOOST_TEST(!EndsWith("File Identification Header", "header")); // case sensitive
-    BOOST_TEST(!EndsWith("ab", "cab"));
-    BOOST_TEST(EndsWith("ab", ""));
+    EXPECT_TRUE((IStartsWith(std::wstring(L"/Delay:100"), L"/delay:")));
+    EXPECT_FALSE((IStartsWith(std::wstring(L"/del"), L"/delay:"))); // shorter than the prefix
+    EXPECT_TRUE((IStartsWith("abc", "")));
+    EXPECT_TRUE((IEndsWith("abc", "")));
+    EXPECT_TRUE((IEndsWith("Test.DbConf", ".dbconf")));
+    EXPECT_FALSE((IEndsWith("conf", ".dbconf")));
+    EXPECT_TRUE((EndsWith("File Identification Header", "Header")));
+    EXPECT_FALSE((EndsWith("File Identification Header", "header"))); // case sensitive
+    EXPECT_FALSE((EndsWith("ab", "cab")));
+    EXPECT_TRUE((EndsWith("ab", "")));
 
     // embedded 0 characters are just characters
     const std::string withNul("a\0B", 3);
-    BOOST_TEST(IEquals(withNul, std::string("A\0b", 3)));
-    BOOST_TEST(!IEquals(withNul, std::string("A\0c", 3)));
-    BOOST_TEST(IContains(withNul, std::string("\0b", 2)));
+    EXPECT_TRUE((IEquals(withNul, std::string("A\0b", 3))));
+    EXPECT_FALSE((IEquals(withNul, std::string("A\0c", 3))));
+    EXPECT_TRUE((IContains(withNul, std::string("\0b", 2))));
 }
 
-BOOST_AUTO_TEST_CASE(StringUtilFindAndContains)
+TEST(DebugViewPlusPlusTest, StringUtilFindAndContains)
 {
     const std::string text = "Hello Hello world, HELLO";
-    BOOST_TEST(IFind(text, "hello") == 0u);
-    BOOST_TEST(IFind(text, "hello", 1) == 6u); // from a position
-    BOOST_TEST(IFind(text, "HELLO", 7) == 19u);
-    BOOST_TEST(IFind(text, "hello", 20) == std::string::npos);
-    BOOST_TEST(IFind(text, "WORLD") == 12u);
-    BOOST_TEST(IFind(text, "worlds") == std::string::npos);
-    BOOST_TEST(IFind(text, "o") == 4u);
+    EXPECT_EQ((IFind(text, "hello")), 0u);
+    EXPECT_EQ((IFind(text, "hello", 1)), 6u); // from a position
+    EXPECT_EQ((IFind(text, "HELLO", 7)), 19u);
+    EXPECT_EQ((IFind(text, "hello", 20)), std::string::npos);
+    EXPECT_EQ((IFind(text, "WORLD")), 12u);
+    EXPECT_EQ((IFind(text, "worlds")), std::string::npos);
+    EXPECT_EQ((IFind(text, "o")), 4u);
 
     // the match can be at the end, and a pattern as long as the text works
-    BOOST_TEST(IFind("abcdef", "EF") == 4u);
-    BOOST_TEST(IFind("abc", "ABC") == 0u);
-    BOOST_TEST(IFind("abc", "abcd") == std::string::npos);
-    BOOST_TEST(IFind("", "a") == std::string::npos);
+    EXPECT_EQ((IFind("abcdef", "EF")), 4u);
+    EXPECT_EQ((IFind("abc", "ABC")), 0u);
+    EXPECT_EQ((IFind("abc", "abcd")), std::string::npos);
+    EXPECT_EQ((IFind("", "a")), std::string::npos);
 
     // a partial match is not a match, the search goes on
-    BOOST_TEST(IFind("aab", "ab") == 1u);
-    BOOST_TEST(IFind("ababac", "abac") == 2u);
+    EXPECT_EQ((IFind("aab", "ab")), 1u);
+    EXPECT_EQ((IFind("ababac", "abac")), 2u);
 
     // an empty pattern is found at the start position (like std::string::find), but not after the end
-    BOOST_TEST(IFind("abc", "") == 0u);
-    BOOST_TEST(IFind("abc", "", 3) == 3u);
-    BOOST_TEST(IFind("abc", "", 4) == std::string::npos);
-    BOOST_TEST(IContains("abc", ""));
+    EXPECT_EQ((IFind("abc", "")), 0u);
+    EXPECT_EQ((IFind("abc", "", 3)), 3u);
+    EXPECT_EQ((IFind("abc", "", 4)), std::string::npos);
+    EXPECT_TRUE((IContains("abc", "")));
 
-    BOOST_TEST(IContains(std::wstring(L"/TAB:name"), L"/tab:"));
-    BOOST_TEST(!IContains(std::wstring(L"/min"), L"/tab:"));
-    BOOST_TEST(IContains(std::string("The ERROR is here"), std::string("error")));
+    EXPECT_TRUE((IContains(std::wstring(L"/TAB:name"), L"/tab:")));
+    EXPECT_FALSE((IContains(std::wstring(L"/min"), L"/tab:")));
+    EXPECT_TRUE((IContains(std::string("The ERROR is here"), std::string("error"))));
 
     // wide text with a narrow pattern, and wide characters that are not ASCII are not folded
-    BOOST_TEST(IFind(std::wstring(L"x.LOG"), ".log") == 1u);
-    BOOST_TEST(IFind(std::wstring(L"\u00c4"), L"\u00e4") == std::string::npos);
+    EXPECT_EQ((IFind(std::wstring(L"x.LOG"), ".log")), 1u);
+    EXPECT_EQ((IFind(std::wstring(L"\u00c4"), L"\u00e4")), std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(StringUtilLowerAndTrim)
+TEST(DebugViewPlusPlusTest, StringUtilLowerAndTrim)
 {
-    BOOST_TEST(ToLower(std::string("Mixed CASE 123 \xc3\x84")) == "mixed case 123 \xc3\x84"); // the UTF-8 bytes are unchanged
-    BOOST_TEST((ToLower(std::wstring(L"AbC")) == L"abc"));
-    BOOST_TEST(ToLower(std::string()) == "");
+    EXPECT_EQ(ToLower(std::string("Mixed CASE 123 \xc3\x84")), "mixed case 123 \xc3\x84"); // the UTF-8 bytes are unchanged
+    EXPECT_EQ(ToLower(std::wstring(L"AbC")), L"abc");
+    EXPECT_EQ(ToLower(std::string()), "");
 
     std::string message = "text with trailing space \r\n\t ";
     TrimRight(message, " \r\n\t");
-    BOOST_TEST(message == "text with trailing space");
+    EXPECT_EQ(message, "text with trailing space");
     TrimRight(message, " \r\n\t"); // nothing more to remove
-    BOOST_TEST(message == "text with trailing space");
+    EXPECT_EQ(message, "text with trailing space");
 
     std::string onlySpaces = " \r\n";
     TrimRight(onlySpaces, " \r\n\t");
-    BOOST_TEST(onlySpaces == "");
+    EXPECT_EQ(onlySpaces, "");
 
     std::string empty;
     TrimRight(empty, " ");
-    BOOST_TEST(empty == "");
+    EXPECT_EQ(empty, "");
 
     // the characters inside are kept, only the ends are trimmed
-    BOOST_TEST(TrimCopy(std::string("  a b \t"), " \r\n\t") == "a b");
-    BOOST_TEST(TrimCopy(std::string("a"), " ") == "a");
-    BOOST_TEST(TrimCopy(std::string("   "), " ") == "");
-    BOOST_TEST(TrimCopy(std::string(""), " ") == "");
-    BOOST_TEST((TrimCopy(std::wstring(L"\t x \n"), L" \t\n") == L"x"));
+    EXPECT_EQ((TrimCopy(std::string("  a b \t"), " \r\n\t")), "a b");
+    EXPECT_EQ((TrimCopy(std::string("a"), " ")), "a");
+    EXPECT_EQ((TrimCopy(std::string("   "), " ")), "");
+    EXPECT_EQ((TrimCopy(std::string(""), " ")), "");
+    EXPECT_EQ((TrimCopy(std::wstring(L"\t x \n"), L" \t\n")), L"x");
 }
 
 // The files in testdata were written by the application (see testdata/README.md), before boost was removed. Files that users saved
@@ -407,27 +402,27 @@ std::string TestDataFile(const std::string& name)
     return std::string(TESTDATA_DIR) + "/" + name;
 }
 
-BOOST_AUTO_TEST_CASE(LegacyFilterFilesCanBeLoaded)
+TEST(DebugViewPlusPlusTest, LegacyFilterFilesCanBeLoaded)
 {
     for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
     {
-        BOOST_TEST_MESSAGE(file);
+        SCOPED_TRACE(file);
         const auto text = ReadTextFile(TestDataFile(file));
         const auto data = file.ends_with(".json") ? FilterDataFromLegacyJson(text) : FilterDataFromLegacyXml(text);
-        BOOST_TEST(data.name == "Überblick: errors & warnings");
+        EXPECT_EQ(data.name, "Überblick: errors & warnings");
 
         const auto& messageFilters = data.filter.messageFilters;
         const auto& processFilters = data.filter.processFilters;
-        BOOST_REQUIRE(messageFilters.size() == 10);
-        BOOST_REQUIRE(processFilters.size() == 2);
+        ASSERT_EQ(messageFilters.size(), 10);
+        ASSERT_EQ(processFilters.size(), 2);
 
         auto check = [](const Filter& f, const std::string& text, MatchType::type matchType, FilterType::type filterType, COLORREF bg, COLORREF fg, bool enable) {
-            BOOST_TEST(f.text == text);
-            BOOST_TEST(f.matchType == matchType);
-            BOOST_TEST(f.filterType == filterType);
-            BOOST_TEST(f.bgColor == bg);
-            BOOST_TEST(f.fgColor == fg);
-            BOOST_TEST(f.enable == enable);
+            EXPECT_EQ(f.text, text);
+            EXPECT_EQ(f.matchType, matchType);
+            EXPECT_EQ(f.filterType, filterType);
+            EXPECT_EQ(f.bgColor, bg);
+            EXPECT_EQ(f.fgColor, fg);
+            EXPECT_EQ(f.enable, enable);
         };
         const COLORREF white = RGB(255, 255, 255);
         const COLORREF black = RGB(0, 0, 0);
@@ -446,7 +441,7 @@ BOOST_AUTO_TEST_CASE(LegacyFilterFilesCanBeLoaded)
     }
 }
 
-BOOST_AUTO_TEST_CASE(FilterDataJsonRoundTrip)
+TEST(DebugViewPlusPlusTest, FilterDataJsonRoundTrip)
 {
     FilterData data;
     data.name = "Überblick \"quoted\" 'single' <&>";
@@ -457,14 +452,14 @@ BOOST_AUTO_TEST_CASE(FilterDataJsonRoundTrip)
 
     const auto text = FilterDataToJson(data);
     const auto result = FilterDataFromJson(text);
-    BOOST_TEST(result.name == data.name);
-    BOOST_REQUIRE(result.filter.messageFilters.size() == 3);
-    BOOST_REQUIRE(result.filter.processFilters.size() == 1);
-    BOOST_TEST(SameDefinition(result.filter, data.filter));
-    BOOST_TEST(result.filter.messageFilters[2].bgColor == Colors::Auto);
-    BOOST_TEST(result.filter.messageFilters[2].fgColor == Colors::Auto);
-    BOOST_TEST(!result.filter.messageFilters[1].enable);
-    BOOST_TEST(result.filter.messageFilters[1].text == data.filter.messageFilters[1].text);
+    EXPECT_EQ(result.name, data.name);
+    ASSERT_EQ(result.filter.messageFilters.size(), 3);
+    ASSERT_EQ(result.filter.processFilters.size(), 1);
+    EXPECT_TRUE((SameDefinition(result.filter, data.filter)));
+    EXPECT_EQ(result.filter.messageFilters[2].bgColor, Colors::Auto);
+    EXPECT_EQ(result.filter.messageFilters[2].fgColor, Colors::Auto);
+    EXPECT_FALSE(result.filter.messageFilters[1].enable);
+    EXPECT_EQ(result.filter.messageFilters[1].text, data.filter.messageFilters[1].text);
 
     // every filter type and match type survives
     FilterData all;
@@ -473,65 +468,65 @@ BOOST_AUTO_TEST_CASE(FilterDataJsonRoundTrip)
     {
         all.filter.messageFilters.push_back(MakeFilter("x", IntToMatchType(f % 5), IntToFilterType(f)));
     }
-    BOOST_TEST(all.filter.messageFilters.size() == 11);
-    BOOST_TEST(SameDefinition(FilterDataFromJson(FilterDataToJson(all)).filter, all.filter));
+    EXPECT_EQ(all.filter.messageFilters.size(), 11);
+    EXPECT_TRUE((SameDefinition(FilterDataFromJson(FilterDataToJson(all)).filter, all.filter)));
 }
 
-BOOST_AUTO_TEST_CASE(FilterDataJsonDefaultsAndErrors)
+TEST(DebugViewPlusPlusTest, FilterDataJsonDefaultsAndErrors)
 {
     // only the text and the types are required
     const auto data = FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include"}]})");
-    BOOST_REQUIRE(data.filter.messageFilters.size() == 1);
-    BOOST_TEST(data.filter.messageFilters[0].enable);
-    BOOST_TEST(data.filter.messageFilters[0].bgColor == RGB(255, 255, 255));
-    BOOST_TEST(data.filter.messageFilters[0].fgColor == RGB(0, 0, 0));
-    BOOST_TEST(data.filter.processFilters.empty());
+    ASSERT_EQ(data.filter.messageFilters.size(), 1);
+    EXPECT_TRUE(data.filter.messageFilters[0].enable);
+    EXPECT_EQ(data.filter.messageFilters[0].bgColor, (RGB(255, 255, 255)));
+    EXPECT_EQ(data.filter.messageFilters[0].fgColor, (RGB(0, 0, 0)));
+    EXPECT_TRUE(data.filter.processFilters.empty());
 
-    BOOST_CHECK_THROW(FilterDataFromJson(""), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromJson("[1,2]"), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromJson("{not json"), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromJson(R"({"version": 99, "name": "n"})"), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromJson(R"({"messageFilters": []})"), std::runtime_error); // no name
-    BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"matchType": "Simple", "filterType": "Include"}]})"), std::runtime_error); // no text
-    BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": {"text": "t"}})"), std::runtime_error); // not an array
-    BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include", "backColor": {"r": 300, "g": 0, "b": 0}}]})"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromJson(""), std::runtime_error);
+    EXPECT_THROW(FilterDataFromJson("[1,2]"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromJson("{not json"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromJson(R"({"version": 99, "name": "n"})"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromJson(R"({"messageFilters": []})"), std::runtime_error); // no name
+    EXPECT_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"matchType": "Simple", "filterType": "Include"}]})"), std::runtime_error); // no text
+    EXPECT_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": {"text": "t"}})"), std::runtime_error); // not an array
+    EXPECT_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include", "backColor": {"r": 300, "g": 0, "b": 0}}]})"), std::runtime_error);
 }
 
 // the legacy readers and the files of the old version: what is in the golden files
-BOOST_AUTO_TEST_CASE(LegacyFilterReadersKeepAutoColorAndSpecialCharacters)
+TEST(DebugViewPlusPlusTest, LegacyFilterReadersKeepAutoColorAndSpecialCharacters)
 {
     for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
     {
-        BOOST_TEST_MESSAGE(file);
+        SCOPED_TRACE(file);
         const auto text = ReadTextFile(TestDataFile(file));
-        BOOST_REQUIRE(!text.empty());
+        ASSERT_FALSE(text.empty());
 
         const auto data = file.ends_with(".json") ? FilterDataFromLegacyJson(text) : FilterDataFromLegacyXml(text);
-        BOOST_TEST(data.name == "Überblick: errors & warnings");
-        BOOST_REQUIRE(data.filter.messageFilters.size() == 10);
-        BOOST_REQUIRE(data.filter.processFilters.size() == 2);
-        BOOST_TEST(data.filter.messageFilters[3].bgColor == Colors::Auto);
-        BOOST_TEST(data.filter.messageFilters[2].text == "a & b <c> \"quoted\" 'single'");
-        BOOST_TEST(!data.filter.messageFilters[2].enable);
+        EXPECT_EQ(data.name, "Überblick: errors & warnings");
+        ASSERT_EQ(data.filter.messageFilters.size(), 10);
+        ASSERT_EQ(data.filter.processFilters.size(), 2);
+        EXPECT_EQ(data.filter.messageFilters[3].bgColor, Colors::Auto);
+        EXPECT_EQ(data.filter.messageFilters[2].text, "a & b <c> \"quoted\" 'single'");
+        EXPECT_FALSE(data.filter.messageFilters[2].enable);
     }
 }
 
-BOOST_AUTO_TEST_CASE(LegacyReadersHandleMalformedInput)
+TEST(DebugViewPlusPlusTest, LegacyReadersHandleMalformedInput)
 {
-    BOOST_CHECK_THROW(FilterDataFromLegacyXml(""), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromLegacyXml("<Filter><Name>x</Filter>"), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromLegacyXml("<Other/>"), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromLegacyXml("<Filter><Name>x</Name><MessageFilters/></Filter>"), std::runtime_error); // no ProcessFilters
-    BOOST_CHECK_THROW(FilterDataFromLegacyJson(""), std::runtime_error);
-    BOOST_CHECK_THROW(FilterDataFromLegacyJson("{\"Filter\": {"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromLegacyXml(""), std::runtime_error);
+    EXPECT_THROW(FilterDataFromLegacyXml("<Filter><Name>x</Filter>"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromLegacyXml("<Other/>"), std::runtime_error);
+    EXPECT_THROW(FilterDataFromLegacyXml("<Filter><Name>x</Name><MessageFilters/></Filter>"), std::runtime_error); // no ProcessFilters
+    EXPECT_THROW(FilterDataFromLegacyJson(""), std::runtime_error);
+    EXPECT_THROW(FilterDataFromLegacyJson("{\"Filter\": {"), std::runtime_error);
 
     // no filters at all is fine: an empty element, and the empty string property_tree wrote for it in JSON
     const auto xml = FilterDataFromLegacyXml("<?xml version=\"1.0\" encoding=\"utf-8\"?><Filter><Name>n</Name><MessageFilters/><ProcessFilters></ProcessFilters></Filter>");
-    BOOST_TEST(xml.name == "n");
-    BOOST_TEST(xml.filter.messageFilters.empty());
+    EXPECT_EQ(xml.name, "n");
+    EXPECT_TRUE(xml.filter.messageFilters.empty());
     const auto json = FilterDataFromLegacyJson(R"({"Filter": {"Name": "n", "MessageFilters": "", "ProcessFilters": ""}})");
-    BOOST_TEST(json.name == "n");
-    BOOST_TEST(json.filter.processFilters.empty());
+    EXPECT_EQ(json.name, "n");
+    EXPECT_TRUE(json.filter.processFilters.empty());
 
     // text is kept as it is, also a single space; numbers and booleans may have white space around them
     const auto spaces = FilterDataFromLegacyXml(
@@ -539,10 +534,10 @@ BOOST_AUTO_TEST_CASE(LegacyReadersHandleMalformedInput)
         "<Filter><Enable> true </Enable><Text> </Text><MatchType>Simple</MatchType><FilterType>Include</FilterType>"
         "<BackColor><Red> 1</Red><Green>2 </Green><Blue>3</Blue></BackColor><TextColor Auto=\"true\"/></Filter>"
         "</MessageFilters><ProcessFilters/></Filter>");
-    BOOST_REQUIRE(spaces.filter.messageFilters.size() == 1);
-    BOOST_TEST(spaces.filter.messageFilters[0].text == " ");
-    BOOST_TEST(spaces.filter.messageFilters[0].bgColor == RGB(1, 2, 3));
-    BOOST_TEST(spaces.filter.messageFilters[0].fgColor == Colors::Auto);
+    ASSERT_EQ(spaces.filter.messageFilters.size(), 1);
+    EXPECT_EQ(spaces.filter.messageFilters[0].text, " ");
+    EXPECT_EQ(spaces.filter.messageFilters[0].bgColor, (RGB(1, 2, 3)));
+    EXPECT_EQ(spaces.filter.messageFilters[0].fgColor, Colors::Auto);
 }
 
 // Filter files are JSON. A file of an older version is converted when it is loaded, and the old file is kept as .archived
@@ -569,11 +564,11 @@ std::string ReadWholeFile(const std::filesystem::path& file)
     return std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 }
 
-BOOST_AUTO_TEST_CASE(LegacyFilterFileIsConvertedWhenLoaded)
+TEST(DebugViewPlusPlusTest, LegacyFilterFileIsConvertedWhenLoaded)
 {
     for (const std::string file : {"filters_legacy.xml", "filters_legacy.json"})
     {
-        BOOST_TEST_MESSAGE(file);
+        SCOPED_TRACE(file);
         TempDirectory dir;
         const auto source = dir.path / file;
         std::filesystem::copy_file(TestDataFile(file), source);
@@ -582,27 +577,27 @@ BOOST_AUTO_TEST_CASE(LegacyFilterFileIsConvertedWhenLoaded)
 
         std::string message;
         const auto data = LoadFilterFile(source, message);
-        BOOST_TEST(data.filter.messageFilters.size() == 10);
-        BOOST_TEST(!message.empty());
+        EXPECT_EQ(data.filter.messageFilters.size(), 10);
+        EXPECT_FALSE(message.empty());
 
         // the old file is still there, byte for byte, under another name
         const auto archived = std::filesystem::path(source.string() + ".archived");
-        BOOST_REQUIRE(std::filesystem::exists(archived));
-        BOOST_TEST(ReadWholeFile(archived) == original);
+        ASSERT_TRUE(std::filesystem::exists(archived));
+        EXPECT_EQ(ReadWholeFile(archived), original);
 
         // and the filters are JSON now, that loads without a conversion
-        BOOST_REQUIRE(std::filesystem::exists(target));
-        BOOST_TEST((DetectConfigFormat(ReadWholeFile(target)) == ConfigFormat::Json));
+        ASSERT_TRUE(std::filesystem::exists(target));
+        EXPECT_EQ(DetectConfigFormat(ReadWholeFile(target)), ConfigFormat::Json);
         std::string secondMessage;
         const auto again = LoadFilterFile(target, secondMessage);
-        BOOST_TEST(secondMessage.empty());
-        BOOST_TEST(again.name == data.name);
-        BOOST_TEST(SameDefinition(again.filter, data.filter));
-        BOOST_TEST(again.filter.messageFilters[3].bgColor == Colors::Auto);
+        EXPECT_TRUE(secondMessage.empty());
+        EXPECT_EQ(again.name, data.name);
+        EXPECT_TRUE((SameDefinition(again.filter, data.filter)));
+        EXPECT_EQ(again.filter.messageFilters[3].bgColor, Colors::Auto);
     }
 }
 
-BOOST_AUTO_TEST_CASE(LegacyFilterFileIsNotConvertedOverAnExistingFile)
+TEST(DebugViewPlusPlusTest, LegacyFilterFileIsNotConvertedOverAnExistingFile)
 {
     TempDirectory dir;
     const auto source = dir.path / "filters.xml";
@@ -612,14 +607,14 @@ BOOST_AUTO_TEST_CASE(LegacyFilterFileIsNotConvertedOverAnExistingFile)
 
     std::string message;
     const auto data = LoadFilterFile(source, message);
-    BOOST_TEST(data.filter.messageFilters.size() == 10); // still loaded
-    BOOST_TEST(!message.empty());
-    BOOST_TEST(std::filesystem::exists(source)); // and nothing was renamed or overwritten
-    BOOST_TEST(!std::filesystem::exists(source.string() + ".archived"));
-    BOOST_TEST(ReadWholeFile(target) == "precious");
+    EXPECT_EQ(data.filter.messageFilters.size(), 10); // still loaded
+    EXPECT_FALSE(message.empty());
+    EXPECT_TRUE(std::filesystem::exists(source)); // and nothing was renamed or overwritten
+    EXPECT_FALSE(std::filesystem::exists(source.string() + ".archived"));
+    EXPECT_EQ(ReadWholeFile(target), "precious");
 }
 
-BOOST_AUTO_TEST_CASE(ArchiveNamesAreNumberedAndTheLegacyContentIsNeverLost)
+TEST(DebugViewPlusPlusTest, ArchiveNamesAreNumberedAndTheLegacyContentIsNeverLost)
 {
     TempDirectory dir;
     const auto file = dir.path / "x.dbconf";
@@ -627,110 +622,110 @@ BOOST_AUTO_TEST_CASE(ArchiveNamesAreNumberedAndTheLegacyContentIsNeverLost)
     { std::ofstream(dir.path / "x.dbconf.archived") << "<older/>"; }
 
     const auto message = ConvertLegacyFile(file, file, "{}");
-    BOOST_TEST(!message.empty());
-    BOOST_TEST(ReadWholeFile(file) == "{}");
-    BOOST_TEST(ReadWholeFile(dir.path / "x.dbconf.archived") == "<older/>");
-    BOOST_TEST(ReadWholeFile(dir.path / "x.dbconf.archived2") == "<first/>");
-    BOOST_TEST(!std::filesystem::exists(dir.path / "x.dbconf.new"));
+    EXPECT_FALSE(message.empty());
+    EXPECT_EQ(ReadWholeFile(file), "{}");
+    EXPECT_EQ(ReadWholeFile(dir.path / "x.dbconf.archived"), "<older/>");
+    EXPECT_EQ(ReadWholeFile(dir.path / "x.dbconf.archived2"), "<first/>");
+    EXPECT_FALSE(std::filesystem::exists(dir.path / "x.dbconf.new"));
 
     // a target in a folder that does not exist: reported, and the legacy file stays where it is
     { std::ofstream(dir.path / "y.xml") << "<y/>"; }
     const auto failed = ConvertLegacyFile(dir.path / "y.xml", dir.path / "nowhere" / "y.json", "{}");
-    BOOST_TEST(!failed.empty());
-    BOOST_TEST(ReadWholeFile(dir.path / "y.xml") == "<y/>");
+    EXPECT_FALSE(failed.empty());
+    EXPECT_EQ(ReadWholeFile(dir.path / "y.xml"), "<y/>");
 }
 
-BOOST_AUTO_TEST_CASE(FilterFilesSaveAndLoad)
+TEST(DebugViewPlusPlusTest, FilterFilesSaveAndLoad)
 {
     TempDirectory dir;
     LogFilter filter;
     filter.messageFilters.push_back(MakeFilter("Überblick", MatchType::Simple, FilterType::Include, RGB(1, 2, 3), Colors::Auto));
     const auto file = dir.path / "mine.json";
     SaveFilterFile(file, "näme", filter);
-    BOOST_TEST((DetectConfigFormat(ReadWholeFile(file)) == ConfigFormat::Json));
+    EXPECT_EQ(DetectConfigFormat(ReadWholeFile(file)), ConfigFormat::Json);
 
     std::string message;
     const auto data = LoadFilterFile(file, message);
-    BOOST_TEST(message.empty());
-    BOOST_TEST(data.name == "näme");
-    BOOST_TEST(SameDefinition(data.filter, filter));
+    EXPECT_TRUE(message.empty());
+    EXPECT_EQ(data.name, "näme");
+    EXPECT_TRUE((SameDefinition(data.filter, filter)));
 
-    BOOST_CHECK_THROW(LoadFilterFile(dir.path / "missing.json", message), std::runtime_error);
+    EXPECT_THROW(LoadFilterFile(dir.path / "missing.json", message), std::runtime_error);
     { std::ofstream(dir.path / "other.json") << "{\"something\": 1}"; }
-    BOOST_CHECK_THROW(LoadFilterFile(dir.path / "other.json", message), std::runtime_error);
+    EXPECT_THROW(LoadFilterFile(dir.path / "other.json", message), std::runtime_error);
     { std::ofstream(dir.path / "text.json") << "just text"; }
-    BOOST_CHECK_THROW(LoadFilterFile(dir.path / "text.json", message), std::runtime_error);
+    EXPECT_THROW(LoadFilterFile(dir.path / "text.json", message), std::runtime_error);
 }
 
 // the session files: the golden files of the old version, read with the legacy reader
-BOOST_AUTO_TEST_CASE(LegacySessionReaderReadsTheGoldenFiles)
+TEST(DebugViewPlusPlusTest, LegacySessionReaderReadsTheGoldenFiles)
 {
     for (const std::string file : {"session_input.dbconf", "session_saved_by_app.dbconf"})
     {
-        BOOST_TEST_MESSAGE(file);
+        SCOPED_TRACE(file);
         const auto config = SessionConfigFromLegacyXml(ReadTextFile(TestDataFile(file)));
-        BOOST_TEST(!config.autoNewline);
-        BOOST_TEST(config.linkViews);
+        EXPECT_FALSE(config.autoNewline);
+        EXPECT_TRUE(config.linkViews);
 
-        BOOST_REQUIRE(config.views.size() == 2);
+        ASSERT_EQ(config.views.size(), 2);
         const auto& first = config.views[0];
-        BOOST_TEST(first.name == "Errors");
-        BOOST_TEST(first.clockTime);
-        BOOST_TEST(!first.processColors);
-        BOOST_TEST(first.filters.messageFilters.size() == 10u);
-        BOOST_TEST(first.filters.processFilters.size() == 2u);
-        BOOST_TEST(first.filters.messageFilters[3].bgColor == Colors::Auto);
-        BOOST_TEST(first.filters.messageFilters[3].text == "id=(\\d+)");
+        EXPECT_EQ(first.name, "Errors");
+        EXPECT_TRUE(first.clockTime);
+        EXPECT_FALSE(first.processColors);
+        EXPECT_EQ(first.filters.messageFilters.size(), 10u);
+        EXPECT_EQ(first.filters.processFilters.size(), 2u);
+        EXPECT_EQ(first.filters.messageFilters[3].bgColor, Colors::Auto);
+        EXPECT_EQ(first.filters.messageFilters[3].text, "id=(\\d+)");
 
-        BOOST_REQUIRE(first.columns.has_value());
-        BOOST_REQUIRE(first.columns->size() == 7u);
-        BOOST_TEST((*first.columns)[1].index == 1);
-        BOOST_TEST(*(*first.columns)[1].width == 111);
-        BOOST_TEST(*(*first.columns)[3].enable == false);
-        BOOST_TEST(*(*first.columns)[6].width == 1234);
+        ASSERT_TRUE(first.columns.has_value());
+        ASSERT_EQ(first.columns->size(), 7u);
+        EXPECT_EQ((*first.columns)[1].index, 1);
+        EXPECT_EQ(*(*first.columns)[1].width, 111);
+        EXPECT_EQ(*(*first.columns)[3].enable, false);
+        EXPECT_EQ(*(*first.columns)[6].width, 1234);
 
         const auto& second = config.views[1];
-        BOOST_TEST(second.name == "Überblick: errors & warnings");
-        BOOST_TEST(!second.clockTime);
-        BOOST_TEST(second.processColors);
-        BOOST_TEST(second.filters.messageFilters.empty());
+        EXPECT_EQ(second.name, "Überblick: errors & warnings");
+        EXPECT_FALSE(second.clockTime);
+        EXPECT_TRUE(second.processColors);
+        EXPECT_TRUE(second.filters.messageFilters.empty());
         // the file the application saved has the columns of the second view, the hand written one does not
-        BOOST_TEST(second.columns.has_value() == (file == "session_saved_by_app.dbconf"));
+        EXPECT_EQ(second.columns.has_value(), (file == "session_saved_by_app.dbconf"));
 
-        BOOST_REQUIRE(config.sources.size() == 2);
-        BOOST_TEST((config.sources[0].type == SourceType::Udp));
-        BOOST_TEST(config.sources[0].port == 2021);
-        BOOST_TEST(!config.sources[0].enabled);
-        BOOST_TEST(config.sources[0].description == "Test UDP source");
-        BOOST_TEST((config.sources[1].type == SourceType::DebugViewAgent));
-        BOOST_TEST(config.sources[1].address == "build-server.example.org");
+        ASSERT_EQ(config.sources.size(), 2);
+        EXPECT_EQ(config.sources[0].type, SourceType::Udp);
+        EXPECT_EQ(config.sources[0].port, 2021);
+        EXPECT_FALSE(config.sources[0].enabled);
+        EXPECT_EQ(config.sources[0].description, "Test UDP source");
+        EXPECT_EQ(config.sources[1].type, SourceType::DebugViewAgent);
+        EXPECT_EQ(config.sources[1].address, "build-server.example.org");
     }
 }
 
-BOOST_AUTO_TEST_CASE(SessionConfigJsonRoundTrip)
+TEST(DebugViewPlusPlusTest, SessionConfigJsonRoundTrip)
 {
     for (const std::string file : {"session_input.dbconf", "session_saved_by_app.dbconf"})
     {
-        BOOST_TEST_MESSAGE(file);
+        SCOPED_TRACE(file);
         const auto config = SessionConfigFromLegacyXml(ReadTextFile(TestDataFile(file)));
         const auto json = SessionConfigToJson(config);
-        BOOST_TEST((DetectConfigFormat(json) == ConfigFormat::Json));
+        EXPECT_EQ(DetectConfigFormat(json), ConfigFormat::Json);
 
         const auto again = SessionConfigFromJson(json);
-        BOOST_TEST(SessionConfigToJson(again) == json); // nothing is lost or changed
-        BOOST_REQUIRE(again.views.size() == config.views.size());
+        EXPECT_EQ(SessionConfigToJson(again), json); // nothing is lost or changed
+        ASSERT_EQ(again.views.size(), config.views.size());
         for (size_t i = 0; i < config.views.size(); ++i)
         {
-            BOOST_TEST(again.views[i].name == config.views[i].name);
-            BOOST_TEST(SameDefinition(again.views[i].filters, config.views[i].filters));
-            BOOST_TEST(again.views[i].columns.has_value() == config.views[i].columns.has_value());
+            EXPECT_EQ(again.views[i].name, config.views[i].name);
+            EXPECT_TRUE((SameDefinition(again.views[i].filters, config.views[i].filters)));
+            EXPECT_EQ(again.views[i].columns.has_value(), config.views[i].columns.has_value());
         }
-        BOOST_REQUIRE(again.sources.size() == config.sources.size());
-        BOOST_TEST(again.sources[1].address == config.sources[1].address);
+        ASSERT_EQ(again.sources.size(), config.sources.size());
+        EXPECT_EQ(again.sources[1].address, config.sources[1].address);
     }
 }
 
-BOOST_AUTO_TEST_CASE(LegacySessionViewsAndSourcesAreOrderedByIndex)
+TEST(DebugViewPlusPlusTest, LegacySessionViewsAndSourcesAreOrderedByIndex)
 {
     const auto config = SessionConfigFromLegacyXml(
         "<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>false</LinkViews><Views>"
@@ -741,57 +736,57 @@ BOOST_AUTO_TEST_CASE(LegacySessionViewsAndSourcesAreOrderedByIndex)
         "<Source><Index>1</Index><Enabled>true</Enabled><Description>b</Description><SourceType>File</SourceType><Address></Address><Port>0</Port></Source>"
         "<Source><Index>0</Index><Enabled>false</Enabled><Description>a</Description><SourceType>System</SourceType><Address></Address><Port>0</Port></Source>"
         "</Sources></DebugViewPP>");
-    BOOST_TEST(config.autoNewline);
-    BOOST_TEST(!config.linkViews);
-    BOOST_REQUIRE(config.views.size() == 2);
-    BOOST_TEST(config.views[0].name == "first");
-    BOOST_TEST(config.views[1].name == "second");
-    BOOST_TEST(!config.views[1].columns.has_value());
+    EXPECT_TRUE(config.autoNewline);
+    EXPECT_FALSE(config.linkViews);
+    ASSERT_EQ(config.views.size(), 2);
+    EXPECT_EQ(config.views[0].name, "first");
+    EXPECT_EQ(config.views[1].name, "second");
+    EXPECT_FALSE(config.views[1].columns.has_value());
 
     // a column without an index is skipped, the fields that are missing stay unset
-    BOOST_REQUIRE(config.views[0].columns.has_value());
-    BOOST_REQUIRE(config.views[0].columns->size() == 1u);
-    BOOST_TEST((*config.views[0].columns)[0].index == 2);
-    BOOST_TEST(*(*config.views[0].columns)[0].width == 50);
-    BOOST_TEST(!(*config.views[0].columns)[0].enable.has_value());
-    BOOST_TEST(!(*config.views[0].columns)[0].order.has_value());
+    ASSERT_TRUE(config.views[0].columns.has_value());
+    ASSERT_EQ(config.views[0].columns->size(), 1u);
+    EXPECT_EQ((*config.views[0].columns)[0].index, 2);
+    EXPECT_EQ(*(*config.views[0].columns)[0].width, 50);
+    EXPECT_FALSE((*config.views[0].columns)[0].enable.has_value());
+    EXPECT_FALSE((*config.views[0].columns)[0].order.has_value());
 
-    BOOST_REQUIRE(config.sources.size() == 2);
-    BOOST_TEST(config.sources[0].description == "a");
-    BOOST_TEST(config.sources[1].description == "b");
+    ASSERT_EQ(config.sources.size(), 2);
+    EXPECT_EQ(config.sources[0].description, "a");
+    EXPECT_EQ(config.sources[1].description, "b");
 
     // Sources is optional
     const auto noSources = SessionConfigFromLegacyXml(
         "<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>false</LinkViews><Views/></DebugViewPP>");
-    BOOST_TEST(noSources.views.empty());
-    BOOST_TEST(noSources.sources.empty());
+    EXPECT_TRUE(noSources.views.empty());
+    EXPECT_TRUE(noSources.sources.empty());
 }
 
-BOOST_AUTO_TEST_CASE(SessionConfigErrors)
+TEST(DebugViewPlusPlusTest, SessionConfigErrors)
 {
-    BOOST_CHECK_THROW(SessionConfigFromLegacyXml(""), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromLegacyXml("<Other/>"), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromLegacyXml("<DebugViewPP><AutoNewline>maybe</AutoNewline><LinkViews>true</LinkViews><Views/></DebugViewPP>"), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromLegacyXml("<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>true</LinkViews></DebugViewPP>"), std::runtime_error); // no Views
-    BOOST_CHECK_THROW(SessionConfigFromJson(""), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromJson("[]"), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"version": 3})"), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": {}})"), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": [{"clockTime": true}]})"), std::runtime_error); // no name
-    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": [{"name": 5}]})"), std::runtime_error);
-    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"views": [{"name": "a", "columns": [{"width": 1}]}]})"), std::runtime_error); // column without index
-    BOOST_CHECK_THROW(SessionConfigFromJson(R"({"sources": [{"description": "a", "type": "no such type"}]})"), std::exception);
+    EXPECT_THROW(SessionConfigFromLegacyXml(""), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromLegacyXml("<Other/>"), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromLegacyXml("<DebugViewPP><AutoNewline>maybe</AutoNewline><LinkViews>true</LinkViews><Views/></DebugViewPP>"), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromLegacyXml("<DebugViewPP><AutoNewline>true</AutoNewline><LinkViews>true</LinkViews></DebugViewPP>"), std::runtime_error); // no Views
+    EXPECT_THROW(SessionConfigFromJson(""), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromJson("[]"), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromJson(R"({"version": 3})"), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromJson(R"({"views": {}})"), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromJson(R"({"views": [{"clockTime": true}]})"), std::runtime_error); // no name
+    EXPECT_THROW(SessionConfigFromJson(R"({"views": [{"name": 5}]})"), std::runtime_error);
+    EXPECT_THROW(SessionConfigFromJson(R"({"views": [{"name": "a", "columns": [{"width": 1}]}]})"), std::runtime_error); // column without index
+    EXPECT_THROW(SessionConfigFromJson(R"({"sources": [{"description": "a", "type": "no such type"}]})"), std::exception);
 
     // the minimum is fine
     const auto minimal = SessionConfigFromJson("{}");
-    BOOST_TEST(minimal.views.empty());
+    EXPECT_TRUE(minimal.views.empty());
     const auto view = SessionConfigFromJson(R"({"views": [{"name": "a"}]})");
-    BOOST_REQUIRE(view.views.size() == 1);
-    BOOST_TEST(view.views[0].clockTime);
-    BOOST_TEST(!view.views[0].columns.has_value());
+    ASSERT_EQ(view.views.size(), 1);
+    EXPECT_TRUE(view.views[0].clockTime);
+    EXPECT_FALSE(view.views[0].columns.has_value());
 }
 
-BOOST_AUTO_TEST_CASE(LegacySessionFileIsConvertedWhenLoaded)
+TEST(DebugViewPlusPlusTest, LegacySessionFileIsConvertedWhenLoaded)
 {
     TempDirectory dir;
     const auto file = dir.path / "mine.dbconf";
@@ -800,28 +795,28 @@ BOOST_AUTO_TEST_CASE(LegacySessionFileIsConvertedWhenLoaded)
 
     std::string message;
     const auto config = LoadSessionFile(file, message);
-    BOOST_TEST(config.views.size() == 2u);
-    BOOST_TEST(!message.empty());
+    EXPECT_EQ(config.views.size(), 2u);
+    EXPECT_FALSE(message.empty());
 
     // the same name is JSON now, the XML is kept
-    BOOST_TEST((DetectConfigFormat(ReadWholeFile(file)) == ConfigFormat::Json));
-    BOOST_REQUIRE(std::filesystem::exists(dir.path / "mine.dbconf.archived"));
-    BOOST_TEST(ReadWholeFile(dir.path / "mine.dbconf.archived") == original);
+    EXPECT_EQ(DetectConfigFormat(ReadWholeFile(file)), ConfigFormat::Json);
+    ASSERT_TRUE(std::filesystem::exists(dir.path / "mine.dbconf.archived"));
+    EXPECT_EQ(ReadWholeFile(dir.path / "mine.dbconf.archived"), original);
 
     std::string secondMessage;
     const auto again = LoadSessionFile(file, secondMessage);
-    BOOST_TEST(secondMessage.empty());
-    BOOST_TEST(SessionConfigToJson(again) == SessionConfigToJson(config));
+    EXPECT_TRUE(secondMessage.empty());
+    EXPECT_EQ(SessionConfigToJson(again), SessionConfigToJson(config));
 
     // saving and loading
     SaveSessionFile(dir.path / "saved.dbconf", config);
-    BOOST_TEST(SessionConfigToJson(LoadSessionFile(dir.path / "saved.dbconf", secondMessage)) == SessionConfigToJson(config));
-    BOOST_CHECK_THROW(LoadSessionFile(dir.path / "missing.dbconf", message), std::runtime_error);
+    EXPECT_EQ((SessionConfigToJson(LoadSessionFile(dir.path / "saved.dbconf", secondMessage))), SessionConfigToJson(config));
+    EXPECT_THROW(LoadSessionFile(dir.path / "missing.dbconf", message), std::runtime_error);
     { std::ofstream(dir.path / "text.dbconf") << "not a configuration"; }
-    BOOST_CHECK_THROW(LoadSessionFile(dir.path / "text.dbconf", message), std::runtime_error);
+    EXPECT_THROW(LoadSessionFile(dir.path / "text.dbconf", message), std::runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE(FilterSameDefinition)
+TEST(DebugViewPlusPlusTest, FilterSameDefinition)
 {
     LogFilter a;
     a.messageFilters.push_back(Filter("error", MatchType::Simple, FilterType::Include));
@@ -829,12 +824,12 @@ BOOST_AUTO_TEST_CASE(FilterSameDefinition)
     a.processFilters.push_back(Filter("my.exe", MatchType::Simple, FilterType::Highlight, RGB(255, 0, 0), RGB(0, 0, 0)));
 
     LogFilter same = a;
-    BOOST_TEST(SameDefinition(a, same));
-    BOOST_TEST(SameDefinition(LogFilter(), LogFilter()));
+    EXPECT_TRUE((SameDefinition(a, same)));
+    EXPECT_TRUE((SameDefinition(LogFilter(), LogFilter())));
 
     // the state of a filter is not a difference, it is not part of the definition
     same.messageFilters[0].matched = true;
-    BOOST_TEST(SameDefinition(a, same));
+    EXPECT_TRUE((SameDefinition(a, same)));
 
     // everything that decides what is shown or how is
     auto changed = [&](auto modify) {
@@ -842,27 +837,27 @@ BOOST_AUTO_TEST_CASE(FilterSameDefinition)
         modify(b);
         return !SameDefinition(a, b);
     };
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[0].text = "errors"; }));
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[0].filterType = FilterType::Exclude; }));
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[1].matchType = MatchType::Simple; }));
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[1].bgColor = RGB(9, 9, 9); }));
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[1].fgColor = RGB(9, 9, 9); }));
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[0].enable = false; }));
-    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters.pop_back(); }));
-    BOOST_TEST(changed([](LogFilter& f) { f.processFilters.clear(); }));
-    BOOST_TEST(changed([](LogFilter& f) { std::swap(f.messageFilters[0], f.messageFilters[1]); })); // the order can matter
+    EXPECT_TRUE(changed([](LogFilter& f) { f.messageFilters[0].text = "errors"; }));
+    EXPECT_TRUE(changed([](LogFilter& f) { f.messageFilters[0].filterType = FilterType::Exclude; }));
+    EXPECT_TRUE(changed([](LogFilter& f) { f.messageFilters[1].matchType = MatchType::Simple; }));
+    EXPECT_TRUE((changed([](LogFilter& f) { f.messageFilters[1].bgColor = RGB(9, 9, 9); })));
+    EXPECT_TRUE((changed([](LogFilter& f) { f.messageFilters[1].fgColor = RGB(9, 9, 9); })));
+    EXPECT_TRUE(changed([](LogFilter& f) { f.messageFilters[0].enable = false; }));
+    EXPECT_TRUE(changed([](LogFilter& f) { f.messageFilters.pop_back(); }));
+    EXPECT_TRUE(changed([](LogFilter& f) { f.processFilters.clear(); }));
+    EXPECT_TRUE((changed([](LogFilter& f) { std::swap(f.messageFilters[0], f.messageFilters[1]); }))); // the order can matter
 }
 
 // #278: undo and redo of changes of the filters
-BOOST_AUTO_TEST_CASE(UndoRedoStackTest)
+TEST(DebugViewPlusPlusTest, UndoRedoStackTest)
 {
     UndoRedoStack<std::string> history;
     std::string state = "none";
-    BOOST_TEST(!history.CanUndo());
-    BOOST_TEST(!history.CanRedo());
-    BOOST_TEST(!history.Undo(state)); // nothing to undo, nothing changes
-    BOOST_TEST(state == "none");
-    BOOST_TEST(!history.Redo(state));
+    EXPECT_FALSE(history.CanUndo());
+    EXPECT_FALSE(history.CanRedo());
+    EXPECT_FALSE(history.Undo(state)); // nothing to undo, nothing changes
+    EXPECT_EQ(state, "none");
+    EXPECT_FALSE(history.Redo(state));
 
     // three changes
     history.Push(state);
@@ -873,27 +868,27 @@ BOOST_AUTO_TEST_CASE(UndoRedoStackTest)
     state = "exclude A, include B, highlight C";
 
     // undo them one by one
-    BOOST_TEST(history.Undo(state));
-    BOOST_TEST(state == "exclude A, include B");
-    BOOST_TEST(history.Undo(state));
-    BOOST_TEST(state == "exclude A");
-    BOOST_TEST(history.CanRedo());
+    EXPECT_TRUE(history.Undo(state));
+    EXPECT_EQ(state, ("exclude A, include B"));
+    EXPECT_TRUE(history.Undo(state));
+    EXPECT_EQ(state, "exclude A");
+    EXPECT_TRUE(history.CanRedo());
 
     // and redo one
-    BOOST_TEST(history.Redo(state));
-    BOOST_TEST(state == "exclude A, include B");
+    EXPECT_TRUE(history.Redo(state));
+    EXPECT_EQ(state, ("exclude A, include B"));
 
     // a new change forgets what could be redone
     history.Push(state);
     state = "exclude A, include B, token D";
-    BOOST_TEST(!history.CanRedo());
-    BOOST_TEST(history.Undo(state));
-    BOOST_TEST(state == "exclude A, include B");
-    BOOST_TEST(history.Undo(state));
-    BOOST_TEST(state == "exclude A");
-    BOOST_TEST(history.Undo(state));
-    BOOST_TEST(state == "none");
-    BOOST_TEST(!history.CanUndo());
+    EXPECT_FALSE(history.CanRedo());
+    EXPECT_TRUE(history.Undo(state));
+    EXPECT_EQ(state, ("exclude A, include B"));
+    EXPECT_TRUE(history.Undo(state));
+    EXPECT_EQ(state, "exclude A");
+    EXPECT_TRUE(history.Undo(state));
+    EXPECT_EQ(state, "none");
+    EXPECT_FALSE(history.CanUndo());
 
     // only the last changes are remembered
     UndoRedoStack<int> limited(3);
@@ -908,98 +903,98 @@ BOOST_AUTO_TEST_CASE(UndoRedoStackTest)
     {
         ++undone;
     }
-    BOOST_TEST(undone == 3);
-    BOOST_TEST(value == 7); // the state before the last three changes
+    EXPECT_EQ(undone, 3);
+    EXPECT_EQ(value, 7); // the state before the last three changes
 
     history.Clear();
-    BOOST_TEST(!history.CanUndo());
+    EXPECT_FALSE(history.CanUndo());
 }
 
 // #368: the colors of the dark theme
-BOOST_AUTO_TEST_CASE(DarkThemeColors)
+TEST(DebugViewPlusPlusTest, DarkThemeColors)
 {
     auto brightness = [](COLORREF c) { return (GetRValue(c) * 299 + GetGValue(c) * 587 + GetBValue(c) * 114) / 1000; };
 
     // the light theme has the system colors, colors are not changed
     Colors::SetDarkTheme(false);
-    BOOST_TEST(!Colors::IsDarkTheme());
+    EXPECT_FALSE(Colors::IsDarkTheme());
     const COLORREF lightBackGround = Colors::BackGround;
     const COLORREF lightText = Colors::Text;
-    BOOST_TEST(lightBackGround == ::GetSysColor(COLOR_WINDOW));
-    BOOST_TEST(Colors::Adapt(RGB(200, 230, 250)) == RGB(200, 230, 250));
-    BOOST_TEST(Colors::TextOn(RGB(200, 230, 250)) == lightText);
+    EXPECT_EQ(lightBackGround, ::GetSysColor(COLOR_WINDOW));
+    EXPECT_EQ((Colors::Adapt(RGB(200, 230, 250))), (RGB(200, 230, 250)));
+    EXPECT_EQ((Colors::TextOn(RGB(200, 230, 250))), lightText);
 
     Colors::SetDarkTheme(true);
-    BOOST_TEST(Colors::IsDarkTheme());
-    BOOST_TEST(brightness(Colors::BackGround) < 80);
-    BOOST_TEST(brightness(Colors::Text) > 160);
-    BOOST_TEST(brightness(Colors::ItemHighlightText) > brightness(Colors::ItemHighlight)); // selected lines can be read
+    EXPECT_TRUE(Colors::IsDarkTheme());
+    EXPECT_LT(brightness(Colors::BackGround), 80);
+    EXPECT_GT(brightness(Colors::Text), 160);
+    EXPECT_GT(brightness(Colors::ItemHighlightText), brightness(Colors::ItemHighlight)); // selected lines can be read
 
     // light colors (random colors for processes and matches are light) are made dark, the text on them is light
     const COLORREF pastel = RGB(250, 240, 200);
     const COLORREF adapted = Colors::Adapt(pastel);
-    BOOST_TEST(brightness(adapted) < 120);
-    BOOST_TEST(GetRValue(adapted) > GetBValue(adapted)); // the hue is kept
-    BOOST_TEST(brightness(Colors::TextOn(adapted)) > 160);
+    EXPECT_LT(brightness(adapted), 120);
+    EXPECT_GT(GetRValue(adapted), GetBValue(adapted)); // the hue is kept
+    EXPECT_GT(brightness(Colors::TextOn(adapted)), 160);
 
     // the text color contrasts with the background, also for the colors that are not adapted (colors of filters)
-    BOOST_TEST(Colors::TextOn(RGB(255, 255, 200)) == RGB(0, 0, 0));
-    BOOST_TEST(brightness(Colors::TextOn(RGB(20, 20, 20))) > 200);
-    BOOST_TEST(brightness(Colors::TextOn(Colors::Highlight)) != brightness(Colors::Highlight)); // not unreadable
+    EXPECT_EQ((Colors::TextOn(RGB(255, 255, 200))), (RGB(0, 0, 0)));
+    EXPECT_GT((brightness(Colors::TextOn(RGB(20, 20, 20)))), 200);
+    EXPECT_NE(brightness(Colors::TextOn(Colors::Highlight)), brightness(Colors::Highlight)); // not unreadable
 
     // back to the system colors
     Colors::SetDarkTheme(false);
-    BOOST_TEST(Colors::BackGround == lightBackGround);
-    BOOST_TEST(Colors::Text == lightText);
+    EXPECT_EQ(Colors::BackGround, lightBackGround);
+    EXPECT_EQ(Colors::Text, lightText);
 }
 
 // sizes are scaled for the monitor (#321)
-BOOST_AUTO_TEST_CASE(DpiScaling)
+TEST(DebugViewPlusPlusTest, DpiScaling)
 {
-    BOOST_TEST(Win32::ScaleToDpi(16, 96) == 16); // 100%
-    BOOST_TEST(Win32::ScaleToDpi(16, 120) == 20); // 125%
-    BOOST_TEST(Win32::ScaleToDpi(16, 144) == 24); // 150%
-    BOOST_TEST(Win32::ScaleToDpi(100, 192) == 200); // 200%
-    BOOST_TEST(Win32::ScaleToDpi(0, 144) == 0);
+    EXPECT_EQ((Win32::ScaleToDpi(16, 96)), 16); // 100%
+    EXPECT_EQ((Win32::ScaleToDpi(16, 120)), 20); // 125%
+    EXPECT_EQ((Win32::ScaleToDpi(16, 144)), 24); // 150%
+    EXPECT_EQ((Win32::ScaleToDpi(100, 192)), 200); // 200%
+    EXPECT_EQ((Win32::ScaleToDpi(0, 144)), 0);
 
     // moving from one monitor to another, and back, gives the same size
-    BOOST_TEST(Win32::ScaleBetweenDpi(60, 96, 144) == 90);
-    BOOST_TEST(Win32::ScaleBetweenDpi(90, 144, 96) == 60);
-    BOOST_TEST(Win32::ScaleBetweenDpi(-12, 96, 144) == -18); // the height of a font is negative
-    BOOST_TEST(Win32::ScaleBetweenDpi(60, 0, 144) == 60); // an unknown DPI does not scale
+    EXPECT_EQ((Win32::ScaleBetweenDpi(60, 96, 144)), 90);
+    EXPECT_EQ((Win32::ScaleBetweenDpi(90, 144, 96)), 60);
+    EXPECT_EQ((Win32::ScaleBetweenDpi(-12, 96, 144)), -18); // the height of a font is negative
+    EXPECT_EQ((Win32::ScaleBetweenDpi(60, 0, 144)), 60); // an unknown DPI does not scale
 
     // there is always a DPI, also without a window
-    BOOST_TEST(Win32::GetDpiForWindow(nullptr) >= 48u);
-    BOOST_TEST(Win32::GetDpiForWindow(::GetDesktopWindow()) >= 48u);
+    EXPECT_GE(Win32::GetDpiForWindow(nullptr), 48u);
+    EXPECT_GE(Win32::GetDpiForWindow(::GetDesktopWindow()), 48u);
 }
 
 // SetPrivilege reports if the privilege could be changed, it is not an error when the token does not have the privilege (#412)
-BOOST_AUTO_TEST_CASE(SetPrivilegeReportsMissingPrivilege)
+TEST(DebugViewPlusPlusTest, SetPrivilegeReportsMissingPrivilege)
 {
     // every account has this privilege, and it is enabled by default
-    BOOST_TEST(Win32::SetPrivilege(SE_CHANGE_NOTIFY_NAME, true));
+    EXPECT_TRUE((Win32::SetPrivilege(SE_CHANGE_NOTIFY_NAME, true)));
 
     // only the system has this privilege, an administrator does not
-    BOOST_TEST(!Win32::SetPrivilege(SE_TCB_NAME, true));
+    EXPECT_FALSE((Win32::SetPrivilege(SE_TCB_NAME, true)));
 }
 
-BOOST_AUTO_TEST_CASE(HandleTest)
+TEST(DebugViewPlusPlusTest, HandleTest)
 {
     static const HANDLE nullHandle = nullptr;
 
     HANDLE rawHandle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
     Win32::Handle handle(rawHandle);
     {
-        BOOST_TEST(handle.get() == rawHandle);
+        EXPECT_EQ(handle.get(), rawHandle);
         Win32::Handle handle1(std::move(handle));
-        BOOST_TEST(handle.get() == nullHandle);
-        BOOST_TEST(handle1.get() == rawHandle);
+        EXPECT_EQ(handle.get(), nullHandle);
+        EXPECT_EQ(handle1.get(), rawHandle);
         {
             Win32::Handle handle2(std::move(handle1));
             handle2.release();
-            BOOST_TEST(handle2.get() == nullHandle);
+            EXPECT_EQ(handle2.get(), nullHandle);
         }
-        BOOST_TEST(handle1.get() == nullHandle);
+        EXPECT_EQ(handle1.get(), nullHandle);
     }
 
     {
@@ -1007,17 +1002,17 @@ BOOST_AUTO_TEST_CASE(HandleTest)
         {
             HANDLE zero = nullptr;
             Win32::Handle zeroHandle(zero);
-            BOOST_TEST(zeroHandle.get() == nullHandle);
+            EXPECT_EQ(zeroHandle.get(), nullHandle);
             handle1 = std::move(zeroHandle);
-            BOOST_TEST(zeroHandle.get() == nullHandle);
-            BOOST_TEST(handle1.get() == nullHandle);
+            EXPECT_EQ(zeroHandle.get(), nullHandle);
+            EXPECT_EQ(handle1.get(), nullHandle);
         }
         // this scope ensures having a Handle leave scope that had its guts ripped out by std::move
         // will not cause nullpointers or exeptions
     }
 }
 
-BOOST_AUTO_TEST_CASE(LineBufferTest1)
+TEST(DebugViewPlusPlusTest, LineBufferTest1)
 {
     TestLineBuffer buffer(64);
     FILETIME ft;
@@ -1027,24 +1022,24 @@ BOOST_AUTO_TEST_CASE(LineBufferTest1)
 
     auto lines = buffer.GetLines();
     auto& line = lines[0];
-    BOOST_TEST(line.time == 42.0);
-    BOOST_TEST(line.systemTime.dwLowDateTime == DWORD(42));
-    BOOST_TEST(line.systemTime.dwHighDateTime == DWORD(43));
-    BOOST_TEST(buffer.Empty());
+    EXPECT_EQ(line.time, 42.0);
+    EXPECT_EQ(line.systemTime.dwLowDateTime, DWORD(42));
+    EXPECT_EQ(line.systemTime.dwHighDateTime, DWORD(43));
+    EXPECT_TRUE(buffer.Empty());
 }
 
-BOOST_AUTO_TEST_CASE(LineBufferTest2) // test overflows boosttestui with log-output locking its GUI up temporarily
+TEST(DebugViewPlusPlusTest, LineBufferTest2) // this test overflows a GUI test runner with log-output, locking it up temporarily
 {
     TestLineBuffer buffer(600);
     Timer timer;
     std::cout << "LineBufferTest2 running..." << std::endl;
     for (int j = 0; j < 100; ++j)
     {
-        // BOOST_TEST_MESSAGE("j: " << j << "\n");
+        // SCOPED_TRACE(::testing::Message() << "j: " << j << "\n");
 
         for (int i = 0; i < 17; ++i)
         {
-            // BOOST_TEST_MESSAGE("i: " << i << "\n");
+            // SCOPED_TRACE(::testing::Message() << "i: " << i << "\n");
             FILETIME ft;
             ft.dwLowDateTime = 43;
             ft.dwHighDateTime = 44;
@@ -1052,17 +1047,17 @@ BOOST_AUTO_TEST_CASE(LineBufferTest2) // test overflows boosttestui with log-out
         }
 
         auto lines = buffer.GetLines();
-        BOOST_TEST(lines.size() == 17);
+        EXPECT_EQ(lines.size(), 17);
         for (auto& line : lines)
         {
-            BOOST_TEST(line.time == 42.0);
-            BOOST_TEST(line.systemTime.dwLowDateTime == DWORD(43));
-            BOOST_TEST(line.systemTime.dwHighDateTime == DWORD(44));
+            EXPECT_EQ(line.time, 42.0);
+            EXPECT_EQ(line.systemTime.dwLowDateTime, DWORD(43));
+            EXPECT_EQ(line.systemTime.dwHighDateTime, DWORD(44));
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
+TEST(DebugViewPlusPlusTest, IndexedStorageRandomAccess)
 {
     using namespace indexedstorage;
 
@@ -1086,10 +1081,10 @@ BOOST_AUTO_TEST_CASE(IndexedStorageRandomAccess)
             break;
         };
     }
-    BOOST_TEST(!failed);
+    EXPECT_FALSE(failed);
 }
 
-BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
+TEST(DebugViewPlusPlusTest, IndexedStorageCompression)
 {
     using namespace indexedstorage;
 
@@ -1110,7 +1105,7 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 
     size_t m1 = ProcessInfo::GetPrivateBytes();
     size_t usedByVector = m1 - m0;
-    BOOST_TEST_MESSAGE("VectorStorage requires: " << usedByVector / 1024 << " kB");
+    SCOPED_TRACE(::testing::Message() << "VectorStorage requires: " << usedByVector / 1024 << " kB");
 
     for (size_t i = 0; i < testSize; ++i)
         s.Add(GetTestString(i));
@@ -1118,13 +1113,13 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
     size_t m2 = ProcessInfo::GetPrivateBytes();
     size_t usedBySnappy = m2 - m1;
 
-    BOOST_TEST_MESSAGE("SnappyStorage requires: " << usedBySnappy / 1024 << " kB (" << (100 * usedBySnappy) / usedByVector << "%)");
-    BOOST_TEST(size_t(0.50 * usedByVector) > usedBySnappy);
+    SCOPED_TRACE(::testing::Message() << "SnappyStorage requires: " << usedBySnappy / 1024 << " kB (" << (100 * usedBySnappy) / usedByVector << "%)");
+    EXPECT_GT(size_t(0.50 * usedByVector), usedBySnappy);
 }
 
 // execute as:
-// "DebugView++Test.exe" --log_level=test_suite --run_test=*/LogSourcesReceiveMessages
-BOOST_AUTO_TEST_CASE(IndexedStorageDropFront)
+// "DebugviewppTest.exe" --gtest_filter=*LogSourcesReceiveMessages
+TEST(DebugViewPlusPlusTest, IndexedStorageDropFront)
 {
     using namespace indexedstorage;
     SnappyStorage storage;
@@ -1132,25 +1127,25 @@ BOOST_AUTO_TEST_CASE(IndexedStorageDropFront)
     {
         storage.Add(std::to_string(i));
     }
-    BOOST_TEST(storage[0] == "0"); // block 0 is the block that is read last, it must not be used after it was dropped
+    EXPECT_EQ(storage[0], "0"); // block 0 is the block that is read last, it must not be used after it was dropped
 
     // the block size is 400, so there are 2 complete blocks (0..799), the others are in the block that is being written
-    BOOST_TEST(storage.DropFront(100) == 0u);   // not a complete block
-    BOOST_TEST(storage.DropFront(500) == 400u); // one block
-    BOOST_TEST(storage[400] == "400");
-    BOOST_TEST(storage[799] == "799");
-    BOOST_TEST(storage[999] == "999");
+    EXPECT_EQ(storage.DropFront(100), 0u);   // not a complete block
+    EXPECT_EQ(storage.DropFront(500), 400u); // one block
+    EXPECT_EQ(storage[400], "400");
+    EXPECT_EQ(storage[799], "799");
+    EXPECT_EQ(storage[999], "999");
 
-    BOOST_TEST(storage.DropFront(100000) == 400u); // only the complete blocks that are left
-    BOOST_TEST(storage[800] == "800");
-    BOOST_TEST(storage[999] == "999");
+    EXPECT_EQ(storage.DropFront(100000), 400u); // only the complete blocks that are left
+    EXPECT_EQ(storage[800], "800");
+    EXPECT_EQ(storage[999], "999");
 
     // adding continues with the next index
-    BOOST_TEST(storage.Add("next") == 1000u);
-    BOOST_TEST(storage[1000] == "next");
+    EXPECT_EQ(storage.Add("next"), 1000u);
+    EXPECT_EQ(storage[1000], "next");
 }
 
-BOOST_AUTO_TEST_CASE(LogFileHistorySize)
+TEST(DebugViewPlusPlusTest, LogFileHistorySize)
 {
     FILETIME time = {};
 
@@ -1160,9 +1155,9 @@ BOOST_AUTO_TEST_CASE(LogFileHistorySize)
     {
         unlimited.Add(Message(i, time, 1, "process", std::to_string(i)));
     }
-    BOOST_TEST(unlimited.BeginIndex() == 0);
-    BOOST_TEST(unlimited.EndIndex() == 5000);
-    BOOST_TEST(unlimited.Count() == 5000);
+    EXPECT_EQ(unlimited.BeginIndex(), 0);
+    EXPECT_EQ(unlimited.EndIndex(), 5000);
+    EXPECT_EQ(unlimited.Count(), 5000);
 
     // with a history size the oldest messages are removed, the index of the others stays the same
     LogFile logFile;
@@ -1171,31 +1166,31 @@ BOOST_AUTO_TEST_CASE(LogFileHistorySize)
     {
         logFile.Add(Message(i, time, 1, "process", std::to_string(i)));
     }
-    BOOST_TEST(logFile.EndIndex() == 5000);
-    BOOST_TEST(logFile.Count() >= 1000);
-    BOOST_TEST(logFile.Count() < 1000 + 400); // messages are removed in blocks of 400
-    BOOST_TEST(logFile.BeginIndex() > 0);
-    BOOST_TEST(logFile.BeginIndex() == logFile.EndIndex() - logFile.Count());
-    BOOST_TEST(logFile[logFile.BeginIndex()].text == std::to_string(logFile.BeginIndex()));
-    BOOST_TEST(logFile[4999].text == "4999");
-    BOOST_TEST(logFile[4500].text == "4500");
+    EXPECT_EQ(logFile.EndIndex(), 5000);
+    EXPECT_GE(logFile.Count(), 1000);
+    EXPECT_LT(logFile.Count(), 1000 + 400); // messages are removed in blocks of 400
+    EXPECT_GT(logFile.BeginIndex(), 0);
+    EXPECT_EQ(logFile.BeginIndex(), logFile.EndIndex() - logFile.Count());
+    EXPECT_EQ(logFile[logFile.BeginIndex()].text, std::to_string(logFile.BeginIndex()));
+    EXPECT_EQ(logFile[4999].text, "4999");
+    EXPECT_EQ(logFile[4500].text, "4500");
 
     // a lower history size removes messages at once
     unlimited.SetHistorySize(500);
-    BOOST_TEST(unlimited.EndIndex() == 5000);
-    BOOST_TEST(unlimited.Count() >= 500);
-    BOOST_TEST(unlimited.Count() < 500 + 400);
-    BOOST_TEST(unlimited[4999].text == "4999");
+    EXPECT_EQ(unlimited.EndIndex(), 5000);
+    EXPECT_GE(unlimited.Count(), 500);
+    EXPECT_LT(unlimited.Count(), 500 + 400);
+    EXPECT_EQ(unlimited[4999].text, "4999");
 
     // Clear starts again
     logFile.Clear();
-    BOOST_TEST(logFile.BeginIndex() == 0);
-    BOOST_TEST(logFile.EndIndex() == 0);
+    EXPECT_EQ(logFile.BeginIndex(), 0);
+    EXPECT_EQ(logFile.EndIndex(), 0);
     logFile.Add(Message(0, time, 1, "process", "again"));
-    BOOST_TEST(logFile[0].text == "again");
+    EXPECT_EQ(logFile[0].text, "again");
 }
 
-BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
+TEST(DebugViewPlusPlusTest, LogSourcesReceiveMessages)
 {
     ActiveExecutorClient executor;
     LogSources logsources(executor, false);
@@ -1206,21 +1201,21 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
     logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 1");
     logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 2");
     logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "message 3");
-    BOOST_TEST_MESSAGE("3 lines added.");
+    SCOPED_TRACE("3 lines added.");
 
     Lines lines;
     executor.Call([&] { lines = logsources.GetLines(); });
-    BOOST_TEST_MESSAGE("received: " << lines.size() << " lines.");
+    SCOPED_TRACE(::testing::Message() << "received: " << lines.size() << " lines.");
 
-    BOOST_TEST(lines.size() == 3);
+    EXPECT_EQ(lines.size(), 3);
 
     for (auto& line : lines)
     {
-        BOOST_TEST_MESSAGE("line: " << line.message);
+        SCOPED_TRACE(::testing::Message() << "line: " << line.message);
     }
 
     const int testsize = 1000;
-    BOOST_TEST_MESSAGE("Write " << testsize << " lines...");
+    SCOPED_TRACE(::testing::Message() << "Write " << testsize << " lines...");
     for (int i = 0; i < testsize; ++i)
     {
         logsource->Add(timer.Get(), Win32::GetSystemTimeAsFileTime(), 0, "processname", "TESTSTRING 1234\n");
@@ -1229,11 +1224,11 @@ BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
     Lines morelines;
     executor.Call([&] { morelines = logsources.GetLines(); });
 
-    BOOST_TEST_MESSAGE("received: " << morelines.size() << " lines.");
-    BOOST_TEST(morelines.size() == testsize);
+    SCOPED_TRACE(::testing::Message() << "received: " << morelines.size() << " lines.");
+    EXPECT_EQ(morelines.size(), testsize);
 }
 
-BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
+TEST(DebugViewPlusPlusTest, LogSourcesCharacterPreservation)
 {
     ActiveExecutorClient executor;
     LogSources logsources(executor, false);
@@ -1246,12 +1241,12 @@ BOOST_AUTO_TEST_CASE(LogSourcesCharacterPreservation)
 
     Lines lines;
     executor.Call([&] { lines = logsources.GetLines(); });
-    BOOST_TEST(lines.size() == 2);
-    BOOST_TEST(lines[0].message == "TrailingSpace "); // space preserved
-    BOOST_TEST(lines[1].message == "TrailingTab\t");  // tab preserved
+    EXPECT_EQ(lines.size(), 2);
+    EXPECT_EQ(lines[0].message, "TrailingSpace "); // space preserved
+    EXPECT_EQ(lines[1].message, "TrailingTab\t");  // tab preserved
 }
 
-BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
+TEST(DebugViewPlusPlusTest, LogSourcesTabHandling)
 {
     ActiveExecutorClient executor;
     LogSources logsources(executor, false);
@@ -1264,12 +1259,12 @@ BOOST_AUTO_TEST_CASE(LogSourcesTabHandling)
 
     Lines lines;
     executor.Call([&] { lines = logsources.GetLines(); });
-    BOOST_TEST(lines.size() == 2);
-    BOOST_TEST(lines[0].message == "\tTabPrefix");         // space preserved
-    BOOST_TEST(lines[1].message == "\t\tTwoTabsPrefixed"); // space preserved
+    EXPECT_EQ(lines.size(), 2);
+    EXPECT_EQ(lines[0].message, "\tTabPrefix");         // space preserved
+    EXPECT_EQ(lines[1].message, "\t\tTwoTabsPrefixed"); // space preserved
 }
 
-BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
+TEST(DebugViewPlusPlusTest, LogSourcesNewLineHandling)
 {
     ActiveExecutorClient executor;
     LogSources logsources(executor, false);
@@ -1283,10 +1278,10 @@ BOOST_AUTO_TEST_CASE(LogSourcesNewLineHandling)
 
     Lines lines;
     executor.Call([&] { lines = logsources.GetLines(); });
-    BOOST_TEST(lines.size() == 3);
-    BOOST_TEST(lines[0].message == "NewLinePostfix");
-    BOOST_TEST(lines[1].message == "NewLineCarriageReturnPostfix");
-    BOOST_TEST(lines[2].message == "CarriageReturnNewLinePostfix");
+    EXPECT_EQ(lines.size(), 3);
+    EXPECT_EQ(lines[0].message, "NewLinePostfix");
+    EXPECT_EQ(lines[1].message, "NewLineCarriageReturnPostfix");
+    EXPECT_EQ(lines[2].message, "CarriageReturnNewLinePostfix");
 }
 
 std::wstring GetExecutePath()
@@ -1295,7 +1290,7 @@ std::wstring GetExecutePath()
     return path.remove_filename().c_str();
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceLoopback)
+TEST(DebugViewPlusPlusTest, LogSourceLoopback)
 {
     using namespace std::chrono_literals;
 
@@ -1319,7 +1314,7 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopback)
 
     // the DBWIN reader is active too, other programs may have written to the shared buffer: only count the messages of this test
     const auto count = std::count_if(lines.begin(), lines.end(), [](const Line& line) { return line.message.starts_with("Test message"); });
-    BOOST_TEST(count == 2);
+    EXPECT_EQ(count, 2);
 }
 
 // The DBWIN_BUFFER is shared by the whole machine, other programs (Teams, game launchers, ...) send their messages to it as well,
@@ -1330,12 +1325,12 @@ Lines OnlyFromProcess(Lines lines, DWORD pid)
     return lines;
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
+TEST(DebugViewPlusPlusTest, LogSourceDBWinReader)
 {
     using namespace std::chrono_literals;
 
     auto dbgMsgSrc = std::filesystem::path(GetExecutePath()) / "DbgMsgSrc.exe";
-    BOOST_TEST(std::filesystem::exists(dbgMsgSrc));
+    EXPECT_TRUE(std::filesystem::exists(dbgMsgSrc));
     auto executor = std::make_unique<ActiveExecutorClient>();
     Lines lines;
     DWORD pid = 0;
@@ -1352,10 +1347,10 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader)
     executor.reset();
 
     lines = OnlyFromProcess(std::move(lines), pid);
-    BOOST_TEST(lines.size() == 1);
+    EXPECT_EQ(lines.size(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLines)
+TEST(DebugViewPlusPlusTest, LogSourceDBWinReader150KLines)
 {
     using namespace std::chrono_literals;
 
@@ -1385,12 +1380,12 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLines)
         {
             std::print("'{}' is not '{}'\n", lines[i].message, message);
         }
-        BOOST_TEST(lines[i].message == message);
+        EXPECT_EQ(lines[i].message, message);
     }
-    BOOST_TEST(lines.size() == amountOfTestLines);
+    EXPECT_EQ(lines.size(), amountOfTestLines);
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLongerLines)
+TEST(DebugViewPlusPlusTest, LogSourceDBWinReader150KLongerLines)
 {
     using namespace std::chrono_literals;
 
@@ -1421,11 +1416,10 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReader150KLongerLines)
         {
             std::print("'{}' is not '{}'\n", lines[i].message, message);
         }
-        BOOST_TEST(lines[i].message == message);
+        EXPECT_EQ(lines[i].message, message);
     }
-    BOOST_TEST(lines.size() == amountOfTestLines);
+    EXPECT_EQ(lines.size(), amountOfTestLines);
 }
-
 
 std::string CreateTestFile()
 {
@@ -1500,12 +1494,12 @@ Lines WaitForLines(ActiveExecutorClient& executor, LogSources& logsources, size_
 
 // #401: a process that sends a message and terminates immediately is only recognizable by its commandline,
 // it is logged with the termination message.
-BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderLogsCommandLineOnTermination)
+TEST(DebugViewPlusPlusTest, LogSourceDBWinReaderLogsCommandLineOnTermination)
 {
     using namespace std::chrono_literals;
 
     auto dbgMsgSrc = std::filesystem::path(GetExecutePath()) / "DbgMsgSrc.exe";
-    BOOST_REQUIRE(std::filesystem::exists(dbgMsgSrc));
+    ASSERT_TRUE(std::filesystem::exists(dbgMsgSrc));
     auto executor = std::make_unique<ActiveExecutorClient>();
     std::string terminationMessage;
     {
@@ -1528,15 +1522,15 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderLogsCommandLineOnTermination)
     }
     executor.reset();
 
-    BOOST_TEST_MESSAGE(terminationMessage);
-    BOOST_TEST(terminationMessage.find("command line: ") != std::string::npos);
-    BOOST_TEST(terminationMessage.find("DbgMsgSrc.exe") != std::string::npos);
-    BOOST_TEST(terminationMessage.find(" -n") != std::string::npos);
+    SCOPED_TRACE(terminationMessage);
+    EXPECT_NE(terminationMessage.find("command line: "), std::string::npos);
+    EXPECT_NE(terminationMessage.find("DbgMsgSrc.exe"), std::string::npos);
+    EXPECT_NE(terminationMessage.find(" -n"), std::string::npos);
 }
 
 // #349: in session 0 (services) the local and the Global namespace are the same, so a second DBWinReader fails because
 // DBWIN_BUFFER already exists. The failure must not break the reader that exists already.
-BOOST_AUTO_TEST_CASE(LogSourceSecondDBWinReaderForSameNamespaceFails)
+TEST(DebugViewPlusPlusTest, LogSourceSecondDBWinReaderForSameNamespaceFails)
 {
     auto executor = std::make_unique<ActiveExecutorClient>();
     LogSources logsources(*executor, true);
@@ -1554,11 +1548,11 @@ BOOST_AUTO_TEST_CASE(LogSourceSecondDBWinReaderForSameNamespaceFails)
             failed = true;
         }
     });
-    BOOST_TEST(failed);
+    EXPECT_TRUE(failed);
 
     OutputDebugStringA("still received\n");
     auto lines = WaitForLines(*executor, logsources, 1);
-    BOOST_TEST(std::any_of(lines.begin(), lines.end(), [](const Line& line) { return line.message == "still received"; }));
+    EXPECT_TRUE((std::any_of(lines.begin(), lines.end(), [](const Line& line) { return line.message == "still received"; })));
     executor->Call([&] { logsources.Abort(); });
 }
 
@@ -1580,7 +1574,7 @@ int SendEnterToProcessReaders(ActiveExecutorClient& executor, LogSources& logsou
 }
 
 // #293: a process that waits for an Enter (or a batch file with 'pause') must be able to get one
-BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSendsEnterToStdin)
+TEST(DebugViewPlusPlusTest, LogSourceProcessReaderSendsEnterToStdin)
 {
     using namespace std::chrono_literals;
 
@@ -1591,7 +1585,7 @@ BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSendsEnterToStdin)
     // 'set /p' waits until a line is entered
     executor->Call([&] { logsources.AddProcessReader(L"cmd.exe", L"/Q /C \"set /p dummy=& echo got-the-enter\""); });
 
-    BOOST_TEST(SendEnterToProcessReaders(*executor, logsources) == 1);
+    EXPECT_EQ((SendEnterToProcessReaders(*executor, logsources)), 1);
 
     bool received = false;
     for (int attempt = 0; attempt < 40 && !received; ++attempt)
@@ -1601,12 +1595,12 @@ BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSendsEnterToStdin)
             received |= line.message.find("got-the-enter") != std::string::npos;
         }
     }
-    BOOST_TEST(received);
+    EXPECT_TRUE(received);
     executor->Call([&] { logsources.Abort(); });
 }
 
 // every Enter satisfies exactly one 'pause'
-BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSingleEnterSatisfiesSinglePause)
+TEST(DebugViewPlusPlusTest, LogSourceProcessReaderSingleEnterSatisfiesSinglePause)
 {
     using namespace std::chrono_literals;
 
@@ -1653,20 +1647,20 @@ BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSingleEnterSatisfiesSinglePause)
     auto sendEnter = [&] { return SendEnterToProcessReaders(*executor, logsources); };
 
     collect("start", 5s);
-    BOOST_TEST(hasMessage("start"));
-    BOOST_TEST(!hasMessage("after pause")); // waiting at the first pause
+    EXPECT_TRUE(hasMessage("start"));
+    EXPECT_FALSE(hasMessage("after pause")); // waiting at the first pause
 
     // the first Enter ends the first pause only
-    BOOST_TEST(sendEnter() == 1);
+    EXPECT_EQ(sendEnter(), 1);
     collect("after pause", 5s);
-    BOOST_TEST(hasMessage("after pause"));
+    EXPECT_TRUE(hasMessage("after pause"));
     collect("", 1500ms); // give it the chance to continue past the second pause, when it should not
-    BOOST_TEST(!hasMessage("got 2x enter"));
+    EXPECT_FALSE(hasMessage("got 2x enter"));
 
     // the second Enter ends the second pause
-    BOOST_TEST(sendEnter() == 1);
+    EXPECT_EQ(sendEnter(), 1);
     collect("got 2x enter", 5s);
-    BOOST_TEST(hasMessage("got 2x enter"));
+    EXPECT_TRUE(hasMessage("got 2x enter"));
 
     // the third ends the last pause, so the process ends
     sendEnter();
@@ -1674,7 +1668,7 @@ BOOST_AUTO_TEST_CASE(LogSourceProcessReaderSingleEnterSatisfiesSinglePause)
     executor->Call([&] { logsources.Abort(); });
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
+TEST(DebugViewPlusPlusTest, LogSourceDBWinReaderDelay)
 {
     using namespace std::chrono_literals;
 
@@ -1686,11 +1680,11 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
     executor->Call([&] { logsources.SetAutoNewLine(true); });
     DBWinReader* pReader = nullptr;
     executor->Call([&] { pReader = logsources.AddDBWinReader(false); });
-    BOOST_REQUIRE(pReader != nullptr);
+    ASSERT_NE(pReader, nullptr);
 
-    BOOST_TEST(pReader->GetDelay().count() == 0);
+    EXPECT_EQ(pReader->GetDelay().count(), 0);
     pReader->SetDelay(delay);
-    BOOST_TEST(pReader->GetDelay().count() == delay.count());
+    EXPECT_EQ(pReader->GetDelay().count(), delay.count());
 
     // OutputDebugString() can only deliver a message once the previous one is released by the reader, the first message
     // is not delayed, so N messages take at least (N - 1) delays.
@@ -1700,7 +1694,7 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
         OutputDebugStringA("delayed message\n");
     }
     const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
-    BOOST_TEST(elapsed.count() >= ((messageCount - 1) * delay - 10ms).count());
+    EXPECT_GE(elapsed.count(), ((messageCount - 1) * delay - 10ms).count());
 
     // the messages themselves are all delivered (other programs may send messages too, only count those of this process)
     Lines lines;
@@ -1709,18 +1703,18 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
         auto received = WaitForLines(*executor, logsources, 1, 100ms);
         lines.insert(lines.end(), received.begin(), received.end());
     }
-    BOOST_TEST(OnlyFromProcess(lines, ::GetCurrentProcessId()).size() == messageCount);
+    EXPECT_EQ((OnlyFromProcess(lines, ::GetCurrentProcessId()).size()), messageCount);
 
     // no delay: the sender is not slowed down anymore
     pReader->SetDelay(0ms);
-    BOOST_TEST(pReader->GetDelay().count() == 0);
+    EXPECT_EQ(pReader->GetDelay().count(), 0);
     const auto startUndelayed = std::chrono::steady_clock::now();
     for (int i = 0; i < messageCount; ++i)
     {
         OutputDebugStringA("undelayed message\n");
     }
     const auto elapsedUndelayed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startUndelayed);
-    BOOST_TEST(elapsedUndelayed.count() < ((messageCount - 1) * delay).count());
+    EXPECT_LT(elapsedUndelayed.count(), ((messageCount - 1) * delay).count());
     WaitForLines(*executor, logsources, messageCount);
 
     executor->Call([&] { logsources.Abort(); });
@@ -1728,7 +1722,7 @@ BOOST_AUTO_TEST_CASE(LogSourceDBWinReaderDelay)
 
 // A Dbgview agent can be specified by hostname as well as by IP address (#363), this fake agent implements just enough
 // of the protocol (answering the performance frequency request) for the reader to consider itself connected.
-BOOST_AUTO_TEST_CASE(LogSourceDbgviewReaderConnectsByHostname)
+TEST(DebugViewPlusPlusTest, LogSourceDbgviewReaderConnectsByHostname)
 {
     Win32::TcpListener acceptor(2020);
     std::thread agent([&] {
@@ -1776,10 +1770,10 @@ BOOST_AUTO_TEST_CASE(LogSourceDbgviewReaderConnectsByHostname)
     {
         connected |= line.message.find("Connected to Dbgview Agent at localhost") != std::string::npos;
     }
-    BOOST_TEST(connected);
+    EXPECT_TRUE(connected);
 }
 
-BOOST_AUTO_TEST_CASE(TcpStreamConnectsByNameAndExchangesData)
+TEST(DebugViewPlusPlusTest, TcpStreamConnectsByNameAndExchangesData)
 {
     Win32::TcpListener listener(2031);
     std::string received;
@@ -1793,34 +1787,34 @@ BOOST_AUTO_TEST_CASE(TcpStreamConnectsByNameAndExchangesData)
     });
 
     Win32::TcpStream client;
-    BOOST_TEST(client.Connect("localhost", 2031)); // a name, not an IP address
+    EXPECT_TRUE((client.Connect("localhost", 2031))); // a name, not an IP address
     client << "ping\n";
     std::string reply;
     std::getline(client, reply);
     server.join();
 
-    BOOST_TEST(received == "ping");
-    BOOST_TEST(reply == "pong");
+    EXPECT_EQ(received, "ping");
+    EXPECT_EQ(reply, "pong");
 
     // the server is gone: the end of the stream
     char c;
     client.read(&c, 1);
-    BOOST_TEST(client.eof());
+    EXPECT_TRUE(client.eof());
 }
 
-BOOST_AUTO_TEST_CASE(TcpStreamConnectFailureHasMessage)
+TEST(DebugViewPlusPlusTest, TcpStreamConnectFailureHasMessage)
 {
     Win32::TcpStream client;
-    BOOST_TEST(!client.Connect("127.0.0.1", 2032)); // nobody listens
-    BOOST_TEST(!client);
-    BOOST_TEST(!client.ErrorMessage().empty());
+    EXPECT_FALSE((client.Connect("127.0.0.1", 2032))); // nobody listens
+    EXPECT_FALSE(client);
+    EXPECT_FALSE(client.ErrorMessage().empty());
 
     Win32::TcpStream unknown;
-    BOOST_TEST(!unknown.Connect("no-such-host.invalid", 2032));
-    BOOST_TEST(!unknown.ErrorMessage().empty());
+    EXPECT_FALSE((unknown.Connect("no-such-host.invalid", 2032)));
+    EXPECT_FALSE(unknown.ErrorMessage().empty());
 }
 
-BOOST_AUTO_TEST_CASE(TcpStreamCloseWakesUpBlockedRead)
+TEST(DebugViewPlusPlusTest, TcpStreamCloseWakesUpBlockedRead)
 {
     using namespace std::chrono_literals;
 
@@ -1829,7 +1823,7 @@ BOOST_AUTO_TEST_CASE(TcpStreamCloseWakesUpBlockedRead)
     std::thread accepter([&] { listener.Accept(server); });
 
     Win32::TcpStream client;
-    BOOST_REQUIRE(client.Connect("127.0.0.1", 2033));
+    ASSERT_TRUE((client.Connect("127.0.0.1", 2033)));
     accepter.join();
 
     std::atomic<bool> readReturned{false};
@@ -1840,14 +1834,14 @@ BOOST_AUTO_TEST_CASE(TcpStreamCloseWakesUpBlockedRead)
     });
 
     std::this_thread::sleep_for(200ms);
-    BOOST_TEST(!readReturned);
+    EXPECT_FALSE(readReturned);
     client.Close();
     reader.join();
-    BOOST_TEST(readReturned);
-    BOOST_TEST(client.eof());
+    EXPECT_TRUE(readReturned);
+    EXPECT_TRUE(client.eof());
 }
 
-BOOST_AUTO_TEST_CASE(TcpListenerCloseWakesUpAccept)
+TEST(DebugViewPlusPlusTest, TcpListenerCloseWakesUpAccept)
 {
     Win32::TcpListener listener(2034);
     Win32::TcpStream stream;
@@ -1855,28 +1849,15 @@ BOOST_AUTO_TEST_CASE(TcpListenerCloseWakesUpAccept)
     std::thread accepter([&] { accepted = listener.Accept(stream); });
     listener.Close();
     accepter.join();
-    BOOST_TEST(!accepted);
+    EXPECT_FALSE(accepted);
 }
 
-BOOST_AUTO_TEST_CASE(SendBroadcastDoesNotThrow)
+TEST(DebugViewPlusPlusTest, SendBroadcastDoesNotThrow)
 {
-    BOOST_CHECK_NO_THROW(Win32::SendBroadcast(2035, "broadcast test\n"));
+    EXPECT_NO_THROW(Win32::SendBroadcast(2035, "broadcast test\n"));
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReader)
-{
-    using namespace std::chrono_literals;
-    auto executor = std::make_unique<ActiveExecutorClient>();
-    LogSources logsources(*executor, true);
-    auto filename = CreateTestFile();
-    executor->Call([&] { logsources.SetAutoNewLine(true); });
-    executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
-
-    auto lines = WaitForLines(*executor, logsources, 5);
-    BOOST_TEST(lines.size() == 5);
-}
-
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderResychronizeShrinkingFile)
+TEST(DebugViewPlusPlusTest, LogSourceAnyFileReader)
 {
     using namespace std::chrono_literals;
     auto executor = std::make_unique<ActiveExecutorClient>();
@@ -1886,14 +1867,27 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderResychronizeShrinkingFile)
     executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
 
     auto lines = WaitForLines(*executor, logsources, 5);
-    BOOST_TEST(lines.size() == 5);
+    EXPECT_EQ(lines.size(), 5);
+}
+
+TEST(DebugViewPlusPlusTest, LogSourceAnyFileReaderResychronizeShrinkingFile)
+{
+    using namespace std::chrono_literals;
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    auto filename = CreateTestFile();
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+    executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
+
+    auto lines = WaitForLines(*executor, logsources, 5);
+    EXPECT_EQ(lines.size(), 5);
 
     RemoveLinesFromFile(GetTestFileName(), 2);
     auto shrinkLines = WaitForLines(*executor, logsources, 1);
-    BOOST_TEST(shrinkLines.size() == 1);
+    EXPECT_EQ(shrinkLines.size(), 1);
     if (!shrinkLines.empty())
     {
-        BOOST_TEST(shrinkLines.at(0).message.find("file shrank") != std::string::npos);
+        EXPECT_NE(shrinkLines.at(0).message.find("file shrank"), std::string::npos);
     }
 
     AppendToTestFile();
@@ -1901,12 +1895,12 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderResychronizeShrinkingFile)
     AppendToTestFile();
 
     auto appendLines = WaitForLines(*executor, logsources, 3);
-    BOOST_TEST(appendLines.size() == 3);
+    EXPECT_EQ(appendLines.size(), 3);
 }
 
 // a file that is still empty (for example one that was just created by the program that is going to write to it) is
 // tailed until content appears, like any other file.
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFile)
+TEST(DebugViewPlusPlusTest, LogSourceAnyFileReaderEmptyFile)
 {
     using namespace std::chrono_literals;
 
@@ -1919,7 +1913,7 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFile)
     executor->Call([&] { logsources.SetAutoNewLine(true); });
     AnyFileReader* pReader = nullptr;
     executor->Call([&] { pReader = logsources.AddAnyFileReader(WStr(filename), true); });
-    BOOST_REQUIRE(pReader != nullptr);
+    ASSERT_NE(pReader, nullptr);
 
     // nothing to read yet
     std::this_thread::sleep_for(300ms);
@@ -1927,7 +1921,7 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFile)
     executor->Call([&] { lines = logsources.GetLines(); });
     for (const auto& line : lines)
     {
-        BOOST_TEST(line.message.find("Unable") == std::string::npos);
+        EXPECT_EQ(line.message.find("Unable"), std::string::npos);
     }
 
     {
@@ -1947,13 +1941,13 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFile)
     {
         messages.push_back(line.message);
     }
-    BOOST_TEST(std::count(messages.begin(), messages.end(), "first line") == 1);
-    BOOST_TEST(std::count(messages.begin(), messages.end(), "second line") == 1);
+    EXPECT_EQ((std::count(messages.begin(), messages.end(), "first line")), 1);
+    EXPECT_EQ((std::count(messages.begin(), messages.end(), "second line")), 1);
     executor->Call([&] { logsources.Abort(); });
 }
 
 // when the first line turns out to be the header of a DebugView++ logfile, the file is read as such
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFileBecomesDebugViewLogfile)
+TEST(DebugViewPlusPlusTest, LogSourceAnyFileReaderEmptyFileBecomesDebugViewLogfile)
 {
     using namespace std::chrono_literals;
 
@@ -1983,13 +1977,13 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFileBecomesDebugViewLogfile)
     {
         messages.push_back(line.message);
     }
-    BOOST_TEST(std::count(messages.begin(), messages.end(), "test message 1") == 1);
-    BOOST_TEST(std::count(messages.begin(), messages.end(), "test message 3") == 1);
-    BOOST_TEST(std::count(messages.begin(), messages.end(), "message 4 (zero time message)") == 1);
+    EXPECT_EQ((std::count(messages.begin(), messages.end(), "test message 1")), 1);
+    EXPECT_EQ((std::count(messages.begin(), messages.end(), "test message 3")), 1);
+    EXPECT_EQ((std::count(messages.begin(), messages.end(), "message 4 (zero time message)")), 1);
     // the header is not shown as a message
     for (const auto& message : messages)
     {
-        BOOST_TEST(message.find("File Identification Header") == std::string::npos);
+        EXPECT_EQ(message.find("File Identification Header"), std::string::npos);
     }
     executor->Call([&] { logsources.Abort(); });
 }
@@ -2002,7 +1996,7 @@ std::string GetTestFileAsString()
     return ss.str();
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte, *boost::unit_test::disabled())
+TEST(DebugViewPlusPlusTest, DISABLED_LogSourceAnyFileReaderRewriteByteByByte)
 {
     using namespace std::chrono_literals;
     auto executor = std::make_unique<ActiveExecutorClient>();
@@ -2015,7 +2009,7 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte, *boost::unit_test:
     {
         Lines lines;
         executor->Call([&] { lines = logsources.GetLines(); });
-        BOOST_TEST(lines.size() == 5);
+        EXPECT_EQ(lines.size(), 5);
     }
     auto content = GetTestFileAsString();
 
@@ -2041,16 +2035,16 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderRewriteByteByByte, *boost::unit_test:
     executor->Call([&] { lines = logsources.GetLines(); });
     for (auto& line : lines)
     {
-        BOOST_TEST(line.message.find("xception") == std::string::npos);
+        EXPECT_EQ(line.message.find("xception"), std::string::npos);
         // std::cout << line.message << std::endl;
     }
-    BOOST_TEST(lines.size() == 6);
-    BOOST_TEST(lines.at(0).message.back() == '0'); // line ends in '...offset 0'
-    BOOST_TEST(lines.at(1).message == "File Identification Header, DebugView++ Format Version 1");
-    BOOST_TEST(lines.at(2).message == "test message 1");
-    BOOST_TEST(lines.at(3).message == "test message 2");
-    BOOST_TEST(lines.at(4).message == "test message 3");
-    BOOST_TEST(lines.at(5).message == "message 4 (zero time message)");
+    EXPECT_EQ(lines.size(), 6);
+    EXPECT_EQ(lines.at(0).message.back(), '0'); // line ends in '...offset 0'
+    EXPECT_EQ(lines.at(1).message, ("File Identification Header, DebugView++ Format Version 1"));
+    EXPECT_EQ(lines.at(2).message, "test message 1");
+    EXPECT_EQ(lines.at(3).message, "test message 2");
+    EXPECT_EQ(lines.at(4).message, "test message 3");
+    EXPECT_EQ(lines.at(5).message, "message 4 (zero time message)");
 }
 
 std::string CreateAsciiTestFile()
@@ -2064,7 +2058,7 @@ std::string CreateAsciiTestFile()
     return filename;
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyLines)
+TEST(DebugViewPlusPlusTest, LogSourceAnyFileReaderEmptyLines)
 {
     using namespace std::chrono_literals;
     auto executor = std::make_unique<ActiveExecutorClient>();
@@ -2075,20 +2069,20 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyLines)
 
     {
         auto lines = WaitForLines(*executor, logsources, 4);
-        BOOST_TEST(lines.size() == 4);
-        BOOST_TEST(lines.at(0).message.find("tailing") != std::string::npos);
-        BOOST_TEST(lines.at(1).message.find("first") != std::string::npos);
-        BOOST_TEST(lines.at(2).message == "", "The expected newline is gone!");
-        BOOST_TEST(lines.at(3).message.find("last") != std::string::npos);
+        EXPECT_EQ(lines.size(), 4);
+        EXPECT_NE(lines.at(0).message.find("tailing"), std::string::npos);
+        EXPECT_NE(lines.at(1).message.find("first"), std::string::npos);
+        EXPECT_EQ(lines.at(2).message, "") << "The expected newline is gone!";
+        EXPECT_NE(lines.at(3).message.find("last"), std::string::npos);
         for (auto& line : lines)
         {
-            BOOST_TEST(line.message.find("xception") == std::string::npos);
+            EXPECT_EQ(line.message.find("xception"), std::string::npos);
             std::cout << line.message << std::endl;
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
+TEST(DebugViewPlusPlusTest, LogSourceLoopbackOrdering)
 {
     using namespace std::chrono_literals;
     auto executor = std::make_unique<ActiveExecutorClient>();
@@ -2102,13 +2096,13 @@ BOOST_AUTO_TEST_CASE(LogSourceLoopbackOrdering)
 
     auto lines = WaitForLines(*executor, logsources, 7);
 
-    BOOST_TEST(lines.at(0).message == "Loopback message 1");
-    BOOST_TEST(lines.at(1).message == "Loopback message 2");
-    BOOST_TEST(lines.at(2).message == "Loopback message 3");
-    BOOST_TEST(lines.at(3).message.find("tailing") != std::string::npos);
-    BOOST_TEST(lines.at(4).message.find("first") != std::string::npos);
-    BOOST_TEST(lines.at(5).message == "", "The expected newline is gone!");
-    BOOST_TEST(lines.at(6).message.find("last") != std::string::npos);
+    EXPECT_EQ(lines.at(0).message, "Loopback message 1");
+    EXPECT_EQ(lines.at(1).message, "Loopback message 2");
+    EXPECT_EQ(lines.at(2).message, "Loopback message 3");
+    EXPECT_NE(lines.at(3).message.find("tailing"), std::string::npos);
+    EXPECT_NE(lines.at(4).message.find("first"), std::string::npos);
+    EXPECT_EQ(lines.at(5).message, "") << "The expected newline is gone!";
+    EXPECT_NE(lines.at(6).message.find("last"), std::string::npos);
     for (auto& line : lines)
     {
         std::cout << line.message << std::endl;
@@ -2133,7 +2127,7 @@ std::string CreateUTF16LETestFile(int linecount)
     return filename;
 }
 
-BOOST_AUTO_TEST_CASE(LoadUTF16LE)
+TEST(DebugViewPlusPlusTest, LoadUTF16LE)
 {
     using namespace std::chrono_literals;
     auto executor = std::make_unique<ActiveExecutorClient>();
@@ -2154,14 +2148,12 @@ BOOST_AUTO_TEST_CASE(LoadUTF16LE)
     }
 
     // (lineCount + 1) because the first line looks like: "Started tailing ....txt identified as '...'
-    BOOST_TEST(totalLines == (lineCount + 1));
+    EXPECT_EQ(totalLines, (lineCount + 1));
 }
 
 #endif
 
 // add test simulating MFC application behaviour (pressing pause/unpause lots of times during significant incomming messages)
-
-BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace debugviewpp
 } // namespace fusion
