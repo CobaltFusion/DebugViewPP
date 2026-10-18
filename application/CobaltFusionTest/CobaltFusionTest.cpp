@@ -14,9 +14,11 @@
 
 #include <mutex>
 #include <thread>
+#include <atomic>
 #include <chrono>
 #include <random>
 #include "CobaltFusion/CircularBuffer.h"
+#include "CobaltFusion/Signal.h"
 #include "CobaltFusion/Throttle.h"
 #include "CobaltFusion/Timer.h"
 #include "CobaltFusion/stringbuilder.h"
@@ -356,6 +358,129 @@ BOOST_AUTO_TEST_CASE(ThrottleTest)
 BOOST_AUTO_TEST_CASE(TimerTest)
 {
     Timer t;
+}
+
+BOOST_AUTO_TEST_CASE(SignalCallsSlotsInConnectionOrder)
+{
+    Signal<void(int)> signal;
+    std::vector<int> calls;
+    signal.connect([&](int v) { calls.push_back(v * 10 + 1); });
+    signal.connect([&](int v) { calls.push_back(v * 10 + 2); });
+    signal.connect([&](int v) { calls.push_back(v * 10 + 3); });
+    signal(4);
+    BOOST_TEST((calls == std::vector<int>{41, 42, 43}));
+}
+
+BOOST_AUTO_TEST_CASE(SignalWithoutSlotsIsHarmless)
+{
+    Signal<void()> signal;
+    BOOST_TEST(signal.empty());
+    signal();
+
+    Signal<int()> withResult;
+    BOOST_TEST(withResult() == 0);
+}
+
+BOOST_AUTO_TEST_CASE(SignalReturnsTheResultOfTheLastSlot)
+{
+    Signal<bool()> signal;
+    signal.connect([] { return true; });
+    signal.connect([] { return false; });
+    BOOST_TEST(!signal());
+    signal.connect([] { return true; });
+    BOOST_TEST(signal());
+}
+
+BOOST_AUTO_TEST_CASE(SignalDisconnect)
+{
+    Signal<void()> signal;
+    int a = 0;
+    int b = 0;
+    auto ca = signal.connect([&] { ++a; });
+    signal.connect([&] { ++b; });
+    BOOST_TEST(ca.connected());
+
+    signal();
+    ca.disconnect();
+    BOOST_TEST(!ca.connected());
+    ca.disconnect(); // twice is fine
+    signal();
+
+    BOOST_TEST(a == 1);
+    BOOST_TEST(b == 2);
+
+    Connection none;
+    BOOST_TEST(!none.connected());
+    none.disconnect();
+}
+
+BOOST_AUTO_TEST_CASE(SignalDisconnectAllSlots)
+{
+    Signal<void()> signal;
+    int calls = 0;
+    auto c = signal.connect([&] { ++calls; });
+    signal.disconnect_all_slots();
+    signal();
+    BOOST_TEST(calls == 0);
+    BOOST_TEST(!c.connected());
+    BOOST_TEST(signal.empty());
+}
+
+BOOST_AUTO_TEST_CASE(SignalConnectionCanOutliveTheSignal)
+{
+    Connection c;
+    {
+        Signal<void()> signal;
+        c = signal.connect([] {});
+        BOOST_TEST(c.connected());
+    }
+    c.disconnect();
+    BOOST_TEST(!c.connected());
+}
+
+BOOST_AUTO_TEST_CASE(SignalSlotCanDisconnectItselfAndConnectOthers)
+{
+    Signal<void()> signal;
+    int first = 0;
+    int added = 0;
+    Connection self;
+    self = signal.connect([&] {
+        ++first;
+        self.disconnect();
+        signal.connect([&] { ++added; }); // takes effect from the next call
+    });
+
+    signal();
+    BOOST_TEST(first == 1);
+    BOOST_TEST(added == 0);
+    signal();
+    BOOST_TEST(first == 1);
+    BOOST_TEST(added == 1);
+}
+
+BOOST_AUTO_TEST_CASE(SignalConcurrentEmitAndConnect)
+{
+    Signal<void()> signal;
+    std::atomic<int> calls{0};
+    std::atomic<bool> stop{false};
+    signal.connect([&] { ++calls; });
+
+    std::thread emitter1([&] { while (!stop) { signal(); } });
+    std::thread emitter2([&] { while (!stop) { signal(); } });
+    std::thread connector([&] {
+        for (int i = 0; i < 2000; ++i)
+        {
+            auto c = signal.connect([&] { ++calls; });
+            c.disconnect();
+        }
+    });
+
+    connector.join();
+    stop = true;
+    emitter1.join();
+    emitter2.join();
+    BOOST_TEST(calls > 0);
+    BOOST_TEST(!signal.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
