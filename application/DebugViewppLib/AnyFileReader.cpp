@@ -16,7 +16,8 @@ namespace debugviewpp {
 AnyFileReader::AnyFileReader(Timer& timer, ILineBuffer& linebuffer, FileType::type filetype, const std::wstring& filename, bool keeptailing) :
     FileReader(timer, linebuffer, filetype, filename, keeptailing),
     m_linenumber(0),
-    m_filenameOnly(std::filesystem::path(m_filename).filename().wstring())
+    m_filenameOnly(std::filesystem::path(FileReader::m_filename).filename().wstring()),
+    m_fullFilename(filename)
 {
     StartThread();
 }
@@ -65,6 +66,15 @@ void AnyFileReader::AddLine(const std::string& data)
     switch (m_fileType)
     {
     case FileType::Unknown:
+        // the file was empty when it was opened, now that there is content the type can be identified.
+        // (a file that turns out to need a BinaryFileReader or can not be identified, is read as text)
+        m_fileType = IdentifyFile(m_fullFilename);
+        if (m_fileType == FileType::Unknown || IsBinaryFileType(m_fileType))
+        {
+            m_fileType = FileType::AsciiText;
+        }
+        --m_linenumber; // this line is counted again below
+        return AddLine(data);
     case FileType::AsciiText:
         return FileReader::AddLine(data);
     case FileType::Sysinternals:

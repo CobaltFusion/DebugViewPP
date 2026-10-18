@@ -509,17 +509,30 @@ BinaryFileReader* LogSources::AddBinaryFileReader(const std::wstring& filename)
     return pResult;
 }
 
+static bool IsEmptyFile(const std::wstring& filename)
+{
+    std::error_code ec;
+    const std::filesystem::path path(filename);
+    return std::filesystem::is_regular_file(path, ec) && !ec && std::filesystem::file_size(path, ec) == 0 && !ec;
+}
+
 AnyFileReader* LogSources::AddAnyFileReader(const std::wstring& filename, bool keeptailing)
 {
     assert(m_executor.IsExecutorThread());
     auto filetype = IdentifyFile(filename);
-    if (filetype == FileType::Unknown)
+    const bool waitForContent = filetype == FileType::Unknown && keeptailing && IsEmptyFile(filename);
+    if (filetype == FileType::Unknown && !waitForContent)
     {
         AddMessage(stringbuilder() << "Unable to open '" << filename << "'\n");
         return nullptr;
     }
 
-    if (keeptailing)
+    if (waitForContent)
+    {
+        // the type of the file can not be identified yet, the reader does that when the first line is written
+        AddMessage(stringbuilder() << "Started tailing " << filename << ", the file is empty, waiting for content\n");
+    }
+    else if (keeptailing)
     {
         AddMessage(stringbuilder() << "Started tailing " << filename << " identified as '" << FileTypeToString(filetype) << "'\n");
     }

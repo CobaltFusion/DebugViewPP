@@ -901,6 +901,96 @@ BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderResychronizeShrinkingFile)
     BOOST_TEST(appendLines.size() == 3);
 }
 
+// a file that is still empty (for example one that was just created by the program that is going to write to it) is
+// tailed until content appears, like any other file.
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFile)
+{
+    using namespace std::chrono_literals;
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    auto filename = GetTestFileName();
+    {
+        std::ofstream fs(filename, std::ofstream::trunc); // empty
+    }
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+    AnyFileReader* pReader = nullptr;
+    executor->Call([&] { pReader = logsources.AddAnyFileReader(WStr(filename), true); });
+    BOOST_REQUIRE(pReader != nullptr);
+
+    // nothing to read yet
+    std::this_thread::sleep_for(300ms);
+    Lines lines;
+    executor->Call([&] { lines = logsources.GetLines(); });
+    for (const auto& line : lines)
+    {
+        BOOST_TEST(line.message.find("Unable") == std::string::npos);
+    }
+
+    {
+        std::ofstream fs(filename, std::ofstream::app);
+        fs << "first line\n";
+        fs << "second line\n";
+    }
+
+    // the messages of the reader itself (started tailing... ) are part of the lines too
+    auto received = WaitForLines(*executor, logsources, 2);
+    std::vector<std::string> messages;
+    for (const auto& line : lines)
+    {
+        messages.push_back(line.message);
+    }
+    for (const auto& line : received)
+    {
+        messages.push_back(line.message);
+    }
+    BOOST_TEST(std::count(messages.begin(), messages.end(), "first line") == 1);
+    BOOST_TEST(std::count(messages.begin(), messages.end(), "second line") == 1);
+    executor->Call([&] { logsources.Abort(); });
+}
+
+// when the first line turns out to be the header of a DebugView++ logfile, the file is read as such
+BOOST_AUTO_TEST_CASE(LogSourceAnyFileReaderEmptyFileBecomesDebugViewLogfile)
+{
+    using namespace std::chrono_literals;
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    LogSources logsources(*executor, true);
+    auto filename = GetTestFileName();
+    {
+        std::ofstream fs(filename, std::ofstream::trunc); // empty
+    }
+    executor->Call([&] { logsources.SetAutoNewLine(true); });
+    executor->Call([&] { logsources.AddAnyFileReader(WStr(filename), true); });
+
+    CreateTestFile(); // writes a DebugView++ logfile, starting with the identification header, into the file
+
+    Lines lines;
+    auto hasLastMessage = [&] {
+        return std::any_of(lines.begin(), lines.end(), [](const Line& line) { return line.message == "message 4 (zero time message)"; });
+    };
+    for (int attempt = 0; attempt < 40 && !hasLastMessage(); ++attempt)
+    {
+        auto received = WaitForLines(*executor, logsources, 1, 100ms);
+        lines.insert(lines.end(), received.begin(), received.end());
+    }
+
+    std::vector<std::string> messages;
+    for (const auto& line : lines)
+    {
+        messages.push_back(line.message);
+    }
+    BOOST_TEST(std::count(messages.begin(), messages.end(), "test message 1") == 1);
+    BOOST_TEST(std::count(messages.begin(), messages.end(), "test message 3") == 1);
+    BOOST_TEST(std::count(messages.begin(), messages.end(), "message 4 (zero time message)") == 1);
+    // the header is not shown as a message
+    for (const auto& message : messages)
+    {
+        BOOST_TEST(message.find("File Identification Header") == std::string::npos);
+    }
+    executor->Call([&] { logsources.Abort(); });
+}
+
 std::string GetTestFileAsString()
 {
     std::ifstream file(GetTestFileName());

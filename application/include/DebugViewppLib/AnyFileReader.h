@@ -29,6 +29,7 @@ private:
     FILETIME m_firstFiletime;
     USTimeConverter m_converter;
     std::wstring m_filenameOnly;
+    std::wstring m_fullFilename; // including the path
 };
 
 } // namespace debugviewpp

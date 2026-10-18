@@ -5,6 +5,7 @@
 ## Debugview++ v1.22 (unreleased)
 
 - the whole message is shown in a tooltip when hovering the message column (fixes #372)
+- dropping an empty file on the window no longer fails, it is tailed until content appears.
 - the commandline of a process is logged with its 'has terminated' message (fixes #401), this needs Windows 8.1 or later.
 
 ## Debugview++ v1.21 (released 18 October 2026)
