@@ -6,6 +6,7 @@
 
 - the whole message is shown in a tooltip when hovering the message column (fixes #372)
 - dropping an empty file on the window no longer fails, it is tailed until content appears.
+- the history size (Log, History...) works: the oldest messages are removed when there are more, in blocks of 400, and the setting is remembered between runs (fixes #409)
 - pressing Enter in the log view sends an Enter to the stdin of the processes that DebugView++ is running (for batch files with 'pause', or programs that wait for Enter), (fixes #293)
 - the width and order of the columns, as changed by the user, are saved in the dbconf (and in the settings) and are kept when columns are shown or hidden (fixes #346)
 - DebugViewConsole (and DebugView++) can run as a windows service: in session 0 the global DBWIN_BUFFER is the same as the local one, so no second reader is created (fixes #349)

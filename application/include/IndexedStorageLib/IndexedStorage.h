@@ -39,6 +39,11 @@ public:
     [[nodiscard]] size_t Count() const;
     std::string operator[](size_t i);
 
+    // Frees the oldest strings to limit memory usage, the index of the other strings does not change. Strings are stored in
+    // compressed blocks, only complete blocks are freed. Returns the number of strings that were freed (a multiple of the block size,
+    // which is less than 'count' when that is not a multiple of it), the strings with an index lower than that are no longer available.
+    size_t DropFront(size_t count);
+
     [[nodiscard]] std::string Compress(const std::vector<std::string>& value) const;
     static std::vector<std::string> Decompress(const std::string& value);
     void shrink_to_fit();
@@ -48,6 +53,7 @@ private:
     static size_t GetRelativeIndex(size_t index);
     std::string GetString(size_t index);
 
+    size_t m_firstBlock = 0; // the blocks before this one were freed
     size_t m_writeBlockIndex = 0;
     size_t m_readBlockIndex = UNSET_VALUE;
     std::vector<std::string> m_readList;

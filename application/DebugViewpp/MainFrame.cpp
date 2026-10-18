@@ -467,7 +467,7 @@ SelectionInfo CMainFrame::GetLogFileRange() const
         return SelectionInfo();
     }
 
-    return SelectionInfo(0, m_logFile.Count() - 1, m_logFile.Count());
+    return SelectionInfo(m_logFile.BeginIndex(), m_logFile.EndIndex() - 1, m_logFile.Count());
 }
 
 void CMainFrame::UpdateStatusBar()
@@ -829,6 +829,7 @@ bool CMainFrame::LoadSettings()
     SetTitle();
 
     m_hide = Win32::RegGetDWORDValue(reg, L"Hide", 0) != 0;
+    m_logFile.SetHistorySize(static_cast<int>(Win32::RegGetDWORDValue(reg, L"HistorySize", 0))); // 0 is unlimited
 
     auto fontName = Win32::RegGetStringValue(reg, L"FontName", L"").substr(0, LF_FACESIZE - 1);
     int fontSize = Win32::RegGetDWORDValue(reg, L"FontSize", 8);
@@ -905,6 +906,7 @@ void CMainFrame::SaveSettings()
     reg.SetDWORDValue(L"AutoNewLine", static_cast<DWORD>(m_logSources.GetAutoNewLine()));
     reg.SetDWORDValue(L"AlwaysOnTop", static_cast<DWORD>(GetAlwaysOnTop()));
     reg.SetDWORDValue(L"Hide", static_cast<DWORD>(m_hide));
+    reg.SetDWORDValue(L"HistorySize", static_cast<DWORD>(m_logFile.GetHistorySize()));
 
     reg.SetStringValue(L"FontName", m_logfont.lfFaceName);
     reg.SetDWORDValue(L"FontSize", LogFontSizeToPointSize(m_logfont.lfHeight));
@@ -1073,8 +1075,8 @@ void CMainFrame::SaveLogFile(const std::wstring& filename)
 
     std::ofstream fs;
     OpenLogFile(fs, filename);
-    int count = m_logFile.Count();
-    for (int i = 0; i < count; ++i)
+    int count = m_logFile.EndIndex();
+    for (int i = m_logFile.BeginIndex(); i < count; ++i)
     {
         auto msg = m_logFile[i];
         WriteLogFileMessage(fs, msg.time, msg.systemTime, msg.processId, msg.processName, msg.text);
@@ -1943,9 +1945,9 @@ void CMainFrame::AddMessage(const Message& message)
         return;
     }
 
-    int beginIndex = m_logFile.BeginIndex();
     int index = m_logFile.EndIndex();
     m_logFile.Add(message);
+    int beginIndex = m_logFile.BeginIndex(); // the first message that is still available, adding a message can remove old ones (history size)
     int views = GetViewCount();
     for (int i = 0; i < views; ++i)
     {

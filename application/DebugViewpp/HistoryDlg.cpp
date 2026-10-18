@@ -68,8 +68,8 @@ void CHistoryDlg::OnCancel(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 
 void CHistoryDlg::OnOk(UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/)
 {
-    m_historySize = GetDlgItemInt(IDC_HISTORY);
-    //    m_unlimited = fusion::GetDlgItemText(*this, IDC_ARGUMENTS);
+    // 0 is unlimited, the value in the editbox is disabled and ignored then
+    m_historySize = m_unlimited ? 0 : static_cast<int>(GetDlgItemInt(IDC_HISTORY));
 
     EndDialog(nID);
 }

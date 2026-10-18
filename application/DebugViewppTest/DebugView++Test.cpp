@@ -437,6 +437,77 @@ BOOST_AUTO_TEST_CASE(IndexedStorageCompression)
 
 // execute as:
 // "DebugView++Test.exe" --log_level=test_suite --run_test=*/LogSourcesReceiveMessages
+BOOST_AUTO_TEST_CASE(IndexedStorageDropFront)
+{
+    using namespace indexedstorage;
+    SnappyStorage storage;
+    for (int i = 0; i < 1000; ++i)
+    {
+        storage.Add(std::to_string(i));
+    }
+    BOOST_TEST(storage[0] == "0"); // block 0 is the block that is read last, it must not be used after it was dropped
+
+    // the block size is 400, so there are 2 complete blocks (0..799), the others are in the block that is being written
+    BOOST_TEST(storage.DropFront(100) == 0u);   // not a complete block
+    BOOST_TEST(storage.DropFront(500) == 400u); // one block
+    BOOST_TEST(storage[400] == "400");
+    BOOST_TEST(storage[799] == "799");
+    BOOST_TEST(storage[999] == "999");
+
+    BOOST_TEST(storage.DropFront(100000) == 400u); // only the complete blocks that are left
+    BOOST_TEST(storage[800] == "800");
+    BOOST_TEST(storage[999] == "999");
+
+    // adding continues with the next index
+    BOOST_TEST(storage.Add("next") == 1000u);
+    BOOST_TEST(storage[1000] == "next");
+}
+
+BOOST_AUTO_TEST_CASE(LogFileHistorySize)
+{
+    FILETIME time = {};
+
+    // unlimited by default
+    LogFile unlimited;
+    for (int i = 0; i < 5000; ++i)
+    {
+        unlimited.Add(Message(i, time, 1, "process", std::to_string(i)));
+    }
+    BOOST_TEST(unlimited.BeginIndex() == 0);
+    BOOST_TEST(unlimited.EndIndex() == 5000);
+    BOOST_TEST(unlimited.Count() == 5000);
+
+    // with a history size the oldest messages are removed, the index of the others stays the same
+    LogFile logFile;
+    logFile.SetHistorySize(1000);
+    for (int i = 0; i < 5000; ++i)
+    {
+        logFile.Add(Message(i, time, 1, "process", std::to_string(i)));
+    }
+    BOOST_TEST(logFile.EndIndex() == 5000);
+    BOOST_TEST(logFile.Count() >= 1000);
+    BOOST_TEST(logFile.Count() < 1000 + 400); // messages are removed in blocks of 400
+    BOOST_TEST(logFile.BeginIndex() > 0);
+    BOOST_TEST(logFile.BeginIndex() == logFile.EndIndex() - logFile.Count());
+    BOOST_TEST(logFile[logFile.BeginIndex()].text == std::to_string(logFile.BeginIndex()));
+    BOOST_TEST(logFile[4999].text == "4999");
+    BOOST_TEST(logFile[4500].text == "4500");
+
+    // a lower history size removes messages at once
+    unlimited.SetHistorySize(500);
+    BOOST_TEST(unlimited.EndIndex() == 5000);
+    BOOST_TEST(unlimited.Count() >= 500);
+    BOOST_TEST(unlimited.Count() < 500 + 400);
+    BOOST_TEST(unlimited[4999].text == "4999");
+
+    // Clear starts again
+    logFile.Clear();
+    BOOST_TEST(logFile.BeginIndex() == 0);
+    BOOST_TEST(logFile.EndIndex() == 0);
+    logFile.Add(Message(0, time, 1, "process", "again"));
+    BOOST_TEST(logFile[0].text == "again");
+}
+
 BOOST_AUTO_TEST_CASE(LogSourcesReceiveMessages)
 {
     ActiveExecutorClient executor;

@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <algorithm>
 #include <vector>
 #include "IndexedStorageLib/IndexedStorage.h"
 #include "snappy.h"
@@ -61,6 +62,7 @@ void SnappyStorage::Clear()
     m_writeList.clear();
     m_writeList.shrink_to_fit();
     m_writeBlockIndex = 0;
+    m_firstBlock = 0;
 }
 
 size_t SnappyStorage::Add(const std::string& value)
@@ -110,10 +112,28 @@ std::string SnappyStorage::GetString(size_t index)
 
     if (blockId != m_readBlockIndex)
     {
-        m_readList = Decompress(m_storage[blockId]);
+        m_readList = Decompress(m_storage[blockId - m_firstBlock]);
         m_readBlockIndex = blockId;
     }
     return m_readList[id];
+}
+
+size_t SnappyStorage::DropFront(size_t count)
+{
+    const size_t blocks = std::min(count / blockSize, m_storage.size());
+    if (blocks == 0)
+    {
+        return 0;
+    }
+
+    m_storage.erase(m_storage.begin(), m_storage.begin() + static_cast<std::ptrdiff_t>(blocks));
+    m_firstBlock += blocks;
+    if (m_readBlockIndex != UNSET_VALUE && m_readBlockIndex < m_firstBlock)
+    {
+        m_readBlockIndex = UNSET_VALUE;
+        m_readList.clear();
+    }
+    return blocks * blockSize;
 }
 
 std::string SnappyStorage::Compress(const std::vector<std::string>& value) const

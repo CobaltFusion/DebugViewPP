@@ -1656,7 +1656,7 @@ const std::vector<ColumnInfo>& CLogView::GetColumns()
 
 void CLogView::Clear()
 {
-    m_firstLine = m_logFile.Count();
+    m_firstLine = m_logFile.EndIndex();
     SetItemCount(0);
     m_dirty = false;
     m_logLines.clear();
@@ -1693,6 +1693,20 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
         Clear();
     }
 
+    // The lines that were removed from the log file (history size) can not be shown anymore, this has to be done also
+    // when the message itself is not shown, or the lines would refer to messages that are no longer there.
+    auto it = m_logLines.begin();
+    while (it != m_logLines.end() && it->line < beginIndex)
+    {
+        ++it;
+    }
+    if (it != m_logLines.begin())
+    {
+        m_logLines.erase(m_logLines.begin(), it);
+        m_dirty = true;
+        m_changed = true;
+    }
+
     if (!IsIncluded(msg))
     {
         return;
@@ -1705,12 +1719,6 @@ void CLogView::Add(int beginIndex, int line, const Message& msg)
 
     m_dirty = true;
     m_changed = true;
-    auto it = m_logLines.begin();
-    while (it != m_logLines.end() && it->line < beginIndex)
-    {
-        ++it;
-    }
-    m_logLines.erase(m_logLines.begin(), it);
 
     int viewline = static_cast<int>(m_logLines.size());
 
@@ -2284,8 +2292,8 @@ void CLogView::ApplyFilters()
 
     std::deque<LogLine> logLines;
     //    logLines.reserve(m_logLines.size());
-    int count = m_logFile.Count();
-    int line = m_firstLine;
+    int count = m_logFile.EndIndex();
+    int line = std::max(m_firstLine, m_logFile.BeginIndex()); // lines can be removed because of the history size
     int item = 0;
     focusItem = -1;
     while (line < count)

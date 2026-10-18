@@ -33,10 +33,15 @@ public:
     void Clear();
     void Add(const Message& msg);
     void Append(const LogFile& logfile, int beginIndex, int endIndex);
+    // The index of a message does not change, when old messages are removed because of the history size the first index increases.
+    // The messages that are available have an index from BeginIndex() up to (not including) EndIndex()
     int BeginIndex() const;
     int EndIndex() const;
-    int Count() const;
+    int Count() const; // the number of messages that are available
     Message operator[](int i) const;
+
+    // the maximum number of messages to keep, 0 is unlimited. The oldest messages are removed in blocks, so up to a block of messages
+    // more than this can be kept, but never less (if there are as many).
     int GetHistorySize() const;
     void SetHistorySize(int size);
 
@@ -55,7 +60,10 @@ private:
         DWORD uid;
     };
 
+    void RemoveOldMessages();
+
     std::vector<InternalMessage> m_messages;
+    int m_firstIndex = 0; // the index of m_messages[0], the messages before it were removed
     ProcessInfo m_processInfo;
     mutable indexedstorage::SnappyStorage m_storage;
     //    indexedstorage::VectorStorage m_storage;

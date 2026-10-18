@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <algorithm>
 #include "DebugViewppLib/LogFile.h"
 #include "DebugViewppLib/FileIO.h"
 #include "DebugViewppLib/FileWriter.h"
@@ -23,7 +24,8 @@ void FileWriter::Run()
     int writeIndex = 0;
     for (;;)
     {
-        while (writeIndex < m_logfile.Count())
+        writeIndex = std::max(writeIndex, m_logfile.BeginIndex());
+        while (writeIndex < m_logfile.EndIndex())
         {
             auto msg = m_logfile[writeIndex];
             ++writeIndex;
