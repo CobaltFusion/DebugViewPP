@@ -32,6 +32,7 @@
 #include "DebugViewppLib/FileIO.h"
 #include "DebugViewppLib/Conversions.h"
 #include "CobaltFusion/scope_guard.h"
+#include "CobaltFusion/UndoRedoStack.h"
 
 namespace fusion {
 namespace debugviewpp {
@@ -284,6 +285,68 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
     BOOST_TEST(cut.size() == 1023);
     BOOST_TEST((cut.substr(cut.size() - 3) == L"..."));
     BOOST_TEST(cut.find(L'y') == 0);
+}
+
+// #278: undo and redo of changes of the filters
+BOOST_AUTO_TEST_CASE(UndoRedoStackTest)
+{
+    UndoRedoStack<std::string> history;
+    std::string state = "none";
+    BOOST_TEST(!history.CanUndo());
+    BOOST_TEST(!history.CanRedo());
+    BOOST_TEST(!history.Undo(state)); // nothing to undo, nothing changes
+    BOOST_TEST(state == "none");
+    BOOST_TEST(!history.Redo(state));
+
+    // three changes
+    history.Push(state);
+    state = "exclude A";
+    history.Push(state);
+    state = "exclude A, include B";
+    history.Push(state);
+    state = "exclude A, include B, highlight C";
+
+    // undo them one by one
+    BOOST_TEST(history.Undo(state));
+    BOOST_TEST(state == "exclude A, include B");
+    BOOST_TEST(history.Undo(state));
+    BOOST_TEST(state == "exclude A");
+    BOOST_TEST(history.CanRedo());
+
+    // and redo one
+    BOOST_TEST(history.Redo(state));
+    BOOST_TEST(state == "exclude A, include B");
+
+    // a new change forgets what could be redone
+    history.Push(state);
+    state = "exclude A, include B, token D";
+    BOOST_TEST(!history.CanRedo());
+    BOOST_TEST(history.Undo(state));
+    BOOST_TEST(state == "exclude A, include B");
+    BOOST_TEST(history.Undo(state));
+    BOOST_TEST(state == "exclude A");
+    BOOST_TEST(history.Undo(state));
+    BOOST_TEST(state == "none");
+    BOOST_TEST(!history.CanUndo());
+
+    // only the last changes are remembered
+    UndoRedoStack<int> limited(3);
+    int value = 0;
+    for (int i = 1; i <= 10; ++i)
+    {
+        limited.Push(value);
+        value = i;
+    }
+    int undone = 0;
+    while (limited.Undo(value))
+    {
+        ++undone;
+    }
+    BOOST_TEST(undone == 3);
+    BOOST_TEST(value == 7); // the state before the last three changes
+
+    history.Clear();
+    BOOST_TEST(!history.CanUndo());
 }
 
 // #368: the colors of the dark theme

@@ -138,6 +138,8 @@ BEGIN
             MENUITEM "Clear Bookmarks\tCtrl+Shift+F2", ID_VIEW_CLEAR_BOOKMARKS
         END
         MENUITEM "Filters...\tF5",              ID_VIEW_FILTER
+        MENUITEM "Undo Filter Change\tCtrl+Z",   ID_VIEW_FILTER_UNDO
+        MENUITEM "Redo Filter Change\tCtrl+Y",   ID_VIEW_FILTER_REDO
     END
     POPUP "Options"
     BEGIN
@@ -672,6 +674,8 @@ BEGIN
     ID_OPTIONS_HIDE         "Hide DebugView++ when it is minimized\nHide When Minimized"
     ID_OPTIONS_ALWAYSONTOP  "Keep DebugView++ window on top\nAlways On Top"
     ID_OPTIONS_DARKTHEME    "Use dark colors for the log\nDark Theme"
+    ID_VIEW_FILTER_UNDO     "Undo the last change of the filters of this view\nUndo Filter Change"
+    ID_VIEW_FILTER_REDO     "Redo the change of the filters that was undone\nRedo Filter Change"
 END
 
 STRINGTABLE

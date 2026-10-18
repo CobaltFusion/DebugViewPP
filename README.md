@@ -6,6 +6,7 @@
 
 - the whole message is shown in a tooltip when hovering the message column (fixes #372)
 - dropping an empty file on the window no longer fails, it is tailed until content appears.
+- changes of the filters of a view can be undone with Ctrl+Z and redone with Ctrl+Y (or Ctrl+Shift+Z) while the log has the focus, also in the View menu: adding a filter with Ctrl+E, Ctrl+I, Ctrl+H, Ctrl+K, excluding lines, adding process filters and the filter dialog (fixes #278)
 - documentation: [Views, filters and the log buffer](doc/views.md) explains what a view is, how filters apply to views (not to the memory buffer), and how reset view, reset to line and clear view work (fixes #316)
 - new: dark theme (Options, Dark Theme) for the log: dark background, text, selection and match colors, dark header and scrollbars and a dark title bar. It is remembered between runs. The menu, toolbar and status bar are drawn by Windows and keep their colors (fixes #368)
 - DebugView++ is per-monitor DPI aware: on a monitor with scaling (125%, 150%, ...) it is no longer stretched (blurry) by Windows, the font and columns are scaled and are scaled again when the window is moved to another monitor (fixes #321). The toolbar icons are not scaled yet.

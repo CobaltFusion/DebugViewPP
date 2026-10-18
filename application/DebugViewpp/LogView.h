@@ -8,6 +8,7 @@
 #include "atleverything.h"
 #include "Win32/Window.h"
 #include "Win32/Win32Lib.h"
+#include "CobaltFusion/UndoRedoStack.h"
 #include "CobaltFusion/AtlWinExt.h"
 #include "CobaltFusion/stringbuilder.h"
 #include "DebugViewppLib/LogFile.h"
@@ -159,6 +160,9 @@ public:
     void SetName(const std::wstring& name);
     void SetFont(HFONT hFont);
     void ApplyTheme(); // after the theme of the colors changed (Colors::SetDarkTheme)
+    // Undo and redo the changes of the filters of this view (adding filters with Ctrl+E, Ctrl+I, ..., and the filter dialog)
+    void UndoFilterChange();
+    void RedoFilterChange();
     // the window is on a monitor with another scaling, the columns have the same size relative to the font
     void OnDpiChanged(UINT oldDpi, UINT newDpi);
     bool GetAutoScroll() const;
@@ -348,6 +352,10 @@ private:
     std::wstring m_toolTipText; // the text the tooltip points to
     int m_toolTipItem = -1;
     bool m_darkThemeApplied = false;
+    UndoRedoStack<LogFilter> m_filterHistory;
+    void RememberFilters(); // call before the filters are changed
+    void OnViewFilterUndo(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void OnViewFilterRedo(UINT uNotifyCode, int nID, CWindow wndCtl);
     std::wstring m_dispInfoText;
     Win32::ComObjectPtr<DropTargetSupport> m_pDropTargetSupport;
 };

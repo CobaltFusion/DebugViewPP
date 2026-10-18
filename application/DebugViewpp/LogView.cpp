@@ -213,6 +213,8 @@ BEGIN_MSG_MAP2(CLogView)
     COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_TRACK, OnViewProcessTrack)
     COMMAND_ID_HANDLER_EX(ID_VIEW_PROCESS_ONCE, OnViewProcessOnce)
     COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_HIGHLIGHT, OnViewFilterHighlight)
+    COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_UNDO, OnViewFilterUndo)
+    COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_REDO, OnViewFilterRedo)
     COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_INCLUDE, OnViewFilterInclude)
     COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_EXCLUDE, OnViewFilterExclude)
     COMMAND_ID_HANDLER_EX(ID_VIEW_FILTER_TOKEN, OnViewFilterToken)
@@ -249,6 +251,22 @@ void CLogView::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
         {
             Copy();
         }
+    }
+    else if (nChar == 'Z' && ctrl)
+    {
+        // not an accelerator of the main window: that would also take Ctrl+Z from the Find box
+        if (shift)
+        {
+            RedoFilterChange();
+        }
+        else
+        {
+            UndoFilterChange();
+        }
+    }
+    else if (nChar == 'Y' && ctrl)
+    {
+        RedoFilterChange();
     }
     else if (nChar == VK_RETURN && m_mainFrame.SendEnterToProcesses())
     {
@@ -1336,6 +1354,10 @@ void CLogView::OnViewExcludeLines(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*w
 {
     auto messages = GetSelectedMessages();
     int size = std::min(100, static_cast<int>(messages.size()));
+    if (size > 0)
+    {
+        RememberFilters();
+    }
     for (int i = 0; i < size; ++i)
     {
         m_filter.messageFilters.emplace_back(messages[i], MatchType::Simple, FilterType::Exclude, RGB(255, 255, 255), RGB(0, 0, 0));
@@ -1439,6 +1461,10 @@ void CLogView::AddProcessFilter(FilterType::type filterType, COLORREF bgColor, C
         names.insert(m_logFile[m_logLines[item].line].processName);
     }
 
+    if (!names.empty())
+    {
+        RememberFilters();
+    }
     for (auto& name : names)
     {
         m_filter.processFilters.emplace_back(Str(name), MatchType::Simple, filterType, bgColor, fgColor);
@@ -1497,6 +1523,7 @@ void CLogView::AddMessageFilter(FilterType::type filterType, COLORREF bgColor, C
         return;
     }
 
+    RememberFilters();
     m_filter.messageFilters.emplace_back(Str(m_highlightText), MatchType::Simple, filterType, bgColor, fgColor);
     ApplyFilters();
 }
@@ -2280,8 +2307,46 @@ LogFilter CLogView::GetFilters() const
 void CLogView::SetFilters(const LogFilter& filter)
 {
     StopTracking();
+    RememberFilters();
     m_filter = filter;
     ApplyFilters();
+}
+
+void CLogView::RememberFilters()
+{
+    m_filterHistory.Push(m_filter);
+}
+
+void CLogView::UndoFilterChange()
+{
+    StopTracking();
+    if (!m_filterHistory.Undo(m_filter))
+    {
+        MessageBeep(MB_ICONASTERISK); // nothing to undo
+        return;
+    }
+    ApplyFilters();
+}
+
+void CLogView::RedoFilterChange()
+{
+    StopTracking();
+    if (!m_filterHistory.Redo(m_filter))
+    {
+        MessageBeep(MB_ICONASTERISK);
+        return;
+    }
+    ApplyFilters();
+}
+
+void CLogView::OnViewFilterUndo(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+    UndoFilterChange();
+}
+
+void CLogView::OnViewFilterRedo(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/)
+{
+    RedoFilterChange();
 }
 
 std::vector<int> CLogView::GetBookmarks() const
