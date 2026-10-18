@@ -4,6 +4,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <gtest/gtest.h>
+#include <atomic>
+#include <future>
 #include "CobaltFusion/GuiExecutor.h"
 
 using namespace std::chrono_literals;
@@ -51,6 +53,57 @@ TEST(TestExecutor, TestGuiExecutor)
     GuiWaitFor([&exec, &elapsed]() { return elapsed; });
 
     testThread.join();
+}
+
+// Calls that schedule themselves again (several chains of follow-up calls, like the updates of the log view) must not keep the GUI thread from
+// handling messages: DebugView++ froze for the duration of a flood of debug output because of that.
+TEST(TestExecutor, TestGuiExecutorSelfRenewingCallsDoNotStarveTheMessageLoop)
+{
+    GuiExecutor exec;
+    std::atomic<bool> stop{false};
+    std::atomic<bool> finished{false};
+
+    // 12 chains of 3 ms every 10 ms: there is always a call that is due
+    std::function<void()> chain = [&] {
+        std::this_thread::sleep_for(3ms);
+        if (!stop)
+        {
+            exec.CallAfter(10ms, chain);
+        }
+    };
+    for (int i = 0; i < 12; ++i)
+    {
+        exec.CallAfter(10ms, chain);
+    }
+
+    // a window of the GUI thread, the other thread sends it a message: that is only handled when the GUI thread gets back to its message loop
+    HWND window = CreateWindowExW(0, L"STATIC", L"", 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, nullptr, nullptr);
+    ASSERT_NE(window, nullptr);
+
+    std::chrono::milliseconds worst = 0ms;
+    std::thread testThread([&] {
+        std::this_thread::sleep_for(200ms);
+        for (int i = 0; i < 10; ++i)
+        {
+            const auto start = std::chrono::steady_clock::now();
+            DWORD_PTR result = 0;
+            if (SendMessageTimeoutW(window, WM_NULL, 0, 0, SMTO_NORMAL, 5000, &result) == 0)
+            {
+                worst = 5s; // starved, stop the chains so that the test can end
+                break;
+            }
+            worst = std::max(worst, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start));
+            std::this_thread::sleep_for(100ms);
+        }
+        stop = true;
+        exec.CallAsync([&] { finished = true; });
+    });
+
+    GuiWaitFor([&] { return finished.load(); });
+    testThread.join();
+    DestroyWindow(window);
+
+    EXPECT_LT(worst.count(), 500) << "the GUI thread did not handle a call for " << worst.count() << " ms";
 }
 
 void TestGuiExecutionOrderImpl(GuiExecutor& executor)

@@ -28,6 +28,10 @@ void DoCall(std::function<void()>&& fn)
     }
 }
 
+// The longest the GUI thread runs calls in a row before it goes back to its message loop. Calls that schedule themselves again, and
+// calls that take a while, can keep each other due for ever: without a limit the thread never handles a message (painting, input) again.
+constexpr std::chrono::milliseconds MaxRunTime(30);
+
 } // namespace
 
 GuiExecutorBase::~GuiExecutorBase() = default;
@@ -116,9 +120,15 @@ void GuiExecutor::OnMessage()
 {
     assert(IsExecutorThread());
 
+    const auto start = std::chrono::steady_clock::now();
     while (!m_q.Empty())
     {
         DoCall(m_q.Pop());
+        if (std::chrono::steady_clock::now() - start > MaxRunTime && !m_q.Empty())
+        {
+            m_wnd.Notify(); // continue from the message loop, after the messages that are waiting
+            break;
+        }
     }
 }
 
@@ -132,12 +142,18 @@ void GuiExecutor::ResetTimer()
     assert(IsExecutorThread());
 
     m_wnd.ClearTimer();
+    const auto start = std::chrono::steady_clock::now();
     while (!m_scheduledCalls.IsEmpty())
     {
         auto now = std::chrono::steady_clock::now();
         auto at = m_scheduledCalls.NextDeadline();
         if (at <= now)
         {
+            if (now - start > MaxRunTime)
+            {
+                m_wnd.SetTimerMs(1); // more calls are due, go back to the message loop first
+                break;
+            }
             DoCall(m_scheduledCalls.Pop().fn);
         }
         else
