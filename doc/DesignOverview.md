@@ -15,8 +15,7 @@ All infrastructure a 'debugview'-like application needs,
 but nothing UI-related,for example: filters, FileIO, PipeReader, LogSources
 
 4. Project **CobaltFusion**
-Anything that is reusable beyond DebugView and has no dependencies other then C++11
-(and boost while we are using vs2010)
+Anything that is reusable beyond DebugView and has no dependencies other then the C++ standard library (and Win32)
 
 5. Project **Win32Lib**
 Anything that is reusable beyond DebugView but is win32 specific 

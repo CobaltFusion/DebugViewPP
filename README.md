@@ -17,6 +17,9 @@
 - DebugViewConsole (and DebugView++) can run as a windows service: in session 0 the global DBWIN_BUFFER is the same as the local one, so no second reader is created (fixes #349)
 - the status bar shows 'Searching', 'Found' or 'Not found' for the text being searched, as soon as the search starts and ends (fixes #366)
 - the commandline of a process is logged with its 'has terminated' message (fixes #401), this needs Windows 8.1 or later.
+- boost is no longer used: the build does not download it any more (WTL and Snappy come from Nuget), the unit tests use GoogleTest, which CMake fetches when it configures the project.
+- configuration files are JSON: File, Save Configuration (.dbconf) and the filter files (Save Filter in the filter dialog) write JSON. Files written by older versions (XML, or the JSON of those versions) are still read: when they are loaded they are converted, the JSON gets the name of the file (a filter file x.xml becomes x.json) and the old file is kept next to it as x.dbconf.archived (or x.xml.archived), it is never deleted. A conversion that is not possible (read-only folder, x.json exists already) is reported and the file is loaded anyway. The registry settings are not changed.
+- fixed: 'DebugViewConsole -u' crashed, it has no argument, it sends a default test message now.
 
 ## Debugview++ v1.21 (released 18 October 2026)
 
@@ -291,8 +294,16 @@ This project has a special configuration:
 - 64bit debug/release configurations are targeted to v141, SDK v8.1 (runs on windows 7 and up)
 - only the release configurations also build the Wix installer
 
-The projects are configured to use Nuget to get there dependencies (boost and WTL)
+The projects are configured to use Nuget to get there dependencies (WTL and Snappy). The unit tests use [GoogleTest](https://github.com/google/googletest),
+CMake downloads it when it configures the project (a release tag, pinned in CMakeLists.txt), so the first configure needs internet access.
+[nlohmann/json](https://github.com/nlohmann/json) and [pugixml](https://pugixml.org) are included in application/Libraries.
 However, to build the installer you have to install [Wix Toolset manually](http://wixtoolset.org/)
+
+## Running the tests
+
+`ctest -C Release --output-on-failure` in the build directory runs the two test programs. A single test can be run with
+`bin\DebugviewppTest.exe --gtest_filter=*LogSourceLoopback*`, `--gtest_list_tests` lists them. The tests that read the debug output
+(DBWIN_BUFFER) share a buffer with the whole machine, so they can fail when another program is writing debug output at the same moment.
 
 ## cloning the GIT repository:
 
@@ -301,7 +312,7 @@ git clone --recurse-submodules https://github.com/CobaltFusion/DebugViewPP.git
 ```
 
 (don't forget to include --recurse-submodules, otherwise you will get an error message saying docopt.h is missing.)
-You press 'build' and visual studio will download boost and WTL the first time only and then build the project. It is as simple as that... if it is not, contact me (jan), so I can fix any remaining issues.
+You press 'build' and visual studio will download WTL the first time only and then build the project. It is as simple as that... if it is not, contact me (jan), so I can fix any remaining issues.
 
 Since we use ATL and support Windows XP still some extra installation options are required, verify that the following option are installed:
 
@@ -313,7 +324,6 @@ Since we use ATL and support Windows XP still some extra installation options ar
 # VS2019
 
 There are [known issues](https://twitter.com/janwilmans/status/1369956897726599176?s=20) with compilation using Visual Studio 2019 16.10.x (preview at March 11, 2021).
-Know good combinations are Boost 1.69 + Visual studio 2019 16.9.1. (I have seen problems with Asio in Boost 1.72 + Visual studio 2019 16.9.1 and Boost 1.72 + Visual studio 2019 16.10.x)
 
 -= Cobalt Fusion =-
 
