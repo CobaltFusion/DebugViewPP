@@ -1,5 +1,8 @@
 @echo off
 
+rem Every run raises the build number by one, unless the environment variable DEBUGVIEW_KEEP_BUILD_NUMBER is set (utils/release.py does that,
+rem it needs the exact version that is in version.h).
+
 echo UpdateBuildNr.cmd updating %1
 echo UpdateBuildNr.cmd updating %2
 
@@ -9,7 +12,8 @@ for /f "tokens=3,4,5,* delims=, " %%i in (%file%) do (
 	set major=%%i
 	set minor=%%j
 	set inc=%%k
-	set /a buildnr=%%l+1
+	set /a buildnr=%%l
+	if not defined DEBUGVIEW_KEEP_BUILD_NUMBER set /a buildnr=%%l+1
 	goto break
 )
 :break
