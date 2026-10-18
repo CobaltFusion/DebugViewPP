@@ -444,6 +444,57 @@ BOOST_AUTO_TEST_CASE(LegacyFilterFilesCanBeLoaded)
     }
 }
 
+BOOST_AUTO_TEST_CASE(FilterDataJsonRoundTrip)
+{
+    FilterData data;
+    data.name = "Überblick \"quoted\" 'single' <&>";
+    data.filter.messageFilters.push_back(MakeFilter("error", MatchType::Simple, FilterType::Include));
+    data.filter.messageFilters.push_back(MakeFilter("a\\d+ \"q\" &<>", MatchType::Regex, FilterType::Exclude, RGB(1, 2, 3), RGB(4, 5, 6), false));
+    data.filter.messageFilters.push_back(MakeFilter("auto", MatchType::RegexGroups, FilterType::Token, Colors::Auto, Colors::Auto));
+    data.filter.processFilters.push_back(MakeFilter("app.exe", MatchType::Wildcard, FilterType::Highlight, RGB(250, 240, 200), RGB(0, 0, 0)));
+
+    const auto text = FilterDataToJson(data);
+    const auto result = FilterDataFromJson(text);
+    BOOST_TEST(result.name == data.name);
+    BOOST_REQUIRE(result.filter.messageFilters.size() == 3);
+    BOOST_REQUIRE(result.filter.processFilters.size() == 1);
+    BOOST_TEST(SameDefinition(result.filter, data.filter));
+    BOOST_TEST(result.filter.messageFilters[2].bgColor == Colors::Auto);
+    BOOST_TEST(result.filter.messageFilters[2].fgColor == Colors::Auto);
+    BOOST_TEST(!result.filter.messageFilters[1].enable);
+    BOOST_TEST(result.filter.messageFilters[1].text == data.filter.messageFilters[1].text);
+
+    // every filter type and match type survives
+    FilterData all;
+    all.name = "all";
+    for (int f = 0; f <= FilterTypeToInt(FilterType::Bookmark); ++f)
+    {
+        all.filter.messageFilters.push_back(MakeFilter("x", IntToMatchType(f % 5), IntToFilterType(f)));
+    }
+    BOOST_TEST(all.filter.messageFilters.size() == 11);
+    BOOST_TEST(SameDefinition(FilterDataFromJson(FilterDataToJson(all)).filter, all.filter));
+}
+
+BOOST_AUTO_TEST_CASE(FilterDataJsonDefaultsAndErrors)
+{
+    // only the text and the types are required
+    const auto data = FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include"}]})");
+    BOOST_REQUIRE(data.filter.messageFilters.size() == 1);
+    BOOST_TEST(data.filter.messageFilters[0].enable);
+    BOOST_TEST(data.filter.messageFilters[0].bgColor == RGB(255, 255, 255));
+    BOOST_TEST(data.filter.messageFilters[0].fgColor == RGB(0, 0, 0));
+    BOOST_TEST(data.filter.processFilters.empty());
+
+    BOOST_CHECK_THROW(FilterDataFromJson(""), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromJson("[1,2]"), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromJson("{not json"), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromJson(R"({"version": 99, "name": "n"})"), std::runtime_error);
+    BOOST_CHECK_THROW(FilterDataFromJson(R"({"messageFilters": []})"), std::runtime_error); // no name
+    BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"matchType": "Simple", "filterType": "Include"}]})"), std::runtime_error); // no text
+    BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": {"text": "t"}})"), std::runtime_error); // not an array
+    BOOST_CHECK_THROW(FilterDataFromJson(R"({"name": "n", "messageFilters": [{"text": "t", "matchType": "Simple", "filterType": "Include", "backColor": {"r": 300, "g": 0, "b": 0}}]})"), std::runtime_error);
+}
+
 // the .dbconf files of the application: what is in them (the views, their filters and columns, the sources)
 BOOST_AUTO_TEST_CASE(LegacySessionFilesContent)
 {

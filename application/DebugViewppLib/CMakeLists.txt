@@ -15,6 +15,7 @@ add_library(${PROJECT_NAME}
     FileReader.cpp
     FileWriter.cpp
     Filter.cpp
+    FilterJson.cpp
     FilterType.cpp
     KernelReader.cpp
     Line.cpp
@@ -49,6 +50,7 @@ PRIVATE
     nuget::wtl
     dv::cobaltfusion
     dv::win32
+    dv::json
     winmm
 )
 

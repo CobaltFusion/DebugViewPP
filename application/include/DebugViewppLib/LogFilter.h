@@ -20,6 +20,12 @@ struct FilterData
 boost::property_tree::ptree MakePTree(const std::vector<Filter>& filters);
 std::vector<Filter> MakeFilters(const boost::property_tree::ptree& pt);
 
+// The JSON text of the filter file format (the version 2 format, see FilterJson.h):
+//   {"version": 2, "name": "...", "messageFilters": [ ... ], "processFilters": [ ... ]}
+// FilterDataFromJson throws std::runtime_error when the text is not valid, or was written by a newer version.
+std::string FilterDataToJson(const FilterData& data);
+FilterData FilterDataFromJson(const std::string& text);
+
 void SaveXml(const std::string& fileName, const std::string& name, const LogFilter& filter);
 void SaveJson(const std::string& fileName, const std::string& name, const LogFilter& filter);
 FilterData LoadXml(const std::string& fileName);
