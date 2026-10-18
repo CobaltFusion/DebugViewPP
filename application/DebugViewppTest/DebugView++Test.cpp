@@ -31,6 +31,7 @@
 #include "DebugViewppLib/LogFile.h"
 #include "DebugViewppLib/FileIO.h"
 #include "DebugViewppLib/Conversions.h"
+#include "DebugViewppLib/Filter.h"
 #include "CobaltFusion/scope_guard.h"
 #include "CobaltFusion/UndoRedoStack.h"
 
@@ -285,6 +286,39 @@ BOOST_AUTO_TEST_CASE(InfoTipText)
     BOOST_TEST(cut.size() == 1023);
     BOOST_TEST((cut.substr(cut.size() - 3) == L"..."));
     BOOST_TEST(cut.find(L'y') == 0);
+}
+
+// #284: a copy of a view can use the lines of the other view when the filters are the same
+BOOST_AUTO_TEST_CASE(FilterSameDefinition)
+{
+    LogFilter a;
+    a.messageFilters.push_back(Filter("error", MatchType::Simple, FilterType::Include));
+    a.messageFilters.push_back(Filter("noise.*", MatchType::Regex, FilterType::Exclude, RGB(1, 2, 3), RGB(4, 5, 6)));
+    a.processFilters.push_back(Filter("my.exe", MatchType::Simple, FilterType::Highlight, RGB(255, 0, 0), RGB(0, 0, 0)));
+
+    LogFilter same = a;
+    BOOST_TEST(SameDefinition(a, same));
+    BOOST_TEST(SameDefinition(LogFilter(), LogFilter()));
+
+    // the state of a filter is not a difference, it is not part of the definition
+    same.messageFilters[0].matched = true;
+    BOOST_TEST(SameDefinition(a, same));
+
+    // everything that decides what is shown or how is
+    auto changed = [&](auto modify) {
+        LogFilter b = a;
+        modify(b);
+        return !SameDefinition(a, b);
+    };
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[0].text = "errors"; }));
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[0].filterType = FilterType::Exclude; }));
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[1].matchType = MatchType::Simple; }));
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[1].bgColor = RGB(9, 9, 9); }));
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[1].fgColor = RGB(9, 9, 9); }));
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters[0].enable = false; }));
+    BOOST_TEST(changed([](LogFilter& f) { f.messageFilters.pop_back(); }));
+    BOOST_TEST(changed([](LogFilter& f) { f.processFilters.clear(); }));
+    BOOST_TEST(changed([](LogFilter& f) { std::swap(f.messageFilters[0], f.messageFilters[1]); })); // the order can matter
 }
 
 // #278: undo and redo of changes of the filters

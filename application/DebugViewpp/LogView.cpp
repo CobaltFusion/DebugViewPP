@@ -448,7 +448,15 @@ LRESULT CLogView::OnCreate(const CREATESTRUCT* /*pCreate*/)
 
     ApplyTheme(); // the view can be created when the dark theme is active
 
-    ApplyFilters();
+    if (m_linesCopied)
+    {
+        SetItemCountEx(static_cast<int>(m_logLines.size()), LVSICF_NOSCROLL);
+        EndUpdate();
+    }
+    else
+    {
+        ApplyFilters();
+    }
 
     m_pDropTargetSupport = Win32::CreateComObject<DropTargetSupport>();
     m_pDropTargetSupport->Register(*this);
@@ -2310,6 +2318,18 @@ void CLogView::SetFilters(const LogFilter& filter)
     RememberFilters();
     m_filter = filter;
     ApplyFilters();
+}
+
+// Filtering the whole log buffer is the expensive part of creating a view (every message is read and matched with every filter),
+// a copy of a view that has the same filters can have the result of that of the other view.
+void CLogView::CopyLinesFrom(const CLogView& source)
+{
+    ATLASSERT(&m_logFile == &source.m_logFile);
+    m_filter = source.m_filter; // with the state of the filters, for example if a 'once' filter matched already
+    m_matchColors = source.m_matchColors;
+    m_firstLine = source.m_firstLine;
+    m_logLines = source.m_logLines;
+    m_linesCopied = true;
 }
 
 void CLogView::RememberFilters()

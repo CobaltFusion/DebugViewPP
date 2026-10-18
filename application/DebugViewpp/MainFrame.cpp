@@ -1868,12 +1868,15 @@ void CMainFrame::OnViewDuplicate(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wn
         return;
     }
 
-    AddFilterView(dlg.GetName(), dlg.GetFilters());
-
-    // auto &view = GetView();
-    // auto newLogView = std::make_shared<CLogView>(view);        // no copy constructor available
-    // newLogView->SetName(view.GetName() + L" (copy)");
-    // AddFilterView(newLogView);
+    // The new view has to show the lines of the log buffer that match its filters. Filtering the log buffer takes time, if the
+    // filters are not changed in the dialog the lines of the view that is copied are used (#284).
+    auto& source = GetView();
+    auto copy = std::make_shared<CLogView>(dlg.GetName(), *this, m_logFile, dlg.GetFilters());
+    if (SameDefinition(dlg.GetFilters(), source.GetFilters()))
+    {
+        copy->CopyLinesFrom(source);
+    }
+    AddFilterView(copy);
 
     SaveSettings();
 }

@@ -3,6 +3,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <algorithm>
 #include <boost/algorithm/string/case_conv.hpp>
 #include "Win32/Registry.h"
 #include "CobaltFusion/stringbuilder.h"
@@ -109,6 +110,21 @@ void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg)
             Win32::RegGetDWORDValue(regFilter, L"FgColor", Colors::Text),
             Win32::RegGetDWORDValue(regFilter, L"Enable", 1) != 0));
     }
+}
+
+bool SameDefinition(const Filter& a, const Filter& b)
+{
+    return a.text == b.text && a.matchType == b.matchType && a.filterType == b.filterType && a.bgColor == b.bgColor && a.fgColor == b.fgColor && a.enable == b.enable;
+}
+
+bool SameDefinition(const std::vector<Filter>& a, const std::vector<Filter>& b)
+{
+    return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin(), [](const Filter& x, const Filter& y) { return SameDefinition(x, y); });
+}
+
+bool SameDefinition(const LogFilter& a, const LogFilter& b)
+{
+    return SameDefinition(a.messageFilters, b.messageFilters) && SameDefinition(a.processFilters, b.processFilters);
 }
 
 bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColors& matchColors)

@@ -44,6 +44,12 @@ struct LogFilter
 void SaveFilterSettings(const std::vector<Filter>& filters, CRegKey& reg);
 void LoadFilterSettings(std::vector<Filter>& filters, CRegKey& reg);
 
+// true if the filters are defined in the same way: the same text, types, colors and enabled state. The state of a filter (a 'once' filter that
+// matched already) and the compiled regular expression are not compared.
+bool SameDefinition(const Filter& a, const Filter& b);
+bool SameDefinition(const std::vector<Filter>& a, const std::vector<Filter>& b);
+bool SameDefinition(const LogFilter& a, const LogFilter& b);
+
 bool IsIncluded(std::vector<Filter>& filters, const std::string& text, MatchColors& matchColors);
 bool MatchFilterType(const std::vector<Filter>& filters, FilterType::type type, const std::string& text);
 

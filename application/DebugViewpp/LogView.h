@@ -160,6 +160,10 @@ public:
     void SetName(const std::wstring& name);
     void SetFont(HFONT hFont);
     void ApplyTheme(); // after the theme of the colors changed (Colors::SetDarkTheme)
+
+    // Makes this view show the same lines as the other view, without filtering the log buffer again, for a view that is a copy of the
+    // other (#284). Only for a view that has the same filters (and uses the same log file), call it before the window is created.
+    void CopyLinesFrom(const CLogView& source);
     // Undo and redo the changes of the filters of this view (adding filters with Ctrl+E, Ctrl+I, ..., and the filter dialog)
     void UndoFilterChange();
     void RedoFilterChange();
@@ -352,6 +356,7 @@ private:
     std::wstring m_toolTipText; // the text the tooltip points to
     int m_toolTipItem = -1;
     bool m_darkThemeApplied = false;
+    bool m_linesCopied = false; // the lines are copied from another view, they do not have to be filtered when the window is created
     UndoRedoStack<LogFilter> m_filterHistory;
     void RememberFilters(); // call before the filters are changed
     void OnViewFilterUndo(UINT uNotifyCode, int nID, CWindow wndCtl);
