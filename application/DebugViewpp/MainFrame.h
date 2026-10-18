@@ -99,6 +99,8 @@ public:
     void CapturePipe(HANDLE hPipe);
     void FindNext(const std::wstring& text);
     void FindPrevious(const std::wstring& text);
+    // shows 'Searching', 'Found' or 'Not found' followed by the text in the status bar, immediately (a search blocks the user interface)
+    void SetSearchStatus(const wchar_t* state, const std::wstring& text);
     void OnDropped(std::wstring uri);
 
     // Return the command which should be used to show the window, it is
@@ -211,6 +213,8 @@ private:
 
     CCommandBarCtrl m_cmdBar;
     CMultiPaneStatusBarCtrl m_statusBar;
+    std::wstring m_searchStatus;          // text of the default pane after a search, valid as long as the highlighted text is m_searchStatusHighlight
+    std::wstring m_searchStatusHighlight;
 
     LogFile m_logFile;
     std::unique_ptr<FileWriter> m_logWriter;

@@ -473,8 +473,24 @@ SelectionInfo CMainFrame::GetLogFileRange() const
 void CMainFrame::UpdateStatusBar()
 {
     auto isearch = GetView().GetHighlightText();
-    std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
-    UISetText(ID_DEFAULT_PANE, isearch.empty() ? (m_pLocalReader != nullptr ? L"Ready" : L"Paused") : search.c_str());
+    if (m_searchStatus.empty() || isearch != m_searchStatusHighlight)
+    {
+        // no search result to show, or the highlighted text was changed by something else
+        m_searchStatus.clear();
+        if (isearch.empty())
+        {
+            UISetText(ID_DEFAULT_PANE, m_pLocalReader != nullptr ? L"Ready" : L"Paused");
+        }
+        else
+        {
+            std::wstring search = wstringbuilder() << L"Searching: \"" << isearch << L"\"";
+            UISetText(ID_DEFAULT_PANE, search.c_str());
+        }
+    }
+    else
+    {
+        UISetText(ID_DEFAULT_PANE, m_searchStatus.c_str());
+    }
     UISetText(ID_SELECTION_PANE, GetSelectionInfoText(L"Selected", GetView().GetSelectedRange()).c_str());
     UISetText(ID_VIEW_PANE, GetSelectionInfoText(L"View", GetView().GetViewRange()).c_str());
     UISetText(ID_LOGFILE_PANE, GetSelectionInfoText(L"Log", GetLogFileRange()).c_str());
@@ -931,6 +947,15 @@ void CMainFrame::FindPrevious(const std::wstring& text)
     {
         MessageBeep(MB_ICONASTERISK);
     }
+}
+
+void CMainFrame::SetSearchStatus(const wchar_t* state, const std::wstring& text)
+{
+    m_searchStatus = wstringbuilder() << state << L": \"" << text << L"\"";
+    m_searchStatusHighlight = GetView().GetHighlightText();
+    UISetText(ID_DEFAULT_PANE, m_searchStatus.c_str());
+    UIUpdateStatusBar(TRUE);
+    m_statusBar.UpdateWindow(); // a search blocks the message loop, so make sure it is painted now
 }
 
 void CMainFrame::AddFilterView()

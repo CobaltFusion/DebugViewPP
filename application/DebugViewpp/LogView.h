@@ -298,7 +298,14 @@ private:
     template <typename Predicate>
     int FindLine(Predicate pred, int direction) const;
 
+    enum class FindResult
+    {
+        NotFound,
+        Found,
+        AlreadyThere // the only match is the focused line
+    };
     bool Find(std::wstring_view text, int direction);
+    FindResult DoFind(std::wstring_view text, int direction);
     bool FindProcess(int direction);
     void ApplyFilters();
     bool IsClearMessage(const Message& msg) const;

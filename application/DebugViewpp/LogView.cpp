@@ -1968,14 +1968,24 @@ int CLogView::FindLine(Predicate pred, int direction) const
     return -1;
 }
 
+// returns true if the text was found on another line, the status bar shows what is going on, because a search can take a while
 bool CLogView::Find(std::wstring_view text, int direction)
+{
+    const std::wstring searched(text);
+    m_mainFrame.SetSearchStatus(L"Searching", searched);
+    const auto result = DoFind(text, direction);
+    m_mainFrame.SetSearchStatus(result == FindResult::NotFound ? L"Not found" : L"Found", searched);
+    return result == FindResult::Found;
+}
+
+CLogView::FindResult CLogView::DoFind(std::wstring_view text, int direction)
 {
     StopTracking();
 
     int line = FindLine([text, this](const LogLine& line) { return Contains(m_logFile[line.line].text, Str(text)); }, direction);
     if (line < 0)
     {
-        return false;
+        return FindResult::NotFound;
     }
 
     bool sameLine = GetItemState(line, LVIS_FOCUSED) != 0;
@@ -1986,11 +1996,11 @@ bool CLogView::Find(std::wstring_view text, int direction)
 
     if (sameLine && text == m_highlightText)
     {
-        return false;
+        return FindResult::AlreadyThere;
     }
 
     SetHighlightText(text);
-    return true;
+    return FindResult::Found;
 }
 
 bool CLogView::FindNext(std::wstring_view text)
