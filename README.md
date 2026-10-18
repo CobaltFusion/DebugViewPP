@@ -2,7 +2,15 @@
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109524813797978857?domain=https%3A%2F%2Ftoot.community&style=social)
 [![Github Follow](https://img.shields.io/github/followers/janwilmans?style=social)](https://github.com/janwilmans)
 
-## Debugview++ v1.22 (unreleased)
+## Debugview++ v1.30
+
+- boost is no longer used: the build does not download it any more, the unit tests use GoogleTest (fetched by CMake when it configures)
+- the configuration (.dbconf) and the filter files are saved as JSON. Files of older versions (XML) are still read: they are converted when loaded and the old file is kept as `.archived`
+- fixed: the window froze while a large amount of debug output was received (2 million lines took 30 seconds), it responds immediately now
+- fixed: 'DebugViewConsole -u' crashed, it sends a default test message now
+- releases are made with utils/release.py (clean build, git tag, zip and GitHub release), see the top of the script
+
+## Debugview++ v1.22
 
 - the whole message is shown in a tooltip when hovering the message column (fixes #372)
 - dropping an empty file on the window no longer fails, it is tailed until content appears.
@@ -17,11 +25,8 @@
 - DebugViewConsole (and DebugView++) can run as a windows service: in session 0 the global DBWIN_BUFFER is the same as the local one, so no second reader is created (fixes #349)
 - the status bar shows 'Searching', 'Found' or 'Not found' for the text being searched, as soon as the search starts and ends (fixes #366)
 - the commandline of a process is logged with its 'has terminated' message (fixes #401), this needs Windows 8.1 or later.
-- boost is no longer used: the build does not download it any more (WTL and Snappy come from Nuget), the unit tests use GoogleTest, which CMake fetches when it configures the project.
-- configuration files are JSON: File, Save Configuration (.dbconf) and the filter files (Save Filter in the filter dialog) write JSON. Files written by older versions (XML, or the JSON of those versions) are still read: when they are loaded they are converted, the JSON gets the name of the file (a filter file x.xml becomes x.json) and the old file is kept next to it as x.dbconf.archived (or x.xml.archived), it is never deleted. A conversion that is not possible (read-only folder, x.json exists already) is reported and the file is loaded anyway. The registry settings are not changed.
-- fixed: 'DebugViewConsole -u' crashed, it has no argument, it sends a default test message now.
 
-## Debugview++ v1.21 (released 18 October 2026)
+## Debugview++ v1.21
 
 - new commandline argument /delay:<milliseconds> to deliberately slow down every process that calls OutputDebugString (fixes #400)
 - new: UTF-8 messages are decoded properly (falling back to the ANSI code page for invalid UTF-8) and a leading UTF-8 BOM is stripped, contributed by Shan Zhou (#425)
