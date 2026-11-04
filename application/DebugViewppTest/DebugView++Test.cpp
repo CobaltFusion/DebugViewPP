@@ -34,6 +34,7 @@
 #include "CobaltFusion/StringUtil.h"
 #include "DebugViewppLib/DbgviewReader.h"
 #include "Win32/TcpStream.h"
+#include "Win32/Socket.h"
 #include "DebugViewppLib/ConfigFile.h"
 #include "DebugViewppLib/LegacyConfig.h"
 #include "DebugViewppLib/Regex.h"
@@ -1980,6 +1981,43 @@ TEST(DebugViewPlusPlusTest, LogSourceDbgviewReaderConnectsByHostname)
         connected |= line.message.find("Connected to Dbgview Agent at localhost") != std::string::npos;
     }
     EXPECT_TRUE(connected);
+}
+
+// The receive buffer used to be 2000 bytes: a larger datagram failed the receive, and that ended the thread that reads all sources.
+TEST(DebugViewPlusPlusTest, LogSourceUdpReaderReceivesLargeDatagrams)
+{
+    const std::vector<size_t> sizes = {100, 2000, 2001, 10'000, 65'507}; // 65507 is the largest UDP datagram over IPv4
+
+    Win32::WinsockInitialization wsa;
+    auto sender = Win32::WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    sockaddr_in to = sockaddr_in();
+    to.sin_family = AF_INET;
+    to.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    to.sin_port = htons(2035);
+
+    auto executor = std::make_unique<ActiveExecutorClient>();
+    std::vector<size_t> received;
+    {
+        LogSources logsources(*executor, true);
+        executor->Call([&] { logsources.SetAutoNewLine(true); });
+        executor->Call([&] { logsources.AddUDPReader(2035); });
+        WaitForLines(*executor, logsources, 1); // "Source 'Listening at UDP port 2035' was added."
+
+        // one at a time, so the datagrams do not overflow the socket's receive buffer before they are read
+        for (auto size : sizes)
+        {
+            std::string message(size, 'x');
+            EXPECT_NE(::sendto(sender.get(), message.data(), static_cast<int>(message.size()), 0, reinterpret_cast<const sockaddr*>(&to), sizeof(to)), SOCKET_ERROR);
+            for (const auto& line : WaitForLines(*executor, logsources, 1))
+            {
+                received.push_back(line.message.size());
+            }
+        }
+        executor->Call([&] { logsources.Abort(); });
+    }
+    executor.reset();
+
+    EXPECT_EQ(received, sizes);
 }
 
 TEST(DebugViewPlusPlusTest, TcpStreamConnectsByNameAndExchangesData)
