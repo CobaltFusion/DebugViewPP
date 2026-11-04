@@ -31,7 +31,9 @@ private:
     Win32::WinsockInitialization m_wsa;
     Win32::Socket m_socket;
     Win32::Handle m_event;
-    std::array<char, 2000> m_buffer;
+    // room for the largest UDP datagram over IPv4 (65507 bytes): a datagram larger than the buffer fails the receive with WSAEMSGSIZE,
+    // which ends the thread that reads all sources
+    std::array<char, 65536> m_buffer;
     WSAOVERLAPPED m_overlapped = WSAOVERLAPPED();
     WSABUF m_wsaBuf[1]{};
     sockaddr_in m_from = sockaddr_in();
