@@ -201,7 +201,7 @@ void LogMessages(Settings settings)
                     std::cout << std::setw(5) << std::setfill('0') << linenumber << std::setfill(' ') << separator;
                 }
                 OutputDetails(settings, line);
-                std::cout << separator << line.message.c_str() << "\n";
+                std::cout << line.message.c_str() << "\n";
             }
             if (!settings.filename.empty())
             {
@@ -294,8 +294,8 @@ fusion::debugviewpp::Settings CreateSettings(const std::map<std::string, docopt:
     settings.verbose = args.at("-v").asBool();
     settings.linenumber = args.at("-l").asBool();
     settings.timestamp = args.at("-s").asBool();
-    settings.performanceCounter = args.at("-t").asBool();
-    settings.tabs = args.at("-q").asBool();
+    settings.performanceCounter = args.at("-q").asBool();
+    settings.tabs = args.at("-t").asBool();
     settings.pid = args.at("-p").asBool();
     settings.processName = args.at("-n").asBool();
     settings.include = args.at("--include").asStringList();
